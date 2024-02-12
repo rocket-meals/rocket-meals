@@ -6,6 +6,7 @@ export class CollectionHelper<CollectionScheme> {
     private collection: string;
     private client: (DirectusClient<CustomDirectusTypes> & RestClient<any>);
 
+    
     constructor(collection: string, client?: DirectusClient<CustomDirectusTypes> & RestClient<any>) {
         this.collection = collection;
         if(!client){
@@ -15,12 +16,24 @@ export class CollectionHelper<CollectionScheme> {
         }
     }
 
+    /**
+     * Get query with related fields.
+     * @param fields - Array of fields to include in the query.
+     * @returns Object containing the specified fields for the query.
+     */
     static getQueryWithRelatedFields(fields: string[]){
         return {
             fields: fields,
         };
     }
 
+    /**
+     * Get query with related fields and translations.
+     * 
+     * @param fields Optional array of fields.
+     * @throws {Error} If fields is not provided.
+     * @returns The query with related fields.
+     */
     static getQueryWithRelatedFieldsAndTranslations(fields?: string[]){
         if(!fields){
             fields = [];
@@ -32,6 +45,12 @@ export class CollectionHelper<CollectionScheme> {
 
 
 
+    /**
+     * Asynchronously reads items from the collection.
+     * @param query Optional query parameters.
+     * @returns A promise that resolves to an array of CollectionScheme objects.
+     * @throws Throws an error if there is an issue with the request or reading items.
+     */
     async readItems(query?: any) {
         return await this.client.request<CollectionScheme[]>(readItems(this.collection, query));
     }
