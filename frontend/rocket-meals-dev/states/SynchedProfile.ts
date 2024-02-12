@@ -16,6 +16,12 @@ import {useIsCurrentUserAnonymous} from "@/states/User";
 import {useIsServerOnline} from "@/states/SyncStateServerInfo";
 import {DirectusTranslationHelper} from "@/helper/translations/DirectusTranslationHelper";
 
+/**
+ * Loads the profile remotely for the given user.
+ * @param user The user for whom the profile is to be loaded.
+ * @throws If the user is not provided.
+ * @returns The profile data if available, otherwise undefined.
+ */
 export async function loadProfileRemote(user: DirectusUsers | undefined) {
     console.log("loadProfileRemote");
     console.log("user", user)
@@ -99,12 +105,22 @@ export function useNickname(): [string | undefined, ((newValue: string | undefin
     return [nickname, setNickname]
 }
 
+/**
+ * Retrieves the language code from the user's profile.
+ * @throws {Error} Throws an error if there is an issue retrieving the language code.
+ * @returns {string} The language code from the user's profile, or the default language code if not found.
+ */
 export function useProfileLanguageCode(){
     let default_language_code = DirectusTranslationHelper.DEFAULT_LANGUAGE_CODE;
     const [profile, setProfile] = useSynchedProfile();
     return profile?.language || default_language_code;
 }
 
+/**
+ * Returns a tuple containing the current canteen and a function to set a new canteen.
+ * @returns {[Canteens | undefined, ((newValue: Canteens) => void)]} - A tuple containing the current canteen and a function to set a new canteen.
+ * @throws {Error} - If an error occurs while setting the canteen.
+ */
 export function useSynchedProfileCanteen(): [Canteens | undefined, ((newValue: Canteens) => void)]{
     const [profile, setProfile] = useSynchedProfile();
     const [canteenDict, setCanteenDict] = useSynchedCanteensDict();
