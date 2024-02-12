@@ -13,6 +13,11 @@ export enum Custom_Wiki_Ids {
     accessibility = "accessibility",
 }
 
+/**
+ * Returns a tuple containing the synchronized wikis dictionary, a function to update the dictionary, and the timestamp of the last update.
+ * @returns {[(Record<string, Wikis> | undefined), ((newValue: Record<string, Wikis>, timestampe?: number) => void), (number | undefined)]} A tuple containing the synchronized wikis dictionary, a function to update the dictionary, and the timestamp of the last update.
+ * @throws {Error} Throws an error if there is an issue with synchronization.
+ */
 export function useSynchedWikisDict(): [(Record<string, Wikis> | undefined), ((newValue: Record<string, Wikis>, timestampe?: number) => void), (number | undefined)] {
   const [resourcesOnly, setResourcesOnly, resourcesRaw, setResourcesRaw] = useSynchedResourceRaw<Wikis>(PersistentStore.wikis);
   const demo = useIsDemo()
@@ -24,6 +29,13 @@ export function useSynchedWikisDict(): [(Record<string, Wikis> | undefined), ((n
   return [usedResources, setResourcesOnly, lastUpdate]
 }
 
+/**
+ * Returns a dictionary of Wikis synchronized by custom ID.
+ * 
+ * @returns Record<string, Wikis> - A dictionary where the keys are custom IDs and the values are Wikis.
+ * 
+ * @throws {Error} - If there is an issue with synchronizing the Wikis dictionary.
+ */
 export function useSynchedWikisDictByCustomId(): Record<string, Wikis> {
   const [wikis, setWikis, lastUpdate] = useSynchedWikisDict();
   let dictCustomIdToWiki: Record<string, Wikis> = {}
@@ -39,11 +51,22 @@ export function useSynchedWikisDictByCustomId(): Record<string, Wikis> {
     return dictCustomIdToWiki;
 }
 
+/**
+ * Retrieves a synchronized wiki by custom ID.
+ * @param customId The custom ID of the wiki to retrieve.
+ * @returns The synchronized wiki corresponding to the custom ID, or undefined if not found.
+ * @throws If the custom ID is not found in the synchronized wikis dictionary.
+ */
 export function useSynchedWikiByCustomId(customId: string): Wikis | undefined {
     const dictCustomIdToWiki = useSynchedWikisDictByCustomId()
     return dictCustomIdToWiki[customId]
 }
 
+/**
+ * Retrieves a record of demo wikis.
+ * @returns {Record<string, Wikis>} A record of demo wikis.
+ * @throws {Error} If there is an error retrieving the demo wikis.
+ */
 function getDemoWikis(): Record<string, Wikis> {
 
   let demoResource: Wikis = {
