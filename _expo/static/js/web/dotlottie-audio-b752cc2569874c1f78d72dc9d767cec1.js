@@ -22,4 +22,4 @@ __d((function(_g,_r,_i,_a,_m,_e,_d){Object.defineProperty(_e,"__esModule",{value
        *  MIT License
        *)
        */
-_e.DotLottieAudio=class{constructor({src:e}){this._howl=new t.Howl({src:e})}play(){return this._howl.play()}pause(){return this._howl.pause()}playing(){return this._howl.playing()}rate(){return this._howl.rate()}seek(){return this._howl.seek()}setVolume(){return this._howl.volume()}unload(){this._howl.unload()}}}),3591,[3103]);
+_e.DotLottieAudio=class{constructor({src:e}){this._howl=new t.Howl({src:e})}play(){return this._howl.play()}pause(){return this._howl.pause()}playing(){return this._howl.playing()}rate(){return this._howl.rate()}seek(){return this._howl.seek()}setVolume(){return this._howl.volume()}unload(){this._howl.unload()}}}),3595,[3102]);
