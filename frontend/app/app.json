@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Rocket Meals Demo",
-    "slug": "rocket-meals-dev",
+    "name": "SWOSY",
+    "slug": "rocket-meals-swosy",
     "version": "0.9.1",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
@@ -10,9 +10,9 @@
     },
     "updates": {
       "enabled": true,
-      "url": "https://u.expo.dev/36f72583-5997-4602-8609-05f39444f2e7"
+      "url": "https://u.expo.dev/64630663-d761-45fe-97f2-210f9461ee4e"
     },
-    "scheme": "app-rocket-meals",
+    "scheme": "app-rocket-meals-swosy",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",
@@ -67,15 +67,15 @@
         ]
       },
       "supportsTablet": true,
-      "bundleIdentifier": "de.baumgartner-software.rocket-meals-demo",
-      "buildNumber": "18"
+      "bundleIdentifier": "de.swosy.swosy",
+      "buildNumber": "30"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.baumgartnersoftware.rocketmealsdev",
+      "package": "de.swosy.swosy",
       "versionCode": 2
     },
     "web": {
@@ -127,14 +127,14 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "baseUrl": "/rocket-meals"
+      "baseUrl": "/swosy"
     },
     "extra": {
       "router": {
         "origin": false
       },
       "eas": {
-        "projectId": "36f72583-5997-4602-8609-05f39444f2e7"
+        "projectId": "64630663-d761-45fe-97f2-210f9461ee4e"
       }
     },
     "owner": "baumgartner-software",

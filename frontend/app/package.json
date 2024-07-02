@@ -1,6 +1,6 @@
 {
-  "name": "rocket-meals-dev",
-  "homepage": "/rocket-meals",
+  "name": "rocket-meals-swosy",
+  "homepage": "/swosy",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
