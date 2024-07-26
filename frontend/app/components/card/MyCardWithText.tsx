@@ -21,7 +21,16 @@ export const MyCardWithText = ({heading, text, ...props}: MyCardWithTextProps) =
 	const projectColor = useProjectColor();
 	const separatorColor = props.separatorColor || projectColor
 	const defaultViewBackgroundColor = useViewBackgroundColor()
-	let viewBackgroundColorForText = useLighterOrDarkerColorForSelection(defaultViewBackgroundColor)
+
+
+	let viewBackgroundColorForText = defaultViewBackgroundColor
+
+	let lighterOrDarkerDefaultBackgroundColor = useLighterOrDarkerColorForSelection(defaultViewBackgroundColor)
+	let textBoxColored = false;
+	if(textBoxColored){
+		viewBackgroundColorForText = lighterOrDarkerDefaultBackgroundColor
+	}
+
 	viewBackgroundColorForText = props.viewBackgroundColor || viewBackgroundColorForText
 	let textContrastColor = useMyContrastColor(viewBackgroundColorForText)
 	textContrastColor = props.textColor || textContrastColor
@@ -57,14 +66,28 @@ export const MyCardWithText = ({heading, text, ...props}: MyCardWithTextProps) =
 	}
 
 	renderedBottomComponent = (
-		<View style={{backgroundColor: viewBackgroundColorForText, width: '100%', height: '100%'}}>
+		<>
 			{renderedSeparator}
-			<VStack px={borderRaidus/2} pt={2} pb={borderRaidus/2}>
+			<View style={{backgroundColor: viewBackgroundColorForText, width: '100%', flexGrow: 1,
+				borderBottomWidth: 1,
+				borderLeftWidth: 1,
+				borderRightWidth: 1,
+				borderBottomEndRadius: borderRaidus,
+				borderBottomStartRadius: borderRaidus,
+				borderColor: lighterOrDarkerDefaultBackgroundColor,
+			}}>
+				<View style={{
+					// px is padding left and right, py is padding top and bottom
+					paddingHorizontal: borderRaidus/2, marginVertical: borderRaidus/2,
+				}}
+					//px={borderRaidus/2} pt={2} pb={borderRaidus/2}
+				>
 
-				{renderedHeading}
-				{renderedText}
-			</VStack>
-		</View>
+					{renderedHeading}
+					{renderedText}
+				</View>
+			</View>
+		</>
 	)
 
 	return (
