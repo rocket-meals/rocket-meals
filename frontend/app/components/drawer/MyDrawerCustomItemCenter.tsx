@@ -11,6 +11,7 @@ import {PlatformPressable} from "@react-navigation/elements";
 import {Platform, StyleProp, ViewStyle} from "react-native";
 import {Link} from "@react-navigation/native";
 import {MyLinkCustom, MyLinkDefault} from "@/components/link/MyLinkCustom";
+import {useMyContrastColor} from "@/helper/color/MyContrastColor";
 
 export type MyDrawerCustomItemProps = {
     label: string,
@@ -20,6 +21,7 @@ export type MyDrawerCustomItemProps = {
     onPressInternalRouteTo?: string, // TODO: check if we can use StaticRoutes or something like that?
     onPressExternalRouteTo?: string | undefined | null,
     drawerIcon?: (props: {focused: boolean, size: number, color: string}) => React.ReactNode,
+	drawerActiveBackgroundColor?: string,
     icon?: string,
     position?: number,
 	visibleInDrawer?: boolean | null | undefined,
@@ -112,14 +114,20 @@ export const MyDrawerCustomItemCenter = (customItem: MyDrawerCustomItemProps) =>
 	const translation_navigate_to = useTranslation(TranslationKeys.navigate_to)
 
 	const projectColor = useProjectColor()
+	let drawerActiveBackgroundColor = customItem.drawerActiveBackgroundColor || projectColor
+
 	const viewBackgroundColor = useViewBackgroundColor();
 
-	// @ts-ignore
-	let label = getMyDrawerItemLabel(customItem.label);
 	const drawer_item_accessibility_label = translation_navigate_to + ' ' + customItem.label
 	const key = customItem?.label
 	const isFocused = customItem.isFocused;
-	const backgroundColor = isFocused ? projectColor : viewBackgroundColor
+
+	const inactiveBackgroundColor = (viewBackgroundColor || drawerActiveBackgroundColor)
+	const backgroundColor = isFocused ? drawerActiveBackgroundColor : inactiveBackgroundColor
+	const backgroundContrastColor = useMyContrastColor(backgroundColor);
+	const inactiveTextColor = useMyContrastColor(inactiveBackgroundColor)
+
+	let label = getMyDrawerItemLabel(customItem.label, backgroundColor);
 
 	let onPress: any = undefined;
 	if (customItem.onPress) {
@@ -151,6 +159,19 @@ export const MyDrawerCustomItemCenter = (customItem: MyDrawerCustomItemProps) =>
 	}
 
 	return (
-		<DrawerItem to={to} accessibilityLabel={drawer_item_accessibility_label} label={label} key={key} focused={isFocused} onPress={onPress} style={{backgroundColor: backgroundColor}} icon={renderIcon}/>
+		<DrawerItem
+			activeTintColor={backgroundContrastColor}
+			activeBackgroundColor={backgroundColor}
+			inactiveBackgroundColor={inactiveBackgroundColor}
+			inactiveTintColor={inactiveTextColor}
+			to={to}
+			accessibilityLabel={drawer_item_accessibility_label}
+			label={label}
+			key={key}
+			focused={isFocused}
+			onPress={onPress}
+			//style={{backgroundColor: backgroundColor}}
+			icon={renderIcon}
+		/>
 	);
 }

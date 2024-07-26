@@ -8,6 +8,7 @@ import {DateHelper} from "@/helper/date/DateHelper";
 import {Text, View} from "@/components/Themed";
 import {MyScrollView} from "@/components/scrollview/MyScrollView";
 import {useModalGlobalContext} from "@/components/rootLayout/RootThemeProvider";
+import {useHousingAreaColor} from "@/states/SynchedAppSettings";
 
 export type FreeRoomBadgeProps = {
 	apartment: Apartments,
@@ -17,6 +18,8 @@ export const FreeRoomBadge = ({apartment, borderRadius}: FreeRoomBadgeProps) => 
 	const translation_free_rooms = useTranslation(TranslationKeys.free_rooms);
 	const locale = useProfileLocaleForJsDate()
 	const [modalConfig, setModalConfig] = useModalGlobalContext();
+
+	const housingAreaColor = useHousingAreaColor();
 
 	let available_from = apartment.available_from;
 	let available_from_date = available_from ? new Date(available_from) : new Date();
@@ -56,6 +59,7 @@ export const FreeRoomBadge = ({apartment, borderRadius}: FreeRoomBadgeProps) => 
 
 	return 	<>
 		<MyButton
+			backgroundColor={housingAreaColor}
 			isActive={true}
 			borderRadius={borderRadius}
 			onPress={onPress}

@@ -1,5 +1,5 @@
 import React, {ReactNode} from 'react';
-import {useViewBackgroundColor, View} from '@/components/Themed';
+import {useViewBackgroundColor, View, Text} from '@/components/Themed';
 import {useInsets, useIsLargeDevice} from '@/helper/device/DeviceHelper';
 import {Drawer} from 'expo-router/drawer';
 import {ProjectBanner} from '@/components/project/ProjectBanner';
@@ -11,8 +11,8 @@ import {TranslationKeys, useTranslation} from '@/helper/translations/Translation
 import {
 	DrawerConfigPosition,
 	useDrawerPosition,
-	useIsFullscreenModeFromSearchParam,
-	useIsDrawerPermanentVisible
+	useIsDrawerPermanentVisible,
+	useIsFullscreenModeFromSearchParam
 } from '@/states/DrawerSyncConfig';
 import {DrawerContentComponentProps} from '@react-navigation/drawer/src/types';
 import {getMyDrawerItemIcon} from '@/components/drawer/MyDrawerItemIcon';
@@ -20,16 +20,20 @@ import {MyDrawerCustomItemProps} from '@/components/drawer/MyDrawerCustomItemCen
 import {getMyScreenHeader} from '@/components/drawer/MyScreenHeader';
 import {getMyDrawerItemsBottom, getMyDrawerItemsCenter} from '@/components/drawer/MyDrawerItems';
 import {MyDrawerSafeAreaView} from '@/components/drawer/MyDrawerSafeAreaView';
-import {DrawerHeaderProps} from '@react-navigation/drawer';
+import {DrawerHeaderProps, useDrawerStatus} from '@react-navigation/drawer';
 import {IconNames} from '@/constants/IconNames';
 import {ProjectBackgroundImage} from '@/components/project/ProjectForegroundImage';
 import {MyScrollView} from "@/components/scrollview/MyScrollView";
+import {PlatformHelper} from "@/helper/PlatformHelper";
+import {DrawerStatus} from "@react-navigation/native";
+import InaccessibleAndHidden from "@/helper/accessibility/InaccessableAndHidden";
 
 export type MyDrawerItemProps = {
     routeName: string;
     label: string;
     title: string;
     icon: string | undefined | null;
+	color?: string | undefined | null;
     visibleInDrawer?: boolean | null | undefined;
 	showBackButton?: boolean | null | undefined;
     getHeader?: ((props: DrawerHeaderProps) => ReactNode) | undefined | null;
@@ -43,7 +47,11 @@ export function useDrawerActiveBackgroundColor(): string {
 // Function to render individual screens within the Drawer navigation.
 // It dynamically sets the drawer's appearance based on the current project color.
 export function useRenderMyDrawerScreen({...props}: MyDrawerItemProps) {
-	const drawerActiveBackgroundColor = useDrawerActiveBackgroundColor(); // Fetch the current project color for use in styling.
+	let drawerActiveBackgroundColor = useDrawerActiveBackgroundColor(); // Fetch the current project color for use in styling.
+	if(props.color){
+		drawerActiveBackgroundColor = props.color
+	}
+
 	return renderMyDrawerScreen({...props}, drawerActiveBackgroundColor); // Render the drawer screen with the current project color.
 }
 
@@ -135,6 +143,18 @@ export const MyDrawer = (props: MyDrawerProps) => {
 	const drawerWidth = useDrawerWidth(); // Calculate the dynamic width of the drawer.
 	const [drawerPosition, setDrawerPosition] = useDrawerPosition(); // Get and set the current drawer position.
 
+	const drawerTypeDefaultIOS = 'front'; // Default drawer type for iOS devices is 'slide' but we think thats ugly. We will use front
+	const drawerTypeDefaultAndroid = 'front'; // Default drawer type for Android devices.
+	const drawerTypeDefaultWeb = 'front'; // Default drawer type for web browsers.
+
+	let drawerTypeDefault = PlatformHelper.getPlatformDependentValue(drawerTypeDefaultWeb, drawerTypeDefaultIOS, drawerTypeDefaultAndroid, drawerTypeDefaultWeb);
+
+	let drawerType: "permanent" | "front" | "back" | "slide" | undefined = isDrawerPermanentVisible ? 'permanent' : drawerTypeDefault // Use a permanent drawer on large devices.
+	// permanent: The drawer content will be visible all the time.
+	// front: Drawer content will slide in front of the screen.
+	// back: Screen content will slide to the side. The drawer content is behind the screen.
+	// slide: Screen content will slide to the side. The drawer content will slide from the side in.
+
 	return (
 		<Drawer
 			backBehavior={"history"} // in order to have even a history stack in the drawer https://github.com/expo/expo/issues/27889
@@ -143,8 +163,9 @@ export const MyDrawer = (props: MyDrawerProps) => {
 				return <DrawerContentWrapper customDrawerItems={customDrawerItems} {...props} />;
 			}}
 			screenOptions={{
+				swipeEnabled: true, // Enable swipe gestures to open/close the drawer.
 				drawerPosition: drawerPosition, // Set the drawer to appear on the left or right.
-				drawerType: isDrawerPermanentVisible ? 'permanent' : 'front', // Use a permanent drawer on large devices.
+				drawerType: drawerType,
 				drawerStyle: {
 					width: drawerWidth, // Apply the dynamically calculated width.
 				},
@@ -179,6 +200,11 @@ function renderDrawerContentTop(props: DrawerContentComponentProps) {
 	)
 }
 
+function useDrawerIsOpen(){
+	const isDrawerStatus: DrawerStatus = useDrawerStatus()
+	return isDrawerStatus === 'open'
+}
+
 // Wrapper component for the content inside the drawer.
 // It manages the layout of custom drawer items, the project banner, and legal links.
 type DrawerContentWrapperProps = {
@@ -192,8 +218,10 @@ function DrawerContentWrapper(props: DrawerContentWrapperProps) {
 
 	const renderedDrawerItemsWithSeparator = getMyDrawerItemsCenter(props); // Get the list of drawer items to render.
 
+	const isDrawerOpen = useDrawerIsOpen()
+
 	return (
-		<View style={{width: '100%', height: '100%', overflow: 'hidden', backgroundColor: viewBackgroundColor}}>
+		<InaccessibleAndHidden inaccessible={!isDrawerOpen} style={{width: '100%', height: '100%', overflow: 'hidden', backgroundColor: viewBackgroundColor}}>
 			<MyDrawerSafeAreaView>
 				{renderDrawerContentTop(props)}
 				<View style={{
@@ -211,6 +239,6 @@ function DrawerContentWrapper(props: DrawerContentWrapperProps) {
 				</View>
 				{getMyDrawerItemsBottom(props)}
 			</MyDrawerSafeAreaView>
-		</View>
+		</InaccessibleAndHidden>
 	);
 }

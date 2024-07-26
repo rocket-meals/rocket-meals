@@ -6,23 +6,25 @@ import {TranslationKeys, useTranslation} from "@/helper/translations/Translation
 import {Text, View} from "@/components/Themed";
 import {MyTouchableOpacity} from "@/components/buttons/MyTouchableOpacity";
 import {useModalGlobalContext} from "@/components/rootLayout/RootThemeProvider";
+import {IconNames} from "@/constants/IconNames";
 
 
 export type AccountRequiredTouchableOpacityProps = {
 	children: React.ReactNode,
+	translationOfDesiredAction: string,
 }
-export const AccountRequiredTouchableOpacity = ({children}: AccountRequiredTouchableOpacityProps) => {
+export const AccountRequiredTouchableOpacity = ({translationOfDesiredAction, children}: AccountRequiredTouchableOpacityProps) => {
 	const isAnonymous = useIsCurrentUserAnonymous()
 	const [modalConfig, setModalConfig] = useModalGlobalContext();
 	const logout = useLogoutCallback()
 
-	const translation_no_permission = useTranslation(TranslationKeys.no_permission);
+	const translation_no_permission = useTranslation(TranslationKeys.no_permission_for);
 	const translation_please_create_an_account = useTranslation(TranslationKeys.please_create_an_account);
 	const translation_create_account = useTranslation(TranslationKeys.create_account);
 
-	const title = translation_no_permission
+	const title = translation_no_permission+": "+translationOfDesiredAction
 
-	const accessiblityLabel = translation_no_permission+". "+translation_please_create_an_account+"."
+	const accessiblityLabel = translation_no_permission+": "+translationOfDesiredAction+". "+translation_please_create_an_account+"."
 
 	if(isAnonymous) {
 		const onPress = () => {
@@ -45,7 +47,8 @@ export const AccountRequiredTouchableOpacity = ({children}: AccountRequiredTouch
 								}}>
 									<Text>{translation_please_create_an_account+"."}</Text>
 								</View>
-								<MyButton useOnlyNecessarySpace={true} accessibilityLabel={translation_create_account} tooltip={translation_create_account} text={translation_create_account} onPress={() => {
+								<MyButton
+									leftIconColoredBox={true}  leftIcon={IconNames.create_icon} useOnlyNecessarySpace={true} accessibilityLabel={translation_create_account} tooltip={translation_create_account} text={translation_create_account} onPress={() => {
 									logout()
 								}} />
 							</View>

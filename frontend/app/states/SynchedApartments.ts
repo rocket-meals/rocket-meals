@@ -116,7 +116,7 @@ function getDemoApartments(): Record<string, Apartments> {
 		}
 		const demoResource: Apartments = {
 			id: i+'',
-			washingmachines: [],
+			washingmachines: getDemoWashingmachines(),
 			available_from: availableFrom,
 			building: demoBuildingKey
 		}

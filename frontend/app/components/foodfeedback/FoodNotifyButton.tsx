@@ -5,13 +5,17 @@ import {AccountRequiredTouchableOpacity} from "@/components/buttons/AccountRequi
 import {MyButtonNotify} from "@/components/buttons/MyButtonNotify";
 import {useSynchedOwnFoodFeedback} from "@/states/SynchedFoodFeedbacks";
 import {MyNotificationRemoteButton} from "@/compositions/notification/MyNotificationRemoteButton";
+import {TranslationKeys, useTranslation} from "@/helper/translations/Translation";
+import {useFoodsAreaColor} from "@/states/SynchedAppSettings";
 
 export type FoodNotifyButtonProps = {
 	food: Foods;
 }
 
 export const FoodNotifyButton : FunctionComponent<FoodNotifyButtonProps> = (props) => {
-	return <AccountRequiredTouchableOpacity>
+	const translation_notify = useTranslation(TranslationKeys.notification);
+
+	return <AccountRequiredTouchableOpacity translationOfDesiredAction={translation_notify}>
 		<FoodNotifyButtonWithPermission food={props.food} />
 	</AccountRequiredTouchableOpacity>
 }
@@ -39,13 +43,15 @@ export const FoodNotifyButtonWithPermissionWithName : FunctionComponent<FoodNoti
 	const food_id = props.food_id;
 	const [foodFeedback, setOwnRating, setOwnComment, setOwnNotify, setOwnLabels] = useSynchedOwnFoodFeedback(food_id);
 
+	const color = useFoodsAreaColor()
+
 	const food_name = props.food_name;
 
 	const notify = foodFeedback?.notify;
 	const active = !!notify;
 
 	return(
-		<MyNotificationRemoteButton allowWebToActivateForSmartPhoneIfEmailDisabled={true} tooltip={food_name} accessibilityLabel={food_name} active={active} onPress={() => {
+		<MyNotificationRemoteButton color={color} allowWebToActivateForSmartPhoneIfEmailDisabled={true} tooltip={food_name} accessibilityLabel={food_name} active={active} onPress={() => {
 			setOwnNotify(!foodFeedback?.notify);
 		}} />
 	)

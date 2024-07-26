@@ -1,6 +1,7 @@
 import {Platform} from 'react-native';
 
 export class PlatformHelper {
+
 	static isWeb() {
 		return Platform.OS === 'web';
 	}
@@ -16,6 +17,17 @@ export class PlatformHelper {
 	static isSmartPhone() {
 		//or is it better to as !isWeb
 		return PlatformHelper.isAndroid() ||  PlatformHelper.isIOS()
+	}
+
+	static getPlatformDependentValue(webValue: any, iosValue: any, androidValue: any, defaultValue: any) {
+		if (PlatformHelper.isWeb()) {
+			return webValue;
+		} else if (PlatformHelper.isIOS()) {
+			return iosValue;
+		} else if (PlatformHelper.isAndroid()) {
+			return androidValue;
+		}
+		return defaultValue;
 	}
 
 	static getPlatformDisplayName() {

@@ -31,6 +31,7 @@ import {IconNames} from "@/constants/IconNames";
 import {MyButton} from "@/components/buttons/MyButton";
 import MyPrintComponent from "@/components/printComponent/MyPrintComponent";
 import {MySafeAreaViewForScreensWithoutHeader} from "@/components/MySafeAreaViewForScreensWithoutHeader";
+import {useFoodsAreaColor} from "@/states/SynchedAppSettings";
 
 const CATEGORY_UNKNOWN = "Ohne Kategorie"
 
@@ -73,6 +74,8 @@ export default function FoodplanScreen() {
 	const translation_foodweekplan = useTranslation(TranslationKeys.foodweekplan)
 	const isFullScreenMode = useIsFullscreenModeFromSearchParam();
 	const [printCallback, setPrintCallback] = useState<() => void>();
+
+	const foodsAreaColor = useFoodsAreaColor();
 
 	const DEFAULT_PADDING = 10;
 
@@ -357,7 +360,7 @@ export default function FoodplanScreen() {
 			output.push(<MySpinner />)
 		}
 		if(weekOffers===null){
-			output.push(<ErrorGeneric />)
+			output.push(<ErrorGeneric color={foodsAreaColor} />)
 		}
 
 		return output;

@@ -14,6 +14,7 @@ import {MyScrollView} from "@/components/scrollview/MyScrollView";
 export type DetailsComponentTabProps = {
 	iconName: string;
 	accessibilityLabel: string;
+	color?: string;
 	text: string;
 	content: React.ReactNode;
 };
@@ -38,12 +39,14 @@ export function DetailsComponent({ heading, item, image, tabs, subHeadingCompone
 		xl: 'row',
 	})
 
-	function renderTabHeader(active: boolean, setActive: () => void, leftRoundedBorder: boolean, rightRoundedBorder: boolean ,iconName: string, accessibilityLabel: string, text: string) {
+	function renderTabHeader(active: boolean, setActive: () => void, leftRoundedBorder: boolean, rightRoundedBorder: boolean ,iconName: string, accessibilityLabel: string, text: string, color?: string) {
 		const leftBorderRadius = leftRoundedBorder ? undefined : 0;
 		const rightBorderRadius = rightRoundedBorder ? undefined : 0;
 
 		return (
-			<View style={{width: '100%'}}><MyButton icon={iconName}
+			<View style={{width: '100%'}}><MyButton
+													backgroundColor={color}
+													icon={iconName}
 													centerItems={true}
 													text={text}
 													tooltip={text}
@@ -75,7 +78,7 @@ export function DetailsComponent({ heading, item, image, tabs, subHeadingCompone
 
 			tabWrapperTabs.push({
 				content: contents,
-				header: (active: boolean, setActive: () => void) => renderTabHeader(active, setActive, i === 0, i === tabs.length - 1, tabs[i].iconName, tabs[i].accessibilityLabel, tabs[i].text)
+				header: (active: boolean, setActive: () => void) => renderTabHeader(active, setActive, i === 0, i === tabs.length - 1, tabs[i].iconName, tabs[i].accessibilityLabel, tabs[i].text, tabs[i].color)
 			})
 		}
 		if(isDebug){
@@ -86,7 +89,7 @@ export function DetailsComponent({ heading, item, image, tabs, subHeadingCompone
 
 			tabWrapperTabs.push({
 				content: contents,
-				header: (active: boolean, setActive: () => void) => renderTabHeader(active, setActive, false, false, 'bug', 'Debug', 'Debug')
+				header: (active: boolean, setActive: () => void) => renderTabHeader(active, setActive, false, false, 'bug', 'Debug', 'Debug', '#FF0000')
 			})
 		}
 		return tabWrapperTabs

@@ -12,7 +12,7 @@ interface AppState {
 	amount_likes?: number | null,
 	renderRightContentWrapper?: (rightContent: any) => any,
 	amount_dislikes?: number | null,
-    onTrackColor?: string,
+	color?: string,
     debug?: boolean,
     disabled?: boolean
 }
@@ -78,6 +78,7 @@ export const SettingsRowTriStateLikeDislike: FunctionComponent<AppState & Settin
 		flexDirection: 'row'
 	}}>
 		<MyButton
+				backgroundColor={props.color}
 				  disabled={props.disabled}
 			      leftIcon={'thumb-up'}
 				  isActive={isLikeButtonActive}
@@ -92,6 +93,7 @@ export const SettingsRowTriStateLikeDislike: FunctionComponent<AppState & Settin
 				  }}
 		/>
 		<MyButton
+			backgroundColor={props.color}
 			      disabled={props.disabled}
 			      leftIcon={'thumb-down'}
 				  isActive={isDislikeButtonActive}

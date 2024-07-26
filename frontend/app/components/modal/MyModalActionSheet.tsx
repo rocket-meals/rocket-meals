@@ -6,7 +6,7 @@ import {SettingsRow} from "@/components/settings/SettingsRow";
 import {FoodsFeedbacks} from "@/helper/database/databaseTypes/types";
 import {MyGridFlatList} from "@/components/grid/MyGridFlatList";
 import {FoodFeedbackCommentSingle} from "@/compositions/fooddetails/FoodDetails";
-import { View, Text } from '../Themed';
+import {View, Text, useViewBackgroundColor} from '../Themed';
 
 
 export type MyModalActionSheetItem = {
@@ -17,12 +17,12 @@ export type MyModalActionSheetItem = {
 	title?: string,
 	iconLeft?: string | undefined,
 	onCancel?: () => Promise<void> | void,
-	iconLeftCustomRender?: (key: string, hide: () => void) => React.ReactNode,
+	iconLeftCustomRender?: (key: string, hide: () => void, backgroundColor: string | undefined | null) => React.ReactNode,
 	accessibilityLabel: string,
 	onSelect?: (key: string, hide: () => void) => void,
-	renderAsItem?: (key: string, hide: () => void) => React.ReactNode,
-	renderAsContentInsteadItems?: (key: string, hide: () => void) => React.ReactNode,
-	renderAsContentPreItems?: (key: string, hide: () => void) => React.ReactNode,
+	renderAsItem?: (key: string, hide: () => void, backgroundColor: string | undefined | null) => React.ReactNode,
+	renderAsContentInsteadItems?: (key: string, hide: () => void, backgroundColor: string | undefined | null) => React.ReactNode,
+	renderAsContentPreItems?: (key: string, hide: () => void, backgroundColor: string | undefined | null) => React.ReactNode,
 	items?: MyModalActionSheetItem[]
 }
 
@@ -42,6 +42,8 @@ export const MyModalActionSheet = ({item, ...props}: MyModalActionSheetProps) =>
 	if(!item){
 		return null;
 	}
+
+	const backgroundColor = useViewBackgroundColor()
 
 	const [selectedItemsHistory, setSelectedItemsHistory] = useState<string[]>([item.key]); // first item is the root item
 
@@ -74,11 +76,11 @@ export const MyModalActionSheet = ({item, ...props}: MyModalActionSheetProps) =>
 
 
 	if(currentItem.renderAsContentInsteadItems){
-		finalContent = currentItem.renderAsContentInsteadItems(currentItem.key, hide);
+		finalContent = currentItem.renderAsContentInsteadItems(currentItem.key, hide, backgroundColor);
 	} else {
 		let preContent = undefined;
 		if(currentItem.renderAsContentPreItems){
-			preContent = currentItem.renderAsContentPreItems(currentItem.key, hide);
+			preContent = currentItem.renderAsContentPreItems(currentItem.key, hide, backgroundColor);
 		}
 
 		type DataItem = { key: string; data: MyModalActionSheetItem}
@@ -106,7 +108,7 @@ export const MyModalActionSheet = ({item, ...props}: MyModalActionSheetProps) =>
 			}
 
 			if(item.renderAsItem){
-				return item.renderAsItem(item.key, hide)
+				return item.renderAsItem(item.key, hide, backgroundColor)
 			}
 
 			let iconRight = undefined;
@@ -120,7 +122,7 @@ export const MyModalActionSheet = ({item, ...props}: MyModalActionSheetProps) =>
 			let leftIcon = item.iconLeft;
 			let iconLeftCustomRender = undefined
 			if(item.iconLeftCustomRender){
-				iconLeftCustomRender = item.iconLeftCustomRender("transparent", "transparent", "black", "black", hide);
+				iconLeftCustomRender = item.iconLeftCustomRender(item.key, hide, backgroundColor);
 			}
 
 			return <SettingsRow labelLeft={item.label} accessibilityLabel={item.accessibilityLabel} onPress={() => {
@@ -149,7 +151,7 @@ export const MyModalActionSheet = ({item, ...props}: MyModalActionSheetProps) =>
 	let title = currentItem.title;
 	let onCancel = currentItem.onCancel;
 
-	return <MyModal {...props} title={title} onCancel={onCancel}>
+	return <MyModal {...props} title={title} backgroundColor={backgroundColor} onCancel={onCancel}>
 		{finalContent}
 	</MyModal>
 }

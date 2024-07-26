@@ -4,6 +4,7 @@ import {TranslationKeys, useTranslation} from '@/helper/translations/Translation
 import { View} from '@/components/Themed';
 import {Switch} from '@gluestack-ui/themed';
 import {PlatformHelper} from '@/helper/PlatformHelper';
+import {MyAccessibilityRoles} from "@/helper/accessibility/MyAccessibilityRoles";
 
 interface AppState {
     value: boolean,
@@ -84,6 +85,6 @@ export const SettingsRowBooleanSwitch: FunctionComponent<AppState & SettingsRowP
 	)
 
 	return (
-		<SettingsRow labelLeft={labelLeft} accessibilityLabel={accessibilityLabelWithFunction} accessibilityRole={'switch'} {...props} rightContent={rightContent} onPress={onPress} />
+		<SettingsRow labelLeft={labelLeft} accessibilityLabel={accessibilityLabelWithFunction} accessibilityRole={MyAccessibilityRoles.Switch} {...props} rightContent={rightContent} onPress={onPress} />
 	)
 }

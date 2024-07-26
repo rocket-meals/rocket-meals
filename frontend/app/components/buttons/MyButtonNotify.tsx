@@ -10,6 +10,7 @@ import {NotificationHelper} from "@/helper/notification/NotificationHelper";
 export type MyNewButtonProps = {
     onPress?: () => void;
 	active?: boolean;
+	color?: string;
 	tooltip: string;
 	accessibilityLabel: string;
 }
@@ -33,7 +34,9 @@ export const MyButtonNotify = (props: MyNewButtonProps) => {
 	let useTransparentBorderColor = false
 
 	return(
-		<MyButton useOnlyNecessarySpace={true}
+		<MyButton
+			backgroundColor={props.color}
+			useOnlyNecessarySpace={true}
 				  isActive={active}
 				  useTransparentBorderColor={useTransparentBorderColor}
 				  accessibilityLabel={accessibilityLabel}

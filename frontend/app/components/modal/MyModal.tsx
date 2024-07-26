@@ -1,10 +1,9 @@
 import React from 'react';
 import {Modal} from 'react-native';
-import {Heading, useViewBackgroundColor, View} from '@/components/Themed';
+import {Heading, View} from '@/components/Themed';
 import {MySafeAreaView} from '@/components/MySafeAreaView';
 import {MyTouchableOpacity} from "@/components/buttons/MyTouchableOpacity";
 import {TranslationKeys, useTranslation} from "@/helper/translations/Translation";
-import {useMyContrastColor} from "@/helper/color/MyContrastColor";
 import {useProjectColor} from "@/states/ProjectInfo";
 import {DrawerConfigPosition, useDrawerPosition} from "@/states/DrawerSyncConfig";
 import {MyButton} from "@/components/buttons/MyButton";
@@ -80,6 +79,7 @@ export type setVisibleType = (visible: boolean) => void
 export type MyModalProps = {
 	visible: boolean,
 	setVisible: React.Dispatch<React.SetStateAction<boolean>> | setVisibleType,
+	backgroundColor: string | undefined | null,
 	title?: string,
 	onCancel?: () => Promise<void> | void,
 	children?: React.ReactNode | React.ReactNode[]
@@ -93,8 +93,7 @@ export const MyModal = (props: MyModalProps) => {
 		props.setVisible(false);
 	}
 	const visible = props.visible;
-	const viewBackgroundColor = useViewBackgroundColor();
-	const viewContrastColor = useMyContrastColor(viewBackgroundColor)
+	const viewBackgroundColor = props.backgroundColor;
 	const projectColor = useProjectColor();
 	const borderColor = projectColor
 	const translation_cancel = useTranslation(TranslationKeys.cancel);

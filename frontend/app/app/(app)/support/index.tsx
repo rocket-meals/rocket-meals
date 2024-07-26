@@ -29,6 +29,12 @@ export default function AppfeedbackScreen() {
 	const translation_support_and_feedback = useTranslationSupportAndFeedback()
 	const translation_navigate_to = useTranslation(TranslationKeys.navigate_to)
 
+	const translation_email = useTranslation(TranslationKeys.email)
+	const translation_developer = useTranslation(TranslationKeys.developer)
+	const translation_developer_homepage = useTranslation(TranslationKeys.developer_homepage)
+	const translation_software_homepage = useTranslation(TranslationKeys.software_homepage)
+	const translation_software_name = useTranslation(TranslationKeys.software_name)
+
 	const [appSettings, setAppSettings] = useSynchedAppSettings();
 	const app_url_to_apple_store = appSettings?.app_url_to_apple_store
 	const app_url_to_google_store = appSettings?.app_url_to_google_store
@@ -116,6 +122,25 @@ export default function AppfeedbackScreen() {
 
 	}
 
+	let accessibilityLabelDeveloperWebsite = translation_navigate_to+": "+translation_developer_homepage+" "+DeveloperInformation.companyWebsite;
+	let accessibilityLabelSoftwareWebsite = translation_navigate_to+": "+translation_software_homepage+" "+DeveloperInformation.softwareWebsite;
+
+	let renderedDeveloperInformation = <>
+		<View style={{
+			width: "100%",
+		}}>
+			<SettingsRow leftIcon={IconNames.developer_icon} labelLeft={translation_developer} labelRight={DeveloperInformation.companyName} accessibilityLabel={translation_developer+": "+DeveloperInformation.companyName} />
+			<MyLinkCustom hrefExternal={DeveloperInformation.companyWebsite} accessibilityLabel={accessibilityLabelDeveloperWebsite}>
+				<SettingsRow leftIcon={IconNames.mail_icon} labelLeft={translation_developer_homepage} labelRight={DeveloperInformation.companyWebsite} accessibilityLabel={DeveloperInformation.companyWebsite} rightIcon={IconNames.open_link_icon} />
+			</MyLinkCustom>
+			<SettingsRow leftIcon={IconNames.software_icon} labelLeft={translation_software_name} labelRight={DeveloperInformation.softwareName} accessibilityLabel={translation_software_name+": "+DeveloperInformation.softwareName} />
+			<MyLinkCustom hrefExternal={DeveloperInformation.softwareWebsite} accessibilityLabel={accessibilityLabelSoftwareWebsite}>
+				<SettingsRow leftIcon={IconNames.mail_icon} labelRight={DeveloperInformation.softwareWebsite} labelLeft={translation_software_homepage} accessibilityLabel={accessibilityLabelSoftwareWebsite} rightIcon={IconNames.open_link_icon} />
+			</MyLinkCustom>
+		</View>
+	</>
+
+
 	let renderedIosAppStoreLink: any = null;
 	if(app_url_to_apple_store){
 		let labelLeft = "Apple Store";
@@ -149,7 +174,7 @@ export default function AppfeedbackScreen() {
 		width: "100%",
 	}}>
 		<MyLinkCustom hrefExternal={HrefHelper.MAILTO+DeveloperInformation.email} accessibilityLabel={accessibilityLabelMailToDeveloper}>
-			<SettingsRow leftIcon={IconNames.mail_icon} labelLeft={DeveloperInformation.email} accessibilityLabel={accessibilityLabelMailToDeveloper} rightIcon={IconNames.open_link_icon} />
+			<SettingsRow leftIcon={IconNames.mail_icon} labelLeft={translation_email} labelRight={DeveloperInformation.email} accessibilityLabel={accessibilityLabelMailToDeveloper} rightIcon={IconNames.open_link_icon} />
 		</MyLinkCustom>
 	</View>
 
@@ -170,6 +195,9 @@ export default function AppfeedbackScreen() {
 					<MyGridFlatList
 						data={data} renderItem={renderResource} amountColumns={1}
 					/>
+				</SettingsRowGroup>
+				<SettingsRowGroup>
+					{renderedDeveloperInformation}
 				</SettingsRowGroup>
 			</ScrollViewWithGradient>
 		</MySafeAreaView>

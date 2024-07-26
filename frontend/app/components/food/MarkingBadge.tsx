@@ -18,7 +18,7 @@ import {SETTINGS_ROW_DEFAULT_PADDING} from "@/components/settings/SettingsRow";
 import {getDirectusTranslation, TranslationEntry} from "@/helper/translations/DirectusTranslationUseFunction";
 import {ThemedMarkdown} from "@/components/markdown/ThemedMarkdown";
 
-export const MarkingBadges = ({foodoffer}: {foodoffer: Foodoffers}) => {
+export const MarkingBadges = ({foodoffer, color}: {foodoffer: Foodoffers, color: string}) => {
 	const markingsIds = MarkingHelper.getFoodOfferMarkingIds(foodoffer);
 	const [markingsDict, setMarkingsDict] = useSynchedMarkingsDict();
 
@@ -28,7 +28,7 @@ export const MarkingBadges = ({foodoffer}: {foodoffer: Foodoffers}) => {
 		if(!!marking){
 			let markingVisible = marking?.show_on_card
 			if(markingVisible){
-				badges.push(<MarkingBadge markingId={markingId} />)
+				badges.push(<MarkingBadge markingId={markingId} color={color} />)
 			}
 		}
 	}

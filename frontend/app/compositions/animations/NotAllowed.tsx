@@ -9,7 +9,7 @@ import {MyProjectColoredLottieAnimation} from '@/components/lottie/MyProjectColo
 export const NotAllowed = ({children,...props}: any) => {
 	const animationSource = notAllowed;
 	const translation_animation = useTranslation(TranslationKeys.animation);
-	const translation_nameOfTheAnimation = useTranslation(TranslationKeys.no_permission);
+	const translation_nameOfTheAnimation = useTranslation(TranslationKeys.no_permission_for);
 	const accessibilityLabel = translation_animation + ': ' + translation_nameOfTheAnimation;
 
 	const noFoundWidths: BreakPointsDictionary<DimensionValue> = {

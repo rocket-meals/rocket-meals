@@ -11,6 +11,7 @@ import {useModalGlobalContext} from "@/components/rootLayout/RootThemeProvider";
 import {useIsAccountBalanceEnabled} from "@/states/SynchedAppSettings";
 import {formatPrice} from "@/components/pricing/PricingBadge";
 import {useRouter} from "expo-router";
+import {SettingsRowNavigate, SettingsRowNavigateSimple} from "@/components/settings/SettingsRowNavigate";
 
 
 interface AppState {
@@ -31,14 +32,10 @@ export const SettingsRowAccountBalance: FunctionComponent<AppState> = ({...props
 	let accessibilityLabel = translation_accountbalance
 	let usedIconName = IconNames.account_balance_icon
 
-	const onPress = () => {
-		router.push('/(app)/accountbalance/');
-	}
-
 
 	return (
 		<>
-			<SettingsRow labelLeft={label} labelRight={labelRight} onPress={onPress} accessibilityLabel={accessibilityLabel} leftContent={label} leftIcon={usedIconName} {...props}  />
+			<SettingsRowNavigateSimple translation_key={TranslationKeys.accountbalance} labelRight={labelRight} route={'/(app)/accountbalance/'} leftIcon={usedIconName} {...props}  />
 		</>
 
 	)

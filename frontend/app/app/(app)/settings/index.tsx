@@ -87,7 +87,7 @@ export default function SettingsScreen() {
 					<SettingsRowProfileEatingHabits />
 					<SettingsRowPriceGroup />
 					<SettingsRowAccountBalance />
-					<SettingsRowNavigateSimple translation_key={TranslationKeys.notification} iconLeft={IconNames.notification_active} route={"/(app)/settings/notifications"} />
+					<SettingsRowNavigateSimple translation_key={TranslationKeys.notification} leftIcon={IconNames.notification_active} route={"/(app)/settings/notifications"} />
 				</SettingsRowGroup>
 				<SettingsRowGroup>
 					<SettingsRowColorScheme />
@@ -102,7 +102,7 @@ export default function SettingsScreen() {
 					<SettingsRowDataAccess />
 				</SettingsRowGroup>
 				<SettingsRowGroup>
-					<SettingsRowNavigateSimple translation_key={TranslationKeys.feedback_support_faq} iconLeft={IconNames.support_icon} route={"/(app)/support"} />
+					<SettingsRowNavigateSimple translation_key={TranslationKeys.feedback_support_faq} leftIcon={IconNames.support_icon} route={"/(app)/support"} />
 				</SettingsRowGroup>
 				<ProjectVersionInformation />
 				{renderedDeveloperModeSettings}

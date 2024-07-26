@@ -59,17 +59,4 @@ export class MarkingHelper {
 		}
 		return aMarkingsIds;
 	}
-
-	static areLikedEatingHabitsFound(marking_ids: string[], profileMarkingsDict: Record<string, ProfilesMarkings>) {
-		for(const marking_id of marking_ids){
-			const marking: ProfilesMarkings = profileMarkingsDict[marking_id];
-			if(marking){
-				const dislikes = marking.dislikes;
-				if(dislikes !== null && dislikes !== undefined && !dislikes){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
 }

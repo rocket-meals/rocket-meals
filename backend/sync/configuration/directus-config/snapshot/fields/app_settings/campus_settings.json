@@ -1,19 +1,19 @@
 {
   "collection": "app_settings",
-  "field": "buildings_settings",
+  "field": "campus_settings",
   "type": "alias",
   "meta": {
     "collection": "app_settings",
     "conditions": null,
     "display": null,
     "display_options": null,
-    "field": "buildings_settings",
+    "field": "campus_settings",
     "group": null,
     "hidden": false,
     "interface": "group-detail",
     "note": null,
     "options": {
-      "headerIcon": "warehouse",
+      "headerIcon": "menu_book",
       "start": "closed"
     },
     "readonly": false,

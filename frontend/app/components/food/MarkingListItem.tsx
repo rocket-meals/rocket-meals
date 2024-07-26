@@ -8,6 +8,7 @@ import {Markings} from "@/helper/database/databaseTypes/types";
 import {useSynchedMarkingsDict} from "@/states/SynchedMarkings";
 import DirectusImage from "@/components/project/DirectusImage";
 import DirectusImageOrIconComponent from "@/components/image/DirectusImageOrIconComponent";
+import {useFoodsAreaColor} from "@/states/SynchedAppSettings";
 
 export default function MarkingListItem({ markingId }: { markingId: string }) {
 	// Memoize the MarkingListItemReal component
@@ -38,6 +39,8 @@ function MarkingListItemReal({ markingId }: { markingId: string}) {
 	const likes = statusSet ? !status : undefined;
 	const translation_marking = useTranslation(TranslationKeys.markings);
 
+	const foodsAreaColor = useFoodsAreaColor();
+
 	return useMemo(() => {
 
 		console.log("Rendering MarkingListItemReal", markingId, status)
@@ -64,7 +67,7 @@ function MarkingListItemReal({ markingId }: { markingId: string}) {
 
 		return(
 			<View key={marking.id}>
-				<SettingsRowTriStateLikeDislike iconLeftCustom={iconLeftCustom} onSetState={onPress} accessibilityLabel={accessibilityLabel} labelLeft={text} value={likes}/>
+				<SettingsRowTriStateLikeDislike color={foodsAreaColor} iconLeftCustom={iconLeftCustom} onSetState={onPress} accessibilityLabel={accessibilityLabel} labelLeft={text} value={likes}/>
 			</View>
 		)
 	}, [status, translation_marking, languageCode])

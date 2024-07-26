@@ -9,8 +9,6 @@ type Query {
   foods_feedbacks_by_id(id: ID!, version: String): foods_feedbacks
   foods_feedbacks_aggregated(groupBy: [String], filter: foods_feedbacks_filter, limit: Int, offset: Int, page: Int, search: String, sort: [String]): [foods_feedbacks_aggregated!]!
   foods_feedbacks_by_version(version: String!, id: ID!): version_foods_feedbacks
-  app_settings(version: String): app_settings
-  app_settings_by_version(version: String!): version_app_settings
   buildings(filter: buildings_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [buildings!]!
   buildings_by_id(id: ID!, version: String): buildings
   buildings_aggregated(groupBy: [String], filter: buildings_filter, limit: Int, offset: Int, page: Int, search: String, sort: [String]): [buildings_aggregated!]!
@@ -79,6 +77,8 @@ type Query {
   foods_by_id(id: ID!, version: String): foods
   foods_aggregated(groupBy: [String], filter: foods_filter, limit: Int, offset: Int, page: Int, search: String, sort: [String]): [foods_aggregated!]!
   foods_by_version(version: String!, id: ID!): version_foods
+  app_settings(version: String): app_settings
+  app_settings_by_version(version: String!): version_app_settings
   businesshours(filter: businesshours_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [businesshours!]!
   businesshours_by_id(id: ID!, version: String): businesshours
   businesshours_aggregated(groupBy: [String], filter: businesshours_filter, limit: Int, offset: Int, page: Int, search: String, sort: [String]): [businesshours_aggregated!]!
@@ -289,7 +289,6 @@ type Mutation {
   update_foods_feedbacks_items(filter: foods_feedbacks_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_foods_feedbacks_input!): [foods_feedbacks!]!
   update_foods_feedbacks_batch(filter: foods_feedbacks_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [update_foods_feedbacks_input!]): [foods_feedbacks!]!
   update_foods_feedbacks_item(id: ID!, data: update_foods_feedbacks_input!): foods_feedbacks
-  update_app_settings(data: update_app_settings_input!): app_settings
   update_buildings_items(filter: buildings_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_buildings_input!): [buildings!]!
   update_buildings_batch(filter: buildings_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [update_buildings_input!]): [buildings!]!
   update_buildings_item(id: ID!, data: update_buildings_input!): buildings
@@ -341,6 +340,7 @@ type Mutation {
   update_foods_items(filter: foods_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_foods_input!): [foods!]!
   update_foods_batch(filter: foods_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [update_foods_input!]): [foods!]!
   update_foods_item(id: ID!, data: update_foods_input!): foods
+  update_app_settings(data: update_app_settings_input!): app_settings
   update_businesshours_items(filter: businesshours_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, ids: [ID]!, data: update_businesshours_input!): [businesshours!]!
   update_businesshours_batch(filter: businesshours_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String, data: [update_businesshours_input!]): [businesshours!]!
   update_businesshours_item(id: ID!, data: update_businesshours_input!): businesshours
@@ -538,7 +538,6 @@ type Subscription {
   auto_translation_settings_mutated(event: EventEnum): auto_translation_settings_mutated
   directus_settings_mutated(event: EventEnum): directus_settings_mutated
   foods_feedbacks_mutated(event: EventEnum): foods_feedbacks_mutated
-  app_settings_mutated(event: EventEnum): app_settings_mutated
   buildings_mutated(event: EventEnum): buildings_mutated
   apartments_mutated(event: EventEnum): apartments_mutated
   app_settings_housing_translations_mutated(event: EventEnum): app_settings_housing_translations_mutated
@@ -556,6 +555,7 @@ type Subscription {
   profiles_mutated(event: EventEnum): profiles_mutated
   devices_mutated(event: EventEnum): devices_mutated
   foods_mutated(event: EventEnum): foods_mutated
+  app_settings_mutated(event: EventEnum): app_settings_mutated
   businesshours_mutated(event: EventEnum): businesshours_mutated
   foods_feedbacks_foods_feedbacks_labels_mutated(event: EventEnum): foods_feedbacks_foods_feedbacks_labels_mutated
   foods_feedbacks_labels_mutated(event: EventEnum): foods_feedbacks_labels_mutated
@@ -781,11 +781,6 @@ type app_settings {
   app_stores_url_to_apple: String
   app_stores_url_to_google: String
   balance_enabled: Boolean
-  buildings_enabled: Boolean
-  buildings_parsing_enabled: Boolean
-  buildings_parsing_last_date: Date
-  buildings_parsing_last_date_func: datetime_functions
-  buildings_parsing_status: String
   canteen_reports_enabled: Boolean
   cashregisters_parsing_enabled: Boolean
   cashregisters_parsing_last_date: Date
@@ -846,6 +841,11 @@ type app_settings {
   utilization_forecast_calculation_last_date_func: datetime_functions
   utilization_forecast_calculation_status: String
   foods_parsing_hash: String
+  campus_enabled: Boolean
+  campus_parsing_enabled: Boolean
+  campus_parsing_status: String
+  campus_parsing_last_date: Date
+  campus_parsing_last_date_func: datetime_functions
   housing_translations(filter: app_settings_housing_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [app_settings_housing_translations]
   housing_translations_func: count_functions
 }
@@ -3521,10 +3521,6 @@ type version_app_settings {
   app_stores_url_to_apple: String
   app_stores_url_to_google: String
   balance_enabled: Boolean
-  buildings_enabled: Boolean
-  buildings_parsing_enabled: Boolean
-  buildings_parsing_last_date: Date
-  buildings_parsing_status: String
   canteen_reports_enabled: Boolean
   cashregisters_parsing_enabled: Boolean
   cashregisters_parsing_last_date: Date
@@ -3573,6 +3569,10 @@ type version_app_settings {
   utilization_forecast_calculation_last_date: Date
   utilization_forecast_calculation_status: String
   foods_parsing_hash: String
+  campus_enabled: Boolean
+  campus_parsing_enabled: Boolean
+  campus_parsing_status: String
+  campus_parsing_last_date: Date
   housing_translations: JSON
 }
 
@@ -4498,11 +4498,6 @@ input app_settings_filter {
   app_stores_url_to_apple: string_filter_operators
   app_stores_url_to_google: string_filter_operators
   balance_enabled: boolean_filter_operators
-  buildings_enabled: boolean_filter_operators
-  buildings_parsing_enabled: boolean_filter_operators
-  buildings_parsing_last_date: date_filter_operators
-  buildings_parsing_last_date_func: datetime_function_filter_operators
-  buildings_parsing_status: string_filter_operators
   canteen_reports_enabled: boolean_filter_operators
   cashregisters_parsing_enabled: boolean_filter_operators
   cashregisters_parsing_last_date: date_filter_operators
@@ -4563,6 +4558,11 @@ input app_settings_filter {
   utilization_forecast_calculation_last_date_func: datetime_function_filter_operators
   utilization_forecast_calculation_status: string_filter_operators
   foods_parsing_hash: string_filter_operators
+  campus_enabled: boolean_filter_operators
+  campus_parsing_enabled: boolean_filter_operators
+  campus_parsing_status: string_filter_operators
+  campus_parsing_last_date: date_filter_operators
+  campus_parsing_last_date_func: datetime_function_filter_operators
   housing_translations: app_settings_housing_translations_filter
   housing_translations_func: count_function_filter_operators
   _and: [app_settings_filter]
@@ -4877,10 +4877,6 @@ input create_app_settings_input {
   app_stores_url_to_apple: String
   app_stores_url_to_google: String
   balance_enabled: Boolean
-  buildings_enabled: Boolean
-  buildings_parsing_enabled: Boolean
-  buildings_parsing_last_date: Date
-  buildings_parsing_status: String
   canteen_reports_enabled: Boolean
   cashregisters_parsing_enabled: Boolean
   cashregisters_parsing_last_date: Date
@@ -4929,6 +4925,10 @@ input create_app_settings_input {
   utilization_forecast_calculation_last_date: Date
   utilization_forecast_calculation_status: String
   foods_parsing_hash: String
+  campus_enabled: Boolean
+  campus_parsing_enabled: Boolean
+  campus_parsing_status: String
+  campus_parsing_last_date: Date
   housing_translations: [create_app_settings_housing_translations_input]
 }
 
@@ -6367,10 +6367,6 @@ input update_app_settings_input {
   app_stores_url_to_apple: String
   app_stores_url_to_google: String
   balance_enabled: Boolean
-  buildings_enabled: Boolean
-  buildings_parsing_enabled: Boolean
-  buildings_parsing_last_date: Date
-  buildings_parsing_status: String
   canteen_reports_enabled: Boolean
   cashregisters_parsing_enabled: Boolean
   cashregisters_parsing_last_date: Date
@@ -6419,6 +6415,10 @@ input update_app_settings_input {
   utilization_forecast_calculation_last_date: Date
   utilization_forecast_calculation_status: String
   foods_parsing_hash: String
+  campus_enabled: Boolean
+  campus_parsing_enabled: Boolean
+  campus_parsing_status: String
+  campus_parsing_last_date: Date
   housing_translations: [update_app_settings_housing_translations_input]
 }
 

@@ -1,4 +1,4 @@
-import React, {createContext, ReactNode, useContext, useState} from 'react';
+import React, {createContext, useContext, useState} from 'react';
 import {ThemeProvider} from '@react-navigation/native';
 import {StatusBar} from 'expo-status-bar';
 import {View, Text, useViewBackgroundColor, Icon} from '@/components/Themed'; // Import View from your themed components
@@ -13,6 +13,7 @@ import {useIconWithInPixel} from "@/components/shapes/Rectangle";
 import {Dimensions, DimensionValue} from "react-native";
 import {DimensionType} from "@/types/DimensionType";
 import RootTextAndIconDimensions from "@/components/rootLayout/RootTextAndIconDimensions";
+import InaccessibleAndHidden from "@/helper/accessibility/InaccessableAndHidden";
 
 // Create a Context for the modal
 const ModalContext = createContext<{
@@ -53,10 +54,10 @@ const WrappedModalProvider = ({ children }: {children: React.ReactNode | React.R
 
 			{/* Set View to occupy all available space and control accessibility based on action sheet visibility */}
 			<RootTextAndIconDimensions />
-			<View style={{height: '100%', width: '100%', backgroundColor: backgroundColor}} accessible={appIsAccessible} accessibilityElementsHidden={!appIsAccessible}>
+            <InaccessibleAndHidden style={{height: '100%', width: '100%', backgroundColor: backgroundColor}} accessible={appIsAccessible} accessibilityElementsHidden={!appIsAccessible}>
 				{/* Render the children respecting the action sheet's visibility */}
 				{children}
-			</View>
+			</InaccessibleAndHidden>
 			<RootFabHolder/>
 
 			<MyModalActionSheetGlobal />

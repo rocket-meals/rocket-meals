@@ -6,7 +6,8 @@ import {IconNames} from "@/constants/IconNames";
 import {CommonSystemActionHelper} from "@/helper/device/CommonSystemActionHelper";
 
 export type MyNewButtonProps = {
-    location: LocationType
+    location: LocationType,
+	color?: string,
 }
 export const MyButtonNavigationToLocation = (props: MyNewButtonProps) => {
 	const translation_open_navitation_to_location = useTranslation(TranslationKeys.open_navitation_to_location)
@@ -20,7 +21,9 @@ export const MyButtonNavigationToLocation = (props: MyNewButtonProps) => {
 	}
 
 	return(
-		<MyButton useOnlyNecessarySpace={true}
+		<MyButton
+			backgroundColor={props.color}
+			useOnlyNecessarySpace={true}
 				  useTransparentBackgroundColor={false}
 				  useTransparentBorderColor={false}
 				  accessibilityLabel={translation_open_navitation_to_location}

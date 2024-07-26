@@ -10,7 +10,7 @@ import {useMyContrastColor} from '@/helper/color/MyContrastColor';
  * @prop {boolean} focused - Whether the associated drawer item is currently focused.
  */
 export type RequiredDrawerItemLabelProps = {
-    color: string,
+	backgroundColor: string,
     focused: boolean
 }
 
@@ -27,11 +27,12 @@ export type MyCustomDrawerItemLabelProps = {
  * Factory function to create a React component for rendering a custom drawer item label.
  *
  * @param {string | undefined} label - The text content for the label. Can be undefined for dynamic label assignment.
+ * @param color - The color of the label text.
  * @returns A function that takes RequiredDrawerItemLabelProps and returns a JSX.Element representing the custom label.
  */
-export const getMyDrawerItemLabel = (label: string | undefined) => {
+export const getMyDrawerItemLabel = (label: string | undefined, backgroundColor: string) => {
 	return (props: RequiredDrawerItemLabelProps) => {
-		return <MyDrawerItemLabel label={label} {...props} />
+		return <MyDrawerItemLabel label={label} {...props} backgroundColor={backgroundColor} />
 	}
 }
 
@@ -42,15 +43,11 @@ export const getMyDrawerItemLabel = (label: string | undefined) => {
  * @param {MyCustomDrawerItemLabelProps} props - The combined props including label text and required label properties.
  * @returns A JSX.Element representing the custom label, styled based on focus state.
  */
-export const MyDrawerItemLabel = ({ focused, color, label }: MyCustomDrawerItemLabelProps) => {
-	const projectColor = useProjectColor(); // Fetch the current project color for theme consistency.
-	const projectContrastColor = useMyContrastColor(projectColor); // Calculate a contrasting color based on the project color for better visibility.
-	const viewBackgroundColor = useViewBackgroundColor();
-	const viewBackgroundContrastColor = useMyContrastColor(viewBackgroundColor);
-	const usedColor = focused ? projectContrastColor : viewBackgroundContrastColor; // Determine the label color based on focus state.
+export const MyDrawerItemLabel = ({ focused, backgroundColor, label }: MyCustomDrawerItemLabelProps) => {
+	const contrastColor = useMyContrastColor(backgroundColor); // Calculate a contrasting color based on the project color for better visibility.
 
 	// Render the label within a Text component, dynamically adjusting its color based on the focus state.
 	return (
-		<Text style={{ color: usedColor }}>{label}</Text>
+		<Text style={{ color: contrastColor }}>{label}</Text>
 	);
 }

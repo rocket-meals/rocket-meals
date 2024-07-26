@@ -8,6 +8,7 @@ import {DateHelper} from '@/helper/date/DateHelper';
 import {useProfileLocaleForJsDate} from '@/states/SynchedProfile';
 import {TranslationKeys, useTranslation} from '@/helper/translations/Translation';
 import {IconNames} from '@/constants/IconNames';
+import {useNewsAreaColor} from "@/states/SynchedAppSettings";
 
 
 const DirectusImageWithAspectRatio = ({aspectRatio, image_url, assetId, thumbHash, accessibilityLabel}: {aspectRatio: AspectRatio | undefined, image_url: string | undefined, assetId: string | null | undefined, thumbHash: string | undefined, accessibilityLabel: string}) => {
@@ -33,6 +34,9 @@ interface NewsItemProps {
 const NewsCard: React.FC<NewsItemProps> = ({ text, url, image_url, headline, assetId, thumbHash, date }) => {
 	const jsLocale = useProfileLocaleForJsDate();
 	const translation_read_more = useTranslation(TranslationKeys.read_more)
+	const translation_image = useTranslation(TranslationKeys.image)
+
+	const newsAreaColor = useNewsAreaColor();
 
 	// on small devices the image will be on top with a dynamic height
 	const flexDirection = useBreakPointValue({
@@ -92,7 +96,7 @@ const NewsCard: React.FC<NewsItemProps> = ({ text, url, image_url, headline, ass
 
 	function renderReadMoreButton() {
 		if (url) {
-			return <MyButton href={url} openHrefInNewTab={true} rightIcon={IconNames.news_open_external_icon} useOnlyNecessarySpace={true} text={translation_read_more} accessibilityLabel={url} />
+			return <MyButton backgroundColor={newsAreaColor} href={url} openHrefInNewTab={true} rightIcon={IconNames.news_open_external_icon} useOnlyNecessarySpace={true} text={translation_read_more} accessibilityLabel={url} />
 		} else {
 			return null;
 		}
@@ -121,7 +125,7 @@ const NewsCard: React.FC<NewsItemProps> = ({ text, url, image_url, headline, ass
 					</View>
 				</View>
 				<View style={{width: imageWidth}}>
-					<DirectusImageWithAspectRatio aspectRatio={2} image_url={image_url} assetId={assetId} thumbHash={thumbHash} />
+					<DirectusImageWithAspectRatio accessibilityLabel={translation_image+": "+headline} aspectRatio={2} image_url={image_url} assetId={assetId} thumbHash={thumbHash} />
 				</View>
 			</View>
 		</View>

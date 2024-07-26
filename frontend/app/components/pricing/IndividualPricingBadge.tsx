@@ -1,9 +1,11 @@
 import {Foodoffers} from '@/helper/database/databaseTypes/types';
 import PricingBadge, {formatPrice, PricingBadgeProps} from '@/components/pricing/PricingBadge';
 import useProfilePricing from '@/components/pricing/useProfilePricing';
-import {usePriceGroupSelectedName, useNavigateToPriceGroup} from "@/compositions/settings/SettingsRowPriceGroup";
+import {
+	useEditProfilePriceGroupAccessibilityLabel,
+	useNavigateToPriceGroup
+} from "@/compositions/settings/SettingsRowPriceGroup";
 import {MyTouchableOpacity} from "@/components/buttons/MyTouchableOpacity";
-import {TranslationKeys, useTranslation} from "@/helper/translations/Translation";
 import React from "react";
 
 export type IndivididualPricingBadgeProps = {
@@ -14,11 +16,8 @@ export type IndivididualPricingBadgeProps = {
 export default function IndividualPricingBadge(props: IndivididualPricingBadgeProps) {
 	const profilePricing = useProfilePricing(props.foodOffer);
 
-	const title = useTranslation(TranslationKeys.price_group)
+	const accessibilityLabelEditPriceGroup = useEditProfilePriceGroupAccessibilityLabel();
 
-	const translation_edit = useTranslation(TranslationKeys.edit)
-
-	const selectedPriceGroupName = usePriceGroupSelectedName();
 	const onPress = useNavigateToPriceGroup();
 
 	if (!profilePricing) {
@@ -27,7 +26,7 @@ export default function IndividualPricingBadge(props: IndivididualPricingBadgePr
 
 	const priceContent: string = formatPrice(profilePricing);
 
-	const accessibilityLabel = `${priceContent} - ${title}: ${selectedPriceGroupName}: ${translation_edit}`;
+	const accessibilityLabel = `${priceContent} - `+accessibilityLabelEditPriceGroup;
 
 	return (
 		<>

@@ -32,7 +32,7 @@ import {getFoodName} from "@/helper/food/FoodTranslation";
 import {MarkingsDislikedWarningBadge} from "@/components/food/MarkingsDislikedWarningBadge";
 import {useDislikeColor} from "@/states/ColorScheme";
 import {useSynchedOwnFoodIdToFoodFeedbacksDict} from "@/states/SynchedFoodFeedbacks";
-import {useFoodImagePlaceholderAssetId, useSynchedAppSettings} from "@/states/SynchedAppSettings";
+import {useFoodImagePlaceholderAssetId, useFoodsAreaColor, useSynchedAppSettings} from "@/states/SynchedAppSettings";
 import {ScrollViewWithGradient} from "@/components/scrollview/ScrollViewWithGradient";
 import {MarkingBadges} from "@/components/food/MarkingBadge";
 import NoFoodOffersFound from "@/compositions/foodoffers/NoFoodOffersFound";
@@ -234,6 +234,8 @@ export default function FoodOfferScreen() {
 	const [appSettings] = useSynchedAppSettings();
 	const foods_placeholder_image = useFoodImagePlaceholderAssetId()
 
+	const foodsAreaColor = useFoodsAreaColor();
+
 
 	const dateAsString = selectedDate.toISOString();
 
@@ -241,14 +243,14 @@ export default function FoodOfferScreen() {
 
 	const [sortType, setSortType] = useSynchedSortType(PersistentStore.sortConfigFoodoffers);
 	const [languageCode, setLanguageCode] = useProfileLanguageCode()
-	const [foodFeedbacksDict, setFoodFeedbacksDict, lastUpdate, updateFromServer] = useSynchedOwnFoodIdToFoodFeedbacksDict();
+	const [ownFoodFeedbacksDict, setOwnFoodFeedbacksDict, cacheHelperObjOwnFoodFeedbacks] = useSynchedOwnFoodIdToFoodFeedbacksDict();
 	const [profilesMarkingsDict, setProfileMarking, removeProfileMarking] = useSynchedProfileMarkingsDict();
 
 
 	let [foodOffersSorted, setFoodoffersSorted] = useState<Foodoffers[] | undefined | null>(undefined);
 
 	if (foodOffersDownloaded && !foodOffersSorted) {
-		foodOffersSorted = sortFoodOffers(foodOffersDownloaded, foodFeedbacksDict, profilesMarkingsDict, sortType, languageCode)
+		foodOffersSorted = sortFoodOffers(foodOffersDownloaded, ownFoodFeedbacksDict, profilesMarkingsDict, sortType, languageCode)
 		setFoodoffersSorted(foodOffersSorted)
 	}
 
@@ -262,7 +264,7 @@ export default function FoodOfferScreen() {
 				const downloadedFoodOffers = await getFoodOffersForSelectedDate(isDemo, selectedDate, profileCanteen);
 				setFoodOffers(downloadedFoodOffers);
 				// sort the food offers
-				setFoodoffersSorted(sortFoodOffers(downloadedFoodOffers, foodFeedbacksDict, profilesMarkingsDict, sortType, languageCode))
+				setFoodoffersSorted(sortFoodOffers(downloadedFoodOffers, ownFoodFeedbacksDict, profilesMarkingsDict, sortType, languageCode))
 			} catch (err){
 				console.error('loadFoodOffers error', err)
 				setFoodOffers(null);
@@ -285,7 +287,7 @@ export default function FoodOfferScreen() {
 	// Call useEffect when the sortType changes and the screen gets mounted
 	useEffect(() => {
 		if (foodOffersDownloaded) {
-			setFoodoffersSorted(sortFoodOffers(foodOffersDownloaded, foodFeedbacksDict, profilesMarkingsDict, sortType, languageCode))
+			setFoodoffersSorted(sortFoodOffers(foodOffersDownloaded, ownFoodFeedbacksDict, profilesMarkingsDict, sortType, languageCode))
 		}
 	}, [sortType])
 
@@ -334,6 +336,7 @@ export default function FoodOfferScreen() {
 				key={item.key}
 				heading={title}
 				borderColor={borderColor}
+				separatorColor={foodsAreaColor}
 				thumbHash={thumb_hash}
 				image_url={image_url}
 				assetId={assetId}
@@ -344,7 +347,9 @@ export default function FoodOfferScreen() {
 				accessibilityLabel={title}
 				innerPadding={0}
 				bottomRightComponent={
-					<IndividualPricingBadge foodOffer={foodOffer}/>
+					<IndividualPricingBadge foodOffer={foodOffer} badgeProps={{
+						color: foodsAreaColor
+					}}/>
 				}
 				topLeftComponent={
 					<View style={{
@@ -398,7 +403,7 @@ export default function FoodOfferScreen() {
 		return (
 			<MySafeAreaView>
 				<MyScrollView>
-					<ErrorGeneric />
+					<ErrorGeneric color={foodsAreaColor} />
 				</MyScrollView>
 			</MySafeAreaView>
 		);

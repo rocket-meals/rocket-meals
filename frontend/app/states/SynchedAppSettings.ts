@@ -6,6 +6,8 @@ import {CollectionHelper} from '@/helper/database/server/CollectionHelper';
 import {RatingType} from "@/components/buttons/MyRatingButton";
 import {FeedbackCommentType, FeedbackLabelsType} from "@/compositions/fooddetails/FoodDetails";
 import {MyCacheHelperDependencyEnum, MyCacheHelperType} from "@/helper/cache/MyCacheHelper";
+import {useProjectColor} from "@/states/ProjectInfo";
+import {AppAreaColors} from "@/constants/Colors";
 
 export const TABLE_NAME_APP_SETTINGS = 'app_settings';
 async function loadAppSettingsFromServer(): Promise<AppSettings> {
@@ -53,6 +55,26 @@ export function useIsFoodsEnabled(): boolean {
 	return appSettings?.foods_enabled || false;
 }
 
+export function useFoodsAreaColor(): string | undefined {
+	const projectColor = useProjectColor();
+	return AppAreaColors.FOODS_COLOR || projectColor;
+}
+
+export function useCampusAreaColor(): string | undefined {
+	const projectColor = useProjectColor();
+	return AppAreaColors.CAMPUS_COLOR || projectColor;
+}
+
+export function useNewsAreaColor(): string | undefined {
+	const projectColor = useProjectColor();
+	return AppAreaColors.NEWS_COLOR || projectColor;
+}
+
+export function useHousingAreaColor(): string | undefined {
+	const projectColor = useProjectColor();
+	return AppAreaColors.HOUSING_COLOR || projectColor;
+}
+
 export function useIsHousingEnabled(): boolean {
 	const [appSettings] = useSynchedAppSettings();
 	return appSettings?.housing_enabled || false;
@@ -65,7 +87,7 @@ export function useIsMapEnabled(): boolean {
 
 export function useIsBuildingsEnabled(): boolean {
 	const [appSettings] = useSynchedAppSettings();
-	return appSettings?.buildings_enabled || false;
+	return appSettings?.campus_enabled || false;
 }
 
 export function useIsNewsEnabled(): boolean {
@@ -96,7 +118,7 @@ function getDemoAppSettings(): AppSettings {
 		api_version: '',
 		balance_enabled: true,
 		balance_settings: '',
-		buildings_enabled: true,
+		campus_enabled: true,
 		buildings_parsing_enabled: false,
 		buildings_parsing_last_date: '',
 		buildings_parsing_status: '',

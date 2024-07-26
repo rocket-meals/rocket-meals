@@ -15,6 +15,7 @@ import {PersistentStore} from "@/helper/syncState/PersistentStore";
 import {sortTypesForFood} from "@/states/SynchedSortType";
 import {UtilizationCanteenButton} from "@/compositions/utilizationForecast/UtilizationCanteenButton";
 import {BusinesshoursCanteenButton} from "@/compositions/businesshours/BusinesshoursCanteenButton";
+import {SettingsButtonProfilePriceGroup} from "@/compositions/settings/SettingsRowPriceGroup";
 
 const MyScreenHeaderFoodOffers = ({ ...props }: MyScreenHeaderProps) => {
 	let title = undefined //"TEST"
@@ -61,6 +62,7 @@ const MyScreenHeaderFoodOffers = ({ ...props }: MyScreenHeaderProps) => {
 				}}
 				>
 					<SettingsButtonSort itemToSort={translation_foods} synchKey={PersistentStore.sortConfigFoodoffers} availableSortTypes={sortTypesForFood} />
+					<SettingsButtonProfilePriceGroup />
 					<SettingsButtonProfileEatingHabits />
 					<SettingsButtonProfileCanteen />
 				</View>

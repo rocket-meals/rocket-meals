@@ -44,6 +44,6 @@ export default function PricingBadge(props: PricingBadgeProps) {
 	const priceContent: string = formatPrice(props.price);
 
 	return (
-			<SimpleBadge borderBottomLeft={true} borderTopLeft={true} text={priceContent} />
+			<SimpleBadge borderBottomLeft={true} borderTopLeft={true} text={priceContent} color={props.color} />
 	)
 }

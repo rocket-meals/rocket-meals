@@ -11,6 +11,7 @@ interface AppState {
 export const SettingsRowProfileNickname: FunctionComponent<AppState> = ({...props}) => {
 	const [nickname, setNickname] = useNickname()
 	const debug = useIsDebug();
+	const translation_edit = useTranslation(TranslationKeys.edit)
 
 	async function onSave(nextValue: string | null | undefined) {
 		console.log('SettingsRowProfileNickname onSave', nextValue)
@@ -22,7 +23,7 @@ export const SettingsRowProfileNickname: FunctionComponent<AppState> = ({...prop
 	const label = translation_title
 	const labelRight = nickname
 
-	const accessibilityLabel = translation_title;
+	const accessibilityLabel = translation_title+": "+translation_edit
 
 	return (
 		<>

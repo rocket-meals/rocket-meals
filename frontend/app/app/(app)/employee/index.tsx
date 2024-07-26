@@ -11,8 +11,8 @@ export default function EmployeeScreen() {
 		<MySafeAreaView>
 			<MyScrollView>
 				<SettingsRowGroup>
-					<SettingsRowNavigateSimple translation_key={TranslationKeys.foodweekplan} iconLeft={IconNames.foodweekplan_icon} route={"/(app)/foodoffers/weekplan"} />
-					<SettingsRowNavigateSimple translation_key={TranslationKeys.foodBigScreen} iconLeft={IconNames.gallery_icon} route={"/(app)/foodoffers/bigscreen"} />
+					<SettingsRowNavigateSimple translation_key={TranslationKeys.foodweekplan} leftIcon={IconNames.foodweekplan_icon} route={"/(app)/foodoffers/weekplan"} />
+					<SettingsRowNavigateSimple translation_key={TranslationKeys.foodBigScreen} leftIcon={IconNames.gallery_icon} route={"/(app)/foodoffers/bigscreen"} />
 				</SettingsRowGroup>
 			</MyScrollView>
 		</MySafeAreaView>

@@ -14,17 +14,19 @@ import {useViewBackgroundColor} from '@/components/Themed';
  * @param {string} background - The background color in any CSS color format.
  * @returns {number} - The contrast ratio between the foreground and background colors.
  */
-export function getContrastRatio(foreground: string | undefined, background: string): number {
+export function getContrastRatio(foreground: string | undefined | null, background: string): number {
 	const start = performance.now();
 
-	const lumA = Color(foreground).getLuminance();
+	let usedForeground = !!foreground ? foreground : undefined
+
+	const lumA = Color(usedForeground).getLuminance();
 	const lumB = Color(background).getLuminance();
 	let contrastRation = (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
 
 	const end = performance.now();
 	let duration = end - start;
 	if(duration>5) {
-		console.log("WARNING - getContrastRatio: foreground: ", foreground, "duration: ", duration, "ms")
+		console.log("WARNING - getContrastRatio: foreground: ", usedForeground, "duration: ", duration, "ms")
 	}
 
 	return contrastRation;
@@ -115,7 +117,7 @@ enum ContrastThreshold {
  * @param contrastThreshold {number}
  * @returns {string} - The hex color code of the most readable contrast color (either dark or light text).
  */
-const useMyContrastColorByColorMode = (trueBg: string | undefined, isDarkMode: boolean, contrastThreshold: ContrastThreshold) => {
+const useMyContrastColorByColorMode = (trueBg: string | undefined | null, isDarkMode: boolean, contrastThreshold: ContrastThreshold) => {
 
 	const start = performance.now();
 
@@ -158,7 +160,7 @@ const useMyContrastColorByColorMode = (trueBg: string | undefined, isDarkMode: b
  * @param {string | undefined} trueBg - The background color for which the contrast color is to be calculated.
  * @returns {string} - The hex color code of the most readable contrast color, suitable for the current theme mode.
  */
-export function useMyContrastColor(trueBg: string | undefined) {
+export function useMyContrastColor(trueBg: string | undefined | null) {
 	const isDarkTheme = useIsDarkTheme();
 	const viewBackgroundColor = useViewBackgroundColor()
 	if (trueBg==='transparent') {

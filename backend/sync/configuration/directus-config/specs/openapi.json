@@ -8445,393 +8445,6 @@
         ]
       }
     },
-    "/items/app_settings": {
-      "post": {
-        "summary": "Create an Item",
-        "description": "Create a new app_settings item.",
-        "tags": [
-          "Items",
-          "ItemsAppSettings"
-        ],
-        "operationId": "createItemsAppSettings",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Meta"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "oneOf": [
-                  {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/ItemsAppSettings"
-                    }
-                  },
-                  {
-                    "$ref": "#/components/schemas/ItemsAppSettings"
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "items": {
-                        "$ref": "#/components/schemas/ItemsAppSettings"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      },
-      "get": {
-        "summary": "List Items",
-        "description": "List the app_settings items.",
-        "tags": [
-          "Items",
-          "ItemsAppSettings"
-        ],
-        "operationId": "readItemsAppSettings",
-        "security": [
-          {
-            "Auth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Fields"
-          },
-          {
-            "$ref": "#/components/parameters/Limit"
-          },
-          {
-            "$ref": "#/components/parameters/Meta"
-          },
-          {
-            "$ref": "#/components/parameters/Offset"
-          },
-          {
-            "$ref": "#/components/parameters/Sort"
-          },
-          {
-            "$ref": "#/components/parameters/Filter"
-          },
-          {
-            "$ref": "#/components/parameters/Search"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "$ref": "#/components/schemas/ItemsAppSettings"
-                      }
-                    },
-                    "meta": {
-                      "$ref": "#/components/schemas/x-metadata"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      },
-      "patch": {
-        "summary": "Update Multiple Items",
-        "description": "Update multiple app_settings items at the same time.",
-        "tags": [
-          "Items",
-          "ItemsAppSettings"
-        ],
-        "operationId": "updateItemsAppSettings",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Fields"
-          },
-          {
-            "$ref": "#/components/parameters/Limit"
-          },
-          {
-            "$ref": "#/components/parameters/Meta"
-          },
-          {
-            "$ref": "#/components/parameters/Offset"
-          },
-          {
-            "$ref": "#/components/parameters/Sort"
-          },
-          {
-            "$ref": "#/components/parameters/Filter"
-          },
-          {
-            "$ref": "#/components/parameters/Search"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "oneOf": [
-                  {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/ItemsAppSettings"
-                    }
-                  },
-                  {
-                    "$ref": "#/components/schemas/ItemsAppSettings"
-                  }
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "data": {
-                      "items": {
-                        "$ref": "#/components/schemas/ItemsAppSettings"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete Multiple Items",
-        "description": "Delete multiple existing app_settings items.",
-        "tags": [
-          "Items",
-          "ItemsAppSettings"
-        ],
-        "operationId": "deleteItemsAppSettings",
-        "responses": {
-          "200": {
-            "description": "Successful request"
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        },
-        "parameters": []
-      }
-    },
-    "/items/app_settings/{id}": {
-      "get": {
-        "summary": "Retrieve an Item",
-        "description": "Retrieve a single app_settings item by unique identifier.",
-        "tags": [
-          "Items",
-          "ItemsAppSettings"
-        ],
-        "operationId": "readSingleItemsAppSettings",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Fields"
-          },
-          {
-            "$ref": "#/components/parameters/Meta"
-          },
-          {
-            "$ref": "#/components/parameters/Version"
-          },
-          {
-            "name": "id",
-            "description": "Index of the item.",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "integer",
-                  "description": "Incremental index of the item.",
-                  "example": 1
-                },
-                {
-                  "type": "string",
-                  "description": "Unique identifier of the item.",
-                  "example": "8cbb43fe-4cdf-4991-8352-c461779cec02"
-                }
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "object",
-                      "$ref": "#/components/schemas/ItemsAppSettings"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        }
-      },
-      "patch": {
-        "summary": "Update an Item",
-        "description": "Update an existing app_settings item.",
-        "tags": [
-          "Items",
-          "ItemsAppSettings"
-        ],
-        "operationId": "updateSingleItemsAppSettings",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Fields"
-          },
-          {
-            "$ref": "#/components/parameters/Meta"
-          },
-          {
-            "name": "id",
-            "description": "Index of the item.",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "integer",
-                  "description": "Incremental index of the item.",
-                  "example": 1
-                },
-                {
-                  "type": "string",
-                  "description": "Unique identifier of the item.",
-                  "example": "8cbb43fe-4cdf-4991-8352-c461779cec02"
-                }
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "$ref": "#/components/schemas/ItemsAppSettings"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "object",
-                      "$ref": "#/components/schemas/ItemsAppSettings"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete an Item",
-        "description": "Delete an existing app_settings item.",
-        "tags": [
-          "Items",
-          "ItemsAppSettings"
-        ],
-        "operationId": "deleteSingleItemsAppSettings",
-        "responses": {
-          "200": {
-            "description": "Successful request"
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "description": "Index of the item.",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "oneOf": [
-                {
-                  "type": "integer",
-                  "description": "Incremental index of the item.",
-                  "example": 1
-                },
-                {
-                  "type": "string",
-                  "description": "Unique identifier of the item.",
-                  "example": "8cbb43fe-4cdf-4991-8352-c461779cec02"
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
     "/items/buildings": {
       "post": {
         "summary": "Create an Item",
@@ -15376,6 +14989,393 @@
           "ItemsFoods"
         ],
         "operationId": "deleteSingleItemsFoods",
+        "responses": {
+          "200": {
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "Index of the item.",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "description": "Incremental index of the item.",
+                  "example": 1
+                },
+                {
+                  "type": "string",
+                  "description": "Unique identifier of the item.",
+                  "example": "8cbb43fe-4cdf-4991-8352-c461779cec02"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "/items/app_settings": {
+      "post": {
+        "summary": "Create an Item",
+        "description": "Create a new app_settings item.",
+        "tags": [
+          "Items",
+          "ItemsAppSettings"
+        ],
+        "operationId": "createItemsAppSettings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Meta"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ItemsAppSettings"
+                    }
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItemsAppSettings"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ItemsAppSettings"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "get": {
+        "summary": "List Items",
+        "description": "List the app_settings items.",
+        "tags": [
+          "Items",
+          "ItemsAppSettings"
+        ],
+        "operationId": "readItemsAppSettings",
+        "security": [
+          {
+            "Auth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Fields"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Meta"
+          },
+          {
+            "$ref": "#/components/parameters/Offset"
+          },
+          {
+            "$ref": "#/components/parameters/Sort"
+          },
+          {
+            "$ref": "#/components/parameters/Filter"
+          },
+          {
+            "$ref": "#/components/parameters/Search"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "$ref": "#/components/schemas/ItemsAppSettings"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/x-metadata"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update Multiple Items",
+        "description": "Update multiple app_settings items at the same time.",
+        "tags": [
+          "Items",
+          "ItemsAppSettings"
+        ],
+        "operationId": "updateItemsAppSettings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Fields"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Meta"
+          },
+          {
+            "$ref": "#/components/parameters/Offset"
+          },
+          {
+            "$ref": "#/components/parameters/Sort"
+          },
+          {
+            "$ref": "#/components/parameters/Filter"
+          },
+          {
+            "$ref": "#/components/parameters/Search"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ItemsAppSettings"
+                    }
+                  },
+                  {
+                    "$ref": "#/components/schemas/ItemsAppSettings"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "$ref": "#/components/schemas/ItemsAppSettings"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Multiple Items",
+        "description": "Delete multiple existing app_settings items.",
+        "tags": [
+          "Items",
+          "ItemsAppSettings"
+        ],
+        "operationId": "deleteItemsAppSettings",
+        "responses": {
+          "200": {
+            "description": "Successful request"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        },
+        "parameters": []
+      }
+    },
+    "/items/app_settings/{id}": {
+      "get": {
+        "summary": "Retrieve an Item",
+        "description": "Retrieve a single app_settings item by unique identifier.",
+        "tags": [
+          "Items",
+          "ItemsAppSettings"
+        ],
+        "operationId": "readSingleItemsAppSettings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Fields"
+          },
+          {
+            "$ref": "#/components/parameters/Meta"
+          },
+          {
+            "$ref": "#/components/parameters/Version"
+          },
+          {
+            "name": "id",
+            "description": "Index of the item.",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "description": "Incremental index of the item.",
+                  "example": 1
+                },
+                {
+                  "type": "string",
+                  "description": "Unique identifier of the item.",
+                  "example": "8cbb43fe-4cdf-4991-8352-c461779cec02"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ItemsAppSettings"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update an Item",
+        "description": "Update an existing app_settings item.",
+        "tags": [
+          "Items",
+          "ItemsAppSettings"
+        ],
+        "operationId": "updateSingleItemsAppSettings",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Fields"
+          },
+          {
+            "$ref": "#/components/parameters/Meta"
+          },
+          {
+            "name": "id",
+            "description": "Index of the item.",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "description": "Incremental index of the item.",
+                  "example": 1
+                },
+                {
+                  "type": "string",
+                  "description": "Unique identifier of the item.",
+                  "example": "8cbb43fe-4cdf-4991-8352-c461779cec02"
+                }
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "$ref": "#/components/schemas/ItemsAppSettings"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "$ref": "#/components/schemas/ItemsAppSettings"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an Item",
+        "description": "Delete an existing app_settings item.",
+        "tags": [
+          "Items",
+          "ItemsAppSettings"
+        ],
+        "operationId": "deleteSingleItemsAppSettings",
         "responses": {
           "200": {
             "description": "Successful request"
@@ -25992,10 +25992,6 @@
       "x-collection": "foods_feedbacks"
     },
     {
-      "name": "ItemsAppSettings",
-      "x-collection": "app_settings"
-    },
-    {
       "name": "ItemsBuildings",
       "x-collection": "buildings"
     },
@@ -26062,6 +26058,10 @@
     {
       "name": "ItemsFoods",
       "x-collection": "foods"
+    },
+    {
+      "name": "ItemsAppSettings",
+      "x-collection": "app_settings"
     },
     {
       "name": "ItemsBusinesshours",
@@ -28173,281 +28173,6 @@
         },
         "x-collection": "foods_feedbacks"
       },
-      "ItemsAppSettings": {
-        "type": "object",
-        "properties": {
-          "app_stores_url_to_apple": {
-            "nullable": true,
-            "type": "string"
-          },
-          "app_stores_url_to_google": {
-            "nullable": true,
-            "type": "string"
-          },
-          "balance_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "buildings_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "buildings_parsing_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "buildings_parsing_last_date": {
-            "nullable": true,
-            "type": "string",
-            "format": "date-time"
-          },
-          "buildings_parsing_status": {
-            "nullable": true,
-            "type": "string"
-          },
-          "canteen_reports_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "cashregisters_parsing_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "cashregisters_parsing_last_date": {
-            "nullable": true,
-            "type": "string",
-            "format": "date-time"
-          },
-          "cashregisters_parsing_status": {
-            "nullable": true,
-            "type": "string"
-          },
-          "course_timetable_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "date_created": {
-            "nullable": true,
-            "type": "string",
-            "format": "timestamp"
-          },
-          "date_privacy_policy_updated": {
-            "nullable": true,
-            "type": "string",
-            "format": "date-time"
-          },
-          "date_updated": {
-            "nullable": true,
-            "type": "string",
-            "format": "timestamp"
-          },
-          "food_responsible_organization_link": {
-            "nullable": true,
-            "type": "string"
-          },
-          "food_responsible_organization_name": {
-            "nullable": true,
-            "type": "string"
-          },
-          "foods_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "foods_feedbacks_comments_type": {
-            "nullable": true,
-            "type": "string"
-          },
-          "foods_feedbacks_custom_url": {
-            "nullable": true,
-            "type": "string"
-          },
-          "foods_feedbacks_labels_type": {
-            "nullable": true,
-            "type": "string"
-          },
-          "foods_parsing_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "foods_parsing_last_date": {
-            "nullable": true,
-            "type": "string",
-            "format": "date-time"
-          },
-          "foods_parsing_status": {
-            "nullable": true,
-            "type": "string"
-          },
-          "foods_placeholder_image": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "$ref": "#/components/schemas/Files"
-              }
-            ]
-          },
-          "foods_placeholder_image_remote_url": {
-            "nullable": true,
-            "type": "string"
-          },
-          "foods_placeholder_image_thumb_hash": {
-            "nullable": true,
-            "type": "string"
-          },
-          "foods_ratings_amount_display": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "foods_ratings_average_display": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "foods_ratings_type": {
-            "nullable": true,
-            "type": "string"
-          },
-          "housing_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "housing_parsing_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "housing_parsing_last_date": {
-            "nullable": true,
-            "type": "string",
-            "format": "date-time"
-          },
-          "housing_parsing_status": {
-            "nullable": true,
-            "type": "string"
-          },
-          "id": {
-            "nullable": false,
-            "type": "integer"
-          },
-          "maintenance_end": {
-            "nullable": true,
-            "type": "string",
-            "format": "date-time"
-          },
-          "maintenance_start": {
-            "nullable": true,
-            "type": "string",
-            "format": "date-time"
-          },
-          "map_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "news_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "news_parsing_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "news_parsing_last_date": {
-            "nullable": true,
-            "type": "string",
-            "format": "date-time"
-          },
-          "news_parsing_status": {
-            "nullable": true,
-            "type": "string"
-          },
-          "notifications_android_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "notifications_email_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "notifications_foods_last_date": {
-            "nullable": true,
-            "type": "string",
-            "format": "date-time"
-          },
-          "notifications_foods_status": {
-            "nullable": true,
-            "type": "string"
-          },
-          "notifications_ios_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "redirect_whitelist": {
-            "nullable": true
-          },
-          "status": {
-            "nullable": false,
-            "type": "string"
-          },
-          "user_created": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "$ref": "#/components/schemas/Users"
-              }
-            ]
-          },
-          "user_updated": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "$ref": "#/components/schemas/Users"
-              }
-            ]
-          },
-          "utilization_forecast_calculation_enabled": {
-            "nullable": true,
-            "type": "boolean"
-          },
-          "utilization_forecast_calculation_last_date": {
-            "nullable": true,
-            "type": "string",
-            "format": "date-time"
-          },
-          "utilization_forecast_calculation_status": {
-            "nullable": true,
-            "type": "string"
-          },
-          "foods_parsing_hash": {
-            "nullable": true,
-            "type": "string"
-          },
-          "housing_translations": {
-            "nullable": true,
-            "type": "array",
-            "items": {
-              "oneOf": [
-                {
-                  "type": "integer"
-                },
-                {
-                  "$ref": "#/components/schemas/ItemsAppSettingsHousingTranslations"
-                }
-              ]
-            }
-          }
-        },
-        "x-collection": "app_settings"
-      },
       "ItemsBuildings": {
         "type": "object",
         "properties": {
@@ -29833,6 +29558,281 @@
           }
         },
         "x-collection": "foods"
+      },
+      "ItemsAppSettings": {
+        "type": "object",
+        "properties": {
+          "app_stores_url_to_apple": {
+            "nullable": true,
+            "type": "string"
+          },
+          "app_stores_url_to_google": {
+            "nullable": true,
+            "type": "string"
+          },
+          "balance_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "canteen_reports_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "cashregisters_parsing_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "cashregisters_parsing_last_date": {
+            "nullable": true,
+            "type": "string",
+            "format": "date-time"
+          },
+          "cashregisters_parsing_status": {
+            "nullable": true,
+            "type": "string"
+          },
+          "course_timetable_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "date_created": {
+            "nullable": true,
+            "type": "string",
+            "format": "timestamp"
+          },
+          "date_privacy_policy_updated": {
+            "nullable": true,
+            "type": "string",
+            "format": "date-time"
+          },
+          "date_updated": {
+            "nullable": true,
+            "type": "string",
+            "format": "timestamp"
+          },
+          "food_responsible_organization_link": {
+            "nullable": true,
+            "type": "string"
+          },
+          "food_responsible_organization_name": {
+            "nullable": true,
+            "type": "string"
+          },
+          "foods_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "foods_feedbacks_comments_type": {
+            "nullable": true,
+            "type": "string"
+          },
+          "foods_feedbacks_custom_url": {
+            "nullable": true,
+            "type": "string"
+          },
+          "foods_feedbacks_labels_type": {
+            "nullable": true,
+            "type": "string"
+          },
+          "foods_parsing_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "foods_parsing_last_date": {
+            "nullable": true,
+            "type": "string",
+            "format": "date-time"
+          },
+          "foods_parsing_status": {
+            "nullable": true,
+            "type": "string"
+          },
+          "foods_placeholder_image": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "$ref": "#/components/schemas/Files"
+              }
+            ]
+          },
+          "foods_placeholder_image_remote_url": {
+            "nullable": true,
+            "type": "string"
+          },
+          "foods_placeholder_image_thumb_hash": {
+            "nullable": true,
+            "type": "string"
+          },
+          "foods_ratings_amount_display": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "foods_ratings_average_display": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "foods_ratings_type": {
+            "nullable": true,
+            "type": "string"
+          },
+          "housing_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "housing_parsing_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "housing_parsing_last_date": {
+            "nullable": true,
+            "type": "string",
+            "format": "date-time"
+          },
+          "housing_parsing_status": {
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "nullable": false,
+            "type": "integer"
+          },
+          "maintenance_end": {
+            "nullable": true,
+            "type": "string",
+            "format": "date-time"
+          },
+          "maintenance_start": {
+            "nullable": true,
+            "type": "string",
+            "format": "date-time"
+          },
+          "map_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "news_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "news_parsing_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "news_parsing_last_date": {
+            "nullable": true,
+            "type": "string",
+            "format": "date-time"
+          },
+          "news_parsing_status": {
+            "nullable": true,
+            "type": "string"
+          },
+          "notifications_android_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "notifications_email_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "notifications_foods_last_date": {
+            "nullable": true,
+            "type": "string",
+            "format": "date-time"
+          },
+          "notifications_foods_status": {
+            "nullable": true,
+            "type": "string"
+          },
+          "notifications_ios_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "redirect_whitelist": {
+            "nullable": true
+          },
+          "status": {
+            "nullable": false,
+            "type": "string"
+          },
+          "user_created": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "$ref": "#/components/schemas/Users"
+              }
+            ]
+          },
+          "user_updated": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "$ref": "#/components/schemas/Users"
+              }
+            ]
+          },
+          "utilization_forecast_calculation_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "utilization_forecast_calculation_last_date": {
+            "nullable": true,
+            "type": "string",
+            "format": "date-time"
+          },
+          "utilization_forecast_calculation_status": {
+            "nullable": true,
+            "type": "string"
+          },
+          "foods_parsing_hash": {
+            "nullable": true,
+            "type": "string"
+          },
+          "campus_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "campus_parsing_enabled": {
+            "nullable": true,
+            "type": "boolean"
+          },
+          "campus_parsing_status": {
+            "nullable": true,
+            "type": "string"
+          },
+          "campus_parsing_last_date": {
+            "nullable": true,
+            "type": "string",
+            "format": "date-time"
+          },
+          "housing_translations": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "$ref": "#/components/schemas/ItemsAppSettingsHousingTranslations"
+                }
+              ]
+            }
+          }
+        },
+        "x-collection": "app_settings"
       },
       "ItemsBusinesshours": {
         "type": "object",

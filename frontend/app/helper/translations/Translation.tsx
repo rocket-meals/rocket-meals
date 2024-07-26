@@ -115,6 +115,10 @@ export enum TranslationKeys {
 	CHECK_SERVER_STATUS = 'CHECK_SERVER_STATUS',
 	SERVER_IS_OFFLINE = 'SERVER_IS_OFFLINE',
 	CONTINUE_WITH_CACHE = 'CONTINUE_WITH_CACHE',
+	developer = "developer",
+	developer_homepage = "developer_homepage",
+	software_homepage = "software_homepage",
+	software_name = "software_name",
 	profile = "profile",
 	nickname = "nickname",
 	account = "account",
@@ -169,6 +173,7 @@ export enum TranslationKeys {
 	set_rating_to = "set_rating_to",
 	set_rate_as_favorite = "set_rate_as_favorite",
 	set_rate_as_not_favorite = "set_rate_as_not_favorite",
+	set_rating = "set_rating",
 	feedback_labels = "feedback_labels",
 	open_navitation_to_location = "open_navitation_to_location",
 	distance_based_canteen_selection_or_if_asked_on_real_location = "distance_based_canteen_selection_or_if_asked_on_real_location",
@@ -198,7 +203,7 @@ export enum TranslationKeys {
 	support_team = "support_team",
 	response = "response",
 	your_request = "your_request",
-	no_permission = "no_permission",
+	no_permission_for = "no_permission_for",
 	please_create_an_account = "please_create_an_account",
 	create_account = "create_account",
 	washing_machine = "washing_machine",
@@ -243,7 +248,7 @@ export enum TranslationKeys {
 	tomorrow = "tomorrow",
 	yesterday = "yesterday",
 	nutrition = "nutrition",
-	nutrition_disclaimer = "nutrition_disclaimer",
+	food_information_disclaimer = "food_information_disclaimer",
 	nutrition_calories = "nutrition_calories",
 	nutrition_protein = "nutrition_protein",
 	nutrition_fat = "nutrition_fat",
@@ -274,7 +279,6 @@ export enum TranslationKeys {
 	course_timetable = "course_timetable",
 	eating_habits = "eating_habits",
 	markings = "markings",
-	markings_disclaimer = "markings_disclaimer",
 	forecast = "forecast",
 	utilization = "utilization",
 	opens_at = "opens_at",
@@ -283,7 +287,7 @@ export enum TranslationKeys {
 	i_like_that = "i_like_that",
 	i_dislike_that = "i_dislike_that",
 	like_status = "like_status",
-	show_login_with_username_and_password = "show_login_with_username_and_password",
+	show_login_for_management_with_email_and_password = "show_login_for_management_with_email_and_password",
 	email = "email",
 	password = "password",
 	show = "show",
@@ -292,6 +296,7 @@ export enum TranslationKeys {
 	sign_in_with = "sign_in_with",
 	home = "home",
 	canteens = "canteens",
+	campus = "campus",
 	buildings = "buildings",
 	housing = "housing",
 	settings = "settings",
@@ -420,6 +425,46 @@ const Translations: Record<TranslationKeys, TranslationEntry> = {
 		[LanguageKeys.ru_RU]: 'Продолжить с кэшем',
 		[LanguageKeys.tr_TR]: 'Önbellekle devam et',
 		[LanguageKeys.zh_CN]: '继续使用缓存'
+	},
+	developer: {
+		[LanguageKeys.de_DE]: 'Entwickler',
+		[LanguageKeys.en_US]: 'Developer',
+		[LanguageKeys.ar_SA]: 'مطور',
+		[LanguageKeys.es_ES]: 'Desarrollador',
+		[LanguageKeys.fr_FR]: 'Développeur',
+		[LanguageKeys.ru_RU]: 'Разработчик',
+		[LanguageKeys.tr_TR]: 'Geliştirici',
+		[LanguageKeys.zh_CN]: '开发者'
+	},
+	developer_homepage: {
+		[LanguageKeys.de_DE]: 'Entwickler-Homepage',
+		[LanguageKeys.en_US]: 'Developer Homepage',
+		[LanguageKeys.ar_SA]: 'الصفحة الرئيسية للمطور',
+		[LanguageKeys.es_ES]: 'Página de inicio del desarrollador',
+		[LanguageKeys.fr_FR]: "Page d'accueil du développeur",
+		[LanguageKeys.ru_RU]: 'Домашняя страница разработчика',
+		[LanguageKeys.tr_TR]: 'Geliştirici Ana Sayfası',
+		[LanguageKeys.zh_CN]: '开发者主页'
+	},
+	software_homepage: {
+		[LanguageKeys.de_DE]: 'Software-Homepage',
+		[LanguageKeys.en_US]: 'Software Homepage',
+		[LanguageKeys.ar_SA]: 'الصفحة الرئيسية للبرنامج',
+		[LanguageKeys.es_ES]: 'Página de inicio del software',
+		[LanguageKeys.fr_FR]: "Page d'accueil du logiciel",
+		[LanguageKeys.ru_RU]: 'Домашняя страница программного обеспечения',
+		[LanguageKeys.tr_TR]: 'Yazılım Ana Sayfası',
+		[LanguageKeys.zh_CN]: '软件主页'
+	},
+	software_name: {
+		[LanguageKeys.de_DE]: 'Software-Name',
+		[LanguageKeys.en_US]: 'Software Name',
+		[LanguageKeys.ar_SA]: 'اسم البرنامج',
+		[LanguageKeys.es_ES]: 'Nombre del software',
+		[LanguageKeys.fr_FR]: 'Nom du logiciel',
+		[LanguageKeys.ru_RU]: 'Название программы',
+		[LanguageKeys.tr_TR]: 'Yazılım Adı',
+		[LanguageKeys.zh_CN]: '软件名称'
 	},
 	profile: {
 		[LanguageKeys.de_DE]: 'Profil',
@@ -1018,6 +1063,16 @@ Bize her zaman ulaşabilirsiniz. Verileriniz, kontrolünüz.`,
 		[LanguageKeys.tr_TR]: 'Değerlendirmeyi Favori Olmayan Olarak Ayarla',
 		[LanguageKeys.zh_CN]: '将评分设为非收藏'
 	},
+	set_rating: {
+		[LanguageKeys.de_DE]: 'Bewertung setzen',
+		[LanguageKeys.en_US]: 'Set Rating',
+		[LanguageKeys.ar_SA]: 'تعيين التقييم',
+		[LanguageKeys.es_ES]: 'Establecer calificación',
+		[LanguageKeys.fr_FR]: 'Définir la note',
+		[LanguageKeys.ru_RU]: 'Установить рейтинг',
+		[LanguageKeys.tr_TR]: 'Değerlendirme Ayarla',
+		[LanguageKeys.zh_CN]: '设置评分'
+	},
 	feedback_labels: {
 		[LanguageKeys.de_DE]: 'Rückmeldungen',
 		[LanguageKeys.en_US]: 'Feedback Labels',
@@ -1308,14 +1363,14 @@ Bize her zaman ulaşabilirsiniz. Verileriniz, kontrolünüz.`,
 		[LanguageKeys.tr_TR]: 'Talebiniz',
 		[LanguageKeys.zh_CN]: '你的请求'
 	},
-	no_permission: {
-		[LanguageKeys.de_DE]: 'Keine Berechtigung',
-		[LanguageKeys.en_US]: 'No Permission',
-		[LanguageKeys.ar_SA]: 'لا إذن',
-		[LanguageKeys.es_ES]: 'Sin permiso',
-		[LanguageKeys.fr_FR]: 'Pas de permission',
-		[LanguageKeys.ru_RU]: 'Нет разрешения',
-		[LanguageKeys.tr_TR]: 'İzin Yok',
+	no_permission_for: {
+		[LanguageKeys.de_DE]: 'Keine Berechtigung für',
+		[LanguageKeys.en_US]: 'No Permission for',
+		[LanguageKeys.ar_SA]: 'لا توجد إذن لـ',
+		[LanguageKeys.es_ES]: 'Sin permiso para',
+		[LanguageKeys.fr_FR]: 'Pas de permission pour',
+		[LanguageKeys.ru_RU]: 'Нет разрешения на',
+		[LanguageKeys.tr_TR]: 'İzin yok',
 		[LanguageKeys.zh_CN]: '没有权限'
 	},
 	please_create_an_account: {
@@ -1758,15 +1813,15 @@ Bize her zaman ulaşabilirsiniz. Verileriniz, kontrolünüz.`,
 		[LanguageKeys.tr_TR]: 'Beslenme',
 		[LanguageKeys.zh_CN]: '营养'
 	},
-	nutrition_disclaimer: {
-		[LanguageKeys.de_DE]: 'Bei der Angabe von der Nährwerte handelt es sich um Durchschnittswerte pro Portion. Änderungen vorbehalten. Weitere Informationen zu den Nährwerten und der Berechnung können hier entnommen werden:',
-		[LanguageKeys.en_US]: 'The nutritional information provided is an average value per serving. Subject to change. Further information on the nutritional values and calculation can be found here:',
-		[LanguageKeys.ar_SA]: 'المعلومات الغذائية المقدمة هي قيمة متوسطة لكل وجبة. عرضة للتغيير. يمكن العثور على مزيد من المعلومات حول القيم الغذائية والحساب هنا:',
-		[LanguageKeys.es_ES]: 'La información nutricional proporcionada es un valor promedio por porción. Sujeto a cambios. Puede encontrar más información sobre los valores nutricionales y el cálculo aquí:',
-		[LanguageKeys.fr_FR]: 'Les informations nutritionnelles fournies sont une valeur moyenne par portion. Sujet à changement. De plus amples informations sur les valeurs nutritionnelles et le calcul peuvent être trouvées ici :',
-		[LanguageKeys.ru_RU]: 'Предоставленная информация о питании является средним значением на порцию. Может изменяться. Дополнительную информацию о питательных ценностях и расчетах можно найти здесь:',
-		[LanguageKeys.tr_TR]: 'Verilen beslenme bilgisi, porsiyon başına ortalama bir değerdir. Değişikliğe tabidir. Besin değerleri ve hesaplama hakkında daha fazla bilgi burada bulunabilir:',
-		[LanguageKeys.zh_CN]: '提供的营养信息是每份的平均值。如有更改，恕不另行通知。有关营养价值和计算的更多信息，请参见：'
+	food_information_disclaimer: {
+		[LanguageKeys.de_DE]: 'Die Angaben zu den medizinischen und gesundheitsbezogenen Daten basieren auf den Informationen, die uns zur Verfügung stehen. Die Kennzeichnungen können von den tatsächlichen Inhaltsstoffen abweichen. Bei der Angabe der Nährwerte handelt es sich um Durchschnittswerte pro Portion. Änderungen vorbehalten. Weitere Informationen zu den Nährwerten und der Berechnung können hier entnommen werden:',
+		[LanguageKeys.en_US]: 'The information on medical and health-related data is based on the information available to us. The labels may differ from the actual ingredients. The nutritional values are average values per portion. Subject to change. Further information on the nutritional values and the calculation can be found here:',
+		[LanguageKeys.ar_SA]: 'تعتمد المعلومات حول البيانات الطبية والصحية على المعلومات المتاحة لدينا. قد تختلف التسميات عن المكونات الفعلية. القيم الغذائية هي قيم متوسطة لكل وجبة. قابل للتغيير. يمكن العثور على مزيد من المعلومات حول القيم الغذائية والحساب هنا:',
+		[LanguageKeys.es_ES]: 'La información sobre datos médicos y relacionados con la salud se basa en la información disponible para nosotros. Las etiquetas pueden diferir de los ingredientes reales. Los valores nutricionales son valores promedio por porción. Sujeto a cambios. Puede encontrar más información sobre los valores nutricionales y el cálculo aquí:',
+		[LanguageKeys.fr_FR]: 'Les informations sur les données médicales et liées à la santé sont basées sur les informations dont nous disposons. Les étiquettes peuvent différer des ingrédients réels. Les valeurs nutritionnelles sont des valeurs moyennes par portion. Sous réserve de modifications. Vous trouverez plus d\'informations sur les valeurs nutritionnelles et le calcul ici:',
+		[LanguageKeys.ru_RU]: 'Информация о медицинских и здоровьесберегающих данных основана на имеющейся у нас информации. Метки могут отличаться от фактических ингредиентов. Пищевая ценность является средним значением на порцию. Подлежит изменению. Дополнительную информацию о пищевой ценности и расчете можно найти здесь:',
+		[LanguageKeys.tr_TR]: 'Tıbbi ve sağlıkla ilgili veriler hakkındaki bilgiler, bize sunulan bilgilere dayanmaktadır. Etiketler gerçek içeriklerden farklı olabilir. Besin değerleri porsiyon başına ortalama değerlerdir. Değişiklik yapılabilir. Besin değerleri ve hesaplama hakkında daha fazla bilgi burada bulunabilir:',
+		[LanguageKeys.zh_CN]: '关于医疗和与健康相关的数据的信息基于我们掌握的信息。标签可能与实际成分不同。营养价值是每份的平均值。如有更改。有关营养价值和计算的更多信息，请参见此处：'
 	},
 	nutrition_calories: {
 		[LanguageKeys.de_DE]: 'Kalorien',
@@ -1979,14 +2034,14 @@ Bize her zaman ulaşabilirsiniz. Verileriniz, kontrolünüz.`,
 		[LanguageKeys.zh_CN]: '导航到'
 	},
 	open_drawer: {
-		[LanguageKeys.de_DE]: 'Schublade öffnen',
-		[LanguageKeys.en_US]: 'Open drawer',
-		[LanguageKeys.ar_SA]: 'افتح الدرج',
-		[LanguageKeys.es_ES]: 'Abrir cajón',
-		[LanguageKeys.fr_FR]: 'Ouvrir le tiroir',
-		[LanguageKeys.ru_RU]: 'Открыть ящик',
-		[LanguageKeys.tr_TR]: 'Çekmeceyi aç',
-		[LanguageKeys.zh_CN]: '打开抽屉'
+		[LanguageKeys.de_DE]: "Seitenmenü öffnen",
+		[LanguageKeys.en_US]: "Open side menu",
+		[LanguageKeys.ar_SA]: "افتح القائمة الجانبية",
+		[LanguageKeys.es_ES]: "Abrir menú lateral",
+		[LanguageKeys.fr_FR]: "Ouvrir le menu latéral",
+		[LanguageKeys.ru_RU]: "Открыть боковое меню",
+		[LanguageKeys.tr_TR]: "Yan menüyü aç",
+		[LanguageKeys.zh_CN]: "打开侧边菜单"
 	},
 	navigate_back: {
 		[LanguageKeys.de_DE]: 'Zurück navigieren',
@@ -2019,7 +2074,7 @@ Bize her zaman ulaşabilirsiniz. Verileriniz, kontrolünüz.`,
 		[LanguageKeys.zh_CN]: '地图'
 	},
 	news: {
-		[LanguageKeys.de_DE]: 'Nachrichten',
+		[LanguageKeys.de_DE]: 'News',
 		[LanguageKeys.en_US]: 'News',
 		[LanguageKeys.ar_SA]: 'أخبار',
 		[LanguageKeys.es_ES]: 'Noticias',
@@ -2067,16 +2122,6 @@ Bize her zaman ulaşabilirsiniz. Verileriniz, kontrolünüz.`,
 		[LanguageKeys.ru_RU]: 'Метки',
 		[LanguageKeys.tr_TR]: 'Etiketler',
 		[LanguageKeys.zh_CN]: '标签'
-	},
-	markings_disclaimer: {
-		[LanguageKeys.de_DE]: 'Die Kennzeichnungen basieren auf den Informationen, die uns zur Verfügung stehen. Sie können von den tatsächlichen Inhaltsstoffen abweichen.',
-		[LanguageKeys.en_US]: 'The labels are based on the information available to us. They may differ from the actual ingredients.',
-		[LanguageKeys.ar_SA]: 'تعتمد العلامات على المعلومات المتاحة لدينا. قد تختلف عن المكونات الفعلية.',
-		[LanguageKeys.es_ES]: 'Las etiquetas se basan en la información disponible para nosotros. Pueden diferir de los ingredientes reales.',
-		[LanguageKeys.fr_FR]: 'Les étiquettes sont basées sur les informations disponibles. Elles peuvent différer des ingrédients réels.',
-		[LanguageKeys.ru_RU]: 'Метки основаны на имеющейся у нас информации. Они могут отличаться от фактических ингредиентов.',
-		[LanguageKeys.tr_TR]: 'Etiketler, elimizdeki bilgilere dayanmaktadır. Gerçek bileşenlerden farklı olabilirler.',
-		[LanguageKeys.zh_CN]: '这些标签基于我们掌握的信息。它们可能与实际成分有所不同。'
 	},
 	forecast: {
 		[LanguageKeys.de_DE]: 'Vorhersage',
@@ -2158,15 +2203,15 @@ Bize her zaman ulaşabilirsiniz. Verileriniz, kontrolünüz.`,
 		[LanguageKeys.tr_TR]: 'Beğenme Durumu',
 		[LanguageKeys.zh_CN]: '喜欢状态'
 	},
-	show_login_with_username_and_password: {
-		[LanguageKeys.de_DE]: 'Anmeldung mit Benutzername und Passwort anzeigen',
-		[LanguageKeys.en_US]: 'Show login with username and password',
-		[LanguageKeys.ar_SA]: 'إظهار تسجيل الدخول باسم المستخدم وكلمة المرور',
-		[LanguageKeys.es_ES]: 'Mostrar inicio de sesión con nombre de usuario y contraseña',
-		[LanguageKeys.fr_FR]: 'Afficher la connexion avec nom d\'utilisateur et mot de passe',
-		[LanguageKeys.ru_RU]: 'Показать вход с именем пользователя и паролем',
-		[LanguageKeys.tr_TR]: 'Kullanıcı adı ve şifre ile giriş yapmayı göster',
-		[LanguageKeys.zh_CN]: '显示使用用户名和密码登录'
+	show_login_for_management_with_email_and_password: {
+		[LanguageKeys.de_DE]: 'Verwaltungs-Login mit E-Mail und Passwort anzeigen',
+		[LanguageKeys.en_US]: 'Show management login with email and password',
+		[LanguageKeys.ar_SA]: 'إظهار تسجيل الدخول للإدارة بالبريد الإلكتروني وكلمة المرور',
+		[LanguageKeys.es_ES]: 'Mostrar inicio de sesión de administración con correo electrónico y contraseña',
+		[LanguageKeys.fr_FR]: 'Afficher la connexion de gestion avec e-mail et mot de passe',
+		[LanguageKeys.ru_RU]: 'Показать управление входом с электронной почтой и паролем',
+		[LanguageKeys.tr_TR]: 'E-posta ve şifre ile yönetim girişini göster',
+		[LanguageKeys.zh_CN]: '显示使用电子邮件和密码的管理登录'
 	},
 	email: {
 		[LanguageKeys.de_DE]: 'E-Mail',
@@ -2257,6 +2302,16 @@ Bize her zaman ulaşabilirsiniz. Verileriniz, kontrolünüz.`,
 		[LanguageKeys.ru_RU]: 'Здания',
 		[LanguageKeys.tr_TR]: 'Binalar',
 		[LanguageKeys.zh_CN]: '建筑物'
+	},
+	campus: {
+		[LanguageKeys.de_DE]: "Campus",
+		[LanguageKeys.en_US]: "Campus",
+		[LanguageKeys.ar_SA]: "حرم الجامعة",
+		[LanguageKeys.es_ES]: "Instalaciones",
+		[LanguageKeys.fr_FR]: "Campus",
+		[LanguageKeys.ru_RU]: "Кампус",
+		[LanguageKeys.tr_TR]: "Yerleşke",
+		[LanguageKeys.zh_CN]: "校园"
 	},
 	housing: {
 		[LanguageKeys.de_DE]: 'Wohnen',
@@ -2419,14 +2474,14 @@ Bize her zaman ulaşabilirsiniz. Verileriniz, kontrolünüz.`,
 		[LanguageKeys.zh_CN]: '系统语言'
 	},
 	drawer_config_position: {
-		[LanguageKeys.de_DE]: 'Schubladenkonfiguration',
-		[LanguageKeys.en_US]: 'Drawer Configuration',
-		[LanguageKeys.ar_SA]: 'تكوين الدرج',
-		[LanguageKeys.es_ES]: 'Configuración del cajón',
-		[LanguageKeys.fr_FR]: 'Configuration du tiroir',
-		[LanguageKeys.ru_RU]: 'Конфигурация ящика',
-		[LanguageKeys.tr_TR]: 'Çekmece Yapılandırması',
-		[LanguageKeys.zh_CN]: '抽屉配置'
+		[LanguageKeys.de_DE]: 'Menüposition',
+		[LanguageKeys.en_US]: 'Drawer Position',
+		[LanguageKeys.ar_SA]: 'موقف القائمة',
+		[LanguageKeys.es_ES]: 'Posición del cajón',
+		[LanguageKeys.fr_FR]: 'Position du tiroir',
+		[LanguageKeys.ru_RU]: 'Положение ящика',
+		[LanguageKeys.tr_TR]: 'Çekmece Konumu',
+		[LanguageKeys.zh_CN]: '抽屉位置'
 	},
 	drawer_config_position_left: {
 		[LanguageKeys.de_DE]: 'Links',
@@ -2469,14 +2524,14 @@ Bize her zaman ulaşabilirsiniz. Verileriniz, kontrolünüz.`,
 		[LanguageKeys.zh_CN]: '一周的第一天'
 	},
 	first_day_of_week_system: {
-		[LanguageKeys.de_DE]: 'Erster Tag der Woche (System)',
-		[LanguageKeys.en_US]: 'First Day of Week (System)',
-		[LanguageKeys.ar_SA]: 'أول يوم في الأسبوع (النظام)',
-		[LanguageKeys.es_ES]: 'Primer día de la semana (sistema)',
-		[LanguageKeys.fr_FR]: 'Premier jour de la semaine (système)',
-		[LanguageKeys.ru_RU]: 'Первый день недели (система)',
-		[LanguageKeys.tr_TR]: 'Haftanın İlk Günü (Sistem)',
-		[LanguageKeys.zh_CN]: '一周的第一天（系统）'
+		[LanguageKeys.de_DE]: 'System',
+		[LanguageKeys.en_US]: 'System',
+		[LanguageKeys.ar_SA]: 'نظام',
+		[LanguageKeys.es_ES]: 'Sistema',
+		[LanguageKeys.fr_FR]: 'Système',
+		[LanguageKeys.ru_RU]: 'Система',
+		[LanguageKeys.tr_TR]: 'Sistem',
+		[LanguageKeys.zh_CN]: '系统'
 	},
 	color_scheme: {
 		[LanguageKeys.de_DE]: 'Farbschema',

@@ -17,7 +17,7 @@ import {TranslationKeys, useTranslation} from '@/helper/translations/Translation
 import {MarkingListSelective} from '@/components/food/MarkingList';
 import {useIsDemo} from "@/states/SynchedDemo";
 import {useIsDebug} from "@/states/Debug";
-import {useSynchedAppSettings} from "@/states/SynchedAppSettings";
+import {useFoodsAreaColor, useSynchedAppSettings} from "@/states/SynchedAppSettings";
 import {FoodFeedbackRating} from "@/components/foodfeedback/FoodRatingDisplay";
 import {useServerInfo} from "@/states/SyncStateServerInfo";
 import {DETAILS_COMPONENT_MARGIN_HORIZONTAL, DetailsComponent} from "@/components/detailsComponent/DetailsComponent";
@@ -85,6 +85,10 @@ const FoodFeedbackSettingsRow = ({food_id, feedback_label_id, translation, amoun
 	const [foodFeedbackLabelsDict] = useSynchedFoodsFeedbacksLabelsDict();
 	const foodFeedbackLabel = foodFeedbackLabelsDict?.[feedback_label_id];
 
+	const foodsAreaColor = useFoodsAreaColor()
+
+	const translationSetRating = useTranslation(TranslationKeys.set_rating);
+
 	let ownFoodFeedbackLabels: FoodsFeedbacksFoodsFeedbacksLabels[] = foodFeedback?.labels || [];
 	let ownFoodFeedbackLabel: FoodsFeedbacksFoodsFeedbacksLabels | undefined |null = ownFoodFeedbackLabels.find((value) => value.foods_feedbacks_labels_id === feedback_label_id);
 	let dislikesRaw: boolean | undefined | null = ownFoodFeedbackLabel?.dislikes
@@ -94,9 +98,10 @@ const FoodFeedbackSettingsRow = ({food_id, feedback_label_id, translation, amoun
 	let iconLeftCustom = <DirectusImageOrIconComponent resource={foodFeedbackLabel} />
 
 	return <SettingsRowTriStateLikeDislike
+		color={foodsAreaColor}
 		iconLeftCustom={iconLeftCustom}
 		renderRightContentWrapper={(rightContent) => {
-			return <AccountRequiredTouchableOpacity>
+			return <AccountRequiredTouchableOpacity translationOfDesiredAction={translationSetRating}>
 					{rightContent}
 			</AccountRequiredTouchableOpacity>
 		}}
@@ -123,6 +128,8 @@ export const FoodFeedbacksLabelsComponent = ({food, remoteFoodFeedbacks, refresh
 	const [foodFeedbackLabelsDict] = useSynchedFoodsFeedbacksLabelsDict();
 	const [ownFoodFeedback, setOwnRating, setOwnComment, setOwnNotify, setOwnLabels] = useSynchedOwnFoodFeedback(food.id);
 	const [language, setLanguage] = useProfileLanguageCode()
+
+
 
 	const isDebug = useIsDebug()
 
@@ -470,42 +477,10 @@ export const FoodFeedbackDetails = ({food}: {food: Foods}) => {
 	)
 }
 
-const FoodMarkingDetails = ({foodOfferData}: {foodOfferData: Foodoffers}) => {
-	const isDebug = useIsDebug()
+export const FoodInformationDisclaimer = () => {
+	const translation_disclaimer = useTranslation(TranslationKeys.food_information_disclaimer);
 
-	const markingIds: string[] = [];
-	let foodOfferMarkings = foodOfferData?.markings || [];
-	foodOfferMarkings.forEach((marking) => {
-		markingIds.push(marking.markings_id);
-	});
-
-	const translation_markings_disclaimer = useTranslation(TranslationKeys.markings_disclaimer)
-
-	let debugMarkings = undefined
-	if(isDebug){
-		debugMarkings = <View>
-			<Text>{JSON.stringify(foodOfferData?.markings, null, 2)}</Text>
-		</View>
-	}
-
-	return(
-		<>
-			<MarkingListSelective markingIds={markingIds}/>
-			<Text italic={true}>{translation_markings_disclaimer}</Text>
-			{debugMarkings}
-		</>
-	)
-}
-
-const FoodNutritionDetails = ({foodOfferData}: {foodOfferData: Foodoffers}) => {
-	const nutritionColumns = useBreakPointValue<number>({
-		sm: 2,
-		md: 2,
-		lg: 3,
-		xl: 3,
-	})
-
-	const translation_disclaimer = useTranslation(TranslationKeys.nutrition_disclaimer);
+	const foodsAreaColor = useFoodsAreaColor()
 
 	const [appSettings] = useSynchedAppSettings();
 	// person responsible for the information
@@ -520,8 +495,50 @@ const FoodNutritionDetails = ({foodOfferData}: {foodOfferData: Foodoffers}) => {
 
 	let responsibleAdditionElement = null;
 	if(!!responsible_person_name && !!responsible_person_webpage){
-		responsibleAdditionElement = <ThemedMarkdown markdown={responsible_for_information_markdown_link} />
+		responsibleAdditionElement = <ThemedMarkdown buttonAndLinkColor={foodsAreaColor} markdown={responsible_for_information_markdown_link} />
 	}
+
+	return(
+		<View>
+			<Text italic={true}>{translation_disclaimer}</Text>
+			{responsibleAdditionElement}
+		</View>
+	)
+}
+
+const FoodMarkingDetails = ({foodOfferData}: {foodOfferData: Foodoffers}) => {
+	const isDebug = useIsDebug()
+
+	const markingIds: string[] = [];
+	let foodOfferMarkings = foodOfferData?.markings || [];
+	foodOfferMarkings.forEach((marking) => {
+		markingIds.push(marking.markings_id);
+	});
+
+	let debugMarkings = undefined
+	if(isDebug){
+		debugMarkings = <View>
+			<Text>{JSON.stringify(foodOfferData?.markings, null, 2)}</Text>
+		</View>
+	}
+
+	return(
+		<>
+			<MarkingListSelective markingIds={markingIds}/>
+			<FoodInformationDisclaimer />
+			{debugMarkings}
+		</>
+	)
+}
+
+
+const FoodNutritionDetails = ({foodOfferData}: {foodOfferData: Foodoffers}) => {
+	const nutritionColumns = useBreakPointValue<number>({
+		sm: 2,
+		md: 2,
+		lg: 3,
+		xl: 3,
+	})
 
 	return(
 		<>
@@ -540,10 +557,7 @@ const FoodNutritionDetails = ({foodOfferData}: {foodOfferData: Foodoffers}) => {
 					/>
 				</View>
 			</View>
-			<View>
-				<ThemedMarkdown markdown={translation_disclaimer} />
-				{responsibleAdditionElement}
-			</View>
+			<FoodInformationDisclaimer />
 		</>
 	)
 }
@@ -570,6 +584,8 @@ function FoodDetailsWithFoodOfferAndFood({ foodOfferData, food }: { foodOfferDat
 	const translations_nutrition = useTranslation(TranslationKeys.nutrition);
 	const translations_markings = useTranslation(TranslationKeys.markings);
 	const translations_food_feedbacks = useTranslation(TranslationKeys.food_feedbacks);
+
+	const foodsAreaColor = useFoodsAreaColor();
 
 	// get device height
 	const screenHeight = Dimensions.get('window').height;
@@ -604,6 +620,7 @@ function FoodDetailsWithFoodOfferAndFood({ foodOfferData, food }: { foodOfferDat
 								  [
 									  {
 										  iconName: IconNames.nutrition_icon,
+										  color: foodsAreaColor,
 										  accessibilityLabel: translations_nutrition,
 										  text: translations_nutrition,
 										  content: <View style={{
@@ -613,6 +630,7 @@ function FoodDetailsWithFoodOfferAndFood({ foodOfferData, food }: { foodOfferDat
 									  },
 									  {
 										  iconName: IconNames.eating_habit_icon,
+										  color: foodsAreaColor,
 										  accessibilityLabel: translations_markings,
 										  text: translations_markings,
 										  content: <View style={{
@@ -622,6 +640,7 @@ function FoodDetailsWithFoodOfferAndFood({ foodOfferData, food }: { foodOfferDat
 									  },
 									  {
 										  iconName: IconNames.comment_icon,
+										  color: foodsAreaColor,
 										  accessibilityLabel: translations_food_feedbacks,
 										  text: translations_food_feedbacks,
 										  content: <View style={{

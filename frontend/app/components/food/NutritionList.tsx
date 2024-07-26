@@ -15,11 +15,11 @@ export type NutritionListProps = {
   sugar_g?: number | null;
 }
 
-export function NutritionListElement(props: {icon: string, label: string, value?: number | null}) {
+export function NutritionListElement(props: {renderedIcon: any, label: string, value?: number | null}) {
 	return (
 		<View style={{ flex: 1, flexDirection: 'row', paddingBottom: 12 }}>
 			<View style={{ flexDirection: 'column' }}>
-				<Icon name={props.icon}/>
+				{props.renderedIcon}
 			</View>
 			<View style={{ marginLeft: 4, flex: 1}}>
 				<Text>
@@ -81,7 +81,8 @@ export default function NutritionList(props: NutritionListProps) {
 			<MyGridFlatList amountColumns={amountColumns}
 				data={data}
 				renderItem={(item) => {
-					return <NutritionListElement {...item.item.data}/>
+					let renderedIcon = <Icon name={item.item.data.icon}/>
+					return <NutritionListElement renderedIcon={renderedIcon} {...item.item.data}/>
 				}}
 			/>
 		</View>

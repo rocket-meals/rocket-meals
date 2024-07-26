@@ -8,7 +8,8 @@ import {MyTouchableOpacity} from "@/components/buttons/MyTouchableOpacity";
 import {useModalGlobalContext} from "@/components/rootLayout/RootThemeProvider";
 
 export type DistanceBadgeProps = {
-  distanceInMeter: number
+  distanceInMeter: number,
+	color?: string,
 }
 
 
@@ -63,7 +64,7 @@ export default function DistanceBadge(props: DistanceBadgeProps) {
 	return (
 		<>
 			<MyTouchableOpacity accessibilityLabel={buttonAccessibilityLabel} onPress={onPress}>
-				<SimpleBadge icon={IconNames.sort_distance_icon} borderBottomLeft={true} borderTopLeft={true} text={distanceText} />
+				<SimpleBadge color={props.color} icon={IconNames.sort_distance_icon} borderBottomLeft={true} borderTopLeft={true} text={distanceText} />
 			</MyTouchableOpacity>
 		</>
 	)

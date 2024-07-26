@@ -6,7 +6,7 @@ import {Divider} from '@gluestack-ui/themed';
 import {SettingsButtonSort} from "@/compositions/settings/SettingsButtonSort";
 import {PersistentStore} from "@/helper/syncState/PersistentStore";
 import {sortTypesApartments, sortTypesBuildings} from "@/states/SynchedSortType";
-import {useBuildingIdFromLocalSearchParams} from "@/app/(app)/buildings";
+import {useBuildingIdFromLocalSearchParams} from "@/app/(app)/campus";
 import {HeaderSearchButtonParams} from "@/compositions/header/HeaderSearchButtonParams";
 
 const MyScreenHeaderBuildings = ({ ...props }: MyScreenHeaderProps) => {

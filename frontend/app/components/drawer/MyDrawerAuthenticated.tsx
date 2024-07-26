@@ -6,13 +6,15 @@ import {getMyScreenHeaderFoodOffers} from '@/compositions/foodoffers/MyScreenHea
 import {IconNames} from '@/constants/IconNames';
 import {useMyDrawerWikiItems, useRenderedMyDrawerWikiScreens} from '@/components/drawer/useMyDrawerWikiItems';
 import {
+	useCampusAreaColor,
+	useFoodsAreaColor, useHousingAreaColor,
 	useIsAccountBalanceEnabled,
 	useIsBuildingsEnabled,
 	useIsCourseTimetableEnabled,
 	useIsFoodsEnabled,
 	useIsHousingEnabled,
 	useIsMapEnabled,
-	useIsNewsEnabled
+	useIsNewsEnabled, useNewsAreaColor
 } from '@/states/SynchedAppSettings';
 import {getMyScreenHeaderHousing} from "@/compositions/housing/MyScreenHeaderHousing";
 import {getMyScreenHeaderBuildings} from "@/compositions/buildings/MyScreenHeaderBuildings";
@@ -43,7 +45,7 @@ export const MyDrawerAuthenticated = (props: any) => {
 	const translation_home = useTranslation(TranslationKeys.home);
 	const translation_settings = useTranslation(TranslationKeys.settings);
 	const translation_canteens = useTranslation(TranslationKeys.canteens);
-	const translation_buildings = useTranslation(TranslationKeys.buildings);
+	const translation_campus = useTranslation(TranslationKeys.campus);
 	const translation_housing = useTranslation(TranslationKeys.housing);
 	const translation_news = useTranslation(TranslationKeys.news);
 	const translation_map = useTranslation(TranslationKeys.map);
@@ -69,6 +71,11 @@ export const MyDrawerAuthenticated = (props: any) => {
 		customDrawerItems.push(...customDrawerWikiItems)
 	}
 
+	const foodsAreaColor = useFoodsAreaColor();
+	const newsAreaColor = useNewsAreaColor();
+	const housingAreaColor = useHousingAreaColor()
+	const campusAreaColor = useCampusAreaColor()
+
 
 	return (
 		<MyDrawer
@@ -86,6 +93,7 @@ export const MyDrawerAuthenticated = (props: any) => {
 				label: translation_canteens,
 				title: translation_canteens,
 				icon: IconNames.foodoffers_icon,
+				color: foodsAreaColor,
 				getHeader: getMyScreenHeaderFoodOffers(),
 				visibleInDrawer: isFoodsEnabled || develop
 			})}
@@ -93,6 +101,7 @@ export const MyDrawerAuthenticated = (props: any) => {
 				routeName: 'foodoffers/details/index',
 				title: translation_food_details,
 				label: translation_food_details,
+				color: foodsAreaColor,
 				showBackButton: true,
 				icon: null,
 				visibleInDrawer: false
@@ -112,10 +121,11 @@ export const MyDrawerAuthenticated = (props: any) => {
 				visibleInDrawer: isAccountBalanceEnabled || develop
 			})}
 			{useRenderMyDrawerScreen({
-				routeName: 'buildings/index',
-				label: translation_buildings,
-				title: translation_buildings,
-				icon: IconNames.building_icon,
+				routeName: 'campus/index',
+				color: campusAreaColor,
+				label: translation_campus,
+				title: translation_campus,
+				icon: IconNames.campus_icon,
 				getHeader: getMyScreenHeaderBuildings(),
 				visibleInDrawer: isBuildingsEnabled || develop
 			})}
@@ -129,6 +139,7 @@ export const MyDrawerAuthenticated = (props: any) => {
 			})}
 			{useRenderMyDrawerScreen({
 				routeName: 'housing/index',
+				color: housingAreaColor,
 				label: translation_housing,
 				title: translation_housing,
 				icon: IconNames.apartments_icon,
@@ -137,6 +148,7 @@ export const MyDrawerAuthenticated = (props: any) => {
 			})}
 			{useRenderMyDrawerScreen({
 				routeName: 'housing/apartment/index',
+				color: housingAreaColor,
 				title: "Apartment Details",
 				label: "Apartment Details",
 				showBackButton: true,
@@ -145,6 +157,7 @@ export const MyDrawerAuthenticated = (props: any) => {
 			})}
 			{useRenderMyDrawerScreen({
 				routeName: 'news/index',
+				color: newsAreaColor,
 				label: translation_news,
 				title: translation_news,
 				icon: IconNames.news_icon,

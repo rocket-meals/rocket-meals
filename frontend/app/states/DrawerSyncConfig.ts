@@ -5,6 +5,7 @@ import {useSynchedLanguageByCode} from '@/states/SynchedLanguages';
 import {useIsLargeDevice} from '@/helper/device/DeviceHelper';
 import {useEffect, useState} from "react";
 import {useGlobalSearchParams} from "expo-router";
+import {PlatformHelper} from "@/helper/PlatformHelper";
 
 export enum DrawerConfigPosition {
     Left = 'left',
@@ -72,11 +73,13 @@ export function useIsFullscreenModeFromSearchParam(): boolean {
 
 export function useIsDrawerPermanentVisible(): boolean {
 	const isLargeDevice = useIsLargeDevice(); // Determine if the device has a large screen.
+	const isWeb = PlatformHelper.isWeb();
+
 	const fullscreen = useIsFullscreenModeFromSearchParam()
 	if(fullscreen){
 		return false
 	}
-	return isLargeDevice;
+	return isLargeDevice && isWeb
 }
 
 export function useDrawerPosition(): [DrawerConfigPosition.Left | DrawerConfigPosition.Right, (newValue: DrawerConfigPosition) => void] {

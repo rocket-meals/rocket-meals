@@ -6,17 +6,33 @@ import {useBreakPointValue} from '@/helper/device/DeviceHelper';
 import {ViewWithPercentageSupport} from '@/components/ViewWithPercentageSupport';
 import {MyTouchableOpacity} from '@/components/buttons/MyTouchableOpacity';
 import {TranslationKeys, useTranslation} from '@/helper/translations/Translation';
+import {useMyContrastColor} from "@/helper/color/MyContrastColor";
+import {Icon} from "@/components/Themed";
+import {IconNames} from "@/constants/IconNames";
 
 
-const ColorPickItem: FunctionComponent<{color: string, onPress: (color: string) => void}> = (props) => {
+const ColorPickItem: FunctionComponent<{color: string, isActive: boolean, backgroundColor: string | undefined | null, onPress: (color: string) => void}> = (props) => {
 	const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 });
 
 	const translation_select = useTranslation(TranslationKeys.select)
 	const translation_color = useTranslation(TranslationKeys.color)
 
+
+	let selectedColor = props.color
+
+	const outerContrastToBackgroundColor = useMyContrastColor(props.backgroundColor)
+	const outerContrastToSelectedColor = useMyContrastColor(selectedColor)
+
+	const renderedIconCheck = ! props.isActive ? null : <Icon name={IconNames.confirm_icon} color={outerContrastToSelectedColor} />
+
+
+
 	const color = props.color;
 
+	const outerColorBorderWidth = 5
+
 	const accessibilityLabel = translation_select + ' ' + translation_color + ': ' + color;
+
 
 	return (
 		<View style={{
@@ -36,7 +52,11 @@ const ColorPickItem: FunctionComponent<{color: string, onPress: (color: string) 
 				}}
 				accessibilityLabel={accessibilityLabel}
 			>
-				<ViewWithPercentageSupport style={{backgroundColor: color, borderColor: 'black', borderWidth: 1, width: '100%', height: '100%'}} />
+				<ViewWithPercentageSupport style={{backgroundColor: outerContrastToBackgroundColor, borderColor: outerContrastToBackgroundColor, borderWidth: outerColorBorderWidth, width: '100%', height: '100%', justifyContent: "center", alignItems: "center"}} >
+					<ViewWithPercentageSupport style={{backgroundColor: color, width: '100%', height: '100%', justifyContent: "center", alignItems: "center"}} >
+						{renderedIconCheck}
+					</ViewWithPercentageSupport>
+				</ViewWithPercentageSupport>
 			</MyTouchableOpacity>
 		</View>
 	)
@@ -44,6 +64,8 @@ const ColorPickItem: FunctionComponent<{color: string, onPress: (color: string) 
 
 interface SimpleColorPickerProps {
 	onColorChange: (color: string) => void;
+	currentColor: string | undefined | null;
+	backgroundColor: string | undefined | null;
 }
 export const SimpleColorPicker: FunctionComponent<SimpleColorPickerProps> = (props) => {
 	const amountColumns = useBreakPointValue({sm: 5, md: 6, lg: 7, xl: 16});
@@ -71,7 +93,8 @@ export const SimpleColorPicker: FunctionComponent<SimpleColorPickerProps> = (pro
 	const renderItem = (info: ListRenderItemInfo<DataItem>) => {
 		const {item, index} = info;
 		const color = item.data;
-		return <ColorPickItem color={color} onPress={onPress} />
+		const isActive = color === props.currentColor;
+		return <ColorPickItem color={color} onPress={onPress} isActive={isActive} backgroundColor={props.backgroundColor} />
 	}
 
 	return <MyGridFlatList data={data} renderItem={renderItem} amountColumns={amountColumns} />

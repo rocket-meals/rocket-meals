@@ -1,15 +1,11 @@
 import React, {FunctionComponent} from 'react';
-import RenderHtml, {CustomTagRendererRecord} from 'react-native-render-html';
-import {Icon, Text, getFontSizeInPixelBySize, View} from '@/components/Themed';
+import RenderHtml from 'react-native-render-html';
+import {getFontSizeInPixelBySize, Text, useTextContrastColor, View} from '@/components/Themed';
 
-import {Linking, TouchableOpacity, useWindowDimensions} from 'react-native';
-import {useTextContrastColor} from '@/components/Themed';
+import {useWindowDimensions} from 'react-native';
 
 import MarkdownIt from 'markdown-it';
-import {config} from '@gluestack-ui/config';
-import {ExternalLinkIcon, MailIcon} from "@gluestack-ui/themed";
 import {IconNames} from "@/constants/IconNames";
-import {MyLinkCustom} from "@/components/link/MyLinkCustom";
 import {MyButton} from "@/components/buttons/MyButton";
 import {
 	CustomBlockRenderer,
@@ -47,10 +43,12 @@ interface AppState {
     debug?: boolean,
     markdown?: string,
     color?: string,
+	buttonAndLinkColor?: string,
     children?: string
 }
 export const ThemedMarkdown: FunctionComponent<AppState> = (props) => {
 	let sourceContent: string = props?.markdown || props.children as string;
+	const buttonAndLinkColor = props.buttonAndLinkColor
 
 	const themedTextColor = useTextContrastColor();
 	const textColor = props?.color || themedTextColor
@@ -133,7 +131,9 @@ export const ThemedMarkdown: FunctionComponent<AppState> = (props) => {
 				icon = IconNames.mail_icon
 			}
 			// Return default renderer or your custom component
-			return <MyButton accessibilityLabel={text} text={text} href={href} useOnlyNecessarySpace={true} leftIcon={icon} leftIconColoredBox={true} />
+			return <View>
+				<MyButton backgroundColor={buttonAndLinkColor} accessibilityLabel={text} text={text} href={href} useOnlyNecessarySpace={true} leftIcon={icon} leftIconColoredBox={true} />
+			</View>
 
 			/**
 			const { href } = htmlAttribs;
@@ -175,14 +175,17 @@ export const ThemedMarkdown: FunctionComponent<AppState> = (props) => {
 		)
 	} else {
 		return (
-			<RenderHtml
-				contentWidth={width}
-				// @ts-ignore
-				baseStyle={defaultTextProps}
-				renderers={customRenderers}
-				defaultTextProps={defaultTextProps}
-				source={source}
-			/>
+			<View>
+				<RenderHtml
+					contentWidth={width}
+					// @ts-ignore
+					baseStyle={defaultTextProps}
+					renderers={customRenderers}
+					defaultTextProps={defaultTextProps}
+					key={source+""+buttonAndLinkColor}
+					source={source}
+				/>
+			</View>
 		)
 	}
 }

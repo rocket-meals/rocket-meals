@@ -5,7 +5,8 @@ import React, {ReactNode} from "react";
 
 
 interface ErrorGenericProps {
-	text: string
+	text?: string,
+	color?: string,
 	children?: ReactNode;
 }
 export const ErrorGeneric = ({children,text,...props}: ErrorGenericProps) => {
@@ -14,7 +15,7 @@ export const ErrorGeneric = ({children,text,...props}: ErrorGenericProps) => {
 	return (
 		<View style={{width: '100%', justifyContent: 'center', alignItems: 'center', marginTop: 30}}>
 			<Heading>{translation_error}</Heading>
-			<AnimationThinking />
+			<AnimationThinking color={props.color} />
 			<Text>{text}</Text>
 			{children}
 		</View>

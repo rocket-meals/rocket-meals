@@ -77,8 +77,9 @@ export function useSyncStateValue<T, K>(storageKey: SyncStateKeys, selectorMetho
  * If no selectorMethod is provided the raw value from the store is returned.
  * @param storageKey
  * @param selectorMethod
+ * (value: T | ((currentValue: T) => T)) => void
  */
-export function useSyncState<T, K>(storageKey: SyncStateKeys, selectorMethod?: (value: T |null | undefined) => K |null | undefined): [K |null | undefined,	setValue: (callback: ((currentValue: T |null | undefined) => T |null | undefined)) => void] {
+export function useSyncState<T, K>(storageKey: SyncStateKeys, selectorMethod?: (value: T |null | undefined) => K |null | undefined): [K |null | undefined,	setValue: (value: T | ((currentValue: T) => T)) => void] {
 	const value = useSyncStateValue(storageKey, selectorMethod);
 	const setValue = useSyncStateSetter(storageKey);
 

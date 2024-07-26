@@ -92,7 +92,7 @@ const MyContent: FunctionComponent<MyContentProps> = (props) => {
 				flexShrink: 1,
 			}}
 			>
-				<SimpleColorPicker onColorChange={async (color) => {
+				<SimpleColorPicker currentColor={inputValueLocal} onColorChange={async (color) => {
 					setInputValueLocal(color);
 					setInputValue(color);
 					props.onSave(color, props.hide);
@@ -129,7 +129,7 @@ const MyContent: FunctionComponent<MyContentProps> = (props) => {
 	)
 }
 
-interface SettingsRowColorEditSpeicificProps {
+interface SettingsRowColorEditSpecificProps {
     accessibilityLabel: string,
     placeholder?: string,
     allowCustomColor?: boolean,
@@ -143,9 +143,9 @@ interface SettingsRowColorEditSpeicificProps {
     description?: string,
 }
 
-export type SettingsRowTextEditProps = SettingsRowProps & SettingsRowColorEditSpeicificProps;
+export type SettingsRowColorEditProps = SettingsRowProps & SettingsRowColorEditSpecificProps;
 
-export const SettingsRowColorEdit = ({accessibilityLabel,allowCustomColor, labelLeft, rightIcon,...props}: SettingsRowTextEditProps) => {
+export const SettingsRowColorEdit = ({accessibilityLabel,allowCustomColor, labelLeft, rightIcon,...props}: SettingsRowColorEditProps) => {
 	const title = labelLeft;
 
 	const translation_for_example = useTranslation(TranslationKeys.for_example)

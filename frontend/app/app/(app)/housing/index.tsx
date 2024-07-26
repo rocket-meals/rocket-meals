@@ -6,10 +6,9 @@ import {MyCardForResourcesWithImage} from '@/components/card/MyCardForResourcesW
 import {useMyGridListDefaultColumns} from '@/components/grid/MyGridFlatListDefaultColumns';
 import {useSynchedBuildingsDict} from '@/states/SynchedBuildings';
 import {getApartmentLocationType, useSynchedApartmentsDict} from '@/states/SynchedApartments';
-import {useSynchedAppSettings} from "@/states/SynchedAppSettings";
+import {useHousingAreaColor, useSynchedAppSettings} from "@/states/SynchedAppSettings";
 import {useEstimatedLocationUponSelectedCanteen, useProfileLanguageCode} from "@/states/SynchedProfile";
 import {getDirectusTranslationUnsafe, TranslationEntry} from "@/helper/translations/DirectusTranslationUseFunction";
-import {ThemedMarkdown} from "@/components/markdown/ThemedMarkdown";
 import {View, Text} from "@/components/Themed";
 import {MyCardDefaultBorderRadius} from "@/components/card/MyCard";
 import {router} from "expo-router";
@@ -26,7 +25,6 @@ import {
 	filterAndSortResourcesBySearchValue,
 	useSearchTextFromGlobalSearchParams
 } from "@/compositions/header/HeaderSearchButtonParams";
-import {StringHelper} from "@/helper/string/StringHelper";
 
 function useHousingAdditionalInformationMarkdown(): string |null {
 	const [appSettings] = useSynchedAppSettings();
@@ -156,6 +154,8 @@ export default function HousingScreen() {
 
 	const initialAmountColumns = useMyGridListDefaultColumns();
 
+	const housingAreaColor = useHousingAreaColor();
+
 	const resources: Apartments[] = []
 	if (apartmentsDict) {
 		const buildingsKeys = Object.keys(apartmentsDict)
@@ -195,7 +195,7 @@ export default function HousingScreen() {
 		let distanceBadge = null;
 		if(location && estimatedLocation){
 			distance = DistanceHelper.getDistanceOfLocationInM(estimatedLocation, location)
-			distanceBadge = <DistanceBadge distanceInMeter={distance} />
+			distanceBadge = <DistanceBadge color={housingAreaColor} distanceInMeter={distance} />
 		}
 
 		let title: string | null | undefined = getApartmentName(resource, buildingsDict, languageCode)
@@ -231,6 +231,7 @@ export default function HousingScreen() {
 
 		return (
 			<MyCardForResourcesWithImage
+				separatorColor={housingAreaColor}
 				key={item.key}
 				heading={title}
 				thumbHash={thumb_hash}
@@ -256,7 +257,7 @@ export default function HousingScreen() {
 			const borderRaidus = MyCardDefaultBorderRadius
 			return (
 				<View style={{padding: 10, width: '100%', borderBottomLeftRadius: borderRaidus, borderBottomRightRadius: borderRaidus, height: "100%"}}>
-					<ThemedMarkdownWithCards markdown={additionalInformationMarkdown} />
+					<ThemedMarkdownWithCards buttonAndLinkColor={housingAreaColor} markdown={additionalInformationMarkdown} />
 				</View>
 			)
 		}

@@ -51,8 +51,8 @@ export default function EatingHabitsScreen() {
 
 	const translation_foods = useTranslation(TranslationKeys.foods)
 
-	const [foodFeedbacksDict, setFoodFeedbacksDict, lastUpdate, updateFromServer] = useSynchedOwnFoodIdToFoodFeedbacksDict();
-	let keysRaw = Object.keys(foodFeedbacksDict || {})
+	const [ownFoodFeedbacksDict, setOwnFoodFeedbacksDict, cacheHelperObjOwnFoodFeedbacks] = useSynchedOwnFoodIdToFoodFeedbacksDict();
+	let keysRaw = Object.keys(ownFoodFeedbacksDict || {})
 	const [foodKeys, setFoodKeys] = React.useState<string[]>(keysRaw)
 
 	const preItem = <>

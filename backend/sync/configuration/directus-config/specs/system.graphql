@@ -232,7 +232,6 @@ type Subscription {
   auto_translation_settings_mutated(event: EventEnum): auto_translation_settings_mutated
   directus_settings_mutated(event: EventEnum): directus_settings_mutated
   foods_feedbacks_mutated(event: EventEnum): foods_feedbacks_mutated
-  app_settings_mutated(event: EventEnum): app_settings_mutated
   buildings_mutated(event: EventEnum): buildings_mutated
   apartments_mutated(event: EventEnum): apartments_mutated
   app_settings_housing_translations_mutated(event: EventEnum): app_settings_housing_translations_mutated
@@ -250,6 +249,7 @@ type Subscription {
   profiles_mutated(event: EventEnum): profiles_mutated
   devices_mutated(event: EventEnum): devices_mutated
   foods_mutated(event: EventEnum): foods_mutated
+  app_settings_mutated(event: EventEnum): app_settings_mutated
   businesshours_mutated(event: EventEnum): businesshours_mutated
   foods_feedbacks_foods_feedbacks_labels_mutated(event: EventEnum): foods_feedbacks_foods_feedbacks_labels_mutated
   foods_feedbacks_labels_mutated(event: EventEnum): foods_feedbacks_labels_mutated
@@ -405,11 +405,6 @@ type app_settings {
   app_stores_url_to_apple: String
   app_stores_url_to_google: String
   balance_enabled: Boolean
-  buildings_enabled: Boolean
-  buildings_parsing_enabled: Boolean
-  buildings_parsing_last_date: Date
-  buildings_parsing_last_date_func: datetime_functions
-  buildings_parsing_status: String
   canteen_reports_enabled: Boolean
   cashregisters_parsing_enabled: Boolean
   cashregisters_parsing_last_date: Date
@@ -470,6 +465,11 @@ type app_settings {
   utilization_forecast_calculation_last_date_func: datetime_functions
   utilization_forecast_calculation_status: String
   foods_parsing_hash: String
+  campus_enabled: Boolean
+  campus_parsing_enabled: Boolean
+  campus_parsing_status: String
+  campus_parsing_last_date: Date
+  campus_parsing_last_date_func: datetime_functions
   housing_translations(filter: app_settings_housing_translations_filter, sort: [String], limit: Int, offset: Int, page: Int, search: String): [app_settings_housing_translations]
   housing_translations_func: count_functions
 }
@@ -2635,11 +2635,6 @@ input app_settings_filter {
   app_stores_url_to_apple: string_filter_operators
   app_stores_url_to_google: string_filter_operators
   balance_enabled: boolean_filter_operators
-  buildings_enabled: boolean_filter_operators
-  buildings_parsing_enabled: boolean_filter_operators
-  buildings_parsing_last_date: date_filter_operators
-  buildings_parsing_last_date_func: datetime_function_filter_operators
-  buildings_parsing_status: string_filter_operators
   canteen_reports_enabled: boolean_filter_operators
   cashregisters_parsing_enabled: boolean_filter_operators
   cashregisters_parsing_last_date: date_filter_operators
@@ -2700,6 +2695,11 @@ input app_settings_filter {
   utilization_forecast_calculation_last_date_func: datetime_function_filter_operators
   utilization_forecast_calculation_status: string_filter_operators
   foods_parsing_hash: string_filter_operators
+  campus_enabled: boolean_filter_operators
+  campus_parsing_enabled: boolean_filter_operators
+  campus_parsing_status: string_filter_operators
+  campus_parsing_last_date: date_filter_operators
+  campus_parsing_last_date_func: datetime_function_filter_operators
   housing_translations: app_settings_housing_translations_filter
   housing_translations_func: count_function_filter_operators
   _and: [app_settings_filter]

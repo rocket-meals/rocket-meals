@@ -1,21 +1,21 @@
 {
   "collection": "app_settings",
-  "field": "buildings_parsing_enabled",
+  "field": "campus_enabled",
   "type": "boolean",
   "meta": {
     "collection": "app_settings",
     "conditions": null,
     "display": null,
     "display_options": null,
-    "field": "buildings_parsing_enabled",
-    "group": "buildings_settings",
+    "field": "campus_enabled",
+    "group": "campus_settings",
     "hidden": false,
     "interface": "boolean",
     "note": null,
     "options": null,
     "readonly": false,
     "required": false,
-    "sort": 2,
+    "sort": 1,
     "special": [
       "cast-boolean"
     ],
@@ -25,7 +25,7 @@
     "width": "half"
   },
   "schema": {
-    "name": "buildings_parsing_enabled",
+    "name": "campus_enabled",
     "table": "app_settings",
     "data_type": "boolean",
     "default_value": true,

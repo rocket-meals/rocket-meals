@@ -101,7 +101,7 @@ export const SettingsRowSelectDayOfWeek: FunctionComponent<AppState> = ({...prop
 		})
 	}
 
-	const accessibilityLabel = translation_edit+': '+title + ' ' + selectedOptionName
+	const accessibilityLabel = translation_edit+': '+title + ': ' + selectedOptionName
 	const label = title
 
 	const config: MyModalActionSheetItem = {

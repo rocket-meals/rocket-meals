@@ -1,19 +1,20 @@
 import React, {FunctionComponent} from 'react';
 import {SettingsRow, SettingsRowProps} from "@/components/settings/SettingsRow";
-import {TranslationKey, TranslationKeys, useTranslation} from "@/helper/translations/Translation";
+import {TranslationKeys, useTranslation} from "@/helper/translations/Translation";
 import {MyAccessibilityRoles} from "@/helper/accessibility/MyAccessibilityRoles";
 import {AllRoutes, router} from "expo-router";
 import {IconNames} from "@/constants/IconNames";
 
 export type SettingsRowNavigateSimpleProps = {
 	// translation_key is a static field from the class TranslationKeys
-	translation_key: TranslationKey;
-	iconLeft?: string;
+	translation_key: TranslationKeys;
+	leftIcon?: string;
+	labelRight?: string;
 	route: AllRoutes
 }
 export const SettingsRowNavigateSimple = (props: SettingsRowNavigateSimpleProps) => {
 	const translation_title = useTranslation(props.translation_key);
-	return <SettingsRowNavigateWithText labelLeft={translation_title} route={props.route} leftIcon={props.iconLeft} />
+	return <SettingsRowNavigateWithText labelLeft={translation_title} route={props.route} leftIcon={props.leftIcon} labelRight={props.labelRight} />
 }
 
 export type SettingsRowNavigateWithTextProps = {

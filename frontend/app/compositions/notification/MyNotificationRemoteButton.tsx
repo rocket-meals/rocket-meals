@@ -14,6 +14,7 @@ import {AnimationNotificationBell} from "@/compositions/animations/AnimationNoti
 export type MyNewButtonProps = {
     onPress?: () => void;
 	active?: boolean;
+	color?: string;
 	allowWebToActivateForSmartPhoneIfEmailDisabled?: boolean;
 	tooltip: string;
 	accessibilityLabel: string;
@@ -152,7 +153,7 @@ export const MyNotificationRemoteButton = (props: MyNewButtonProps) => {
 		}
 	}
 
-	let button = <MyButtonNotify tooltip={props.tooltip} accessibilityLabel={props.accessibilityLabel} active={props.active} onPress={onPress} />
+	let button = <MyButtonNotify color={props.color} tooltip={props.tooltip} accessibilityLabel={props.accessibilityLabel} active={props.active} onPress={onPress} />
 
 	const canUse = props.active ? canDeactivate : canActivate;
 	let wrapper: any = button;

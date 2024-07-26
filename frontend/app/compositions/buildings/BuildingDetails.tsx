@@ -15,13 +15,16 @@ import {CommonSystemActionHelper} from "@/helper/device/CommonSystemActionHelper
 import {View} from "@/components/Themed";
 import {MyButtonNavigationToLocation} from "@/components/buttons/MyButtonNavigationToLocation";
 import NotFoundScreen from "@/app/+not-found";
+import {useCampusAreaColor} from "@/states/SynchedAppSettings";
 
 export default function BuildingDetails({ buildingId }: { buildingId: string }) {
 	const [buildingsDict, setBuildingsDict] = useSynchedBuildingsDict()
 	let building = buildingsDict?.[buildingId];
 
+	const campusAreaColor = useCampusAreaColor();
+
 	if(building && typeof building === 'object'){
-		return <BuildingDetailsWithObject building={building} />
+		return <BuildingDetailsWithObject color={campusAreaColor} building={building} />
 	} else {
 		return <NotFoundScreen />
 	}
@@ -84,15 +87,15 @@ function BuildingsInformation({ building }: { building: Buildings }) {
 	</MyScrollView>
 }
 
-function BuildingNavigationButton({ building }: { building: Buildings }) {
+function BuildingNavigationButton({ building, color }: { building: Buildings, color?: string }) {
 	const location = getBuildingLocation(building);
 	if(!!location) {
-		return <MyButtonNavigationToLocation location={location}/>
+		return <MyButtonNavigationToLocation location={location} color={color}/>
 	}
 	return null;
 }
 
-export function BuildingDetailsWithObject({ building, additionalTabs }: { building: Buildings, additionalTabs?: DetailsComponentTabProps[] }) {
+export function BuildingDetailsWithObject({ building, additionalTabs, color }: { building: Buildings, additionalTabs?: DetailsComponentTabProps[], color?: string }) {
 
 	const translation_description = useTranslation(TranslationKeys.description)
 	const translation_information = useTranslation(TranslationKeys.information)
@@ -100,12 +103,14 @@ export function BuildingDetailsWithObject({ building, additionalTabs }: { buildi
 	let tabs: DetailsComponentTabProps[] = [
 		{
 			iconName: IconNames.fact_icon,
+			color: color,
 			accessibilityLabel: translation_information,
 			text: translation_information,
 			content: <BuildingsInformation building={building} />
 		},
 		{
 			iconName: IconNames.description_icon,
+			color: color,
 			accessibilityLabel: translation_description,
 			text: translation_description,
 			content: <BuildingDetailsDescription building={building} />
@@ -125,7 +130,7 @@ export function BuildingDetailsWithObject({ building, additionalTabs }: { buildi
 		}}
 		  subHeadingComponent={<View style={{flexDirection: 'row', justifyContent: 'space-between', flexWrap: "wrap"}}>
 			  <View style={{ flex: 1, flexDirection: "row" }}>
-				  <BuildingNavigationButton building={building} />
+				  <BuildingNavigationButton building={building} color={color} />
 			  </View>
 		  </View>
 		}

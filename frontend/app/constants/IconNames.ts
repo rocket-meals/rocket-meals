@@ -11,13 +11,15 @@ export class IconNames {
     static drawer_menu_go_back_icon = 'arrow-left'
     static drawer_menu_go_back_rtl_icon = 'arrow-right'
     static canteen_icon = 'warehouse'
+    static developer_icon = 'code-braces'
+    static software_icon = 'rocket'
     static fullscreen_icon = 'fullscreen'
     static fullscreen_exit_icon = 'fullscreen-exit'
     static print_icon = 'printer'
     static foodoffers_icon = 'silverware-variant'
     static foodweekplan_icon = "calendar"
     static map_icon = 'map'
-    static building_icon = 'home-city'
+    static campus_icon = IconFamily.FontAwesome5+IconParseDelimeter+"university"
     static apartments_icon = 'home-account'
     static news_icon = 'newspaper'
     static course_timetable_icon = 'calendar-clock'
@@ -90,7 +92,7 @@ export class IconNames {
 
     static nutrition_icon = 'food-apple'
     static nutrition_calories_icon = 'fire'
-    static nutrition_carbohydrate_icon = 'corn'
+    static nutrition_carbohydrate_icon = IconFamily.FontAwesome6+IconParseDelimeter+'wheat-awn'
     static nutrition_fat_icon = 'water'
     static nutrition_fiber_icon = 'leaf'
     static nutrition_protein_icon = 'fish'

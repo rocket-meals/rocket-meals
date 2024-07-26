@@ -1,12 +1,13 @@
 import React, {FunctionComponent, useState} from 'react';
 import {Icon, Text, View, useTextContrastColor, useViewBackgroundColor} from '@/components/Themed';
-import {ActionsheetItem, ActionsheetItemText} from '@gluestack-ui/themed';
-import {AccessibilityRole, TouchableOpacity, ViewStyle} from 'react-native';
+import {ActionsheetItem, ActionsheetItemText, Tooltip, TooltipContent, TooltipText} from '@gluestack-ui/themed';
+import {AccessibilityRole, Pressable, TouchableOpacity, ViewStyle} from 'react-native';
 import {useLighterOrDarkerColorForSelection, useMyContrastColor} from '@/helper/color/MyContrastColor';
 import {useProjectColor} from '@/states/ProjectInfo';
 import {IconNames} from '@/constants/IconNames';
 import {MyActionsheetItem} from "@/components/settings/MyActionsheetItem";
 import {StyleProp} from "react-native/Libraries/StyleSheet/StyleSheet";
+import {MyAccessibilityRoles} from "@/helper/accessibility/MyAccessibilityRoles";
 
 export interface SettingsRowProps {
     key?: any;
@@ -27,6 +28,7 @@ export interface SettingsRowProps {
     expandable?: boolean,
     expanded?: boolean,
     customDivider?: any,
+	tooltip?: string,
     accessibilityLabel: string,
     accessibilityRole?: AccessibilityRole | undefined,
     accessibilityState?: any,
@@ -41,7 +43,8 @@ export const SettingsRow: FunctionComponent<SettingsRowProps> = (props) => {
 	const lighterOrDarkerBackgroundColor = useLighterOrDarkerColorForSelection(viewBackgroundColor)
 	const lighterOrDarkerTextColor = useMyContrastColor(lighterOrDarkerBackgroundColor)
 	const projectColor = useProjectColor()
-	const projectColorContrast = useMyContrastColor(projectColor)
+	const activeColor = props.color || projectColor
+	const activeColorContrast = useMyContrastColor(activeColor)
 	const isActive = props.active || false;
 
 	const [isHovered, setIsHovered] = useState(false);
@@ -63,21 +66,6 @@ export const SettingsRow: FunctionComponent<SettingsRowProps> = (props) => {
 		accessibilityLabel: props.accessibilityLabel,
 		onSelect: props.onPress,
 		leftIcon: props.leftIcon,
-	}
-
-	const ultraPerformance = false
-
-	if(ultraPerformance) {
-		return (
-			<>
-				<View style={{
-					padding: SETTINGS_ROW_DEFAULT_PADDING, width: '100%', justifyContent: 'center', alignItems: 'center'
-				}}>
-					<Text>{item.label}</Text>
-				</View>
-
-			</>
-		)
 	}
 
 	function renderRightContent(showPress: boolean): React.ReactNode {
@@ -106,8 +94,8 @@ export const SettingsRow: FunctionComponent<SettingsRowProps> = (props) => {
 		)
 	}
 
-	const usedViewBackgroundColor = isActive ? projectColor : viewBackgroundColor;
-	const usedTextColor = isActive ? projectColorContrast : textColor;
+	const usedViewBackgroundColor = isActive ? activeColor : viewBackgroundColor;
+	const usedTextColor = isActive ? activeColorContrast : textColor;
 
 
 
@@ -142,17 +130,6 @@ export const SettingsRow: FunctionComponent<SettingsRowProps> = (props) => {
 
 	const content = contentWithShrinkingSpaceOnlyRight;
 
-	const performance = true;
-
-	const renderLeftIcon = (icon: any) => {
-		return <View style={{
-			paddingLeft: 8,
-			paddingRight: 8,
-		}}>
-			{icon}
-		</View>
-	}
-
 	const isPressable = !!item.onSelect;
 
 	const disabledStyle: StyleProp<ViewStyle> = {
@@ -161,26 +138,39 @@ export const SettingsRow: FunctionComponent<SettingsRowProps> = (props) => {
 		opacity: props.disabled ? 0.5 : 1,
 	}
 
+	const tooltip = props?.tooltip || props.accessibilityLabel;
 	return (
 		<>
-			<ActionsheetItem
-				padding={props.padding || SETTINGS_ROW_DEFAULT_PADDING}
-				disabled={!isPressable || props.disabled}
-				accessibilityLabel={item.accessibilityLabel}
-				style={[disabledStyle]}
-				sx={{
-					bg: usedViewBackgroundColor,
-					':hover': {
-						bg: lighterOrDarkerBackgroundColor,
-					},
+			<Tooltip
+				placement="top"
+				trigger={(triggerProps) => {
+					return (
+							<ActionsheetItem
+								{...triggerProps}
+								padding={props.padding || SETTINGS_ROW_DEFAULT_PADDING}
+								disabled={!isPressable || props.disabled}
+								accessibilityLabel={item.accessibilityLabel}
+								style={[disabledStyle]}
+								sx={{
+									bg: usedViewBackgroundColor,
+									':hover': {
+										bg: lighterOrDarkerBackgroundColor,
+									},
+								}}
+								key={item.key}
+								onPress={item.onSelect}
+							>
+								<ActionsheetItemText>{renderedLeftIcon}</ActionsheetItemText>
+								{content}
+								{renderRightContent(!!item.onSelect)}
+							</ActionsheetItem>
+					)
 				}}
-				key={item.key}
-				onPress={item.onSelect}
 			>
-				<ActionsheetItemText>{renderedLeftIcon}</ActionsheetItemText>
-				{content}
-				{renderRightContent(!!item.onSelect)}
-			</ActionsheetItem>
+				<TooltipContent>
+					<TooltipText>{tooltip}</TooltipText>
+				</TooltipContent>
+			</Tooltip>
 			{renderedChildren}
 		</>
 	)

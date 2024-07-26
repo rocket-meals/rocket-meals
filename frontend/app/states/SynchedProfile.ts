@@ -199,12 +199,13 @@ export enum PriceGroups {
     Employee = 'employee',
     Guest = 'guest'
 }
-export function useProfilePriceGroup(): [PriceGroups, ((newValue: string) => void)] {
+export function useProfilePriceGroup(): [PriceGroups, ((newValue: string) => void), PriceGroups | string | null | undefined] {
 	//const [profile, setProfile] = useSynchedProfile();
 	const [setProfile] = useSynchedProfileSetter();
 	const profilePriceGroup = useSynchedResourceSingleRawValue<Profiles, (string | null | undefined)>(PersistentStore.profile, (storedProfileRaw) => {
 		return storedProfileRaw?.data?.price_group
 	});
+	const rawProfilePriceGroup = profilePriceGroup;
 
 	let usedPriceGroup = PriceGroups.Student;
 	//const profilePriceGroup = profile?.price_group;
@@ -226,7 +227,7 @@ export function useProfilePriceGroup(): [PriceGroups, ((newValue: string) => voi
 
 
 
-	return [usedPriceGroup, setPriceGroup];
+	return [usedPriceGroup, setPriceGroup, rawProfilePriceGroup];
 }
 
 export function useNickname(): [string | null | undefined, ((newValue: string | undefined) => boolean | void)] {

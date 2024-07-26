@@ -1,5 +1,6 @@
 import {useServerInfo} from '@/states/SyncStateServerInfo';
 import {useMyContrastColor} from '@/helper/color/MyContrastColor';
+import {AppAreaColors} from "@/constants/Colors";
 
 export function useProjectInfo() {
 	const serverInfo = useServerInfo();
@@ -18,7 +19,7 @@ export function useProjectDescription() {
 
 export function useProjectColor(): string {
 	const projectInfo = useProjectInfo();
-	return projectInfo?.project_color || "#D14610";
+	return projectInfo?.project_color || AppAreaColors.DEFAULT_PROJECT_COLOR;
 }
 
 export function useProjectColorContrast(): string {

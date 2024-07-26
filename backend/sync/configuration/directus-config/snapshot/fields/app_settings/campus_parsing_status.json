@@ -1,14 +1,14 @@
 {
   "collection": "app_settings",
-  "field": "buildings_parsing_status",
+  "field": "campus_parsing_status",
   "type": "string",
   "meta": {
     "collection": "app_settings",
     "conditions": null,
     "display": null,
     "display_options": null,
-    "field": "buildings_parsing_status",
-    "group": "buildings_settings",
+    "field": "campus_parsing_status",
+    "group": "campus_settings",
     "hidden": false,
     "interface": "select-dropdown",
     "note": null,
@@ -44,7 +44,7 @@
     "width": "half"
   },
   "schema": {
-    "name": "buildings_parsing_status",
+    "name": "campus_parsing_status",
     "table": "app_settings",
     "data_type": "character varying",
     "default_value": "finished",

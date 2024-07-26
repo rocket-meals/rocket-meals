@@ -17,6 +17,7 @@ import {
 	filterAndSortResourcesBySearchValue,
 	useSearchTextFromGlobalSearchParams
 } from "@/compositions/header/HeaderSearchButtonParams";
+import {useCampusAreaColor} from "@/states/SynchedAppSettings";
 
 function getBuildingName(building: Buildings, languageCode: string): string | null {
 	if(building.alias){
@@ -111,6 +112,8 @@ function BuildingsScreenIndex() {
 	const [languageCode, setLanguageCode] = useProfileLanguageCode()
 	const estimatedLocation: LocationType | null = useEstimatedLocationUponSelectedCanteen();
 
+	const campusColor = useCampusAreaColor();
+
 	const resources: Buildings[] = []
 	if (buildingsDict) {
 		const buildingsKeys = Object.keys(buildingsDict)
@@ -150,7 +153,7 @@ function BuildingsScreenIndex() {
 	  let distanceBadge = null;
 	  if(location && estimatedLocation){
 		  distance = DistanceHelper.getDistanceOfLocationInM(estimatedLocation, location)
-		  distanceBadge = <DistanceBadge distanceInMeter={distance} />
+		  distanceBadge = <DistanceBadge color={campusColor} distanceInMeter={distance} />
 	  }
 
 	  let title: string | null | undefined = getBuildingName(resource, languageCode)
@@ -176,6 +179,7 @@ function BuildingsScreenIndex() {
 
   	return (
   		<MyCardForResourcesWithImage
+			separatorColor={campusColor}
   			key={item.key}
   			heading={title}
   			thumbHash={thumb_hash}

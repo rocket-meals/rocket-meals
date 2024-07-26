@@ -46,7 +46,7 @@ export const SettingsRowDrawerPosition: FunctionComponent<AppState> = ({...props
 
 	const selectedName = optionKeyToName[selectedKey]
 
-	const accessibilityLabel = translation_edit+': '+title + ' ' + selectedName
+	const accessibilityLabel = translation_edit+': '+title + ': ' + selectedName
 	const label = title
 
 	const items: MyModalActionSheetItem[] = []

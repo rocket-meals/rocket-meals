@@ -32,7 +32,7 @@ export default function Login() {
 	})
 
 	const [showLoginWithUsernameAndPassword, setShowLoginWithUsernameAndPassword] = useState(false)
-	const translation_show_login_with_username_and_password = useTranslation(TranslationKeys.show_login_with_username_and_password);
+	const translation_show_login_internal_employee_with_username_and_password = useTranslation(TranslationKeys.show_login_for_management_with_email_and_password);
 	const translation_sign_in= useTranslation(TranslationKeys.sign_in);
 	const translation_currently_logged_in_as = useTranslation(TranslationKeys.currently_logged_in_as);
 	const translation_if_you_want_to_login_with_this_account_please_press = useTranslation(TranslationKeys.if_you_want_to_login_with_this_account_please_press);
@@ -203,7 +203,7 @@ export default function Login() {
 		}
 	}
 
-	function renderEmployeeLogin() {
+	function renderInternalLogin() {
 		if (showLoginWithUsernameAndPassword) {
 			return (
 				<>
@@ -231,8 +231,8 @@ export default function Login() {
 				<MyButton
 					leftIconColoredBox={false}
 					leftIcon={IconNames.sign_in_with_mail_icon}
-					text={translation_show_login_with_username_and_password}
-					accessibilityLabel={translation_show_login_with_username_and_password}
+					text={translation_show_login_internal_employee_with_username_and_password}
+					accessibilityLabel={translation_show_login_internal_employee_with_username_and_password}
 					onPress={() => {
 						setShowLoginWithUsernameAndPassword(!showLoginWithUsernameAndPassword)
 					}}
@@ -258,7 +258,7 @@ export default function Login() {
 					<View style={{height: 16}}></View>
 					<View style={{width: '100%', height: 1, backgroundColor: 'black'}}></View>
 					<View style={{height: 16}}></View>
-					{renderEmployeeLogin()}
+					{renderInternalLogin()}
 				</>
 			)
 		//}

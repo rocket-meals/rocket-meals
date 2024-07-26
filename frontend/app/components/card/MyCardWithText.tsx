@@ -11,6 +11,7 @@ import {useProjectColor} from "@/states/ProjectInfo";
 export type MyCardWithTextProps = {
     heading?: string | null | undefined,
 	viewBackgroundColor?: string,
+	separatorColor?: string,
 	textColor?: string,
     text?: string,
 } & MyCardProps
@@ -18,6 +19,7 @@ export type MyCardWithTextProps = {
 // define the button component
 export const MyCardWithText = ({heading, text, ...props}: MyCardWithTextProps) => {
 	const projectColor = useProjectColor();
+	const separatorColor = props.separatorColor || projectColor
 	const defaultViewBackgroundColor = useViewBackgroundColor()
 	let viewBackgroundColorForText = useLighterOrDarkerColorForSelection(defaultViewBackgroundColor)
 	viewBackgroundColorForText = props.viewBackgroundColor || viewBackgroundColorForText
@@ -49,7 +51,7 @@ export const MyCardWithText = ({heading, text, ...props}: MyCardWithTextProps) =
 	let renderedSeparator = null;
 	if(!!projectColor){
 		renderedSeparator = (
-			<View style={{backgroundColor: projectColor, width: '100%', height: 4}} />
+			<View style={{backgroundColor: separatorColor, width: '100%', height: 4}} />
 		)
 
 	}

@@ -7,6 +7,7 @@ import {replaceLinebreaks, ThemedMarkdown} from "@/components/markdown/ThemedMar
 import {useProjectColor, useProjectColorContrast} from "@/states/ProjectInfo";
 import {MyButtonCustomContentPadder} from "@/components/buttons/MyButtonCustom";
 import {MyButton} from "@/components/buttons/MyButton";
+import {useMyContrastColor} from "@/helper/color/MyContrastColor";
 
 const BORDER_RADIUS = 8;
 
@@ -16,24 +17,25 @@ interface AppState {
 	debug?: boolean,
 	markdown?: string,
 	color?: string,
+	buttonAndLinkColor?: string,
 	children?: string
 }
 
-const CollapsibleCard: FunctionComponent<{ titleSource: string, children: React.ReactNode, initiallyOpen: boolean }> = ({titleSource, initiallyOpen, children}) => {
+const CollapsibleCard: FunctionComponent<{ titleSource: string, children: React.ReactNode, initiallyOpen: boolean, buttonAndLinkColor?: string }> = ({buttonAndLinkColor, titleSource, initiallyOpen, children}) => {
 	const [collapsed, setCollapsed] = useState(!initiallyOpen);
 	const toggleCollapse = () => setCollapsed(!collapsed);
 	const iconLeft = collapsed ? IconNames.expand_icon : IconNames.collapse_icon;
 
 	const projectColor = useProjectColor()
-	const projectContrastColor = useProjectColorContrast()
-	const borderColor = useTextContrastColor()
-	const textColor = collapsed ? borderColor : projectContrastColor;
+
+	let outerBorderColor = buttonAndLinkColor || projectColor;
+	const contrastOuterBorderColor = useMyContrastColor(outerBorderColor);
 
 	return (
-		<View style={{marginVertical: 10, borderWidth: 1, borderColor: projectColor, borderRadius: BORDER_RADIUS, overflow: "hidden"}}>
-			<MyButton leftIconColoredBox={true} leftIcon={iconLeft} isActive={!collapsed} onPress={toggleCollapse} accessibilityLabel={""} renderedText={
+		<View style={{marginVertical: 10, borderWidth: 1, borderColor: outerBorderColor, borderRadius: BORDER_RADIUS, overflow: "hidden"}}>
+			<MyButton backgroundColor={buttonAndLinkColor} leftIconColoredBox={true} leftIcon={iconLeft} isActive={!collapsed} onPress={toggleCollapse} accessibilityLabel={""} renderedText={
 				<MyButtonCustomContentPadder>
-					<ThemedMarkdown markdown={titleSource} color={textColor} />
+					<ThemedMarkdown buttonAndLinkColor={buttonAndLinkColor} markdown={titleSource} color={contrastOuterBorderColor} />
 				</MyButtonCustomContentPadder>
 			} />
 			{!collapsed && <View style={{padding: 10}}>{children}</View>}
@@ -165,7 +167,7 @@ const getSourceFromTokens = (tokens: any[] | undefined): string => {
 }
 
 
-const renderTokenOrSections = (tokenOrSections: TokenOrSection[], width: number, defaultTextProps: any, initiallyOpenWhenOnlyOneSection: boolean) => {
+const renderTokenOrSections = (tokenOrSections: TokenOrSection[], width: number, defaultTextProps: any, initiallyOpenWhenOnlyOneSection: boolean, buttonAndLinkColor?: string) => {
 	let output = [];
 	let lastTokens = [];
 	let sectionCount = 0;
@@ -188,7 +190,7 @@ const renderTokenOrSections = (tokenOrSections: TokenOrSection[], width: number,
 				let source = getSourceFromTokens(lastTokens);
 
 				output.push(
-					<ThemedMarkdown key={i} markdown={source} />
+					<ThemedMarkdown buttonAndLinkColor={buttonAndLinkColor} key={i} markdown={source} />
 				);
 				lastTokens = [];
 			}
@@ -199,8 +201,8 @@ const renderTokenOrSections = (tokenOrSections: TokenOrSection[], width: number,
 			let subSectionsInitialOpen = false
 
 			output.push(
-				<CollapsibleCard key={i} titleSource={titleSource} initiallyOpen={initiallyOpenForThisSection}>
-					{renderTokenOrSections(tokenOrSection.section?.contentTokenOrSections || [], width, defaultTextProps, subSectionsInitialOpen)}
+				<CollapsibleCard buttonAndLinkColor={buttonAndLinkColor} key={i} titleSource={titleSource} initiallyOpen={initiallyOpenForThisSection}>
+					{renderTokenOrSections(tokenOrSection.section?.contentTokenOrSections || [], width, defaultTextProps, subSectionsInitialOpen, buttonAndLinkColor)}
 				</CollapsibleCard>
 			);
 
@@ -213,7 +215,7 @@ const renderTokenOrSections = (tokenOrSections: TokenOrSection[], width: number,
 		let source = getSourceFromTokens(lastTokens);
 
 		output.push(
-			<ThemedMarkdown key={tokenOrSections.length} markdown={source} />
+			<ThemedMarkdown buttonAndLinkColor={buttonAndLinkColor} key={tokenOrSections.length} markdown={source} />
 		);
 		//lastTokens = [];
 	}
@@ -225,6 +227,7 @@ export const ThemedMarkdownWithCards: FunctionComponent<AppState> = (props) => {
 	let sourceContent: string = props?.markdown || props.children as string;
 	const themedTextColor = useTextContrastColor();
 	const textColor = props?.color || themedTextColor;
+	const buttonAndLinkColor = props.buttonAndLinkColor;
 
 	if (sourceContent === undefined && !props.hideSkeleton) {
 		return <Text>{'Loading'}</Text>
@@ -253,7 +256,7 @@ export const ThemedMarkdownWithCards: FunctionComponent<AppState> = (props) => {
 	} else {
 		return (
 			<View>
-				{renderTokenOrSections(tokenOrSections, width, defaultTextProps, true)}
+				{renderTokenOrSections(tokenOrSections, width, defaultTextProps, true, buttonAndLinkColor)}
 			</View>
 		)
 	}

@@ -1,34 +1,34 @@
 {
   "collection": "app_settings",
-  "field": "buildings_enabled",
-  "type": "boolean",
+  "field": "campus_parsing_last_date",
+  "type": "dateTime",
   "meta": {
     "collection": "app_settings",
     "conditions": null,
     "display": null,
     "display_options": null,
-    "field": "buildings_enabled",
-    "group": "buildings_settings",
+    "field": "campus_parsing_last_date",
+    "group": "campus_settings",
     "hidden": false,
-    "interface": "boolean",
+    "interface": "datetime",
     "note": null,
-    "options": null,
+    "options": {
+      "includeSeconds": true
+    },
     "readonly": false,
     "required": false,
-    "sort": 1,
-    "special": [
-      "cast-boolean"
-    ],
+    "sort": 4,
+    "special": null,
     "translations": null,
     "validation": null,
     "validation_message": null,
     "width": "half"
   },
   "schema": {
-    "name": "buildings_enabled",
+    "name": "campus_parsing_last_date",
     "table": "app_settings",
-    "data_type": "boolean",
-    "default_value": true,
+    "data_type": "timestamp without time zone",
+    "default_value": null,
     "max_length": null,
     "numeric_precision": null,
     "numeric_scale": null,

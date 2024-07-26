@@ -8,6 +8,8 @@ import {TranslationKeys, useTranslation} from "@/helper/translations/Translation
 import {SettingsRowGroup} from "@/components/settings/SettingsRowGroup";
 import {SettingsRow} from "@/components/settings/SettingsRow";
 import {getMyModalActionSheetItemDefaultRightIcon} from "@/components/modal/MyModalActionSheet";
+import {MyAccessibilityRoles} from "@/helper/accessibility/MyAccessibilityRoles";
+import {useFoodsAreaColor} from "@/states/SynchedAppSettings";
 
 export default function SettingsScreen() {
 
@@ -15,6 +17,8 @@ export default function SettingsScreen() {
 	const title = useTranslation(TranslationKeys.price_group)
 	const translation_select = useTranslation(TranslationKeys.select)
 	const translation_edit = useTranslation(TranslationKeys.edit)
+
+	const foodsAreaColor = useFoodsAreaColor();
 
 	const translation_price_group_student = useTranslation(TranslationKeys.price_group_student)
 	const translation_price_group_employee = useTranslation(TranslationKeys.price_group_employee)
@@ -45,7 +49,7 @@ export default function SettingsScreen() {
 		let isSelected = priceGroup === value;
 		let iconRight = getMyModalActionSheetItemDefaultRightIcon(isSelected);
 		renderedPriceGroups.push(
-			<SettingsRow key={availablePriceGroupKey} active={isSelected} leftIcon={icon} labelLeft={name} rightIcon={iconRight} onPress={async () =>
+			<SettingsRow color={foodsAreaColor} accessibilityRole={MyAccessibilityRoles.Combobox} key={availablePriceGroupKey} active={isSelected} leftIcon={icon} labelLeft={name} rightIcon={iconRight} onPress={async () =>
 				await setPriceGroup(value)
 			}  accessibilityLabel={
 				`${translation_select} ${name}`

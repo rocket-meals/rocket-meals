@@ -46,7 +46,7 @@ export const SettingsRowColorScheme: FunctionComponent<AppState> = ({...props}) 
 
 	const selectedThemeName = colorSchemeKeyToName[selectedColorSchemeKey]
 
-	const accessibilityLabel = translation_edit+': '+title + ' ' + selectedThemeName
+	const accessibilityLabel = translation_edit+': '+title + ': ' + selectedThemeName
 	const label = title
 
 	const items: MyModalActionSheetItem[] = []

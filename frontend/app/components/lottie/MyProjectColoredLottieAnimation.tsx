@@ -15,7 +15,7 @@ import {useColorForSelectionWithOption, useLighterOrDarkerColorForSelection} fro
  */
 export const MyProjectColoredLottieAnimation = ({colorReplaceMap, ...props}: MyLottieAnimationProps) => {
 	const projectColor = useProjectColor();
-	const usedProjectColor = projectColor ? projectColor : DEFAULT_COLOR_TO_REPLACE_WITH
+	const usedProjectColor = props.projectColor || projectColor
 
 	const lighterProjectColor = useColorForSelectionWithOption(usedProjectColor, true)
 	const darkerProjectColor = useColorForSelectionWithOption(usedProjectColor, false)
