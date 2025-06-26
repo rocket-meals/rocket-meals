@@ -27,29 +27,33 @@ const LoginHeader = () => {
   );
 
   function useDeviceLocaleCodesWithoutRegionCode(): string[] {
-    let localeCodes: string[] = [];
-
-    for (let i = 0; i < locales.length; i++) {
-      let locale = locales[i];
-      localeCodes.push(locale.languageTag);
-    }
-
     const defaultLanguageCode = 'de';
     const defaultFallbackLanguageCode = 'en';
 
-    if (Platform.OS === 'web') {
-      localeCodes = localeCodes.sort((a, b) => {
-        if (a.startsWith(defaultLanguageCode)) {
-          return -1;
-        } else if (b.startsWith(defaultLanguageCode)) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
+    // Collect language codes without region part
+    let localeCodes = locales
+      .map((loc) => loc.languageCode || loc.languageTag.split('-')[0])
+      .filter(Boolean)
+      .map((code) => code.split('-')[0]);
+
+    // Remove duplicates while preserving order
+    localeCodes = localeCodes.filter(
+      (code, index) => localeCodes.indexOf(code) === index
+    );
+
+    // If German is among the locales, prefer it
+    if (localeCodes.includes(defaultLanguageCode)) {
+      localeCodes = [
+        defaultLanguageCode,
+        ...localeCodes.filter((c) => c !== defaultLanguageCode),
+      ];
     }
 
-    return localeCodes.length > 0 ? localeCodes : [defaultFallbackLanguageCode];
+    if (localeCodes.length === 0) {
+      localeCodes.push(defaultFallbackLanguageCode);
+    }
+
+    return localeCodes;
   }
 
   useEffect(() => {
