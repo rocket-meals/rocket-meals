@@ -25,10 +25,9 @@ import { format } from 'date-fns';
 import useMyCardReader, { MyCardReaderInterface } from './MyCardReader';
 import { isWeb } from '@/constants/Constants';
 import CardResponse from '@/helper/nfcCardReaderHelper/CardResponse';
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetView,
-} from '@gorhom/bottom-sheet';
+import BaseBottomSheet from '@/components/BaseBottomSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
+import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from 'expo-router';
 import { AntDesign } from '@expo/vector-icons';
 import useToast from '@/hooks/useToast';
@@ -70,7 +69,6 @@ const AccountBalanceScreen = () => {
   const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
   const animationRef = useRef<LottieView>(null);
   const nfcSheetRef = useRef<BottomSheet>(null);
-  const nfcPoints = useMemo(() => ['80%'], []);
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get('window').width
   );
@@ -365,24 +363,16 @@ const AccountBalanceScreen = () => {
         </View>
       </View>
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={nfcSheetRef}
           index={-1}
-          snapPoints={nfcPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={hideInstruction}
-            />
-          )}
+          onBackdropPress={hideInstruction}
         >
           <BottomSheetView>
             <View

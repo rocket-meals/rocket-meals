@@ -25,7 +25,8 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { isWeb } from '@/constants/Constants';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import BaseBottomSheet from '@/components/BaseBottomSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import useToast from '@/hooks/useToast';
 import { FormAnswersHelper } from '@/redux/actions/Forms/FormAnswers';
 import SubmissionWarningModal from '@/components/SubmissionWarningModal/SubmissionWarningModal';
@@ -82,11 +83,8 @@ const index = () => {
   const formAnswersHelper = new FormAnswersHelper();
   const formsSubmissionsHelper = new FormsSubmissionsHelper();
   const sheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['80%'], []);
   const editSheetRef = useRef<BottomSheet>(null);
-  const editSnapPoints = useMemo(() => ['80%'], []);
   const warningSheetRef = useRef<BottomSheet>(null);
-  const warningSnapPoints = useMemo(() => ['60%'], []);
   const [loading, setLoading] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const [isWarning, setIsWarning] = useState(false);
@@ -995,69 +993,51 @@ const index = () => {
         id={String(form_submission_id)}
       />
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={editSheetRef}
           index={-1}
-          snapPoints={editSnapPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeEditSheet}
-            />
-          )}
+          onBackdropPress={closeEditSheet}
         >
           <EditFormSubmissionSheet
             id={String(form_submission_id)}
             closeSheet={closeEditSheet}
           />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={warningSheetRef}
           index={-1}
-          snapPoints={warningSnapPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose={false}
-          enableDynamicSizing={false}
           handleComponent={null}
         >
           <SubmissionWarningSheet
             id={String(form_submission_id)}
             closeSheet={closeWarningSheet}
           />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={sheetRef}
           index={-1}
-          snapPoints={snapPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeFilterSheet}
-            />
-          )}
+          onBackdropPress={closeFilterSheet}
         >
           <FilterFormSheet
             closeSheet={closeFilterSheet}
@@ -1067,7 +1047,7 @@ const index = () => {
             options={filterOptions}
             isEditMode={isEditMode}
           />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
     </View>
   );

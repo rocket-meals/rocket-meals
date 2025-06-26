@@ -13,7 +13,8 @@ import CourseTimetable from '../../../components/CourseTimeTable/CourseTimetable
 import CourseBottomSheet from '../../../components/CourseTimeTable/CourseBottomSheet';
 import styles from './styles';
 import { FontAwesome } from '@expo/vector-icons';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import BaseBottomSheet from '@/components/BaseBottomSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { useSelector } from 'react-redux';
 import { EventTypes } from './types';
 import { courseTimetableDescriptionEmpty } from '@/constants/translationConstants';
@@ -57,7 +58,6 @@ const TimetableScreen = () => {
   } = useSelector((state: RootState) => state.settings);
   const { profile } = useSelector((state: RootState) => state.authReducer);
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['90%'], []);
   const [events, setEvents] = useState<EventTypes[]>([]);
   const [isActive, setIsActive] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
@@ -210,24 +210,16 @@ const TimetableScreen = () => {
         </View>
       )}
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={bottomSheetRef}
           index={-1}
-          snapPoints={snapPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeSheet}
-            />
-          )}
+          onBackdropPress={closeSheet}
         >
           <CourseBottomSheet
             timeTableData={timeTableData}
@@ -235,7 +227,7 @@ const TimetableScreen = () => {
             isUpdate={isUpdate}
             selectedEventId={selectedEventId}
           />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
     </View>
   );

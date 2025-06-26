@@ -67,7 +67,8 @@ import {
 } from '@/redux/Types/types';
 import { performLogout } from '@/helper/logoutHelper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import BaseBottomSheet from '@/components/BaseBottomSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import CanteenSelectionSheet from '@/components/CanteenSelectionSheet/CanteenSelectionSheet';
 import {
   excerpt,
@@ -86,7 +87,6 @@ const Settings = () => {
   const { theme, setThemeMode } = useTheme();
   const dispatch = useDispatch();
   const canteenSheetRef = useRef<BottomSheet>(null);
-  const canteenPoints = useMemo(() => ['100%'], []);
   const [isActive, setIsActive] = useState(false);
   const { translate, setLanguageMode, language } = useLanguage();
   const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
@@ -913,27 +913,19 @@ const Settings = () => {
         </View>
       </ScrollView>
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={canteenSheetRef}
           index={-1}
-          snapPoints={canteenPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeCanteenSheet}
-            />
-          )}
+          onBackdropPress={closeCanteenSheet}
         >
           <CanteenSelectionSheet closeSheet={closeCanteenSheet} />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
     </SafeAreaView>
   );

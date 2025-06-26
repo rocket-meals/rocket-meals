@@ -23,7 +23,8 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { isWeb } from '@/constants/Constants';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import BaseBottomSheet from '@/components/BaseBottomSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import FilterFormSheet from '@/components/FilterFormSheet/FilterFormSheet';
 import { excerpt } from '@/constants/HelperFunctions';
 import { filterOptions } from './constants';
@@ -37,7 +38,6 @@ const index = () => {
   const { theme } = useTheme();
   const { form_id } = useLocalSearchParams();
   const sheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['80%'], []);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState<string>('');
   const [isActive, setIsActive] = useState(false);
@@ -291,24 +291,16 @@ const index = () => {
         </View>
       </View>
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={sheetRef}
           index={-1}
-          snapPoints={snapPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeFilterSheet}
-            />
-          )}
+          onBackdropPress={closeFilterSheet}
         >
           <FilterFormSheet
             closeSheet={closeFilterSheet}
@@ -317,7 +309,7 @@ const index = () => {
             selectedOption={selectedOption}
             options={filterOptions}
           />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
     </View>
   );

@@ -38,7 +38,8 @@ import {
 } from '@/redux/Types/types';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
 import { calculateDistanceInMeter } from '@/helper/distanceHelper';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import BaseBottomSheet from '@/components/BaseBottomSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import BuildingSortSheet from '@/components/BuildingSortSheet/BuildingSortSheet';
 import useToast from '@/hooks/useToast';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -81,9 +82,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
     useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
 
   const sortSheetRef = useRef<BottomSheet>(null);
-  const sortPoints = useMemo(() => ['80%'], []);
   const imageManagementSheetRef = useRef<BottomSheet>(null);
-  const imageManagementPoints = useMemo(() => ['70%'], []);
 
   const openSortSheet = () => {
     sortSheetRef.current?.expand();
@@ -421,33 +420,24 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
           </View>
         </ScrollView>
         {isActive && (
-          <BottomSheet
+          <BaseBottomSheet
             ref={sortSheetRef}
             index={-1}
-            snapPoints={sortPoints}
             backgroundStyle={{
               ...styles.sheetBackground,
               backgroundColor: theme.sheet.sheetBg,
             }}
             enablePanDownToClose
             handleComponent={null}
-            backdropComponent={(props) => (
-              <BottomSheetBackdrop
-                {...props}
-                appearsOnIndex={0}
-                disappearsOnIndex={-1}
-                onPress={closeSortSheet}
-              />
-            )}
+            onBackdropPress={closeSortSheet}
           >
             <BuildingSortSheet closeSheet={closeSortSheet} freeRooms={false} />
-          </BottomSheet>
+          </BaseBottomSheet>
         )}
         {isActive && (
-          <BottomSheet
+          <BaseBottomSheet
             ref={imageManagementSheetRef}
             index={-1}
-            snapPoints={imageManagementPoints}
             backgroundStyle={{
               ...styles.sheetBackground,
               backgroundColor: theme.sheet.sheetBg,
@@ -456,14 +446,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
             enablePanDownToClose
             enableHandlePanningGesture={false}
             enableContentPanningGesture={false}
-            backdropComponent={(props) => (
-              <BottomSheetBackdrop
-                {...props}
-                appearsOnIndex={0}
-                disappearsOnIndex={-1}
-                onPress={closeImageManagementSheet}
-              />
-            )}
+            onBackdropPress={closeImageManagementSheet}
           >
             <ImageManagementSheet
               closeSheet={closeImageManagementSheet}
@@ -474,7 +457,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
               }}
               fileName='buildings'
             />
-          </BottomSheet>
+          </BaseBottomSheet>
         )}
       </View>
     </SafeAreaView>

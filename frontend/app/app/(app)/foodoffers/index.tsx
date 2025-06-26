@@ -49,7 +49,8 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons';
 import { RootDrawerParamList } from './types';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import BaseBottomSheet from '@/components/BaseBottomSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import CanteenSelectionSheet from '@/components/CanteenSelectionSheet/CanteenSelectionSheet';
 import SortSheet from '@/components/SortSheet/SortSheet';
 import HourSheet from '@/components/HoursSheet/HoursSheet';
@@ -94,16 +95,6 @@ export const SHEET_COMPONENTS = {
   eatingHabits: EatingHabitsSheet,
 };
 
-const SHEET_POINTS = {
-  canteen: ['100%'],
-  sort: ['80%'],
-  hours: ['85%'],
-  calendar: ['80%'],
-  forecast: ['80%'],
-  menu: ['90%'],
-  imageManagement: ['80%'],
-  eatingHabits: ['90%'],
-};
 
 const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -113,7 +104,6 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
   const drawerNavigation =
     useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const eventPoints = useMemo(() => ['100%'], []);
   const eventSheetRef = useRef<BottomSheet>(null);
   const businessHoursHelper = new BusinessHoursHelper();
   const canteenFeedbackLabelHelper = new CanteenFeedbackLabelHelper();
@@ -302,10 +292,6 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
     if (isActive && selectedSheet) {
       setTimeout(() => {
         bottomSheetRef.current?.expand();
-        bottomSheetRef.current?.snapToIndex(0);
-        bottomSheetRef.current?.snapToPosition(
-          SHEET_POINTS[selectedSheet!][0] || '80%'
-        );
       }, 150);
     }
   }, [selectedSheet, isActive]);
@@ -958,7 +944,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
           </ScrollView>
         </View>
         {isActive && (
-          <BottomSheet
+          <BaseBottomSheet
             key={selectedSheet}
             ref={bottomSheetRef}
             // snapPoints={['40%']}
@@ -978,48 +964,32 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                 closeSheet();
               }
             }}
-            backdropComponent={(props) => (
-              <BottomSheetBackdrop
-                {...props}
-                appearsOnIndex={0}
-                disappearsOnIndex={-1}
-                onPress={closeSheet}
-              />
-            )}
+            onBackdropPress={closeSheet}
             handleComponent={null}
           >
             {SheetComponent && (
               <SheetComponent closeSheet={closeSheet} {...sheetProps} />
             )}
-          </BottomSheet>
+          </BaseBottomSheet>
         )}
 
         {isActive && (
-          <BottomSheet
+          <BaseBottomSheet
             ref={eventSheetRef}
             index={-1}
-            snapPoints={eventPoints}
             backgroundStyle={{
               ...styles.sheetBackground,
               backgroundColor: theme.sheet.sheetBg,
             }}
             enablePanDownToClose={false}
-            enableDynamicSizing={false}
             handleComponent={null}
-            backdropComponent={(props) => (
-              <BottomSheetBackdrop
-                {...props}
-                appearsOnIndex={0}
-                disappearsOnIndex={-1}
-                onPress={closeEventSheet}
-              />
-            )}
+            onBackdropPress={closeEventSheet}
           >
             <PopupEventSheet
               closeSheet={closeEventSheet}
               eventData={popupEvents?.find((e: any) => e.isCurrent) || {}}
             />
-          </BottomSheet>
+          </BaseBottomSheet>
         )}
       </SafeAreaView>
     </>

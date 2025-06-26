@@ -30,7 +30,8 @@ import {
 } from '@/redux/Types/types';
 import MenuSheet from '@/components/MenuSheet/MenuSheet';
 import PermissionModal from '@/components/PermissionModal/PermissionModal';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import BaseBottomSheet from '@/components/BaseBottomSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import NotificationSheet from '@/components/NotificationSheet/NotificationSheet';
 import usePlatformHelper from '@/helper/platformHelper';
 import { NotificationHelper } from '@/helper/NotificationHelper';
@@ -66,7 +67,6 @@ export default function FoodDetailsScreen() {
   const { translate } = useLanguage();
   const dispatch = useDispatch();
   const menuSheetRef = useRef<BottomSheet>(null);
-  const menuPoints = useMemo(() => ['90%'], []);
   const { isSmartPhone, isAndroid, isIOS } = usePlatformHelper();
   const { user, profile } = useSelector(
     (state: RootState) => state.authReducer
@@ -117,7 +117,6 @@ export default function FoodDetailsScreen() {
     Dimensions.get('window').width
   );
   const notificationSheetRef = useRef<BottomSheet>(null);
-  const notificationPoints = useMemo(() => ['90%'], []);
 
   const openNotificationSheet = () => {
     notificationSheetRef?.current?.expand();
@@ -868,39 +867,30 @@ export default function FoodDetailsScreen() {
         </View>
       </ScrollView>
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={notificationSheetRef}
           index={-1}
-          snapPoints={notificationPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeNotificationSheet}
-            />
-          )}
+          onBackdropPress={closeNotificationSheet}
         >
           <NotificationSheet
             closeSheet={closeNotificationSheet}
             previousFeedback={previousFeedback}
             foodDetails={foodDetails}
           />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
       {/* Menu sheet */}
 
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={menuSheetRef}
           index={-1}
-          snapPoints={menuPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
@@ -909,17 +899,10 @@ export default function FoodDetailsScreen() {
           handleComponent={null}
           enableHandlePanningGesture={false}
           enableContentPanningGesture={false}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeMenuSheet}
-            />
-          )}
+          onBackdropPress={closeMenuSheet}
         >
           <MenuSheet closeSheet={closeMenuSheet} />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
     </SafeAreaView>
   );

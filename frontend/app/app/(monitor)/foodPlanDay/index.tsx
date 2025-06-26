@@ -18,10 +18,9 @@ import { useTheme } from '@/hooks/useTheme';
 import { router, useFocusEffect } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './styles';
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetView,
-} from '@gorhom/bottom-sheet';
+import BaseBottomSheet from '@/components/BaseBottomSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
+import { BottomSheetView } from '@gorhom/bottom-sheet';
 import {
   AntDesign,
   Entypo,
@@ -52,11 +51,8 @@ const Index = () => {
   const [isActive, setIsActive] = useState(false);
   const [value, setValue] = useState('');
   const canteenSheetRef = useRef<BottomSheet>(null);
-  const canteenPoints = useMemo(() => ['90%'], []);
   const foodCategorySheetRef = useRef<BottomSheet>(null);
-  const foodCategoryPoints = useMemo(() => ['90%'], []);
   const intervalSheetRef = useRef<BottomSheet>(null);
-  const intervalPoints = useMemo(() => ['90%'], []);
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get('window').width
   );
@@ -429,50 +425,34 @@ const Index = () => {
         </TouchableOpacity>
       </ScrollView>
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={canteenSheetRef}
           index={-1}
-          snapPoints={canteenPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeCanteenSheet}
-            />
-          )}
+          onBackdropPress={closeCanteenSheet}
         >
           <ManagementCanteensSheet
             closeSheet={closeCanteenSheet}
             handleSelectCanteen={handleSelectCanteen}
           />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={intervalSheetRef}
           index={-1}
-          snapPoints={intervalPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeIntervalSheet}
-            />
-          )}
+          onBackdropPress={closeIntervalSheet}
         >
           <BottomSheetView
             style={{
@@ -585,33 +565,25 @@ const Index = () => {
               </View>
             </View>
           </BottomSheetView>
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={foodCategorySheetRef}
           index={-1}
-          snapPoints={foodCategoryPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeFoodCategorySheet}
-            />
-          )}
+          onBackdropPress={closeFoodCategorySheet}
         >
           <ManagementFoodCategorySheet
             closeSheet={closeFoodCategorySheet}
             selectedFoodCategory={selectedFoodCategory}
           />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
     </>
   );

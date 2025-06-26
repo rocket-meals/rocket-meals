@@ -16,7 +16,8 @@ import {
   SET_MOST_LIKED_FOODS,
 } from '@/redux/Types/types';
 import { Foods } from '@/constants/types';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import BaseBottomSheet from '@/components/BaseBottomSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import ImageManagementSheet from '@/components/ImageManagementSheet/ImageManagementSheet';
 import { useFocusEffect } from 'expo-router';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
@@ -30,7 +31,6 @@ const index = () => {
   const [isActive, setIsActive] = useState(false);
   const [selectedFoodId, setSelectedFoodId] = useState('');
   const imageManagementSheetRef = useRef<BottomSheet>(null);
-  const imageManagementPoints = useMemo(() => ['70%'], []);
 
   const { mostLikedFoods, mostDislikedFoods } = useSelector(
     (state: RootState) => state.food
@@ -145,10 +145,9 @@ const index = () => {
         </View>
       </View>
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={imageManagementSheetRef}
           index={-1}
-          snapPoints={imageManagementPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
@@ -157,14 +156,7 @@ const index = () => {
           enablePanDownToClose
           enableHandlePanningGesture={false}
           enableContentPanningGesture={false}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeImageManagementSheet}
-            />
-          )}
+          onBackdropPress={closeImageManagementSheet}
         >
           <ImageManagementSheet
             closeSheet={closeImageManagementSheet}
@@ -172,7 +164,7 @@ const index = () => {
             handleFetch={fetchFoods}
             fileName='foods'
           />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
     </View>
   );

@@ -16,7 +16,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { router, useFocusEffect } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './styles';
-import BottomSheet, { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import BaseBottomSheet from '@/components/BaseBottomSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { Entypo, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
 import ManagementCanteensSheet from '@/components/ManagementCanteensSheet/ManagementCanteensSheet';
@@ -38,7 +39,6 @@ const Index = () => {
   const { weekPlan } = useSelector((state: RootState) => state.management);
   const [isActive, setIsActive] = useState(false);
   const canteenSheetRef = useRef<BottomSheet>(null);
-  const canteenPoints = useMemo(() => ['90%'], []);
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get('window').width
   );
@@ -191,30 +191,22 @@ const Index = () => {
         </TouchableOpacity>
       </ScrollView>
       {isActive && (
-        <BottomSheet
+        <BaseBottomSheet
           ref={canteenSheetRef}
           index={-1}
-          snapPoints={canteenPoints}
           backgroundStyle={{
             ...styles.sheetBackground,
             backgroundColor: theme.sheet.sheetBg,
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => (
-            <BottomSheetBackdrop
-              {...props}
-              appearsOnIndex={0}
-              disappearsOnIndex={-1}
-              onPress={closeCanteenSheet}
-            />
-          )}
+          onBackdropPress={closeCanteenSheet}
         >
           <ManagementCanteensSheet
             closeSheet={closeCanteenSheet}
             handleSelectCanteen={handleSelectCanteen}
           />
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
     </>
   );
