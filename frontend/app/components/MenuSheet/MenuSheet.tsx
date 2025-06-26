@@ -85,7 +85,17 @@ const MenuSheet: React.FC<MenuSheetProps> = ({ closeSheet }) => {
           paddingTop: isWeb ? 10 : 0,
         }}
       >
-        <View />
+        <TouchableOpacity
+          style={{
+            ...styles.sheetcloseButton,
+            backgroundColor: theme.sheet.closeBg,
+          }}
+          onPress={closeSheet}
+        >
+          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
         <Text
           style={{
             ...styles.sheetHeading,
@@ -97,15 +107,6 @@ const MenuSheet: React.FC<MenuSheetProps> = ({ closeSheet }) => {
           {getTextFromTranslation(markingDetails?.translations, language)}
           {` (${markingDetails?.external_identifier})`}
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <View style={{ ...styles.menuContainer, width: isWeb ? '90%' : '100%' }}>
         <View style={styles.imageContainer}>

@@ -335,7 +335,17 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({
           ...styles.sheetHeader,
         }}
       >
-        <View />
+        <TouchableOpacity
+          style={{
+            ...styles.sheetcloseButton,
+            backgroundColor: theme.sheet.closeBg,
+          }}
+          onPress={SheetClose}
+        >
+          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
         <Text
           style={{
             ...styles.sheetHeading,
@@ -355,15 +365,6 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({
                 TranslationKeys.create
               )}`}
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={SheetClose}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
 
       <BottomSheetScrollView

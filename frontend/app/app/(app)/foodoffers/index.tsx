@@ -95,7 +95,7 @@ export const SHEET_COMPONENTS = {
 };
 
 const SHEET_POINTS = {
-  canteen: ['100%'],
+  canteen: ['80%'],
   sort: ['80%'],
   hours: ['85%'],
   calendar: ['80%'],

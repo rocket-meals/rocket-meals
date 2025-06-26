@@ -105,17 +105,6 @@ const CalendarSheet: React.FC<CalendarSheetProps> = ({ closeSheet }) => {
           paddingTop: isWeb ? 10 : 0,
         }}
       >
-        <View />
-        <Text
-          style={{
-            ...styles.sheetHeading,
-            fontSize: isWeb ? 40 : 28,
-            color: theme.sheet.text,
-          }}
-        >
-          {translate(TranslationKeys.select)} :{' '}
-          {translate(TranslationKeys.date)}
-        </Text>
         <TouchableOpacity
           style={{
             ...styles.sheetcloseButton,
@@ -125,6 +114,17 @@ const CalendarSheet: React.FC<CalendarSheetProps> = ({ closeSheet }) => {
         >
           <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
         </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
+        <Text
+          style={{
+            ...styles.sheetHeading,
+            fontSize: isWeb ? 40 : 28,
+            color: theme.sheet.text,
+          }}
+        >
+          {translate(TranslationKeys.select)} : {translate(TranslationKeys.date)}
+        </Text>
       </View>
 
       <View

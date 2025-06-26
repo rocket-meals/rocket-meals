@@ -11,11 +11,13 @@ export default StyleSheet.create({
   },
   sheetHeader: {
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     borderTopRightRadius: 28,
     borderTopLeftRadius: 28,
+  },
+  titleContainer: {
+    width: '100%',
+    alignItems: 'center',
   },
   sheetcloseButton: {
     width: 45,
@@ -26,7 +28,6 @@ export default StyleSheet.create({
   },
   sheetHeading: {
     fontFamily: 'Poppins_700Bold',
-    marginLeft: 30,
     fontSize: 24,
     textAlign: 'center',
   },

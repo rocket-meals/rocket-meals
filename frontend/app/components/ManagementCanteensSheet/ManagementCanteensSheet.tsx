@@ -132,15 +132,17 @@ const ManagementCanteensSheet: React.FC<ManagementCanteensSheetProps> = ({
           <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
         </TouchableOpacity>
       </View>
-      <Text
-        style={{
-          ...styles.sheetHeading,
-          fontSize: isWeb ? 40 : 32,
-          color: theme.sheet.text,
-        }}
-      >
-        {translate(TranslationKeys.canteen)}
-      </Text>
+      <View style={styles.titleContainer}>
+        <Text
+          style={{
+            ...styles.sheetHeading,
+            fontSize: isWeb ? 40 : 32,
+            color: theme.sheet.text,
+          }}
+        >
+          {translate(TranslationKeys.canteen)}
+        </Text>
+      </View>
       <View
         style={{
           ...styles.canteensContainer,

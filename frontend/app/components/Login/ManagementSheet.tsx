@@ -65,11 +65,13 @@ const ManagementSheet: React.FC<SheetProps> = ({
           <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
         </TouchableOpacity>
       </View>
-      <Text style={{ ...styles.sheetHeading, color: theme.sheet.text }}>
-        {translate(
-          TranslationKeys.show_login_for_management_with_email_and_password
-        )}
-      </Text>
+      <View style={styles.titleContainer}>
+        <Text style={{ ...styles.sheetHeading, color: theme.sheet.text }}>
+          {translate(
+            TranslationKeys.show_login_for_management_with_email_and_password
+          )}
+        </Text>
+      </View>
       <Text style={{ ...styles.sheetSubHeading, color: theme.sheet.text }}>
         Sign in with open account
       </Text>

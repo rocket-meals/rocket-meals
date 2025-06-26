@@ -150,16 +150,6 @@ const NotificationSheet: React.FC<NotificationSheetProps> = ({
           paddingTop: isWeb() ? 10 : 0,
         }}
       >
-        <View />
-        <Text
-          style={{
-            ...styles.sheetHeading,
-            fontSize: isWeb() ? (screenWidth > 800 ? 40 : 28) : 28,
-            color: theme.sheet.text,
-          }}
-        >
-          {translate(TranslationKeys.notification)}
-        </Text>
         <TouchableOpacity
           style={{
             ...styles.sheetcloseButton,
@@ -169,6 +159,17 @@ const NotificationSheet: React.FC<NotificationSheetProps> = ({
         >
           <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
         </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
+        <Text
+          style={{
+            ...styles.sheetHeading,
+            fontSize: isWeb() ? (screenWidth > 800 ? 40 : 28) : 28,
+            color: theme.sheet.text,
+          }}
+        >
+          {translate(TranslationKeys.notification)}
+        </Text>
       </View>
       <View style={styles.notificationContent}>
         <View style={styles.gifContainer}>{renderLottie}</View>

@@ -14,14 +14,12 @@ export default StyleSheet.create({
   },
   sheetHeaderClose: {
     width: '100%',
-    flexDirection: 'column',
+    alignItems: 'flex-end',
     borderTopRightRadius: 28,
     borderTopLeftRadius: 28,
   },
   sheetHeaderText: {
     width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
   },
   sheetcloseButton: {

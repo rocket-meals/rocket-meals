@@ -160,16 +160,6 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({
           paddingTop: isWeb ? 10 : 0,
         }}
       >
-        <View />
-        <Text
-          style={{
-            ...styles.sheetHeading,
-            fontSize: isWeb ? 40 : 28,
-            color: theme.sheet.text,
-          }}
-        >
-          {translate(TranslationKeys.forecast)}
-        </Text>
         <TouchableOpacity
           style={{
             ...styles.sheetcloseButton,
@@ -179,6 +169,17 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({
         >
           <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
         </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
+        <Text
+          style={{
+            ...styles.sheetHeading,
+            fontSize: isWeb ? 40 : 28,
+            color: theme.sheet.text,
+          }}
+        >
+          {translate(TranslationKeys.forecast)}
+        </Text>
       </View>
       <BottomSheetScrollView
         ref={scrollViewRef}

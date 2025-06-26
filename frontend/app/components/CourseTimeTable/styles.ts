@@ -142,12 +142,14 @@ export default StyleSheet.create({
 
   sheetHeader: {
     width: '95%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     borderTopRightRadius: 28,
     borderTopLeftRadius: 28,
     marginTop: 20,
+  },
+  titleContainer: {
+    width: '95%',
+    alignItems: 'center',
   },
   sheetcloseButton: {
     width: 45,
@@ -158,6 +160,7 @@ export default StyleSheet.create({
   },
   sheetHeading: {
     fontFamily: 'Poppins_700Bold',
+    textAlign: 'center',
   },
 
   list: {

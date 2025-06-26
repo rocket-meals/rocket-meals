@@ -533,16 +533,6 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
           paddingTop: isWeb ? 10 : 0,
         }}
       >
-        <View />
-        <Text
-          style={{
-            ...styles.sheetHeading,
-            fontSize: isWeb ? (ScreenWidth <= 500 ? 16 : 24) : 24,
-            color: theme.sheet.text,
-          }}
-        >
-          {translate(TranslationKeys.businesshours)}
-        </Text>
         <TouchableOpacity
           style={{
             ...styles.sheetcloseButton,
@@ -552,6 +542,17 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
         >
           <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
         </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
+        <Text
+          style={{
+            ...styles.sheetHeading,
+            fontSize: isWeb ? (ScreenWidth <= 500 ? 16 : 24) : 24,
+            color: theme.sheet.text,
+          }}
+        >
+          {translate(TranslationKeys.businesshours)}
+        </Text>
       </View>
       {loading ? (
         <View

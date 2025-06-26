@@ -18,6 +18,10 @@ export default StyleSheet.create({
     borderTopRightRadius: 28,
     borderTopLeftRadius: 28,
   },
+  titleContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
   sheetcloseButton: {
     width: 45,
     height: 45,
@@ -27,6 +31,7 @@ export default StyleSheet.create({
   },
   sheetHeading: {
     fontFamily: 'Poppins_700Bold',
+    textAlign: 'center',
   },
   canteensContainer: {
     flexDirection: 'row',

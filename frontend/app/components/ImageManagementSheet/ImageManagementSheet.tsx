@@ -232,15 +232,6 @@ const ImageManagementSheet: React.FC<ImageManagementSheetProps> = ({
           paddingTop: isWeb ? 10 : 0,
         }}
       >
-        <View />
-        <Text
-          style={{
-            ...styles.sheetHeading,
-            color: theme.sheet.text,
-          }}
-        >
-          Edit: Image
-        </Text>
         <TouchableOpacity
           style={{
             ...styles.sheetcloseButton,
@@ -254,6 +245,16 @@ const ImageManagementSheet: React.FC<ImageManagementSheetProps> = ({
         >
           <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
         </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
+        <Text
+          style={{
+            ...styles.sheetHeading,
+            color: theme.sheet.text,
+          }}
+        >
+          Edit: Image
+        </Text>
       </View>
       <View
         style={{

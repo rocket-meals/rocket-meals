@@ -55,16 +55,6 @@ const SubmissionWarningSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
           paddingTop: isWeb ? 10 : 0,
         }}
       >
-        <View style={{ width: 50 }} />
-        <Text
-          style={{
-            ...styles.sheetHeading,
-            fontSize: 30,
-            color: theme.sheet.text,
-          }}
-        >
-          {translate(TranslationKeys.warning)}
-        </Text>
         <TouchableOpacity
           style={{
             ...styles.sheetcloseButton,
@@ -74,6 +64,17 @@ const SubmissionWarningSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
         >
           <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
         </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
+        <Text
+          style={{
+            ...styles.sheetHeading,
+            fontSize: 30,
+            color: theme.sheet.text,
+          }}
+        >
+          {translate(TranslationKeys.warning)}
+        </Text>
       </View>
       <Text
         style={{

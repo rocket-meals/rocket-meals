@@ -180,6 +180,10 @@ export const styles = StyleSheet.create({
     borderTopRightRadius: 28,
     borderTopLeftRadius: 28,
   },
+  titleContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
   attentionSheetHeader: {
     width: '100%',
     flexDirection: 'row',
@@ -242,6 +246,7 @@ export const styles = StyleSheet.create({
     fontSize: 26,
     fontFamily: 'Poppins_700Bold',
     marginTop: 20,
+    textAlign: 'center',
   },
   attentionSheetHeading: {
     fontSize: 32,

@@ -65,16 +65,6 @@ const EditFormSubmissionSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
           paddingTop: isWeb ? 10 : 0,
         }}
       >
-        <View />
-        <Text
-          style={{
-            ...styles.sheetHeading,
-            fontSize: isWeb ? 40 : 28,
-            color: theme.sheet.text,
-          }}
-        >
-          {translate(TranslationKeys.edit)}
-        </Text>
         <TouchableOpacity
           style={{
             ...styles.sheetcloseButton,
@@ -84,6 +74,17 @@ const EditFormSubmissionSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
         >
           <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
         </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
+        <Text
+          style={{
+            ...styles.sheetHeading,
+            fontSize: isWeb ? 40 : 28,
+            color: theme.sheet.text,
+          }}
+        >
+          {translate(TranslationKeys.edit)}
+        </Text>
       </View>
       <View style={styles.editContentContainer}>
         <View

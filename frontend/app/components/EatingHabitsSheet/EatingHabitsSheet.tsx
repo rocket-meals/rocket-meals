@@ -33,16 +33,6 @@ const EatingHabitsSheet: React.FC<EatingHabitsSheetProps> = ({
           paddingTop: isWeb ? 10 : 0,
         }}
       >
-        <View />
-        <Text
-          style={{
-            ...styles.sheetHeading,
-            fontSize: isWeb ? 40 : 28,
-            color: theme.sheet.text,
-          }}
-        >
-          {translate(TranslationKeys.eating_habits)}
-        </Text>
         <TouchableOpacity
           style={{
             ...styles.sheetcloseButton,
@@ -52,6 +42,17 @@ const EatingHabitsSheet: React.FC<EatingHabitsSheetProps> = ({
         >
           <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
         </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
+        <Text
+          style={{
+            ...styles.sheetHeading,
+            fontSize: isWeb ? 40 : 28,
+            color: theme.sheet.text,
+          }}
+        >
+          {translate(TranslationKeys.eating_habits)}
+        </Text>
       </View>
       <View style={styles.eatingHabitsList}>
         {selectedFoodMarkings?.map((marking: any, index: number) => (

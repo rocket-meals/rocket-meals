@@ -25,18 +25,6 @@ const DataSheet: React.FC<DataSheetProps> = ({ closeSheet, content }) => {
           paddingTop: isWeb ? 10 : 0,
         }}
       >
-        <View />
-        <Text
-          style={{
-            ...styles.sheetHeading,
-            maxWidth: '70%',
-            textAlign: 'center',
-            fontSize: isWeb ? 40 : 22,
-            color: theme.sheet.text,
-          }}
-        >
-          {translate(content?.label)}
-        </Text>
         <TouchableOpacity
           style={{
             ...styles.sheetcloseButton,
@@ -46,6 +34,18 @@ const DataSheet: React.FC<DataSheetProps> = ({ closeSheet, content }) => {
         >
           <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
         </TouchableOpacity>
+      </View>
+      <View style={styles.titleContainer}>
+        <Text
+          style={{
+            ...styles.sheetHeading,
+            maxWidth: '70%',
+            fontSize: isWeb ? 40 : 22,
+            color: theme.sheet.text,
+          }}
+        >
+          {translate(content?.label)}
+        </Text>
       </View>
 
       <Text style={{ fontSize: isWeb ? 18 : 16, color: theme.sheet.text }}>
