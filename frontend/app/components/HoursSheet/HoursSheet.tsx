@@ -524,6 +524,7 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
     <BottomSheetScrollView
       style={{ ...styles.sheetView, backgroundColor: theme.sheet.sheetBg }}
       contentContainerStyle={styles.contentContainer}
+      stickyHeaderIndices={[0]}
     >
       <View
         style={{

@@ -168,7 +168,7 @@ export const styles = StyleSheet.create({
   // ----------------Sheet------------------
   sheetView: {
     width: '100%',
-    height: '100%',
+    flex: 1,
     alignItems: 'center',
     borderTopRightRadius: 28,
     borderTopLeftRadius: 28,

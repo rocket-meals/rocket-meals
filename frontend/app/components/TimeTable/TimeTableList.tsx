@@ -40,6 +40,7 @@ const TimeTableList: React.FC<TimeTableListProps> = ({
     <BottomSheetScrollView
       style={{ ...styles.sheetView, backgroundColor: theme.sheet.sheetBg }}
       contentContainerStyle={styles.contentContainer}
+      stickyHeaderIndices={[0]}
     >
       <TouchableOpacity
         style={{

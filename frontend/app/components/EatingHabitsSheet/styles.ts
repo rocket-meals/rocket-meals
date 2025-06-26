@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
   sheetView: {
     width: '100%',
-    height: '100%',
+    flex: 1,
     borderTopRightRadius: 28,
     borderTopLeftRadius: 28,
     padding: 10,
