@@ -476,7 +476,14 @@ const Index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => <BottomSheetBackdrop {...props} />}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              onPress={closeCanteenSheet}
+            />
+          )}
         >
           <ManagementCanteensSheet
             closeSheet={closeCanteenSheet}
@@ -495,7 +502,14 @@ const Index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => <BottomSheetBackdrop {...props} />}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              onPress={closeIntervalSheet}
+            />
+          )}
         >
           <BottomSheetView
             style={{

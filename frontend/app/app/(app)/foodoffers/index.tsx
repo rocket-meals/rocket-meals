@@ -979,7 +979,12 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
               }
             }}
             backdropComponent={(props) => (
-              <BottomSheetBackdrop {...props} onPress={closeSheet} />
+              <BottomSheetBackdrop
+                {...props}
+                appearsOnIndex={0}
+                disappearsOnIndex={-1}
+                onPress={closeSheet}
+              />
             )}
             handleComponent={null}
           >
@@ -1001,6 +1006,14 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
             enablePanDownToClose={false}
             enableDynamicSizing={false}
             handleComponent={null}
+            backdropComponent={(props) => (
+              <BottomSheetBackdrop
+                {...props}
+                appearsOnIndex={0}
+                disappearsOnIndex={-1}
+                onPress={closeEventSheet}
+              />
+            )}
           >
             <PopupEventSheet
               closeSheet={closeEventSheet}

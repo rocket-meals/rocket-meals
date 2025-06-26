@@ -157,7 +157,14 @@ const index = () => {
           enablePanDownToClose
           enableHandlePanningGesture={false}
           enableContentPanningGesture={false}
-          backdropComponent={(props) => <BottomSheetBackdrop {...props} />}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              onPress={closeImageManagementSheet}
+            />
+          )}
         >
           <ImageManagementSheet
             closeSheet={closeImageManagementSheet}

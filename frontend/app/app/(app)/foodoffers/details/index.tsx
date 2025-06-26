@@ -878,7 +878,14 @@ export default function FoodDetailsScreen() {
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => <BottomSheetBackdrop {...props} />}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              onPress={closeNotificationSheet}
+            />
+          )}
         >
           <NotificationSheet
             closeSheet={closeNotificationSheet}
@@ -902,7 +909,14 @@ export default function FoodDetailsScreen() {
           handleComponent={null}
           enableHandlePanningGesture={false}
           enableContentPanningGesture={false}
-          backdropComponent={(props) => <BottomSheetBackdrop {...props} />}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              onPress={closeMenuSheet}
+            />
+          )}
         >
           <MenuSheet closeSheet={closeMenuSheet} />
         </BottomSheet>

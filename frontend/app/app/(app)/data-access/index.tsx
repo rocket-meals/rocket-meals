@@ -49,7 +49,14 @@ const index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => <BottomSheetBackdrop {...props} />}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              onPress={closeCanteenSheet}
+            />
+          )}
         >
           <DataSheet closeSheet={closeCanteenSheet} content={content} />
         </BottomSheet>

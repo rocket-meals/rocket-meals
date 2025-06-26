@@ -431,7 +431,14 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
             }}
             enablePanDownToClose
             handleComponent={null}
-            backdropComponent={(props) => <BottomSheetBackdrop {...props} />}
+            backdropComponent={(props) => (
+              <BottomSheetBackdrop
+                {...props}
+                appearsOnIndex={0}
+                disappearsOnIndex={-1}
+                onPress={closeSortSheet}
+              />
+            )}
           >
             <BuildingSortSheet closeSheet={closeSortSheet} freeRooms={false} />
           </BottomSheet>
@@ -449,7 +456,14 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
             enablePanDownToClose
             enableHandlePanningGesture={false}
             enableContentPanningGesture={false}
-            backdropComponent={(props) => <BottomSheetBackdrop {...props} />}
+            backdropComponent={(props) => (
+              <BottomSheetBackdrop
+                {...props}
+                appearsOnIndex={0}
+                disappearsOnIndex={-1}
+                onPress={closeImageManagementSheet}
+              />
+            )}
           >
             <ImageManagementSheet
               closeSheet={closeImageManagementSheet}

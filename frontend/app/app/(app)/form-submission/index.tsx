@@ -1005,7 +1005,14 @@ const index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => <BottomSheetBackdrop {...props} />}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              onPress={closeEditSheet}
+            />
+          )}
         >
           <EditFormSubmissionSheet
             id={String(form_submission_id)}
@@ -1043,7 +1050,14 @@ const index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          backdropComponent={(props) => <BottomSheetBackdrop {...props} />}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              onPress={closeFilterSheet}
+            />
+          )}
         >
           <FilterFormSheet
             closeSheet={closeFilterSheet}
