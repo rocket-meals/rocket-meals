@@ -876,7 +876,7 @@ export default function FoodDetailsScreen() {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={closeNotificationSheet}
+          onClose={closeNotificationSheet}
         >
           <NotificationSheet
             closeSheet={closeNotificationSheet}
@@ -899,7 +899,7 @@ export default function FoodDetailsScreen() {
           handleComponent={null}
           enableHandlePanningGesture={false}
           enableContentPanningGesture={false}
-          onBackdropPress={closeMenuSheet}
+          onClose={closeMenuSheet}
         >
           <MenuSheet closeSheet={closeMenuSheet} />
         </BaseBottomSheet>

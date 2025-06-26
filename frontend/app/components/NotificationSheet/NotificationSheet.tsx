@@ -7,7 +7,6 @@ import React, {
   useState,
 } from 'react';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { AntDesign } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
 import { NotificationSheetProps } from './types';
@@ -159,15 +158,6 @@ const NotificationSheet: React.FC<NotificationSheetProps> = ({
         >
           {translate(TranslationKeys.notification)}
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <View style={styles.notificationContent}>
         <View style={styles.gifContainer}>{renderLottie}</View>

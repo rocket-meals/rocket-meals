@@ -434,7 +434,7 @@ const Index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={closeCanteenSheet}
+          onClose={closeCanteenSheet}
         >
           <ManagementCanteensSheet
             closeSheet={closeCanteenSheet}
@@ -452,7 +452,7 @@ const Index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={closeIntervalSheet}
+          onClose={closeIntervalSheet}
         >
           <BottomSheetView
             style={{
@@ -577,7 +577,7 @@ const Index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={closeFoodCategorySheet}
+          onClose={closeFoodCategorySheet}
         >
           <ManagementFoodCategorySheet
             closeSheet={closeFoodCategorySheet}

@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { styles } from './styles';
-import { AntDesign } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { SheetProps } from './types';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -55,15 +54,6 @@ const ManagementSheet: React.FC<SheetProps> = ({
       style={{ ...styles.sheetView, backgroundColor: theme.sheet.sheetBg }}
     >
       <View style={styles.sheetHeader}>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <Text style={{ ...styles.sheetHeading, color: theme.sheet.text }}>
         {translate(

@@ -964,7 +964,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                 closeSheet();
               }
             }}
-            onBackdropPress={closeSheet}
+            onClose={closeSheet}
             handleComponent={null}
           >
             {SheetComponent && (
@@ -983,7 +983,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
             }}
             enablePanDownToClose={false}
             handleComponent={null}
-            onBackdropPress={closeEventSheet}
+            onClose={closeEventSheet}
           >
             <PopupEventSheet
               closeSheet={closeEventSheet}

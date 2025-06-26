@@ -3,7 +3,6 @@ import React, { useCallback, useRef, useState } from 'react';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useTheme } from '@/hooks/useTheme';
 import { AttentionSheetProps } from './types';
-import { AntDesign } from '@expo/vector-icons';
 import { styles } from './styles';
 import { isWeb } from '@/constants/Constants';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -47,18 +46,6 @@ const AttentionSheet: React.FC<AttentionSheetProps> = ({
       <View style={styles.attentionSheetHeader}>
         <View />
 
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={() => {
-            closeSheet();
-            setHasPlayed(false);
-          }}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.gifContainer}>

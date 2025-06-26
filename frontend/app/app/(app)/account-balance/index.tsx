@@ -372,7 +372,7 @@ const AccountBalanceScreen = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={hideInstruction}
+          onClose={hideInstruction}
         >
           <BottomSheetView>
             <View
@@ -390,19 +390,6 @@ const AccountBalanceScreen = () => {
               >
                 NFC
               </Text>
-              <TouchableOpacity
-                style={{
-                  ...styles.sheetcloseButton,
-                  backgroundColor: theme.sheet.closeBg,
-                }}
-                onPress={hideInstruction}
-              >
-                <AntDesign
-                  name='close'
-                  size={24}
-                  color={theme.sheet.closeIcon}
-                />
-              </TouchableOpacity>
             </View>
             <View style={styles.sheetView}>
               <Text
@@ -431,7 +418,7 @@ const AccountBalanceScreen = () => {
               </View>
             </View>
           </BottomSheetView>
-        </BottomSheet>
+        </BaseBottomSheet>
       )}
     </ScrollView>
   );

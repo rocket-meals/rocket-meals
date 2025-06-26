@@ -5,7 +5,6 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
 import {
-  AntDesign,
   FontAwesome5,
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
@@ -122,15 +121,6 @@ const BuildingSortSheet: React.FC<BuildingSortSheetProps> = ({
         >
           {translate(TranslationKeys.sort)}
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <View style={styles.sortingListContainer}>
         {filteredSortingOptions.map((option) => {

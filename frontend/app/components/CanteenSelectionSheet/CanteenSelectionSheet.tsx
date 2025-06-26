@@ -11,7 +11,7 @@ import {
   SET_CANTEENS,
   SET_SELECTED_CANTEEN,
 } from '@/redux/Types/types';
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { excerpt, getImageUrl } from '@/constants/HelperFunctions';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Buildings, Canteens } from '@/constants/types';
@@ -129,15 +129,6 @@ const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({
           paddingTop: isWeb ? 10 : 0,
         }}
       >
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <Text
         style={{

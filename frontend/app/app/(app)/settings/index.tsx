@@ -922,7 +922,7 @@ const Settings = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={closeCanteenSheet}
+          onClose={closeCanteenSheet}
         >
           <CanteenSelectionSheet closeSheet={closeCanteenSheet} />
         </BaseBottomSheet>

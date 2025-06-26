@@ -11,7 +11,6 @@ import React, { useEffect, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import {
-  AntDesign,
   Ionicons,
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
@@ -241,19 +240,6 @@ const ImageManagementSheet: React.FC<ImageManagementSheetProps> = ({
         >
           Edit: Image
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={() => {
-            setIsDelete(false);
-            setSelectedImage(undefined);
-            closeSheet();
-          }}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <View
         style={{

@@ -219,7 +219,7 @@ const TimetableScreen = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={closeSheet}
+          onClose={closeSheet}
         >
           <CourseBottomSheet
             timeTableData={timeTableData}

@@ -67,7 +67,7 @@ const SubmissionWarningModal: React.FC<SubmissionWarningModalProps> = ({
         styles.modalContainer,
         screenWidth > 600 && { alignItems: 'center' },
       ]}
-      onBackdropPress={() => {
+      onClose={() => {
         setIsVisible(false);
         router.navigate('/form-submissions');
       }}

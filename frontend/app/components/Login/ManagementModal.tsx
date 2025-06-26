@@ -89,7 +89,7 @@ const ManagementModal: React.FC<ManagementModalProps> = ({
     <Modal
       isVisible={isVisible}
       style={styles.modalContainer}
-      onBackdropPress={() => setIsVisible(false)}
+      onClose={() => setIsVisible(false)}
     >
       <View
         style={{

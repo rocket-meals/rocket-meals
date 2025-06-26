@@ -6,7 +6,7 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { CanteenProps, ManagementCanteensSheetProps } from './types';
 import { isWeb, canteensData } from '@/constants/Constants';
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { excerpt, getImageUrl } from '@/constants/HelperFunctions';
 import { useLanguage } from '@/hooks/useLanguage';
 import { CanteenHelper } from '@/redux/actions';
@@ -121,15 +121,6 @@ const ManagementCanteensSheet: React.FC<ManagementCanteensSheetProps> = ({
           paddingTop: isWeb ? 10 : 0,
         }}
       >
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <Text
         style={{

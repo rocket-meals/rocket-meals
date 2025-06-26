@@ -4,7 +4,6 @@ import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
-import { AntDesign } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import { PopupEventSheetProps } from './types';
 import { getImageUrl } from '@/constants/HelperFunctions';
@@ -300,15 +299,6 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({
         paddingTop: isWeb ? 10 : 0,
         alignItems: 'flex-end',
       }}>
-        <TouchableOpacity
-            style={{
-              ...styles.sheetcloseButton,
-              backgroundColor: theme.sheet.closeBg,
-            }}
-            onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <View
         style={{

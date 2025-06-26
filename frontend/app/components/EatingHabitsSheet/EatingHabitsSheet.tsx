@@ -2,7 +2,6 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import { isWeb } from '@/constants/Constants';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { AntDesign } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
 import { EatingHabitsSheetProps } from './types';
@@ -42,15 +41,6 @@ const EatingHabitsSheet: React.FC<EatingHabitsSheetProps> = ({
         >
           {translate(TranslationKeys.eating_habits)}
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <View style={styles.eatingHabitsList}>
         {selectedFoodMarkings?.map((marking: any, index: number) => (

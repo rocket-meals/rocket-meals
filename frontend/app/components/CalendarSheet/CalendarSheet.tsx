@@ -116,15 +116,6 @@ const CalendarSheet: React.FC<CalendarSheetProps> = ({ closeSheet }) => {
           {translate(TranslationKeys.select)} :{' '}
           {translate(TranslationKeys.date)}
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
 
       <View

@@ -48,7 +48,7 @@ const index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={closeCanteenSheet}
+          onClose={closeCanteenSheet}
         >
           <DataSheet closeSheet={closeCanteenSheet} content={content} />
         </BaseBottomSheet>

@@ -300,7 +300,7 @@ const index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={closeFilterSheet}
+          onClose={closeFilterSheet}
         >
           <FilterFormSheet
             closeSheet={closeFilterSheet}

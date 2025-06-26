@@ -10,7 +10,7 @@ import { ManagementFoodCategorySheetProps } from './types';
 import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { isWeb } from '@/constants/Constants';
 import { SET_DAY_PLAN } from '@/redux/Types/types';
@@ -126,17 +126,6 @@ const ManagementFoodCategorySheet: React.FC<
           {selectedFoodCategory.label}
         </Text>
 
-        <TouchableOpacity
-          style={{
-            ...styles.closeButton,
-            backgroundColor: theme.modal.closeBg,
-            height: 40,
-            width: 40,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={26} color={theme.modal.closeIcon} />
-        </TouchableOpacity>
       </View>
       {isCustom ? (
         <View style={styles.modalContent}>

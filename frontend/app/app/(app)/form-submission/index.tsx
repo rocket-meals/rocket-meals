@@ -1002,7 +1002,7 @@ const index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={closeEditSheet}
+          onClose={closeEditSheet}
         >
           <EditFormSubmissionSheet
             id={String(form_submission_id)}
@@ -1037,7 +1037,7 @@ const index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={closeFilterSheet}
+          onClose={closeFilterSheet}
         >
           <FilterFormSheet
             closeSheet={closeFilterSheet}

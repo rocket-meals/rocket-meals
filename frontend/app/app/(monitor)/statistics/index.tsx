@@ -156,7 +156,7 @@ const index = () => {
           enablePanDownToClose
           enableHandlePanningGesture={false}
           enableContentPanningGesture={false}
-          onBackdropPress={closeImageManagementSheet}
+          onClose={closeImageManagementSheet}
         >
           <ImageManagementSheet
             closeSheet={closeImageManagementSheet}

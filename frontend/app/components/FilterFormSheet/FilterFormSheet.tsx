@@ -5,7 +5,6 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
 import {
-  AntDesign,
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons';
@@ -65,15 +64,6 @@ const FilterFormSheet: React.FC<FilterFormSheetProps> = ({
         >
           {translate(TranslationKeys.filter)}
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <View style={styles.sortingListContainer}>
         {options.map((option, index) => {

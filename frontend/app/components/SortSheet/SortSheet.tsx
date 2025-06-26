@@ -155,15 +155,6 @@ const SortSheet: React.FC<SortSheetProps> = ({ closeSheet }) => {
         >
           {translate(TranslationKeys.sort)}
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <View style={styles.sortingListContainer}>
         {sortingOptions.map((option, index) => (

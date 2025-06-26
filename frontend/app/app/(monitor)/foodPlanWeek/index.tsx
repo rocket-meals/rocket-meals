@@ -200,7 +200,7 @@ const Index = () => {
           }}
           enablePanDownToClose
           handleComponent={null}
-          onBackdropPress={closeCanteenSheet}
+          onClose={closeCanteenSheet}
         >
           <ManagementCanteensSheet
             closeSheet={closeCanteenSheet}

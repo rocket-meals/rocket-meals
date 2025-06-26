@@ -7,7 +7,6 @@ import {
   View,
 } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { AntDesign } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -542,15 +541,6 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
         >
           {translate(TranslationKeys.businesshours)}
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       {loading ? (
         <View

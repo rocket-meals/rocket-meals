@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import React from 'react';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { AntDesign } from '@expo/vector-icons';
 import styles from './styles';
 import { MenuSheetProps } from './types';
 import { isWeb } from '@/constants/Constants';
@@ -96,15 +95,6 @@ const MenuSheet: React.FC<MenuSheetProps> = ({ closeSheet }) => {
           {getTextFromTranslation(markingDetails?.translations, language)}
           {` (${markingDetails?.external_identifier})`}
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <View style={{ ...styles.menuContainer, width: isWeb ? '90%' : '100%' }}>
         <View style={styles.imageContainer}>

@@ -11,7 +11,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import styles from './styles';
 import { isWeb } from '@/constants/Constants';
-import { AntDesign } from '@expo/vector-icons';
 import { ForecastSheetProps } from './types';
 import { BarChart } from 'react-native-chart-kit';
 import { format, parseISO } from 'date-fns';
@@ -170,15 +169,6 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({
         >
           {translate(TranslationKeys.forecast)}
         </Text>
-        <TouchableOpacity
-          style={{
-            ...styles.sheetcloseButton,
-            backgroundColor: theme.sheet.closeBg,
-          }}
-          onPress={closeSheet}
-        >
-          <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-        </TouchableOpacity>
       </View>
       <BottomSheetScrollView
         ref={scrollViewRef}

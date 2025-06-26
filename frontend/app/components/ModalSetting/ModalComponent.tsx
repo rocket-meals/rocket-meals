@@ -51,7 +51,7 @@ const ModalComponent: React.FC<ModalComponentProps> = ({
   return (
     <Modal
       isVisible={isVisible}
-      onBackdropPress={onClose}
+      onClose={onClose}
       animationIn='slideInUp'
       animationOut='slideOutDown'
       backdropOpacity={backdropOpacity}

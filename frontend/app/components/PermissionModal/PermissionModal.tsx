@@ -74,7 +74,7 @@ const PermissionModal: React.FC<PermissionModalProps> = ({
     <Modal
       isVisible={isVisible}
       style={styles.modalContainer}
-      onBackdropPress={() => setIsVisible(false)}
+      onClose={() => setIsVisible(false)}
     >
       <View
         style={{
