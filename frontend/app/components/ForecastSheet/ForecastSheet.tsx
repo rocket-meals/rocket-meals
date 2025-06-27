@@ -5,22 +5,23 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useTheme } from '@/hooks/useTheme';
-import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
-import styles from './styles';
-import { isWeb } from '@/constants/Constants';
-import { ForecastSheetProps } from './types';
-import { BarChart } from 'react-native-chart-kit';
-import { format, parseISO } from 'date-fns';
-import { UtilizationEntryHelper } from '@/redux/actions/UtilizationEntries/UtilizationEntries';
-import { useSelector } from 'react-redux';
-import { useFocusEffect } from 'expo-router';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
-import { UtilizationsEntries } from '@/constants/types';
-import { RootState } from '@/redux/reducer';
+} from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useTheme } from "@/hooks/useTheme";
+import { BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
+import BaseBottomSheet from "@/components/BaseBottomSheet";
+import styles from "./styles";
+import { isWeb } from "@/constants/Constants";
+import { ForecastSheetProps } from "./types";
+import { BarChart } from "react-native-chart-kit";
+import { format, parseISO } from "date-fns";
+import { UtilizationEntryHelper } from "@/redux/actions/UtilizationEntries/UtilizationEntries";
+import { useSelector } from "react-redux";
+import { useFocusEffect } from "expo-router";
+import { useLanguage } from "@/hooks/useLanguage";
+import { TranslationKeys } from "@/locales/keys";
+import { UtilizationsEntries } from "@/constants/types";
+import { RootState } from "@/redux/reducer";
 
 const ForecastSheet: React.FC<ForecastSheetProps> = ({
   closeSheet,
@@ -31,7 +32,7 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({
   const utilizationEntryHelper = new UtilizationEntryHelper();
   const [loading, setLoading] = useState(false);
   const { selectedCanteen } = useSelector(
-    (state: RootState) => state.canteenReducer
+    (state: RootState) => state.canteenReducer,
   );
   const scrollViewRef = useRef<ScrollView>(null);
   const [chartData, setChartData] = useState<any>({
@@ -56,7 +57,7 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({
 
     const chartData = intervals.map((label) => {
       const matchingData = data?.find((entry: any) => {
-        const start = format(parseISO(entry.date_start), 'H:mm');
+        const start = format(parseISO(entry.date_start), "H:mm");
         return start === label;
       });
 
@@ -80,9 +81,9 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({
     });
 
     const colors = chartData.map((percentage) => {
-      if (percentage > thresholdUntilHigh) return (opcaity = 1) => '#F5A13C'; // Orange for high values
-      if (percentage > thresholdUntilMedium) return (opacity = 1) => '#FFD500'; // Yellow for medium values
-      return (opacity = 1) => '#93c34b'; // Green for low values
+      if (percentage > thresholdUntilHigh) return (opcaity = 1) => "#F5A13C"; // Orange for high values
+      if (percentage > thresholdUntilMedium) return (opacity = 1) => "#FFD500"; // Yellow for medium values
+      return (opacity = 1) => "#93c34b"; // Green for low values
     });
 
     return {
@@ -105,7 +106,7 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({
         (await utilizationEntryHelper.fetchUtilizationEntries(
           {},
           selectedCanteen?.utilization_group,
-          forDate
+          forDate,
         )) as UtilizationsEntries[];
       if (utilizationData) {
         const processedData = processData(utilizationData);
@@ -114,7 +115,7 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({
       }
     } catch (error) {
       setLoading(false);
-      console.error('Error fetching utilization data:', error);
+      console.error("Error fetching utilization data:", error);
     }
   };
 
@@ -142,11 +143,12 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({
       if (chartData && chartData?.datasets[0]?.data?.length) {
         const data = chartData.datasets[0].data;
         const now = new Date();
-        const currentIndex = now.getHours() * 4 + Math.floor(now.getMinutes() / 15);
+        const currentIndex =
+          now.getHours() * 4 + Math.floor(now.getMinutes() / 15);
 
-        let targetIndex = data.slice(currentIndex).findIndex(
-          (value: number) => value > 0
-        );
+        let targetIndex = data
+          .slice(currentIndex)
+          .findIndex((value: number) => value > 0);
 
         if (targetIndex !== -1) {
           targetIndex += currentIndex;
@@ -167,82 +169,91 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({
           });
         }
       }
-    }, [chartData])
+    }, [chartData]),
   );
 
   return (
-    <BottomSheetView
-      style={{ ...styles.container, backgroundColor: theme.sheet.sheetBg }}
+    <BaseBottomSheet
+      index={0}
+      onClose={closeSheet}
+      backgroundStyle={{ backgroundColor: theme.sheet.sheetBg }}
     >
-      <View
-        style={{
-          ...styles.sheetHeader,
-          paddingRight: isWeb ? 10 : 0,
-          paddingTop: isWeb ? 10 : 0,
-        }}
+      <BottomSheetView
+        style={{ ...styles.container, backgroundColor: theme.sheet.sheetBg }}
       >
-        <View />
-        <Text
+        <View
           style={{
-            ...styles.sheetHeading,
-            fontSize: isWeb ? 40 : 28,
-            color: theme.sheet.text,
+            ...styles.sheetHeader,
+            paddingRight: isWeb ? 10 : 0,
+            paddingTop: isWeb ? 10 : 0,
           }}
         >
-          {translate(TranslationKeys.forecast)}
-        </Text>
-      </View>
-      <BottomSheetScrollView
-        ref={scrollViewRef}
-        horizontal
-        showsHorizontalScrollIndicator={true}
-        style={styles.forecastContainer}
-        nestedScrollEnabled
-        contentContainerStyle={{
-          paddingHorizontal: isWeb ? 20 : 10,
-          width: chartData
-            ? Math.max(
-                chartData.labels.length * 100,
-                Dimensions.get('window').width
-              )
-            : Dimensions.get('window').width,
-          alignItems: 'center',
-          marginTop: chartData ? 40 : 0,
-        }}
-      >
-        {!loading && chartData ? (
-          <BarChart
-            style={{ ...styles.graphStyle, backgroundColor: theme.sheet.sheetBg }}
-            data={chartData}
-            width={Math.max(
-              chartData.labels.length * 100,
-              Dimensions.get('window').width
-            )}
-            fromNumber={100}
-            height={400}
-            showBarTops={false}
-            chartConfig={{
-              formatTopBarValue: (value) => {
-                if (value > 0) {
-                  return `${value}%`;
-                } else {
-                  return '';
-                }
-              },
-              ...chartConfig,
-              barPercentage: 1.5,
+          <View />
+          <Text
+            style={{
+              ...styles.sheetHeading,
+              fontSize: isWeb ? 40 : 28,
+              color: theme.sheet.text,
             }}
-            // showValuesOnTopOfBars
-            withCustomBarColorFromData
-            flatColor
-          />
-        ) : (
-          <View style={{ width: '100%', height: 200, alignItems: 'center' }}>
-            <ActivityIndicator size={40} color={theme.screen.icon} />
-          </View>
-        )}
-      </BottomSheetScrollView>
-    </BottomSheetView>
+          >
+            {translate(TranslationKeys.forecast)}
+          </Text>
+        </View>
+        <BottomSheetScrollView
+          ref={scrollViewRef}
+          horizontal
+          showsHorizontalScrollIndicator={true}
+          style={styles.forecastContainer}
+          nestedScrollEnabled
+          contentContainerStyle={{
+            paddingHorizontal: isWeb ? 20 : 10,
+            width: chartData
+              ? Math.max(
+                  chartData.labels.length * 100,
+                  Dimensions.get("window").width,
+                )
+              : Dimensions.get("window").width,
+            alignItems: "center",
+            marginTop: chartData ? 40 : 0,
+          }}
+        >
+          {!loading && chartData ? (
+            <BarChart
+              style={{
+                ...styles.graphStyle,
+                backgroundColor: theme.sheet.sheetBg,
+              }}
+              data={chartData}
+              width={Math.max(
+                chartData.labels.length * 100,
+                Dimensions.get("window").width,
+              )}
+              fromNumber={100}
+              height={400}
+              showBarTops={false}
+              chartConfig={{
+                formatTopBarValue: (value) => {
+                  if (value > 0) {
+                    return `${value}%`;
+                  } else {
+                    return "";
+                  }
+                },
+                ...chartConfig,
+                barPercentage: 1.5,
+              }}
+              // showValuesOnTopOfBars
+              withCustomBarColorFromData
+              flatColor
+            />
+          ) : (
+            <View style={{ width: "100%", height: 200, alignItems: "center" }}>
+              <ActivityIndicator size={40} color={theme.screen.icon} />
+            </View>
+          )}
+        </BottomSheetScrollView>
+      </BottomSheetView>
+    </BaseBottomSheet>
   );
 };
 

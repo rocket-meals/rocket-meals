@@ -8,25 +8,25 @@ import {
   RefreshControl,
   View,
   Platform,
-} from 'react-native';
+} from "react-native";
 import React, {
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-} from 'react';
-import styles from './styles';
-import { useTheme } from '@/hooks/useTheme';
+} from "react";
+import styles from "./styles";
+import { useTheme } from "@/hooks/useTheme";
 import {
   DrawerContentComponentProps,
   DrawerNavigationProp,
-} from '@react-navigation/drawer';
-import { isWeb } from '@/constants/Constants';
-import FoodItem from '@/components/FoodItem/FoodItem';
-import { useFocusEffect, useNavigation, useRouter } from 'expo-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchFoodOffersByCanteen } from '@/redux/actions/FoodOffers/FoodOffers';
+} from "@react-navigation/drawer";
+import { isWeb } from "@/constants/Constants";
+import FoodItem from "@/components/FoodItem/FoodItem";
+import { useFocusEffect, useNavigation, useRouter } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFoodOffersByCanteen } from "@/redux/actions/FoodOffers/FoodOffers";
 import {
   SET_BUSINESS_HOURS,
   SET_CANTEEN_FEEDBACK_LABELS,
@@ -35,36 +35,36 @@ import {
   SET_SELECTED_CANTEEN_FOOD_OFFERS_LOCAL,
   SET_SELECTED_DATE,
   UPDATE_PROFILE,
-} from '@/redux/Types/types';
+} from "@/redux/Types/types";
 import {
   Businesshours,
   CanteensFeedbacksLabels,
   Foodoffers,
-} from '@/constants/types';
+} from "@/constants/types";
 import {
   Entypo,
   FontAwesome6,
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
-} from '@expo/vector-icons';
-import { RootDrawerParamList } from './types';
-import BaseBottomSheet from '@/components/BaseBottomSheet';
-import type BottomSheet from '@gorhom/bottom-sheet';
-import CanteenSelectionSheet from '@/components/CanteenSelectionSheet/CanteenSelectionSheet';
-import SortSheet from '@/components/SortSheet/SortSheet';
-import HourSheet from '@/components/HoursSheet/HoursSheet';
-import CalendarSheet from '@/components/CalendarSheet/CalendarSheet';
-import { excerpt } from '@/constants/HelperFunctions';
-import { useLanguage } from '@/hooks/useLanguage';
-import ForecastSheet from '@/components/ForecastSheet/ForecastSheet';
-import MenuSheet from '@/components/MenuSheet/MenuSheet';
-import ImageManagementSheet from '@/components/ImageManagementSheet/ImageManagementSheet';
-import EatingHabitsSheet from '@/components/EatingHabitsSheet/EatingHabitsSheet';
-import { CanteenFeedbackLabelHelper } from '@/redux/actions/CanteenFeedbacksLabel/CanteenFeedbacksLabel';
-import CanteenFeedbackLabels from '@/components/CanteenFeedbackLabels/CanteenFeedbackLabels';
-import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
-import * as Notifications from 'expo-notifications';
+} from "@expo/vector-icons";
+import { RootDrawerParamList } from "./types";
+import BaseBottomSheet from "@/components/BaseBottomSheet";
+import type BottomSheet from "@gorhom/bottom-sheet";
+import CanteenSelectionSheet from "@/components/CanteenSelectionSheet/CanteenSelectionSheet";
+import SortSheet from "@/components/SortSheet/SortSheet";
+import HourSheet from "@/components/HoursSheet/HoursSheet";
+import CalendarSheet from "@/components/CalendarSheet/CalendarSheet";
+import { excerpt } from "@/constants/HelperFunctions";
+import { useLanguage } from "@/hooks/useLanguage";
+import ForecastSheet from "@/components/ForecastSheet/ForecastSheet";
+import MenuSheet from "@/components/MenuSheet/MenuSheet";
+import ImageManagementSheet from "@/components/ImageManagementSheet/ImageManagementSheet";
+import EatingHabitsSheet from "@/components/EatingHabitsSheet/EatingHabitsSheet";
+import { CanteenFeedbackLabelHelper } from "@/redux/actions/CanteenFeedbacksLabel/CanteenFeedbacksLabel";
+import CanteenFeedbackLabels from "@/components/CanteenFeedbackLabels/CanteenFeedbackLabels";
+import { Tooltip, TooltipContent, TooltipText } from "@gluestack-ui/themed";
+import * as Notifications from "expo-notifications";
 import {
   intelligentSort,
   sortByEatingHabits,
@@ -73,18 +73,18 @@ import {
   sortByPublicFavorite,
   sortByFoodCategory,
   sortByFoodOfferCategory,
-} from '@/helper/sortingHelper';
-import { format } from 'date-fns';
-import { BusinessHoursHelper } from '@/redux/actions/BusinessHours/BusinessHours';
-import PopupEventSheet from '@/components/PopupEventSheet/PopupEventSheet';
-import { getAppElementTranslation } from '@/helper/resourceHelper';
-import noFoodOffersFound from '@/assets/animations/noFoodOffersFound.json';
-import LottieView from 'lottie-react-native';
-import { replaceLottieColors } from '@/helper/animationHelper';
-import { TranslationKeys } from '@/locales/keys';
-import useSetPageTitle from '@/hooks/useSetPageTitle';
-import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
-import { RootState } from '@/redux/reducer';
+} from "@/helper/sortingHelper";
+import { format } from "date-fns";
+import { BusinessHoursHelper } from "@/redux/actions/BusinessHours/BusinessHours";
+import PopupEventSheet from "@/components/PopupEventSheet/PopupEventSheet";
+import { getAppElementTranslation } from "@/helper/resourceHelper";
+import noFoodOffersFound from "@/assets/animations/noFoodOffersFound.json";
+import LottieView from "lottie-react-native";
+import { replaceLottieColors } from "@/helper/animationHelper";
+import { TranslationKeys } from "@/locales/keys";
+import useSetPageTitle from "@/hooks/useSetPageTitle";
+import CustomMarkdown from "@/components/CustomMarkdown/CustomMarkdown";
+import { RootState } from "@/redux/reducer";
 
 export const SHEET_COMPONENTS = {
   canteen: CanteenSelectionSheet,
@@ -96,7 +96,6 @@ export const SHEET_COMPONENTS = {
   imageManagement: ImageManagementSheet,
   eatingHabits: EatingHabitsSheet,
 };
-
 
 const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -114,11 +113,11 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [beforeElement, setBeforeElement] = useState<any>(null);
   const [afterElement, setAfterElement] = useState<any>(null);
-  const [selectedFoodId, setSelectedFoodId] = useState('');
+  const [selectedFoodId, setSelectedFoodId] = useState("");
   const [sheetProps, setSheetProps] = useState<Record<string, any>>({});
   const [feedbackLabelsLoading, setFeedbackLabelsLoading] = useState(true);
   const [screenWidth, setScreenWidth] = useState(
-    Dimensions.get('window').width
+    Dimensions.get("window").width,
   );
   const [selectedSheet, setSelectedSheet] = useState<
     keyof typeof SHEET_COMPONENTS | null
@@ -142,7 +141,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
   const animationRef = useRef<LottieView>(null);
   const [animationJson, setAmimationJson] = useState<any>(null);
   const { profile, user } = useSelector(
-    (state: RootState) => state.authReducer
+    (state: RootState) => state.authReducer,
   );
   const { appElements } = useSelector((state: RootState) => state.appElements);
   const { selectedCanteen, selectedCanteenFoodOffers, canteenFeedbackLabels } =
@@ -157,12 +156,12 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       setAmimationJson(
-        replaceLottieColors(noFoodOffersFound, foods_area_color)
+        replaceLottieColors(noFoodOffersFound, foods_area_color),
       );
       return () => {
         setAmimationJson(null);
       };
-    }, [])
+    }, []),
   );
 
   useFocusEffect(
@@ -173,7 +172,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
         setAutoPlay(false); // Reset when leaving
         setAmimationJson(null);
       };
-    }, [appSettings?.animations_auto_start])
+    }, [appSettings?.animations_auto_start]),
   );
 
   useEffect(() => {
@@ -188,8 +187,8 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
         <LottieView
           ref={animationRef}
           source={animationJson}
-          resizeMode='contain'
-          style={{ width: '100%', height: '100%' }}
+          resizeMode="contain"
+          style={{ width: "100%", height: "100%" }}
           autoPlay={autoPlay || false}
           loop={false}
         />
@@ -200,7 +199,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
   const setDefaultPriceGroupForAnonymousUser = () => {
     dispatch({
       type: UPDATE_PROFILE,
-      payload: { ...profile, price_group: 'student' },
+      payload: { ...profile, price_group: "student" },
     });
   };
 
@@ -227,7 +226,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
     };
 
     const before = getElement(
-      String(appSettings.foodoffers_list_before_element)
+      String(appSettings.foodoffers_list_before_element),
     );
     const after = getElement(String(appSettings.foodoffers_list_after_element));
 
@@ -241,7 +240,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
       return () => {
         setIsActive(false);
       };
-    }, [])
+    }, []),
   );
 
   useEffect(() => {
@@ -258,14 +257,14 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
       setSelectedSheet(sheet);
       setSheetProps(props);
     },
-    []
+    [],
   );
 
   const openManagementSheet = (id: string) => {
     if (id) {
-      openSheet('imageManagement', {
+      openSheet("imageManagement", {
         selectedFoodId: id,
-        fileName: 'foods',
+        fileName: "foods",
         closeSheet: closeSheet,
         handleFetch: fetchFoods,
       });
@@ -314,11 +313,11 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
   const getBusinessHours = async () => {
     try {
       const businessHours = (await businessHoursHelper.fetchBusinessHours(
-        {}
+        {},
       )) as Businesshours[];
       dispatch({ type: SET_BUSINESS_HOURS, payload: businessHours });
     } catch (error) {
-      console.error('Error fetching business hours:', error);
+      console.error("Error fetching business hours:", error);
     }
   };
 
@@ -328,27 +327,27 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 
   const requestPermissions = async () => {
     const { status } = await Notifications.getPermissionsAsync();
-    if (status !== 'granted') {
+    if (status !== "granted") {
       await Notifications.requestPermissionsAsync();
     }
   };
 
   useEffect(() => {
-    if (Platform.OS !== 'web') {
+    if (Platform.OS !== "web") {
       requestPermissions();
     }
   }, []);
 
-  const handleDateChange = (direction: 'prev' | 'next') => {
+  const handleDateChange = (direction: "prev" | "next") => {
     const currentDate = new Date(selectedDate);
-    if (direction === 'prev') {
+    if (direction === "prev") {
       currentDate.setDate(currentDate.getDate() - 1);
     } else {
       currentDate.setDate(currentDate.getDate() + 1);
     }
     dispatch({
       type: SET_SELECTED_DATE,
-      payload: currentDate.toISOString().split('T')[0],
+      payload: currentDate.toISOString().split("T")[0],
     });
   };
 
@@ -361,22 +360,22 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
     day.setHours(0, 0, 0, 0);
 
     if (currentDate.toDateString() === day.toDateString()) {
-      return 'today';
+      return "today";
     }
 
     // Check for yesterday
     currentDate.setDate(currentDate.getDate() - 1);
     if (currentDate.toDateString() === day.toDateString()) {
-      return 'yesterday';
+      return "yesterday";
     }
 
     // Check for tomorrow
     currentDate.setDate(currentDate.getDate() + 2);
     if (currentDate.toDateString() === day.toDateString()) {
-      return 'tomorrow';
+      return "tomorrow";
     }
 
-    return format(day, 'dd.MM.yyyy'); // Return the date if it's not Today, Yesterday, or Tomorrow
+    return format(day, "dd.MM.yyyy"); // Return the date if it's not Today, Yesterday, or Tomorrow
   };
 
   const updateSort = (id: string, foodOffers: Foodoffers[]) => {
@@ -385,48 +384,45 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 
     // Sorting logic based on option id
     switch (id) {
-      case 'alphabetical':
+      case "alphabetical":
         copiedFoodOffers = sortByFoodName(copiedFoodOffers, languageCode);
         break;
-      case 'favorite':
+      case "favorite":
         copiedFoodOffers = sortByOwnFavorite(
           copiedFoodOffers,
-          ownFoodFeedbacks
+          ownFoodFeedbacks,
         );
         break;
-      case 'eating':
+      case "eating":
         copiedFoodOffers = sortByEatingHabits(
           copiedFoodOffers,
-          profile.markings
+          profile.markings,
         );
         break;
-      case 'food_category':
-        copiedFoodOffers = sortByFoodCategory(
-          copiedFoodOffers,
-          foodCategories
-        );
+      case "food_category":
+        copiedFoodOffers = sortByFoodCategory(copiedFoodOffers, foodCategories);
         break;
-      case 'foodoffer_category':
+      case "foodoffer_category":
         copiedFoodOffers = sortByFoodOfferCategory(
           copiedFoodOffers,
-          foodOfferCategories
+          foodOfferCategories,
         );
         break;
-      case 'rating':
+      case "rating":
         copiedFoodOffers = sortByPublicFavorite(copiedFoodOffers);
         break;
-      case 'intelligent':
+      case "intelligent":
         copiedFoodOffers = intelligentSort(
           copiedFoodOffers,
           ownFoodFeedbacks,
           profile.markings,
           languageCode,
           foodCategories,
-          foodOfferCategories
+          foodOfferCategories,
         );
         break;
       default:
-        console.warn('Unknown sorting option:', id);
+        console.warn("Unknown sorting option:", id);
         break;
     }
 
@@ -439,10 +435,10 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 
   useEffect(() => {
     const handleResize = () => {
-      setScreenWidth(Dimensions.get('window').width);
+      setScreenWidth(Dimensions.get("window").width);
     };
 
-    const subscription = Dimensions.addEventListener('change', handleResize);
+    const subscription = Dimensions.addEventListener("change", handleResize);
 
     return () => subscription?.remove();
   }, []);
@@ -451,7 +447,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
     if (price_group) {
       return `price_group_${price_group?.toLocaleLowerCase()}`;
     }
-    return '';
+    return "";
   };
 
   const fetchFoods = async () => {
@@ -459,7 +455,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
       setLoading(true);
       const foodData = await fetchFoodOffersByCanteen(
         selectedCanteen?.id,
-        selectedDate
+        selectedDate,
       );
       const foodOffers = foodData?.data || [];
 
@@ -472,7 +468,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      console.error('Error fetching Food Offers:', error);
+      console.error("Error fetching Food Offers:", error);
     }
   };
 
@@ -487,7 +483,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
         payload: canteenFeedbackLabels,
       });
     } catch (error) {
-      console.error('Error fetching Canteen Feedback Labels:', error);
+      console.error("Error fetching Canteen Feedback Labels:", error);
     } finally {
       setFeedbackLabelsLoading(false);
     }
@@ -517,9 +513,9 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
             label={label}
             date={selectedDate}
           />
-        )
+        ),
       ),
-    [canteenFeedbackLabels, selectedDate]
+    [canteenFeedbackLabels, selectedDate],
   );
   const canteenFeedbackLabelsExist = canteenFeedbackLabels?.length > 0;
 
@@ -541,7 +537,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                 styles.row,
                 {
                   flexDirection:
-                    drawerPosition === 'right' ? 'row-reverse' : 'row',
+                    drawerPosition === "right" ? "row-reverse" : "row",
                 },
               ]}
             >
@@ -550,13 +546,13 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                   styles.col1,
                   {
                     flexDirection:
-                      drawerPosition === 'right' ? 'row-reverse' : 'row',
+                      drawerPosition === "right" ? "row-reverse" : "row",
                   },
                 ]}
               >
                 {/* Menu */}
                 <Tooltip
-                  placement='top'
+                  placement="top"
                   trigger={(triggerProps) => (
                     <TouchableOpacity
                       {...triggerProps}
@@ -566,15 +562,15 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                       }}
                     >
                       <Ionicons
-                        name='menu'
+                        name="menu"
                         size={24}
                         color={theme.header.text}
                       />
                     </TouchableOpacity>
                   )}
                 >
-                  <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-                    <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                  <TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+                    <TooltipText fontSize="$sm" color={theme.tooltip.text}>
                       {`${translate(TranslationKeys.open_drawer)}`}
                     </TooltipText>
                   </TooltipContent>
@@ -584,8 +580,8 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                 <Text style={{ ...styles.heading, color: theme.header.text }}>
                   {excerpt(
                     String(selectedCanteen?.alias),
-                    screenWidth > 800 ? 30 : 10
-                  ) || 'Food Offers'}
+                    screenWidth > 800 ? 30 : 10,
+                  ) || "Food Offers"}
                 </Text>
               </View>
               <View
@@ -593,32 +589,32 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                   ...styles.col2,
                   gap: isWeb ? (screenWidth < 500 ? 6 : 10) : 5,
                   flexDirection:
-                    drawerPosition === 'right' ? 'row-reverse' : 'row',
+                    drawerPosition === "right" ? "row-reverse" : "row",
                 }}
               >
                 {/* Sorting */}
                 <Tooltip
-                  placement='top'
+                  placement="top"
                   trigger={(triggerProps) => (
                     <TouchableOpacity
                       {...triggerProps}
-                      onPress={() => openSheet('sort')}
+                      onPress={() => openSheet("sort")}
                       style={{
                         padding: isWeb ? (screenWidth < 500 ? 5 : 10) : 5,
                       }}
                     >
                       <MaterialIcons
-                        name='sort'
+                        name="sort"
                         size={24}
                         color={theme.header.text}
                       />
                     </TouchableOpacity>
                   )}
                 >
-                  <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-                    <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                  <TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+                    <TooltipText fontSize="$sm" color={theme.tooltip.text}>
                       {`${translate(TranslationKeys.sort)}: ${translate(
-                        TranslationKeys.foods
+                        TranslationKeys.foods,
                       )}`}
                     </TooltipText>
                   </TooltipContent>
@@ -626,29 +622,29 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 
                 {/* Price Group */}
                 <Tooltip
-                  placement='top'
+                  placement="top"
                   trigger={(triggerProps) => (
                     <TouchableOpacity
                       {...triggerProps}
                       onPress={() => {
-                        router.navigate('/price-group');
+                        router.navigate("/price-group");
                       }}
                       style={{
                         padding: isWeb ? (screenWidth < 500 ? 5 : 10) : 5,
                       }}
                     >
                       <FontAwesome6
-                        name='euro-sign'
+                        name="euro-sign"
                         size={24}
                         color={theme.header.text}
                       />
                     </TouchableOpacity>
                   )}
                 >
-                  <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-                    <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                  <TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+                    <TooltipText fontSize="$sm" color={theme.tooltip.text}>
                       {`${translate(TranslationKeys.edit)}: ${translate(
-                        TranslationKeys.price_group
+                        TranslationKeys.price_group,
                       )} ${translate(getPriceGroup(profile?.price_group))}`}
                     </TooltipText>
                   </TooltipContent>
@@ -657,29 +653,29 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                 {/* Eating Habits */}
 
                 <Tooltip
-                  placement='top'
+                  placement="top"
                   trigger={(triggerProps) => (
                     <TouchableOpacity
                       {...triggerProps}
                       onPress={() => {
-                        router.navigate('/eating-habits');
+                        router.navigate("/eating-habits");
                       }}
                       style={{
                         padding: isWeb ? (screenWidth < 500 ? 5 : 10) : 5,
                       }}
                     >
                       <Ionicons
-                        name='bag-add'
+                        name="bag-add"
                         size={24}
                         color={theme.header.text}
                       />
                     </TouchableOpacity>
                   )}
                 >
-                  <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-                    <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                  <TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+                    <TooltipText fontSize="$sm" color={theme.tooltip.text}>
                       {` ${translate(
-                        TranslationKeys.eating_habits
+                        TranslationKeys.eating_habits,
                       )}: ${translate(TranslationKeys.edit)}`}
                     </TooltipText>
                   </TooltipContent>
@@ -687,27 +683,27 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 
                 {/* Change Canteen */}
                 <Tooltip
-                  placement='top'
+                  placement="top"
                   trigger={(triggerProps) => (
                     <TouchableOpacity
                       {...triggerProps}
-                      onPress={() => openSheet('canteen')}
+                      onPress={() => openSheet("canteen")}
                       style={{
                         padding: isWeb ? (screenWidth < 500 ? 5 : 10) : 5,
                       }}
                     >
                       <MaterialIcons
-                        name='restaurant-menu'
+                        name="restaurant-menu"
                         size={24}
                         color={theme.header.text}
                       />
                     </TouchableOpacity>
                   )}
                 >
-                  <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-                    <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                  <TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+                    <TooltipText fontSize="$sm" color={theme.tooltip.text}>
                       {` ${translate(TranslationKeys.canteen)}: ${translate(
-                        TranslationKeys.select
+                        TranslationKeys.select,
                       )}`}
                     </TooltipText>
                   </TooltipContent>
@@ -723,105 +719,105 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                 }}
               >
                 <Tooltip
-                  placement='top'
+                  placement="top"
                   trigger={(triggerProps) => (
                     <TouchableOpacity
                       {...triggerProps}
-                      onPress={() => handleDateChange('prev')}
+                      onPress={() => handleDateChange("prev")}
                       style={{
                         padding: isWeb ? (screenWidth < 500 ? 2 : 5) : 2,
                       }}
                     >
                       <Entypo
-                        name='chevron-left'
+                        name="chevron-left"
                         size={24}
                         color={theme.header.text}
                       />
                     </TouchableOpacity>
                   )}
                 >
-                  <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-                    <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                  <TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+                    <TooltipText fontSize="$sm" color={theme.tooltip.text}>
                       {` ${translate(TranslationKeys.day)}: ${translate(
-                        TranslationKeys.previous
+                        TranslationKeys.previous,
                       )}`}
                     </TooltipText>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip
-                  placement='top'
+                  placement="top"
                   trigger={(triggerProps) => (
                     <TouchableOpacity
                       {...triggerProps}
-                      onPress={() => openSheet('calendar')}
+                      onPress={() => openSheet("calendar")}
                       style={{
                         padding: isWeb ? (screenWidth < 500 ? 2 : 5) : 2,
                       }}
                     >
                       <MaterialIcons
-                        name='calendar-month'
+                        name="calendar-month"
                         size={24}
                         color={theme.header.text}
                       />
                     </TouchableOpacity>
                   )}
                 >
-                  <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-                    <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                  <TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+                    <TooltipText fontSize="$sm" color={theme.tooltip.text}>
                       {` ${translate(TranslationKeys.edit)}: ${translate(
-                        TranslationKeys.date
+                        TranslationKeys.date,
                       )}: ${selectedDate}`}
                     </TooltipText>
                   </TooltipContent>
                 </Tooltip>
                 <Tooltip
-                  placement='top'
+                  placement="top"
                   trigger={(triggerProps) => (
                     <TouchableOpacity
                       {...triggerProps}
-                      onPress={() => handleDateChange('next')}
+                      onPress={() => handleDateChange("next")}
                       style={{
                         padding: isWeb ? (screenWidth < 500 ? 2 : 5) : 2,
                       }}
                     >
                       <Entypo
-                        name='chevron-right'
+                        name="chevron-right"
                         size={24}
                         color={theme.header.text}
                       />
                     </TouchableOpacity>
                   )}
                 >
-                  <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-                    <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                  <TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+                    <TooltipText fontSize="$sm" color={theme.tooltip.text}>
                       {` ${translate(TranslationKeys.day)}: ${translate(
-                        TranslationKeys.proceed
+                        TranslationKeys.proceed,
                       )}`}
                     </TooltipText>
                   </TooltipContent>
                 </Tooltip>
 
                 <Text style={{ ...styles.heading, color: theme.header.text }}>
-                  {selectedDate ? translate(getDayLabel(selectedDate)) : ''}
+                  {selectedDate ? translate(getDayLabel(selectedDate)) : ""}
                 </Text>
               </View>
               <View style={{ ...styles.col2, gap: 10 }}>
                 {/* ForeCast */}
                 {appSettings?.utilization_display_enabled && (
                   <Tooltip
-                    placement='top'
+                    placement="top"
                     trigger={(triggerProps) => (
                       <TouchableOpacity
                         {...triggerProps}
                         onPress={() =>
-                          openSheet('forecast', { forDate: selectedDate })
+                          openSheet("forecast", { forDate: selectedDate })
                         }
                         style={{
                           padding: isWeb ? (screenWidth < 500 ? 2 : 5) : 2,
                         }}
                       >
                         <FontAwesome6
-                          name='people-group'
+                          name="people-group"
                           size={24}
                           color={theme.header.text}
                         />
@@ -830,12 +826,12 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                   >
                     <TooltipContent
                       bg={theme.tooltip.background}
-                      py='$1'
-                      px='$2'
+                      py="$1"
+                      px="$2"
                     >
-                      <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                      <TooltipText fontSize="$sm" color={theme.tooltip.text}>
                         {` ${translate(TranslationKeys.forecast)}: ${translate(
-                          TranslationKeys.utilization
+                          TranslationKeys.utilization,
                         )}`}
                       </TooltipText>
                     </TooltipContent>
@@ -844,25 +840,25 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                 {/* Opening Hours */}
 
                 <Tooltip
-                  placement='top'
+                  placement="top"
                   trigger={(triggerProps) => (
                     <TouchableOpacity
                       {...triggerProps}
-                      onPress={() => openSheet('hours')}
+                      onPress={() => openSheet("hours")}
                       style={{
                         padding: isWeb ? (screenWidth < 500 ? 2 : 5) : 2,
                       }}
                     >
                       <MaterialCommunityIcons
-                        name='clock-time-eight'
+                        name="clock-time-eight"
                         size={24}
                         color={theme.header.text}
                       />
                     </TouchableOpacity>
                   )}
                 >
-                  <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-                    <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                  <TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+                    <TooltipText fontSize="$sm" color={theme.tooltip.text}>
                       {` ${translate(TranslationKeys.businesshours)}`}
                     </TooltipText>
                   </TooltipContent>
@@ -886,7 +882,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
             <View style={styles.elementContainer}>
               {beforeElement && (
                 <CustomMarkdown
-                  content={beforeElement?.content || ''}
+                  content={beforeElement?.content || ""}
                   backgroundColor={foods_area_color}
                   imageWidth={440}
                   imageHeight={293}
@@ -897,18 +893,18 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
               style={{
                 ...styles.foodContainer,
                 gap: screenWidth > 550 ? 10 : 10,
-                justifyContent: 'center',
+                justifyContent: "center",
               }}
             >
               {loading ? (
                 <View
                   style={{
-                    width: '100%',
+                    width: "100%",
                     height: 400,
-                    justifyContent: 'center',
+                    justifyContent: "center",
                   }}
                 >
-                  <ActivityIndicator size={'large'} color={theme.screen.icon} />
+                  <ActivityIndicator size={"large"} color={theme.screen.icon} />
                 </View>
               ) : selectedCanteenFoodOffers &&
                 selectedCanteenFoodOffers?.length > 0 ? (
@@ -929,7 +925,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                     style={{ ...styles.noFoodOffer, color: theme.screen.text }}
                   >
                     {translate(
-                      TranslationKeys.no_foodoffers_found_for_selection
+                      TranslationKeys.no_foodoffers_found_for_selection,
                     )}
                   </Text>
                   <View style={styles.animationContainer}>{renderLottie}</View>
@@ -939,7 +935,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
             <View style={styles.elementContainer}>
               {afterElement && (
                 <CustomMarkdown
-                  content={afterElement?.content || ''}
+                  content={afterElement?.content || ""}
                   backgroundColor={foods_area_color}
                   imageWidth={440}
                   imageHeight={293}
@@ -963,7 +959,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
             )}
           </ScrollView>
         </View>
-        {isActive && (
+        {isActive && selectedSheet !== "forecast" && (
           <BaseBottomSheet
             key={selectedSheet}
             ref={bottomSheetRef}
@@ -972,14 +968,10 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
               ...styles.sheetBackground,
               backgroundColor: theme.sheet.sheetBg,
             }}
-            enablePanDownToClose={selectedSheet === 'forecast' ? false : true}
-            enableContentPanningGesture={
-              selectedSheet === 'forecast' ? false : true
-            }
-            enableHandlePanningGesture={
-              selectedSheet === 'forecast' ? false : true
-            }
-            enableDynamicSizing={selectedSheet === 'forecast' ? false : true}
+            enablePanDownToClose
+            enableContentPanningGesture
+            enableHandlePanningGesture
+            enableDynamicSizing
             onChange={(index) => {
               if (index === -1) {
                 closeSheet();
@@ -992,6 +984,10 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
               <SheetComponent closeSheet={closeSheet} {...sheetProps} />
             )}
           </BaseBottomSheet>
+        )}
+
+        {isActive && selectedSheet === "forecast" && SheetComponent && (
+          <SheetComponent closeSheet={closeSheet} {...sheetProps} />
         )}
 
         {isActive && (
