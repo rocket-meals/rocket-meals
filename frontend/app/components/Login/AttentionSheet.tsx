@@ -1,4 +1,5 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
+import AppButton from '@/components/AppButton';
 import React, { useCallback, useRef, useState } from 'react';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useTheme } from '@/hooks/useTheme';
@@ -74,21 +75,21 @@ const AttentionSheet: React.FC<AttentionSheetProps> = ({
         <View
           style={{ ...styles.attentionActions, width: isWeb ? '60%' : '100%' }}
         >
-          <TouchableOpacity
+          <AppButton
             style={[styles.confirmButton, { backgroundColor: primaryColor }]}
+            label={translate(TranslationKeys.confirm)}
+            labelStyle={[styles.confirmLabel, { color: contrastColor }]}
             onPress={() => {
               handleLogin();
             }}
-          >
-            <Text style={[styles.confirmLabel, { color: contrastColor }]}>
-              {translate(TranslationKeys.confirm)}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancleButton} onPress={closeSheet}>
-            <Text style={styles.confirmLabel}>
-              {translate(TranslationKeys.cancel)}
-            </Text>
-          </TouchableOpacity>
+            useProjectColor
+          />
+          <AppButton
+            style={styles.cancleButton}
+            label={translate(TranslationKeys.cancel)}
+            labelStyle={styles.confirmLabel}
+            onPress={closeSheet}
+          />
         </View>
       </View>
     </BottomSheetView>

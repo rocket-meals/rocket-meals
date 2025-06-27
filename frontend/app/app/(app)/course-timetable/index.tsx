@@ -5,7 +5,8 @@ import React, {
   useMemo,
   useEffect,
 } from 'react';
-import { Linking, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, Platform, Text, View } from 'react-native';
+import AppButton from '@/components/AppButton';
 import { useTheme } from '@/hooks/useTheme';
 import { useFocusEffect } from 'expo-router';
 import TimeTableData from '@/constants/TimeTable';
@@ -164,22 +165,19 @@ const TimetableScreen = () => {
     <View
       style={{ ...styles.container, backgroundColor: theme.screen.background }}
     >
-      <TouchableOpacity
+      <AppButton
         style={{
           ...styles.createButton,
           backgroundColor: course_timetable_area_color,
         }}
+        label={`${translate(TranslationKeys.event)} ${translate(
+          TranslationKeys.create
+        )}`}
+        labelStyle={{ ...styles.createButtonText, color: contrastColor }}
+        icon={<FontAwesome name='calendar-plus-o' size={20} color={contrastColor} />}
         onPress={openSheet}
-      >
-        <FontAwesome name='calendar-plus-o' size={20} color={contrastColor} />
-        <View>
-          <Text style={{ ...styles.createButtonText, color: contrastColor }}>
-            {`${translate(TranslationKeys.event)} ${translate(
-              TranslationKeys.create
-            )}`}
-          </Text>
-        </View>
-      </TouchableOpacity>
+        useProjectColor
+      />
       {events && events?.length > 0 ? (
         <CourseTimetable
           events={events}

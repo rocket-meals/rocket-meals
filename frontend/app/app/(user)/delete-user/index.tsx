@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
+import AppButton from '@/components/AppButton';
 import { useTheme } from '@/hooks/useTheme';
 import { router, useFocusEffect } from 'expo-router';
 import SupportFAQ from '../../../components/SupportFAQ/SupportFAQ';
@@ -305,26 +306,26 @@ const index = () => {
             {translate(TranslationKeys.are_you_sure_to_delete_your_account)}
           </Text>
           <View style={styles.attentionActions}>
-            <TouchableOpacity
+            <AppButton
               style={[styles.confirmButton, { backgroundColor: primaryColor }]}
+              label={
+                loading ? '' : translate(TranslationKeys.confirm)
+              }
+              labelStyle={[styles.confirmLabel, { color: theme.light }]}
               onPress={handleDeleteAccount}
-            >
-              {loading ? (
-                <ActivityIndicator size={24} color={theme.screen.text} />
-              ) : (
-                <Text style={[styles.confirmLabel, { color: theme.light }]}>
-                  {translate(TranslationKeys.confirm)}
-                </Text>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
+              icon={
+                loading ? (
+                  <ActivityIndicator size={24} color={theme.screen.text} />
+                ) : undefined
+              }
+              useProjectColor
+            />
+            <AppButton
               style={styles.cancleButton}
+              label={translate(TranslationKeys.cancel)}
+              labelStyle={styles.confirmLabel}
               onPress={closeDeleteAccountModal}
-            >
-              <Text style={styles.confirmLabel}>
-                {translate(TranslationKeys.cancel)}
-              </Text>
-            </TouchableOpacity>
+            />
           </View>
         </View>
       </ModalComponent>
