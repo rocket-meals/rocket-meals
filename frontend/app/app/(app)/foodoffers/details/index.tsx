@@ -29,7 +29,7 @@ import {
   UPDATE_PROFILE,
 } from '@/redux/Types/types';
 import MenuSheet from '@/components/MenuSheet/MenuSheet';
-import PermissionModal from '@/components/PermissionModal/PermissionModal';
+import PermissionSheet from '@/components/PermissionSheet';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import NotificationSheet from '@/components/NotificationSheet/NotificationSheet';
@@ -108,7 +108,9 @@ export default function FoodDetailsScreen() {
     appSettings.foods_placeholder_image_remote_url ||
     getImageUrl(serverInfo?.info?.project?.project_logo);
 
-  const [warning, setWarning] = useState(false);
+  const permissionSheetRef = useRef<BottomSheet>(null);
+  const openPermissionSheet = () => permissionSheetRef.current?.expand();
+  const closePermissionSheet = () => permissionSheetRef.current?.close();
   const { selectedCanteen } = useSelector(
     (state: RootState) => state.canteenReducer
   );
@@ -257,7 +259,7 @@ export default function FoodDetailsScreen() {
       canteenId: foodOfferCanteenId,
       previousFeedback,
       dispatch,
-      setWarning,
+      setWarning: () => openPermissionSheet(),
     });
   };
 
@@ -405,7 +407,7 @@ export default function FoodDetailsScreen() {
 
   const updateNotification = async () => {
     if (!user?.id) {
-      setWarning(true);
+      openPermissionSheet();
       return;
     }
     if (isSmartPhone()) {
@@ -917,7 +919,16 @@ export default function FoodDetailsScreen() {
               {foodDetails?.id && renderContent(foodDetails)}
             </View>
           </View>
-          <PermissionModal isVisible={warning} setIsVisible={setWarning} />
+          <BaseBottomSheet
+            ref={permissionSheetRef}
+            index={-1}
+            backgroundStyle={{ backgroundColor: theme.sheet.sheetBg }}
+            enablePanDownToClose
+            handleComponent={null}
+            onClose={closePermissionSheet}
+          >
+            <PermissionSheet closeSheet={closePermissionSheet} />
+          </BaseBottomSheet>
         </View>
       </ScrollView>
       {isActive && (

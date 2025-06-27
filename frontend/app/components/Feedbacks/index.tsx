@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { AntDesign, Ionicons, MaterialIcons } from '@expo/vector-icons';
@@ -26,7 +26,9 @@ import {
   DELETE_FOOD_FEEDBACK_LOCAL,
   UPDATE_FOOD_FEEDBACK_LOCAL,
 } from '@/redux/Types/types';
-import PermissionModal from '../PermissionModal/PermissionModal';
+import BaseBottomSheet from '../BaseBottomSheet';
+import PermissionSheet from '../PermissionSheet/PermissionSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { createSelector } from 'reselect';
 import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/colorHelper';
@@ -69,7 +71,9 @@ const Feedbacks: React.FC<FeedbacksProps> = ({
   } = useSelector((state: RootState) => state.settings);
   const [commentType, setCommentType] = useState('');
   const [loading, setLoading] = useState(loadingState);
-  const [warning, setWarning] = useState(false);
+  const permissionSheetRef = useRef<BottomSheet>(null);
+  const openPermissionSheet = () => permissionSheetRef.current?.expand();
+  const closePermissionSheet = () => permissionSheetRef.current?.close();
   const [comment, setComment] = useState('');
   const foodFeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
   const { labels, labelEntries, previousFeedback } = useSelector((state: any) =>
@@ -91,7 +95,7 @@ const Feedbacks: React.FC<FeedbacksProps> = ({
 
   const submitCommentFeedback = async (string: string | null) => {
     if (!user?.id) {
-      setWarning(true);
+      openPermissionSheet();
       return;
     }
 
@@ -137,7 +141,7 @@ const Feedbacks: React.FC<FeedbacksProps> = ({
 
   const handleTextChange = (text: string) => {
     if (!user?.id) {
-      setWarning(true);
+      openPermissionSheet();
       return;
     }
 
@@ -436,7 +440,16 @@ const Feedbacks: React.FC<FeedbacksProps> = ({
         </>
       )}
 
-      <PermissionModal isVisible={warning} setIsVisible={setWarning} />
+      <BaseBottomSheet
+        ref={permissionSheetRef}
+        index={-1}
+        backgroundStyle={{ backgroundColor: theme.sheet.sheetBg }}
+        enablePanDownToClose
+        handleComponent={null}
+        onClose={closePermissionSheet}
+      >
+        <PermissionSheet closeSheet={closePermissionSheet} />
+      </BaseBottomSheet>
     </View>
   );
 };

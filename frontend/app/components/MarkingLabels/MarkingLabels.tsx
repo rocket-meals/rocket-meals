@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -14,7 +14,9 @@ import { getImageUrl } from '@/constants/HelperFunctions';
 
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
 import { SET_MARKING_DETAILS, UPDATE_PROFILE } from '@/redux/Types/types';
-import PermissionModal from '../PermissionModal/PermissionModal';
+import BaseBottomSheet from '../BaseBottomSheet';
+import PermissionSheet from '../PermissionSheet/PermissionSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
 import styles from './styles';
@@ -34,7 +36,9 @@ const MarkingLabels: React.FC<MarkingLabelProps> = ({
   const dispatch = useDispatch();
   const { translate } = useLanguage();
   const profileHelper = new ProfileHelper();
-  const [warning, setWarning] = useState(false);
+  const permissionSheetRef = useRef<BottomSheet>(null);
+  const openPermissionSheet = () => permissionSheetRef.current?.expand();
+  const closePermissionSheet = () => permissionSheetRef.current?.close();
   const [showTooltip, setShowTooltip] = useState(false);
   const [likeLoading, setLikeLoading] = useState(false);
   const [dislikeLoading, setDislikeLoading] = useState(false);
@@ -470,7 +474,16 @@ const MarkingLabels: React.FC<MarkingLabelProps> = ({
           </TooltipContent>
         </Tooltip>
       </View>
-      <PermissionModal isVisible={warning} setIsVisible={setWarning} />
+      <BaseBottomSheet
+        ref={permissionSheetRef}
+        index={-1}
+        backgroundStyle={{ backgroundColor: theme.sheet.sheetBg }}
+        enablePanDownToClose
+        handleComponent={null}
+        onClose={closePermissionSheet}
+      >
+        <PermissionSheet closeSheet={closePermissionSheet} />
+      </BaseBottomSheet>
     </View>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
@@ -21,7 +21,9 @@ import {
   DELETE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES,
   UPDATE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES,
 } from '@/redux/Types/types';
-import PermissionModal from '../PermissionModal/PermissionModal';
+import BaseBottomSheet from '../BaseBottomSheet';
+import PermissionSheet from '../PermissionSheet/PermissionSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { CanteenFeedbackLabelEntryHelper } from '@/redux/actions/CanteenFeedbackLabelEntries/CanteenFeedbackLabelEntries';
 import { isSameDay } from 'date-fns';
@@ -39,7 +41,9 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({
   const dispatch = useDispatch();
   const { translate } = useLanguage();
   const canteenFeedbackLabelEntryHelper = new CanteenFeedbackLabelEntryHelper();
-  const [warning, setWarning] = useState(false);
+  const permissionSheetRef = useRef<BottomSheet>(null);
+  const openPermissionSheet = () => permissionSheetRef.current?.expand();
+  const closePermissionSheet = () => permissionSheetRef.current?.close();
   const [showTooltip, setShowTooltip] = useState(false);
   const {
     primaryColor,
@@ -78,7 +82,7 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({
   // Function to handle updating the entry
   const handleUpdateEntry = async (isLike: boolean | null) => {
     if (!user?.id) {
-      setWarning(true);
+      openPermissionSheet();
       return;
     }
     let likeStats = null;
@@ -261,7 +265,16 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({
           </TooltipContent>
         </Tooltip>
       </View>
-      <PermissionModal isVisible={warning} setIsVisible={setWarning} />
+      <BaseBottomSheet
+        ref={permissionSheetRef}
+        index={-1}
+        backgroundStyle={{ backgroundColor: theme.sheet.sheetBg }}
+        enablePanDownToClose
+        handleComponent={null}
+        onClose={closePermissionSheet}
+      >
+        <PermissionSheet closeSheet={closePermissionSheet} />
+      </BaseBottomSheet>
     </View>
   );
 };

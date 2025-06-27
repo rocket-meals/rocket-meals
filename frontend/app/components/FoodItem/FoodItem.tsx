@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import styles from './styles';
 import { isWeb } from '@/constants/Constants';
 import { useTheme } from '@/hooks/useTheme';
@@ -33,7 +33,9 @@ import {
   SET_MARKING_DETAILS,
   SET_SELECTED_FOOD_MARKINGS,
 } from '@/redux/Types/types';
-import PermissionModal from '../PermissionModal/PermissionModal';
+import BaseBottomSheet from '../BaseBottomSheet';
+import PermissionSheet from '../PermissionSheet/PermissionSheet';
+import type BottomSheet from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import { createSelector } from 'reselect';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
@@ -68,7 +70,9 @@ const FoodItem: React.FC<FoodItemProps> = memo(
     const [screenWidth, setScreenWidth] = useState(
       Dimensions.get('window').width
     );
-    const [warning, setWarning] = useState(false);
+    const permissionSheetRef = useRef<BottomSheet>(null);
+    const openPermissionSheet = () => permissionSheetRef.current?.expand();
+    const closePermissionSheet = () => permissionSheetRef.current?.close();
     const dispatch = useDispatch();
     const { theme } = useTheme();
     const { translate } = useLanguage();
@@ -155,7 +159,7 @@ const FoodItem: React.FC<FoodItemProps> = memo(
           canteenId: canteen?.id,
           previousFeedback,
           dispatch,
-          setWarning,
+          setWarning: () => openPermissionSheet(),
         });
       },
       [foodItem?.id, profile?.id, canteen?.id, previousFeedback, dispatch]
@@ -519,7 +523,16 @@ const FoodItem: React.FC<FoodItemProps> = memo(
           </TooltipContent>
         </Tooltip>
 
-        <PermissionModal isVisible={warning} setIsVisible={setWarning} />
+        <BaseBottomSheet
+          ref={permissionSheetRef}
+          index={-1}
+          backgroundStyle={{ backgroundColor: theme.sheet.sheetBg }}
+          enablePanDownToClose
+          handleComponent={null}
+          onClose={closePermissionSheet}
+        >
+          <PermissionSheet closeSheet={closePermissionSheet} />
+        </BaseBottomSheet>
       </>
     );
   },
