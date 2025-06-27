@@ -1,6 +1,9 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
+  container: {
+    zIndex: 50,
+  },
   header: {
     width: '100%',
     flexDirection: 'row',

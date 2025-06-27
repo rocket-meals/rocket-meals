@@ -48,6 +48,9 @@ const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(
       <BottomSheet
         ref={ref}
         snapPoints={snapPoints}
+        detached
+        bottomInset={0}
+        containerStyle={styles.container}
         enableDynamicSizing
         maxDynamicContentSize={MAX_HEIGHT}
         backdropComponent={renderBackdrop}
