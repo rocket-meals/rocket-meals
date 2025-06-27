@@ -1,14 +1,16 @@
 export const shouldFetch = (
-  key: string,
+  key: string | string[],
   serverMap: Record<string, string>,
   localMap: Record<string, string>
 ): boolean => {
-  const serverDate = new Date(serverMap[key]);
-  const localDate = localMap[key] ? new Date(localMap[key]) : null;
+  const keys = Array.isArray(key) ? key : [key];
 
-  // If no local date exists, it's the first time => fetch
-  if (!localDate) return true;
+  return keys.some((k) => {
+    const serverDate = serverMap[k] ? new Date(serverMap[k]) : null;
+    const localDate = localMap[k] ? new Date(localMap[k]) : null;
 
-  // If server has newer data => fetch
-  return serverDate > localDate;
+    if (!localDate) return true;
+
+    return !!serverDate && serverDate > localDate;
+  });
 };

@@ -437,12 +437,17 @@ export default function Layout() {
     }
   };
 
-  const fetchConfig: { key: string; action: () => Promise<void> }[] = [
+  const fetchConfig: { key: string | string[]; action: () => Promise<void> }[] = [
     { key: CollectionKeys.APP_ELEMENTS, action: getAllAppElements },
-    // also refresh markings when the markings or translation tables changed
-    { key: CollectionKeys.MARKINGS, action: getMarkings },
-    { key: CollectionKeys.MARKINGS_TRANSLATIONS, action: getMarkings },
-    { key: CollectionKeys.MARKINGS_GROUPS, action: getMarkings },
+    // refresh markings when any of the related tables change
+    {
+      key: [
+        CollectionKeys.MARKINGS,
+        CollectionKeys.MARKINGS_TRANSLATIONS,
+        CollectionKeys.MARKINGS_GROUPS,
+      ],
+      action: getMarkings,
+    },
     { key: CollectionKeys.FOODS_CATEGORIES, action: getFoodCategories },
     {
       key: CollectionKeys.FOODS_CATEGORIES_TRANSLATIONS,
@@ -484,11 +489,13 @@ export default function Layout() {
       if (result) {
         const serverMap = transformUpdateDatesToMap(result);
         if (
-          shouldFetch(CollectionKeys.POPUP_EVENTS, serverMap, lastUpdatedMap) ||
           shouldFetch(
-            CollectionKeys.POPUP_EVENTS_TRANSLATIONS,
+            [
+              CollectionKeys.POPUP_EVENTS,
+              CollectionKeys.POPUP_EVENTS_TRANSLATIONS,
+            ],
             serverMap,
-            lastUpdatedMap
+            lastUpdatedMap,
           )
         ) {
           getAllEvents();
