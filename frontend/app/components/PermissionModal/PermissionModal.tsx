@@ -51,8 +51,6 @@ const PermissionModal: React.FC<PermissionModalProps> = ({
   useEffect(() => {
     if (isVisible) {
       sheetRef.current?.expand();
-    } else {
-      sheetRef.current?.close();
     }
   }, [isVisible]);
 
@@ -83,6 +81,10 @@ const PermissionModal: React.FC<PermissionModalProps> = ({
       console.error('Error during logout:', error);
     }
   };
+
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <BaseBottomSheet
