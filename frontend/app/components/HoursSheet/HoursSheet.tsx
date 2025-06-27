@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
+  InteractionManager,
   Text,
   TouchableOpacity,
   View,
@@ -452,7 +453,10 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
 
   useEffect(() => {
     if (selectedCanteen) {
-      fetchSelectedBuilding();
+      const interaction = InteractionManager.runAfterInteractions(() => {
+        fetchSelectedBuilding();
+      });
+      return () => interaction.cancel();
     }
   }, [selectedCanteen]);
 
