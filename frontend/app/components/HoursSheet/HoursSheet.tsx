@@ -543,14 +543,7 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
         </Text>
       </View>
       {loading ? (
-        <View
-          style={{
-            height: 200,
-            width: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size={30} color={theme.screen.text} />
         </View>
       ) : (
@@ -583,14 +576,7 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
                   })}
             </View>
           ) : (
-            <View
-              style={{
-                height: 200,
-                width: '100%',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
+            <View style={styles.loadingContainer}>
               <Text style={{ ...styles.empty, color: theme.screen.text }}>
                 {translate(TranslationKeys.no_business_hours_available)}
               </Text>

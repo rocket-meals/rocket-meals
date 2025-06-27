@@ -57,4 +57,10 @@ export default StyleSheet.create({
     fontSize: 18,
     fontFamily: 'Poppins_400Regular',
   },
+  loadingContainer: {
+    minHeight: 200,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
