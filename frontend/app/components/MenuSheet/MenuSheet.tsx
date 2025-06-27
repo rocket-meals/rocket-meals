@@ -1,11 +1,4 @@
-import {
-  Image,
-  Linking,
-  Platform,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image, Text, View } from 'react-native';
 import React from 'react';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import styles from './styles';
@@ -18,59 +11,17 @@ import {
   getDescriptionFromTranslation,
   getTextFromTranslation,
 } from '@/helper/resourceHelper';
-import RedirectButton from '../RedirectButton';
-import useToast from '@/hooks/useToast';
+import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
 import { RootState } from '@/redux/reducer';
-
-const extractTextAndLink = (description: string) => {
-  // Remove unintended spaces between `]` and `(`
-  const cleanedDescription = description.replace(/\]\s+\(/g, '](');
-
-  const regex = /\[(.*?)\]\((.*?)\)/g;
-  const match = regex.exec(cleanedDescription);
-
-  if (match) {
-    const label = match[1]; // The text inside the square brackets
-    const link = match[2]; // The URL inside the parentheses
-    const textWithoutLinkAndLabel = cleanedDescription
-      .replace(match[0], '')
-      .trim(); // Remove the entire match
-    return { text: textWithoutLinkAndLabel, label, link };
-  }
-
-  return { text: description, label: '', link: null };
-};
 
 const MenuSheet: React.FC<MenuSheetProps> = ({ closeSheet }) => {
   const { theme } = useTheme();
-  const toast = useToast();
   const { markingDetails } = useSelector((state: RootState) => state.food);
   const { language } = useSelector((state: RootState) => state.settings);
   const description = getDescriptionFromTranslation(
     markingDetails?.translations,
     language
   );
-  const { text, label, link } = extractTextAndLink(description);
-
-  const handleOpenInBrowser = async () => {
-    if (link) {
-      try {
-        if (Platform.OS === 'web') {
-          window.open(link, '_blank');
-        } else {
-          const supported = await Linking.canOpenURL(link);
-
-          if (supported) {
-            await Linking.openURL(link);
-          } else {
-            toast(`Cannot open URL: ${link}`, 'error');
-          }
-        }
-      } catch (error) {
-        console.error('An error occurred:', error);
-      }
-    }
-  };
   return (
     <BottomSheetScrollView
       style={{ ...styles.sheetView, backgroundColor: theme.sheet.sheetBg }}
@@ -117,21 +68,14 @@ const MenuSheet: React.FC<MenuSheetProps> = ({ closeSheet }) => {
             }}
           />
         </View>
-        <Text
-          style={{
-            ...styles.body,
-            color: theme.sheet.text,
-          }}
-        >
-          {text}
-        </Text>
-        {link && (
-          <RedirectButton
-            label={label}
-            type='link'
-            backgroundColor=''
-            color=''
-            onClick={handleOpenInBrowser}
+        {description && (
+          <CustomMarkdown
+            content={description}
+            backgroundColor={
+              markingDetails?.background_color || theme.sheet.sheetBg
+            }
+            imageWidth={'100%'}
+            imageHeight={400}
           />
         )}
       </View>
