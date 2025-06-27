@@ -33,7 +33,7 @@ const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(
       [onClose]
     );
     const { theme } = useTheme();
-    const { selectedTheme: mode } = useSelector(
+    const { selectedTheme: mode, drawerPosition } = useSelector(
       (state: RootState) => state.settings
     );
     const snapPoints = useMemo(() => ['80%'], []);
@@ -64,14 +64,29 @@ const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(
         {...props}
       >
         <View style={[styles.header, { backgroundColor: headerBg }]}>
-          <View style={styles.placeholder} />
-          <View style={[styles.handle, { backgroundColor: handleColor }]} />
-          <TouchableOpacity
-            style={[styles.closeButton, { backgroundColor: theme.sheet.closeBg }]}
-            onPress={onClose}
-          >
-            <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
-          </TouchableOpacity>
+          {drawerPosition === 'left' ? (
+            <>
+              <TouchableOpacity
+                style={[styles.closeButton, { backgroundColor: theme.sheet.closeBg }]}
+                onPress={onClose}
+              >
+                <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
+              </TouchableOpacity>
+              <View style={[styles.handle, { backgroundColor: handleColor }]} />
+              <View style={styles.placeholder} />
+            </>
+          ) : (
+            <>
+              <View style={styles.placeholder} />
+              <View style={[styles.handle, { backgroundColor: handleColor }]} />
+              <TouchableOpacity
+                style={[styles.closeButton, { backgroundColor: theme.sheet.closeBg }]}
+                onPress={onClose}
+              >
+                <AntDesign name='close' size={24} color={theme.sheet.closeIcon} />
+              </TouchableOpacity>
+            </>
+          )}
         </View>
         {children}
       </BottomSheet>
