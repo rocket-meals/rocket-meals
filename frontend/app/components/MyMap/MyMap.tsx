@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { View } from 'react-native';
-import { WebView } from 'react-native-webview';
+import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -14,6 +14,20 @@ const MyMap: React.FC<MyMapProps> = ({ latitude, longitude, zoom }) => {
   const { theme } = useTheme();
   const webViewRef = useRef<WebView>(null);
   const html = require('@/assets/leaflet/index.html');
+
+  const handleMessage = useCallback(
+    (event: WebViewMessageEvent) => {
+      try {
+        const data = JSON.parse(event.nativeEvent.data);
+        if (data.tag === 'MapComponentMounted') {
+          sendCoordinates();
+        }
+      } catch {
+        // ignore malformed messages
+      }
+    },
+    [sendCoordinates]
+  );
 
   const sendCoordinates = useCallback(() => {
     if (webViewRef.current) {
@@ -36,6 +50,7 @@ const MyMap: React.FC<MyMapProps> = ({ latitude, longitude, zoom }) => {
         originWhitelist={['*']}
         source={html}
         style={styles.webview}
+        onMessage={handleMessage}
         allowFileAccess
         allowFileAccessFromFileURLs
         allowUniversalAccessFromFileURLs
