@@ -3,19 +3,15 @@ import { View } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
+import { MyMapProps, Position } from './types';
 
-export interface Position {
-  lat: number;
-  lng: number;
-}
-
-export interface MyMapProps {
-  mapCenterPosition: Position;
-  zoom?: number;
-  mapMarkers?: { id: string; position: Position; title?: string; icon?: string; }[];
-}
-
-const MyMap: React.FC<MyMapProps> = ({ mapCenterPosition, zoom, mapMarkers }) => {
+const MyMap: React.FC<MyMapProps> = ({
+  mapCenterPosition,
+  zoom,
+  mapMarkers,
+  mapShapes,
+  onMarkerPress,
+}) => {
   const { theme } = useTheme();
   const webViewRef = useRef<WebView>(null);
   const html = require('@/assets/leaflet/index.html');
@@ -35,11 +31,12 @@ const MyMap: React.FC<MyMapProps> = ({ mapCenterPosition, zoom, mapMarkers }) =>
         zoom: zoom ?? 13,
         mapLayers: [defaultLayer],
         mapMarkers: mapMarkers ?? [],
+        mapShapes: mapShapes ?? [],
       };
       const js = `window.postMessage(${JSON.stringify(message)}, '*');`;
       webViewRef.current.injectJavaScript(js);
     }
-  }, [mapCenterPosition, zoom, mapMarkers]);
+  }, [mapCenterPosition, zoom, mapMarkers, mapShapes]);
 
   const handleMessage = useCallback(
     (event: WebViewMessageEvent) => {
@@ -47,12 +44,14 @@ const MyMap: React.FC<MyMapProps> = ({ mapCenterPosition, zoom, mapMarkers }) =>
         const data = JSON.parse(event.nativeEvent.data);
         if (data.tag === 'MapComponentMounted') {
           sendCoordinates();
+        } else if (data.tag === 'onMapMarkerClicked') {
+          onMarkerPress?.(data.mapMarkerId);
         }
       } catch {
         // ignore malformed messages
       }
     },
-    [sendCoordinates]
+    [sendCoordinates, onMarkerPress]
   );
 
 
