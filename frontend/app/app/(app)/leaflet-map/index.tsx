@@ -4,11 +4,40 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
 import MyMap from '@/components/MyMap/MyMap';
+import { MapMarker, MapShape } from '@/components/MyMap/types';
 
 const POSITION_BUNDESTAG = {
   lat: 52.518594247456804,
   lng: 13.376281624711964,
 };
+
+const ICON = require('@/assets/map/marker-icon-2x.png') as string;
+
+const DEMO_MARKERS: MapMarker[] = [
+  {
+    id: 'bundestag',
+    position: POSITION_BUNDESTAG,
+    title: 'Bundestag',
+    icon: ICON,
+  },
+];
+
+const DEMO_SHAPES: MapShape[] = [
+  {
+    id: 'circle200',
+    shapeType: 'circle',
+    center: POSITION_BUNDESTAG,
+    radius: 200,
+    color: 'red',
+  },
+  {
+    id: 'circle400',
+    shapeType: 'circle',
+    center: POSITION_BUNDESTAG,
+    radius: 400,
+    color: 'blue',
+  },
+];
 
 const LeafletMap = () => {
   useSetPageTitle(TranslationKeys.leaflet_map);
@@ -29,7 +58,11 @@ const LeafletMap = () => {
   }, [selectedCanteen, buildings]);
 
   return (
-    <MyMap mapCenterPosition={centerPosition || POSITION_BUNDESTAG} />
+    <MyMap
+      mapCenterPosition={centerPosition || POSITION_BUNDESTAG}
+      mapMarkers={DEMO_MARKERS}
+      mapShapes={DEMO_SHAPES}
+    />
   );
 };
 
