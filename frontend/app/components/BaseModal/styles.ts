@@ -6,7 +6,8 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalView: {
-    height: 'auto',
+    width: '100%',
+    height: '80%',
     borderRadius: 40,
     padding: 20,
     alignItems: 'flex-start',

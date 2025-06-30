@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import Modal from 'react-native-modal';
 import { AntDesign } from '@expo/vector-icons';
@@ -20,25 +20,6 @@ const BaseModal: React.FC<BaseModalProps> = ({
 }) => {
   const { theme } = useTheme();
 
-  const getModalWidth = (windowWidth: number) => {
-    if (windowWidth < 800) return '100%';
-    if (windowWidth >= 800 && windowWidth <= 1200) return 700;
-    return 600;
-  };
-
-  const [modalWidth, setModalWidth] = useState(() =>
-    getModalWidth(Dimensions.get('window').width)
-  );
-
-  useEffect(() => {
-    const handleResize = () => {
-      const windowWidth = Dimensions.get('window').width;
-      setModalWidth(getModalWidth(windowWidth));
-    };
-
-    const subscription = Dimensions.addEventListener('change', handleResize);
-    return () => subscription.remove();
-  }, []);
 
   return (
     <Modal
@@ -49,7 +30,11 @@ const BaseModal: React.FC<BaseModalProps> = ({
       <View
         style={[
           styles.modalView,
-          { backgroundColor: theme.modal.modalBg, width: modalWidth },
+          {
+            backgroundColor: theme.modal.modalBg,
+            width: '100%',
+            height: Dimensions.get('window').height * 0.8,
+          },
         ]}
       >
         <View style={styles.modalHeader}>
