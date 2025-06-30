@@ -10,7 +10,8 @@ import { SET_DRAWER_POSITION } from '@/redux/Types/types';
 import ModalComponent from '../ModalSetting/ModalComponent';
 import { languages } from '../../constants/SettingData';
 import { Image } from 'expo-image';
-import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
+import LanguageSheet from '../LanguageSheet/LanguageSheet';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
@@ -139,58 +140,13 @@ const LoginHeader = () => {
         onSave={saveLanguage}
         showButtons={false}
       >
-        <View style={styles.languageContainer}>
-          {languages.map((language, index) => (
-            <TouchableOpacity
-              key={index}
-              style={{
-                ...styles.languageRow,
-                paddingHorizontal: isWeb ? 20 : 10,
-
-                backgroundColor:
-                  selectedLanguage === language.value
-                    ? primaryColor
-                    : theme.screen.iconBg,
-              }}
-              onPress={() => {
-                changeLanguage(language);
-              }}
-            >
-              <Image
-                source={language.flag}
-                style={styles.flagIcon}
-                cachePolicy={'memory-disk'}
-                transition={500}
-                contentFit='cover'
-              />
-              <Text
-                style={{
-                  ...styles.languageText,
-                  color:
-                    selectedLanguage === language.value
-                      ? theme.activeText
-                      : theme.screen.text,
-                }}
-              >
-                {language.label}
-              </Text>
-
-              {/* Radio Button */}
-              <MaterialCommunityIcons
-                name={
-                  selectedLanguage === language.value
-                    ? 'checkbox-marked'
-                    : 'checkbox-blank'
-                }
-                size={24}
-                color={
-                  selectedLanguage === language.value ? '#ffffff' : '#ffffff'
-                }
-                style={styles.radioButton}
-              />
-            </TouchableOpacity>
-          ))}
-        </View>
+        <LanguageSheet
+          closeSheet={closeLanguageModal}
+          selectedLanguage={selectedLanguage}
+          onSelect={(value) => {
+            changeLanguage({ value } as any);
+          }}
+        />
       </ModalComponent>
     </View>
   );

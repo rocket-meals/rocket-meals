@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { Image } from 'expo-image';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import { useTheme } from '@/hooks/useTheme';
@@ -26,7 +26,7 @@ const LanguageSheet: React.FC<LanguageSheetProps> = ({
   const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
 
   return (
-    <BottomSheetScrollView
+    <ScrollView
       style={{ ...styles.sheetView, backgroundColor: theme.sheet.sheetBg }}
       contentContainerStyle={styles.contentContainer}
     >
@@ -102,7 +102,7 @@ const LanguageSheet: React.FC<LanguageSheetProps> = ({
           </TouchableOpacity>
         ))}
       </View>
-    </BottomSheetScrollView>
+    </ScrollView>
   );
 };
 
