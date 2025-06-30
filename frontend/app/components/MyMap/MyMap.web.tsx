@@ -1,10 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import 'leaflet/dist/leaflet.css';
 
 export interface Position {
   lat: number;
@@ -17,8 +14,42 @@ export interface MyMapProps {
   mapMarkers?: { id: string; position: Position; title?: string; icon?: string }[];
 }
 
+interface LeafletComponents {
+  MapContainer: React.ComponentType<any>;
+  TileLayer: React.ComponentType<any>;
+  Marker: React.ComponentType<any>;
+  Popup: React.ComponentType<any>;
+  L: any;
+}
+
 const MyMap: React.FC<MyMapProps> = ({ mapCenterPosition, zoom, mapMarkers }) => {
   const { theme } = useTheme();
+  const [components, setComponents] = useState<LeafletComponents>();
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      if (typeof window !== 'undefined') {
+        const [{ MapContainer, TileLayer, Marker, Popup }, leaflet] = await Promise.all([
+          import('react-leaflet'),
+          import('leaflet'),
+        ]);
+        await import('leaflet/dist/leaflet.css');
+        if (mounted) {
+          setComponents({ MapContainer, TileLayer, Marker, Popup, L: leaflet.default ?? leaflet });
+        }
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (!components) {
+    return <View style={[styles.container, { backgroundColor: theme.screen.background }]} />;
+  }
+
+  const { MapContainer, TileLayer, Marker, Popup, L } = components;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.screen.background }]}>
