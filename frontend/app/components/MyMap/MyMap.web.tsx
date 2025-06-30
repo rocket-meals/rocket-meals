@@ -87,8 +87,8 @@ const MyMap: React.FC<MyMapProps> = ({ mapCenterPosition, zoom, mapMarkers, mapS
               marker.icon
                 ? L.icon({
                     iconUrl: marker.icon,
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
+                    iconSize: marker.size ?? [25, 41],
+                    iconAnchor: marker.iconAnchor ?? [12, 41],
                   })
                 : undefined
             }

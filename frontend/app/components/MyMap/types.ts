@@ -8,6 +8,8 @@ export interface MapMarker {
   position: Position;
   title?: string;
   icon?: string;
+  size?: [number, number];
+  iconAnchor?: [number, number];
 }
 
 export interface MapShape {

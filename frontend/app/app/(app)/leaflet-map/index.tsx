@@ -4,7 +4,7 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
 import MyMap from '@/components/MyMap/MyMap';
-import { Image } from 'react-native';
+import { Image, Platform } from 'react-native';
 import { MapMarker, MapShape } from '@/components/MyMap/types';
 
 const POSITION_BUNDESTAG = {
@@ -12,9 +12,10 @@ const POSITION_BUNDESTAG = {
   lng: 13.376281624711964,
 };
 
-const ICON = Image.resolveAssetSource(
-  require('@/assets/map/marker-icon-2x.png')
-).uri;
+const ICON_PATH = require('@/assets/map/marker-icon-2x.png');
+const ICON = Platform.OS === 'web'
+  ? (ICON_PATH as unknown as string)
+  : Image.resolveAssetSource(ICON_PATH).uri;
 
 const DEMO_MARKERS: MapMarker[] = [
   {
