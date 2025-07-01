@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image } from 'react-native';
+import { Image } from 'expo-image';
 import { useSelector } from 'react-redux';
 import styles from './styles';
 import { getImageUrl } from '@/constants/HelperFunctions';
@@ -35,6 +35,7 @@ const FoodImage: React.FC<FoodImageProps> = ({ image, imageRemoteUrl, size }) =>
         styles.image,
         { width: size, height: size, borderColor: foods_area_color },
       ]}
+      contentFit='cover'
     />
   );
 };
