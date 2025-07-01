@@ -2393,6 +2393,16 @@
     "tr": "Dikey Resim Kaydırma",
     "zh": "垂直图片滚动"
   },
+  "most_popular_foods_vertical_image_scroll": {
+    "de": "Beliebteste Gerichte Bildlauf",
+    "en": "Most Popular Foods Vertical Image Scroll",
+    "ar": "الاطعمة الأكثر شعبية بتمرير عمودي",
+    "es": "Desplazamiento vertical de las comidas más populares",
+    "fr": "Défilement vertical des plats les plus populaires",
+    "ru": "Вертикальная прокрутка самых популярных блюд",
+    "tr": "En Popüler Yemekler Dikey Kaydırma",
+    "zh": "最受欢迎食物的垂直滚动"
+  },
   "markings": {
     "de": "Kennzeichnungen",
     "en": "Labels",

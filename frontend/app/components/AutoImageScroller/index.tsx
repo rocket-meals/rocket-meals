@@ -3,22 +3,24 @@ import { FlatList, View, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import styles from './styles';
 
-interface AutoImageScrollerProps {
-  images: string[];
+interface AutoImageScrollerProps<T = any> {
+  images: T[];
   numColumns: number;
   size: number;
   speedPercent: number; // percent of screen height per second
   loadMore: () => void;
+  renderItem?: (item: T, size: number, index: number) => React.ReactNode;
 }
 
-const AutoImageScroller: React.FC<AutoImageScrollerProps> = ({
+const AutoImageScroller = <T,>({
   images,
   numColumns,
   size,
   speedPercent,
   loadMore,
-}) => {
-  const flatListRef = useRef<FlatList<string>>(null);
+  renderItem,
+}: AutoImageScrollerProps<T>) => {
+  const flatListRef = useRef<FlatList<T>>(null);
   const scrollOffset = useRef(0);
   const screenHeight = Dimensions.get('window').height;
   const frameRef = useRef<number>();
@@ -71,16 +73,26 @@ const AutoImageScroller: React.FC<AutoImageScrollerProps> = ({
     };
   }, [images, numColumns, size, speedPercent, screenHeight]);
 
-  const renderItem = ({ item, index }: { item: string; index: number }) => {
+  const defaultRenderItem = ({ item, index }: { item: any; index: number }) => {
     const columnIndex = index % numColumns;
     const offset = (columnIndex % 3) * (size / 3);
     return (
       <View style={{ transform: [{ translateY: offset }] }}>
         <Image
-          source={{ uri: item }}
+          source={{ uri: String(item) }}
           style={[styles.image, { width: size, height: size }]}
           contentFit='cover'
         />
+      </View>
+    );
+  };
+
+  const renderItemWrapper = ({ item, index }: { item: T; index: number }) => {
+    const columnIndex = index % numColumns;
+    const offset = (columnIndex % 3) * (size / 3);
+    return (
+      <View style={{ transform: [{ translateY: offset }] }}>
+        {renderItem ? renderItem(item, size, index) : defaultRenderItem({ item, index })}
       </View>
     );
   };
@@ -90,7 +102,7 @@ const AutoImageScroller: React.FC<AutoImageScrollerProps> = ({
       ref={flatListRef}
       key={numColumns}
       data={extendedImages}
-      renderItem={renderItem}
+      renderItem={renderItemWrapper}
       keyExtractor={(_, idx) => idx.toString()}
       numColumns={numColumns}
       showsVerticalScrollIndicator={false}

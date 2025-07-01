@@ -1,6 +1,5 @@
 import {
   Dimensions,
-  Image,
   Linking,
   Text,
   TouchableOpacity,
@@ -43,6 +42,7 @@ import useToast from '@/hooks/useToast';
 import { handleFoodRating } from '@/helper/feedback';
 import { RootState } from '@/redux/reducer';
 import CardDimensionHelper from '@/helper/CardDimensionHelper';
+import FoodImage from '../FoodImage';
 
 const selectFoodState = (state: RootState) => state.food;
 
@@ -239,19 +239,16 @@ const FoodItem: React.FC<FoodItemProps> = memo(
                         ),
                 }}
               >
-                <Image
-                  style={{
-                    ...styles.image,
-                    borderColor: foods_area_color,
-                  }}
-                  source={
-                    foodItem?.image_remote_url || foodItem?.image
-                      ? {
-                          uri:
-                            foodItem?.image_remote_url ||
-                            getImageUrl(foodItem?.image),
-                        }
-                      : { uri: defaultImage }
+                <FoodImage
+                  image={foodItem?.image}
+                  imageRemoteUrl={foodItem?.image_remote_url}
+                  size={
+                    amountColumnsForcard === 0
+                      ? CardDimensionHelper.getCardDimension(screenWidth)
+                      : CardDimensionHelper.getCardWidth(
+                          screenWidth,
+                          amountColumnsForcard
+                        )
                   }
                 />
                 {isManagement && (

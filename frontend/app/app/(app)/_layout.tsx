@@ -689,6 +689,23 @@ export default function Layout() {
           }}
         />
 
+        <Drawer.Screen
+          name='most-popular-foods-vertical-image-scroll/index'
+          options={{
+            header: () => (
+              <CustomStackHeader
+                label={translate(
+                  TranslationKeys.most_popular_foods_vertical_image_scroll
+                )}
+                key={'most_popular_foods_vertical_image_scroll'}
+              />
+            ),
+            title: translate(
+              TranslationKeys.most_popular_foods_vertical_image_scroll
+            ),
+          }}
+        />
+
 
         <Drawer.Screen
           name='notification/index'
