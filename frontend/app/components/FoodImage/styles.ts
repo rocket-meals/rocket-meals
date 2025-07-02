@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
   image: {
-    borderRadius: 8,
+    // keep default styling minimal so components can control borders/margins
+    borderRadius: 0,
   },
 });
