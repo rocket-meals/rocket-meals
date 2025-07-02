@@ -70,7 +70,12 @@ const MostPopularFoodsVerticalImageScroll = () => {
         speedPercent={speedPercent}
         loadMore={() => {}}
         renderItem={(item) => (
-          <FoodImage image={item.image} imageRemoteUrl={item.image_remote_url} size={size} />
+          <FoodImage
+            image={item.image}
+            imageRemoteUrl={item.image_remote_url}
+            size={size}
+            style={styles.image}
+          />
         )}
       />
     </View>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image } from 'expo-image';
 import { useSelector } from 'react-redux';
+import { StyleProp, ImageStyle } from 'react-native';
 import styles from './styles';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { RootState } from '@/redux/reducer';
@@ -9,17 +10,19 @@ import { DirectusFiles } from '@/constants/types';
 type FoodImageProps = {
   image?: string | DirectusFiles | null;
   imageRemoteUrl?: string | null;
-  size: number;
+  size?: number;
+  style?: StyleProp<ImageStyle>;
 };
 
-const FoodImage: React.FC<FoodImageProps> = ({ image, imageRemoteUrl, size }) => {
-  const { appSettings, serverInfo, primaryColor } = useSelector(
+const FoodImage: React.FC<FoodImageProps> = ({
+  image,
+  imageRemoteUrl,
+  size,
+  style,
+}) => {
+  const { appSettings, serverInfo } = useSelector(
     (state: RootState) => state.settings
   );
-
-  const foods_area_color = appSettings?.foods_area_color
-    ? appSettings?.foods_area_color
-    : primaryColor;
 
   const defaultImage =
     getImageUrl(String(appSettings.foods_placeholder_image)) ||
@@ -33,7 +36,8 @@ const FoodImage: React.FC<FoodImageProps> = ({ image, imageRemoteUrl, size }) =>
       source={{ uri: imageRemoteUrl || getImageUrl(imageId) || defaultImage }}
       style={[
         styles.image,
-        { width: size, height: size, borderColor: foods_area_color },
+        style,
+        size ? { width: size, height: size } : null,
       ]}
       contentFit='cover'
     />

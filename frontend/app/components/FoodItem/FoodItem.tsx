@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './styles';
 import { isWeb } from '@/constants/Constants';
@@ -242,14 +243,10 @@ const FoodItem: React.FC<FoodItemProps> = memo(
                 <FoodImage
                   image={foodItem?.image}
                   imageRemoteUrl={foodItem?.image_remote_url}
-                  size={
-                    amountColumnsForcard === 0
-                      ? CardDimensionHelper.getCardDimension(screenWidth)
-                      : CardDimensionHelper.getCardWidth(
-                          screenWidth,
-                          amountColumnsForcard
-                        )
-                  }
+                  style={[
+                    styles.image,
+                    { borderColor: foods_area_color },
+                  ]}
                 />
                 {isManagement && (
                   <Tooltip

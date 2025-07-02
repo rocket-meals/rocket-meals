@@ -68,8 +68,8 @@ export default StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    borderTopRightRadius: 18,
-    borderTopLeftRadius: 18,
+    borderTopRightRadius: 8,
+    borderTopLeftRadius: 8,
     resizeMode: 'cover',
   },
   foodName: {
