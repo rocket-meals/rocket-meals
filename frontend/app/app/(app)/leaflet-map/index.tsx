@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Text, Platform } from 'react-native';
+import { Text, View, ScrollView } from 'react-native';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
@@ -10,7 +10,7 @@ import {
   MyMapMarkerIcons,
   getDefaultIconAnchor,
 } from '@/components/MyMap/markerUtils';
-import { Asset } from 'expo-asset';
+import { useAssets } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
 
 const POSITION_BUNDESTAG = {
@@ -25,6 +25,7 @@ const LeafletMap = () => {
       (state: RootState) => state.canteenReducer
   );
 
+  const [assets] = useAssets([require('@/assets/map/marker-icon-2x.png')]);
   const [markerIconSrc, setMarkerIconSrc] = useState<string | null>(null);
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -32,26 +33,26 @@ const LeafletMap = () => {
   // Load marker asset asynchronously
   useEffect(() => {
     const loadMarkerIcon = async () => {
-      try {
-        const mapMarkerIcon = require('@/assets/map/marker-icon-2x.png');
-        const asset = await Asset.fromModule(mapMarkerIcon);
-        await asset.downloadAsync();
-
-        if (Platform.OS === 'web') {
-          setMarkerIconSrc(asset.uri);
-        } else if (asset.localUri) {
-          const content = await FileSystem.readAsStringAsync(asset.localUri, {
+      if (assets && assets[0]) {
+        try {
+          const asset = assets[0];
+          const uri = asset.localUri || asset.uri;
+          if (!uri) {
+            console.error('Asset URI is not available.');
+            return;
+          }
+          const content = await FileSystem.readAsStringAsync(uri, {
             encoding: FileSystem.EncodingType.Base64,
           });
           setMarkerIconSrc(content);
+        } catch (error) {
+          console.error('Error loading marker icon:', error);
         }
-      } catch (error) {
-        console.error('Error loading marker icon:', error);
       }
     };
 
     loadMarkerIcon();
-  }, []);
+  }, [assets]);
 
   const centerPosition = useMemo(() => {
     if (selectedCanteen?.building) {
@@ -73,10 +74,7 @@ const LeafletMap = () => {
     {
       id: 'example',
       position: POSITION_BUNDESTAG,
-      icon:
-        Platform.OS === 'web'
-          ? MyMapMarkerIcons.getIconForWebByUri(markerIconSrc)
-          : MyMapMarkerIcons.getIconForWebByBase64(markerIconSrc),
+      icon: MyMapMarkerIcons.getIconForWebByBase64(markerIconSrc),
       size: [MARKER_DEFAULT_SIZE, MARKER_DEFAULT_SIZE],
       iconAnchor: getDefaultIconAnchor(
           MARKER_DEFAULT_SIZE,
@@ -102,14 +100,21 @@ const LeafletMap = () => {
   return (
     <>
       <Text>Selected: {selectedMarkerId ?? 'none'} Visible: {String(modalVisible)}</Text>
-      <MyMap
-        mapCenterPosition={centerPosition || POSITION_BUNDESTAG}
-        mapMarkers={markers}
-        onMarkerClick={handleMarkerClick}
-        onMapEvent={(e) => console.log('map event', e.tag)}
-        renderMarkerModal={renderMarkerModal}
-        onMarkerSelectionChange={handleSelectionChange}
-      />
+      <View style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
+          <MyMap
+            mapCenterPosition={centerPosition || POSITION_BUNDESTAG}
+            mapMarkers={markers}
+            onMarkerClick={handleMarkerClick}
+            onMapEvent={(e) => console.log('map event', e.tag)}
+            renderMarkerModal={renderMarkerModal}
+            onMarkerSelectionChange={handleSelectionChange}
+          />
+        </View>
+        <ScrollView style={{ flex: 1 }}>
+          <Text selectable>{markerIconSrc}</Text>
+        </ScrollView>
+      </View>
     </>
   );
 };
