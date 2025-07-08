@@ -1,5 +1,5 @@
 export class NumberHelper {
-  static toFixedNoRounding(number, fractions) {
+  static toFixedNoRounding(number: number, fractions: number): string {
     const strNumber = number.toString();
     const dotIndex = strNumber.indexOf('.');
     if (dotIndex === -1) {
@@ -13,13 +13,13 @@ export class NumberHelper {
   }
 
   static formatNumber(
-    value,
-    unit,
-    roundUpOrDown,
-    fractionsSeparator = ',',
-    thousandsSeparator = null,
-    amountDecimals = 2
-  ) {
+    value: number | null | undefined,
+    unit: string | null | undefined,
+    roundUpOrDown: boolean,
+    fractionsSeparator: string = ',',
+    thousandsSeparator: string | null = null,
+    amountDecimals: number = 2
+  ): string {
     if (value == null) {
       return `?${unit ? '\u00a0' + unit : ''}`;
     }
