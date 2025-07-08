@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchFoodDetailsById } from '@/redux/actions/FoodOffers/FoodOffers';
 import { excerpt } from '@/constants/HelperFunctions';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
-import { FoodsFeedbacks } from '@/constants/types';
+import { FoodsFeedbacks } from '@rocket-meals/shared';
 import {
   DELETE_FOOD_FEEDBACK_LOCAL,
   UPDATE_FOOD_FEEDBACK_LOCAL,

@@ -15,7 +15,7 @@ import { format } from 'date-fns';
 import { router, useFocusEffect } from 'expo-router';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { AppFeedbacks } from '@/constants/types';
+import { AppFeedbacks } from '@rocket-meals/shared';
 
 const index = () => {
   useSetPageTitle(TranslationKeys.my_support_tickets);

@@ -1,6 +1,6 @@
 import {Dimensions, PixelRatio, useWindowDimensions} from 'react-native';
 import {EdgeInsets, useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Devices} from '@/constants/types';
+import {Devices} from '@rocket-meals/shared';
 import * as DeviceInfo from 'expo-device';
 import {DeviceType} from 'expo-device';
 import usePlatformHelper from '@/helper/platformHelper';

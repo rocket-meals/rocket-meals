@@ -16,7 +16,7 @@ import { isWeb } from '@/constants/Constants';
 import { SET_DAY_PLAN } from '@/redux/Types/types';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
 import { RootState } from '@/redux/reducer';
-import { FoodoffersCategories, FoodsCategories } from '@/constants/types';
+import { FoodoffersCategories, FoodsCategories } from '@rocket-meals/shared';
 
 const ManagementFoodCategorySheet: React.FC<
   ManagementFoodCategorySheetProps

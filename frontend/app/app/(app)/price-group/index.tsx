@@ -22,7 +22,7 @@ import { useFocusEffect } from 'expo-router';
 import { replaceLottieColors } from '@/helper/animationHelper';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { Profiles } from '@/constants/types';
+import { Profiles } from '@rocket-meals/shared';
 import { RootState } from '@/redux/reducer';
 import { myContrastColor } from '@/helper/colorHelper';
 

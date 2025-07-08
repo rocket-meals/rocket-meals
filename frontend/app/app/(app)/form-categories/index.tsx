@@ -11,7 +11,7 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo } from '@expo/vector-icons';
 import { FormCategoriesHelper } from '@/redux/actions/Forms/FormCategories';
-import { FormCategories } from '@/constants/types';
+import { FormCategories } from '@rocket-meals/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { getFromCategoryTranslation } from '@/helper/resourceHelper';

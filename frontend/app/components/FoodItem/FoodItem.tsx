@@ -27,7 +27,7 @@ import {
   getDescriptionFromTranslation,
   getTextFromTranslation,
 } from '@/helper/resourceHelper';
-import { Foods, Markings, ProfilesMarkings } from '@/constants/types';
+import { Foods, Markings, ProfilesMarkings } from '@rocket-meals/shared';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   SET_MARKING_DETAILS,

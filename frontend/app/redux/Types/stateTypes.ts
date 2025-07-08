@@ -23,7 +23,7 @@ import {
   PopupEvents,
   Profiles,
   Wikis,
-} from '@/constants/types';
+} from '@rocket-meals/shared';
 import {
   FoodSortOption,
   CampusSortOption,

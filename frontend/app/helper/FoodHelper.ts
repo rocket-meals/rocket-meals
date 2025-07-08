@@ -1,4 +1,4 @@
-import { Foods } from '@/constants/types';
+import { Foods } from '@rocket-meals/shared';
 import { CollectionHelper } from './collectionHelper';
 
 export async function loadMostLikedOrDislikedFoods(

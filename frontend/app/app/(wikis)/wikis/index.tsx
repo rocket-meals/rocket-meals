@@ -22,7 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { isWeb } from '@/constants/Constants';
 import DeviceMock from '@/components/DeviceMock/DeviceMock';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { Wikis } from '@/constants/types';
+import { Wikis } from '@rocket-meals/shared';
 import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
 import { RootState } from '@/redux/reducer';
 import { TranslationKeys } from '@/locales/keys';

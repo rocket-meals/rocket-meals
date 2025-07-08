@@ -1,4 +1,4 @@
-import { CollectionsDatesLastUpdate } from '@/constants/types';
+import { CollectionsDatesLastUpdate } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 

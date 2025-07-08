@@ -18,7 +18,7 @@ import {
   getpreviousFeedback,
   numToOneDecimal,
 } from '@/constants/HelperFunctions';
-import { FoodsFeedbacks } from '@/constants/types';
+import { FoodsFeedbacks } from '@rocket-meals/shared';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
 import useToast from '@/hooks/useToast';
 import { DateHelper } from '@/helper/dateHelper';

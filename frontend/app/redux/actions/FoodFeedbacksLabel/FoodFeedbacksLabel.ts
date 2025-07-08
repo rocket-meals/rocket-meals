@@ -1,5 +1,5 @@
 import { itemStatus } from '@/constants/Constants';
-import { FoodsFeedbacksLabels } from '@/constants/types';
+import { FoodsFeedbacksLabels } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 

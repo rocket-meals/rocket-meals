@@ -14,7 +14,7 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { excerpt, getImageUrl } from '@/constants/HelperFunctions';
 import { useLanguage } from '@/hooks/useLanguage';
-import { Buildings, Canteens } from '@/constants/types';
+import { Buildings, Canteens } from '@rocket-meals/shared';
 import { CanteenHelper } from '@/redux/actions';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
 import { TranslationKeys } from '@/locales/keys';

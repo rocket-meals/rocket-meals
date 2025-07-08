@@ -41,7 +41,7 @@ import { myContrastColor } from '@/helper/colorHelper';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
-import { FoodsAttributes } from '@/constants/types';
+import { FoodsAttributes } from '@rocket-meals/shared';
 import { FoodAttributesHelper } from '@/redux/actions/FoodAttributes/FoodAttributes';
 
 type FoodAttribute = {

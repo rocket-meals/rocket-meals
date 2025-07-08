@@ -1,4 +1,4 @@
-import { AppFeedbacks } from '@/constants/types';
+import { AppFeedbacks } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 

@@ -1,4 +1,4 @@
-import { FormAnswers } from '@/constants/types';
+import { FormAnswers } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 

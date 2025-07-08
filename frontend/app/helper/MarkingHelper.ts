@@ -1,4 +1,4 @@
-import {Foodoffers, FoodoffersMarkings, ProfilesMarkings} from "@/constants/types";
+import {Foodoffers, FoodoffersMarkings, ProfilesMarkings} from "@rocket-meals/shared";
 
 export class MarkingHelper {
 

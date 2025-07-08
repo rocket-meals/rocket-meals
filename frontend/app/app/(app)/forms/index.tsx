@@ -10,7 +10,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo } from '@expo/vector-icons';
-import { Forms } from '@/constants/types';
+import { Forms } from '@rocket-meals/shared';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { getFromCategoryTranslation } from '@/helper/resourceHelper';

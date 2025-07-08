@@ -5,7 +5,7 @@ import {
   MarkingsGroups,
   FoodsCategories,
   FoodoffersCategories,
-} from "@/constants/types";
+} from "@rocket-meals/shared";
 
 export const normalizeSort = (value: any): number => {
   return value === undefined || value === null || value === "" ? Infinity : value;

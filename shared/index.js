@@ -1,1 +1,1 @@
-export {};
+export { NumberHelper } from './numberHelper.js';

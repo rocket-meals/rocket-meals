@@ -35,7 +35,7 @@ import {
   Canteens,
   FoodsAttributes,
   FoodsCategories,
-} from '@/constants/types';
+} from '@rocket-meals/shared';
 import { ColumnPercentages } from './types';
 import { RootState } from '@/redux/reducer';
 import { CanteenHelper } from '@/redux/actions';

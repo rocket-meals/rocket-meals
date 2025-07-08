@@ -1,4 +1,4 @@
-import { Foods, FoodsFeedbacks } from "@/constants/types";
+import { Foods, FoodsFeedbacks } from "@rocket-meals/shared";
 
 export interface NotificationSheetProps {
   closeSheet: () => void;

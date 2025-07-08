@@ -41,7 +41,7 @@ import {
   Businesshours,
   CanteensFeedbacksLabels,
   Foodoffers,
-} from '@/constants/types';
+} from '@rocket-meals/shared';
 import {
   Entypo,
   FontAwesome6,

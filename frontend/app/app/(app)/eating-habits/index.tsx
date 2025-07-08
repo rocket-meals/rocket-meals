@@ -19,7 +19,7 @@ import { isWeb } from '@/constants/Constants';
 import FoodLabelingInfo from '@/components/FoodLabelingInfo';
 import { useSelector } from 'react-redux';
 import MarkingLabels from '@/components/MarkingLabels/MarkingLabels';
-import { FoodoffersMarkings } from '@/constants/types';
+import { FoodoffersMarkings } from '@rocket-meals/shared';
 import { useLanguage } from '@/hooks/useLanguage';
 import { excerpt } from '@/constants/HelperFunctions';
 import animation from '@/assets/animations/allergist.json';

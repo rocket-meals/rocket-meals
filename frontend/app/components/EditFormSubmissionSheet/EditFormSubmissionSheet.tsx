@@ -14,7 +14,7 @@ import { sheetProps } from './types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
-import { FormSubmissions } from '@/constants/types';
+import { FormSubmissions } from '@rocket-meals/shared';
 import { SET_FORM_SUBMISSION } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';

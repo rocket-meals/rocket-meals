@@ -29,7 +29,7 @@ import { isBefore, isEqual, parse } from 'date-fns';
 import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/colorHelper';
 import { TranslationKeys } from '@/locales/keys';
-import { Profiles } from '@/constants/types';
+import { Profiles } from '@rocket-meals/shared';
 import { RootState } from '@/redux/reducer';
 
 const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({

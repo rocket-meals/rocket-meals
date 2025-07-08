@@ -15,7 +15,7 @@ import {
   SET_MOST_DISLIKED_FOODS,
   SET_MOST_LIKED_FOODS,
 } from '@/redux/Types/types';
-import { Foods } from '@/constants/types';
+import { Foods } from '@rocket-meals/shared';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import ImageManagementSheet from '@/components/ImageManagementSheet/ImageManagementSheet';

@@ -19,7 +19,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
 import styles from './styles';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
-import { Markings, Profiles } from '@/constants/types';
+import { Markings, Profiles } from '@rocket-meals/shared';
 import { useMyContrastColor } from '@/helper/colorHelper';
 import { iconLibraries } from '../Drawer/CustomDrawerContent';
 import MarkingIcon from '../MarkingIcon';

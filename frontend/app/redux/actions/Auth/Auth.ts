@@ -25,7 +25,7 @@ import {
 	CustomDirectusTypes,
 	DirectusPolicies,
 	DirectusRoles
-  } from '@/constants/types';
+  } from '@rocket-meals/shared';
   
   import { UrlHelper } from '@/constants/UrlHelper';
   import ServerConfiguration from '@/constants/ServerUrl';

@@ -18,7 +18,7 @@ import Information from '@/components/Information';
 import BuildingDescription from '@/components/BuildingDescription';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useSelector } from 'react-redux';
-import { Apartments } from '@/constants/types';
+import { Apartments } from '@rocket-meals/shared';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import WashingMachines from '@/components/WashingMachines';
 import { myContrastColor } from '@/helper/colorHelper';

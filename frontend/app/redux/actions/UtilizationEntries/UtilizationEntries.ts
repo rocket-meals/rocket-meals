@@ -1,7 +1,7 @@
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
 import { DateHelper } from '@/helper/dateHelper';
-import { UtilizationsEntries } from '@/constants/types';
+import { UtilizationsEntries } from '@rocket-meals/shared';
 
 export class UtilizationEntryHelper extends CollectionHelper<UtilizationsEntries> {
   constructor(client?: any) {

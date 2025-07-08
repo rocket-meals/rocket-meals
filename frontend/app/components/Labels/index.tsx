@@ -7,7 +7,7 @@ import FoodLabelingInfo from '../FoodLabelingInfo';
 import MarkingLabels from '../MarkingLabels/MarkingLabels';
 import { getFoodOffer } from '@/constants/HelperFunctions';
 import { studentUnionUrl } from '@/constants/Constants';
-import { FoodoffersMarkings, Markings, MarkingsGroups } from '@/constants/types';
+import { FoodoffersMarkings, Markings, MarkingsGroups } from '@rocket-meals/shared';
 import { createSelector } from 'reselect';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';

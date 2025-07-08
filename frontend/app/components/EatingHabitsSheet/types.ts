@@ -1,4 +1,4 @@
-import { FoodoffersMarkings } from "@/constants/types";
+import { FoodoffersMarkings } from "@rocket-meals/shared";
 
 export interface EatingHabitsSheetProps {
   closeSheet: () => void;

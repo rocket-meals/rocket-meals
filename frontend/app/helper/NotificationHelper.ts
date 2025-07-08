@@ -5,7 +5,7 @@ import Constants from 'expo-constants';
 import usePlatformHelper from '@/helper/platformHelper';
 import {IosAuthorizationStatus} from 'expo-notifications/src/NotificationPermissions.types';
 import { getDeviceInformationWithoutPushToken } from './DeviceHelper';
-import { Devices, Profiles } from '@/constants/types';
+import { Devices, Profiles } from '@rocket-meals/shared';
 // import {useSynchedDevices} from "@/states/SynchedDevices";
 
 export type NotificationObjType = {

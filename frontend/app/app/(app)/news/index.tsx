@@ -11,7 +11,7 @@ import styles from './styles';
 import { isWeb } from '@/constants/Constants';
 import NewsItem from '@/components/NewsItem/NewsItem';
 import { NewsHelper } from '@/redux/actions/News/News';
-import { News } from '@/constants/types';
+import { News } from '@rocket-meals/shared';
 import { useDispatch, useSelector } from 'react-redux';
 import { SET_NEWS } from '@/redux/Types/types';
 import useSetPageTitle from '@/hooks/useSetPageTitle';

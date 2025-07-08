@@ -1,4 +1,4 @@
-import { CollectionsDatesLastUpdate } from '@/constants/types';
+import { CollectionsDatesLastUpdate } from '@rocket-meals/shared';
 
 export const transformUpdateDatesToMap = (
   array: CollectionsDatesLastUpdate[]

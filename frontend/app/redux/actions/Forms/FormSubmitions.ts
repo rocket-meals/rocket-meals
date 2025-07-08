@@ -1,4 +1,4 @@
-import { FormSubmissions } from '@/constants/types';
+import { FormSubmissions } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 

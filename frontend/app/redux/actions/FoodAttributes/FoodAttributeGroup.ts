@@ -1,4 +1,4 @@
-import { FoodsAttributesGroups } from '@/constants/types';
+import { FoodsAttributesGroups } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 

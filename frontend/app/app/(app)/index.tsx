@@ -20,7 +20,7 @@ import {
 } from '@/redux/Types/types';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { excerpt, getImageUrl } from '@/constants/HelperFunctions';
-import { Buildings, Canteens } from '@/constants/types';
+import { Buildings, Canteens } from '@rocket-meals/shared';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { RootState } from '@/redux/reducer';
 

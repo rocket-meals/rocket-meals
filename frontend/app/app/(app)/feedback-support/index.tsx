@@ -30,7 +30,7 @@ import { FeedbackResponse } from './types';
 import useToast from '@/hooks/useToast';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { AppFeedbacks } from '@/constants/types';
+import { AppFeedbacks } from '@rocket-meals/shared';
 import { RootState } from '@/redux/reducer';
 import { myContrastColor } from '@/helper/colorHelper';
 

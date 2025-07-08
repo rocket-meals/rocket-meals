@@ -13,7 +13,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
 import { useLanguage } from '@/hooks/useLanguage';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
-import { Buildings } from '@/constants/types';
+import { Buildings } from '@rocket-meals/shared';
 import { BusinessHoursHelper } from '@/redux/actions/BusinessHours/BusinessHours';
 import { BusinessHour, HourSheetProps } from './types';
 import { getTextFromTranslation } from '@/helper/resourceHelper';

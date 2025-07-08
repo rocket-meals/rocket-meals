@@ -24,7 +24,7 @@ import { useFocusEffect } from 'expo-router';
 import { replaceLottieColors } from '@/helper/animationHelper';
 import { myContrastColor } from '@/helper/colorHelper';
 import { TranslationKeys } from '@/locales/keys';
-import { FoodsFeedbacks } from '@/constants/types';
+import { FoodsFeedbacks } from '@rocket-meals/shared';
 import { RootState } from '@/redux/reducer';
 
 const NotificationSheet: React.FC<NotificationSheetProps> = ({

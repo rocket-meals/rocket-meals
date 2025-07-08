@@ -9,7 +9,7 @@ import {
   getIconComponent,
   getTextFromTranslation,
 } from '@/helper/resourceHelper';
-import { FoodsFeedbacksLabelsEntries } from '@/constants/types';
+import { FoodsFeedbacksLabelsEntries } from '@rocket-meals/shared';
 import { FoodFeedbackLabelEntryHelper } from '@/redux/actions/FoodFeeedbackLabelEntries/FoodFeedbackLabelEntries';
 import { useDispatch, useSelector } from 'react-redux';
 import {

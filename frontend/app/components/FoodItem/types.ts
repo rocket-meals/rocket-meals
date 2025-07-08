@@ -1,5 +1,5 @@
 import { SHEET_COMPONENTS } from '@/app/(app)/foodoffers';
-import {Foodoffers, Foods, FoodoffersMarkings, Canteens} from '@/constants/types';
+import {Foodoffers, Foods, FoodoffersMarkings, Canteens} from '@rocket-meals/shared';
 
 export interface FoodItemProps {
   item: Foodoffers;

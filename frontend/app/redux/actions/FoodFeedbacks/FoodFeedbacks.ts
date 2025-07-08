@@ -1,4 +1,4 @@
-import { FoodsFeedbacks } from '@/constants/types';
+import { FoodsFeedbacks } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 

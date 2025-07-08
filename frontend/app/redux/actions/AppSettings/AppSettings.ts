@@ -1,4 +1,4 @@
-import { AppSettings } from '@/constants/types';
+import { AppSettings } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 

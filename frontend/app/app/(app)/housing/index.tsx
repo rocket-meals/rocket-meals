@@ -28,7 +28,7 @@ import {
 import { RootDrawerParamList } from './types';
 import { useFocusEffect, useNavigation } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { Apartments, Buildings } from '@/constants/types';
+import { Apartments, Buildings } from '@rocket-meals/shared';
 import {
   SET_APARTMENTS,
   SET_APARTMENTS_DICT,

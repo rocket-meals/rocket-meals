@@ -1,4 +1,4 @@
-import { AppElements } from '@/constants/types';
+import { AppElements } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 

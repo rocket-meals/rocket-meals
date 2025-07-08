@@ -80,7 +80,7 @@ import {
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { Profiles } from '@/constants/types';
+import { Profiles } from '@rocket-meals/shared';
 import { RootState } from '@/redux/reducer';
 
 const Settings = () => {

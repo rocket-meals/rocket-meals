@@ -39,7 +39,7 @@ import * as Linking from 'expo-linking';
 import useToast from '@/hooks/useToast';
 import { getTitleFromTranslation } from '@/helper/resourceHelper';
 import { WikisHelper } from '@/redux/actions/Wikis/Wikis';
-import { Wikis } from '@/constants/types';
+import { Wikis } from '@rocket-meals/shared';
 import { IconProps } from '@expo/vector-icons/build/createIconSet';
 import { AntDesign } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';

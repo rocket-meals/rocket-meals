@@ -1,4 +1,4 @@
-import { Buildings } from '@/constants/types';
+import { Buildings } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 

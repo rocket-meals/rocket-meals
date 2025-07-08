@@ -15,7 +15,7 @@ import { useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
-import { FormSubmissions } from '@/constants/types';
+import { FormSubmissions } from '@rocket-meals/shared';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 

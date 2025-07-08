@@ -1,4 +1,4 @@
-import { Foods } from '@/constants/types';
+import { Foods } from '@rocket-meals/shared';
 
 export interface StatisticsCardProps {
   food: Foods;

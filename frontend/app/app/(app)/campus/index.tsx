@@ -30,7 +30,7 @@ import { useFocusEffect, useNavigation } from 'expo-router';
 import BuildingItem from '@/components/BuildingItem/BuildingItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { CampusHelper } from '@/redux/actions/Campus/Campus';
-import { Buildings } from '@/constants/types';
+import { Buildings } from '@rocket-meals/shared';
 import {
   SET_CAMPUSES,
   SET_CAMPUSES_DICT,

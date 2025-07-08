@@ -1,4 +1,4 @@
-import { Canteens } from '@/constants/types';
+import { Canteens } from '@rocket-meals/shared';
 
 export interface CanteenSelectionSheetProps {
   closeSheet: () => void;

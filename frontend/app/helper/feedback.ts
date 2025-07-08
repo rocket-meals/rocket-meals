@@ -1,4 +1,4 @@
-import { FoodsFeedbacks } from '@/constants/types';
+import { FoodsFeedbacks } from '@rocket-meals/shared';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
 import {
   DELETE_FOOD_FEEDBACK_LOCAL,

@@ -1,6 +1,6 @@
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
-import { Markings } from '@/constants/types'; // Assuming Markings is the required type
+import { Markings } from '@rocket-meals/shared'; // Assuming Markings is the required type
 
 export class MarkingHelper extends CollectionHelper<Markings> {
   constructor(client?: any) {

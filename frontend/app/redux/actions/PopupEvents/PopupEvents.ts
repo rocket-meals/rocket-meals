@@ -1,5 +1,5 @@
 import { itemStatus } from '@/constants/Constants';
-import { PopupEvents } from '@/constants/types';
+import { PopupEvents } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 

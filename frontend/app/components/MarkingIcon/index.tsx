@@ -6,7 +6,7 @@ import { useMyContrastColor } from '@/helper/colorHelper';
 import { iconLibraries } from '../Drawer/CustomDrawerContent';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import styles from './styles';
-import { Markings } from '@/constants/types';
+import { Markings } from '@rocket-meals/shared';
 import { RootState } from '@/redux/reducer';
 
 interface MarkingIconProps {

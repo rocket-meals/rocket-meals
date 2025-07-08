@@ -28,7 +28,7 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
 import { FoodCategoriesHelper } from '@/redux/actions/FoodCategories/FoodCategories';
-import { FoodoffersCategories, FoodsCategories } from '@/constants/types';
+import { FoodoffersCategories, FoodsCategories } from '@rocket-meals/shared';
 import {
   SET_FOOD_CATEGORIES,
   SET_FOOD_OFFERS_CATEGORIES,

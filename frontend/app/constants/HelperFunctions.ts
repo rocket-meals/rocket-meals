@@ -3,7 +3,7 @@ import * as Crypto from 'expo-crypto';
 import { Platform } from 'react-native';
 import { DirectusUsers } from './types';
 import Server from './ServerUrl';
-import { NumberHelper } from '@/helper/numberHelper';
+import { NumberHelper } from '@rocket-meals/shared';
 import { StringHelper } from '@/helper/stringHelper';
 import { ServerAPI } from '@/redux/actions';
 

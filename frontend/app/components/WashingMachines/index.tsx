@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import { Apartments, Washingmachines } from '@/constants/types';
+import { Apartments, Washingmachines } from '@rocket-meals/shared';
 import { differenceInSeconds, format, isAfter, isBefore } from 'date-fns';
 import washingmachine from '@/assets/animations/washingmachine/washingmachine.json';
 import washingmachineEmpty from '@/assets/animations/washingmachine/washingmachineEmpty.json';

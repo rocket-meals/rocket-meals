@@ -1,4 +1,4 @@
-import { Wikis } from '@/constants/types';
+import { Wikis } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 

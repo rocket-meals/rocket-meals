@@ -1,4 +1,4 @@
-import { FoodsFeedbacksLabelsTranslations } from "@/constants/types";
+import { FoodsFeedbacksLabelsTranslations } from "@rocket-meals/shared";
 
 export interface FeedbackLabelProps {
   label: Array<FoodsFeedbacksLabelsTranslations>;

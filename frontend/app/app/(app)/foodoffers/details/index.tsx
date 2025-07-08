@@ -20,7 +20,7 @@ import {
   FoodsFeedbacks,
   FoodsTranslations,
   Profiles,
-} from '@/constants/types';
+} from '@rocket-meals/shared';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
 import { useDispatch, useSelector } from 'react-redux';
 import {

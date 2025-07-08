@@ -18,7 +18,7 @@ import Information from '@/components/Information';
 import BuildingDescription from '@/components/BuildingDescription';
 import { useLocalSearchParams } from 'expo-router';
 import { useSelector } from 'react-redux';
-import { Buildings } from '@/constants/types';
+import { Buildings } from '@rocket-meals/shared';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { useLanguage } from '@/hooks/useLanguage';

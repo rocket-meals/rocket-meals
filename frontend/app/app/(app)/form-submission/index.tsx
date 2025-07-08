@@ -31,7 +31,7 @@ import useToast from '@/hooks/useToast';
 import { FormAnswersHelper } from '@/redux/actions/Forms/FormAnswers';
 import SubmissionWarningModal from '@/components/SubmissionWarningModal/SubmissionWarningModal';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
-import { Buildings, FormAnswers, FormSubmissions } from '@/constants/types';
+import { Buildings, FormAnswers, FormSubmissions } from '@rocket-meals/shared';
 import SingleLineInput from '@/components/SingleLineInput/SingleLineInput';
 import MultiLineInput from '@/components/MultiLineInput/MultiLineInput';
 import IBANInput from '@/components/IBANInput/IBANInput';

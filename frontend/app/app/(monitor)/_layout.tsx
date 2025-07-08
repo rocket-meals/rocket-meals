@@ -4,7 +4,7 @@ import { Stack } from 'expo-router';
 import CustomStackHeader from '@/components/CustomStackHeader/CustomStackHeader';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
-import { AppSettings, Markings, MarkingsGroups } from '@/constants/types';
+import { AppSettings, Markings, MarkingsGroups } from '@rocket-meals/shared';
 import { MarkingGroupsHelper } from '@/redux/actions/MarkingGroups/MarkingGroups';
 import { MarkingHelper } from '@/redux/actions/Markings/Markings';
 import { useDispatch, useSelector } from 'react-redux';

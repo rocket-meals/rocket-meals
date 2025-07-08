@@ -24,7 +24,7 @@ import {
   PopupEvents,
   Profiles,
   Wikis,
-} from '@/constants/types';
+} from '@rocket-meals/shared';
 import {
   SET_APP_ELEMENTS,
   SET_APP_SETTINGS,

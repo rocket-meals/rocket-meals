@@ -26,7 +26,7 @@ import { useLocalSearchParams } from 'expo-router';
 import moment from 'moment';
 import { useLanguage } from '@/hooks/useLanguage';
 import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
-import { FoodsCategories, Markings, MarkingsGroups } from '@/constants/types';
+import { FoodsCategories, Markings, MarkingsGroups } from '@rocket-meals/shared';
 import { MarkingGroupsHelper } from '@/redux/actions/MarkingGroups/MarkingGroups';
 import { MarkingHelper } from '@/redux/actions/Markings/Markings';
 import { UPDATE_MARKINGS } from '@/redux/Types/types';

@@ -1,4 +1,4 @@
-import { Profiles } from '@/constants/types';
+import { Profiles } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper'; // Your helper
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // Your API client
 

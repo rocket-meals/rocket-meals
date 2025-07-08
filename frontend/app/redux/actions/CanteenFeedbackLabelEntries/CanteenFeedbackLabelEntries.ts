@@ -1,6 +1,6 @@
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
-import { CanteensFeedbacksLabelsEntries } from '@/constants/types';
+import { CanteensFeedbacksLabelsEntries } from '@rocket-meals/shared';
 import { itemStatus } from '@/constants/Constants';
 
 export class CanteenFeedbackLabelEntryHelper extends CollectionHelper<CanteensFeedbacksLabelsEntries> {

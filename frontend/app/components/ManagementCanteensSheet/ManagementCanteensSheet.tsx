@@ -11,7 +11,7 @@ import { excerpt, getImageUrl } from '@/constants/HelperFunctions';
 import { useLanguage } from '@/hooks/useLanguage';
 import { CanteenHelper } from '@/redux/actions';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
-import { Buildings, Canteens } from '@/constants/types';
+import { Buildings, Canteens } from '@rocket-meals/shared';
 import { SET_BUILDINGS, SET_CANTEENS } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';

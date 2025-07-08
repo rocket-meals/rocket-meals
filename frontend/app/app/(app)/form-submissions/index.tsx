@@ -18,7 +18,7 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo, FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
-import { FormSubmissions } from '@/constants/types';
+import { FormSubmissions } from '@rocket-meals/shared';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { isWeb } from '@/constants/Constants';

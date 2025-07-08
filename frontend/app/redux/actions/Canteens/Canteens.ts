@@ -1,4 +1,4 @@
-import { Canteens } from '@/constants/types';
+import { Canteens } from '@rocket-meals/shared';
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 

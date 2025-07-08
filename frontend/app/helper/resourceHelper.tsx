@@ -12,7 +12,7 @@ import {
   MarkingsTranslations,
   NewsTranslations,
   WikisTranslations,
-} from '@/constants/types';
+} from '@rocket-meals/shared';
 import { StringHelper } from './stringHelper';
 
 export type TranslationEntry = {

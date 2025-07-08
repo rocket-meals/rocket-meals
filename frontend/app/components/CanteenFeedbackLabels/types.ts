@@ -1,4 +1,4 @@
-import { CanteensFeedbacksLabels, CanteensFeedbacksLabelsTranslations, FoodsFeedbacksLabelsTranslations } from "@/constants/types";
+import { CanteensFeedbacksLabels, CanteensFeedbacksLabelsTranslations, FoodsFeedbacksLabelsTranslations } from "@rocket-meals/shared";
 
 export interface CanteenFeedbackLabelProps {
   label: CanteensFeedbacksLabels;

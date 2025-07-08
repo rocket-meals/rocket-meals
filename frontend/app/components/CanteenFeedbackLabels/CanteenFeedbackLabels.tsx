@@ -15,7 +15,7 @@ import {
 import {
   CanteensFeedbacksLabelsEntries,
   FoodsFeedbacksLabelsEntries,
-} from '@/constants/types';
+} from '@rocket-meals/shared';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   DELETE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES,

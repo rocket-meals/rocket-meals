@@ -22,7 +22,7 @@ import {
 import AttentionSheet from '@/components/Login/AttentionSheet';
 import useToast from '@/hooks/useToast';
 import { updateLoginStatus } from '@/constants/HelperFunctions';
-import { AppSettings, DirectusUsers, Wikis } from '@/constants/types';
+import { AppSettings, DirectusUsers, Wikis } from '@rocket-meals/shared';
 import { format } from 'date-fns';
 import { WikisHelper } from '@/redux/actions/Wikis/Wikis';
 import { AppSettingsHelper } from '@/redux/actions/AppSettings/AppSettings';

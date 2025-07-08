@@ -12,7 +12,7 @@ import {
   aggregate,
   withToken,
 } from '@directus/sdk';
-import { CustomDirectusTypes } from '@/constants/types';
+import { CustomDirectusTypes } from '@rocket-meals/shared';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 
 // Define types for queries and filters

@@ -21,7 +21,7 @@ import { useSelector } from 'react-redux';
 import { useFocusEffect } from 'expo-router';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
-import { UtilizationsEntries } from '@/constants/types';
+import { UtilizationsEntries } from '@rocket-meals/shared';
 import { RootState } from '@/redux/reducer';
 
 const ForecastSheet: React.FC<ForecastSheetProps> = ({

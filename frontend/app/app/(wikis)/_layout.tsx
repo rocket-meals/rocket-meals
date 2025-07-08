@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { Stack } from 'expo-router';
-import { Wikis } from '@/constants/types';
+import { Wikis } from '@rocket-meals/shared';
 import { SET_WIKIS } from '@/redux/Types/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { WikisHelper } from '@/redux/actions/Wikis/Wikis';

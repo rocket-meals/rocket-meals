@@ -1,6 +1,6 @@
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
-import { FoodsFeedbacksLabelsEntries } from '@/constants/types';
+import { FoodsFeedbacksLabelsEntries } from '@rocket-meals/shared';
 
 export class FoodFeedbackLabelEntryHelper extends CollectionHelper<FoodsFeedbacksLabelsEntries> {
   constructor(client?: any) {

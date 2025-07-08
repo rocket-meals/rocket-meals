@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
 import { isWeb } from '@/constants/Constants';
 import { FormAnswersHelper } from '@/redux/actions/Forms/FormAnswers';
-import { FormAnswers } from '@/constants/types';
+import { FormAnswers } from '@rocket-meals/shared';
 import { deleteDirectusFile } from '@/constants/HelperFunctions';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
