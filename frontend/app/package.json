@@ -42,6 +42,7 @@
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/drawer": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
+    "@rocket-meals/shared": "file:../../shared",
     "axios": "^1.7.7",
     "buffer": "^6.0.3",
     "date-fns": "^4.1.0",
