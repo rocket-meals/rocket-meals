@@ -1,4 +1,6 @@
 
+import { MathUtil } from '@rocket-meals/shared';
+
 export class TimerHelper {
 
     private name: string;
@@ -30,7 +32,7 @@ export class TimerHelper {
 
     calcEstimatedFinishedDate(current_count: number) {
         //console.log("calcEstimatedFinishedDate: current_count: "+current_count)
-        let timeSpent = (this.private_getNow() - this.startTime) / 1000; // Time spent in seconds
+        let timeSpent = MathUtil.divide(MathUtil.subtract(this.private_getNow(), this.startTime), 1000); // Time spent in seconds
         //console.log("timeSpent: "+timeSpent);
         let averageTimePerTransaction = timeSpent / current_count;
         //console.log("averageTimePerTransaction: "+averageTimePerTransaction)

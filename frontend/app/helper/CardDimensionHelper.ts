@@ -1,3 +1,5 @@
+import { MathUtil } from '@rocket-meals/shared';
+
 export default class CardDimensionHelper {
   static getCardDimension(screenWidth: number): number {
     const dimensionMap = [
@@ -27,7 +29,7 @@ export default class CardDimensionHelper {
 
   static getCardWidth(screenWidth: number, columns: number): number {
     const offset = screenWidth < 500 ? 10 : screenWidth < 900 ? 25 : 35;
-    return screenWidth / columns - offset;
+    return MathUtil.subtract(screenWidth / columns, offset);
   }
 
   static getNumColumns(screenWidth: number, columnsSetting: number): number {
