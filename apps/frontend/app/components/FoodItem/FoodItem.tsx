@@ -27,7 +27,7 @@ import {
   getDescriptionFromTranslation,
   getTextFromTranslation,
 } from '@/helper/resourceHelper';
-import { Foods, Markings, ProfilesMarkings } from '@/constants/types';
+import { Foods, Markings } from '@/constants/types';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   SET_MARKING_DETAILS,
@@ -43,6 +43,7 @@ import useToast from '@/hooks/useToast';
 import { handleFoodRating } from '@/helper/feedback';
 import { RootState } from '@/redux/reducer';
 import CardDimensionHelper from '@/helper/CardDimensionHelper';
+import { MarkingHelper } from 'repo-depkit-common';
 
 const selectFoodState = (state: RootState) => state.food;
 
@@ -131,12 +132,9 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 
     const dislikedMarkings = useMemo(
       () =>
-        item?.markings?.filter((marking) =>
-          profile?.markings?.some(
-            (profileMarking: ProfilesMarkings) =>
-              profileMarking?.markings_id === marking?.markings_id &&
-              profileMarking?.like === false
-          )
+        MarkingHelper.filterDislikedMarkings(
+          item?.markings as any,
+          profile?.markings as any
         ),
       [item?.markings, profile?.markings]
     );
