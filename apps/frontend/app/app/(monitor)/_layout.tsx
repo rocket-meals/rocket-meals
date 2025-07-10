@@ -38,11 +38,10 @@ export default function MonitorLayout() {
   };
 
   const getAppSettings = async () => {
-    const result = (await appSettingsHelper.fetchAppSettings(
-      {}
-    )) as DatabaseTypes.AppSettings;
-    if (result) {
-      dispatch({ type: SET_APP_SETTINGS, payload: result });
+    const result = (await appSettingsHelper.fetchAppSettings({})) as
+      DatabaseTypes.AppSettings[];
+    if (Array.isArray(result) && result.length > 0) {
+      dispatch({ type: SET_APP_SETTINGS, payload: result[0] });
     }
   };
 

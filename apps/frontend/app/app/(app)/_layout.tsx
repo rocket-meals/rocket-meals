@@ -352,9 +352,9 @@ export default function Layout() {
     try {
       const result = (await appSettingsHelper.fetchAppSettings(
         {}
-      )) as DatabaseTypes.AppSettings;
-      if (result) {
-        dispatch({ type: SET_APP_SETTINGS, payload: result });
+      )) as DatabaseTypes.AppSettings[];
+      if (Array.isArray(result) && result.length > 0) {
+        dispatch({ type: SET_APP_SETTINGS, payload: result[0] });
       }
     } catch (error) {
       console.error('Error fetching app settings:', error);
