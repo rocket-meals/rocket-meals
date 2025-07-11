@@ -18,6 +18,7 @@ import { BarChart } from 'react-native-chart-kit';
 import { format, parseISO } from 'date-fns';
 import { UtilizationEntryHelper } from '@/redux/actions/UtilizationEntries/UtilizationEntries';
 import { useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { useFocusEffect } from 'expo-router';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
@@ -32,9 +33,7 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({
   const { translate } = useLanguage();
   const utilizationEntryHelper = new UtilizationEntryHelper();
   const [loading, setLoading] = useState(false);
-  const { selectedCanteen } = useSelector(
-    (state: RootState) => state.canteenReducer
-  );
+  const selectedCanteen = useSelectedCanteen();
   const scrollViewRef = useRef<ScrollView>(null);
   const [chartData, setChartData] = useState<any>({
     labels: [],

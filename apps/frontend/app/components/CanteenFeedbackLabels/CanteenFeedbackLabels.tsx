@@ -14,6 +14,7 @@ import {
 } from '@/helper/resourceHelper';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { useDispatch, useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import {
   DELETE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES,
   UPDATE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES,
@@ -48,9 +49,10 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({
   const { user, profile } = useSelector(
     (state: RootState) => state.authReducer
   );
-  const { selectedCanteen, ownCanteenFeedBackLabelEntries } = useSelector(
+  const { ownCanteenFeedBackLabelEntries } = useSelector(
     (state: RootState) => state.canteenReducer
   );
+  const selectedCanteen = useSelectedCanteen();
   const foods_area_color = appSettings?.foods_area_color
     ? appSettings?.foods_area_color
     : primaryColor;

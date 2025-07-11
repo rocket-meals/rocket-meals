@@ -41,6 +41,7 @@ import {
   days,
 } from '../../../constants/SettingData';
 import { useDispatch, useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import AmountColumns from '@/components/AmountColumn/AmountColumns';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
@@ -118,9 +119,7 @@ const Settings = () => {
     amountColumnsForcard,
     serverInfo,
   } = useSelector((state: RootState) => state.settings);
-  const { selectedCanteen } = useSelector(
-    (state: RootState) => state.canteenReducer
-  );
+  const selectedCanteen = useSelectedCanteen();
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get('window').width
   );

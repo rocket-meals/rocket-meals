@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { CanteenHelper } from '@/redux/actions/Canteens/Canteens';
@@ -33,9 +34,10 @@ const Home = () => {
   const { serverInfo } = useSelector((state: RootState) => state.settings);
   const { isManagement } = useSelector((state: RootState) => state.authReducer);
   const [loading, setLoading] = useState(false);
-  const { canteens, selectedCanteen } = useSelector(
+  const { canteens } = useSelector(
     (state: RootState) => state.canteenReducer
   );
+  const selectedCanteen = useSelectedCanteen();
   const defaultImage = getImageUrl(serverInfo?.info?.project?.project_logo);
   const [screenWidth, setScreenWidth] = useState(
     Dimensions.get('window').width

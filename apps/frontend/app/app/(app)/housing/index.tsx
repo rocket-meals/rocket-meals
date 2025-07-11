@@ -28,6 +28,7 @@ import {
 import { RootDrawerParamList } from './types';
 import { useFocusEffect, useNavigation } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { DatabaseTypes } from 'repo-depkit-common';
 import {
   SET_APARTMENTS,
@@ -73,9 +74,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
   const [screenWidth, setScreenWidth] = useState(
     Dimensions.get('window').width
   );
-  const { selectedCanteen } = useSelector(
-    (state: RootState) => state.canteenReducer
-  );
+  const selectedCanteen = useSelectedCanteen();
   const {
     drawerPosition,
     apartmentsSortBy,

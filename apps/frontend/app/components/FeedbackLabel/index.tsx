@@ -12,6 +12,7 @@ import {
 import { DatabaseTypes } from 'repo-depkit-common';
 import { FoodFeedbackLabelEntryHelper } from '@/redux/actions/FoodFeeedbackLabelEntries/FoodFeedbackLabelEntries';
 import { useDispatch, useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import {
   DELETE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES_LOCAL,
   UPDATE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES_LOCAL,
@@ -44,9 +45,7 @@ const FeedbackLabel: React.FC<FeedbackLabelProps> = ({
   const { user, profile } = useSelector(
     (state: RootState) => state.authReducer
   );
-  const { selectedCanteen } = useSelector(
-    (state: RootState) => state.canteenReducer
-  );
+  const selectedCanteen = useSelectedCanteen();
   const foodFeedbackLabelEntryHelper = new FoodFeedbackLabelEntryHelper();
   const foods_area_color = appSettings?.foods_area_color
     ? appSettings?.foods_area_color

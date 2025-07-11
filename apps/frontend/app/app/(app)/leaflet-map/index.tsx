@@ -1,5 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { Text, Platform } from 'react-native';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
@@ -21,9 +22,10 @@ const POSITION_BUNDESTAG = {
 const LeafletMap = () => {
   useSetPageTitle(TranslationKeys.leaflet_map);
 
-  const { selectedCanteen, buildings } = useSelector(
+  const { buildings } = useSelector(
       (state: RootState) => state.canteenReducer
   );
+  const selectedCanteen = useSelectedCanteen();
 
   const [markerIconSrc, setMarkerIconSrc] = useState<string | null>(null);
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);

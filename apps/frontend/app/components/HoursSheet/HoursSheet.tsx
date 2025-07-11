@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
@@ -62,9 +63,10 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
   const { language, firstDayOfTheWeek } = useSelector(
     (state: RootState) => state.settings
   );
-  const { selectedCanteen, businessHoursGroups } = useSelector(
+  const { businessHoursGroups } = useSelector(
     (state: RootState) => state.canteenReducer
   );
+  const selectedCanteen = useSelectedCanteen();
   const ScreenWidth = Dimensions.get('window').width;
   const buildingsHelper = new BuildingsHelper();
   const businessHoursHelper = new BusinessHoursHelper();

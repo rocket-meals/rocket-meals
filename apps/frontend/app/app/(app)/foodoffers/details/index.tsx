@@ -18,6 +18,7 @@ import {
 import { DatabaseTypes } from 'repo-depkit-common';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
 import { useDispatch, useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import {
   DELETE_FOOD_FEEDBACK_LOCAL,
   UPDATE_FOOD_FEEDBACK_LOCAL,
@@ -104,9 +105,7 @@ export default function FoodDetailsScreen() {
     getImageUrl(serverInfo?.info?.project?.project_logo);
 
   const [warning, setWarning] = useState(false);
-  const { selectedCanteen } = useSelector(
-    (state: RootState) => state.canteenReducer
-  );
+  const selectedCanteen = useSelectedCanteen();
   const foodOfferCanteenId = selectedCanteen?.id as string | undefined;
   const [foodDetails, setFoodDetails] = useState<any>(null);
 

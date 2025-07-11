@@ -29,6 +29,7 @@ import { RootDrawerParamList } from './types';
 import { useFocusEffect, useNavigation } from 'expo-router';
 import BuildingItem from '@/components/BuildingItem/BuildingItem';
 import { useDispatch, useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { CampusHelper } from '@/redux/actions/Campus/Campus';
 import { DatabaseTypes } from 'repo-depkit-common';
 import {
@@ -76,9 +77,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
   const { campuses, campusesLocal, unSortedCampuses } = useSelector(
     (state: RootState) => state.campus
   );
-  const { selectedCanteen } = useSelector(
-    (state: RootState) => state.canteenReducer
-  );
+  const selectedCanteen = useSelectedCanteen();
   const drawerNavigation =
     useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
 

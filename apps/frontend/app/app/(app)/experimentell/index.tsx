@@ -8,15 +8,17 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { RootState } from '@/redux/reducer';
 
 const index = () => {
   useSetPageTitle(TranslationKeys.experimentell);
   const { translate } = useLanguage();
   const { theme } = useTheme();
-  const { selectedCanteen, buildings } = useSelector(
+  const { buildings } = useSelector(
     (state: RootState) => state.canteenReducer
   );
+  const selectedCanteen = useSelectedCanteen();
 
   const buildingPosition = useMemo(() => {
     if (selectedCanteen?.building) {

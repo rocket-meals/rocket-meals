@@ -27,6 +27,7 @@ import { isWeb } from '@/constants/Constants';
 import FoodItem from '@/components/FoodItem/FoodItem';
 import { useFocusEffect, useNavigation, useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { fetchFoodOffersByCanteen } from '@/redux/actions/FoodOffers/FoodOffers';
 import {
   SET_BUSINESS_HOURS,
@@ -143,8 +144,10 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
     (state: RootState) => state.authReducer
   );
   const { appElements } = useSelector((state: RootState) => state.appElements);
-  const { selectedCanteen, selectedCanteenFoodOffers, canteenFeedbackLabels } =
-    useSelector((state: RootState) => state.canteenReducer);
+  const { selectedCanteenFoodOffers, canteenFeedbackLabels } = useSelector(
+    (state: RootState) => state.canteenReducer,
+  );
+  const selectedCanteen = useSelectedCanteen();
   const [prefetchedFoodOffers, setPrefetchedFoodOffers] = useState<
     Record<string, Record<string, DatabaseTypes.Foodoffers[]>>
   >({});

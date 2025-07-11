@@ -3,6 +3,7 @@ import { Drawer } from 'expo-router/drawer';
 import CustomDrawerContent from '@/components/Drawer/CustomDrawerContent';
 import { useTheme } from '@/hooks/useTheme';
 import { useDispatch, useSelector } from 'react-redux';
+import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { Redirect, useGlobalSearchParams } from 'expo-router';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
 import { DatabaseTypes } from 'repo-depkit-common';
@@ -103,9 +104,10 @@ export default function Layout() {
   const { loggedIn, user } = useSelector(
     (state: RootState) => state.authReducer
   );
-  const { canteens, selectedCanteen } = useSelector(
+  const { canteens } = useSelector(
     (state: RootState) => state.canteenReducer
   );
+  const selectedCanteen = useSelectedCanteen();
 
   useEffect(() => {
     const autoLogin = async () => {
