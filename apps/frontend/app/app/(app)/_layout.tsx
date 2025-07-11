@@ -57,6 +57,10 @@ import { TranslationKeys } from '@/locales/keys';
 import { CollectionLastUpdateHelper } from '@/redux/actions/CollectionLastUpdate/CollectionLastUpdate';
 import { transformUpdateDatesToMap } from '@/helper/dateMap';
 import { shouldFetch } from '@/helper/shouldFetch';
+import { updateLoginStatus } from '@/constants/HelperFunctions';
+import { format } from 'date-fns';
+import { CanteenHelper } from '@/redux/actions/Canteens/Canteens';
+import { SET_CANTEENS, SET_SELECTED_CANTEEN, UPDATE_PRIVACY_POLICY_DATE } from '@/redux/Types/types';
 // TODO: replace HashHelper with expo-crypto once packages can be installed
 import { HashHelper } from '@/helper/hashHelper';
 import { CollectionKeys } from '@/constants/collectionKeys';
@@ -67,7 +71,7 @@ import { sortMarkingsByGroup, sortBySortField } from '@/helper/sortingHelper';
 export default function Layout() {
   const { theme } = useTheme();
   const { translate } = useLanguage();
-  const { deviceMock } = useGlobalSearchParams();
+  const { deviceMock, kioskMode } = useGlobalSearchParams();
   const dispatch = useDispatch();
   const wikisHelper = new WikisHelper();
   const markingHelper = new MarkingHelper();
@@ -99,8 +103,41 @@ export default function Layout() {
   const { loggedIn, user } = useSelector(
     (state: RootState) => state.authReducer
   );
+  const { canteens, selectedCanteen } = useSelector(
+    (state: RootState) => state.canteenReducer
+  );
 
-  if (!loggedIn) {
+  useEffect(() => {
+    const autoLogin = async () => {
+      if (kioskMode === 'true' && !loggedIn) {
+        updateLoginStatus(dispatch, { id: '' } as any);
+        const currentDate = format(new Date(), 'dd.MM.yyyy HH:mm:ss');
+        dispatch({ type: UPDATE_PRIVACY_POLICY_DATE, payload: currentDate });
+      }
+    };
+    autoLogin();
+  }, [kioskMode, loggedIn]);
+
+  useEffect(() => {
+    const selectCanteen = async () => {
+      if (kioskMode === 'true' && !selectedCanteen) {
+        try {
+          const helper = new CanteenHelper();
+          const result = (await helper.fetchCanteens({})) as DatabaseTypes.Canteens[];
+          const published = result.filter((c) => c.status === 'published');
+          if (published.length > 0) {
+            dispatch({ type: SET_CANTEENS, payload: published });
+            dispatch({ type: SET_SELECTED_CANTEEN, payload: published[0] });
+          }
+        } catch (error) {
+          console.error('Error fetching canteens:', error);
+        }
+      }
+    };
+    selectCanteen();
+  }, [kioskMode, selectedCanteen]);
+
+  if (!loggedIn && kioskMode !== 'true') {
     return <Redirect href='/(auth)/login' />;
   }
 
