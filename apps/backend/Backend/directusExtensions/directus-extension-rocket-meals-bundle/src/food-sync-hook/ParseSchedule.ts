@@ -288,35 +288,114 @@ export class ParseSchedule {
 
 
     /**
-     * As we recieved a new food offer list, we delete all offers that are in the future and newer than the latest date in the list.
-     * @param foodofferDatesToDelete
+     * Delete existing food offers that differ from the newly parsed list. The
+     * comparison is done per canteen and per day. Offers are only removed when
+     * their set of foods differs from the current report. The deletion range is
+     * limited to the earliest and latest date of the new report.
      */
     async deleteRequiredFoodOffersForTheirCanteens(foodoffersForParser: FoodoffersTypeForParser[]) {
-        let foodoffersForParserGroupedByCanteen: Record<string, FoodoffersTypeForParser[]> = {};
-        for (let foodofferForParser of foodoffersForParser) {
-            let key = foodofferForParser.canteen_external_identifier;
+        const foodoffersForParserGroupedByCanteen: Record<string, FoodoffersTypeForParser[]> = {};
+        for (const foodofferForParser of foodoffersForParser) {
+            const key = foodofferForParser.canteen_external_identifier;
             if (!foodoffersForParserGroupedByCanteen[key]) {
                 foodoffersForParserGroupedByCanteen[key] = [];
             }
             foodoffersForParserGroupedByCanteen[key].push(foodofferForParser);
         }
 
-        let canteenExternalIdentifiers = Object.keys(foodoffersForParserGroupedByCanteen);
-        for (let canteenExternalIdentifier of canteenExternalIdentifiers) {
+        const canteenExternalIdentifiers = Object.keys(foodoffersForParserGroupedByCanteen);
+        for (const canteenExternalIdentifier of canteenExternalIdentifiers) {
             await this.logger.appendLog("Delete required foodoffers for canteen: " + canteenExternalIdentifier);
-            let canteen = await this.findOrCreateCanteenByExternalIdentifier(canteenExternalIdentifier);
-            if (!!canteen) {
+            const canteen = await this.findOrCreateCanteenByExternalIdentifier(canteenExternalIdentifier);
+            if (!canteen) {
+                continue;
+            }
 
-                // first delete all food offers for canteen without dates
-                let foodoffers_import_delete_all_without_dates = canteen.foodoffers_import_delete_all_without_dates
-                if (foodoffers_import_delete_all_without_dates) {
-                    await this.deleteAllFoodoffersForCanteenWithoutDates(canteen);
+            // first delete all food offers without dates if configured
+            const foodoffers_import_delete_all_without_dates = canteen.foodoffers_import_delete_all_without_dates;
+            if (foodoffers_import_delete_all_without_dates) {
+                await this.deleteAllFoodoffersForCanteenWithoutDates(canteen);
+            }
+
+            const foodoffersForParserForCanteen = foodoffersForParserGroupedByCanteen[canteenExternalIdentifier] || [];
+            if (foodoffersForParserForCanteen.length === 0) {
+                continue;
+            }
+
+            // determine earliest and latest date from new report
+            const foodofferDates = this.getFoodofferDatesFromRawFoodofferJSONList(foodoffersForParserForCanteen);
+            let earliestDate: string | null = null;
+            let latestDate: string | null = null;
+            for (const dateObj of foodofferDates) {
+                const iso = DateHelper.foodofferDateTypeToString(dateObj);
+                if (!earliestDate || iso < earliestDate) {
+                    earliestDate = iso;
                 }
+                if (!latestDate || iso > latestDate) {
+                    latestDate = iso;
+                }
+            }
 
-                // now delete all food offers that are in the future and newer than the latest date in the list
-                let foodoffersForParserForCanteen = foodoffersForParserGroupedByCanteen[canteenExternalIdentifier] || [];
-                let foodofferDatesToDelete = this.getFoodofferDatesFromRawFoodofferJSONList(foodoffersForParserForCanteen);
-                await this.deleteFoodOffersNewerOrEqualThanDate(foodofferDatesToDelete, canteen);
+            if (!earliestDate || !latestDate) {
+                continue;
+            }
+
+            const itemService = await this.myDatabaseHelper.getFoodoffersHelper();
+            const existingOffers = await itemService.readByQuery({
+                filter: {
+                    _and: [
+                        {
+                            date: {
+                                _gte: earliestDate,
+                                _lte: latestDate
+                            }
+                        },
+                        {
+                            canteen: {
+                                _eq: canteen.id
+                            }
+                        }
+                    ]
+                },
+                fields: ['id', 'food', 'date'],
+                limit: -1
+            });
+
+            const newOffersByDate: Record<string, string[]> = {};
+            for (const foodoffer of foodoffersForParserForCanteen) {
+                const dateStr = DateHelper.foodofferDateTypeToString(foodoffer.date);
+                if (!newOffersByDate[dateStr]) {
+                    newOffersByDate[dateStr] = [];
+                }
+                newOffersByDate[dateStr].push(String(foodoffer.food_id));
+            }
+            for (const dateStr of Object.keys(newOffersByDate)) {
+                newOffersByDate[dateStr].sort();
+            }
+
+            const existingOffersByDate: Record<string, DatabaseTypes.Foodoffers[]> = {};
+            for (const existing of existingOffers) {
+                const dateStr = String(existing.date);
+                if (!existingOffersByDate[dateStr]) {
+                    existingOffersByDate[dateStr] = [];
+                }
+                existingOffersByDate[dateStr].push(existing);
+            }
+            for (const dateStr of Object.keys(existingOffersByDate)) {
+                existingOffersByDate[dateStr].sort((a, b) => String(a.food).localeCompare(String(b.food)));
+            }
+
+            const allDates = new Set([...Object.keys(newOffersByDate), ...Object.keys(existingOffersByDate)]);
+            for (const dateStr of allDates) {
+                const parserFoodIds = newOffersByDate[dateStr] || [];
+                const dbEntries = existingOffersByDate[dateStr] || [];
+                const dbFoodIds = dbEntries.map(e => String(e.food)).sort();
+                const sortedParserFoodIds = [...parserFoodIds].sort();
+
+                const isSame = sortedParserFoodIds.length === dbFoodIds.length && sortedParserFoodIds.every((val, idx) => val === dbFoodIds[idx]);
+                if (!isSame) {
+                    await this.deleteFoodOffers(dbEntries, `Delete outdated food offers for ${dateStr} in canteen: ${canteen.id}`);
+                }
             }
         }
     }
