@@ -43,6 +43,7 @@ import useToast from '@/hooks/useToast';
 import { handleFoodRating } from '@/helper/feedback';
 import { RootState } from '@/redux/reducer';
 import CardDimensionHelper from '@/helper/CardDimensionHelper';
+import CardWithText from '../CardWithText/CardWithText';
 
 const selectFoodState = (state: RootState) => state.food;
 
@@ -199,21 +200,8 @@ const FoodItem: React.FC<FoodItemProps> = memo(
         <Tooltip
           placement='top'
           trigger={(triggerProps) => (
-            <TouchableOpacity
+            <CardWithText
               {...triggerProps}
-              style={{
-                ...styles.card,
-                width:
-                  amountColumnsForcard === 0
-                    ? CardDimensionHelper.getCardDimension(screenWidth)
-                    : CardDimensionHelper.getCardWidth(
-                        screenWidth,
-                        amountColumnsForcard
-                      ),
-                backgroundColor: theme.card.background,
-                borderWidth: dislikedMarkings.length > 0 ? 3 : 0,
-                borderColor: '#FF000095',
-              }}
               onPress={() => {
                 if (item.redirect_url) {
                   openInBrowser(item.redirect_url);
@@ -226,78 +214,148 @@ const FoodItem: React.FC<FoodItemProps> = memo(
                   handleNavigation(item?.id, foodId);
                 }
               }}
-            >
-              <View
-                style={{
-                  ...styles.imageContainer,
-                  height:
-                    amountColumnsForcard === 0
-                      ? CardDimensionHelper.getCardDimension(screenWidth)
-                      : CardDimensionHelper.getCardWidth(
-                          screenWidth,
-                          amountColumnsForcard
-                        ),
-                }}
-              >
-                <Image
-                  style={{
-                    ...styles.image,
-                    borderColor: foods_area_color,
-                  }}
-                  source={
-                    foodItem?.image_remote_url || foodItem?.image
-                      ? {
-                          uri:
-                            foodItem?.image_remote_url ||
-                            getImageUrl(foodItem?.image),
-                        }
-                      : { uri: defaultImage }
-                  }
-                />
-                {isManagement && (
-                  <Tooltip
-                    placement='top'
-                    trigger={(triggerProps) => (
-                      <TouchableOpacity
-                        {...triggerProps}
-                        style={styles.editImageButton}
-                        onPress={() => {
-                          setSelectedFoodId(item?.food?.id);
-                          handleImageSheet(item?.food?.id);
-                        }}
-                      >
-                        <MaterialCommunityIcons
-                          name='image-edit'
-                          size={20}
-                          color={'white'}
-                        />
-                      </TouchableOpacity>
-                    )}
-                  >
-                    <TooltipContent
-                      bg={theme.tooltip.background}
-                      py='$1'
-                      px='$2'
-                    >
-                      <TooltipText fontSize='$sm' color={theme.tooltip.text}>
-                        {`${translate(TranslationKeys.edit)}: ${translate(
-                          TranslationKeys.image
-                        )}`}
-                      </TooltipText>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-                <TouchableOpacity style={styles.favContainer}>
-                  {previousFeedback?.rating === 5 ? (
+              imageSource={
+                foodItem?.image_remote_url || foodItem?.image
+                  ? {
+                      uri:
+                        foodItem?.image_remote_url || getImageUrl(foodItem?.image),
+                    }
+                  : { uri: defaultImage }
+              }
+              containerStyle={{
+                ...styles.card,
+                width:
+                  amountColumnsForcard === 0
+                    ? CardDimensionHelper.getCardDimension(screenWidth)
+                    : CardDimensionHelper.getCardWidth(
+                        screenWidth,
+                        amountColumnsForcard
+                      ),
+                backgroundColor: theme.card.background,
+                borderWidth: dislikedMarkings.length > 0 ? 3 : 0,
+                borderColor: '#FF000095',
+              }}
+              imageContainerStyle={{
+                ...styles.imageContainer,
+                height:
+                  amountColumnsForcard === 0
+                    ? CardDimensionHelper.getCardDimension(screenWidth)
+                    : CardDimensionHelper.getCardWidth(
+                        screenWidth,
+                        amountColumnsForcard
+                      ),
+              }}
+              contentStyle={{
+                ...styles.cardContent,
+                gap: isWeb ? 15 : 5,
+                borderColor: foods_area_color,
+                paddingHorizontal: isWeb
+                  ? screenWidth > 550
+                    ? 5
+                    : screenWidth > 360
+                    ? 5
+                    : 5
+                  : 5,
+              }}
+              imageChildren={
+                <>
+                  {isManagement && (
                     <Tooltip
                       placement='top'
                       trigger={(triggerProps) => (
                         <TouchableOpacity
                           {...triggerProps}
-                          onPress={() => updateRating(null)}
+                          style={styles.editImageButton}
+                          onPress={() => {
+                            setSelectedFoodId(item?.food?.id);
+                            handleImageSheet(item?.food?.id);
+                          }}
                         >
-                          <AntDesign
-                            name='star'
+                          <MaterialCommunityIcons
+                            name='image-edit'
+                            size={20}
+                            color={'white'}
+                          />
+                        </TouchableOpacity>
+                      )}
+                    >
+                      <TooltipContent
+                        bg={theme.tooltip.background}
+                        py='$1'
+                        px='$2'
+                      >
+                        <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                          {`${translate(TranslationKeys.edit)}: ${translate(
+                            TranslationKeys.image
+                          )}`}
+                        </TooltipText>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                  <TouchableOpacity style={styles.favContainer}>
+                    {previousFeedback?.rating === 5 ? (
+                      <Tooltip
+                        placement='top'
+                        trigger={(triggerProps) => (
+                          <TouchableOpacity
+                            {...triggerProps}
+                            onPress={() => updateRating(null)}
+                          >
+                            <AntDesign
+                              name='star'
+                              size={20}
+                              color={foods_area_color}
+                            />
+                          </TouchableOpacity>
+                        )}
+                      >
+                        <TooltipContent
+                          bg={theme.tooltip.background}
+                          py='$1'
+                          px='$2'
+                        >
+                          <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                            {translate(TranslationKeys.set_rate_as_not_favorite)}
+                          </TooltipText>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <Tooltip
+                        placement='top'
+                        trigger={(triggerProps) => (
+                          <TouchableOpacity
+                            {...triggerProps}
+                            onPress={() => updateRating(5)}
+                          >
+                            <AntDesign name='staro' size={20} color={'white'} />
+                          </TouchableOpacity>
+                        )}
+                      >
+                        <TooltipContent
+                          bg={theme.tooltip.background}
+                          py='$1'
+                          px='$2'
+                        >
+                          <TooltipText fontSize='$sm' color={theme.tooltip.text}>
+                            {translate(TranslationKeys.set_rate_as_favorite)}
+                          </TooltipText>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </TouchableOpacity>
+                  {dislikedMarkings.length > 0 && (
+                    <Tooltip
+                      placement='top'
+                      trigger={(triggerProps) => (
+                        <TouchableOpacity
+                          style={{
+                            ...styles.favContainerWarn,
+                          }}
+                          {...triggerProps}
+                          onPress={handleOpenSheet}
+                        >
+                          <MaterialIcons
+                            name='warning'
                             size={20}
                             color={foods_area_color}
                           />
@@ -310,183 +368,113 @@ const FoodItem: React.FC<FoodItemProps> = memo(
                         px='$2'
                       >
                         <TooltipText fontSize='$sm' color={theme.tooltip.text}>
-                          {translate(TranslationKeys.set_rate_as_not_favorite)}
-                        </TooltipText>
-                      </TooltipContent>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip
-                      placement='top'
-                      trigger={(triggerProps) => (
-                        <TouchableOpacity
-                          {...triggerProps}
-                          onPress={() => updateRating(5)}
-                        >
-                          <AntDesign name='staro' size={20} color={'white'} />
-                        </TouchableOpacity>
-                      )}
-                    >
-                      <TooltipContent
-                        bg={theme.tooltip.background}
-                        py='$1'
-                        px='$2'
-                      >
-                        <TooltipText fontSize='$sm' color={theme.tooltip.text}>
-                          {translate(TranslationKeys.set_rate_as_favorite)}
+                          {`${translate(TranslationKeys.attention)} ${translate(
+                            TranslationKeys.eating_habits
+                          )}`}
                         </TooltipText>
                       </TooltipContent>
                     </Tooltip>
                   )}
-                </TouchableOpacity>
-                {dislikedMarkings.length > 0 && (
+                  <View style={styles.categoriesContainer}>
+                    {markingsData?.map((mark: any) => {
+                      const description = getDescriptionFromTranslation(
+                        mark?.translations,
+                        language
+                      );
+                      if ((mark?.image_remote_url || mark?.image) && description)
+                        return (
+                          <TouchableOpacity
+                            key={mark.id}
+                            onPress={() => openMarkingLabel(mark)}
+                          >
+                            <Image
+                              source={
+                                mark?.image_remote_url || mark?.image
+                                  ? {
+                                      uri:
+                                        mark?.image_remote_url ||
+                                        getImageUrl(mark?.image),
+                                    }
+                                  : { uri: defaultImage }
+                              }
+                              style={{
+                                ...styles.categoryLogo,
+                                backgroundColor:
+                                  mark?.background_color && mark?.background_color,
+                                borderRadius: mark?.background_color
+                                  ? 8
+                                  : mark.hide_border
+                                  ? 5
+                                  : 0,
+                              }}
+                            />
+                          </TouchableOpacity>
+                        );
+                    })}
+                  </View>
                   <Tooltip
                     placement='top'
                     trigger={(triggerProps) => (
                       <TouchableOpacity
-                        style={{
-                          ...styles.favContainerWarn,
-                        }}
+                        style={styles.priceTag}
                         {...triggerProps}
-                        onPress={handleOpenSheet}
+                        onPress={handlePriceChange}
                       >
-                        <MaterialIcons
-                          name='warning'
-                          size={20}
-                          color={foods_area_color}
-                        />
+                        <Text style={styles.priceText}>
+                          {showFormatedPrice(showPrice(item, profile))}
+                        </Text>
                       </TouchableOpacity>
                     )}
                   >
-                    <TooltipContent
-                      bg={theme.tooltip.background}
-                      py='$1'
-                      px='$2'
-                    >
+                    <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
                       <TooltipText fontSize='$sm' color={theme.tooltip.text}>
-                        {`${translate(TranslationKeys.attention)} ${translate(
-                          TranslationKeys.eating_habits
+                        {`${showFormatedPrice(
+                          showPrice(item, profile)
+                        )} - ${translate(TranslationKeys.edit)}: ${translate(
+                          TranslationKeys.price_group
+                        )} ${translate(
+                          profile?.price_group ? getPriceGroup(profile?.price_group) : ''
                         )}`}
                       </TooltipText>
                     </TooltipContent>
                   </Tooltip>
-                )}
-                <View style={styles.categoriesContainer}>
-                  {markingsData?.map((mark: any) => {
-                    const description = getDescriptionFromTranslation(
-                      mark?.translations,
-                      language
-                    );
-                    if ((mark?.image_remote_url || mark?.image) && description)
-                      return (
-                        <TouchableOpacity
-                          key={mark.id}
-                          onPress={() => openMarkingLabel(mark)}
-                        >
-                          <Image
-                            source={
-                              mark?.image_remote_url || mark?.image
-                                ? {
-                                    uri:
-                                      mark?.image_remote_url ||
-                                      getImageUrl(mark?.image),
-                                  }
-                                : { uri: defaultImage }
-                            }
-                            style={{
-                              ...styles.categoryLogo,
-                              backgroundColor:
-                                mark?.background_color &&
-                                mark?.background_color,
-                              borderRadius: mark?.background_color
-                                ? 8
-                                : mark.hide_border
-                                ? 5
-                                : 0,
-                            }}
-                          />
-                        </TouchableOpacity>
-                      );
-                  })}
-                </View>
-                <Tooltip
-                  placement='top'
-                  trigger={(triggerProps) => (
-                    <TouchableOpacity
-                      style={styles.priceTag}
-                      {...triggerProps}
-                      onPress={handlePriceChange}
-                    >
-                      <Text style={styles.priceText}>
-                        {showFormatedPrice(showPrice(item, profile))}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                >
-                  <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-                    <TooltipText fontSize='$sm' color={theme.tooltip.text}>
-                      {`${showFormatedPrice(
-                        showPrice(item, profile)
-                      )} - ${translate(TranslationKeys.edit)}: ${translate(
-                        TranslationKeys.price_group
-                      )} ${translate(
-                        profile?.price_group
-                          ? getPriceGroup(profile?.price_group)
-                          : ''
-                      )}`}
-                    </TooltipText>
-                  </TooltipContent>
-                </Tooltip>
-              </View>
-
-              <View
-                style={{
-                  ...styles.cardContent,
-                  gap: isWeb ? 15 : 5,
-                  borderColor: foods_area_color,
-                  paddingHorizontal: isWeb
-                    ? screenWidth > 550
-                      ? 5
-                      : screenWidth > 360
-                      ? 5
-                      : 5
-                    : 5,
-                }}
-              >
-                <Text style={{ ...styles.foodName, color: theme.screen.text }}>
-                  {screenWidth > 1000
-                    ? excerpt(
-                        getTextFromTranslation(
-                          foodItem?.translations,
-                          language
-                        ),
-                        120
-                      )
-                    : screenWidth > 700
-                    ? excerpt(
-                        getTextFromTranslation(
-                          foodItem?.translations,
-                          language
-                        ),
-                        80
-                      )
-                    : screenWidth > 460
-                    ? excerpt(
-                        getTextFromTranslation(
-                          foodItem?.translations,
-                          language
-                        ),
-                        60
-                      )
-                    : excerpt(
-                        getTextFromTranslation(
-                          foodItem?.translations,
-                          language
-                        ),
-                        40
-                      )}
-                </Text>
-              </View>
-            </TouchableOpacity>
+                </>
+              }
+            >
+              <Text style={{ ...styles.foodName, color: theme.screen.text }}>
+                {screenWidth > 1000
+                  ? excerpt(
+                      getTextFromTranslation(
+                        foodItem?.translations,
+                        language
+                      ),
+                      120
+                    )
+                  : screenWidth > 700
+                  ? excerpt(
+                      getTextFromTranslation(
+                        foodItem?.translations,
+                        language
+                      ),
+                      80
+                    )
+                  : screenWidth > 460
+                  ? excerpt(
+                      getTextFromTranslation(
+                        foodItem?.translations,
+                        language
+                      ),
+                      60
+                    )
+                  : excerpt(
+                      getTextFromTranslation(
+                        foodItem?.translations,
+                        language
+                      ),
+                      40
+                    )}
+              </Text>
+            </CardWithText>
           )}
         >
           <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>

@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
+import CardWithText from '../CardWithText/CardWithText';
 
 const BuildingItem: React.FC<BuildingItemProps> = ({
   campus,
@@ -96,37 +97,34 @@ const BuildingItem: React.FC<BuildingItemProps> = ({
     <Tooltip
       placement='top'
       trigger={(triggerProps) => (
-        <TouchableOpacity
+        <CardWithText
           {...triggerProps}
-          style={{
+          onPress={() => handleNavigation(campus?.id)}
+          imageSource={
+            campus?.image || campus?.image_remote_url
+              ? {
+                  uri: campus?.image_remote_url || getImageUrl(campus?.image),
+                }
+              : { uri: defaultImage }
+          }
+          containerStyle={{
             ...styles.card,
             width:
               amountColumnsForcard === 0 ? getCardDimension() : getCardWidth(),
             backgroundColor: theme.card.background,
           }}
-          onPress={() => handleNavigation(campus?.id)}
-        >
-          <View
-            style={{
-              ...styles.imageContainer,
-              height:
-                amountColumnsForcard === 0
-                  ? getCardDimension()
-                  : getCardWidth(),
-            }}
-          >
-            <Image
-              style={styles.image}
-              source={
-                campus?.image || campus?.image_remote_url
-                  ? {
-                      uri:
-                        campus?.image_remote_url || getImageUrl(campus?.image),
-                    }
-                  : { uri: defaultImage }
-              }
-            />
-
+          imageContainerStyle={{
+            ...styles.imageContainer,
+            height:
+              amountColumnsForcard === 0
+                ? getCardDimension()
+                : getCardWidth(),
+          }}
+          contentStyle={{
+            ...styles.cardContent,
+            paddingHorizontal: 5,
+          }}
+          imageChildren={
             <View style={styles.imageActionContainer}>
               {isManagement ? (
                 <Tooltip
@@ -175,18 +173,12 @@ const BuildingItem: React.FC<BuildingItemProps> = ({
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
-          <View
-            style={{
-              ...styles.cardContent,
-              paddingHorizontal: 5,
-            }}
-          >
-            <Text style={{ ...styles.campusName, color: theme.screen.text }}>
-              {isWeb ? excerpt(campus?.alias, 70) : excerpt(campus?.alias, 40)}
-            </Text>
-          </View>
-        </TouchableOpacity>
+          }
+        >
+          <Text style={{ ...styles.campusName, color: theme.screen.text }}>
+            {isWeb ? excerpt(campus?.alias, 70) : excerpt(campus?.alias, 40)}
+          </Text>
+        </CardWithText>
       )}
     >
       <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>

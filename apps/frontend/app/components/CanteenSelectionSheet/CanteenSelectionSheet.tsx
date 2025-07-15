@@ -19,6 +19,7 @@ import { CanteenHelper } from '@/redux/actions';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
+import CardWithText from '../CardWithText/CardWithText';
 
 const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({
   closeSheet,
@@ -159,8 +160,19 @@ const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({
             selectedCanteen &&
             String(selectedCanteen.id) === String(canteen.id);
           return (
-            <TouchableOpacity
-              style={{
+            <CardWithText
+              key={canteen.id + canteen.alias}
+              onPress={() => {
+                handleSelectCanteen(canteen);
+              }}
+              imageSource={
+                canteen?.image_url || canteensData[index]?.image
+                  ? {
+                      uri: canteen?.image_url || canteensData[index]?.image,
+                    }
+                  : { uri: defaultImage }
+              }
+              containerStyle={{
                 ...styles.card,
                 width: screenWidth > 800 ? 210 : 160,
                 backgroundColor: theme.card.background,
@@ -168,27 +180,11 @@ const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({
                 borderColor: isSelected ? foods_area_color : 'transparent',
                 borderWidth: isSelected ? 3 : 0,
               }}
-              key={canteen.id + canteen.alias}
-              onPress={() => {
-                handleSelectCanteen(canteen);
-              }}
-            >
-            <View
-              style={{
+              imageContainerStyle={{
                 ...styles.imageContainer,
                 height: screenWidth > 800 ? 210 : 160,
               }}
             >
-              <Image
-                style={styles.image}
-                source={
-                  canteen?.image_url || canteensData[index]?.image
-                    ? {
-                        uri: canteen?.image_url || canteensData[index]?.image,
-                      }
-                    : { uri: defaultImage }
-                }
-              />
               {canteen.status === 'archived' && (
                 <View style={styles.archiveContainer}>
                   <MaterialCommunityIcons
@@ -198,16 +194,15 @@ const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({
                   />
                 </View>
               )}
-            </View>
-            <Text
-              style={{ ...styles.foodName, color: theme.screen.text }}
-              numberOfLines={3}
-              ellipsizeMode='tail'
-            >
-              {excerpt(String(canteen.alias), 20)}
-            </Text>
-          </TouchableOpacity>
-        );
+              <Text
+                style={{ ...styles.foodName, color: theme.screen.text }}
+                numberOfLines={3}
+                ellipsizeMode='tail'
+              >
+                {excerpt(String(canteen.alias), 20)}
+              </Text>
+            </CardWithText>
+          );
         })}
       </View>
     </BottomSheetScrollView>
