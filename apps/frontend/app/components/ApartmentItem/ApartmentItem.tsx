@@ -6,7 +6,6 @@ import { excerpt, getImageUrl } from '@/constants/HelperFunctions';
 import { useTheme } from '@/hooks/useTheme';
 import { useSelector } from 'react-redux';
 import { router } from 'expo-router';
-import { getDistanceUnit } from '@/helper/distanceHelper';
 import { BuildingItemProps } from './types';
 import styles from './styles';
 import { myContrastColor } from '@/helper/colorHelper';
@@ -20,7 +19,6 @@ const ApartmentItem: React.FC<BuildingItemProps> = ({
   apartment,
   setSelectedApartementId,
   openImageManagementSheet,
-  openDistanceSheet,
 }) => {
   const { theme } = useTheme();
   const { translate } = useLanguage();
@@ -164,22 +162,7 @@ const ApartmentItem: React.FC<BuildingItemProps> = ({
               ) : (
                 <View />
               )}
-              <TouchableOpacity
-                style={{
-                  ...styles.directionButton,
-                  backgroundColor: housing_area_color,
-                }}
-                onPress={openDistanceSheet}
-              >
-                <MaterialCommunityIcons
-                  name='map-marker-distance'
-                  size={20}
-                  color={contrastColor}
-                />
-                <Text style={{ ...styles.distance, color: contrastColor }}>
-                  {getDistanceUnit(apartment?.distance)}
-                </Text>
-              </TouchableOpacity>
+              {/* Distance modal removed */}
             </View>
           }
         >

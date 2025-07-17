@@ -46,8 +46,6 @@ import BuildingSortSheet from '@/components/BuildingSortSheet/BuildingSortSheet'
 import useToast from '@/hooks/useToast';
 import { useLanguage } from '@/hooks/useLanguage';
 import ImageManagementSheet from '@/components/ImageManagementSheet/ImageManagementSheet';
-import DistanceInfoSheet from '@/components/DistanceInfoSheet';
-import * as Location from 'expo-location';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
 import { TranslationKeys } from '@/locales/keys';
@@ -68,7 +66,6 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
   const [isActive, setIsActive] = useState(false);
   const sortSheetRef = useRef<BottomSheet>(null);
   const imageManagementSheetRef = useRef<BottomSheet>(null);
-  const distanceSheetRef = useRef<BottomSheet>(null);
   const [apartmentsDispatched, setApartmentsDispatched] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [distanceAdded, setDistanceAdded] = useState(false);
@@ -112,13 +109,6 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
     imageManagementSheetRef?.current?.close();
   };
 
-  const openDistanceSheet = () => {
-    distanceSheetRef.current?.expand();
-  };
-
-  const closeDistanceSheet = () => {
-    distanceSheetRef.current?.close();
-  };
 
   useFocusEffect(
     useCallback(() => {
@@ -233,22 +223,6 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
     }
   };
 
-  const useCurrentLocationForDistance = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        toast('Permission denied', 'error');
-        return;
-      }
-      const loc = await Location.getCurrentPositionAsync({});
-      setSelectedBuilding({
-        coordinates: { coordinates: [loc.coords.latitude, loc.coords.longitude] },
-      } as any);
-      closeDistanceSheet();
-    } catch (error) {
-      console.error('Error getting location:', error);
-    }
-  };
 
   useEffect(() => {
     fetchSelectedBuilding();
@@ -521,15 +495,14 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
                 <ActivityIndicator size={30} color={theme.screen.text} />
               </View>
             ) : apartments && apartments?.length > 0 ? (
-              apartments?.map((apartment: any) => (
-                <ApartmentItem
-                  key={apartment.id}
-                  apartment={apartment}
-                  setSelectedApartementId={setSelectedApartementId}
-                  openImageManagementSheet={openImageManagementSheet}
-                  openDistanceSheet={openDistanceSheet}
-                />
-              ))
+                apartments?.map((apartment: any) => (
+                  <ApartmentItem
+                    key={apartment.id}
+                    apartment={apartment}
+                    setSelectedApartementId={setSelectedApartementId}
+                    openImageManagementSheet={openImageManagementSheet}
+                  />
+                ))
             ) : (
               <View
                 style={{
@@ -594,25 +567,6 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
         </BaseBottomSheet>
         )}
 
-        {isActive && (
-          <BaseBottomSheet
-            ref={distanceSheetRef}
-            index={-1}
-            backgroundStyle={{
-              ...styles.sheetBackground,
-              backgroundColor: theme.sheet.sheetBg,
-            }}
-            handleComponent={null}
-            enablePanDownToClose
-            onClose={closeDistanceSheet}
-            title={translate(TranslationKeys.sort_option_distance)}
-          >
-            <DistanceInfoSheet
-              closeSheet={closeDistanceSheet}
-              onUseCurrentPosition={useCurrentLocationForDistance}
-            />
-          </BaseBottomSheet>
-        )}
       </View>
     </SafeAreaView>
   );

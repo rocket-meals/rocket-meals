@@ -9,7 +9,6 @@ import { myContrastColor } from '@/helper/colorHelper';
 import styles from './styles';
 import { BuildingItemProps } from './types';
 import { router } from 'expo-router';
-import { getDistanceUnit } from '@/helper/distanceHelper';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
@@ -20,7 +19,6 @@ const BuildingItem: React.FC<BuildingItemProps> = ({
   campus,
   openImageManagementSheet,
   setSelectedApartementId,
-  openDistanceSheet,
 }) => {
   const { theme } = useTheme();
   const { translate } = useLanguage();
@@ -156,22 +154,7 @@ const BuildingItem: React.FC<BuildingItemProps> = ({
               ) : (
                 <View />
               )}
-              <TouchableOpacity
-                style={{
-                  ...styles.directionButton,
-                  backgroundColor: campus_area_color,
-                }}
-                onPress={openDistanceSheet}
-              >
-                <MaterialCommunityIcons
-                  name='map-marker-distance'
-                  size={20}
-                  color={contrastColor}
-                />
-                <Text style={{ ...styles.distance, color: contrastColor }}>
-                  {getDistanceUnit(campus?.distance)}
-                </Text>
-              </TouchableOpacity>
+              {/* Distance modal removed */}
             </View>
           }
         >
