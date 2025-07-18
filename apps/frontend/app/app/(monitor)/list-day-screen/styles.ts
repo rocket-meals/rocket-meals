@@ -24,6 +24,7 @@ export default StyleSheet.create({
   headerCell: {
     color: '#fff',
     fontSize: 10,
+    fontWeight: 'bold',
     fontFamily: 'Poppins_400Regular',
     textAlign: 'left',
     paddingHorizontal: 7,
@@ -63,7 +64,7 @@ export default StyleSheet.create({
   },
   title: {
     marginLeft: 5,
-    fontSize: 10,
+    fontSize: 8,
     maxWidth: '90%',
   },
   logoContainer: {

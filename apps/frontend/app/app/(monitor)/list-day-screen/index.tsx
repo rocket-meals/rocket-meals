@@ -935,6 +935,7 @@ const index = () => {
                       </View>
                     );
                   })}
+                <View style={{ height: rowHeight }} />
               </View>
             </ScrollView>
             {optionalFoods?.length > 0 && (
@@ -1117,6 +1118,7 @@ const index = () => {
                       </Text>
                     </View>
                   ))}
+                <View style={{ height: rowHeight }} />
               </View>
             </ScrollView>
           </View>
@@ -1167,7 +1169,7 @@ const index = () => {
                             background_color: marking?.background_color,
                             hide_border: marking?.hide_border,
                           } as any}
-                          size={30}
+                          size={24}
                           color={MarkingColor}
                         />
                         <Text
