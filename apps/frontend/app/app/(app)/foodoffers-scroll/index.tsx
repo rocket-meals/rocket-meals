@@ -10,20 +10,26 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
-import { Ionicons, FontAwesome6 } from '@expo/vector-icons';
+import {
+  Ionicons,
+  FontAwesome6,
+  Entypo,
+  MaterialIcons,
+  MaterialCommunityIcons,
+} from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/redux/reducer';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { fetchFoodOffersByCanteen } from '@/redux/actions/FoodOffers/FoodOffers';
 import { DatabaseTypes } from 'repo-depkit-common';
-import { addDays, subDays, format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { useNavigation, router } from 'expo-router';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import FoodItem from '@/components/FoodItem/FoodItem';
 import CanteenFeedbackLabels from '@/components/CanteenFeedbackLabels/CanteenFeedbackLabels';
 import { CanteenFeedbackLabelHelper } from '@/redux/actions/CanteenFeedbacksLabel/CanteenFeedbacksLabel';
-import { SET_CANTEEN_FEEDBACK_LABELS } from '@/redux/Types/types';
+import { SET_CANTEEN_FEEDBACK_LABELS, SET_SELECTED_DATE } from '@/redux/Types/types';
 import styles from './styles';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { TranslationKeys } from '@/locales/keys';
@@ -51,7 +57,8 @@ const FoodOffersScroll = () => {
   const [days, setDays] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [loadingPrev, setLoadingPrev] = useState(false);
+  // This screen only supports scrolling forward in time
+  // so we don't maintain loading state for previous days
   const navigation = useNavigation<DrawerNavigationProp<any>>();
 
   useEffect(() => {
@@ -76,7 +83,8 @@ const FoodOffersScroll = () => {
   const init = useCallback(async () => {
     setLoading(true);
     const baseDate = new Date(selectedDate);
-    const toLoad = [-2, -1, 0, 1, 2];
+    // start with the selected date and the following two days
+    const toLoad = [0, 1, 2];
     const loaded: DayData[] = [];
     for (const offset of toLoad) {
       const d = addDays(baseDate, offset).toISOString().split('T')[0];
@@ -114,30 +122,18 @@ const FoodOffersScroll = () => {
     setDays((prev) => [...prev, nextDay]);
   };
 
-  const loadPrev = async () => {
-    if (loadingPrev) return;
-    setLoadingPrev(true);
-    const firstDate = days[0].date;
-    const prevDate = subDays(new Date(firstDate), 1).toISOString().split('T')[0];
-    const prevDay = await loadDay(prevDate);
-    setDays((prev) => [prevDay, ...prev]);
-    setLoadingPrev(false);
-  };
-
   const onEndReached = () => {
     loadNext();
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadPrev();
+    await init();
     setRefreshing(false);
   };
 
-  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (e.nativeEvent.contentOffset.y <= 0) {
-      loadPrev();
-    }
+  const handleScroll = (_e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    // Intentionally left blank to disable loading previous days
   };
 
   const getPriceGroup = (price_group: string) => {
@@ -169,6 +165,20 @@ const FoodOffersScroll = () => {
     }
 
     return format(day, 'dd.MM.yyyy');
+  };
+
+  const handleDateChange = (direction: 'prev' | 'next') => {
+    const currentDate = new Date(selectedDate);
+    if (direction === 'prev') {
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else {
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    dispatch({
+      type: SET_SELECTED_DATE,
+      payload: currentDate.toISOString().split('T')[0],
+    });
+    init();
   };
 
   const renderDay = ({ item }: { item: DayData }) => {
@@ -231,17 +241,35 @@ const FoodOffersScroll = () => {
             </Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.col2}>
+        <View style={{ ...styles.col2, gap: 10 }}>
           <TouchableOpacity onPress={() => router.navigate('/price-group')}>
             <FontAwesome6 name='euro-sign' size={24} color={theme.header.text} />
           </TouchableOpacity>
         </View>
       </View>
       <View style={styles.row}>
-        <Text style={{ color: theme.header.text }}>
-          {translate(getDayLabel(selectedDate))}
-          {profile?.price_group ? ` - ${translate(getPriceGroup(profile.price_group))}` : ''}
-        </Text>
+        <View style={{ ...styles.col2, gap: 10 }}>
+          <TouchableOpacity onPress={() => handleDateChange('prev')}>
+            <Entypo name='chevron-left' size={24} color={theme.header.text} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <MaterialIcons name='calendar-month' size={24} color={theme.header.text} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleDateChange('next')}>
+            <Entypo name='chevron-right' size={24} color={theme.header.text} />
+          </TouchableOpacity>
+          <Text style={{ ...styles.heading, color: theme.header.text }}>
+            {selectedDate ? translate(getDayLabel(selectedDate)) : ''}
+          </Text>
+        </View>
+        <View style={{ ...styles.col2, gap: 10 }}>
+          <TouchableOpacity>
+            <FontAwesome6 name='people-group' size={24} color={theme.header.text} />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <MaterialCommunityIcons name='clock-time-eight' size={24} color={theme.header.text} />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
