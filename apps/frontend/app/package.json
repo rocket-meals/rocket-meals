@@ -32,6 +32,7 @@
     "@gorhom/bottom-sheet": "^5.0.6",
     "@lottiefiles/dotlottie-react": "^0.6.5",
     "@lottiefiles/react-lottie-player": "^3.6.0",
+    "@nuintun/qrcode": "^5.0.2",
     "@react-native-aria/dialog": "^0.0.5",
     "@react-native-aria/focus": "^0.2.9",
     "@react-native-aria/interactions": "^0.2.16",

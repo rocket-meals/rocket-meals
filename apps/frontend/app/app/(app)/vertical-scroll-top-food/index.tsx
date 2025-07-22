@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Image, View, ActivityIndicator } from 'react-native';
-import QRCode from 'qrcode';
+import { Byte, Encoder } from '@nuintun/qrcode';
 
 const VerticalScrollTopFoodScreen = () => {
   const [qrUri, setQrUri] = useState<string | null>(null);
 
   useEffect(() => {
-    const googleUrl = 'https://www.google.com/search?q=Expo+QR+Code+Generator';
+    const googleUrl = 'https://google.com';
 
-    QRCode.toDataURL(googleUrl, { errorCorrectionLevel: 'H' })
-      .then(setQrUri)
-      .catch(console.error);
+    const encoder = new Encoder({ level: 'H' });
+    const qrcode = encoder.encode(new Byte(googleUrl));
+    try {
+      setQrUri(qrcode.toDataURL());
+    } catch (err) {
+      console.error(err);
+    }
   }, []);
 
   if (!qrUri) return <ActivityIndicator />;
