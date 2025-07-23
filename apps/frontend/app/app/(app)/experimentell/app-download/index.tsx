@@ -18,6 +18,8 @@ import { getImageUrl } from '@/constants/HelperFunctions';
 import RedirectButton from '@/components/RedirectButton';
 import QrCode from '@/components/QrCode';
 import CardDimensionHelper from '@/helper/CardDimensionHelper';
+import appleLogo fron "@/assets/icons/IMG_5577.png"
+import googleLogo fron "@/assets/icons/IMG_5578.png"
 
 const AppDownload = () => {
   useSetPageTitle(TranslationKeys.app_download);
@@ -85,7 +87,7 @@ const AppDownload = () => {
               <QrCode
                 value={appSettings.app_stores_url_to_apple}
                 size={qrSize}
-                logoUrl="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
+                logoSource={appleLogo}
               />
               <RedirectButton
                 label='iOS'
@@ -104,8 +106,8 @@ const AppDownload = () => {
               <QrCode
                 value={appSettings.app_stores_url_to_google}
                 size={qrSize}
-                logoUrl="https://upload.wikimedia.org/wikipedia/commons/d/d0/Google_Play_Arrow_logo.svg"
-              />
+                logoSource={googleLogo}
+                />
               <RedirectButton
                 label='Android'
                 onClick={() =>
