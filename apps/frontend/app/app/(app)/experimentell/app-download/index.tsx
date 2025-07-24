@@ -20,9 +20,10 @@ import { FontAwesome6 } from '@expo/vector-icons';
 import { myContrastColor } from '@/helper/colorHelper';
 import QrCode from '@/components/QrCode';
 import CardDimensionHelper from '@/helper/CardDimensionHelper';
-import appleLogo from "@/assets/icons/apple-store.png"
-import googleLogo from "@/assets/icons/google-play.png"
+import appleLogo from '@/assets/icons/apple-store.png';
+import googleLogo from '@/assets/icons/google-play.png';
 import CardWithText from '@/components/CardWithText/CardWithText';
+import Color from 'tinycolor2';
 
 const AppDownload = () => {
   useSetPageTitle(TranslationKeys.app_download);
@@ -87,16 +88,25 @@ const AppDownload = () => {
     url: string | undefined,
     label: string,
     logo: any,
+    color: string,
   ) => {
     if (!url) return null;
     return (
       <CardWithText
         onPress={() => openInBrowser(url)}
-        containerStyle={[styles.qrCol, { width: qrSize, backgroundColor: theme.card.background }]}
+        containerStyle={[
+          styles.qrCol,
+          {
+            width: qrSize,
+            backgroundColor: theme.card.background,
+            borderWidth: 2,
+            borderColor: color,
+          },
+        ]}
         imageContainerStyle={[styles.qrImageContainer, { height: qrSize }]}
         contentStyle={{ paddingBottom: 0 }}
         topRadius={0}
-        borderColor={projectColor}
+        borderColor={color}
         imageChildren={
           <QrCode
             value={url}
@@ -108,7 +118,7 @@ const AppDownload = () => {
         }
         bottomContent={
           <TouchableOpacity
-            style={[styles.qrButton, { backgroundColor: projectColor }]}
+            style={[styles.qrButton, { backgroundColor: color }]}
           >
             <Text style={[styles.qrButtonText, { color: contrastColor }]}>{label}</Text>
             <FontAwesome6
@@ -135,8 +145,18 @@ const AppDownload = () => {
         <Image source={iconSource} style={styles.icon} />
         <Text style={{ ...styles.heading, color: theme.screen.text }}>{projectName}</Text>
         <View style={styles.qrRow}>
-          {renderQrCard(appSettings?.app_stores_url_to_apple, 'iOS', appleLogo)}
-          {renderQrCard(appSettings?.app_stores_url_to_google, 'Android', googleLogo)}
+          {renderQrCard(
+            appSettings?.app_stores_url_to_apple,
+            'iOS',
+            appleLogo,
+            '#FF0000'
+          )}
+          {renderQrCard(
+            appSettings?.app_stores_url_to_google,
+            'Android',
+            googleLogo,
+            Color(projectColor).lighten(20).toHexString()
+          )}
         </View>
       </View>
     </ScrollView>
