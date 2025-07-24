@@ -20,6 +20,7 @@ export default StyleSheet.create({
   downloadRow: {
     width: '100%',
     flexDirection: 'row',
+    alignItems: 'stretch',
     flexWrap: 'wrap',
     marginTop: 20,
   },
