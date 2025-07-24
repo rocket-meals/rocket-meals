@@ -13,4 +13,8 @@ export default StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     fontSize: 16,
   },
+  qrContainer: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
 });

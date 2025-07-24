@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, ScrollView, View } from 'react-native';
+import { Image, ScrollView, View, Linking } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/reducer';
 import { useTheme } from '@/hooks/useTheme';
@@ -12,7 +12,7 @@ import styles from './styles';
 const AppDownload = () => {
   useSetPageTitle(TranslationKeys.app_download);
   const { theme } = useTheme();
-  const { serverInfo } = useSelector(
+  const { serverInfo, appSettings } = useSelector(
     (state: RootState) => state.settings
   );
 
@@ -25,6 +25,9 @@ const AppDownload = () => {
   const iconSource = projectLogo
     ? { uri: projectLogo }
     : require('../../../../assets/images/icon.png');
+
+  const iosLink = appSettings?.app_stores_url_to_apple;
+  const androidLink = appSettings?.app_stores_url_to_google;
 
 
   return (
@@ -42,11 +45,15 @@ const AppDownload = () => {
             label='iOS'
             imageSource={require('../../../../assets/icons/apple-store.png')}
             containerStyle={styles.downloadItem}
+            qrValue={iosLink}
+            onPress={() => iosLink && Linking.openURL(iosLink)}
           />
           <DownloadItem
             label='Android'
             imageSource={require('../../../../assets/icons/google-play.png')}
             containerStyle={styles.downloadItem}
+            qrValue={androidLink}
+            onPress={() => androidLink && Linking.openURL(androidLink)}
           />
         </View>
       </View>
