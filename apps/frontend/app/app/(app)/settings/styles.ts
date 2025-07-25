@@ -159,8 +159,8 @@ export default StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
   },
   groupHeading: {
-    fontSize: 22,
-    fontFamily: 'Poppins_700Bold',
+    fontSize: 16,
+    fontFamily: 'Poppins_400Regular',
     marginTop: 20,
     marginBottom: 10,
   },

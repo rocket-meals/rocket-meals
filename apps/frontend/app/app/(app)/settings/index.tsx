@@ -423,7 +423,8 @@ const Settings = () => {
             {translate(TranslationKeys.group_canteen_usage)}
           </Text>
           {/* Canteen */}
-          <SettingList iconBgColor={primaryColor}
+          <View style={{ gap: 0 }}>
+            <SettingList iconBgColor={primaryColor}
             leftIcon={
               <MaterialIcons
                 name='restaurant-menu'
@@ -441,6 +442,7 @@ const Settings = () => {
               />
             }
             handleFunction={openCanteenSheet}
+            groupPosition='top'
           />
           <SettingList iconBgColor={primaryColor}
             leftIcon={
@@ -461,6 +463,7 @@ const Settings = () => {
               />
             }
             handleFunction={() => router.navigate('/price-group')}
+            groupPosition='middle'
           />
           <SettingList iconBgColor={primaryColor}
             leftIcon={
@@ -480,6 +483,7 @@ const Settings = () => {
               />
             }
             handleFunction={() => router.navigate('/account-balance')}
+            groupPosition='middle'
           />
           <SettingList iconBgColor={primaryColor}
             leftIcon={
@@ -498,6 +502,7 @@ const Settings = () => {
               />
             }
             handleFunction={() => router.navigate('/eating-habits')}
+            groupPosition='middle'
           />
           <SettingList iconBgColor={primaryColor}
             leftIcon={
@@ -516,7 +521,9 @@ const Settings = () => {
               />
             }
             handleFunction={() => router.navigate('/notification')}
+            groupPosition='bottom'
           />
+          </View>
           <Text style={{ ...styles.groupHeading, color: theme.screen.text }}>
             {translate(TranslationKeys.group_app_settings)}
           </Text>
@@ -620,13 +627,15 @@ const Settings = () => {
           <Text style={{ ...styles.groupHeading, color: theme.screen.text }}>
             {translate(TranslationKeys.group_app_management)}
           </Text>
-          <SettingList iconBgColor={primaryColor}
-            leftIcon={<Ionicons name='cloud-download-outline' size={24} color={theme.screen.icon} />}
-            label={translate(TranslationKeys.CHECK_FOR_APP_UPDATES)}
-            rightIcon={<Octicons name='chevron-right' size={24} color={theme.screen.icon} />}
-            handleFunction={handleCheckForUpdates}
-          />
-          <SettingList iconBgColor={primaryColor}
+          <View style={{ gap: 0 }}>
+            <SettingList iconBgColor={primaryColor}
+              leftIcon={<Ionicons name='cloud-download-outline' size={24} color={theme.screen.icon} />}
+              label={translate(TranslationKeys.CHECK_FOR_APP_UPDATES)}
+              rightIcon={<Octicons name='chevron-right' size={24} color={theme.screen.icon} />}
+              handleFunction={handleCheckForUpdates}
+              groupPosition='top'
+            />
+            <SettingList iconBgColor={primaryColor}
             leftIcon={
               <MaterialCommunityIcons
                 name='database-eye'
@@ -642,9 +651,10 @@ const Settings = () => {
                 color={theme.screen.icon}
               />
             }
-          handleFunction={() => router.navigate('/data-access')}
-        />
-        <SettingList iconBgColor={primaryColor}
+            handleFunction={() => router.navigate('/data-access')}
+            groupPosition='middle'
+          />
+          <SettingList iconBgColor={primaryColor}
           leftIcon={
             <MaterialIcons name='event' size={24} color={theme.screen.icon} />
           }
@@ -652,9 +662,10 @@ const Settings = () => {
           rightIcon={
             <Octicons name='chevron-right' size={24} color={theme.screen.icon} />
           }
-          handleFunction={() => router.navigate('/events')}
-        />
-        <SettingList iconBgColor={primaryColor}
+            handleFunction={() => router.navigate('/events')}
+            groupPosition='middle'
+          />
+          <SettingList iconBgColor={primaryColor}
           leftIcon={
             <MaterialIcons
               name='support-agent'
@@ -671,8 +682,8 @@ const Settings = () => {
               />
             }
             handleFunction={() => router.navigate('/support-FAQ')}
-          />
-          <SettingList iconBgColor={primaryColor}
+            />
+            <SettingList iconBgColor={primaryColor}
             leftIcon={
               <MaterialCommunityIcons
                 name='license'
@@ -689,6 +700,7 @@ const Settings = () => {
               />
             }
             handleFunction={() => router.navigate('/licenseInformation')}
+            groupPosition='middle'
           />
           {/* Terms & Conditions */}
           <SettingList
@@ -705,7 +717,9 @@ const Settings = () => {
             )}
             value={termsAndPrivacyConsentAcceptedDate}
             handleFunction={() => {}}
+            groupPosition='bottom'
           />
+          </View>
           <TouchableOpacity
             style={styles.footer}
             onPress={() => {
