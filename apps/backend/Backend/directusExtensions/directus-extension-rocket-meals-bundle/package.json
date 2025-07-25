@@ -70,6 +70,11 @@
 			},
 			{
 				"type": "hook",
+				"name": "database-backup-mail-schedule",
+				"source": "src/database-backup-mail-schedule/index.ts"
+			},
+			{
+				"type": "hook",
 				"name": "food-feedback-rating-calculate-hook",
 				"source": "src/food-feedback-rating-calculate-hook/index.ts"
 			},
@@ -123,16 +128,16 @@
 				"name": "push-notification-hook",
 				"source": "src/push-notification-hook/index.ts"
 			},
-                        {
-                                "type": "endpoint",
-                                "name": "redirect-with-token-endpoint",
-                                "source": "src/redirect-with-token-endpoint/index.ts"
-                        },
-                        {
-                                "type": "endpoint",
-                                "name": "proof-key-code-exchange-endpoint",
-                                "source": "src/proof-key-code-exchange-endpoint/index.ts"
-                        },
+			{
+				"type": "endpoint",
+				"name": "redirect-with-token-endpoint",
+				"source": "src/redirect-with-token-endpoint/index.ts"
+			},
+			{
+				"type": "endpoint",
+				"name": "proof-key-code-exchange-endpoint",
+				"source": "src/proof-key-code-exchange-endpoint/index.ts"
+			},
 			{
 				"type": "hook",
 				"name": "users-avatar-delete-hook",
@@ -206,6 +211,7 @@
 		"moment-timezone": "^0.5.47",
 		"ms": "^2.1.3",
 		"object-hash": "^3.0.0",
+		"openai": "^5.9.0",
 		"p-limit": "^6.1.0",
 		"p-queue": "^8.0.1",
 		"puppeteer": "^24.3.0",
@@ -214,7 +220,6 @@
 		"spark-md5": "^3.0.2",
 		"ts-morph": "^25.0.1",
 		"undici": "5.22.1",
-		"uuid": "^11.1.0",
-		"openai": "^5.9.0"
+		"uuid": "^11.1.0"
 	}
 }

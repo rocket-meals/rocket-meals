@@ -24,6 +24,7 @@ export enum MyFileTypes {
     JSON = "application/json",
     CSV = "text/csv",
     TXT = "text/plain",
+    GZIP = "application/gzip",
 }
 
 export class FilesServiceHelper extends ItemsServiceHelper<DatabaseTypes.DirectusFiles> implements FilesService, ShareDirectusFileMethod {
