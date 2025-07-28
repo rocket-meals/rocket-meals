@@ -70,18 +70,24 @@ export function sortOffers(
   return copiedFoodOffers;
 }
 
-function convertStaticToOffer(el: DatabaseTypes.FoodofferInfoItems): DatabaseTypes.Foodoffers {
-  const info = el.info_item as unknown as DatabaseTypes.FoodoffersInfoItems | undefined;
-  const name = info?.name as unknown as DatabaseTypes.AppElements | undefined;
-  const translations = (name as any)?.translations;
-  const image = info?.image as any;
+function convertStaticToOffer(
+  el: DatabaseTypes.FoodofferInfoItems,
+): DatabaseTypes.Foodoffers {
+  const info = el.info_item as unknown as
+    | DatabaseTypes.FoodoffersInfoItems
+    | undefined;
+  const nameElement = (el.name || info?.name) as
+    | DatabaseTypes.AppElements
+    | undefined;
+  const translations = (nameElement as any)?.translations;
+  const imageElement = (el.image || info?.image) as any;
   return {
     id: `static-${el.id}`,
     food: {
       id: `static-food-${el.id}`,
       translations: translations,
-      image: image?.id ?? image,
-      image_remote_url: image?.data?.full_url ?? null,
+      image: imageElement?.id ?? imageElement,
+      image_remote_url: imageElement?.data?.full_url ?? null,
     } as any,
     redirect_url: el.link ?? null,
     markings: [],

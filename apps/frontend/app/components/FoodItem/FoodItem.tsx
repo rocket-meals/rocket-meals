@@ -34,6 +34,7 @@ import {
   SET_SELECTED_FOOD_MARKINGS,
 } from '@/redux/Types/types';
 import PermissionModal from '../PermissionModal/PermissionModal';
+import ExternalLinkModal from '../ExternalLinkModal';
 import { router } from 'expo-router';
 import { createSelector } from 'reselect';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
@@ -71,6 +72,8 @@ const FoodItem: React.FC<FoodItemProps> = memo(
       Dimensions.get('window').width
     );
     const [warning, setWarning] = useState(false);
+    const [showLinkModal, setShowLinkModal] = useState(false);
+    const [externalUrl, setExternalUrl] = useState<string | null>(null);
     const dispatch = useDispatch();
     const { theme } = useTheme();
     const { translate } = useLanguage();
@@ -204,7 +207,8 @@ const FoodItem: React.FC<FoodItemProps> = memo(
               {...triggerProps}
               onPress={() => {
                 if (item.redirect_url) {
-                  openInBrowser(item.redirect_url);
+                  setExternalUrl(item.redirect_url);
+                  setShowLinkModal(true);
                 } else {
                   const foodId =
                     item?.food && typeof item.food !== 'string'
@@ -482,6 +486,16 @@ const FoodItem: React.FC<FoodItemProps> = memo(
         </Tooltip>
 
         <PermissionModal isVisible={warning} setIsVisible={setWarning} />
+        {externalUrl && (
+          <ExternalLinkModal
+            visible={showLinkModal}
+            url={externalUrl}
+            onClose={() => {
+              setShowLinkModal(false);
+              setExternalUrl(null);
+            }}
+          />
+        )}
       </>
     );
   },
