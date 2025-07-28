@@ -57,15 +57,7 @@ import ImageManagementSheet from '@/components/ImageManagementSheet/ImageManagem
 import EatingHabitsSheet from '@/components/EatingHabitsSheet/EatingHabitsSheet';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import * as Notifications from 'expo-notifications';
-import {
-  intelligentSort,
-  sortByEatingHabits,
-  sortByFoodName,
-  sortByOwnFavorite,
-  sortByPublicFavorite,
-  sortByFoodCategory,
-  sortByFoodOfferCategory,
-} from '@/helper/sortingHelper';
+import { mergeStaticElements, sortOffers } from '@/helper/staticFoodOfferHelper';
 import { format, addDays } from 'date-fns';
 import { BusinessHoursHelper } from '@/redux/actions/BusinessHours/BusinessHours';
 import PopupEventSheet from '@/components/PopupEventSheet/PopupEventSheet';
@@ -131,6 +123,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
     selectedDate,
     foodCategories,
     foodOfferCategories,
+    foodOfferInfoItems,
   } = useSelector((state: RootState) => state.food);
   const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
   const animationRef = useRef<LottieView>(null);
@@ -362,64 +355,17 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
     return format(day, 'dd.MM.yyyy'); // Return the date if it's not Today, Yesterday, or Tomorrow
   };
 
-  const updateSort = (id: FoodSortOption, foodOffers: DatabaseTypes.Foodoffers[]) => {
-    // Copy food offers to avoid mutation
-    let copiedFoodOffers = [...foodOffers];
-
-    // Sorting logic based on option id
-    switch (id) {
-      case FoodSortOption.ALPHABETICAL:
-        copiedFoodOffers = sortByFoodName(copiedFoodOffers, languageCode);
-        break;
-      case FoodSortOption.FAVORITE:
-        copiedFoodOffers = sortByOwnFavorite(
-          copiedFoodOffers,
-          ownFoodFeedbacks
-        );
-        break;
-      case FoodSortOption.EATING:
-        copiedFoodOffers = sortByEatingHabits(
-          copiedFoodOffers,
-          profile.markings
-        );
-        break;
-      case FoodSortOption.FOOD_CATEGORY:
-        copiedFoodOffers = sortByFoodCategory(
-          copiedFoodOffers,
-          foodCategories,
-            languageCode
-        );
-        break;
-      case FoodSortOption.FOODOFFER_CATEGORY:
-        copiedFoodOffers = sortByFoodOfferCategory(
-          copiedFoodOffers,
-          foodOfferCategories
-        );
-        break;
-      case FoodSortOption.RATING:
-        copiedFoodOffers = sortByPublicFavorite(copiedFoodOffers);
-        break;
-      case FoodSortOption.INTELLIGENT:
-        copiedFoodOffers = intelligentSort(
-          copiedFoodOffers,
-          ownFoodFeedbacks,
-          profile.markings,
-          languageCode,
-          foodCategories,
-          foodOfferCategories
-        );
-        break;
-      default:
-        console.warn('Unknown sorting option:', id);
-        break;
-    }
-
-    // Dispatch updated food offers and close the sheet
-    dispatch({
-      type: SET_SELECTED_CANTEEN_FOOD_OFFERS,
-      payload: copiedFoodOffers,
+  const sortList = (
+    id: FoodSortOption,
+    foodOffers: DatabaseTypes.Foodoffers[],
+  ) =>
+    sortOffers(id, foodOffers, {
+      ownFoodFeedbacks,
+      profileMarkings: profile.markings as any,
+      language: languageCode,
+      foodCategories,
+      foodOfferCategories,
     });
-  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -482,7 +428,17 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
         }
       }
 
-      updateSort(sortBy as FoodSortOption, foodOffers);
+      const sorted = sortList(sortBy as FoodSortOption, foodOffers);
+      const merged = mergeStaticElements(
+        sorted,
+        foodOfferInfoItems,
+        selectedCanteen?.id || null,
+      );
+
+      dispatch({
+        type: SET_SELECTED_CANTEEN_FOOD_OFFERS,
+        payload: merged,
+      });
 
       dispatch({
         type: SET_SELECTED_CANTEEN_FOOD_OFFERS_LOCAL,

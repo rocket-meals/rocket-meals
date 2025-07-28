@@ -20,6 +20,7 @@ import {
   SET_FOOD_CATEGORIES,
   SET_FOOD_COLLECTION,
   SET_FOOD_OFFERS_CATEGORIES,
+  SET_FOOD_OFFER_INFO_ITEMS,
   SET_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES,
   SET_POPUP_EVENTS,
   SET_POPUP_EVENTS_HASH,
@@ -39,6 +40,8 @@ import CustomMenuHeader from '@/components/CustomMenuHeader/CustomMenuHeader';
 import { CanteenFeedbackLabelEntryHelper } from '@/redux/actions/CanteenFeedbackLabelEntries/CanteenFeedbackLabelEntries';
 import { FoodCategoriesHelper } from '@/redux/actions/FoodCategories/FoodCategories';
 import { FoodOffersCategoriesHelper } from '@/redux/actions/FoodOffersCategories/FoodOffersCategories';
+import { FoodOfferInfoItemsHelper } from '@/redux/actions/FoodOfferInfoItems/FoodOfferInfoItems';
+import { FoodOffersInfoItemsHelper } from '@/redux/actions/FoodOffersInfoItems/FoodOffersInfoItems';
 import { BusinessHoursHelper } from '@/redux/actions/BusinessHours/BusinessHours';
 import CustomStackHeader from '@/components/CustomStackHeader/CustomStackHeader';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -91,6 +94,8 @@ export default function Layout() {
   const foodAttributeGroupHelper = new FoodAttributeGroupHelper();
   const businessHoursGroupsHelper = new BusinessHoursGroupsHelper();
   const foodOffersCategoriesHelper = new FoodOffersCategoriesHelper();
+  const foodOfferInfoItemsHelper = new FoodOfferInfoItemsHelper();
+  const foodOffersInfoItemsHelper = new FoodOffersInfoItemsHelper();
   const newsHelper = new NewsHelper();
   const collectionLastUpdateHelper = new CollectionLastUpdateHelper();
   const foodFeedbackLabelEntryHelper = new FoodFeedbackLabelEntryHelper();
@@ -333,6 +338,30 @@ export default function Layout() {
     }
   };
 
+  const getFoodOfferInfoItems = async () => {
+    try {
+      const result =
+        (await foodOfferInfoItemsHelper.fetchFoodOfferInfoItems({})) as DatabaseTypes.FoodofferInfoItems[];
+        if (result) {
+        dispatch({ type: SET_FOOD_OFFER_INFO_ITEMS, payload: result });
+      }
+    } catch (error) {
+      console.error('Error fetching foodoffer info items:', error);
+    }
+  };
+
+  const getFoodOffersInfoItems = async () => {
+    try {
+      const result =
+        (await foodOffersInfoItemsHelper.fetchFoodOffersInfoItems({})) as DatabaseTypes.FoodoffersInfoItems[];
+      if (result) {
+        dispatch({ type: SET_FOODOFFERS_INFO_ITEMS, payload: result });
+      }
+    } catch (error) {
+      console.error('Error fetching foodoffers info items:', error);
+    }
+  };
+
   const getAllFoodAttributes = async () => {
     try {
       const result =
@@ -499,6 +528,11 @@ export default function Layout() {
       ],
       action: getFoodOffersCategories,
     },
+    {
+      key: [CollectionKeys.FOODOFFER_INFO_ITEMS, CollectionKeys.APP_ELEMENTS],
+      action: getFoodOfferInfoItems,
+    },
+    { key: CollectionKeys.FOODOFFERS_INFO_ITEMS, action: getFoodOffersInfoItems },
     {
       key: CollectionKeys.FOODS_FEEDBACKS_LABELS,
       action: getFoodFeedBackLabels,

@@ -108,6 +108,8 @@ export const CollectionKeys = {
   APP_FEEDBACKS: 'app_feedbacks',
   FORM_FIELDS_TRANSLATIONS: 'form_fields_translations',
   FOODOFFERS_MARKINGS: 'foodoffers_markings',
+  FOODOFFER_INFO_ITEMS: 'foodoffer_info_items',
+  FOODOFFERS_INFO_ITEMS: 'foodoffers_info_items',
   WORKFLOWS: 'workflows',
   POPUP_EVENTS: 'popup_events',
   WORKFLOWS_RUNS: 'workflows_runs',
