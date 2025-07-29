@@ -14,6 +14,7 @@ import { RootState } from '@/redux/reducer';
 import { fetchFoodOffersByCanteen } from '@/redux/actions/FoodOffers/FoodOffers';
 import { DatabaseTypes } from 'repo-depkit-common';
 import FoodItem from '@/components/FoodItem/FoodItem';
+import FoodofferInfoItem from '@/components/FoodofferInfoItem/FoodofferInfoItem';
 import CanteenFeedbackLabels from '@/components/CanteenFeedbackLabels/CanteenFeedbackLabels';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
@@ -34,9 +35,14 @@ interface FoodOffersScrollListProps {
   startDate: string;
 }
 
+interface DayItem {
+  foodoffer: DatabaseTypes.Foodoffers | null;
+  foodofferInfoItem: DatabaseTypes.FoodoffersInfoItems | null;
+}
+
 interface DayData {
   date: string;
-  offers: DatabaseTypes.Foodoffers[];
+  items: DayItem[];
 }
 
 const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({
@@ -53,6 +59,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({
     ownFoodFeedbacks,
     foodCategories,
     foodOfferCategories,
+    foodOffersInfoItems,
   } = useSelector((state: RootState) => state.food);
   const { profile } = useSelector((state: RootState) => state.authReducer);
   const selectedCanteen = canteens?.find((c) => c.id === canteenId) as
@@ -115,7 +122,21 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({
   }, []);
 
   useEffect(() => {
-    setDays((prev) => prev.map((d) => ({ ...d, offers: sortOffers(d.offers) })));
+    setDays((prev) =>
+      prev.map((d) => {
+        const startInfo = d.items
+          .filter((i) => i.foodofferInfoItem && (i.foodofferInfoItem.placement === 'start' || !i.foodofferInfoItem.placement))
+          .sort((a, b) => ((a.foodofferInfoItem?.sort || 0) - (b.foodofferInfoItem?.sort || 0)));
+        const endInfo = d.items
+          .filter((i) => i.foodofferInfoItem && i.foodofferInfoItem.placement === 'end')
+          .sort((a, b) => ((a.foodofferInfoItem?.sort || 0) - (b.foodofferInfoItem?.sort || 0)));
+        const offers = d.items
+          .filter((i) => i.foodoffer)
+          .map((i) => i.foodoffer as DatabaseTypes.Foodoffers);
+        const sortedOffers = sortOffers(offers).map((o) => ({ foodoffer: o, foodofferInfoItem: null }));
+        return { ...d, items: [...startInfo, ...sortedOffers, ...endInfo] } as DayData;
+      }),
+    );
   }, [sortOffers]);
 
   const loadDay = useCallback(
@@ -124,13 +145,35 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({
         const res = await fetchFoodOffersByCanteen(canteenId, date);
         const offers = res?.data || [];
         const sortedOffers = sortOffers(offers);
-        return { date, offers: sortedOffers } as DayData;
+
+        const infoItems = foodOffersInfoItems.filter(
+          (i) => !i.canteen || i.canteen === canteenId,
+        );
+        const filteredInfo =
+          sortedOffers.length > 0
+            ? infoItems.filter((i) => !i.show_only_when_no_foodoffers_found)
+            : infoItems;
+        const sortedInfo = [...filteredInfo].sort(
+          (a, b) => (a.sort || 0) - (b.sort || 0),
+        );
+
+        const startInfo = sortedInfo.filter(
+          (i) => i.placement === 'start' || !i.placement,
+        );
+        const endInfo = sortedInfo.filter((i) => i.placement === 'end');
+
+        const items: DayItem[] = [
+          ...startInfo.map((i) => ({ foodoffer: null, foodofferInfoItem: i })),
+          ...sortedOffers.map((o) => ({ foodoffer: o, foodofferInfoItem: null })),
+          ...endInfo.map((i) => ({ foodoffer: null, foodofferInfoItem: i })),
+        ];
+        return { date, items } as DayData;
       } catch (e) {
         console.error('Error loading food offers', e);
-        return { date, offers: [] } as DayData;
+        return { date, items: [] } as DayData;
       }
     },
-    [canteenId, sortOffers],
+    [canteenId, sortOffers, foodOffersInfoItems],
   );
 
   const init = useCallback(async () => {
@@ -182,18 +225,22 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({
             justifyContent: 'center',
           }}
         >
-          {item.offers.map((offer) => (
-            <FoodItem
-              key={offer.id}
-              item={offer}
-              canteen={selectedCanteen as DatabaseTypes.Canteens}
-              handleMenuSheet={() => {}}
-              handleImageSheet={() => {}}
-              handleEatingHabitsSheet={() => {}}
-              setSelectedFoodId={() => {}}
-            />
-          ))}
-          {item.offers.length === 0 && (
+          {item.items.map((entry) =>
+            entry.foodoffer ? (
+              <FoodItem
+                key={entry.foodoffer.id}
+                item={entry.foodoffer}
+                canteen={selectedCanteen as DatabaseTypes.Canteens}
+                handleMenuSheet={() => {}}
+                handleImageSheet={() => {}}
+                handleEatingHabitsSheet={() => {}}
+                setSelectedFoodId={() => {}}
+              />
+            ) : entry.foodofferInfoItem ? (
+              <FoodofferInfoItem key={entry.foodofferInfoItem.id} item={entry.foodofferInfoItem} />
+            ) : null,
+          )}
+          {item.items.length === 0 && (
             <Text style={{ color: theme.screen.text }}>
               {translate(TranslationKeys.no_foodoffers_found_for_selection)}
             </Text>
