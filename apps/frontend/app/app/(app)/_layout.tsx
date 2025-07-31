@@ -767,6 +767,19 @@ export default function Layout() {
         />
 
         <Drawer.Screen
+          name='expo-leaflet/index'
+          options={{
+            header: () => (
+              <CustomStackHeader
+                label={translate(TranslationKeys.expo_leaflet)}
+                key={'ExpoLeaflet'}
+              />
+            ),
+            title: translate(TranslationKeys.expo_leaflet),
+          }}
+        />
+
+        <Drawer.Screen
           name='vertical-image-scroll/index'
           options={{
             header: () => (
