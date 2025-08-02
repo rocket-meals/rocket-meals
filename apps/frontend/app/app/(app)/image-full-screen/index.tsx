@@ -11,8 +11,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
-
-const AnimatedImage = Animated.createAnimatedComponent(Image);
 import BaseBottomModal from '@/components/BaseBottomModal';
 import SettingsList from '@/components/SettingsList';
 import * as FileSystem from 'expo-file-system';
@@ -26,7 +24,8 @@ export default function ImageFullScreen() {
   const [showControls, setShowControls] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const imageUri = assetId ? getHighResImageUrl(String(assetId)) : String(uri);
+  const highResUri = assetId ? getHighResImageUrl(String(assetId)) : String(uri);
+  const lowResUri = uri ? String(uri) : highResUri;
 
   const baseScale = useSharedValue(1);
   const pinchScale = useSharedValue(1);
@@ -91,15 +90,15 @@ export default function ImageFullScreen() {
     try {
       if (Platform.OS === 'web') {
         const link = document.createElement('a');
-        link.href = String(imageUri);
+        link.href = String(highResUri);
         link.download = '';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       } else {
-        const filename = String(imageUri).split('/').pop() || `image_${Date.now()}`;
+        const filename = String(highResUri).split('/').pop() || `image_${Date.now()}`;
         const fileUri = FileSystem.documentDirectory + filename;
-        await FileSystem.downloadAsync(String(imageUri), fileUri);
+        await FileSystem.downloadAsync(String(highResUri), fileUri);
         toast('Image downloaded', 'success');
       }
     } catch (e) {
@@ -122,7 +121,14 @@ export default function ImageFullScreen() {
       <GestureDetector gesture={composedGesture}>
         <Animated.View style={styles.flex}>
           <TouchableWithoutFeedback onPress={toggleControls} onLongPress={() => setModalVisible(true)}>
-            <AnimatedImage source={{ uri: String(imageUri) }} style={[styles.image, animatedStyle]} contentFit='contain' />
+            <Animated.View style={[styles.imageWrapper, animatedStyle]}>
+              <Image source={{ uri: lowResUri }} style={styles.image} contentFit='contain' />
+              <Image
+                source={{ uri: highResUri }}
+                style={[styles.image, StyleSheet.absoluteFill]}
+                contentFit='contain'
+              />
+            </Animated.View>
           </TouchableWithoutFeedback>
         </Animated.View>
       </GestureDetector>
@@ -146,5 +152,6 @@ const styles = StyleSheet.create({
   flex: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   topRow: { position: 'absolute', top: 40, right: 20, flexDirection: 'row', gap: 10, zIndex: 2 },
   iconButton: { padding: 8, borderRadius: 20 },
+  imageWrapper: { width: '100%', height: '100%' },
   image: { width: '100%', height: '100%' },
 });
