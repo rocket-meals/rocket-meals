@@ -362,18 +362,23 @@ const index = () => {
         // Initialize array with placeholders for all possible attributes
         const sortedValues = foodAttributesDataFull.map(() => null);
 
-        // Fill in the actual values where they exist
-        if (offer.attribute_values) {
-          offer.attribute_values.forEach((attrValue: any) => {
-            const rawAttr = attrValue.food_attribute;
-            const attrId =
-              typeof rawAttr === 'object' ? rawAttr?.id : rawAttr;
-            if (attrId && attributeSortMap[attrId]) {
-              const position = attributeSortMap[attrId].index;
-              sortedValues[position] = attrValue;
-            }
-          });
-        }
+        const combinedValues = [
+          ...(offer?.food?.attribute_values || []),
+          ...(offer?.attribute_values || []),
+        ];
+
+        combinedValues.forEach((attrValue: any) => {
+          const rawAttr = attrValue.food_attribute;
+          const attrId =
+            typeof rawAttr === 'object' ? rawAttr?.id : rawAttr;
+          if (attrId && attributeSortMap[attrId]) {
+            const position = attributeSortMap[attrId].index;
+            const merged = attrValue.attribute_value
+              ? { ...attrValue, ...attrValue.attribute_value }
+              : attrValue;
+            sortedValues[position] = merged;
+          }
+        });
 
         result[offer.id] = sortedValues;
       });

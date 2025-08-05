@@ -120,7 +120,7 @@ export const fetchFoodsByCanteen = async (
     const response = await axios.get('/items/foodoffers', {
       params: {
         fields:
-          '*,food.*,!food.feedbacks,food.translations.*,markings.*, attribute_values.*, attribute_values.food_attribute.*,attribute_values.food_attribute.group.*, attribute_values.food_attribute.translations.*, foods_attributes_values.*', // Exclude food.feedbacks field as per the API call
+          '*,food.*,!food.feedbacks,food.translations.*,markings.*, attribute_values.*, attribute_values.food_attribute.*,attribute_values.food_attribute.group.*, attribute_values.food_attribute.translations.*, food.attribute_values.*, food.attribute_values.food_attribute.*, food.attribute_values.food_attribute.group.*, food.attribute_values.food_attribute.translations.*, foods_attributes_values.*', // Exclude food.feedbacks field as per the API call
         limit: -1, // Fetch all results
         filter: { _and: baseFilter },
       },
