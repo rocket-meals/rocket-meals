@@ -47,6 +47,7 @@ import { FoodAttributesHelper } from '@/redux/actions/FoodAttributes/FoodAttribu
 type FoodAttribute = {
   id: string;
   sort: number;
+  manualSort?: number;
   selected: boolean;
   alias?: string;
 };
@@ -120,6 +121,7 @@ const Index = () => {
             id: attr?.id,
             alias: title ? title : attr?.alias,
             sort: attr.sort || index + 1,
+            manualSort: undefined,
             selected: attr.status === 'published' ? true : false,
           };
         })
@@ -129,12 +131,12 @@ const Index = () => {
     }
   }, [initialFoodAttributes]);
 
-  const handleSortChange = (id: string, newValue: string) => {
+  const handleManualSortChange = (id: string, newValue: string) => {
     const numericValue = Math.max(0, Math.min(99, parseInt(newValue) || 0));
 
     setFoodAttributes((prev: any) =>
       prev.map((attr: any) =>
-        attr.id === id ? { ...attr, sort: numericValue } : attr
+        attr.id === id ? { ...attr, manualSort: numericValue } : attr
       )
     );
   };
@@ -355,9 +357,14 @@ const Index = () => {
                   return (
                     <View style={styles.attributeContainer} key={attribute?.id}>
                       <TextInput
-                        value={attribute?.sort}
+                        value={
+                          attribute?.manualSort !== undefined &&
+                          attribute?.manualSort !== null
+                            ? String(attribute.manualSort)
+                            : ''
+                        }
                         onChangeText={(text) =>
-                          handleSortChange(attribute.id, text)
+                          handleManualSortChange(attribute.id, text)
                         }
                         keyboardType='numeric'
                         maxLength={2}
@@ -425,10 +432,36 @@ const Index = () => {
               //       .map(({ id, sort, alias }) => ({ id, sort, alias }))
               //   : [];
               // console.log('selectedAttributes', selectedAttributes);
-              const sortedIds = foodAttributes
-                ?.filter((attr) => attr.selected)
-                .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
-                .map(({ id }) => id);
+              const selectedAttributes =
+                foodAttributes?.filter((attr) => attr.selected) || [];
+              const manualSorted = selectedAttributes
+                .filter(
+                  (attr) =>
+                    attr.manualSort !== undefined &&
+                    attr.manualSort !== null &&
+                    attr.manualSort !== 0
+                )
+                .sort(
+                  (a, b) => (a.manualSort ?? 0) - (b.manualSort ?? 0)
+                );
+              const autoSorted = selectedAttributes
+                .filter(
+                  (attr) =>
+                    attr.manualSort === undefined ||
+                    attr.manualSort === null ||
+                    attr.manualSort === 0
+                )
+                .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+              const sortedAttributes = [...manualSorted, ...autoSorted];
+              const formatted = sortedAttributes.map((attr) => ({
+                foodAttribute: {
+                  id: attr.id,
+                  ...(attr.manualSort
+                    ? { manualSort: attr.manualSort }
+                    : {}),
+                },
+              }));
+
               router.push({
                 pathname: '/list-day-screen',
                 params: {
@@ -439,8 +472,8 @@ const Index = () => {
                     ?.additionalSelectedCanteen?.id
                     ? foodPlan?.additionalSelectedCanteen?.id
                     : '',
-                  foodAttributesData: sortedIds
-                    ? JSON.stringify(sortedIds)
+                  foodAttributesData: formatted
+                    ? JSON.stringify(formatted)
                     : '',
                 },
               });

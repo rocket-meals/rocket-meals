@@ -200,44 +200,56 @@ const index = () => {
             ? JSON.parse(foodAttributesData)
             : foodAttributesData;
 
-        const attributeIds: string[] = Array.isArray(parsedData)
+        const attributeItems: any[] = Array.isArray(parsedData)
           ? parsedData
           : [];
 
-        let attributeDataCopy: any[] = [];
-        if (
-          foodAttributesDict &&
-          Object?.keys(foodAttributesDict)?.length > 0
-        ) {
-          attributeDataCopy = attributeIds.map((id: string) => {
-            const attr = foodAttributesDict[id];
+        const attributeDataCopy = await Promise.all(
+          attributeItems.map(async (item: any) => {
+            const id = item?.foodAttribute?.id;
+            const manualSort = item?.foodAttribute?.manualSort;
+            if (!id) return null;
+
+            let attr = foodAttributesDict[id];
+            if (!attr) {
+              attr = (await foodAttributesHelper.fetchFoodAttributeById(
+                id
+              )) as DatabaseTypes.FoodsAttributes;
+            }
             const title = attr?.translations
               ? getFoodAttributesTranslation(attr.translations, language)
               : '';
             return {
               id: id,
               alias: title || attr?.alias || '-',
+              sort: attr?.sort || 0,
+              manualSort: manualSort !== undefined ? Number(manualSort) : undefined,
             };
-          });
-        } else {
-          attributeDataCopy = await Promise.all(
-            attributeIds.map(async (id: string) => {
-              const attr = (await foodAttributesHelper.fetchFoodAttributeById(
-                id
-              )) as DatabaseTypes.FoodsAttributes;
-              const title = attr?.translations
-                ? getFoodAttributesTranslation(attr.translations, language)
-                : '';
-              return {
-                id: id,
-                alias: title || attr?.alias || '-',
-              };
-            })
-          );
-        }
+          })
+        );
 
-        setFoodAttributesDataFull(attributeDataCopy);
-        const aliases = attributeDataCopy.map((attr) => attr.alias);
+        const filteredData = attributeDataCopy.filter(Boolean) as any[];
+
+        const manualSorted = filteredData
+          .filter(
+            (attr) =>
+              attr.manualSort !== undefined &&
+              attr.manualSort !== null &&
+              attr.manualSort !== 0
+          )
+          .sort((a, b) => (a.manualSort ?? 0) - (b.manualSort ?? 0));
+        const autoSorted = filteredData
+          .filter(
+            (attr) =>
+              attr.manualSort === undefined ||
+              attr.manualSort === null ||
+              attr.manualSort === 0
+          )
+          .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+        const ordered = [...manualSorted, ...autoSorted];
+
+        setFoodAttributesDataFull(ordered);
+        const aliases = ordered.map((attr) => attr.alias);
         setFoodAttributesColumn(aliases);
       } catch (error) {
         console.error('Error processing food attributes:', error);
