@@ -365,8 +365,10 @@ const index = () => {
         // Fill in the actual values where they exist
         if (offer.attribute_values) {
           offer.attribute_values.forEach((attrValue: any) => {
-            const attrId = attrValue.food_attribute?.id;
-            if (attributeSortMap[attrId]) {
+            const rawAttr = attrValue.food_attribute;
+            const attrId =
+              typeof rawAttr === 'object' ? rawAttr?.id : rawAttr;
+            if (attrId && attributeSortMap[attrId]) {
               const position = attributeSortMap[attrId].index;
               sortedValues[position] = attrValue;
             }
