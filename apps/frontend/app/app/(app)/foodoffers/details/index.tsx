@@ -9,7 +9,10 @@ import {isWeb} from '@/constants/Constants';
 import Feedbacks from '@/components/Feedbacks';
 import Details from '@/components/Details';
 import Labels from '@/components/Labels';
-import { fetchFoodOffersDetailsById } from '@/redux/actions/FoodOffers/FoodOffers';
+import {
+  fetchFoodOffersDetailsById,
+  fetchFoodDetailsById,
+} from '@/redux/actions/FoodOffers/FoodOffers';
 import {
   excerpt,
   getImageUrl,
@@ -17,6 +20,7 @@ import {
   numToOneDecimal,
 } from '@/constants/HelperFunctions';
 import { DatabaseTypes } from 'repo-depkit-common';
+import type { FoodsTranslations } from 'repo-depkit-common';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
 import { useDispatch, useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
@@ -56,7 +60,10 @@ const selectFoodState = (state: RootState) => state.food;
 const selectPreviousFeedback = createSelector(
   [selectFoodState, (_, foodId) => foodId],
   (foodState, foodId) =>
-    getpreviousFeedback(foodState.ownFoodFeedbacks, foodId.toString())
+    getpreviousFeedback(
+      foodState.ownFoodFeedbacks,
+      foodId ? foodId.toString() : ''
+    )
 );
 
 export default function FoodDetailsScreen() {
@@ -80,7 +87,7 @@ export default function FoodDetailsScreen() {
     selectedTheme: mode,
   } = useSelector((state: RootState) => state.settings);
   const previousFeedback = useSelector((state) =>
-    selectPreviousFeedback(state, foodId)
+    selectPreviousFeedback(state, foodId || '')
   );
   const profileHelper = useMemo(() => new ProfileHelper(), []);
   const foodfeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
@@ -296,22 +303,50 @@ export default function FoodDetailsScreen() {
 
   const getFoodDetails = async () => {
     try {
-      const foodData = await fetchFoodOffersDetailsById(id.toString());
-      if (foodData && foodData.data) {
-        const { food, attribute_values, foodoffer_category } = foodData?.data;
+      let foodData;
 
-        const translation = food?.translations?.find(
-          (val: FoodsTranslations) =>
-            String(val?.languages_code)?.split('-')[0] === languageCode
-        );
-        setFoodDetails({
-          ...food,
-          foodoffer_category,
-          name: translation ? translation.name : null,
-        });
-        if (attribute_values) {
-          setFoodAttributesLoading(true);
-          setFoodAttributes(attribute_values);
+      if (id) {
+        foodData = await fetchFoodOffersDetailsById(id.toString());
+      } else if (foodId) {
+        foodData = await fetchFoodDetailsById(foodId.toString());
+      }
+
+      if (foodData && foodData.data) {
+        if (id) {
+          const { food, attribute_values, foodoffer_category } = foodData.data;
+
+          const translation = food?.translations?.find(
+            (val: FoodsTranslations) =>
+              String(val?.languages_code)?.split('-')[0] === languageCode
+          );
+
+          setFoodDetails({
+            ...food,
+            foodoffer_category,
+            name: translation ? translation.name : null,
+          });
+
+          if (attribute_values) {
+            setFoodAttributesLoading(true);
+            setFoodAttributes(attribute_values);
+          }
+        } else {
+          const food = foodData.data;
+          const translation = food?.translations?.find(
+            (val: FoodsTranslations) =>
+              String(val?.languages_code)?.split('-')[0] === languageCode
+          );
+
+          setFoodDetails({
+            ...food,
+            name: translation ? translation.name : null,
+          });
+
+          const attributeValues = (food as any)?.attribute_values;
+          if (attributeValues) {
+            setFoodAttributesLoading(true);
+            setFoodAttributes(attributeValues);
+          }
         }
       } else {
         console.log('No food data found');
@@ -322,10 +357,10 @@ export default function FoodDetailsScreen() {
   };
 
   useEffect(() => {
-    if (id) {
+    if (id || foodId) {
       getFoodDetails();
     }
-  }, [id]);
+  }, [id, foodId]);
 
   const getContainerWidth = () => {
     let containerWidth = '100%';
