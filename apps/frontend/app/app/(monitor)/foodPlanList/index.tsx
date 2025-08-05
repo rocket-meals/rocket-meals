@@ -110,10 +110,30 @@ const Index = () => {
     }
   };
 
+  const sortAttributes = (attrs: FoodAttribute[]) => {
+    const manualSorted = attrs
+      .filter(
+        (attr) =>
+          attr.manualSort !== undefined &&
+          attr.manualSort !== null &&
+          attr.manualSort !== 0
+      )
+      .sort((a, b) => (a.manualSort ?? 0) - (b.manualSort ?? 0));
+    const autoSorted = attrs
+      .filter(
+        (attr) =>
+          attr.manualSort === undefined ||
+          attr.manualSort === null ||
+          attr.manualSort === 0
+      )
+      .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0));
+    return [...manualSorted, ...autoSorted];
+  };
+
   useEffect(() => {
     if (initialFoodAttributes.length > 0) {
-      setFoodAttributes(
-        initialFoodAttributes.map((attr: any, index: number) => {
+      const mapped = initialFoodAttributes
+        .map((attr: any, index: number) => {
           const title = attr?.translations
             ? getFoodAttributesTranslation(attr?.translations, language)
             : '';
@@ -124,8 +144,8 @@ const Index = () => {
             manualSort: undefined,
             selected: attr.status === 'published' ? true : false,
           };
-        })
-      );
+        });
+      setFoodAttributes(sortAttributes(mapped));
     } else {
       getAllFoodAttributes();
     }
@@ -135,8 +155,10 @@ const Index = () => {
     const numericValue = Math.max(0, Math.min(99, parseInt(newValue) || 0));
 
     setFoodAttributes((prev: any) =>
-      prev.map((attr: any) =>
-        attr.id === id ? { ...attr, manualSort: numericValue } : attr
+      sortAttributes(
+        prev.map((attr: any) =>
+          attr.id === id ? { ...attr, manualSort: numericValue } : attr
+        )
       )
     );
   };
