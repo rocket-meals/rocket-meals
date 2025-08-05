@@ -348,24 +348,19 @@ const index = () => {
     if (!foodOffers || !foodAttributesDataFull) return {};
     try {
       // Create a map for quick lookup of sort order by attribute id
-      const attributeSortMap: Record<string, { index: number; alias: string }> =
-        {};
+      const attributeSortMap: Record<string, { index: number }> = {};
       foodAttributesDataFull?.forEach((attr, index: number) => {
-        attributeSortMap[attr.id] = { index, alias: attr.alias };
+        attributeSortMap[attr.id] = { index };
       });
 
       // Process each food offer
-      const result: Record<string, Array<{ value: any; alias: string }>> = {};
+      const result: Record<string, Array<any>> = {};
 
       foodOffers.forEach((offer: any) => {
         if (!offer.id) return;
 
-        // Initialize array with empty values for all possible attributes
-        const sortedValues = foodAttributesDataFull.map((attr) => ({
-          value: null, // or '-' if you prefer
-          alias: attr.alias,
-          exists: false,
-        }));
+        // Initialize array with placeholders for all possible attributes
+        const sortedValues = foodAttributesDataFull.map(() => null);
 
         // Fill in the actual values where they exist
         if (offer.attribute_values) {
@@ -373,11 +368,7 @@ const index = () => {
             const attrId = attrValue.food_attribute?.id;
             if (attributeSortMap[attrId]) {
               const position = attributeSortMap[attrId].index;
-              sortedValues[position] = {
-                value: attrValue, // or extract specific value if needed
-                alias: attributeSortMap[attrId].alias,
-                exists: true,
-              };
+              sortedValues[position] = attrValue;
             }
           });
         }
@@ -393,7 +384,7 @@ const index = () => {
   };
 
   const formatAttributeValue = (attr: any) => {
-    if (!attr?.value) return '-';
+    if (!attr) return '-';
     const {
       number_value,
       string_value,
@@ -403,7 +394,7 @@ const index = () => {
       color_value,
       icon_value,
       food_attribute,
-    } = attr.value;
+    } = attr;
 
     const rawValue =
       string_value ??
