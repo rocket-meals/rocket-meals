@@ -322,8 +322,10 @@ export default function FoodDetailsScreen() {
   };
 
   useEffect(() => {
-    getFoodDetails();
-  }, []);
+    if (id) {
+      getFoodDetails();
+    }
+  }, [id]);
 
   const getContainerWidth = () => {
     let containerWidth = '100%';
