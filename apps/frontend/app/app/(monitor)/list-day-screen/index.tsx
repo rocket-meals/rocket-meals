@@ -392,6 +392,42 @@ const index = () => {
     }
   };
 
+  const formatAttributeValue = (attr: any) => {
+    if (!attr?.value) return '-';
+    const {
+      number_value,
+      string_value,
+      date_value,
+      time_value,
+      boolean_value,
+      color_value,
+      icon_value,
+      food_attribute,
+    } = attr.value;
+
+    const rawValue =
+      string_value ??
+      number_value ??
+      date_value ??
+      time_value ??
+      color_value ??
+      icon_value ??
+      (boolean_value !== undefined && boolean_value !== null
+        ? boolean_value
+        : null);
+
+    if (rawValue === null || rawValue === undefined || rawValue === '') {
+      return '-';
+    }
+
+    const { prefix, suffix } = food_attribute || {};
+    let formatted = '';
+    if (prefix) formatted += `${prefix} `;
+    formatted += rawValue;
+    if (suffix) formatted += ` ${suffix}`;
+    return formatted.trim();
+  };
+
   useFocusEffect(
     useCallback(() => {
       if (foods) {
@@ -876,15 +912,16 @@ const index = () => {
                             })}
                         </View>
                         {foodAttributes[item?.id] &&
-                          foodAttributes[item?.id]?.map((attr: any) => {
-                            const attributeColumnWidth = (
-                              Number(columnPercentages.attributes) /
-                              foodAttributes[item?.id].length
-                            ).toFixed(2);
-                            if (!attr?.value) {
+                          foodAttributes[item?.id]?.map(
+                            (attr: any, idx: number) => {
+                              const attributeColumnWidth = (
+                                Number(columnPercentages.attributes) /
+                                foodAttributes[item?.id].length
+                              ).toFixed(2);
+                              const value = formatAttributeValue(attr);
                               return (
                                 <Text
-                                  key={`${item.id}`}
+                                  key={`${item.id}-${idx}`}
                                   style={[
                                     styles.cell,
                                     {
@@ -893,55 +930,11 @@ const index = () => {
                                     },
                                   ]}
                                 >
-                                  -
+                                  {value}
                                 </Text>
                               );
                             }
-
-                            const { number_value } = attr.value;
-                            const { prefix, suffix } =
-                              attr?.value?.food_attribute || {};
-
-                            if (
-                              number_value === undefined ||
-                              number_value === null
-                            ) {
-                              return (
-                                <Text
-                                  key={`${item.id}`}
-                                  style={[
-                                    styles.cell,
-                                    {
-                                      width: (attributeColumnWidth +
-                                        '%') as DimensionValue,
-                                    },
-                                  ]}
-                                >
-                                  -
-                                </Text>
-                              );
-                            }
-
-                            let value = '';
-                            if (prefix) value += `${prefix} `;
-                            value += number_value;
-                            if (suffix) value += ` ${suffix}`;
-
-                            return (
-                              <Text
-                                key={`${item.id}`}
-                                style={[
-                                  styles.cell,
-                                  {
-                                    width: (attributeColumnWidth +
-                                      '%') as DimensionValue,
-                                  },
-                                ]}
-                              >
-                                {value.trim()}
-                              </Text>
-                            );
-                          })}
+                          )}
                         <Text
                           style={[
                             styles.cell,
@@ -1058,15 +1051,16 @@ const index = () => {
                           })}
                       </View>
                       {optionalFoodAttributes[item?.id] &&
-                        optionalFoodAttributes[item?.id]?.map((attr: any) => {
-                          const attributeColumnWidth = (
-                            Number(columnPercentages.attributes) /
-                            optionalFoodAttributes[item?.id].length
-                          ).toFixed(2);
-                          if (!attr?.value) {
+                        optionalFoodAttributes[item?.id]?.map(
+                          (attr: any, idx: number) => {
+                            const attributeColumnWidth = (
+                              Number(columnPercentages.attributes) /
+                              optionalFoodAttributes[item?.id].length
+                            ).toFixed(2);
+                            const value = formatAttributeValue(attr);
                             return (
                               <Text
-                                key={`${item.id}`}
+                                key={`${item.id}-${idx}`}
                                 style={[
                                   styles.cell,
                                   {
@@ -1075,55 +1069,11 @@ const index = () => {
                                   },
                                 ]}
                               >
-                                -
+                                {value}
                               </Text>
                             );
                           }
-
-                          const { number_value } = attr?.value;
-                          const { prefix, suffix } =
-                            attr?.value?.food_attribute || {};
-
-                          if (
-                            number_value === undefined ||
-                            number_value === null
-                          ) {
-                            return (
-                              <Text
-                                key={`${item.id}`}
-                                style={[
-                                  styles.cell,
-                                  {
-                                    width: (attributeColumnWidth +
-                                      '%') as DimensionValue,
-                                  },
-                                ]}
-                              >
-                                -
-                              </Text>
-                            );
-                          }
-
-                          let value = '';
-                          if (prefix) value += `${prefix} `;
-                          value += number_value;
-                          if (suffix) value += ` ${suffix}`;
-
-                          return (
-                            <Text
-                              key={`${item.id}`}
-                              style={[
-                                styles.cell,
-                                {
-                                  width: (attributeColumnWidth +
-                                    '%') as DimensionValue,
-                                },
-                              ]}
-                            >
-                              {value.trim()}
-                            </Text>
-                          );
-                        })}
+                        )}
 
                       <Text
                         style={[
