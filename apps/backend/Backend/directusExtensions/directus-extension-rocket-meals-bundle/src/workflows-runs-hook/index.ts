@@ -3,7 +3,7 @@ import {CollectionNames} from "repo-depkit-common";
 import {DatabaseInitializedCheck} from "../helpers/DatabaseInitializedCheck";
 import {MyDatabaseHelper} from "../helpers/MyDatabaseHelper";
 import {DatabaseTypes} from "repo-depkit-common"
-import {ActionInitFilterEventHelper} from "../helpers/ActionInitFilterEventHelper";
+import {registerInitHook} from "../helpers/InitHookAfterMigrationHelper";
 import {PrimaryKey, ScheduleHandler} from "@directus/types";
 import {WorkflowRunJobInterface, WorkflowRunLogger} from "./WorkflowRunJobInterface";
 import {WORKFLOW_RUN_STATE} from "../helpers/itemServiceHelpers/WorkflowsRunEnum";
@@ -371,7 +371,7 @@ export default defineHook(async ({action, init, filter, schedule}, apiContext) =
 
     let myDatabaseHelper = new MyDatabaseHelper(apiContext);
 
-    init(ActionInitFilterEventHelper.INIT_APP_STARTED, async () => {
+    registerInitHook(async () => {
         // App started, resetting workflow parsing
         let workflowsNotFinished: DatabaseTypes.WorkflowsRuns[] = [];
 

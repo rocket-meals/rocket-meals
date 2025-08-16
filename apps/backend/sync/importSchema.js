@@ -1,12 +1,11 @@
 import fetch from 'node-fetch';
-import {CookieJar} from 'cookiejar';
+import { CookieJar } from 'cookiejar';
 import fs from 'fs';
 import FormData from 'form-data';
-import {spawn} from 'child_process';
+import { spawn } from 'child_process';
 import path from 'path';
-import {fileURLToPath} from 'url';
+import { fileURLToPath } from 'url';
 import https from 'https';
-import inquirer from 'inquirer';
 
 // Convert import.meta.url to a file path
 const __filename = fileURLToPath(import.meta.url);
@@ -29,57 +28,16 @@ const currentPackageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '.
 console.log("Current package.json: ")
 console.log(JSON.stringify(currentPackageJson, null, 4));
 const DirectusSyncVersion = currentPackageJson.dependencies['directus-sync'];
+let directus_url;
+let admin_email;
+let admin_password;
 
-// Path to the .env file
-const envFilePath = path.resolve(__dirname, './../../../.env');
+const configurationPath = path.resolve(__dirname, './configuration');
+const directusConfigCollectionsPath = path.resolve(__dirname, './configuration/directus-config/collections');
+const directusConfigOverwriteCollectionsPath = path.resolve(__dirname, './configuration/directus-config-overwrite/collections');
 
-// Read the contents of the .env file
-const envFile = fs.readFileSync(envFilePath, 'utf8');
-
-// Function to parse the .env file content into a dictionary
-function parseEnvFile(content) {
-    const envDict = {};
-
-    // Split the content by new lines
-    const lines = content.split('\n');
-
-    lines.forEach(line => {
-        // Remove any whitespace around the line and ignore empty lines
-        line = line.trim();
-        if (line) {
-            // Split each line by the first '=' character
-            const [key, ...valueParts] = line.split('=');
-            let value = valueParts.join('=').trim();
-
-            // Remove surrounding quotes if they exist
-            if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
-                value = value.slice(1, -1);
-            }
-
-            // Add the key-value pair to the dictionary
-            envDict[key.trim()] = value;
-        }
-    });
-
-    return envDict;
-}
-
-
-const parsedEnvFile = parseEnvFile(envFile);
-const MYHOST = parsedEnvFile.MYHOST;
-const DOMAIN_PATH = parsedEnvFile.ROCKET_MEALS_PATH
-const BACKEND_PATH = parsedEnvFile.ROCKET_MEALS_BACKEND_PATH;
-
-let directus_url = `https://${MYHOST}/${DOMAIN_PATH}/${BACKEND_PATH}`
-let admin_email = parsedEnvFile.ADMIN_EMAIL;
-let admin_password = parsedEnvFile.ADMIN_PASSWORD;
-
-const configurationPath = "./configuration";
-const directusConfigCollectionsPath = "./configuration/directus-config/collections";
-const directusConfigOverwriteCollectionsPath = "./configuration/directus-config-overwrite/collections";
-
-const configurationPathRolesPermissions = `${configurationPath}/roles-permissions`;
-const configurationPathCollections = `${configurationPath}/collections`;
+const configurationPathRolesPermissions = path.join(configurationPath, 'roles-permissions');
+const configurationPathCollections = path.join(configurationPath, 'collections');
 
 // Directus API endpoints
 const getUrlPermissions = () => {
@@ -94,118 +52,24 @@ const getUrlSettings = () => {
     return `${directus_url}/settings`; // as directus_url can change we need to use a function here
 }
 
-const configureDirectusServerUrl = async () => {
-    const predefinedOptions = {
-        "Current HTTPS": directus_url,
-        "Test Server": "https://test.rocket-meals.de/rocket-meals/api",
-        "Studi|Futter": "https://studi-futter.rocket-meals.de/rocket-meals/api",
-        "SWOSY": "https://swosy.rocket-meals.de/rocket-meals/api"
-    };
-
-    const choices = [
-        ...Object.entries(predefinedOptions).map(
-            ([key, value]) => ({
-                name: `${key} (${value})`,
-                value: value
-            })
-        ),
-        { name: 'Custom Value', value: 'Custom Value' }
-    ];
-
-    const { selectedOption } = await inquirer.prompt([
-        {
-            type: 'list',
-            name: 'selectedOption',
-            message: 'Select the Directus server URL:',
-            choices
-        }
-    ]);
-
-    let selectedValue = selectedOption;
-
-    if (selectedOption === 'Custom Value') {
-        const { customValue } = await inquirer.prompt([
-            {
-                type: 'input',
-                name: 'customValue',
-                message: 'Enter the custom Directus server URL:'
-            }
-        ]);
-        selectedValue = customValue;
-    }
-
-    directus_url = selectedValue;
-    console.log(`Directus server URL set to: ${directus_url}`);
-}
-
-const configureDirectusAdminCredentials = async () => {
-    const { useDefaultEmail } = await inquirer.prompt([
-        {
-            type: 'confirm',
-            name: 'useDefaultEmail',
-            message: `Use the default admin email (${admin_email})?`,
-            default: true
-        }
-    ]);
-
-    let selectedEmail = admin_email;
-    if (!useDefaultEmail) {
-        const { newEmail } = await inquirer.prompt([
-            {
-                type: 'input',
-                name: 'newEmail',
-                message: 'Enter the new admin email:'
-            }
-        ]);
-        selectedEmail = newEmail;
-    }
-    admin_email = selectedEmail;
-
-    const { useDefaultPassword } = await inquirer.prompt([
-        {
-            type: 'confirm',
-            name: 'useDefaultPassword',
-            message: `Use the default admin password (${admin_password})?`,
-            default: true
-        }
-    ]);
-
-    let selectedPassword = admin_password;
-    if (!useDefaultPassword) {
-        const { newPassword } = await inquirer.prompt([
-            {
-                type: 'password',
-                name: 'newPassword',
-                message: 'Enter the new admin password:'
-            }
-        ]);
-        selectedPassword = newPassword;
-    }
-    admin_password = selectedPassword;
-
-    console.log(`Admin email set to: ${admin_email}`);
-    console.log('Admin password updated');
-}
-
-const configureVariables = async () => {
-    await configureDirectusServerUrl();
-    await configureDirectusAdminCredentials();
-}
-
 /**
  * MAIN PUSH FUNCTION
  */
-    // Main function to handle the "push" command
-const mainPush = async () => {
-        console.log("Starting Push Sync")
-        await configureVariables();
-        const headers = await setupDirectusConnectionAndGetHeaders()
-        await copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder();
-        await enableRequiredSettings(headers);
-        await pushDirectusSyncSchemas();
-        //await uploadPublicPermissions(headers);
-        await uploadSchemas(headers);
-    };
+export const importSchema = async (envDict = {}) => {
+    const MYHOST = envDict.MYHOST;
+    const DOMAIN_PATH = envDict.ROCKET_MEALS_PATH;
+    const BACKEND_PATH = envDict.ROCKET_MEALS_BACKEND_PATH;
+    directus_url = envDict.directus_url || `https://${MYHOST}/${DOMAIN_PATH}/${BACKEND_PATH}`;
+    admin_email = envDict.ADMIN_EMAIL;
+    admin_password = envDict.ADMIN_PASSWORD;
+
+    console.log("Starting Push Sync");
+    const headers = await setupDirectusConnectionAndGetHeaders();
+    await copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder();
+    await enableRequiredSettings(headers);
+    await pushDirectusSyncSchemas();
+    await uploadSchemas(headers);
+};
 
 // Function to enable required settings
 const enableRequiredSettings = async (headers) => {
@@ -340,12 +204,12 @@ const pushDirectusSyncSchemas = async () => {
 
 const uploadSchemas = async (headers) => {
     console.log("Uploading schemas...");
-    let files = fs.readdirSync(`${configurationPathCollections}`).sort();
+    let files = fs.readdirSync(configurationPathCollections).sort();
     // remove files that are not collections like .DS_Store
     // if file ends with .DS_Store it is not a collection
     files = files.filter(file => !file.endsWith(".DS_Store"));
     for (const file of files) {
-        await uploadSchema(headers, `${configurationPathCollections}/${file}`);
+        await uploadSchema(headers, path.resolve(configurationPathCollections, file));
     }
 }
 
@@ -395,30 +259,28 @@ const getCollection = async (headers, name) => {
 
 /**
  * MAIN PULL FUNCTION
+ *
+ * This function is kept for compatibility but not exported or used
+ * by the automated migration process.
  */
-
-    // Main function to handle the "pull" command
 const mainPull = async () => {
-        console.log("Waiting for Directus to be ready...");
-        await configureVariables();
-        const headers = await setupDirectusConnectionAndGetHeaders()
-        await saveCollections(headers);
-        //await savePublicRolePermissions(headers);
-        await pullDirectusSyncSchema();
-        await copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder();
-    };
+    console.log("Waiting for Directus to be ready...");
+    const headers = await setupDirectusConnectionAndGetHeaders();
+    await saveCollections(headers);
+    await pullDirectusSyncSchema();
+    await copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder();
+};
 
 const copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder = async () => {
     // copy all files except .DS_Store from directusConfigOverwriteCollectionsPath to directusConfigCollectionsPath
 
-    const absolutePathCollections = path.resolve(__dirname, directusConfigOverwriteCollectionsPath);
-    const files = fs.readdirSync(absolutePathCollections);
+    const files = fs.readdirSync(directusConfigOverwriteCollectionsPath);
     for (const file of files) {
-        if (file.endsWith(".DS_Store")) {
+        if (file.endsWith('.DS_Store')) {
             continue;
         }
-        const source = path.resolve(absolutePathCollections, file);
-        const destination = path.resolve(__dirname, directusConfigCollectionsPath, file);
+        const source = path.resolve(directusConfigOverwriteCollectionsPath, file);
+        const destination = path.resolve(directusConfigCollectionsPath, file);
         fs.copyFileSync(source, destination);
     }
 }
@@ -427,7 +289,7 @@ const copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder = async () =
 // Function to save collections
 const saveCollections = async (headers) => {
     console.log("Saving collections...");
-    let collections = fs.readdirSync(`${configurationPathCollections}`);
+    let collections = fs.readdirSync(configurationPathCollections);
     // remove files that are not collections like .DS_Store
     // if file ends with .DS_Store it is not a collection
     collections = collections.filter(file => !file.endsWith(".DS_Store"));
@@ -445,7 +307,7 @@ const saveCollections = async (headers) => {
         console.log(jsonData);
 
         // Save the collection data to file
-        fs.writeFileSync(`${configurationPathCollections}/${collection}`, jsonData);
+        fs.writeFileSync(path.resolve(configurationPathCollections, collection), jsonData);
     }
 
     console.log(" -  Saved collections");
@@ -578,13 +440,16 @@ const fetchPatchResponse = async (url, headers, body) => {
 }
 
 
-// Command-line argument processing
+// Legacy command-line support
 if (process.argv[2] === "push") {
-    mainPush()
-        .then(() => process.exit(0))
-        .catch(console.error);
+    // When executed directly, import the schema using environment variables
+    importSchema({
+        MYHOST: process.env.MYHOST,
+        ROCKET_MEALS_PATH: process.env.ROCKET_MEALS_PATH,
+        ROCKET_MEALS_BACKEND_PATH: process.env.ROCKET_MEALS_BACKEND_PATH,
+        ADMIN_EMAIL: process.env.ADMIN_EMAIL,
+        ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
+    });
 } else if (process.argv[2] === "pull") {
-    mainPull()
-        .then(() => process.exit(0))
-        .catch(console.error);
+    mainPull();
 }

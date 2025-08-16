@@ -33,16 +33,21 @@
 				"name": "activity-auto-cleanup-schedule",
 				"source": "src/activity-auto-cleanup-schedule/index.ts"
 			},
-			{
-				"type": "hook",
-				"name": "admin-password-setup-from-env-hook",
-				"source": "src/admin-password-setup-from-env/index.ts"
-			},
-			{
-				"type": "hook",
-				"name": "app-feedbacks-hook",
-				"source": "src/app-feedbacks-hook/index.ts"
-			},
+        {
+                "type": "hook",
+                "name": "admin-password-setup-from-env-hook",
+                "source": "src/admin-password-setup-from-env/index.ts"
+        },
+        {
+                "type": "hook",
+                "name": "database-migration-hook",
+                "source": "src/database-migration-hook/index.ts"
+        },
+        {
+                "type": "hook",
+                "name": "app-feedbacks-hook",
+                "source": "src/app-feedbacks-hook/index.ts"
+        },
 			{
 				"type": "hook",
 				"name": "auto-translation-hook",
