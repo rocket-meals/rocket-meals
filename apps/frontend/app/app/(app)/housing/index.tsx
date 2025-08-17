@@ -16,7 +16,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { ApartmentSortOption } from '@/constants/SortingEnums';
+import { ApartmentSortOption } from 'repo-depkit-common';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';

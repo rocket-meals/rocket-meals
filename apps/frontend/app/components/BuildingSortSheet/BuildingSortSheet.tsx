@@ -19,7 +19,7 @@ import {
   CampusSortOption,
   ApartmentSortOption,
   BuildingSortOption,
-} from '@/constants/SortingEnums';
+} from 'repo-depkit-common';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/colorHelper';

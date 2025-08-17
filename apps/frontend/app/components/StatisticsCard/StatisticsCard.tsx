@@ -1,4 +1,5 @@
-import { Dimensions, Image, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import MyImage from '@/components/MyImage';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
@@ -50,7 +51,7 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({
           height: screenWidth > 950 ? 178 : 90,
         }}
       >
-        <Image
+        <MyImage
           style={styles.image}
           source={
             food?.image_remote_url || food?.image

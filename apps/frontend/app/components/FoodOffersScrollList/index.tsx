@@ -17,16 +17,8 @@ import FoodItem from '@/components/FoodItem/FoodItem';
 import CanteenFeedbackLabels from '@/components/CanteenFeedbackLabels/CanteenFeedbackLabels';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
-import {
-  intelligentSort,
-  sortByEatingHabits,
-  sortByFoodCategory,
-  sortByFoodName,
-  sortByFoodOfferCategory, sortByFoodOfferCategoryOnly,
-  sortByOwnFavorite,
-  sortByPublicFavorite,
-} from 'repo-depkit-common';
-import { FoodSortOption } from '@/constants/SortingEnums';
+import { sortFoodOffers } from '@/helper/foodOfferSortHelper';
+import { FoodSortOption } from 'repo-depkit-common';
 import styles from './styles';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
@@ -117,53 +109,23 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({
       : null;
 
   const sortOffers = useCallback(
-    (foodOffers: DatabaseTypes.Foodoffers[]) => {
-      let copiedFoodOffers = [...foodOffers];
-      console.log('sortOffers - initial', JSON.parse(JSON.stringify(copiedFoodOffers)));
-
-      switch (sortBy as FoodSortOption) {
-        case FoodSortOption.ALPHABETICAL:
-          copiedFoodOffers = sortByFoodName(copiedFoodOffers, language);
-          console.log('sortOffers - after sortByFoodName', JSON.parse(JSON.stringify(copiedFoodOffers)));
-          break;
-        case FoodSortOption.FAVORITE:
-          copiedFoodOffers = sortByOwnFavorite(copiedFoodOffers, ownFoodFeedbacks);
-          console.log('sortOffers - after sortByOwnFavorite', JSON.parse(JSON.stringify(copiedFoodOffers)));
-          break;
-        case FoodSortOption.EATING:
-          copiedFoodOffers = sortByEatingHabits(copiedFoodOffers, profile.markings);
-          console.log('sortOffers - after sortByEatingHabits', JSON.parse(JSON.stringify(copiedFoodOffers)));
-          break;
-        case FoodSortOption.FOOD_CATEGORY:
-          copiedFoodOffers = sortByFoodCategory(copiedFoodOffers, foodCategories, language);
-          console.log('sortOffers - after sortByFoodCategory', JSON.parse(JSON.stringify(copiedFoodOffers)));
-          break;
-        case FoodSortOption.FOODOFFER_CATEGORY:
-          copiedFoodOffers = sortByFoodOfferCategoryOnly(copiedFoodOffers, foodOfferCategories);
-          console.log('sortOffers - after sortByFoodOfferCategory', JSON.parse(JSON.stringify(copiedFoodOffers)));
-          break;
-        case FoodSortOption.RATING:
-          copiedFoodOffers = sortByPublicFavorite(copiedFoodOffers);
-          console.log('sortOffers - after sortByPublicFavorite', JSON.parse(JSON.stringify(copiedFoodOffers)));
-          break;
-        case FoodSortOption.INTELLIGENT:
-          copiedFoodOffers = intelligentSort(
-            copiedFoodOffers,
-            ownFoodFeedbacks,
-            profile.markings,
-            language,
-            foodCategories,
-            foodOfferCategories,
-          );
-          console.log('sortOffers - after intelligentSort', JSON.parse(JSON.stringify(copiedFoodOffers)));
-          break;
-        default:
-          break;
-      }
-
-      return copiedFoodOffers;
-    },
-    [sortBy, language, ownFoodFeedbacks, profile.markings, foodCategories, foodOfferCategories],
+    (foodOffers: DatabaseTypes.Foodoffers[]) =>
+      sortFoodOffers(sortBy as FoodSortOption, foodOffers, {
+        languageCode: language,
+        ownFoodFeedbacks,
+        profile,
+        foodCategories,
+        foodOfferCategories,
+        useFoodOfferCategoryOnly: true,
+      }),
+    [
+      sortBy,
+      language,
+      ownFoodFeedbacks,
+      profile,
+      foodCategories,
+      foodOfferCategories,
+    ],
   );
 
   useEffect(() => {

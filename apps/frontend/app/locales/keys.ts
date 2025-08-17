@@ -71,6 +71,8 @@ export enum TranslationKeys {
   sort_option_distance = 'sort_option_distance',
   sort_option_food_category = 'sort_option_food_category',
   sort_option_foodoffer_category = 'sort_option_foodoffer_category',
+  sort_option_price_ascending = 'sort_option_price_ascending',
+  sort_option_price_descending = 'sort_option_price_descending',
   general = 'general',
   food_category_label = 'food_category_label',
   foodoffer_category_label = 'foodoffer_category_label',

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Image, ImageResizeMode, ImageStyle, StyleProp } from 'react-native';
+import { ImageResizeMode, ImageStyle, StyleProp } from 'react-native';
+import MyImage from '@/components/MyImage';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { DatabaseTypes } from 'repo-depkit-common';
 
@@ -22,7 +23,7 @@ const CompanyImage: React.FC<CompanyImageProps> = ({
     ? { uri: imageUri }
     : require('@/assets/images/company.png');
 
-  return <Image source={source} style={style} resizeMode={resizeMode} />;
+  return <MyImage source={source} style={style} resizeMode={resizeMode} />;
 };
 
 export default CompanyImage;

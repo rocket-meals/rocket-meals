@@ -13,11 +13,12 @@ import {
 
 import { SortSheetProps } from './types';
 import Checkbox from 'expo-checkbox';
-import { FoodSortOption } from '@/constants/SortingEnums';
+import { FoodSortOption } from 'repo-depkit-common';
 import { SET_SELECTED_CANTEEN_FOOD_OFFERS, SET_SORTING } from '@/redux/Types/types';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   intelligentSort,
+  sortByPrice,
   sortByEatingHabits,
   sortByFoodName,
   sortByOwnFavorite,
@@ -91,6 +92,16 @@ const SortSheet: React.FC<SortSheetProps> = ({ closeSheet }) => {
       icon: <AntDesign name='star' size={24} />,
     },
     {
+      id: FoodSortOption.PRICE_ASCENDING,
+      label: 'sort_option_price_ascending',
+      icon: <FontAwesome5 name='sort-numeric-up' size={24} />,
+    },
+    {
+      id: FoodSortOption.PRICE_DESCENDING,
+      label: 'sort_option_price_descending',
+      icon: <FontAwesome5 name='sort-numeric-down' size={24} />,
+    },
+    {
       id: FoodSortOption.ALPHABETICAL,
       label: 'sort_option_alphabetical',
       icon: <FontAwesome5 name='sort-alpha-down' size={24} />,
@@ -141,6 +152,20 @@ const SortSheet: React.FC<SortSheetProps> = ({ closeSheet }) => {
         break;
       case FoodSortOption.RATING:
         copiedFoodOffers = sortByPublicFavorite(copiedFoodOffers);
+        break;
+      case FoodSortOption.PRICE_ASCENDING:
+        copiedFoodOffers = sortByPrice(
+          copiedFoodOffers,
+          profile?.price_group,
+          false
+        );
+        break;
+      case FoodSortOption.PRICE_DESCENDING:
+        copiedFoodOffers = sortByPrice(
+          copiedFoodOffers,
+          profile?.price_group,
+          true
+        );
         break;
       case FoodSortOption.INTELLIGENT:
         copiedFoodOffers = intelligentSort(

@@ -1,10 +1,10 @@
 import {
-  Image,
   Linking,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import MyImage from '@/components/MyImage';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './styles';
 import { isWeb } from '@/constants/Constants';
@@ -348,7 +348,7 @@ const FoodItem: React.FC<FoodItemProps> = memo(
                             key={mark.id}
                             onPress={() => openMarkingLabel(mark)}
                           >
-                            <Image
+                            <MyImage
                               source={
                                 mark?.image_remote_url || mark?.image
                                   ? {

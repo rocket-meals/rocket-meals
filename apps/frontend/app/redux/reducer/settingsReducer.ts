@@ -15,12 +15,13 @@ import {
   SET_WARNING,
   SET_WIKIS,
   SET_WIKIS_PAGES,
+  SET_USE_WEBP_FOR_ASSETS,
 } from '@/redux/Types/types';
 import {
   FoodSortOption,
   CampusSortOption,
   ApartmentSortOption,
-} from '@/constants/SortingEnums';
+} from 'repo-depkit-common';
 
 const initialState = {
   selectedTheme: 'systematic',
@@ -38,6 +39,7 @@ const initialState = {
   wikis: [],
   nickNameLocal: '',
   amountColumnsForcard: 0,
+  useWebpForAssets: true,
 };
 
 const settingReducer = (state = initialState, actions: any) => {
@@ -130,6 +132,12 @@ const settingReducer = (state = initialState, actions: any) => {
       return {
         ...state,
         amountColumnsForcard: actions.payload,
+      };
+    }
+    case SET_USE_WEBP_FOR_ASSETS: {
+      return {
+        ...state,
+        useWebpForAssets: actions.payload,
       };
     }
     case CLEAR_SETTINGS: {

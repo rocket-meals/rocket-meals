@@ -320,6 +320,33 @@ export function sortByPublicFavorite(foodOffers: DatabaseTypes.Foodoffers[]) {
     return foodOffers;
   }
 
+export function sortByPrice(
+  foodOffers: DatabaseTypes.Foodoffers[],
+  priceGroup?: string,
+  descending = false
+) {
+  console.log('sortByPrice - before', JSON.parse(JSON.stringify(foodOffers)));
+
+  foodOffers.sort((a, b) => {
+    const getPrice = (offer: DatabaseTypes.Foodoffers) => {
+      return priceGroup === 'guest'
+        ? offer?.price_guest ?? 0
+        : priceGroup === 'employee'
+        ? offer?.price_employee ?? 0
+        : offer?.price_student ?? 0;
+    };
+
+    const priceA = getPrice(a);
+    const priceB = getPrice(b);
+
+    return descending ? priceB - priceA : priceA - priceB;
+  });
+
+  console.log('sortByPrice - after', JSON.parse(JSON.stringify(foodOffers)));
+  return foodOffers;
+}
+
+
 
 export function sortByEatingHabits(
     foodOffers: DatabaseTypes.Foodoffers[],

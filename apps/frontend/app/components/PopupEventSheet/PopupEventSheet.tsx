@@ -1,5 +1,6 @@
 import React from 'react';
-import { Image, Linking, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, Text, TouchableOpacity, View } from 'react-native';
+import MyImage from '@/components/MyImage';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -173,7 +174,7 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({
             overflow: 'hidden',
           }}
         >
-          <Image
+          <MyImage
             source={{ uri: url }}
             style={{
               width: '100%',
@@ -243,7 +244,7 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({
 
           case 'image':
             return (
-              <ImageContent
+              <MyImageContent
                 key={`image-${level}-${index}`}
                 url={item.url}
                 altText={item.altText}
@@ -330,7 +331,7 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({
         {
             (eventData?.image || eventData?.image_remote_url) && (
                 <View style={styles.imageContainer}>
-                  <Image
+                  <MyImage
                       style={styles.image}
                       source={{
                         uri:

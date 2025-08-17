@@ -3,7 +3,7 @@ import {
   FoodSortOption,
   CampusSortOption,
   ApartmentSortOption,
-} from '@/constants/SortingEnums';
+} from 'repo-depkit-common';
 
 export interface AuthState {
   user: DatabaseTypes.DirectusUsers | Record<string, any> | null;
@@ -53,6 +53,7 @@ export interface SettingsState {
   wikis: DatabaseTypes.Wikis[];
   nickNameLocal: string;
   amountColumnsForcard: number;
+  useWebpForAssets: boolean;
 }
 
 export interface FoodState {

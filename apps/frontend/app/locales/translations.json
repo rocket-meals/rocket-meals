@@ -709,6 +709,26 @@
     "tr": "Yemek Teklifi Kategorisi",
     "zh": "餐品类别"
   },
+  "sort_option_price_ascending": {
+    "de": "Preis aufsteigend",
+    "en": "Price ascending",
+    "ar": "السعر تصاعدي",
+    "es": "Precio ascendente",
+    "fr": "Prix croissant",
+    "ru": "Цена по возрастанию",
+    "tr": "Artan fiyata göre",
+    "zh": "价格升序"
+  },
+  "sort_option_price_descending": {
+    "de": "Preis absteigend",
+    "en": "Price descending",
+    "ar": "السعر تنازلي",
+    "es": "Precio descendente",
+    "fr": "Prix décroissant",
+    "ru": "Цена по убыванию",
+    "tr": "Azalan fiyata göre",
+    "zh": "价格降序"
+  },
   "general": {
     "de": "Allgemeines",
     "en": "General",

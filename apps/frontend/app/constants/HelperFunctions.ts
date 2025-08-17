@@ -6,6 +6,7 @@ import { NumberHelper } from 'repo-depkit-common';
 import { ServerAPI } from '@/redux/actions';
 import {StringHelper} from 'repo-depkit-common';
 import {DatabaseTypes} from 'repo-depkit-common';
+import { configureStore } from '@/redux/store';
 
 export const generateCodeVerifier = async () => {
   const bytesMinAmount = 32;
@@ -70,7 +71,9 @@ export const getImageUrl = (imageId: string, size: number = 512) => {
   if (!imageId) {
     return null;
   }
-  return `${Server.ServerUrl}/assets/${imageId}?fit=cover&width=${size}&height=${size}&quality=100`;
+  const { useWebpForAssets } = configureStore.getState().settings;
+  const format = useWebpForAssets ? '&format=webp' : '';
+  return `${Server.ServerUrl}/assets/${imageId}?fit=cover&width=${size}&height=${size}&quality=100${format}`;
 };
 
 export const getHighResImageUrl = (imageId: string, size: number = 2048) => {
@@ -81,7 +84,9 @@ export const getFormValueImageUrl = (imageId: string) => {
   if (!imageId) {
     return null;
   }
-  return `${Server.ServerUrl}/assets/${imageId}`;
+  const { useWebpForAssets } = configureStore.getState().settings;
+  const format = useWebpForAssets ? '?format=webp' : '';
+  return `${Server.ServerUrl}/assets/${imageId}${format}`;
 };
 
 export const uploadToDirectus = async (image: any) => {

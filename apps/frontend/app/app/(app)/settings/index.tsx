@@ -13,7 +13,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
-import { Image } from 'expo-image';
+import MyImage from '@/components/MyImage';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
 import { Languages, PriceGroupKey } from './types';
@@ -65,6 +65,7 @@ import {
   SET_DRAWER_POSITION,
   SET_FIRST_DAY_OF_THE_WEEK,
   SET_NICKNAME_LOCAL,
+  SET_USE_WEBP_FOR_ASSETS,
   UPDATE_DEVELOPER_MODE,
   UPDATE_MANAGEMENT,
   UPDATE_PROFILE,
@@ -127,6 +128,7 @@ const Settings = () => {
     amountColumnsForcard,
     serverInfo,
     appSettings,
+    useWebpForAssets,
   } = useSelector((state: RootState) => state.settings);
   const selectedCanteen = useSelectedCanteen();
   const [windowWidth, setWindowWidth] = useState(
@@ -248,6 +250,13 @@ const Settings = () => {
     ServerAPI.updateServerUrl(config.server_url);
     await AsyncStorage.setItem('server_url_custom', config.server_url);
     await performLogout(dispatch, router);
+  };
+
+  const toggleWebpForAssets = () => {
+    dispatch({
+      type: SET_USE_WEBP_FOR_ASSETS,
+      payload: !useWebpForAssets,
+    });
   };
 
   const handleCheckForUpdates = () => {
@@ -748,7 +757,7 @@ const Settings = () => {
             }}
           >
             <View style={styles.logoContainer}>
-              <Image
+              <MyImage
                 source={{
                   uri: getImageUrl(serverInfo?.info?.project?.project_logo),
                 }}
@@ -765,21 +774,38 @@ const Settings = () => {
             </Text>
           )}
           {isManagement && isDevMode && (
-            <SettingsList iconBgColor={primaryColor}
-              leftIcon={
-                <MaterialCommunityIcons
-                  name='server'
-                  size={24}
-                  color={theme.screen.icon}
-                />
-              }
-              label={translate(TranslationKeys.backend_server)}
-              value={serverInfo?.info?.project?.project_name}
-              rightIcon={
-                <Octicons name='chevron-right' size={24} color={theme.screen.icon} />
-              }
-              handleFunction={openServerSheet}
-            />
+            <>
+              <SettingsList iconBgColor={primaryColor}
+                leftIcon={
+                  <MaterialCommunityIcons
+                    name='server'
+                    size={24}
+                    color={theme.screen.icon}
+                  />
+                }
+                label={translate(TranslationKeys.backend_server)}
+                value={serverInfo?.info?.project?.project_name}
+                rightIcon={
+                  <Octicons name='chevron-right' size={24} color={theme.screen.icon} />
+                }
+                handleFunction={openServerSheet}
+              />
+              <SettingsList iconBgColor={primaryColor}
+                leftIcon={
+                  <MaterialIcons
+                    name='image'
+                    size={24}
+                    color={theme.screen.icon}
+                  />
+                }
+                label='Use WebP images'
+                value={useWebpForAssets ? 'WebP' : 'Default'}
+                rightIcon={
+                  <Octicons name='chevron-right' size={24} color={theme.screen.icon} />
+                }
+                handleFunction={toggleWebpForAssets}
+              />
+            </>
           )}
         </View>
       </ScrollView>

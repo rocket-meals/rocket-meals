@@ -6,6 +6,8 @@ export enum FoodSortOption {
   FOODOFFER_CATEGORY = 'foodoffer_category',
   RATING = 'rating',
   ALPHABETICAL = 'alphabetical',
+  PRICE_ASCENDING = 'price_ascending',
+  PRICE_DESCENDING = 'price_descending',
   NONE = 'none',
 }
 
