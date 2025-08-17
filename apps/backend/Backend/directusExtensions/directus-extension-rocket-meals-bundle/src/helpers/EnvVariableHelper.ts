@@ -28,6 +28,18 @@ export class EnvVariableHelper {
         return DateHelperTimezone.GERMANY
     }
 
+    static getMyHost() {
+        return this.getEnvVariable("MYHOST");
+    }
+
+    static getRocketMealsPath() {
+        return this.getEnvVariable("ROCKET_MEALS_PATH");
+    }
+
+    static getRocketMealsBackendPath() {
+        return this.getEnvVariable("ROCKET_MEALS_BACKEND_PATH");
+    }
+
     static getFoodSyncMode() {
         return this.getEnvVariable("FOOD_SYNC_MODE"); // Options: "TL1CSV", "TL1WEB", "SWOSY"
     }

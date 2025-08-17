@@ -38,3 +38,6 @@ RUN corepack enable && \
 RUN pnpm install directus-extension-sync@3.0.3
 
 RUN pnpm install directus-extension-flow-manager@1.4.1
+
+# set environment variables for Directus: MARKETPLACE_TRUST=all
+ENV MARKETPLACE_TRUST=all

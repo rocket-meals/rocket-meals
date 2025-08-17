@@ -139,12 +139,19 @@ export class StudentenwerkHannoverNews_Parser implements NewsParserInterface {
             let datePublishedText = $articleDetails(".news-list-date").text().trim();
 
             let dateParts = datePublishedText.split('.');
+
             // @ts-ignore if dateParts is not valid, the Date constructor will throw an error
-            let dateAsDate = new Date(parseInt(dateParts[2]), parseInt(dateParts[1]) - 1, parseInt(dateParts[0]));
-            dateAsDate.setHours(12, 0, 0, 0);
+            let day = parseInt(dateParts[0], 10);
+            // @ts-ignore if dateParts is not valid, the Date constructor will throw an error
+            let month = parseInt(dateParts[1], 10) - 1;
+            // @ts-ignore if dateParts is not valid, the Date constructor will throw an error
+            let year = parseInt(dateParts[2], 10);
+
+            let dateAsDate = new Date(Date.UTC(year, month, day, 12, 0, 0));
             return dateAsDate.toISOString();
         } catch (error) {
             console.log("Error fetching article page: " + articleUrl);
+            console.log(error);
             return null;
         }
     }

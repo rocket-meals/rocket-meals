@@ -2,7 +2,7 @@ import {defineHook} from '@directus/extensions-sdk';
 import {CollectionNames} from "repo-depkit-common";
 import {DatabaseInitializedCheck} from "../helpers/DatabaseInitializedCheck";
 import {MyDatabaseHelper} from "../helpers/MyDatabaseHelper";
-import {registerInitHook} from "../helpers/InitHookAfterMigrationHelper";
+import {registerInitHookAfterMigration} from "../helpers/InitHookMigrationHelper";
 
 const SCHEDULE_NAME = "collections_dates_last_update";
 
@@ -94,7 +94,7 @@ export default defineHook(async ({action, init}, apiContext) => {
 	}
 
 	// https://docs.directus.io/extensions/hooks.html#available-events
-        registerInitHook(async () => {
+        registerInitHookAfterMigration(async () => {
                 await cleanupNonExistingCollectionsAndCreateMissingCollections();
         });
 

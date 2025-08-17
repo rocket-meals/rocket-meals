@@ -42,6 +42,7 @@ services:
       # the relative path is therefore ./..(apps)/..(rocket-meals)/data/database_file_uploads
       - ./../../data/database_file_uploads:/directus/uploads
       # Make sure to also mount the volume when using SQLite
+      - ./../../data/directus-sync-data:/directus/directus-sync-data/
       #- ./Backend/database:/directus/database
       # If you want to load extensions from the host
       - ./Backend/directusExtensions:/directus/extensions

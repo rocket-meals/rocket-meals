@@ -1,7 +1,7 @@
 import {defineHook} from '@directus/extensions-sdk';
 import {MyDatabaseHelper} from "../helpers/MyDatabaseHelper";
 import {EnvVariableHelper} from "../helpers/EnvVariableHelper";
-import {registerInitHook} from "../helpers/InitHookAfterMigrationHelper";
+import {registerInitHookBeforeMigration} from "../helpers/InitHookMigrationHelper";
 
 const SCHEDULE_NAME = "activity_auto_cleanup";
 
@@ -18,7 +18,7 @@ export default defineHook(async ({init}, apiContext) => {
 
     const userHelper = myDatabaseHelper.getUsersHelper();
 
-    registerInitHook(async () => {
+    registerInitHookBeforeMigration(async () => {
         const usersWithAdminEmail = await userHelper.readByQuery({
             filter: {
                 _and: [

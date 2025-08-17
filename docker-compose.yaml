@@ -4,7 +4,16 @@ services:
     volumes:
       - ./data:/data
     working_dir: /data
-    entrypoint: ["/bin/sh", "-c", "./permissionDatabase.sh"]
+    entrypoint: [ "/bin/sh", "-lc", "
+          set -e
+          ls -la
+          # CRLF entfernen (falls vorhanden)
+          sed -i 's/\r$//' permissionDatabase.sh
+          # ausführbar machen (falls noch nicht)
+          chmod +x permissionDatabase.sh
+          # mit /bin/sh ausführen (unabhängig vom Shebang)
+          /bin/sh ./permissionDatabase.sh
+        " ]
 
   traefik:
     env_file:

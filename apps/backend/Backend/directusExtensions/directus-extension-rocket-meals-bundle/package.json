@@ -33,21 +33,21 @@
 				"name": "activity-auto-cleanup-schedule",
 				"source": "src/activity-auto-cleanup-schedule/index.ts"
 			},
-        {
-                "type": "hook",
-                "name": "admin-password-setup-from-env-hook",
-                "source": "src/admin-password-setup-from-env/index.ts"
-        },
-        {
-                "type": "hook",
-                "name": "database-migration-hook",
-                "source": "src/database-migration-hook/index.ts"
-        },
-        {
-                "type": "hook",
-                "name": "app-feedbacks-hook",
-                "source": "src/app-feedbacks-hook/index.ts"
-        },
+			{
+				"type": "hook",
+				"name": "admin-password-setup-from-env-hook",
+				"source": "src/admin-password-setup-from-env/index.ts"
+			},
+			{
+				"type": "hook",
+				"name": "database-migration-hook",
+				"source": "src/database-migration-hook/index.ts"
+			},
+			{
+				"type": "hook",
+				"name": "app-feedbacks-hook",
+				"source": "src/app-feedbacks-hook/index.ts"
+			},
 			{
 				"type": "hook",
 				"name": "auto-translation-hook",
@@ -196,13 +196,16 @@
 	"dependencies": {
 		"@directus/memory": "3.0.6",
 		"@directus/sdk": "^18.0.0",
+		"@types/cookiejar": "^2.1.5",
 		"@types/moment": "^2.13.0",
 		"@types/object-hash": "^3.0.6",
 		"@types/spark-md5": "^3.0.5",
 		"base-x": "^5.0.1",
 		"chardet": "^2.0.0",
 		"cheerio": "^1.0.0-rc.12",
+		"cookiejar": "^2.1.4",
 		"deepl-node": "^1.13.1",
+		"directus-sync": "^3.3.0",
 		"iconv-lite": "^0.6.3",
 		"ioredis": "^5.6.1",
 		"js-yaml": "^4.1.0",
