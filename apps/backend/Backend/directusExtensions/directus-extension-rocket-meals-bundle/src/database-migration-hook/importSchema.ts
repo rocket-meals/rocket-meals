@@ -7,6 +7,8 @@ import path from 'path'
 import https from 'https'
 import {ChildProcessWithoutNullStreams} from "node:child_process";
 
+const COPY_FOLDER_WORKING_DIR = "/directus/directus-sync-data-working-dir/configuration";
+
 const DIRECTUS_SYNC_CONFIGURATION_PATH = "/directus/directus-sync-data/configuration";
 const DIRECTUS_SYNC_CONFIGURATION_DIRECTUS_CONFIG = path.join(DIRECTUS_SYNC_CONFIGURATION_PATH, "./directus-config");
 
@@ -23,18 +25,6 @@ const collectionsToSkip = ['2-wikis.json']
 let directus_url: string
 let admin_email: string
 let admin_password: string
-
-const configurationPath = path.resolve(DIRECTUS_SYNC_CONFIGURATION_PATH, './configuration')
-const directusConfigCollectionsPath = path.resolve(
-    DIRECTUS_SYNC_CONFIGURATION_PATH,
-    './configuration/directus-config/collections'
-)
-const directusConfigOverwriteCollectionsPath = path.resolve(
-    DIRECTUS_SYNC_CONFIGURATION_PATH,
-    './configuration/directus-config-overwrite/collections'
-)
-
-const configurationPathCollections = path.join(configurationPath, 'collections')
 
 // Types
 interface ModuleBarItem {
@@ -80,15 +70,21 @@ export const importSchema = async (envDict: Partial<EnvDict> = {}): Promise<void
     const DOMAIN_PATH = envDict.ROCKET_MEALS_PATH as string
     const BACKEND_PATH = envDict.ROCKET_MEALS_BACKEND_PATH as string
     directus_url = envDict.directus_url || `https://${MYHOST}/${DOMAIN_PATH}/${BACKEND_PATH}`
-    admin_email = envDict.ADMIN_EMAIL as string
-    admin_password = envDict.ADMIN_PASSWORD as string
+    directus_url = `http://0.0.0.0:8055`;
 
+    admin_email = "admin@example.com"
+    admin_password ="The!UniversalRocketMealsPassword"
+
+    console.log("Wait before starting the push sync")
+    await new Promise(resolve => setTimeout(resolve, 10*1000))
     console.log('Starting Push Sync')
     const headers = await setupDirectusConnectionAndGetHeaders()
-    await copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder()
     await enableRequiredSettings(headers)
+
+
+    let copyFolderPaths = await copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder()
     await pushDirectusSyncSchemas()
-    await uploadSchemas(headers)
+    await uploadSchemas(headers, copyFolderPaths.configurationPathCollections);
 }
 
 // Function to enable required settings
@@ -233,11 +229,11 @@ const pushDirectusSyncSchemas = async (): Promise<void> => {
     await execDirectusSyncMethod('push', 'Pushing schema changes')
 }
 
-const uploadSchemas = async (headers: Headers): Promise<void> => {
+const uploadSchemas = async (headers: Headers, configurationPathCollections: string): Promise<void> => {
     console.log('Uploading schemas...')
     let files = fs.readdirSync(configurationPathCollections).sort()
     // remove files that are not collections like .DS_Store
-    files = files.filter(file => !file.endsWith('.DS_Store'))
+    files = filterFileAndFolgersWithDsStore(files);
     for (const file of files) {
         await uploadSchema(headers, path.resolve(configurationPathCollections, file))
     }
@@ -295,66 +291,76 @@ const getCollection = async (headers: Headers, name: string): Promise<unknown[]>
     return data.data
 }
 
-/**
- * MAIN PULL FUNCTION
- *
- * This function is kept for compatibility but not exported or used
- * by the automated migration process.
- */
-const mainPull = async (): Promise<void> => {
-    console.log('Waiting for Directus to be ready...')
-    const headers = await setupDirectusConnectionAndGetHeaders()
-    await saveCollections(headers)
-    await pullDirectusSyncSchema()
-    await copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder()
-}
-
 const filterFileAndFolgersWithDsStore = (files: string[]): string[] => {
     // Filter out .DS_Store files from the list of files
     return files.filter(file => !file.endsWith('.DS_Store'))
 }
 
-const copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder = async (): Promise<void> => {
+const copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder = async () => {
+    console.log("Okay nice so far. Let's push the schemas now. Check if files are mounted correctly.")
+    if (!fs.existsSync(DIRECTUS_SYNC_CONFIGURATION_DIRECTUS_CONFIG)) {
+        throw new Error(`Configuration path for collections does not exist: ${DIRECTUS_SYNC_CONFIGURATION_DIRECTUS_CONFIG}`)
+    }
+    let files = fs.readdirSync(DIRECTUS_SYNC_CONFIGURATION_DIRECTUS_CONFIG)
+    console.log(" -  Found files: ", files.length);
+    for(const file of files) {
+        console.log(` -  Found file: ${file}`)
+    }
+
+    // delete all in COPY_FOLDER_WORKING_DIR
+    if (fs.existsSync(COPY_FOLDER_WORKING_DIR)) {
+        console.log(` -  Deleting working directory: ${COPY_FOLDER_WORKING_DIR}`)
+        fs.rmSync(COPY_FOLDER_WORKING_DIR, { recursive: true, force: true })
+    }
+    // create the directory again
+    fs.mkdirSync(COPY_FOLDER_WORKING_DIR, { recursive: true })
+
+    // copy all files and folders inside DIRECTUS_SYNC_CONFIGURATION_PATH to COPY_FOLDER_WORKING_DIR
+    console.log(` -  Copying files from ${DIRECTUS_SYNC_CONFIGURATION_PATH} to ${COPY_FOLDER_WORKING_DIR}`)
+    const filesToCopy = fs.readdirSync(DIRECTUS_SYNC_CONFIGURATION_PATH)
+    for (const file of filesToCopy) {
+        const source = path.resolve(DIRECTUS_SYNC_CONFIGURATION_PATH, file)
+        const destination = path.resolve(COPY_FOLDER_WORKING_DIR, file)
+        if (fs.lstatSync(source).isDirectory()) {
+            // If it's a directory, copy it recursively
+            fs.cpSync(source, destination, { recursive: true, force: true })
+        } else {
+            // If it's a file, copy it
+            fs.copyFileSync(source, destination)
+        }
+    }
+    console.log(` -  Copied files to ${COPY_FOLDER_WORKING_DIR}`)
+
+
+    const directusConfigCollectionsPath = path.resolve(
+        COPY_FOLDER_WORKING_DIR,
+        './directus-config/collections'
+    )
+
+
     // copy all files except .DS_Store from directusConfigOverwriteCollectionsPath to directusConfigCollectionsPath
+    console.log("Resolving directusConfigOverwriteCollectionsPath")
+    const directusConfigOverwriteCollectionsPath = path.resolve(
+        DIRECTUS_SYNC_CONFIGURATION_PATH,
+        './directus-config-overwrite/collections'
+    )
 
-    let files = fs.readdirSync(directusConfigOverwriteCollectionsPath)
-    files = filterFileAndFolgersWithDsStore(files)
+    console.log("Path joining directusConfigOverwriteCollectionsPath: ", directusConfigOverwriteCollectionsPath)
+    const configurationPathCollections = path.join(DIRECTUS_SYNC_CONFIGURATION_PATH, 'collections')
 
-    for (const file of files) {
+    console.log("Read all files to be overwritten from: ", directusConfigOverwriteCollectionsPath)
+    let filesToOverwrite = fs.readdirSync(directusConfigOverwriteCollectionsPath)
+    filesToOverwrite = filterFileAndFolgersWithDsStore(filesToOverwrite)
+
+    for (const file of filesToOverwrite) {
         const source = path.resolve(directusConfigOverwriteCollectionsPath, file)
         const destination = path.resolve(directusConfigCollectionsPath, file)
         fs.copyFileSync(source, destination)
     }
-}
 
-// Function to save collections
-const saveCollections = async (headers: Headers): Promise<void> => {
-    console.log('Saving collections...')
-    let collections = fs.readdirSync(configurationPathCollections)
-    // remove files that are not collections like .DS_Store
-    collections = filterFileAndFolgersWithDsStore(collections);
-
-    for (const collection of collections) {
-        if (collectionsToSkip.includes(collection)) {
-            console.log(` -  Skipping ignored collection: ${collection}`)
-            continue
-        }
-
-        const data = await getCollection(headers, collection)
-        console.log(data)
-        const jsonData = JSON.stringify(data, null, 4)
-        console.log(` -  Fetched ${collection} (${(data as unknown[]).length} items)`)
-        console.log(jsonData)
-
-        // Save the collection data to file
-        fs.writeFileSync(path.resolve(configurationPathCollections, collection), jsonData)
+    return {
+        configurationPathCollections: configurationPathCollections,
     }
-
-    console.log(' -  Saved collections')
-}
-
-const pullDirectusSyncSchema = async (): Promise<void> => {
-    await execDirectusSyncMethod('pull', 'Pulling schema changes')
 }
 
 const setupDirectusConnectionAndGetHeaders = async (): Promise<Headers> => {
@@ -366,6 +372,7 @@ const setupDirectusConnectionAndGetHeaders = async (): Promise<Headers> => {
 const waitForDirectusToBeReady = async (): Promise<boolean> => {
     console.log('Waiting for Directus to be ready...')
     console.log('Checking directus server at: ' + directus_url)
+    //const retries = 100
     const retries = 100
     let ready = false
     const pingUrl = `${directus_url}/server/ping`;
@@ -416,6 +423,8 @@ const login = async (): Promise<Headers> => {
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
     }
+
+    console.log('Login successfully.')
 
     // Save the cookies to the jar
     const cookies = response.headers.get('set-cookie')

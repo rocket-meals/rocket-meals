@@ -5,8 +5,9 @@ import {EnvVariableHelper} from '../helpers/EnvVariableHelper';
 // @ts-ignore - JS module without type definitions
 import {importSchema} from "./importSchema"
 
-export default defineHook(async ({ init }) => {
-  init(ActionInitFilterEventHelper.INIT_APP_STARTED, async () => {
+export default defineHook(async ({ init, action }) => {
+  action(ActionInitFilterEventHelper.SERVER_STARTED, async () => {
+    console.log("INIT_APP_STARTED");
     const envDict = {
       MYHOST: EnvVariableHelper.getMyHost(),
       ROCKET_MEALS_PATH: EnvVariableHelper.getRocketMealsPath(),
