@@ -1,6 +1,6 @@
 {
   "name": "rocket-meals-dev",
-  "main": "expo-router/entry",
+  "main": "index.ts",
   "homepage": "/rocket-meals",
   "version": "1.0.0",
   "scripts": {
