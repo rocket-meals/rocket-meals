@@ -38,14 +38,14 @@ jobs:
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 🛠️ Build Android App
-        run: eas build --platform android --non-interactive
+      - name: 🛠️ Build Android App (AAB for Play Store)
+        run: eas build --platform android --non-interactive --profile production
         working-directory: ./apps/frontend/app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: 📤 Submit Android Build to Play Store
-        run: eas submit --platform android --non-interactive --latest
+        run: eas submit --platform android --non-interactive --latest --profile production
         working-directory: ./apps/frontend/app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

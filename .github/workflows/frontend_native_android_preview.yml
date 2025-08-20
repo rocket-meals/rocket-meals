@@ -38,7 +38,7 @@ jobs:
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 🧪 Build with previewApk profile
+      - name: 🧪 Build Android APK for internal testing (no Play Store submission)
         run: eas build --platform android --non-interactive --profile previewApk
         working-directory: ./apps/frontend/app
         env:

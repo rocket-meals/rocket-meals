@@ -28,6 +28,9 @@
       "node": "22.16.0"
     },
     "production": {
+      "android": {
+        "buildType": "aab"
+      },
       "autoIncrement": false,
       "channel": "production",
       "node": "22.16.0"
@@ -35,6 +38,10 @@
   },
   "submit": {
     "production": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "draft"
+      },
       "ios": {
         "appleId": "nils@baumgartner-software.de",
         "ascAppId": "6483930801",
