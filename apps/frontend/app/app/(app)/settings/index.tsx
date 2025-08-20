@@ -35,7 +35,7 @@ import NicknameSheet from '@/components/NicknameSheet/NicknameSheet';
 import ColorSchemeSheet from '@/components/ColorSchemeSheet/ColorSchemeSheet';
 import DrawerPositionSheet from '@/components/DrawerPositionSheet/DrawerPositionSheet';
 import ServerSelectionSheet from '@/components/ServerSelectionSheet/ServerSelectionSheet';
-import { router, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import {
   themes,
   languages,
@@ -95,6 +95,7 @@ const Settings = () => {
   useSetPageTitle(TranslationKeys.settings);
   const { theme, setThemeMode } = useTheme();
   const dispatch = useDispatch();
+  const router = useRouter();
   const canteenSheetRef = useRef<BottomSheet>(null);
   const [isActive, setIsActive] = useState(false);
   const { translate, setLanguageMode, language } = useLanguage();

@@ -33,7 +33,7 @@ import {
   SET_SELECTED_FOOD_MARKINGS,
 } from '@/redux/Types/types';
 import PermissionModal from '../PermissionModal/PermissionModal';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { createSelector } from 'reselect';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -89,6 +89,7 @@ const FoodItem: React.FC<FoodItemProps> = memo(
       getImageUrl(String(appSettings.foods_placeholder_image)) ||
       appSettings.foods_placeholder_image_remote_url ||
       getImageUrl(serverInfo?.info?.project?.project_logo);
+    const router = useRouter();
 
     const getPriceGroup = (price_group: string) => {
       if (price_group) {

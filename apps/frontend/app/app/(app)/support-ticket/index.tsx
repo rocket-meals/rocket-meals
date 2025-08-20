@@ -12,7 +12,7 @@ import { AppFeedback } from '@/redux/actions/AppFeedback/AppFeedback';
 import SettingsList from '@/components/SettingsList';
 import { Octicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { format } from 'date-fns';
-import { router, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { DatabaseTypes } from 'repo-depkit-common';
@@ -31,6 +31,7 @@ const index = () => {
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get('window').width
   );
+  const router = useRouter();
 
   const getAllTickets = async () => {
     setLoading(true);

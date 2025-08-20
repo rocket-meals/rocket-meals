@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { TranslationKeys } from '@/locales/keys';
@@ -11,6 +11,7 @@ const RssFeedConfig = () => {
   useSetPageTitle(TranslationKeys.rss_feed);
   const { theme } = useTheme();
   const { translate } = useLanguage();
+  const router = useRouter();
   const [urls, setUrls] = useState<string[]>(['']);
   const [interval, setInterval] = useState('10');
 

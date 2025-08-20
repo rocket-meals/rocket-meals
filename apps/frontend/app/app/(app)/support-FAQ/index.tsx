@@ -9,7 +9,7 @@ import {
   Text,
 } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import SettingsList from '@/components/SettingsList';
 import {
   MaterialIcons,
@@ -30,6 +30,7 @@ const supportfaq = () => {
   const { translate } = useLanguage();
   const { theme } = useTheme();
   const toast = useToast();
+  const router = useRouter();
   const { profile } = useSelector((state: RootState) => state.authReducer);
   const [projectName, setProjectName] = useState('');
   const [windowWidth, setWindowWidth] = useState(

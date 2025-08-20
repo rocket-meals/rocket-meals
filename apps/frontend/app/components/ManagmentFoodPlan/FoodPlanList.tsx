@@ -19,7 +19,7 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import styles from './styles';
 import { useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
-import { router, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { RootState } from '@/redux/reducer';
 
 const FoodPlanList = ({
@@ -63,6 +63,7 @@ const FoodPlanList = ({
   };
 
   const selectedCanteen = useSelectedCanteen();
+  const router = useRouter();
 
   return (
     <View

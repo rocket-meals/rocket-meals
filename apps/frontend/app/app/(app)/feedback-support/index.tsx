@@ -23,7 +23,7 @@ import ModalComponent from '../../../components/ModalSetting/ModalComponent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSelector } from 'react-redux';
 import * as DeviceInfo from 'expo-device';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { AppFeedback } from '@/redux/actions/AppFeedback/AppFeedback';
 import { FontAwesome5 } from '@expo/vector-icons';
 import useToast from '@/hooks/useToast';
@@ -45,6 +45,7 @@ const FeedbackScreen = () => {
     (state: RootState) => state.settings
   );
   const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
+  const router = useRouter();
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedTitle, setSelectedTitle] = useState('');
   const [selectedKey, setSelectedKey] = useState('');

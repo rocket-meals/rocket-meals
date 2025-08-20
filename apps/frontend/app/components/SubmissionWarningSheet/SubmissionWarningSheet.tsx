@@ -13,7 +13,7 @@ import { isWeb } from '@/constants/Constants';
 import { sheetProps } from './types';
 import { useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { TranslationKeys } from '@/locales/keys';
@@ -26,6 +26,7 @@ const SubmissionWarningSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
   const [loading, setLoading] = useState(false);
   const { primaryColor } = useSelector((state: RootState) => state.settings);
   const { user } = useSelector((state: RootState) => state.authReducer);
+  const router = useRouter();
 
   const handleProceed = async () => {
     setLoading(true);

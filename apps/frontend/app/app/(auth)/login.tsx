@@ -10,7 +10,7 @@ import ManagementSheet from '@/components/Login/ManagementSheet';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { isWeb } from '@/constants/Constants';
-import { router, useFocusEffect, useGlobalSearchParams } from 'expo-router';
+import { useRouter, useFocusEffect, useGlobalSearchParams } from 'expo-router';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -41,6 +41,7 @@ export default function Login() {
   const { theme } = useTheme();
   const dispatch = useDispatch();
   const { deviceMock } = useGlobalSearchParams();
+  const router = useRouter();
   const appSettingsHelper = new AppSettingsHelper();
   const wikisHelper = new WikisHelper();
   const bottomSheetRef = useRef<BottomSheet>(null);

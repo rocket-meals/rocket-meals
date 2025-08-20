@@ -8,7 +8,7 @@ import {
   Ionicons,
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import {
   SET_DAY_PLAN,
@@ -24,6 +24,7 @@ const index = () => {
   const { translate } = useLanguage();
   const { theme } = useTheme();
   const dispatch = useDispatch();
+  const router = useRouter();
 
   return (
     <ScrollView

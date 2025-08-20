@@ -11,7 +11,7 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo } from '@expo/vector-icons';
 import { DatabaseTypes } from 'repo-depkit-common';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { getFromCategoryTranslation } from '@/helper/resourceHelper';
 import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
@@ -31,6 +31,7 @@ const index = () => {
   const [screenWidth, setScreenWidth] = useState(
     Dimensions.get('window').width
   );
+  const router = useRouter();
 
   const getAllForms = async () => {
     setLoading(true);

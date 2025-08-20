@@ -2,7 +2,7 @@ import React from 'react';
 import { View, FlatList } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { TranslationKeys } from '@/locales/keys';
 import { useSelector } from 'react-redux';
@@ -15,6 +15,7 @@ const ChatsScreen = () => {
   useSetPageTitle(TranslationKeys.chats);
   const { theme } = useTheme();
   const { translate } = useLanguage();
+  const router = useRouter();
 
   const chats = useSelector((state: RootState) => state.chats.chats);
   const sortedChats = [...chats].sort((a, b) => {

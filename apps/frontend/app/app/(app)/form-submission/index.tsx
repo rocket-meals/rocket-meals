@@ -22,7 +22,7 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { isWeb } from '@/constants/Constants';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
@@ -78,6 +78,7 @@ const index = () => {
   const scrollViewRef = useRef(null);
   const { translate } = useLanguage();
   const { theme } = useTheme();
+  const router = useRouter();
   const dispatch = useDispatch();
   const { form_submission_id } = useLocalSearchParams();
   const formAnswersHelper = new FormAnswersHelper();

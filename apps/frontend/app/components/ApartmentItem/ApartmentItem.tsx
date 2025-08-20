@@ -5,7 +5,7 @@ import { isWeb } from '@/constants/Constants';
 import { excerpt, getImageUrl } from '@/constants/HelperFunctions';
 import { useTheme } from '@/hooks/useTheme';
 import { useSelector } from 'react-redux';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { getDistanceUnit } from '@/helper/distanceHelper';
 import { BuildingItemProps } from './types';
 import styles from './styles';
@@ -47,6 +47,7 @@ const ApartmentItem: React.FC<BuildingItemProps> = ({
     theme,
     mode === 'dark'
   );
+  const router = useRouter();
 
   const handleNavigation = (id: string) => {
     router.push({

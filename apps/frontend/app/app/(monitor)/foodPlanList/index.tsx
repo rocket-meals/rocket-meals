@@ -14,7 +14,7 @@ import {
   TextInput,
 } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { router, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './styles';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
@@ -86,6 +86,7 @@ const Index = () => {
     theme,
     mode === 'dark'
   );
+  const router = useRouter();
   const [selectedInterval, setSelectedInterval] = useState({
     key: '',
     label: '',

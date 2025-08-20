@@ -17,7 +17,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { router, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import SupportFAQ from '../../../components/SupportFAQ/SupportFAQ';
 import styles from './styles';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -39,6 +39,7 @@ const index = () => {
   const { theme } = useTheme();
   const toast = useToast();
   const dispatch = useDispatch();
+  const router = useRouter();
   const { profile, user } = useSelector(
     (state: RootState) => state.authReducer
   );

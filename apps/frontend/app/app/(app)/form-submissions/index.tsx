@@ -19,7 +19,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { Entypo, FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
 import { DatabaseTypes } from 'repo-depkit-common';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useRouter, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { isWeb } from '@/constants/Constants';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
@@ -38,6 +38,7 @@ const index = () => {
   const { translate } = useLanguage();
   const { theme } = useTheme();
   const { form_id } = useLocalSearchParams();
+  const router = useRouter();
   const sheetRef = useRef<BottomSheet>(null);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState<string>('');

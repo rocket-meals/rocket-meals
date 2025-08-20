@@ -17,7 +17,7 @@ import {
 } from '@/redux/Types/types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { persistor } from '@/redux/store';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
@@ -27,6 +27,7 @@ const DebugLogout = () => {
   const dispatch = useDispatch();
   const { theme } = useTheme();
   const { translate } = useLanguage();
+  const router = useRouter();
 
   const steps = [
     {

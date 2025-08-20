@@ -13,7 +13,7 @@ import {
   Text,
 } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { router, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './styles';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
@@ -33,6 +33,7 @@ const Index = () => {
   const { theme } = useTheme();
   const { translate } = useLanguage();
   const dispatch = useDispatch();
+  const router = useRouter();
   const { primaryColor: projectColor, appSettings } = useSelector(
     (state: RootState) => state.settings
   );

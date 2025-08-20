@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import { myContrastColor } from '@/helper/colorHelper';
 import styles from './styles';
 import { BuildingItemProps } from './types';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { getDistanceUnit } from '@/helper/distanceHelper';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -38,6 +38,7 @@ const BuildingItem: React.FC<BuildingItemProps> = ({
     : primaryColor;
   const contrastColor = myContrastColor(campus_area_color, theme, mode === 'dark');
   const { isManagement } = useSelector((state: RootState) => state.authReducer);
+  const router = useRouter();
   const [screenWidth, setScreenWidth] = useState(
     Dimensions.get('window').width
   );

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TextInput, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import SupportFAQ from '../../../../components/SupportFAQ/SupportFAQ';
 import { useTheme } from '@/hooks/useTheme';
 import { useLocalSearchParams } from 'expo-router';
@@ -21,6 +21,7 @@ const ChatDetailsScreen = () => {
   useSetPageTitle(TranslationKeys.chat);
   const { theme } = useTheme();
   const { chat_id } = useLocalSearchParams<{ chat_id?: string }>();
+  const router = useRouter();
   const { primaryColor: projectColor, selectedTheme: mode } = useSelector(
     (state: RootState) => state.settings
   );

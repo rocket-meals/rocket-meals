@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
@@ -18,6 +18,7 @@ const index = () => {
   const { buildings } = useSelector(
     (state: RootState) => state.canteenReducer
   );
+  const router = useRouter();
   const selectedCanteen = useSelectedCanteen();
 
   const buildingPosition = useMemo(() => {

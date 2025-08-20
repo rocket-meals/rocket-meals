@@ -13,7 +13,7 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import styles from './styles';
 import { useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { RootState } from '@/redux/reducer';
 
 const FoodPlanWeek = ({
@@ -51,6 +51,7 @@ const FoodPlanWeek = ({
   };
 
   const selectedCanteen = useSelectedCanteen();
+  const router = useRouter();
 
   return (
     <View

@@ -9,7 +9,7 @@ import {
   Text,
   Share,
 } from 'react-native';
-import { useLocalSearchParams, router, useFocusEffect } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -37,6 +37,7 @@ export default function ImageFullScreen() {
   const { drawerPosition } = useSelector((state: RootState) => state.settings);
   const toast = useToast();
   const { translate } = useLanguage();
+  const router = useRouter();
   const [showControls, setShowControls] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 

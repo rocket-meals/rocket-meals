@@ -12,7 +12,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { Entypo } from '@expo/vector-icons';
 import { FormCategoriesHelper } from '@/redux/actions/Forms/FormCategories';
 import { DatabaseTypes } from 'repo-depkit-common';
-import { router, useFocusEffect } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { getFromCategoryTranslation } from '@/helper/resourceHelper';
 import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
@@ -30,6 +30,7 @@ const index = () => {
     Dimensions.get('window').width
   );
   const formCategoriesHelper = new FormCategoriesHelper();
+  const router = useRouter();
 
   const getAllCategories = async () => {
     setLoading(true);

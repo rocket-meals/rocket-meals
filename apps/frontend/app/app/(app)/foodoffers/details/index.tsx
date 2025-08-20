@@ -1,7 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState,} from 'react';
-import {useFocusEffect, useLocalSearchParams} from 'expo-router';
+import {useFocusEffect, useLocalSearchParams, useRouter} from 'expo-router';
 import {Dimensions, Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View,} from 'react-native';
-import { router } from 'expo-router';
 import styles from './styles';
 import {useTheme} from '@/hooks/useTheme';
 import {AntDesign, MaterialCommunityIcons, MaterialIcons,} from '@expo/vector-icons';
@@ -63,6 +62,7 @@ export default function FoodDetailsScreen() {
   useSetPageTitle(TranslationKeys.food_details);
 
   const { id, foodId } = useLocalSearchParams();
+  const router = useRouter();
 
   const { theme } = useTheme();
   const { translate } = useLanguage();
