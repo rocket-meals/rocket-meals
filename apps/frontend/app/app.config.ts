@@ -4,7 +4,7 @@ import type { ConfigContext } from "@expo/config";
 // precompiled JavaScript file.
 require("ts-node").register({
   transpileOnly: true,
-  compilerOptions: { module: "commonjs" },
+  project: "./tsconfig.node.json"
 });
 
 const { getFinalConfig } = require("./config.ts");

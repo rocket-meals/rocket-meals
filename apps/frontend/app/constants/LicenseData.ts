@@ -82,14 +82,14 @@ const packages = [
   },
   {
     name: 'expo',
-    version: '52.0.14',
+    version: '53.0.20',
     license: 'MIT',
     repository: 'https://github.com/expo/expo',
     licenseUrl: 'https://github.com/expo/expo/blob/master/LICENSE',
   },
   {
     name: 'expo-blur',
-    version: '14.0.1',
+    version: '14.1.5',
     license: 'MIT',
     repository: 'https://github.com/expo/expo-blur',
     licenseUrl: 'https://github.com/expo/expo-blur/blob/main/LICENSE',
