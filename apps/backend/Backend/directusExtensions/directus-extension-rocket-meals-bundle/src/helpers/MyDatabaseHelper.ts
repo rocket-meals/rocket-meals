@@ -17,6 +17,7 @@ import {EnvVariableHelper} from "./EnvVariableHelper";
 import ms from "ms";
 import jwt from 'jsonwebtoken';
 import {NanoidHelper} from "./NanoidHelper";
+import {HelperRegistry} from "./HelperRegistry";
 
 export type MyEventContext = EventContext;
 
@@ -25,12 +26,14 @@ export class MyDatabaseHelper implements MyDatabaseHelperInterface {
     public apiContext: ApiContext;
     public eventContext: MyEventContext | undefined;
     public useLocalServerMode: boolean = false;
+    private helperRegistry: HelperRegistry;
 
     constructor(apiContext: ApiContext, eventContext?: MyEventContext) {
         this.apiContext = apiContext;
         // if available we should use eventContext - https://github.com/directus/directus/discussions/11051
         this.eventContext = eventContext; // stupid typescript error, because of the import
         // its better to use the eventContext, because of reusing the database connection instead of creating a new one
+        this.helperRegistry = new HelperRegistry(this);
     }
 
     /**
@@ -134,169 +137,171 @@ export class MyDatabaseHelper implements MyDatabaseHelperInterface {
         return new AutoTranslationSettingsHelper(this.apiContext);
     }
 
-    getAppFeedbacksHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.AppFeedbacks>(this, CollectionNames.APP_FEEDBACKS);
-    }
-
     getCashregisterHelper() {
         return new CashregisterHelper(this);
-    }
-
-    getCollectionDatesLastUpdateHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.CollectionsDatesLastUpdate>(this, CollectionNames.COLLECTIONS_DATES_LAST_UPDATE);
-    }
-
-    getFoodFeedbacksHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.FoodsFeedbacks>(this, CollectionNames.FOODS_FEEDBACKS);
-    }
-
-    getFoodsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Foods>(this, CollectionNames.FOODS);
-    }
-
-    getFoodFeedbackLabelsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.FoodsFeedbacksLabels>(this, CollectionNames.FOODS_FEEDBACK_LABELS);
-    }
-
-    getFoodsCategoriesHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.FoodsCategories>(this, CollectionNames.FOODS_CATEGORIES);
-    }
-
-    getFoodsAttributesHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.FoodsAttributes>(this, CollectionNames.FOODS_ATTRIBUTES);
-    }
-
-    getFoodFeedbackLabelEntriesHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.FoodsFeedbacksLabelsEntries>(this, CollectionNames.FOODS_FEEDBACKS_LABELS_ENTRIES);
-    }
-
-    getCanteenFeedbackLabelsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.CanteensFeedbacksLabels>(this, CollectionNames.CANTEENS_FEEDBACK_LABELS);
-    }
-
-    getCanteenFeedbackLabelsEntriesHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.CanteensFeedbacksLabelsEntries>(this, CollectionNames.CANTEENS_FEEDBACKS_LABELS_ENTRIES);
-    }
-
-    getFormsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Forms>(this, CollectionNames.FORMS);
-    }
-
-    getFormExtractsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.FormExtracts>(this, CollectionNames.FORM_EXTRACTS);
-    }
-
-    getFormExtractFormFieldsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.FormExtractsFormFields>(this, CollectionNames.FORM_EXTRACTS_FORM_FIELDS);
-    }
-
-    getFormsFieldsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.FormFields>(this, CollectionNames.FORM_FIELDS);
-    }
-
-    getFormsSubmissionsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.FormSubmissions>(this, CollectionNames.FORM_SUBMISSIONS);
-    }
-
-    getFormsAnswersHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.FormAnswers>(this, CollectionNames.FORM_ANSWERS);
-    }
-
-    getFoodoffersHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Foodoffers>(this, CollectionNames.FOODOFFERS);
-    }
-
-    getFoodofferCategoriesHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.FoodoffersCategories>(this, CollectionNames.FOODOFFER_CATEGORIES);
-    }
-
-    getDevicesHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Devices>(this, CollectionNames.DEVICES);
-    }
-
-    getPushNotificationsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.PushNotifications>(this, CollectionNames.PUSH_NOTIFICATIONS);
-    }
-
-    getProfilesHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Profiles>(this, CollectionNames.PROFILES);
-    }
-
-    getMarkingsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Markings>(this, CollectionNames.MARKINGS);
-    }
-
-    getMarkingsExclusionsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.MarkingsExclusions>(this, CollectionNames.MARKINGS_EXCLUSIONS);
-    }
-
-    getCanteensHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Canteens>(this, CollectionNames.CANTEENS);
-    }
-
-    getApartmentsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Apartments>(this, CollectionNames.APARTMENTS);
-    }
-
-    getBuildingsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Buildings>(this, CollectionNames.BUILDINGS);
-    }
-
-    getNewsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.News>(this, CollectionNames.NEWS);
-    }
-
-    getUsersHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.DirectusUsers>(this, CollectionNames.USERS);
     }
 
     getShareServiceHelper() {
         return new ShareServiceHelper(this);
     }
 
-    getUtilizationEntriesHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.UtilizationsEntries>(this, CollectionNames.UTILIZATION_ENTRIES);
-    }
-
-    getUtilizationGroupsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.UtilizationsGroups>(this, CollectionNames.UTILIZATION_GROUPS);
-    }
-
-    getWashingmachinesHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Washingmachines>(this, CollectionNames.WASHINGMACHINES);
-    }
-
-    getWashingmachinesJobsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.WashingmachinesJobs>(this, CollectionNames.WASHINGMACHINES_JOBS);
-    }
-
-    getWorkflowsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Workflows>(this, CollectionNames.WORKFLOWS);
-    }
-
     getWorkflowsRunsHelper() {
         return new WorkflowsRunHelper(this, CollectionNames.WORKFLOWS_RUNS);
     }
 
+    getFilesHelper(){
+        return new FilesServiceHelper(this);
+    }
+
+    // Keep the existing generic helper method for backward compatibility
     getItemsServiceHelper<T>(collectionName: CollectionNames) {
-        return new ItemsServiceHelper<T>(this, collectionName);
+        return this.helperRegistry.getHelper<T>(collectionName);
+    }
+
+    // Delegate all collection helper methods to the registry
+    getAppFeedbacksHelper() {
+        return this.helperRegistry.getAppFeedbacksHelper();
+    }
+
+    getCollectionDatesLastUpdateHelper() {
+        return this.helperRegistry.getCollectionDatesLastUpdateHelper();
+    }
+
+    getFoodFeedbacksHelper() {
+        return this.helperRegistry.getFoodFeedbacksHelper();
+    }
+
+    getFoodsHelper() {
+        return this.helperRegistry.getFoodsHelper();
+    }
+
+    getFoodFeedbackLabelsHelper() {
+        return this.helperRegistry.getFoodFeedbackLabelsHelper();
+    }
+
+    getFoodsCategoriesHelper() {
+        return this.helperRegistry.getFoodsCategoriesHelper();
+    }
+
+    getFoodsAttributesHelper() {
+        return this.helperRegistry.getFoodsAttributesHelper();
+    }
+
+    getFoodFeedbackLabelEntriesHelper() {
+        return this.helperRegistry.getFoodFeedbackLabelEntriesHelper();
+    }
+
+    getCanteenFeedbackLabelsHelper() {
+        return this.helperRegistry.getCanteenFeedbackLabelsHelper();
+    }
+
+    getCanteenFeedbackLabelsEntriesHelper() {
+        return this.helperRegistry.getCanteenFeedbackLabelsEntriesHelper();
+    }
+
+    getFormsHelper() {
+        return this.helperRegistry.getFormsHelper();
+    }
+
+    getFormExtractsHelper() {
+        return this.helperRegistry.getFormExtractsHelper();
+    }
+
+    getFormExtractFormFieldsHelper() {
+        return this.helperRegistry.getFormExtractFormFieldsHelper();
+    }
+
+    getFormsFieldsHelper() {
+        return this.helperRegistry.getFormsFieldsHelper();
+    }
+
+    getFormsSubmissionsHelper() {
+        return this.helperRegistry.getFormsSubmissionsHelper();
+    }
+
+    getFormsAnswersHelper() {
+        return this.helperRegistry.getFormsAnswersHelper();
+    }
+
+    getFoodoffersHelper() {
+        return this.helperRegistry.getFoodoffersHelper();
+    }
+
+    getFoodofferCategoriesHelper() {
+        return this.helperRegistry.getFoodofferCategoriesHelper();
+    }
+
+    getDevicesHelper() {
+        return this.helperRegistry.getDevicesHelper();
+    }
+
+    getPushNotificationsHelper() {
+        return this.helperRegistry.getPushNotificationsHelper();
+    }
+
+    getProfilesHelper() {
+        return this.helperRegistry.getProfilesHelper();
+    }
+
+    getMarkingsHelper() {
+        return this.helperRegistry.getMarkingsHelper();
+    }
+
+    getMarkingsExclusionsHelper() {
+        return this.helperRegistry.getMarkingsExclusionsHelper();
+    }
+
+    getCanteensHelper() {
+        return this.helperRegistry.getCanteensHelper();
+    }
+
+    getApartmentsHelper() {
+        return this.helperRegistry.getApartmentsHelper();
+    }
+
+    getBuildingsHelper() {
+        return this.helperRegistry.getBuildingsHelper();
+    }
+
+    getNewsHelper() {
+        return this.helperRegistry.getNewsHelper();
+    }
+
+    getUsersHelper() {
+        return this.helperRegistry.getUsersHelper();
+    }
+
+    getUtilizationEntriesHelper() {
+        return this.helperRegistry.getUtilizationEntriesHelper();
+    }
+
+    getUtilizationGroupsHelper() {
+        return this.helperRegistry.getUtilizationGroupsHelper();
+    }
+
+    getWashingmachinesHelper() {
+        return this.helperRegistry.getWashingmachinesHelper();
+    }
+
+    getWashingmachinesJobsHelper() {
+        return this.helperRegistry.getWashingmachinesJobsHelper();
+    }
+
+    getWorkflowsHelper() {
+        return this.helperRegistry.getWorkflowsHelper();
+    }
+
+    getMailsHelper() {
+        return this.helperRegistry.getMailsHelper();
+    }
+
+    getMailsFilesHelper() {
+        return this.helperRegistry.getMailsFilesHelper();
     }
 
     async sendMail(mail: Partial<DatabaseTypes.Mails>) {
         let mailsHelper = this.getMailsHelper();
         return await mailsHelper.createOne(mail);
-    }
-
-    getMailsHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.Mails>(this, CollectionNames.MAILS);
-    }
-
-    getMailsFilesHelper() {
-        return new ItemsServiceHelper<DatabaseTypes.MailsFiles>(this, CollectionNames.MAILS_FILES);
-    }
-
-    getFilesHelper(){
-        return new FilesServiceHelper(this);
     }
 
 }
