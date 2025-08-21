@@ -4,10 +4,12 @@ import { Image as ExpoImage } from 'expo-image';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/reducer';
 
-const MyImage: React.FC<RNImageProps> = (props) => {
-  const useWebp = useSelector((state: RootState) => state.settings.useWebpForAssets);
-  const ImageComponent = useWebp ? ExpoImage : RNImage;
-  return <ImageComponent {...props} />;
+const MyImage: React.FC<RNImageProps> = props => {
+	const useWebp = useSelector(
+		(state: RootState) => state.settings.useWebpForAssets
+	);
+	const ImageComponent = useWebp ? ExpoImage : RNImage;
+	return <ImageComponent {...props} />;
 };
 
 export default MyImage;

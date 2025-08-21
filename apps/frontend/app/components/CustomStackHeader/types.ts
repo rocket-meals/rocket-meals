@@ -1,3 +1,3 @@
 export interface CustomStackHeaderProps {
-  label: string;
+	label: string;
 }

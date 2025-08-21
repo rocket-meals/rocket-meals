@@ -1,3 +1,3 @@
 export interface SortSheetProps {
-  closeSheet: () => void;
+	closeSheet: () => void;
 }

@@ -1,4 +1,4 @@
-import { Dimensions, Image, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
 import React, { memo, useEffect, useState } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { isWeb } from '@/constants/Constants';
@@ -19,201 +19,189 @@ import CardDimensionHelper from '@/helper/CardDimensionHelper';
 import AvailableFromModal from '../AvailableFromModal';
 
 const ApartmentItem: React.FC<BuildingItemProps> = ({
-  apartment,
-  setSelectedApartementId,
-  openImageManagementSheet,
-  openDistanceSheet,
+	apartment,
+	setSelectedApartementId,
+	openImageManagementSheet,
+	openDistanceSheet,
 }) => {
-  const { theme } = useTheme();
-  const { translate } = useLanguage();
-  const {
-    primaryColor: projectColor,
-    appSettings,
-    serverInfo,
-    selectedTheme: mode,
-    amountColumnsForcard,
-  } = useSelector((state: RootState) => state.settings);
-  const defaultImage = getImageUrl(serverInfo?.info?.project?.project_logo);
-  const { isManagement } = useSelector((state: RootState) => state.authReducer);
-  const [screenWidth, setScreenWidth] = useState(
-    Dimensions.get('window').width
-  );
-  const [showFreeModal, setShowFreeModal] = useState(false);
-  const housing_area_color = appSettings?.housing_area_color
-    ? appSettings?.housing_area_color
-    : projectColor;
-  const contrastColor = myContrastColor(
-    housing_area_color,
-    theme,
-    mode === 'dark'
-  );
+	const { theme } = useTheme();
+	const { translate } = useLanguage();
+	const {
+		primaryColor: projectColor,
+		appSettings,
+		serverInfo,
+		selectedTheme: mode,
+		amountColumnsForcard,
+	} = useSelector((state: RootState) => state.settings);
+	const defaultImage = getImageUrl(serverInfo?.info?.project?.project_logo);
+	const { isManagement } = useSelector((state: RootState) => state.authReducer);
+	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+	const [showFreeModal, setShowFreeModal] = useState(false);
+	const housing_area_color = appSettings?.housing_area_color
+		? appSettings?.housing_area_color
+		: projectColor;
+	const contrastColor = myContrastColor(
+		housing_area_color,
+		theme,
+		mode === 'dark'
+	);
 
-  const handleNavigation = (id: string) => {
-    router.push({
-      pathname: '/(app)/housing/details',
-      params: { id },
-    });
-  };
+	const handleNavigation = (id: string) => {
+		router.push({
+			pathname: '/(app)/housing/details',
+			params: { id },
+		});
+	};
 
-  useEffect(() => {
-    const handleResize = () => {
-      setScreenWidth(Dimensions.get('window').width);
-    };
+	useEffect(() => {
+		const handleResize = () => {
+			setScreenWidth(Dimensions.get('window').width);
+		};
 
-    const subscription = Dimensions.addEventListener('change', handleResize);
+		const subscription = Dimensions.addEventListener('change', handleResize);
 
-    return () => subscription?.remove();
-  }, []);
+		return () => subscription?.remove();
+	}, []);
 
-  const getCardDimension = () =>
-    CardDimensionHelper.getCardDimension(screenWidth);
+	const getCardDimension = () =>
+		CardDimensionHelper.getCardDimension(screenWidth);
 
-  const getCardWidth = () =>
-    CardDimensionHelper.getCardWidth(screenWidth, amountColumnsForcard);
+	const getCardWidth = () =>
+		CardDimensionHelper.getCardWidth(screenWidth, amountColumnsForcard);
 
-  useEffect(() => {
-    const cardWidth = CardDimensionHelper.getCardWidth(
-      screenWidth,
-      amountColumnsForcard
-    );
-  }, [amountColumnsForcard, screenWidth]);
+	useEffect(() => {
+		const cardWidth = CardDimensionHelper.getCardWidth(
+			screenWidth,
+			amountColumnsForcard
+		);
+	}, [amountColumnsForcard, screenWidth]);
 
-  return (
-    <>
-    <Tooltip
-      placement='top'
-      trigger={(triggerProps) => (
-        <CardWithText
-          {...triggerProps}
-          onPress={() => handleNavigation(apartment?.id)}
-          imageSource={
-            apartment?.image || apartment?.image_remote_url
-              ? {
-                  uri:
-                    apartment?.image_remote_url ||
-                    getImageUrl(apartment?.image),
-                }
-              : { uri: defaultImage }
-          }
-          containerStyle={{
-            ...styles.card,
-            width:
-              amountColumnsForcard === 0
-                ? CardDimensionHelper.getCardDimension(screenWidth)
-                : CardDimensionHelper.getCardWidth(
-                    screenWidth,
-                    amountColumnsForcard
-                  ),
-            backgroundColor: theme.card.background,
-          }}
-          imageContainerStyle={{
-            ...styles.imageContainer,
-            height:
-              amountColumnsForcard === 0
-                ? CardDimensionHelper.getCardDimension(screenWidth)
-                : CardDimensionHelper.getCardWidth(
-                    screenWidth,
-                    amountColumnsForcard
-                  ),
-          }}
-          contentStyle={{
-            ...styles.cardContent,
-            paddingHorizontal: 5,
-          }}
-          borderColor={housing_area_color}
-          imageChildren={
-            <>
-              {apartment?.available_from && (
-                <TouchableOpacity
-                  style={{
-                    ...styles.freeBadge,
-                    backgroundColor: housing_area_color,
-                  }}
-                  onPress={() => setShowFreeModal(true)}
-                >
-                  <MaterialCommunityIcons
-                    name='door-open'
-                    size={20}
-                    color={contrastColor}
-                  />
-                  <Text style={{ ...styles.freeBadgeText, color: contrastColor }}>
-                    {translate(TranslationKeys.free_rooms)}
-                  </Text>
-                </TouchableOpacity>
-              )}
-              <View style={styles.imageActionContainer}>
-                {isManagement ? (
-                  <Tooltip
-                    placement='top'
-                    trigger={(triggerProps) => (
-                      <TouchableOpacity
-                      {...triggerProps}
-                      style={styles.editImageButton}
-                      onPress={() => {
-                        setSelectedApartementId(apartment.id);
-                        openImageManagementSheet();
-                      }}
-                    >
-                      <MaterialCommunityIcons
-                        name='image-edit'
-                        size={20}
-                        color={'white'}
-                      />
-                    </TouchableOpacity>
-                  )}
-                >
-                  <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-                    <TooltipText fontSize='$sm' color={theme.tooltip.text}>
-                      {`${translate(TranslationKeys.edit)}: ${translate(
-                        TranslationKeys.image
-                      )}`}
-                    </TooltipText>
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                <View />
-              )}
-              <TouchableOpacity
-                style={{
-                  ...styles.directionButton,
-                  backgroundColor: housing_area_color,
-                }}
-                onPress={openDistanceSheet}
-              >
-                <MaterialCommunityIcons
-                  name='map-marker-distance'
-                  size={20}
-                  color={contrastColor}
-                />
-                <Text style={{ ...styles.distance, color: contrastColor }}>
-                  {getDistanceUnit(apartment?.distance)}
-                </Text>
-              </TouchableOpacity>
-              </View>
-            </>
-          }
-        >
-          <Text style={{ ...styles.campusName, color: theme.screen.text }}>
-            {isWeb
-              ? excerpt(apartment?.alias, 70)
-              : excerpt(apartment?.alias, 40)}
-          </Text>
-        </CardWithText>
-      )}
-    >
-      <TooltipContent bg={theme.tooltip.background} py='$1' px='$2'>
-        <TooltipText fontSize='$sm' color={theme.tooltip.text}>
-          {apartment?.alias}
-        </TooltipText>
-      </TooltipContent>
-    </Tooltip>
-    <AvailableFromModal
-      visible={showFreeModal}
-      onClose={() => setShowFreeModal(false)}
-      availableFrom={String(apartment?.available_from)}
-    />
-    </>
-  );
+	return (
+		<>
+			<Tooltip
+				placement="top"
+				trigger={triggerProps => (
+					<CardWithText
+						{...triggerProps}
+						onPress={() => handleNavigation(apartment?.id)}
+						imageSource={
+							apartment?.image || apartment?.image_remote_url
+								? {
+										uri: apartment?.image_remote_url || getImageUrl(apartment?.image),
+									}
+								: { uri: defaultImage }
+						}
+						containerStyle={{
+							...styles.card,
+							width:
+								amountColumnsForcard === 0
+									? CardDimensionHelper.getCardDimension(screenWidth)
+									: CardDimensionHelper.getCardWidth(screenWidth, amountColumnsForcard),
+							backgroundColor: theme.card.background,
+						}}
+						imageContainerStyle={{
+							...styles.imageContainer,
+							height:
+								amountColumnsForcard === 0
+									? CardDimensionHelper.getCardDimension(screenWidth)
+									: CardDimensionHelper.getCardWidth(screenWidth, amountColumnsForcard),
+						}}
+						contentStyle={{
+							...styles.cardContent,
+							paddingHorizontal: 5,
+						}}
+						borderColor={housing_area_color}
+						imageChildren={
+							<>
+								{apartment?.available_from && (
+									<TouchableOpacity
+										style={{
+											...styles.freeBadge,
+											backgroundColor: housing_area_color,
+										}}
+										onPress={() => setShowFreeModal(true)}
+									>
+										<MaterialCommunityIcons
+											name="door-open"
+											size={20}
+											color={contrastColor}
+										/>
+										<Text style={{ ...styles.freeBadgeText, color: contrastColor }}>
+											{translate(TranslationKeys.free_rooms)}
+										</Text>
+									</TouchableOpacity>
+								)}
+								<View style={styles.imageActionContainer}>
+									{isManagement ? (
+										<Tooltip
+											placement="top"
+											trigger={triggerProps => (
+												<TouchableOpacity
+													{...triggerProps}
+													style={styles.editImageButton}
+													onPress={() => {
+														setSelectedApartementId(apartment.id);
+														openImageManagementSheet();
+													}}
+												>
+													<MaterialCommunityIcons
+														name="image-edit"
+														size={20}
+														color={'white'}
+													/>
+												</TouchableOpacity>
+											)}
+										>
+											<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+												<TooltipText fontSize="$sm" color={theme.tooltip.text}>
+													{`${translate(TranslationKeys.edit)}: ${translate(
+														TranslationKeys.image
+													)}`}
+												</TooltipText>
+											</TooltipContent>
+										</Tooltip>
+									) : (
+										<View />
+									)}
+									<TouchableOpacity
+										style={{
+											...styles.directionButton,
+											backgroundColor: housing_area_color,
+										}}
+										onPress={openDistanceSheet}
+									>
+										<MaterialCommunityIcons
+											name="map-marker-distance"
+											size={20}
+											color={contrastColor}
+										/>
+										<Text style={{ ...styles.distance, color: contrastColor }}>
+											{getDistanceUnit(apartment?.distance)}
+										</Text>
+									</TouchableOpacity>
+								</View>
+							</>
+						}
+					>
+						<Text style={{ ...styles.campusName, color: theme.screen.text }}>
+							{isWeb ? excerpt(apartment?.alias, 70) : excerpt(apartment?.alias, 40)}
+						</Text>
+					</CardWithText>
+				)}
+			>
+				<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+					<TooltipText fontSize="$sm" color={theme.tooltip.text}>
+						{apartment?.alias}
+					</TooltipText>
+				</TooltipContent>
+			</Tooltip>
+			<AvailableFromModal
+				visible={showFreeModal}
+				onClose={() => setShowFreeModal(false)}
+				availableFrom={String(apartment?.available_from)}
+			/>
+		</>
+	);
 };
 
 export default memo(ApartmentItem);

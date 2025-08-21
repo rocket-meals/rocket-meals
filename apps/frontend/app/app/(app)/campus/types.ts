@@ -1,4 +1,4 @@
 export type RootDrawerParamList = {
-  campus: undefined;
-  CampusDetails: { id: string };
+	campus: undefined;
+	CampusDetails: { id: string };
 };

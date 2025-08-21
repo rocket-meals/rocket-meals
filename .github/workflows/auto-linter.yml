@@ -1,0 +1,116 @@
+name: 🧹 Auto-Linter
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'apps/frontend/app/**'
+      - 'apps/backend/**'
+      - 'packages/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [master, main]
+    paths:
+      - 'apps/frontend/app/**'
+      - 'apps/backend/**'
+      - 'packages/**'
+      - '.github/workflows/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-lint:
+    name: 🔧 Auto-fix code formatting
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          # Checkout the PR branch for pull requests
+          ref: ${{ github.head_ref || github.ref }}
+          # Use a personal access token to allow pushing back to PR
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 👤 Git User Configuration
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: 📋 Install Frontend Linting Dependencies
+        run: |
+          cd apps/frontend/app
+          PUPPETEER_SKIP_DOWNLOAD=true yarn install --ignore-engines
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: true
+
+      - name: 🎨 Run Prettier (Auto-format)
+        run: |
+          cd apps/frontend/app
+          echo "Running Prettier to auto-format code..."
+          yarn format
+        continue-on-error: true
+
+      - name: 🔍 Run ESLint (Auto-fix)
+        run: |
+          cd apps/frontend/app
+          echo "Running ESLint to auto-fix linting issues..."
+          yarn lint:fix
+        continue-on-error: true
+
+      - name: 📊 Check for changes
+        id: changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "Files were auto-formatted/fixed:"
+            git status --porcelain
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No formatting changes needed."
+          fi
+
+      - name: 💾 Commit and push changes
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          git add .
+          git commit -m "Auto-format code with Prettier and ESLint
+
+          - Applied Prettier formatting
+          - Fixed ESLint auto-fixable issues
+          - Automated by GitHub Actions"
+          
+          # Push to the correct branch
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git push origin HEAD:${{ github.head_ref }}
+          else
+            git push origin ${{ github.ref_name }}
+          fi
+
+      - name: 🔍 Run final linting check
+        run: |
+          cd apps/frontend/app
+          echo "Running final linting check for any remaining issues..."
+          yarn lint
+        continue-on-error: false
+
+      - name: ✅ Auto-formatting complete
+        if: steps.changes.outputs.changes == 'true'
+        run: |
+          echo "✅ Code has been automatically formatted and committed!"
+          echo "📝 Changes have been pushed back to the repository."
+          echo "🔍 Any remaining linting errors will need manual attention."
+
+      - name: ✅ No changes needed
+        if: steps.changes.outputs.changes == 'false'
+        run: |
+          echo "✅ Code is already properly formatted!"
+          echo "🎯 No auto-formatting changes were needed."

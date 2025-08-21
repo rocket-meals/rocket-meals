@@ -1,8 +1,8 @@
 export interface CustomMenuHeaderProps {
-  label: string;
+	label: string;
 }
 
 export type DrawerParamList = {
-  index: undefined;
-  settings: undefined;
+	index: undefined;
+	settings: undefined;
 };

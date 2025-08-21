@@ -1,4 +1,4 @@
 export interface DetailsProps {
-  groupedAttributes: any;
-  loading: boolean;
+	groupedAttributes: any;
+	loading: boolean;
 }

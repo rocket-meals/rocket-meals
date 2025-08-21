@@ -1,9 +1,9 @@
 import {
-  SafeAreaView,
-  ScrollView,
-  View,
-  RefreshControl,
-  ActivityIndicator,
+	ActivityIndicator,
+	RefreshControl,
+	SafeAreaView,
+	ScrollView,
+	View,
 } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
@@ -19,91 +19,91 @@ import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 
 const index = () => {
-  useSetPageTitle(TranslationKeys.news);
-  const { theme } = useTheme();
-  const dispatch = useDispatch();
-  const newsHelper = new NewsHelper();
-  const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const { news } = useSelector((state: RootState) => state.news);
+	useSetPageTitle(TranslationKeys.news);
+	const { theme } = useTheme();
+	const dispatch = useDispatch();
+	const newsHelper = new NewsHelper();
+	const [refreshing, setRefreshing] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const { news } = useSelector((state: RootState) => state.news);
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchAllNews().finally(() => setRefreshing(false));
-  }, []);
+	const onRefresh = useCallback(() => {
+		setRefreshing(true);
+		fetchAllNews().finally(() => setRefreshing(false));
+	}, []);
 
-  const fetchAllNews = async () => {
-  setLoading(true);
-  const newsData = (await newsHelper.fetchNews({})) as DatabaseTypes.News[];
+	const fetchAllNews = async () => {
+		setLoading(true);
+		const newsData = (await newsHelper.fetchNews({})) as DatabaseTypes.News[];
 
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+		const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
-  const sortedNews = [...(newsData || [])].sort((a, b) => {
-    const dateA = a?.date;
-    const dateB = b?.date;
+		const sortedNews = [...(newsData || [])].sort((a, b) => {
+			const dateA = a?.date;
+			const dateB = b?.date;
 
-    if (!dateA && !dateB) return 0;
-    if (!dateA) return 1;
-    if (!dateB) return -1;
+			if (!dateA && !dateB) return 0;
+			if (!dateA) return 1;
+			if (!dateB) return -1;
 
-    const dayA = dateA.split('T')[0];
-    const dayB = dateB.split('T')[0];
+			const dayA = dateA.split('T')[0];
+			const dayB = dateB.split('T')[0];
 
-    if (dayA === today && dayB !== today) return -1;
-    if (dayB === today && dayA !== today) return 1;
+			if (dayA === today && dayB !== today) return -1;
+			if (dayB === today && dayA !== today) return 1;
 
-    return dayA < dayB ? 1 : -1; // neuere zuerst
-  });
+			return dayA < dayB ? 1 : -1; // neuere zuerst
+		});
 
-  dispatch({ type: SET_NEWS, payload: sortedNews });
-  setLoading(false);
-};
+		dispatch({ type: SET_NEWS, payload: sortedNews });
+		setLoading(false);
+	};
 
-  useEffect(() => {
-    if (!news || news.length === 0) {
-      fetchAllNews();
-    }
-  }, []);
+	useEffect(() => {
+		if (!news || news.length === 0) {
+			fetchAllNews();
+		}
+	}, []);
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.background }}>
-      <ScrollView
-        style={{
-          ...styles.newsContainer,
-          backgroundColor: theme.screen.background,
-        }}
-        contentContainerStyle={{
-          ...styles.newsContentContainer,
-          paddingHorizontal: isWeb ? 30 : 5,
-        }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        <View style={styles.newsListContainer}>
-          {loading ? (
-            <View
-              style={{
-                height: 200,
-                width: '100%',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <ActivityIndicator size={30} color={theme.screen.text} />
-            </View>
-          ) : (
-            news &&
-            news?.map((item: DatabaseTypes.News, index: number) => {
-              if (item?.translations?.length > 1) {
-                return <NewsItem key={item?.id} news={item} />;
-              }
-            })
-          )}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+	return (
+		<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.background }}>
+			<ScrollView
+				style={{
+					...styles.newsContainer,
+					backgroundColor: theme.screen.background,
+				}}
+				contentContainerStyle={{
+					...styles.newsContentContainer,
+					paddingHorizontal: isWeb ? 30 : 5,
+				}}
+				refreshControl={
+					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+				}
+			>
+				<View style={styles.newsListContainer}>
+					{loading ? (
+						<View
+							style={{
+								height: 200,
+								width: '100%',
+								justifyContent: 'center',
+								alignItems: 'center',
+							}}
+						>
+							<ActivityIndicator size={30} color={theme.screen.text} />
+						</View>
+					) : (
+						news &&
+						news?.map((item: DatabaseTypes.News, index: number) => {
+							if (item?.translations?.length > 1) {
+								return <NewsItem key={item?.id} news={item} />;
+							}
+						})
+					)}
+				</View>
+			</ScrollView>
+		</SafeAreaView>
+	);
 };
 
 export default index;

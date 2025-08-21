@@ -2,40 +2,39 @@ import { legacy_createStore as createStore } from 'redux';
 import * as redux from 'redux';
 import * as thunk from 'redux-thunk';
 import promise from 'redux-promise';
-import logger from 'redux-logger';
-import { persistStore, persistReducer, createMigrate } from 'redux-persist';
+import { createMigrate, persistReducer, persistStore } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { reducer } from '@/redux/reducer';
 
 const migrations = {
-  1: () => {
-    // For now we return undefined to clear the store on first migration
-    return undefined;
-  },
-  2: () => {
-    // Clear persisted state and trigger logout flow if needed
-    if (typeof window !== 'undefined') {
-      localStorage.clear(); // Or AsyncStorage.clear()
-      window.location.reload(); // Force app reload
-    }
-    return undefined;
-  },
+	1: () => {
+		// For now we return undefined to clear the store on first migration
+		return undefined;
+	},
+	2: () => {
+		// Clear persisted state and trigger logout flow if needed
+		if (typeof window !== 'undefined') {
+			localStorage.clear(); // Or AsyncStorage.clear()
+			window.location.reload(); // Force app reload
+		}
+		return undefined;
+	},
 };
 
 const persistConfig = {
-  key: 'root',
-  version: 1, // 🔁 Bump this when you make breaking changes
-  storage: AsyncStorage,
-  migrate: createMigrate(migrations, { debug: false }),
+	key: 'root',
+	version: 1, // 🔁 Bump this when you make breaking changes
+	storage: AsyncStorage,
+	migrate: createMigrate(migrations, { debug: false }),
 };
 
 const rootReducer = (state: any, action: any) => {
-  if (action.type === 'RESET_STORE') {
-    const { settings } = state;
-    AsyncStorage.clear(); // optional: force clear AsyncStorage too
-    state = { settings };
-  }
-  return reducer(state, action);
+	if (action.type === 'RESET_STORE') {
+		const { settings } = state;
+		AsyncStorage.clear(); // optional: force clear AsyncStorage too
+		state = { settings };
+	}
+	return reducer(state, action);
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

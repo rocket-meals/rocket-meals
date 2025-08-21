@@ -1,7 +1,4 @@
-
-
 export interface DataSheetProps {
-  closeSheet: () => void;
-  content: any;
+	closeSheet: () => void;
+	content: any;
 }
-

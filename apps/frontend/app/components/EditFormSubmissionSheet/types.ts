@@ -1,4 +1,4 @@
 export interface sheetProps {
-  id: string;
-  closeSheet: () => void;
+	id: string;
+	closeSheet: () => void;
 }

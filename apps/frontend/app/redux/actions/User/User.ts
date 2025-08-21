@@ -1,11 +1,10 @@
 // import {SyncState, useSyncState} from '@/helper/syncState/SyncState';
 // import {PersistentStore} from '@/helper/syncState/PersistentStore';
 // import {NonPersistentStore} from '@/helper/syncState/NonPersistentStore';
-import {AuthenticationData} from '@directus/sdk';
-import {configureStore} from '@/redux/store';
+import { configureStore } from '@/redux/store';
 // import {PersistentSecureStore} from '@/helper/syncState/PersistentSecureStore';
 import { DatabaseTypes } from 'repo-depkit-common';
-import {ServerAPI} from '@/redux/actions/Auth/Auth';
+import { ServerAPI } from '@/redux/actions/Auth/Auth';
 // import {useSynchedRolesDict} from "@/states/SynchedRoles";
 // import {useIsDemo} from "@/states/SynchedDemo";
 // import {RoleHelper} from "@/helper/role/RoleHelper";
@@ -15,9 +14,9 @@ export type CachedUserInformation = DatabaseTypes.DirectusUsers | undefined;
 
 export function useLogoutCallback(): () => void {
 	return async () => {
-		ServerAPI.client = null
+		ServerAPI.client = null;
 		// await SyncState.getInstance().reset();
-	}
+	};
 }
 
 // export function useAccessToken(): string | null | undefined {
@@ -46,16 +45,20 @@ export function useLogoutCallback(): () => void {
 // 	return [currentUser, setUserWithCache]
 // }
 
-function isDirectusUserAnonymous(user: DatabaseTypes.DirectusUsers | undefined) {
-	if (!user) return true
-	return user?.id === undefined || user?.id === null
+function isDirectusUserAnonymous(
+	user: DatabaseTypes.DirectusUsers | undefined
+) {
+	if (!user) return true;
+	return user?.id === undefined || user?.id === null;
 }
 
 /**
  * Used in the RootAuthUser Flow Loader where we want to check the cache
  * @param user
  */
-export function getIsCachedUserAnonymous(user: CachedUserInformation | undefined): boolean {
+export function getIsCachedUserAnonymous(
+	user: CachedUserInformation | undefined
+): boolean {
 	return isDirectusUserAnonymous(user);
 }
 
@@ -68,7 +71,7 @@ export function getAnonymousUser(): any {
 	return {
 		// TODO: Add some default values
 		id: null,
-	}
+	};
 }
 
 // export function useCurrentUser(): [DatabaseTypes.DirectusUsers | undefined, (newValue: any) => void] {
@@ -119,7 +122,7 @@ export function getAnonymousUser(): any {
 // }
 
 export function isUserLoggedIn(): boolean {
-    const state = configureStore.getState();
-    const userLoggedIn = state.authReducer.loggedIn;
-	return !!userLoggedIn
+	const state = configureStore.getState();
+	const userLoggedIn = state.authReducer.loggedIn;
+	return !!userLoggedIn;
 }

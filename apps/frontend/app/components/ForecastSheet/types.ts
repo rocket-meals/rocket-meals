@@ -1,4 +1,4 @@
 export interface ForecastSheetProps {
-  closeSheet: () => void;
-  forDate: string;
+	closeSheet: () => void;
+	forDate: string;
 }

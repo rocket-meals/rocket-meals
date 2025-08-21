@@ -1,6 +1,6 @@
 export interface ImageManagementSheetProps {
-  closeSheet: () => void;
-  selectedFoodId: string;
-  handleFetch: () => void;
-  fileName: string;
+	closeSheet: () => void;
+	selectedFoodId: string;
+	handleFetch: () => void;
+	fileName: string;
 }

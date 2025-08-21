@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useMemo } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { View } from 'react-native';
 import DataAcess from '../../../components/DataAcces/DataAccess';
 import DataSheet from '../../../components/DataAccesheet/DataSheet';
@@ -11,50 +11,50 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 
 const index = () => {
-  useSetPageTitle(TranslationKeys.dataAccess);
-  const { theme } = useTheme();
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const [isActive, setIsActive] = useState(false);
-  const [content, setContent] = useState([]);
+	useSetPageTitle(TranslationKeys.dataAccess);
+	const { theme } = useTheme();
+	const bottomSheetRef = useRef<BottomSheet>(null);
+	const [isActive, setIsActive] = useState(false);
+	const [content, setContent] = useState([]);
 
-  const handleOpenBottomSheet = useCallback((data: any) => {
-    setContent(data);
-    bottomSheetRef?.current?.expand();
-  }, []);
+	const handleOpenBottomSheet = useCallback((data: any) => {
+		setContent(data);
+		bottomSheetRef?.current?.expand();
+	}, []);
 
-  const closeCanteenSheet = useCallback(() => {
-    bottomSheetRef?.current?.close();
-  }, []);
+	const closeCanteenSheet = useCallback(() => {
+		bottomSheetRef?.current?.close();
+	}, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      setIsActive(true);
-      return () => {
-        setIsActive(false);
-      };
-    }, [])
-  );
+	useFocusEffect(
+		useCallback(() => {
+			setIsActive(true);
+			return () => {
+				setIsActive(false);
+			};
+		}, [])
+	);
 
-  return (
-    <View style={styles.container}>
-      <DataAcess onOpenBottomSheet={handleOpenBottomSheet} />
-      {isActive && (
-        <BaseBottomSheet
-          ref={bottomSheetRef}
-          index={-1}
-          backgroundStyle={{
-            ...styles.sheetBackground,
-            backgroundColor: theme.sheet.sheetBg,
-          }}
-          enablePanDownToClose
-          handleComponent={null}
-          onClose={closeCanteenSheet}
-        >
-          <DataSheet closeSheet={closeCanteenSheet} content={content} />
-        </BaseBottomSheet>
-      )}
-    </View>
-  );
+	return (
+		<View style={styles.container}>
+			<DataAcess onOpenBottomSheet={handleOpenBottomSheet} />
+			{isActive && (
+				<BaseBottomSheet
+					ref={bottomSheetRef}
+					index={-1}
+					backgroundStyle={{
+						...styles.sheetBackground,
+						backgroundColor: theme.sheet.sheetBg,
+					}}
+					enablePanDownToClose
+					handleComponent={null}
+					onClose={closeCanteenSheet}
+				>
+					<DataSheet closeSheet={closeCanteenSheet} content={content} />
+				</BaseBottomSheet>
+			)}
+		</View>
+	);
 };
 
 export default index;

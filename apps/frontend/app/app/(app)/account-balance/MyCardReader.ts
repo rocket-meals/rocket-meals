@@ -5,22 +5,22 @@ import MyNativeCardReader from './MyNativeCardReader';
 import MyUnsupportedCardReader from './MyUnsupportedCardReader';
 
 export interface MyCardReaderInterface {
-  isNfcSupported: () => Promise<boolean>;
-  isNfcEnabled: () => Promise<boolean>;
-  readCard: (
-    callBack: (answer: CardResponse | undefined) => Promise<void>,
-    showInstruction: () => void,
-    hideInstruction: () => void,
-    nfcInstruction: string
-  ) => Promise<void>;
+	isNfcSupported: () => Promise<boolean>;
+	isNfcEnabled: () => Promise<boolean>;
+	readCard: (
+		callBack: (answer: CardResponse | undefined) => Promise<void>,
+		showInstruction: () => void,
+		hideInstruction: () => void,
+		nfcInstruction: string
+	) => Promise<void>;
 }
 
 export default function useMyCardReader(): MyCardReaderInterface {
-  const isExpoGo = isRunningInExpoGo();
+	const isExpoGo = isRunningInExpoGo();
 
-  if ((Platform.OS === 'android' || Platform.OS === 'ios') && !isExpoGo) {
-    return new MyNativeCardReader();
-  }
+	if ((Platform.OS === 'android' || Platform.OS === 'ios') && !isExpoGo) {
+		return new MyNativeCardReader();
+	}
 
-  return new MyUnsupportedCardReader();
+	return new MyUnsupportedCardReader();
 }

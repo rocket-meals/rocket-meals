@@ -1,5 +1,5 @@
 export interface CalendarSheetProps {
-  closeSheet: () => void;
+	closeSheet: () => void;
 }
 
 export type Direction = 'left' | 'right';

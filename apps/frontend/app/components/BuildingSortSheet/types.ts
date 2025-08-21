@@ -1,4 +1,4 @@
 export interface BuildingSortSheetProps {
-  closeSheet: () => void;
-  freeRooms: boolean;
+	closeSheet: () => void;
+	freeRooms: boolean;
 }

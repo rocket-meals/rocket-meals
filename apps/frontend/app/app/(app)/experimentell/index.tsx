@@ -12,175 +12,193 @@ import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { RootState } from '@/redux/reducer';
 
 const index = () => {
-  useSetPageTitle(TranslationKeys.experimentell);
-  const { translate } = useLanguage();
-  const { theme } = useTheme();
-  const { buildings } = useSelector(
-    (state: RootState) => state.canteenReducer
-  );
-  const selectedCanteen = useSelectedCanteen();
+	useSetPageTitle(TranslationKeys.experimentell);
+	const { translate } = useLanguage();
+	const { theme } = useTheme();
+	const { buildings } = useSelector((state: RootState) => state.canteenReducer);
+	const selectedCanteen = useSelectedCanteen();
 
-  const buildingPosition = useMemo(() => {
-    if (selectedCanteen?.building) {
-      const building = buildings.find((b) => b.id === selectedCanteen.building);
-      const coords = (building as any)?.coordinates?.coordinates;
-      if (coords && coords.length === 2) {
-        return { lat: Number(coords[1]), lng: Number(coords[0]) };
-      }
-    }
-    return null;
-  }, [selectedCanteen, buildings]);
+	const buildingPosition = useMemo(() => {
+		if (selectedCanteen?.building) {
+			const building = buildings.find(b => b.id === selectedCanteen.building);
+			const coords = (building as any)?.coordinates?.coordinates;
+			if (coords && coords.length === 2) {
+				return { lat: Number(coords[1]), lng: Number(coords[0]) };
+			}
+		}
+		return null;
+	}, [selectedCanteen, buildings]);
 
-  return (
-    <ScrollView
-      style={{ ...styles.container, backgroundColor: theme.screen.background }}
-      contentContainerStyle={{
-        ...styles.contentContainer,
-        backgroundColor: theme.screen.background,
-      }}
-    >
-      <View style={{ ...styles.content }}>
-        <Text style={{ ...styles.heading, color: theme.screen.text }}>
-          {translate(TranslationKeys.experimentell)}
-        </Text>
-        {buildingPosition && (
-          <Text style={{ ...styles.body, color: theme.screen.text }}>
-            {translate(TranslationKeys.coordinates)}: {buildingPosition.lat},{' '}
-            {buildingPosition.lng}
-          </Text>
-        )}
-        <TouchableOpacity
-          style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-          onPress={() =>
-            router.push({
-              pathname: '/leaflet-map',
-              params: {
-                lat: String(buildingPosition?.lat ?? '52.275'),
-                lng: String(buildingPosition?.lng ?? '7.4584'),
-                zoom: '16',
-              },
-            })
-          }
-        >
-          <View style={styles.col}>
-            <MaterialCommunityIcons name='map' color={theme.screen.icon} size={24} />
-            <Text style={{ ...styles.body, color: theme.screen.text }}>
-              {translate(TranslationKeys.leaflet_map)}
-            </Text>
-          </View>
-          <Entypo name='chevron-small-right' color={theme.screen.icon} size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-          onPress={() => router.push('/vertical-image-scroll')}
-        >
-          <View style={styles.col}>
-            <MaterialCommunityIcons name='image-multiple' color={theme.screen.icon} size={24} />
-            <Text style={{ ...styles.body, color: theme.screen.text }}>
-              {translate(TranslationKeys.vertical_image_scroll)}
-            </Text>
-          </View>
-          <Entypo name='chevron-small-right' color={theme.screen.icon} size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-          onPress={() => router.push('/foodoffers-scroll')}
-        >
-          <View style={styles.col}>
-            <MaterialCommunityIcons name='food' color={theme.screen.icon} size={24} />
-            <Text style={{ ...styles.body, color: theme.screen.text }}>
-              {translate(TranslationKeys.foodoffers_scroll)}
-            </Text>
-          </View>
-          <Entypo name='chevron-small-right' color={theme.screen.icon} size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-          onPress={() => router.push('/chats')}
-        >
-          <View style={styles.col}>
-            <MaterialCommunityIcons name='chat' color={theme.screen.icon} size={24} />
-            <Text style={{ ...styles.body, color: theme.screen.text }}>
-              {translate(TranslationKeys.chats)}
-            </Text>
-          </View>
-          <Entypo name='chevron-small-right' color={theme.screen.icon} size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-          onPress={() => router.push('/experimentell/debug-logout')}
-        >
-          <View style={styles.col}>
-            <MaterialCommunityIcons name='bug' color={theme.screen.icon} size={24} />
-            <Text style={{ ...styles.body, color: theme.screen.text }}>
-              {translate(TranslationKeys.debug_logout)}
-            </Text>
-          </View>
-          <Entypo name='chevron-small-right' color={theme.screen.icon} size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-          onPress={() => router.push('/experimentell/rate-app')}
-        >
-          <View style={styles.col}>
-            <MaterialCommunityIcons name='star' color={theme.screen.icon} size={24} />
-            <Text style={{ ...styles.body, color: theme.screen.text }}>
-              {translate(TranslationKeys.rate_app)}
-            </Text>
-          </View>
-          <Entypo name='chevron-small-right' color={theme.screen.icon} size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-          onPress={() => router.push('/experimentell/app-download')}
-        >
-          <View style={styles.col}>
-            <MaterialCommunityIcons name='download' color={theme.screen.icon} size={24} />
-            <Text style={{ ...styles.body, color: theme.screen.text }}>
-              {translate(TranslationKeys.app_download)}
-            </Text>
-          </View>
-          <Entypo name='chevron-small-right' color={theme.screen.icon} size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-          onPress={() => router.push('/experimentell/react-native-qrcode-svg')}
-        >
-          <View style={styles.col}>
-            <MaterialCommunityIcons name='qrcode' color={theme.screen.icon} size={24} />
-            <Text style={{ ...styles.body, color: theme.screen.text }}>
-              {translate(TranslationKeys.react_native_qrcode_svg)}
-            </Text>
-          </View>
-          <Entypo name='chevron-small-right' color={theme.screen.icon} size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-          onPress={() => router.push('/experimentell/settings-list-check')}
-        >
-          <View style={styles.col}>
-            <MaterialCommunityIcons name='format-list-text' color={theme.screen.icon} size={24} />
-            <Text style={{ ...styles.body, color: theme.screen.text }}>
-              {translate(TranslationKeys.settings_list_check)}
-            </Text>
-          </View>
-          <Entypo name='chevron-small-right' color={theme.screen.icon} size={24} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-          onPress={() => router.push('/experimentell/game-ideas')}
-        >
-          <View style={styles.col}>
-            <MaterialCommunityIcons name='gamepad-variant' color={theme.screen.icon} size={24} />
-            <Text style={{ ...styles.body, color: theme.screen.text }}>
-              {translate(TranslationKeys.game_ideas)}
-            </Text>
-          </View>
-          <Entypo name='chevron-small-right' color={theme.screen.icon} size={24} />
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
-  );
+	return (
+		<ScrollView
+			style={{ ...styles.container, backgroundColor: theme.screen.background }}
+			contentContainerStyle={{
+				...styles.contentContainer,
+				backgroundColor: theme.screen.background,
+			}}
+		>
+			<View style={{ ...styles.content }}>
+				<Text style={{ ...styles.heading, color: theme.screen.text }}>
+					{translate(TranslationKeys.experimentell)}
+				</Text>
+				{buildingPosition && (
+					<Text style={{ ...styles.body, color: theme.screen.text }}>
+						{translate(TranslationKeys.coordinates)}: {buildingPosition.lat},{' '}
+						{buildingPosition.lng}
+					</Text>
+				)}
+				<TouchableOpacity
+					style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
+					onPress={() =>
+						router.push({
+							pathname: '/leaflet-map',
+							params: {
+								lat: String(buildingPosition?.lat ?? '52.275'),
+								lng: String(buildingPosition?.lng ?? '7.4584'),
+								zoom: '16',
+							},
+						})
+					}
+				>
+					<View style={styles.col}>
+						<MaterialCommunityIcons name="map" color={theme.screen.icon} size={24} />
+						<Text style={{ ...styles.body, color: theme.screen.text }}>
+							{translate(TranslationKeys.leaflet_map)}
+						</Text>
+					</View>
+					<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
+					onPress={() => router.push('/vertical-image-scroll')}
+				>
+					<View style={styles.col}>
+						<MaterialCommunityIcons
+							name="image-multiple"
+							color={theme.screen.icon}
+							size={24}
+						/>
+						<Text style={{ ...styles.body, color: theme.screen.text }}>
+							{translate(TranslationKeys.vertical_image_scroll)}
+						</Text>
+					</View>
+					<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
+					onPress={() => router.push('/foodoffers-scroll')}
+				>
+					<View style={styles.col}>
+						<MaterialCommunityIcons name="food" color={theme.screen.icon} size={24} />
+						<Text style={{ ...styles.body, color: theme.screen.text }}>
+							{translate(TranslationKeys.foodoffers_scroll)}
+						</Text>
+					</View>
+					<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
+					onPress={() => router.push('/chats')}
+				>
+					<View style={styles.col}>
+						<MaterialCommunityIcons name="chat" color={theme.screen.icon} size={24} />
+						<Text style={{ ...styles.body, color: theme.screen.text }}>
+							{translate(TranslationKeys.chats)}
+						</Text>
+					</View>
+					<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
+					onPress={() => router.push('/experimentell/debug-logout')}
+				>
+					<View style={styles.col}>
+						<MaterialCommunityIcons name="bug" color={theme.screen.icon} size={24} />
+						<Text style={{ ...styles.body, color: theme.screen.text }}>
+							{translate(TranslationKeys.debug_logout)}
+						</Text>
+					</View>
+					<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
+					onPress={() => router.push('/experimentell/rate-app')}
+				>
+					<View style={styles.col}>
+						<MaterialCommunityIcons name="star" color={theme.screen.icon} size={24} />
+						<Text style={{ ...styles.body, color: theme.screen.text }}>
+							{translate(TranslationKeys.rate_app)}
+						</Text>
+					</View>
+					<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
+					onPress={() => router.push('/experimentell/app-download')}
+				>
+					<View style={styles.col}>
+						<MaterialCommunityIcons
+							name="download"
+							color={theme.screen.icon}
+							size={24}
+						/>
+						<Text style={{ ...styles.body, color: theme.screen.text }}>
+							{translate(TranslationKeys.app_download)}
+						</Text>
+					</View>
+					<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
+					onPress={() => router.push('/experimentell/react-native-qrcode-svg')}
+				>
+					<View style={styles.col}>
+						<MaterialCommunityIcons
+							name="qrcode"
+							color={theme.screen.icon}
+							size={24}
+						/>
+						<Text style={{ ...styles.body, color: theme.screen.text }}>
+							{translate(TranslationKeys.react_native_qrcode_svg)}
+						</Text>
+					</View>
+					<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
+					onPress={() => router.push('/experimentell/settings-list-check')}
+				>
+					<View style={styles.col}>
+						<MaterialCommunityIcons
+							name="format-list-text"
+							color={theme.screen.icon}
+							size={24}
+						/>
+						<Text style={{ ...styles.body, color: theme.screen.text }}>
+							{translate(TranslationKeys.settings_list_check)}
+						</Text>
+					</View>
+					<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
+					onPress={() => router.push('/experimentell/game-ideas')}
+				>
+					<View style={styles.col}>
+						<MaterialCommunityIcons
+							name="gamepad-variant"
+							color={theme.screen.icon}
+							size={24}
+						/>
+						<Text style={{ ...styles.body, color: theme.screen.text }}>
+							{translate(TranslationKeys.game_ideas)}
+						</Text>
+					</View>
+					<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+				</TouchableOpacity>
+			</View>
+		</ScrollView>
+	);
 };
 
 export default index;

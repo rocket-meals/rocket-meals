@@ -1,15 +1,15 @@
-import React from 'react'
+import React from 'react';
 import { Redirect } from 'expo-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/reducer';
 
 const index = () => {
-  const { loggedIn } = useSelector((state: RootState) => state.authReducer);
-  if (loggedIn) {
-    return <Redirect href='/(app)' />;
-  } else {
-    return <Redirect href='/(auth)/login' />;
-  }
+	const { loggedIn } = useSelector((state: RootState) => state.authReducer);
+	if (loggedIn) {
+		return <Redirect href="/(app)" />;
+	} else {
+		return <Redirect href="/(auth)/login" />;
+	}
 };
 
 export default index;

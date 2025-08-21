@@ -1,4 +1,4 @@
 export type RootDrawerParamList = {
-  housing: undefined;
-  housingDetails: { id: string };
+	housing: undefined;
+	housingDetails: { id: string };
 };

@@ -7,17 +7,17 @@
 // ];
 
 export const infoItems = [
-  { label: 'account' },
-  { label: 'profile' },
-  { label: 'food_feedbacks' },
+	{ label: 'account' },
+	{ label: 'profile' },
+	{ label: 'food_feedbacks' },
 ];
 
 export const dataDevice = [
-  { label: 'PersistentStore.test' },
-  { label: 'PersistentStore.debug' },
-  { label: 'PersistentStore.demo' },
-  { label: 'PersistentStore' },
-  { label: 'PersistentStore' },
-  { label: 'PersistentStore' },
-  { label: 'PersistentStore' },
+	{ label: 'PersistentStore.test' },
+	{ label: 'PersistentStore.debug' },
+	{ label: 'PersistentStore.demo' },
+	{ label: 'PersistentStore' },
+	{ label: 'PersistentStore' },
+	{ label: 'PersistentStore' },
+	{ label: 'PersistentStore' },
 ];

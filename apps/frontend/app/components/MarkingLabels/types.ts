@@ -1,6 +1,6 @@
 export interface MarkingLabelProps {
-  markingId: string;
-  handleMenuSheet?: () => void;
-  size?: number;
-  // id: number;
+	markingId: string;
+	handleMenuSheet?: () => void;
+	size?: number;
+	// id: number;
 }
