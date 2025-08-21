@@ -46,13 +46,37 @@ building or deploying:
 To format your code locally before committing:
 
 ```bash
-# Install Prettier globally
-npm install -g prettier
+# Install dependencies (only needed once)
+yarn install
 
-# Format all files
-prettier --write "**/*.{js,jsx,ts,tsx,json,md,yml,yaml}" --ignore-path .prettierignore
+# Check code formatting and lint issues
+yarn lint
 
-# For frontend ESLint
+# Format all files automatically
+yarn lint:format
+
+# Fix ESLint issues automatically (frontend only)
+yarn lint:eslint:fix
+
+# Apply all fixes automatically
+yarn lint:fix
+```
+
+#### Alternative Manual Commands
+
+If you prefer to run tools manually:
+
+```bash
+# Check format without fixing
+yarn lint:check
+
+# Check ESLint issues (frontend only)
+yarn lint:eslint
+
+# Manual prettier commands
+npx prettier --write "**/*.{js,jsx,ts,tsx,json,md,yml,yaml}" --ignore-path .prettierignore
+
+# Manual ESLint commands for frontend
 cd apps/frontend/app
 npm run lint
 ```

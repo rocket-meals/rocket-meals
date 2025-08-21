@@ -9,12 +9,22 @@
     "app-backend-test": "yarn workspace directus-extension-rocket-meals-bundle test",
     "app-backend-build": "yarn workspace directus-extension-rocket-meals-bundle build",
     "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
-    "clean-install": "yarn clean && yarn"
+    "clean-install": "yarn clean && yarn",
+    "lint:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\" --ignore-path .prettierignore",
+    "lint:format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\" --ignore-path .prettierignore",
+    "lint:eslint": "cd apps/frontend/app && npm run lint",
+    "lint:eslint:fix": "cd apps/frontend/app && npx eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "lint": "yarn lint:check && yarn lint:eslint",
+    "lint:fix": "yarn lint:format && yarn lint:eslint:fix"
   },
   "workspaces": [
     "apps/frontend/app",
     "apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle",
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  }
 }
