@@ -1,0 +1,62 @@
+# jobs must be a top-level key to avoid "jobs is not a valid event name" errors
+name: Backend Directus Extension Build
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/**'
+      - '.github/workflows/**'
+      - 'package.json'
+  workflow_run:
+    workflows: ["🔧 Auto-Linter"]
+    branches: [master]
+    types:
+      - completed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: 🏗 Setup repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🚀 Build the extension
+        run: yarn app-backend-build
+
+      - name: 🔍 Check if dist has changed
+        id: check_changes
+        run: |
+          if [[ -n $(git status --porcelain apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/dist) ]]; then
+            echo "dist_changed=true" >> $GITHUB_ENV
+          else
+            echo "dist_changed=false" >> $GITHUB_ENV
+          fi
+
+      - name: ✅ Commit and push changes if dist changed
+        if: env.dist_changed == 'true'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git stash --include-untracked
+          git pull --rebase
+          git stash pop
+          git add -f apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/dist
+          git commit -m "Update dist after backend build"
+          git push
+
+      - name: ☁️ Upload Dist Artifact
+        if: env.dist_changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          path: apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/dist
+          name: backend-dist
+

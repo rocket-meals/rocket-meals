@@ -1,0 +1,43 @@
+name: 🌐 GH-Pages Deploy
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'apps/frontend/app/**'
+      - 'packages/common/**'
+      - '.github/workflows/**'
+      - 'package.json'
+  workflow_run:
+    workflows: ["🔧 Auto-Linter"]
+    branches: [master]
+    types:
+      - completed
+
+jobs:
+  deploy-gh-pages:
+    name: 🌍 Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 👤 Git User Configuration
+        run: |
+          git config --global user.name 'Rocket Meals'
+          git config --global user.email 'nils@baumgartner-software.de'
+
+      - name: 🚀 Deploy to GitHub Pages
+        run: |
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          CI=false yarn deploy:gh:pages
+        working-directory: ./apps/frontend/app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

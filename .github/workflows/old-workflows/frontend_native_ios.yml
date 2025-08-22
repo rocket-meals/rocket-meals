@@ -1,0 +1,54 @@
+name: 🍏 Build & Submit iOS
+
+on:
+  workflow_run:
+    workflows: ["🔧 Auto-Linter"]
+    branches: [master]
+    types:
+      - completed
+
+jobs:
+  check-build:
+    name: 🔍 Check Build Number
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: master
+
+      - name: 🔍 Compare Build Number
+        id: check
+        uses: ./.github/actions/check-build-number
+
+  build-ios:
+    name: 📦 Build & 🚀 Submit iOS App
+    needs: check-build
+    if: needs.check-build.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: master
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🛠️ Build iOS App
+        run: eas build --platform ios --non-interactive
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📤 Submit iOS Build to App Store
+        run: eas submit --platform ios --non-interactive --latest
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

@@ -5,7 +5,7 @@ code style across the entire codebase.
 
 ## How it Works
 
-The auto-linter workflow (`.github/workflows/01-auto-linter.yml`) automatically:
+The auto-linter functionality is now integrated into the main CI/CD pipeline (`.github/workflows/main-ci-cd.yml`) as part of the linting job. It automatically:
 
 1. **Triggers on code changes**: Runs on push and pull requests to `master`/`main` branches
 2. **Formats code**: Uses Prettier to apply consistent formatting
@@ -29,10 +29,9 @@ The auto-linter workflow (`.github/workflows/01-auto-linter.yml`) automatically:
 
 ## Workflow Dependencies
 
-The auto-linter runs **before** all other workflows to ensure code is properly formatted before
-building or deploying:
+The auto-linter runs as the **linting job** in the main CI/CD pipeline and **before** all other build and deploy jobs to ensure code is properly formatted before building or deploying:
 
-- 🌐 GH-Pages Deploy
+- 🌐 GitHub Pages Deploy  
 - 🤖 Build & Submit Android
 - 🧪 Android Preview Build
 - 🍏 Build & Submit iOS
@@ -69,9 +68,9 @@ npm run lint
 ### Push to Master Workflow
 
 1. Push changes to master
-2. Auto-linter runs and formats code
+2. Auto-linter runs as part of the main CI/CD pipeline and formats code
 3. If changes are made, they're automatically committed with `[skip ci]`
-4. Other workflows then run with the properly formatted code
+4. Other jobs in the pipeline then run with the properly formatted code
 
 ## Benefits
 

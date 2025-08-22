@@ -1,0 +1,126 @@
+name: 🔧 Auto-Linter
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - "**/*.js"
+      - "**/*.jsx"
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.json"
+      - "**/*.md"
+      - "**/*.yml"
+      - "**/*.yaml"
+      - ".github/workflows/**"
+      - "package.json"
+      - "**/package.json"
+  pull_request:
+    branches: [master, main]
+    paths:
+      - "**/*.js"
+      - "**/*.jsx"
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.json"
+      - "**/*.md"
+      - "**/*.yml"
+      - "**/*.yaml"
+      - ".github/workflows/**"
+      - "package.json"
+      - "**/package.json"
+
+jobs:
+  auto-lint:
+    name: 🧹 Format and Lint Code
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install Global Tools
+        run: |
+          npm install -g prettier@3.3.3
+          echo "Global tools installed successfully"
+
+      - name: 🔍 Format with Prettier
+        run: |
+          echo "Running Prettier on supported files..."
+          # Format files and capture any errors but don't fail the step
+          prettier --write "**/*.{js,jsx,ts,tsx,json,md,yml,yaml}" --ignore-path .prettierignore --cache --cache-location .prettier-cache/ 2>&1 || true
+          echo "Prettier formatting completed"
+
+      - name: 🔍 Lint with ESLint (Frontend)
+        run: |
+          echo "Running ESLint on frontend code..."
+          cd apps/frontend/app
+          # Try to use local ESLint first, fallback to global, but don't fail on warnings
+          if [ -f "node_modules/.bin/eslint" ]; then
+            npx eslint . --ext .js,.jsx,.ts,.tsx --fix || true
+          else
+            echo "Local ESLint not available, skipping ESLint step"
+          fi
+          echo "ESLint completed"
+
+      - name: 🔍 Check for Changes
+        id: verify-changed-files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Files have been formatted/linted"
+            git status --short
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No formatting changes needed"
+          fi
+
+      - name: 📝 Commit Changes
+        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'push'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Auto-Linter Action"
+          git add .
+          git commit -m "🔧 Auto-format code with Prettier and ESLint
+
+          - Applied consistent formatting with Prettier
+          - Fixed linting issues with ESLint
+          - Automated by GitHub Actions
+
+          [skip ci]"
+          git push
+
+      - name: 💬 Comment on PR
+        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🔧 **Auto-Linter Notification**\n\nCode formatting and linting issues were detected in this PR. Please run the following commands locally to fix them:\n\n```bash\n# Format code with Prettier\nprettier --write "**/*.{js,jsx,ts,tsx,json,md,yml,yaml}"\n\n# Fix ESLint issues\ncd apps/frontend/app\nnpm run lint\n```\n\nOr manually trigger the auto-linter by pushing another commit to this PR.'
+            })
+
+      - name: ❌ Fail PR if Changes Needed
+        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "❌ Code formatting issues found. Please format your code before merging."
+          echo "Run prettier and eslint locally, then push the changes."
+          exit 1
+
+      - name: ✅ Success Message
+        if: steps.verify-changed-files.outputs.changed == 'false'
+        run: |
+          echo "✅ Code is properly formatted and linted!"

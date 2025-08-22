@@ -1,0 +1,54 @@
+name: 🤖 Build & Submit Android
+
+on:
+  workflow_run:
+    workflows: ["🔧 Auto-Linter"]
+    branches: [master]
+    types:
+      - completed
+
+jobs:
+  check-build:
+    name: 🔍 Check Build Number
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: master
+
+      - name: 🔍 Compare Build Number
+        id: check
+        uses: ./.github/actions/check-build-number
+
+  build-android:
+    name: 📦 Build & 🚀 Submit Android App
+    needs: check-build
+    if: needs.check-build.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          ref: master
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🛠️ Build Android App
+        run: eas build --platform android --non-interactive --profile production
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📤 Submit Android Build to Play Store
+        run: eas submit --platform android --non-interactive --latest --profile production
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

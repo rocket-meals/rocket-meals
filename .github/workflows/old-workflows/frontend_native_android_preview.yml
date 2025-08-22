@@ -1,0 +1,51 @@
+name: 🧪 Android Preview Build
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'apps/frontend/app/**'
+      - 'packages/common/**'
+      - '.github/workflows/**'
+      - 'package.json'
+  workflow_run:
+    workflows: ["🔧 Auto-Linter"]
+    branches: [master]
+    types:
+      - completed
+
+jobs:
+  check-build:
+    name: 🔍 Check Build Number
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: 🔍 Compare Build Number
+        id: check
+        uses: ./.github/actions/check-build-number
+
+  build-preview-apk:
+    name: 🧪 Build Android Preview APK
+    needs: check-build
+    if: needs.check-build.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🧪 Build with previewApk profile
+        run: eas build --platform android --non-interactive --profile previewApk
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
