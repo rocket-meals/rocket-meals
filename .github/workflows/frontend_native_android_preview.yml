@@ -18,12 +18,15 @@ jobs:
   check-build:
     name: 🔍 Check Build Number
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || github.event_name == 'push' }}
     outputs:
       changed: ${{ steps.check.outputs.changed }}
     steps:
       - name: 🔄 Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 2
 
       - name: 🔍 Compare Build Number
         id: check
@@ -37,7 +40,9 @@ jobs:
 
     steps:
       - name: 🔄 Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: 🧰 Setup Node.js, Yarn & Dependencies
         uses: ./.github/actions/setup-and-install

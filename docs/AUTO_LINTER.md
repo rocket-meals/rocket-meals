@@ -30,7 +30,8 @@ The auto-linter workflow (`.github/workflows/01-auto-linter.yml`) automatically:
 ## Workflow Dependencies
 
 The auto-linter runs **before** all other workflows to ensure code is properly formatted before
-building or deploying:
+building or deploying. The following workflows automatically trigger after auto-linter completion
+and use the latest formatted code:
 
 - 🌐 GH-Pages Deploy
 - 🤖 Build & Submit Android
@@ -38,6 +39,9 @@ building or deploying:
 - 🍏 Build & Submit iOS
 - 🤖 Expo Update
 - Backend Directus Extension Build
+
+Each dependent workflow uses `workflow_run` triggers to wait for auto-linter completion and
+automatically checks out the latest commit that includes any formatting changes.
 
 ## For Developers
 
@@ -71,7 +75,11 @@ npm run lint
 1. Push changes to master
 2. Auto-linter runs and formats code
 3. If changes are made, they're automatically committed with `[skip ci]`
-4. Other workflows then run with the properly formatted code
+4. Dependent workflows automatically trigger after auto-linter completion
+5. Dependent workflows use the latest commit (including auto-linter changes) for builds and
+   deployments
+
+The workflow dependency chain ensures that all builds and deployments use properly formatted code.
 
 ## Benefits
 
