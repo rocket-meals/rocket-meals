@@ -40,6 +40,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 	const [days, setDays] = useState<DayData[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
+	const [loadingMore, setLoadingMore] = useState(false);
 	const [selectedSheet, setSelectedSheet] = useState<'menu' | keyof typeof SHEET_COMPONENTS | null>(null);
 	const [sheetProps, setSheetProps] = useState<Record<string, any>>({});
 	const [selectedFoodId, setSelectedFoodId] = useState('');
@@ -164,12 +165,21 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		init();
 	}, [init]);
 
-	const loadNext = async () => {
-		const lastDate = days[days.length - 1].date;
-		const nextDate = addDays(new Date(lastDate), 1).toISOString().split('T')[0];
-		const nextDay = await loadDay(nextDate);
-		setDays(prev => [...prev, nextDay]);
-	};
+	const loadNext = useCallback(async () => {
+		if (loading || loadingMore) return; // Prevent multiple concurrent loads
+		
+		setLoadingMore(true);
+		try {
+			const lastDate = days[days.length - 1].date;
+			const nextDate = addDays(new Date(lastDate), 1).toISOString().split('T')[0];
+			const nextDay = await loadDay(nextDate);
+			setDays(prev => [...prev, nextDay]);
+		} catch (error) {
+			console.error('Error loading next day:', error);
+		} finally {
+			setLoadingMore(false);
+		}
+	}, [loading, loadingMore, days, loadDay]);
 
 	const onEndReached = useCallback(() => {
 		loadNext();
