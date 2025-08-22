@@ -1,0 +1,80 @@
+name: 🔢 Increment Build Number
+
+on:
+  workflow_dispatch:
+    inputs:
+      increment_type:
+        description: 'Type of increment'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+      reason:
+        description: 'Reason for build number increment'
+        required: false
+        default: 'Manual build number increment'
+
+jobs:
+  increment-build:
+    name: 🔢 Increment Build Number
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🔢 Increment Build Number
+        id: increment
+        run: |
+          config_file="apps/frontend/app/config.ts"
+
+          # Extract current build number
+          current_build=$(grep -A 5 'function getBuildNumber' "$config_file" | grep 'return' | grep -Eo '[0-9]+' | head -1)
+          echo "📦 Current build number: $current_build"
+
+          # Calculate new build number
+          if [ "${{ inputs.increment_type }}" = "minor" ]; then
+            new_build=$((current_build + 10))
+          else
+            new_build=$((current_build + 1))
+          fi
+
+          echo "📦 New build number: $new_build"
+
+          # Update the build number in config.ts
+          sed -i "s/return $current_build;/return $new_build;/g" "$config_file"
+
+          echo "build_number=$new_build" >> "$GITHUB_OUTPUT"
+          echo "old_build_number=$current_build" >> "$GITHUB_OUTPUT"
+
+      - name: 🔍 Verify Changes
+        run: |
+          echo "📋 Changes made to config.ts:"
+          git diff apps/frontend/app/config.ts
+
+      - name: 📝 Commit Build Number Update
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Build Number Increment Action"
+          git add apps/frontend/app/config.ts
+          git commit -m "🔢 Increment build number from ${{ steps.increment.outputs.old_build_number }} to ${{ steps.increment.outputs.build_number }}
+
+          Reason: ${{ inputs.reason }}
+          Type: ${{ inputs.increment_type }}
+
+          [trigger-builds]"
+          git push
+
+      - name: ✅ Summary
+        run: |
+          echo "✅ Build number successfully incremented!"
+          echo "📦 Old: ${{ steps.increment.outputs.old_build_number }}"
+          echo "📦 New: ${{ steps.increment.outputs.build_number }}"
+          echo "🔄 This will trigger Auto-Linter and build workflows"
