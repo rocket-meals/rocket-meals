@@ -18,7 +18,10 @@ jobs:
   deploy-gh-pages:
     name: 🌍 Deploy to GitHub Pages
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+    # Run for both push events and successful auto-linter completions
+    if: |
+      (github.event_name == 'push') || 
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
 
     steps:
       - name: 🔄 Checkout Repository

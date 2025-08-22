@@ -29,8 +29,7 @@ The auto-linter workflow (`.github/workflows/01-auto-linter.yml`) automatically:
 
 ## Workflow Dependencies
 
-The auto-linter runs **before** all other workflows to ensure code is properly formatted before
-building or deploying:
+The auto-linter runs alongside other workflows using a **dual trigger system** to ensure build triggers work correctly:
 
 - 🌐 GH-Pages Deploy
 - 🤖 Build & Submit Android
@@ -38,6 +37,13 @@ building or deploying:
 - 🍏 Build & Submit iOS
 - 🤖 Expo Update
 - Backend Directus Extension Build
+
+**How it works:**
+- Each workflow has both `push` and `workflow_run` triggers
+- On push to master: Both auto-linter and build workflows start simultaneously
+- If auto-linter makes commits: Build workflows also trigger after auto-linter completion
+- Build number detection always compares the original commits, ignoring auto-linter commits
+- This prevents auto-linter formatting commits from interfering with build triggering logic
 
 ## For Developers
 
@@ -69,9 +75,18 @@ npm run lint
 ### Push to Master Workflow
 
 1. Push changes to master
-2. Auto-linter runs and formats code
+2. Auto-linter runs and formats code if needed
 3. If changes are made, they're automatically committed with `[skip ci]`
-4. Other workflows then run with the properly formatted code
+4. Other workflows run with the properly formatted code using **dual trigger logic**:
+   - **Direct push trigger**: Runs immediately on push, comparing the original commit with its parent
+   - **Workflow completion trigger**: Runs after auto-linter completion, comparing the original triggering commit with its parent
+   - This ensures build number detection works correctly regardless of whether auto-linter makes commits
+
+The dual trigger approach ensures that:
+- Build workflows can run even if auto-linter makes formatting commits
+- Build number comparison always uses the original code changes, not formatting commits
+- No builds are skipped due to auto-linter interference
+- All existing functionality is preserved
 
 ## Benefits
 
