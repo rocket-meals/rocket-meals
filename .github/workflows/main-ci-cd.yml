@@ -1,0 +1,348 @@
+name: 🚀 Main CI/CD Pipeline
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - "**/*.js"
+      - "**/*.jsx"
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.json"
+      - "**/*.md"
+      - "**/*.yml"
+      - "**/*.yaml"
+      - ".github/workflows/**"
+      - "package.json"
+      - "**/package.json"
+      - "apps/frontend/app/**"
+      - "apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/**"
+      - "packages/common/**"
+  pull_request:
+    branches: [master, main]
+    paths:
+      - "**/*.js"
+      - "**/*.jsx"
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.json"
+      - "**/*.md"
+      - "**/*.yml"
+      - "**/*.yaml"
+      - ".github/workflows/**"
+      - "package.json"
+      - "**/package.json"
+      - "apps/frontend/app/**"
+      - "apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/**"
+      - "packages/common/**"
+
+jobs:
+  # Step 1: Setup and Install
+  setup-and-install:
+    name: 🧰 Setup and Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install Global Tools
+        run: |
+          npm install -g prettier@3.3.3
+          echo "Global tools installed successfully"
+
+  # Step 2: Linting
+  linting:
+    name: 🧹 Format and Lint Code
+    runs-on: ubuntu-latest
+    needs: setup-and-install
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install Global Tools
+        run: |
+          npm install -g prettier@3.3.3
+          echo "Global tools installed successfully"
+
+      - name: 🔍 Format with Prettier
+        run: |
+          echo "Running Prettier on supported files..."
+          prettier --write "**/*.{js,jsx,ts,tsx,json,md,yml,yaml}" --ignore-path .prettierignore --cache --cache-location .prettier-cache/ 2>&1 || true
+          echo "Prettier formatting completed"
+
+      - name: 🔍 Lint with ESLint (Frontend)
+        run: |
+          echo "Running ESLint on frontend code..."
+          cd apps/frontend/app
+          if [ -f "node_modules/.bin/eslint" ]; then
+            npx eslint . --ext .js,.jsx,.ts,.tsx --fix || true
+          else
+            echo "Local ESLint not available, skipping ESLint step"
+          fi
+          echo "ESLint completed"
+
+      - name: 🔍 Check for Changes
+        id: verify-changed-files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Files have been formatted/linted"
+            git status --short
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No formatting changes needed"
+          fi
+
+      - name: 📝 Commit Changes
+        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'push'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Auto-Linter Action"
+          git add .
+          git commit -m "🔧 Auto-format code with Prettier and ESLint
+
+          - Applied consistent formatting with Prettier
+          - Fixed linting issues with ESLint
+          - Automated by GitHub Actions
+
+          [skip ci]"
+          git push
+
+      - name: 💬 Comment on PR
+        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🔧 **Auto-Linter Notification**\n\nCode formatting and linting issues were detected in this PR. Please run the following commands locally to fix them:\n\n```bash\n# Format code with Prettier\nprettier --write "**/*.{js,jsx,ts,tsx,json,md,yml,yaml}"\n\n# Fix ESLint issues\ncd apps/frontend/app\nnpm run lint\n```\n\nOr manually trigger the auto-linter by pushing another commit to this PR.'
+            })
+
+      - name: ❌ Fail PR if Changes Needed
+        if: steps.verify-changed-files.outputs.changed == 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "❌ Code formatting issues found. Please format your code before merging."
+          echo "Run prettier and eslint locally, then push the changes."
+          exit 1
+
+      - name: ✅ Success Message
+        if: steps.verify-changed-files.outputs.changed == 'false'
+        run: |
+          echo "✅ Code is properly formatted and linted!"
+
+  # Step 3.a: Directus Backend Build
+  backend-build:
+    name: 🏗️ Backend Directus Extension Build
+    runs-on: ubuntu-latest
+    needs: linting
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[skip ci]') == false }}
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🚀 Build the extension
+        run: yarn app-backend-build
+
+      - name: 🔍 Check if dist has changed
+        id: check_changes
+        run: |
+          if [[ -n $(git status --porcelain apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/dist) ]]; then
+            echo "dist_changed=true" >> $GITHUB_ENV
+          else
+            echo "dist_changed=false" >> $GITHUB_ENV
+          fi
+
+      - name: ✅ Commit and push changes if dist changed
+        if: env.dist_changed == 'true'
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git stash --include-untracked
+          git pull --rebase
+          git stash pop
+          git add -f apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/dist
+          git commit -m "Update dist after backend build"
+          git push
+
+      - name: ☁️ Upload Dist Artifact
+        if: env.dist_changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          path: apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/dist
+          name: backend-dist
+
+  # Step 3.b: Expo Update
+  expo-update:
+    name: 🤖 Expo Update
+    runs-on: ubuntu-latest
+    needs: linting
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[skip ci]') == false }}
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🚀 Publish update
+        run: eas update --auto --platform all --non-interactive --channel production
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+  # Check Build Number (used by native builds)
+  check-build-number:
+    name: 🔍 Check Build Number Changes
+    runs-on: ubuntu-latest
+    needs: linting
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[skip ci]') == false }}
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: 🔍 Compare Build Number
+        id: check
+        uses: ./.github/actions/check-build-number
+
+  # Step 3.c: Native Android Build
+  android-build:
+    name: 🤖 Build & Submit Android
+    runs-on: ubuntu-latest
+    needs: [linting, check-build-number]
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[skip ci]') == false && needs.check-build-number.outputs.changed == 'true' }}
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🛠️ Build Android App
+        run: eas build --platform android --non-interactive --profile production
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📤 Submit Android Build to Play Store
+        run: eas submit --platform android --non-interactive --latest --profile production
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+  # Step 3.d: Native Android Preview Build
+  android-preview-build:
+    name: 🧪 Android Preview Build
+    runs-on: ubuntu-latest
+    needs: [linting, check-build-number]
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[skip ci]') == false && needs.check-build-number.outputs.changed == 'true' }}
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🧪 Build with previewApk profile
+        run: eas build --platform android --non-interactive --profile previewApk
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+  # Step 3.e: Native iOS Build
+  ios-build:
+    name: 🍏 Build & Submit iOS
+    runs-on: ubuntu-latest
+    needs: [linting, check-build-number]
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[skip ci]') == false && needs.check-build-number.outputs.changed == 'true' }}
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🛠️ Build iOS App
+        run: eas build --platform ios --non-interactive
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📤 Submit iOS Build to App Store
+        run: eas submit --platform ios --non-interactive --latest
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+  # Step 3.f: GH Pages Build
+  gh-pages-build:
+    name: 🌐 GitHub Pages Deploy
+    runs-on: ubuntu-latest
+    needs: linting
+    if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[skip ci]') == false }}
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup Node.js, Yarn & Dependencies
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 👤 Git User Configuration
+        run: |
+          git config --global user.name 'Rocket Meals'
+          git config --global user.email 'nils@baumgartner-software.de'
+
+      - name: 🚀 Deploy to GitHub Pages
+        run: |
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          CI=false yarn deploy:gh:pages
+        working-directory: ./apps/frontend/app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,10 +1,10 @@
-name: Screenshots CI Action
+name: 📸 Screenshots CI Action
 
 on:
   workflow_dispatch: # Allow manual triggering
 
   workflow_run:
-    workflows: [ "pages-build-deployment" ]
+    workflows: [ "pages-build-deployment", "🚀 Main CI/CD Pipeline" ]
     types:
       - completed
 
