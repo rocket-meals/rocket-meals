@@ -1,29 +1,30 @@
 name: 🤖 Build & Submit Android
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'apps/frontend/app/**'
-      - 'packages/common/**'
-      - '.github/workflows/**'
-      - 'package.json'
   workflow_run:
     workflows: ["🔧 Auto-Linter"]
     branches: [master]
     types:
       - completed
+  push:
+    branches: [master]
+    paths:
+      - 'apps/frontend/app/config.ts'
 
 jobs:
   check-build:
     name: 🔍 Check Build Number
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+    if: |
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      (github.event_name == 'push' && contains(github.event.head_commit.modified, 'apps/frontend/app/config.ts'))
     outputs:
       changed: ${{ steps.check.outputs.changed }}
     steps:
       - name: 🔄 Checkout Repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
 
       - name: 🔍 Compare Build Number
         id: check

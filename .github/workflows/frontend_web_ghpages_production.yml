@@ -1,13 +1,6 @@
 name: 🌐 GH-Pages Deploy
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'apps/frontend/app/**'
-      - 'packages/common/**'
-      - '.github/workflows/**'
-      - 'package.json'
   workflow_run:
     workflows: ["🔧 Auto-Linter"]
     branches: [master]

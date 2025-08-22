@@ -5,18 +5,24 @@ inputs:
   EXPO_TOKEN:
     required: true
     description: Expo Access Token (für EAS CLI Login)
+  working-directory:
+    required: false
+    description: 'Working directory for frontend app installation'
+    default: './apps/frontend/app'
+  node-version:
+    required: false
+    description: 'Node.js version to use'
+    default: '22.16.0'
 
 runs:
   using: "composite"
   steps:
-    - name: 🔄 Checkout repository
-      uses: actions/checkout@v3
-
     - name: ⚙️ Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '22.16.0'
+        node-version: ${{ inputs.node-version }}
         registry-url: 'https://registry.npmjs.org'
+        cache: 'yarn'
 
     - name: ⚙️ Setup EAS CLI
       uses: expo/expo-github-action@v8
@@ -24,11 +30,11 @@ runs:
         eas-version: latest
         token: ${{ inputs.EXPO_TOKEN }}
 
-    - name: 📦 Install dependencies
+    - name: 📦 Install root dependencies
       run: yarn install --frozen-lockfile
       shell: bash
 
-    - name: 📦 Install dependencies
+    - name: 📦 Install frontend dependencies
       run: yarn install --frozen-lockfile
       shell: bash
-      working-directory: ./apps/frontend/app
+      working-directory: ${{ inputs.working-directory }}
