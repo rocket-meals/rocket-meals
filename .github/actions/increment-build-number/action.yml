@@ -1,0 +1,81 @@
+name: Increment Build Number
+description: Inkrementiert die Build-Nummer in config.ts und committed die Änderung
+
+inputs:
+  working-directory:
+    required: false
+    description: 'Das Verzeichnis, in dem sich die config.ts befindet'
+    default: apps/frontend/app
+  commit-message:
+    required: false
+    description: 'Commit-Nachricht für die Build-Nummer-Änderung'
+    default: '🔢 Increment build number [skip ci]'
+
+outputs:
+  old-build-number:
+    description: 'Die alte Build-Nummer'
+    value: ${{ steps.increment.outputs.old-build-number }}
+  new-build-number:
+    description: 'Die neue Build-Nummer'
+    value: ${{ steps.increment.outputs.new-build-number }}
+  build-number-changed:
+    description: 'true, wenn die Build-Nummer erfolgreich geändert wurde'
+    value: ${{ steps.increment.outputs.build-number-changed }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: 🔢 Increment Build Number
+      id: increment
+      run: |
+        CONFIG_FILE="${{ inputs.working-directory }}/config.ts"
+        
+        # Aktuelle Build-Nummer extrahieren
+        OLD_BUILD_NUMBER=$(grep -A 5 'function getBuildNumber' "$CONFIG_FILE" | grep 'return' | grep -Eo '[0-9]+' | head -1)
+        
+        if [ -z "$OLD_BUILD_NUMBER" ]; then
+          echo "❌ Fehler: Build-Nummer konnte nicht gefunden werden"
+          exit 1
+        fi
+        
+        # Neue Build-Nummer berechnen
+        NEW_BUILD_NUMBER=$((OLD_BUILD_NUMBER + 1))
+        
+        echo "📦 Alte Build-Nummer: $OLD_BUILD_NUMBER"
+        echo "📦 Neue Build-Nummer: $NEW_BUILD_NUMBER"
+        
+        # Build-Nummer in der Datei aktualisieren
+        sed -i "s/return $OLD_BUILD_NUMBER;/return $NEW_BUILD_NUMBER;/" "$CONFIG_FILE"
+        
+        # Verifizieren, dass die Änderung erfolgreich war
+        UPDATED_BUILD_NUMBER=$(grep -A 5 'function getBuildNumber' "$CONFIG_FILE" | grep 'return' | grep -Eo '[0-9]+' | head -1)
+        
+        if [ "$UPDATED_BUILD_NUMBER" != "$NEW_BUILD_NUMBER" ]; then
+          echo "❌ Fehler: Build-Nummer-Update fehlgeschlagen"
+          exit 1
+        fi
+        
+        echo "✅ Build-Nummer erfolgreich aktualisiert"
+        
+        # Outputs setzen
+        echo "old-build-number=$OLD_BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+        echo "new-build-number=$NEW_BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+        echo "build-number-changed=true" >> "$GITHUB_OUTPUT"
+      shell: bash
+
+    - name: 📝 Commit Build Number Change
+      run: |
+        # Git Konfiguration
+        git config --local user.email "action@github.com"
+        git config --local user.name "Build Number Increment Action"
+        
+        # Prüfen, ob Änderungen vorhanden sind
+        if [ -n "$(git status --porcelain ${{ inputs.working-directory }}/config.ts)" ]; then
+          git add ${{ inputs.working-directory }}/config.ts
+          git commit -m "${{ inputs.commit-message }}"
+          git push
+          echo "✅ Build-Nummer-Änderung committed und gepusht"
+        else
+          echo "⚠️ Keine Änderungen zu committen"
+        fi
+      shell: bash

@@ -1,13 +1,6 @@
 name: 🧪 Android Preview Build
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'apps/frontend/app/**'
-      - 'packages/common/**'
-      - '.github/workflows/**'
-      - 'package.json'
   workflow_run:
     workflows: ["🔧 Auto-Linter"]
     branches: [master]
@@ -15,34 +8,25 @@ on:
       - completed
 
 jobs:
-  check-build:
-    name: 🔍 Check Build Number
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
-    outputs:
-      changed: ${{ steps.check.outputs.changed }}
-    steps:
-      - name: 🔄 Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: 🔍 Compare Build Number
-        id: check
-        uses: ./.github/actions/check-build-number
-
   build-preview-apk:
     name: 🧪 Build Android Preview APK
-    needs: check-build
-    if: needs.check-build.outputs.changed == 'true'
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
 
     steps:
-      - name: 🔄 Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: 🧰 Setup Node.js, Yarn & Dependencies
-        uses: ./.github/actions/setup-and-install
+      - name: 🧰 Setup Expo Environment
+        uses: ./.github/actions/setup-expo-environment
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🔢 Increment Build Number
+        id: increment
+        uses: ./.github/actions/increment-build-number
+        with:
+          working-directory: apps/frontend/app
+          commit-message: '🔢 Increment Android preview build number [skip ci]'
 
       - name: 🧪 Build with previewApk profile
         run: eas build --platform android --non-interactive --profile previewApk

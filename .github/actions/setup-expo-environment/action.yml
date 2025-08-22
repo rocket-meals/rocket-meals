@@ -1,0 +1,54 @@
+name: Setup Expo Environment
+description: Vollständiger Setup für Expo-Projekte mit Node.js, Dependencies und EAS CLI
+
+inputs:
+  EXPO_TOKEN:
+    required: true
+    description: Expo Access Token (für EAS CLI Login)
+  node-version:
+    required: false
+    description: Node.js Version
+    default: '22.16.0'
+  working-directory:
+    required: false
+    description: Arbeitsverzeichnis für Dependencies-Installation
+    default: apps/frontend/app
+
+runs:
+  using: "composite"
+  steps:
+    - name: 🔄 Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ github.token }}
+        fetch-depth: 0
+
+    - name: ⚙️ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        registry-url: 'https://registry.npmjs.org'
+        cache: 'yarn'
+
+    - name: ⚙️ Setup EAS CLI
+      uses: expo/expo-github-action@v8
+      with:
+        eas-version: latest
+        token: ${{ inputs.EXPO_TOKEN }}
+
+    - name: 📦 Install Root Dependencies
+      run: yarn install --frozen-lockfile
+      shell: bash
+
+    - name: 📦 Install App Dependencies  
+      run: yarn install --frozen-lockfile
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+
+    - name: 📋 Verify Installation
+      run: |
+        echo "✅ Node.js: $(node --version)"
+        echo "✅ Yarn: $(yarn --version)"
+        echo "✅ EAS CLI: $(eas --version)"
+        echo "✅ Environment setup completed successfully"
+      shell: bash

@@ -2,12 +2,6 @@
 name: Backend Directus Extension Build
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/**'
-      - '.github/workflows/**'
-      - 'package.json'
   workflow_run:
     workflows: ["🔧 Auto-Linter"]
     branches: [master]
@@ -17,14 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - name: 🏗 Setup repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: 🧰 Setup Node.js, Yarn & Dependencies
+      - name: 🧰 Setup Environment
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -50,7 +39,7 @@ jobs:
           git pull --rebase
           git stash pop
           git add -f apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/dist
-          git commit -m "Update dist after backend build"
+          git commit -m "Update dist after backend build [skip ci]"
           git push
 
       - name: ☁️ Upload Dist Artifact
