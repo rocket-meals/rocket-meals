@@ -26,7 +26,7 @@ jobs:
         uses: ./.github/actions/increment-build-number
         with:
           working-directory: apps/frontend/app
-          commit-message: '🔢 Increment Android build number [skip ci]'
+          commit-message: '🔢 Increment build number for mobile apps [skip ci]'
 
       - name: 🛠️ Build Android App
         run: eas build --platform android --non-interactive --profile production

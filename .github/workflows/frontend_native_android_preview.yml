@@ -2,7 +2,7 @@ name: 🧪 Android Preview Build
 
 on:
   workflow_run:
-    workflows: ["🔧 Auto-Linter"]
+    workflows: ["🍏 Build & Submit iOS"]
     branches: [master]
     types:
       - completed
@@ -20,13 +20,6 @@ jobs:
         uses: ./.github/actions/setup-expo-environment
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      - name: 🔢 Increment Build Number
-        id: increment
-        uses: ./.github/actions/increment-build-number
-        with:
-          working-directory: apps/frontend/app
-          commit-message: '🔢 Increment Android preview build number [skip ci]'
 
       - name: 🧪 Build with previewApk profile
         run: eas build --platform android --non-interactive --profile previewApk
