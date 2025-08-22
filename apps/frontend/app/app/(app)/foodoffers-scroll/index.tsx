@@ -277,7 +277,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		return format(day, 'dd.MM.yyyy'); // Return the date if it's not Today, Yesterday, or Tomorrow
 	};
 
-	const updateSort = (id: FoodSortOption, foodOffers: DatabaseTypes.Foodoffers[]) => {
+	const updateSort = useCallback((id: FoodSortOption, foodOffers: DatabaseTypes.Foodoffers[]) => {
 		const sortedOffers = sortFoodOffers(id, foodOffers, {
 			languageCode,
 			ownFoodFeedbacks,
@@ -290,17 +290,23 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 			type: SET_SELECTED_CANTEEN_FOOD_OFFERS,
 			payload: sortedOffers,
 		});
-	};
+	}, [languageCode, ownFoodFeedbacks, profile, foodCategories, foodOfferCategories, dispatch]);
+
+	// Debounced dimension change handler for better performance
+	const debouncedHandleResize = useMemo(() => {
+		let timeoutId: NodeJS.Timeout;
+		return () => {
+			clearTimeout(timeoutId);
+			timeoutId = setTimeout(() => {
+				setScreenWidth(Dimensions.get('window').width);
+			}, 100);
+		};
+	}, []);
 
 	useEffect(() => {
-		const handleResize = () => {
-			setScreenWidth(Dimensions.get('window').width);
-		};
-
-		const subscription = Dimensions.addEventListener('change', handleResize);
-
+		const subscription = Dimensions.addEventListener('change', debouncedHandleResize);
 		return () => subscription?.remove();
-	}, []);
+	}, [debouncedHandleResize]);
 
 	const getPriceGroup = (price_group: string) => {
 		if (price_group) {
@@ -309,7 +315,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		return '';
 	};
 
-	const fetchFoods = async () => {
+	const fetchFoods = useCallback(async () => {
 		try {
 			setLoading(true);
 			const canteenId = selectedCanteen?.id as string;
@@ -328,23 +334,31 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 				},
 			}));
 
-			// Prefetch next two days
+			// Optimized prefetch with parallel requests
+			const prefetchPromises = [];
 			for (let i = 1; i <= 2; i++) {
 				const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
 				if (!prefetchedFoodOffers[canteenId]?.[date]) {
-					fetchFoodOffersByCanteen(canteenId, date)
-						.then(res => {
-							const offers = res?.data || [];
-							setPrefetchedFoodOffers(p => ({
-								...p,
-								[canteenId]: {
-									...(p[canteenId] || {}),
-									[date]: offers,
-								},
-							}));
-						})
-						.catch(e => console.error('Error prefetching Food Offers:', e));
+					prefetchPromises.push(
+						fetchFoodOffersByCanteen(canteenId, date)
+							.then(res => {
+								const offers = res?.data || [];
+								setPrefetchedFoodOffers(p => ({
+									...p,
+									[canteenId]: {
+										...(p[canteenId] || {}),
+										[date]: offers,
+									},
+								}));
+							})
+							.catch(e => console.error('Error prefetching Food Offers:', e))
+					);
 				}
+			}
+
+			// Execute prefetch requests in parallel without awaiting
+			if (prefetchPromises.length > 0) {
+				Promise.all(prefetchPromises);
 			}
 
 			updateSort(sortBy as FoodSortOption, foodOffers);
@@ -358,7 +372,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 			setLoading(false);
 			console.error('Error fetching Food Offers:', error);
 		}
-	};
+	}, [selectedCanteen?.id, selectedDate, prefetchedFoodOffers, sortBy, updateSort, dispatch]);
 
 	useEffect(() => {
 		fetchFoods();

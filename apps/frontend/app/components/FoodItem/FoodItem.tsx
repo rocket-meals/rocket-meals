@@ -1,6 +1,7 @@
 import { Linking, Text, TouchableOpacity, View } from 'react-native';
 import MyImage from '@/components/MyImage';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { Image } from 'expo-image';
 import styles from './styles';
 import { isWeb } from '@/constants/Constants';
 import { useTheme } from '@/hooks/useTheme';
@@ -42,24 +43,50 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 		const { user, profile, isManagement } = useSelector((state: RootState) => state.authReducer);
 		const previousFeedback = useSelector(state => selectPreviousFeedback(state, foodItem.id));
 		const { language, serverInfo, appSettings, primaryColor } = useSelector((state: RootState) => state.settings);
-		const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
-		const defaultImage = getImageUrl(String(appSettings.foods_placeholder_image)) || appSettings.foods_placeholder_image_remote_url || getImageUrl(serverInfo?.info?.project?.project_logo);
+		
+		// Memoized derived values for performance
+		const foods_area_color = useMemo(() => 
+			appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor,
+			[appSettings?.foods_area_color, primaryColor]
+		);
+		
+		const defaultImage = useMemo(() => 
+			getImageUrl(String(appSettings.foods_placeholder_image)) || 
+			appSettings.foods_placeholder_image_remote_url || 
+			getImageUrl(serverInfo?.info?.project?.project_logo),
+			[appSettings.foods_placeholder_image, appSettings.foods_placeholder_image_remote_url, serverInfo?.info?.project?.project_logo]
+		);
 
-		const getPriceGroup = (price_group: string) => {
+		const imageSource = useMemo(() => {
+			if (foodItem?.image_remote_url || foodItem?.image) {
+				return {
+					uri: foodItem?.image_remote_url || getImageUrl(foodItem?.image)
+				};
+			}
+			return { uri: defaultImage };
+		}, [foodItem?.image_remote_url, foodItem?.image, defaultImage]);
+
+		// Memoized recycling key for better memory management
+		const recyclingKey = useMemo(() => 
+			`food-${foodItem?.id || 'unknown'}`, 
+			[foodItem?.id]
+		);
+
+		const getPriceGroup = useCallback((price_group: string) => {
 			if (price_group) {
 				return `price_group_${price_group?.toLocaleLowerCase()}`;
 			}
 			return '';
-		};
+		}, []);
 
-		const handleNavigation = (id: string, foodId: string) => {
+		const handleNavigation = useCallback((id: string, foodId: string) => {
 			router.push({
 				pathname: '/(app)/foodoffers/details',
 				params: { id, foodId },
 			});
-		};
+		}, [router]);
 
-		const openInBrowser = async (url: string) => {
+		const openInBrowser = useCallback(async (url: string) => {
 			try {
 				if (isWeb) {
 					window.open(url, '_blank');
@@ -75,9 +102,17 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 			} catch (error) {
 				console.error('An error occurred:', error);
 			}
-		};
+		}, [toast]);
 
-		const dislikedMarkings = useMemo(() => item?.markings?.filter(marking => profile?.markings?.some((profileMarking: DatabaseTypes.ProfilesMarkings) => profileMarking?.markings_id === marking?.markings_id && profileMarking?.like === false)), [item?.markings, profile?.markings]);
+		// Memoized disliked markings calculation for performance
+		const dislikedMarkings = useMemo(() => 
+			item?.markings?.filter(marking => 
+				profile?.markings?.some((profileMarking: DatabaseTypes.ProfilesMarkings) => 
+					profileMarking?.markings_id === marking?.markings_id && profileMarking?.like === false
+				)
+			) || [], 
+			[item?.markings, profile?.markings]
+		);
 
 		const { screenWidth, containerStyle: cardContainerStyle, imageContainerStyle: cardImageContainerStyle, contentStyle: cardContentStyle } = useFoodCard(dislikedMarkings.length > 0 ? 3 : 0);
 
@@ -99,22 +134,51 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 					setWarning,
 				});
 			},
-			[foodItem?.id, profile?.id, canteen?.id, previousFeedback, dispatch]
+			[foodItem?.id, profile?.id, user.id, canteen?.id, previousFeedback, dispatch]
 		);
 
-		const markingsData = useMemo(() => markings?.filter((m: DatabaseTypes.Markings) => item?.markings.some(mark => mark.markings_id === m.id)).slice(0, 2), [markings, item?.markings]);
+		// Memoized markings data calculation for performance
+		const markingsData = useMemo(() => 
+			markings?.filter((m: DatabaseTypes.Markings) => 
+				item?.markings.some(mark => mark.markings_id === m.id)
+			).slice(0, 2) || [], 
+			[markings, item?.markings]
+		);
 
-		const openMarkingLabel = (marking: DatabaseTypes.Markings) => {
+		const openMarkingLabel = useCallback((marking: DatabaseTypes.Markings) => {
 			dispatch({
 				type: SET_MARKING_DETAILS,
 				payload: marking,
 			});
 			handleMenuSheet('menu');
-		};
+		}, [dispatch, handleMenuSheet]);
 
-		const handlePriceChange = () => {
+		const handlePriceChange = useCallback(() => {
 			router.navigate('/price-group');
-		};
+		}, [router]);
+
+		// Memoized food name for different screen sizes
+		const foodName = useMemo(() => {
+			const fullName = getTextFromTranslation(foodItem?.translations, language);
+			if (screenWidth > 1000) return excerpt(fullName, 120);
+			if (screenWidth > 700) return excerpt(fullName, 80);
+			if (screenWidth > 460) return excerpt(fullName, 60);
+			return excerpt(fullName, 40);
+		}, [foodItem?.translations, language, screenWidth]);
+
+		const onFoodItemPress = useCallback(() => {
+			if (item.redirect_url) {
+				openInBrowser(item.redirect_url);
+			} else {
+				const foodId = item?.food && typeof item.food !== 'string' ? item.food.id : '';
+				handleNavigation(item?.id, foodId);
+			}
+		}, [item.redirect_url, item?.food, item?.id, openInBrowser, handleNavigation]);
+
+		const onImageEditPress = useCallback(() => {
+			setSelectedFoodId(item?.food?.id);
+			handleImageSheet(item?.food?.id);
+		}, [setSelectedFoodId, item?.food?.id, handleImageSheet]);
 
 		return (
 			<>
@@ -123,22 +187,8 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 					trigger={triggerProps => (
 						<CardWithText
 							{...triggerProps}
-							onPress={() => {
-								if (item.redirect_url) {
-									openInBrowser(item.redirect_url);
-								} else {
-									const foodId = item?.food && typeof item.food !== 'string' ? item.food.id : '';
-
-									handleNavigation(item?.id, foodId);
-								}
-							}}
-							imageSource={
-								foodItem?.image_remote_url || foodItem?.image
-									? {
-											uri: foodItem?.image_remote_url || getImageUrl(foodItem?.image),
-										}
-									: { uri: defaultImage }
-							}
+							onPress={onFoodItemPress}
+							imageSource={imageSource}
 							containerStyle={cardContainerStyle}
 							imageContainerStyle={cardImageContainerStyle}
 							contentStyle={cardContentStyle}
@@ -152,10 +202,7 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 												<TouchableOpacity
 													{...triggerProps}
 													style={styles.editImageButton}
-													onPress={() => {
-														setSelectedFoodId(item?.food?.id);
-														handleImageSheet(item?.food?.id);
-													}}
+													onPress={onImageEditPress}
 												>
 													<MaterialCommunityIcons name="image-edit" size={20} color={'white'} />
 												</TouchableOpacity>
@@ -229,7 +276,7 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 											if ((mark?.image_remote_url || mark?.image) && description)
 												return (
 													<TouchableOpacity key={mark.id} onPress={() => openMarkingLabel(mark)}>
-														<MyImage
+														<Image
 															source={
 																mark?.image_remote_url || mark?.image
 																	? {
@@ -242,6 +289,8 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 																backgroundColor: mark?.background_color && mark?.background_color,
 																borderRadius: mark?.background_color ? 8 : mark.hide_border ? 5 : 0,
 															}}
+															cachePolicy="memory-disk"
+															recyclingKey={`marking-${mark.id}`}
 														/>
 													</TouchableOpacity>
 												);
@@ -264,7 +313,7 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 								</>
 							}
 						>
-							<Text style={{ ...styles.foodName, color: theme.screen.text }}>{screenWidth > 1000 ? excerpt(getTextFromTranslation(foodItem?.translations, language), 120) : screenWidth > 700 ? excerpt(getTextFromTranslation(foodItem?.translations, language), 80) : screenWidth > 460 ? excerpt(getTextFromTranslation(foodItem?.translations, language), 60) : excerpt(getTextFromTranslation(foodItem?.translations, language), 40)}</Text>
+							<Text style={{ ...styles.foodName, color: theme.screen.text }}>{foodName}</Text>
 						</CardWithText>
 					)}
 				>
@@ -279,7 +328,18 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 			</>
 		);
 	},
-	(prevProps, nextProps) => prevProps.item === nextProps.item
+	// Improved memo comparison function for better performance
+	(prevProps, nextProps) => {
+		return (
+			prevProps.item.id === nextProps.item.id &&
+			prevProps.item.food === nextProps.item.food &&
+			prevProps.canteen?.id === nextProps.canteen?.id &&
+			prevProps.handleMenuSheet === nextProps.handleMenuSheet &&
+			prevProps.handleImageSheet === nextProps.handleImageSheet &&
+			prevProps.handleEatingHabitsSheet === nextProps.handleEatingHabitsSheet &&
+			prevProps.setSelectedFoodId === nextProps.setSelectedFoodId
+		);
+	}
 );
 
 export default FoodItem;

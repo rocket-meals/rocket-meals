@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { FlatList, View, Text, RefreshControl, ActivityIndicator, Dimensions } from 'react-native';
 import { addDays, format } from 'date-fns';
 import { useTheme } from '@/hooks/useTheme';
@@ -93,16 +93,44 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		[sortBy, language, ownFoodFeedbacks, profile, foodCategories, foodOfferCategories]
 	);
 
-	useEffect(() => {
-		const sub = Dimensions.addEventListener('change', ({ window }) => {
+	// Optimized dimension change handler with debouncing
+	const handleDimensionChange = useCallback(
+		({ window }: { window: { width: number; height: number } }) => {
 			setScreenWidth(window.width);
-		});
+		},
+		[]
+	);
+
+	useEffect(() => {
+		const sub = Dimensions.addEventListener('change', handleDimensionChange);
 		return () => sub?.remove();
-	}, []);
+	}, [handleDimensionChange]);
 
 	useEffect(() => {
 		setDays(prev => prev.map(d => ({ ...d, offers: sortOffers(d.offers) })));
 	}, [sortOffers]);
+
+	// Memoized calculations for performance
+	const averageItemHeight = useMemo(() => {
+		// Estimate item height based on screen width and content
+		// Base height + estimated content height
+		const baseHeight = 100; // Header height
+		const itemHeight = screenWidth > 550 ? 350 : 300; // Estimated food item height
+		return baseHeight + itemHeight;
+	}, [screenWidth]);
+
+	// Performance optimized getItemLayout
+	const getItemLayout = useCallback(
+		(data: DayData[] | null | undefined, index: number) => ({
+			length: averageItemHeight,
+			offset: averageItemHeight * index,
+			index,
+		}),
+		[averageItemHeight]
+	);
+
+	// Optimized keyExtractor for better performance
+	const keyExtractor = useCallback((item: DayData) => item.date, []);
 
 	const loadDay = useCallback(
 		async (date: string) => {
@@ -143,17 +171,18 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		setDays(prev => [...prev, nextDay]);
 	};
 
-	const onEndReached = () => {
+	const onEndReached = useCallback(() => {
 		loadNext();
-	};
+	}, [loadNext]);
 
-	const onRefresh = async () => {
+	const onRefresh = useCallback(async () => {
 		setRefreshing(true);
 		await init();
 		setRefreshing(false);
-	};
+	}, [init]);
 
-	const renderDay = ({ item }: { item: DayData }) => {
+	// Memoized render function for better performance
+	const renderDay = useCallback(({ item }: { item: DayData }) => {
 		const feedbacks = canteenFeedbackLabels?.map((label, idx) => <CanteenFeedbackLabels key={`fl-${idx}`} label={label} date={item.date} />);
 
 		return (
@@ -174,7 +203,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 				{feedbacks && feedbacks.length > 0 && <View style={styles.feebackContainer}>{feedbacks}</View>}
 			</View>
 		);
-	};
+	}, [canteenFeedbackLabels, theme.screen.text, screenWidth, selectedCanteen, openSheet, openManagementSheet, setSelectedFoodId, translate]);
 
 	if (loading) {
 		return (
@@ -186,7 +215,23 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 
 	return (
 		<>
-			<FlatList data={days} keyExtractor={item => item.date} renderItem={renderDay} onEndReached={onEndReached} onEndReachedThreshold={0.5} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} scrollEventThrottle={16} style={{ flex: 1 }} contentContainerStyle={{ backgroundColor: theme.screen.background }} />
+			<FlatList 
+				data={days} 
+				keyExtractor={keyExtractor}
+				renderItem={renderDay} 
+				onEndReached={onEndReached} 
+				onEndReachedThreshold={0.5} 
+				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} 
+				scrollEventThrottle={16}
+				getItemLayout={getItemLayout}
+				initialNumToRender={3}
+				maxToRenderPerBatch={5}
+				windowSize={10}
+				removeClippedSubviews={true}
+				updateCellsBatchingPeriod={100}
+				style={{ flex: 1 }} 
+				contentContainerStyle={{ backgroundColor: theme.screen.background }} 
+			/>
 			{selectedSheet &&
 				(selectedSheet === 'menu' ? (
 					<MarkingBottomSheet ref={bottomSheetRef} onClose={closeSheet} />
