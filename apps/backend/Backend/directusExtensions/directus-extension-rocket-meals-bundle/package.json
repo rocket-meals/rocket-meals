@@ -50,6 +50,11 @@
       },
       {
         "type": "hook",
+        "name": "backend-auto-sync-hook",
+        "source": "src/backend-auto-sync-hook/index.ts"
+      },
+      {
+        "type": "hook",
         "name": "cashregister-hook",
         "source": "src/cashregister-hook/index.ts"
       },

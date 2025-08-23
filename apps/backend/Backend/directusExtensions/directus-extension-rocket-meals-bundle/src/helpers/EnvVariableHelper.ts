@@ -6,6 +6,12 @@ export enum SyncForCustomerEnum {
   HANNOVER = 'Hannover',
 }
 
+export enum BackendAutoSyncModeEnum {
+  DISABLED = 'disabled',
+  TEST = 'test',
+  FULL = 'full',
+}
+
 export class EnvVariableHelper {
   public static getEnvVariable(name: string): string | undefined {
     let envVariable = process.env[name];
@@ -108,5 +114,24 @@ export class EnvVariableHelper {
     } else {
       return null;
     }
+  }
+
+  static getBackendAutoSyncMode(): BackendAutoSyncModeEnum {
+    let value = this.getEnvVariable('BACKEND_AUTO_SYNC_MODE');
+    // check if value is a valid enum value, default to disabled if not set or invalid
+    if (Object.values(BackendAutoSyncModeEnum).includes(value as BackendAutoSyncModeEnum)) {
+      return value as BackendAutoSyncModeEnum;
+    } else {
+      return BackendAutoSyncModeEnum.DISABLED;
+    }
+  }
+
+  static isBackendAutoSyncEnabled(): boolean {
+    const mode = this.getBackendAutoSyncMode();
+    return mode === BackendAutoSyncModeEnum.TEST || mode === BackendAutoSyncModeEnum.FULL;
+  }
+
+  static isBackendAutoSyncFullMode(): boolean {
+    return this.getBackendAutoSyncMode() === BackendAutoSyncModeEnum.FULL;
   }
 }

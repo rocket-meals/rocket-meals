@@ -93,7 +93,13 @@ const getUrlSettings = () => {
   return `${directus_url}/settings`; // as directus_url can change we need to use a function here
 };
 
-const configureDirectusServerUrl = async () => {
+const configureDirectusServerUrl = async (autoMode = false) => {
+  // In auto mode, use the default URL from environment or localhost
+  if (autoMode || process.env.AUTO_SYNC_MODE === 'true') {
+    console.log(`Auto mode: Using current Directus server URL: ${directus_url}`);
+    return;
+  }
+
   const predefinedOptions = {
     'Current HTTPS': directus_url,
     'Test Server': 'https://test.rocket-meals.de/rocket-meals/api',
@@ -135,7 +141,13 @@ const configureDirectusServerUrl = async () => {
   console.log(`Directus server URL set to: ${directus_url}`);
 };
 
-const configureDirectusAdminCredentials = async () => {
+const configureDirectusAdminCredentials = async (autoMode = false) => {
+  // In auto mode, use the default credentials from environment
+  if (autoMode || process.env.AUTO_SYNC_MODE === 'true') {
+    console.log(`Auto mode: Using default admin credentials: ${admin_email}`);
+    return;
+  }
+
   const { useDefaultEmail } = await inquirer.prompt([
     {
       type: 'confirm',
@@ -184,9 +196,9 @@ const configureDirectusAdminCredentials = async () => {
   console.log('Admin password updated');
 };
 
-const configureVariables = async () => {
-  await configureDirectusServerUrl();
-  await configureDirectusAdminCredentials();
+const configureVariables = async (autoMode = false) => {
+  await configureDirectusServerUrl(autoMode);
+  await configureDirectusAdminCredentials(autoMode);
 };
 
 /**
@@ -195,7 +207,8 @@ const configureVariables = async () => {
 // Main function to handle the "push" command
 const mainPush = async () => {
   console.log('Starting Push Sync');
-  await configureVariables();
+  const autoMode = process.env.AUTO_SYNC_MODE === 'true';
+  await configureVariables(autoMode);
   const headers = await setupDirectusConnectionAndGetHeaders();
   await copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder();
   await enableRequiredSettings(headers);
@@ -395,7 +408,8 @@ const getCollection = async (headers, name) => {
 // Main function to handle the "pull" command
 const mainPull = async () => {
   console.log('Waiting for Directus to be ready...');
-  await configureVariables();
+  const autoMode = process.env.AUTO_SYNC_MODE === 'true';
+  await configureVariables(autoMode);
   const headers = await setupDirectusConnectionAndGetHeaders();
   await saveCollections(headers);
   //await savePublicRolePermissions(headers);
