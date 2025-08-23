@@ -18,6 +18,7 @@ import type BottomSheet from '@gorhom/bottom-sheet';
 import MarkingBottomSheet from '@/components/MarkingBottomSheet';
 import { SHEET_COMPONENTS } from '@/app/(app)/foodoffers';
 import { prefetchCache } from '@/helper/prefetchCache';
+import OptimizedFlatList from '@/components/OptimizedFlatList/OptimizedFlatList';
 
 interface FoodOffersScrollListProps {
 	canteenId: string;
@@ -211,7 +212,19 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 
 	return (
 		<>
-			<FlatList data={sortedDays} keyExtractor={item => item.date} renderItem={renderDay} onEndReached={onEndReached} onEndReachedThreshold={0.5} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} scrollEventThrottle={16} style={{ flex: 1 }} contentContainerStyle={{ backgroundColor: theme.screen.background }} />
+			<OptimizedFlatList 
+				data={sortedDays} 
+				keyExtractor={item => item.date} 
+				renderItem={renderDay} 
+				onEndReached={onEndReached} 
+				onEndReachedThreshold={0.5} 
+				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} 
+				scrollEventThrottle={16} 
+				style={{ flex: 1 }} 
+				contentContainerStyle={{ backgroundColor: theme.screen.background }}
+				cacheKeyExtractor={(item, index) => `${item.date}-${item.offers.length}`}
+				enableVirtualization={true}
+			/>
 			{selectedSheet &&
 				(selectedSheet === 'menu' ? (
 					<MarkingBottomSheet ref={bottomSheetRef} onClose={closeSheet} />

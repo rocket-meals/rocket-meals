@@ -23,6 +23,7 @@ import { RootState } from '@/redux/reducer';
 import CardWithText from '../CardWithText/CardWithText';
 import useFoodCard from '@/hooks/useFoodCard';
 import { prefetchCache } from '@/helper/prefetchCache';
+import { performanceMonitor } from '@/helper/performanceMonitor';
 
 const selectFoodState = (state: RootState) => state.food;
 
@@ -94,10 +95,22 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 		}, []);
 
 		const handleNavigation = (id: string, foodId: string) => {
+			// Start timing navigation
+			performanceMonitor.startTiming('navigation');
+			
+			// Check if data is cached
+			const isCached = prefetchCache.getCachedFoodDetails(id) !== null;
+			
 			router.push({
 				pathname: '/(app)/foodoffers/details',
 				params: { id, foodId },
 			});
+			
+			// Log navigation after a short delay to capture actual navigation time
+			setTimeout(() => {
+				performanceMonitor.endTiming('navigation');
+				performanceMonitor.logNavigation('food-list', 'food-details', isCached);
+			}, 100);
 		};
 
 		const openInBrowser = async (url: string) => {

@@ -316,7 +316,7 @@ export default function FoodDetailsScreen() {
 			if (cachedData) {
 				const { food, attribute_values, foodoffer_category } = cachedData;
 				
-				const translation = food?.translations?.find((val: FoodsTranslations) => String(val?.languages_code)?.split('-')[0] === languageCode);
+				const translation = food?.translations?.find((val: any) => String(val?.languages_code)?.split('-')[0] === languageCode);
 				setFoodDetails({
 					...food,
 					foodoffer_category,
@@ -337,7 +337,7 @@ export default function FoodDetailsScreen() {
 				// Cache the fetched data
 				prefetchCache.cacheFoodDetails(id.toString(), foodData.data);
 
-				const translation = food?.translations?.find((val: FoodsTranslations) => String(val?.languages_code)?.split('-')[0] === languageCode);
+				const translation = food?.translations?.find((val: any) => String(val?.languages_code)?.split('-')[0] === languageCode);
 				setFoodDetails({
 					...food,
 					foodoffer_category,

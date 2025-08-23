@@ -1,5 +1,5 @@
 import { ActivityIndicator, Dimensions, SafeAreaView, ScrollView, Text, TouchableOpacity, RefreshControl, View, Platform } from 'react-native';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, memo } from 'react';
 import { FoodSortOption } from 'repo-depkit-common';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -50,6 +50,7 @@ import { RootState } from '@/redux/reducer';
 import MarkingBottomSheet from '@/components/MarkingBottomSheet';
 import { prefetchCache } from '@/helper/prefetchCache';
 import { FoodItemSkeleton } from '@/components/SkeletonLoader/SkeletonLoader';
+import { initializePerformanceOptimizations } from '@/helper/performanceUtils';
 
 export const SHEET_COMPONENTS = {
 	canteen: CanteenSelectionSheet,
@@ -65,6 +66,16 @@ interface DayItem {
 	foodoffer: DatabaseTypes.Foodoffers | null;
 	foodofferInfoItem: DatabaseTypes.FoodoffersInfoItems | null;
 }
+
+// Memoized component for better performance
+const MemoizedFoodItem = memo(FoodItem, (prevProps, nextProps) => {
+	// Only re-render if essential props change
+	return (
+		prevProps.item.id === nextProps.item.id &&
+		prevProps.item.food === nextProps.item.food &&
+		prevProps.canteen?.id === nextProps.canteen?.id
+	);
+});
 
 const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	const dispatch = useDispatch();
@@ -172,6 +183,16 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 			payload: { ...profile, price_group: 'student' },
 		});
 	};
+
+	// Initialize performance optimizations
+	useEffect(() => {
+		initializePerformanceOptimizations({
+			cacheSize: 100,
+			cacheTTL: 10 * 60 * 1000, // 10 minutes for food offers
+			prefetchDelay: 300,
+			enableMonitoring: true,
+		});
+	}, []);
 
 	useEffect(() => {
 		if (!user.id) {
@@ -795,7 +816,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 									))}
 								</View>
 							) : dayItems && dayItems.length > 0 ? (
-								dayItems.map((dayItem: DayItem, index: number) => (dayItem.foodoffer ? <FoodItem canteen={selectedCanteen} item={dayItem.foodoffer} key={dayItem.foodoffer.id || `food-item-${index}`} handleMenuSheet={openSheet} handleImageSheet={openManagementSheet} handleEatingHabitsSheet={openSheet} setSelectedFoodId={setSelectedFoodId} /> : dayItem.foodofferInfoItem ? <FoodOfferInfoItem key={dayItem.foodofferInfoItem.id || `info-item-${index}`} item={dayItem.foodofferInfoItem} content={getInfoItemContent(dayItem.foodofferInfoItem).content || ''} /> : null))
+								dayItems.map((dayItem: DayItem, index: number) => (dayItem.foodoffer ? <MemoizedFoodItem canteen={selectedCanteen} item={dayItem.foodoffer} key={dayItem.foodoffer.id || `food-item-${index}`} handleMenuSheet={openSheet} handleImageSheet={openManagementSheet} handleEatingHabitsSheet={openSheet} setSelectedFoodId={setSelectedFoodId} /> : dayItem.foodofferInfoItem ? <FoodOfferInfoItem key={dayItem.foodofferInfoItem.id || `info-item-${index}`} item={dayItem.foodofferInfoItem} content={getInfoItemContent(dayItem.foodofferInfoItem).content || ''} /> : null))
 							) : (
 								<View style={styles.noFoodContainer}>
 									<Text style={{ ...styles.noFoodOffer, color: theme.screen.text }}>{translate(TranslationKeys.no_foodoffers_found_for_selection)}</Text>
