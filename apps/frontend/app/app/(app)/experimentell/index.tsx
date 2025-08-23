@@ -15,19 +15,21 @@ const index = () => {
 	useSetPageTitle(TranslationKeys.experimentell);
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
-	const { buildings } = useSelector((state: RootState) => state.canteenReducer);
+	const { buildings, buildingsDict } = useSelector((state: RootState) => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
 
 	const buildingPosition = useMemo(() => {
 		if (selectedCanteen?.building) {
-			const building = buildings.find(b => b.id === selectedCanteen.building);
+			// O(1) dictionary access instead of O(n) array.find()
+			const building = buildingsDict[selectedCanteen.building] || 
+				buildings.find(b => b.id === selectedCanteen.building);
 			const coords = (building as any)?.coordinates?.coordinates;
 			if (coords && coords.length === 2) {
 				return { lat: Number(coords[1]), lng: Number(coords[0]) };
 			}
 		}
 		return null;
-	}, [selectedCanteen, buildings]);
+	}, [selectedCanteen, buildings, buildingsDict]);
 
 	return (
 		<ScrollView

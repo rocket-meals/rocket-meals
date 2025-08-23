@@ -45,7 +45,7 @@ const Index = () => {
 	const [isConnected, setIsConnected] = useState(true);
 	const progressAnim = useRef(new Animated.Value(0)).current;
 	const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
-	const { canteens } = useSelector((state: RootState) => state.canteenReducer);
+	const { canteens, canteensDict } = useSelector((state: RootState) => state.canteenReducer);
 	const [selectedCanteen, setSelectedCanteen] = useState<any>(null);
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
 
@@ -91,16 +91,18 @@ const Index = () => {
 	}, [foodCategories, foodOfferCategories]);
 
 	const fetchSelectedCanteen = useCallback(() => {
-		if (!params?.canteens_id || !canteens || canteens.length === 0) return;
-
-		const foundCanteen = canteens?.find((canteen: any) => canteen.id === params?.canteens_id);
+		if (!params?.canteens_id) return;
+		
+		// O(1) dictionary access instead of O(n) array.find()
+		const foundCanteen = canteensDict[params.canteens_id] || 
+			canteens?.find((canteen: any) => canteen.id === params?.canteens_id);
 
 		if (foundCanteen) {
 			setSelectedCanteen(foundCanteen);
 		} else {
 			console.warn('Canteen not found for ID:', params?.canteens_id);
 		}
-	}, [params?.canteens_id, canteens]);
+	}, [params?.canteens_id, canteens, canteensDict]);
 
 	useEffect(() => {
 		fetchSelectedCanteen();

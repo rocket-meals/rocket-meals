@@ -93,7 +93,7 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	const animationRef = useRef<LottieView>(null);
 	const [animationJson, setAmimationJson] = useState<any>(null);
 	const { profile, user } = useSelector((state: RootState) => state.authReducer);
-	const { appElements } = useSelector((state: RootState) => state.appElements);
+	const { appElements, appElementsDict } = useSelector((state: RootState) => state.appElements);
 	const { selectedCanteenFoodOffers, canteenFeedbackLabels } = useSelector((state: RootState) => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
 	const kioskMode = useKioskMode();
@@ -181,7 +181,8 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		if (!appElements || !appSettings) return;
 
 		const getElement = (id: string) => {
-			const element = appElements?.find((el: any) => el.id === id);
+			// O(1) dictionary access instead of O(n) array.find()
+			const element = appElementsDict[id] || appElements?.find((el: any) => el.id === id);
 			if (!element || !element.translations) return null;
 			const { content, popup_button_text, popup_content } = getAppElementTranslation(element.translations, languageCode);
 
@@ -197,16 +198,17 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 
 		setBeforeElement(before);
 		setAfterElement(after);
-	}, [appElements, appSettings]);
+	}, [appElements, appElementsDict, appSettings]);
 
 	const getInfoItemContent = useCallback(
 		(item: DatabaseTypes.FoodoffersInfoItems) => {
 			const elementId = typeof item.name === 'string' ? item.name : item.name?.id;
-			const element = appElements?.find((el: any) => el.id === elementId);
+			// O(1) dictionary access instead of O(n) array.find()
+			const element = appElementsDict[elementId] || appElements?.find((el: any) => el.id === elementId);
 			if (!element || !element.translations) return { content: '' };
 			return getAppElementTranslation(element.translations, languageCode);
 		},
-		[appElements, languageCode]
+		[appElements, appElementsDict, languageCode]
 	);
 
 	useFocusEffect(

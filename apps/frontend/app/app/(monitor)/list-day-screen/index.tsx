@@ -47,10 +47,11 @@ const index = () => {
 	const [mainFoodCategories, setMainFoodCategories] = useState<any>({});
 	const [optionalFoodCategories, setOptionalFoodCategories] = useState<any>({});
 	const [selectedCanteen, setSelectedCanteen] = useState<any>(null);
-	const { canteens } = useSelector((state: RootState) => state.canteenReducer);
+	const { canteens, canteensDict } = useSelector((state: RootState) => state.canteenReducer);
 	const { isManagement } = useSelector((state: RootState) => state.authReducer);
 	const { primaryColor: projectColor, language, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const { foodAttributesDict } = useSelector((state: RootState) => state.foodAttributes);
+	const { foodCategoriesDict } = useSelector((state: RootState) => state.foodReducer);
 	const progressAnim = useRef(new Animated.Value(0)).current;
 	const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 	const optionalFoodsScrollRef = useRef<ScrollView>(null);
@@ -264,20 +265,27 @@ const index = () => {
 
 	const fetchSelectedCanteen = useCallback(async () => {
 		if (!canteens_id) return;
-		let canteensData: DatabaseTypes.Canteens[] = [];
-		if (!canteens || canteens.length === 0) {
-			canteensData = await getCanteensWithBuildings();
-		} else {
-			canteensData = canteens;
+		
+		// Try O(1) dictionary access first
+		let foundCanteen = canteensDict[canteens_id];
+		
+		// Fallback to API if not in dictionary
+		if (!foundCanteen) {
+			let canteensData: DatabaseTypes.Canteens[] = [];
+			if (!canteens || canteens.length === 0) {
+				canteensData = await getCanteensWithBuildings();
+			} else {
+				canteensData = canteens;
+			}
+			foundCanteen = canteensData?.find((canteen: any) => canteen.id === canteens_id);
 		}
-		const foundCanteen = canteensData?.find((canteen: any) => canteen.id === canteens_id);
 
 		if (foundCanteen) {
 			setSelectedCanteen(foundCanteen);
 		} else {
 			console.warn('Canteen not found for ID:', canteens_id);
 		}
-	}, [canteens_id, canteens]);
+	}, [canteens_id, canteens, canteensDict]);
 
 	useEffect(() => {
 		fetchSelectedCanteen();
@@ -469,7 +477,9 @@ const index = () => {
 
 		for (const food of foodList) {
 			if (food?.food?.food_category) {
-				const category = foodCategories.find((cat: DatabaseTypes.FoodsCategories) => cat.id === food?.food?.food_category);
+				// O(1) dictionary access instead of O(n) array.find()
+				const category = foodCategoriesDict[food.food.food_category] || 
+					foodCategories.find((cat: DatabaseTypes.FoodsCategories) => cat.id === food?.food?.food_category);
 				if (category) {
 					newCategories[food.id] = category;
 				}
@@ -482,7 +492,7 @@ const index = () => {
 	useEffect(() => {
 		if (foods?.length > 0) fetchCurrentFoodCategory(foods, setMainFoodCategories, foodCategories);
 		if (optionalFoods?.length > 0) fetchCurrentFoodCategory(optionalFoods, setOptionalFoodCategories, foodCategories);
-	}, [foods, optionalFoods, foodCategories]);
+	}, [foods, optionalFoods, foodCategories, foodCategoriesDict]);
 
 	useEffect(() => {
 		if (foods?.length > 0) fetchFoodMarkingLabels(foods, setFoodMarkings);
