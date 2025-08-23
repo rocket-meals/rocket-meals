@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { FlatList, View, Text, RefreshControl, ActivityIndicator, Dimensions } from 'react-native';
 import { addDays, format } from 'date-fns';
 import { useTheme } from '@/hooks/useTheme';
@@ -17,6 +17,7 @@ import BaseBottomSheet from '@/components/BaseBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import MarkingBottomSheet from '@/components/MarkingBottomSheet';
 import { SHEET_COMPONENTS } from '@/app/(app)/foodoffers';
+import { prefetchCache } from '@/helper/prefetchCache';
 
 interface FoodOffersScrollListProps {
 	canteenId: string;
@@ -100,15 +101,28 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		return () => sub?.remove();
 	}, []);
 
-	useEffect(() => {
-		setDays(prev => prev.map(d => ({ ...d, offers: sortOffers(d.offers) })));
-	}, [sortOffers]);
+	// Memoize sorted offers to prevent unnecessary re-sorts
+	const sortedDays = useMemo(() => {
+		return days.map(d => ({ ...d, offers: sortOffers(d.offers) }));
+	}, [days, sortOffers]);
 
 	const loadDay = useCallback(
 		async (date: string) => {
 			try {
+				// Check cache first
+				const cachedOffers = prefetchCache.getCachedFoodOffers(canteenId, date);
+				if (cachedOffers) {
+					const sortedOffers = sortOffers(cachedOffers);
+					return { date, offers: sortedOffers } as DayData;
+				}
+
+				// Fetch from API if not cached
 				const res = await fetchFoodOffersByCanteen(canteenId, date);
 				const offers = res?.data || [];
+				
+				// Cache the fetched data
+				prefetchCache.cacheFoodOffers(canteenId, date, offers);
+				
 				const sortedOffers = sortOffers(offers);
 				return { date, offers: sortedOffers } as DayData;
 			} catch (e) {
@@ -153,8 +167,19 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		setRefreshing(false);
 	};
 
-	const renderDay = ({ item }: { item: DayData }) => {
+	const renderDay = useCallback(({ item }: { item: DayData }) => {
 		const feedbacks = canteenFeedbackLabels?.map((label, idx) => <CanteenFeedbackLabels key={`fl-${idx}`} label={label} date={item.date} />);
+
+		// Prefetch food details for visible items in the background
+		useEffect(() => {
+			if (item.offers.length > 0) {
+				const offerIds = item.offers.map(offer => offer.id);
+				// Use setTimeout to prefetch after rendering is complete
+				setTimeout(() => {
+					prefetchCache.prefetchMultipleFoodDetails(offerIds);
+				}, 100);
+			}
+		}, [item.offers]);
 
 		return (
 			<View style={styles.dayContainer}>
@@ -174,7 +199,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 				{feedbacks && feedbacks.length > 0 && <View style={styles.feebackContainer}>{feedbacks}</View>}
 			</View>
 		);
-	};
+	}, [canteenFeedbackLabels, theme.screen.text, screenWidth, selectedCanteen, openSheet, openManagementSheet, setSelectedFoodId, translate]);
 
 	if (loading) {
 		return (
@@ -186,7 +211,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 
 	return (
 		<>
-			<FlatList data={days} keyExtractor={item => item.date} renderItem={renderDay} onEndReached={onEndReached} onEndReachedThreshold={0.5} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} scrollEventThrottle={16} style={{ flex: 1 }} contentContainerStyle={{ backgroundColor: theme.screen.background }} />
+			<FlatList data={sortedDays} keyExtractor={item => item.date} renderItem={renderDay} onEndReached={onEndReached} onEndReachedThreshold={0.5} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />} scrollEventThrottle={16} style={{ flex: 1 }} contentContainerStyle={{ backgroundColor: theme.screen.background }} />
 			{selectedSheet &&
 				(selectedSheet === 'menu' ? (
 					<MarkingBottomSheet ref={bottomSheetRef} onClose={closeSheet} />

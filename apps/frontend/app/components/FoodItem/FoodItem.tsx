@@ -1,6 +1,6 @@
 import { Linking, Text, TouchableOpacity, View } from 'react-native';
 import MyImage from '@/components/MyImage';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import styles from './styles';
 import { isWeb } from '@/constants/Constants';
 import { useTheme } from '@/hooks/useTheme';
@@ -22,6 +22,7 @@ import { handleFoodRating } from '@/helper/feedback';
 import { RootState } from '@/redux/reducer';
 import CardWithText from '../CardWithText/CardWithText';
 import useFoodCard from '@/hooks/useFoodCard';
+import { prefetchCache } from '@/helper/prefetchCache';
 
 const selectFoodState = (state: RootState) => state.food;
 
@@ -45,12 +46,52 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 		const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
 		const defaultImage = getImageUrl(String(appSettings.foods_placeholder_image)) || appSettings.foods_placeholder_image_remote_url || getImageUrl(serverInfo?.info?.project?.project_logo);
 
+		// Prefetch timeout ref for cleanup
+		const prefetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
 		const getPriceGroup = (price_group: string) => {
 			if (price_group) {
 				return `price_group_${price_group?.toLocaleLowerCase()}`;
 			}
 			return '';
 		};
+
+		// Optimized prefetch function
+		const prefetchFoodDetails = useCallback(() => {
+			if (item?.id) {
+				prefetchCache.prefetchFoodDetails(item.id);
+			}
+		}, [item?.id]);
+
+		// Handle hover/touch start for prefetching
+		const handlePrefetchStart = useCallback(() => {
+			// Clear any existing timeout
+			if (prefetchTimeoutRef.current) {
+				clearTimeout(prefetchTimeoutRef.current);
+			}
+			
+			// Start prefetching after 300ms hover/touch
+			prefetchTimeoutRef.current = setTimeout(() => {
+				prefetchFoodDetails();
+			}, 300);
+		}, [prefetchFoodDetails]);
+
+		// Handle hover/touch end
+		const handlePrefetchEnd = useCallback(() => {
+			if (prefetchTimeoutRef.current) {
+				clearTimeout(prefetchTimeoutRef.current);
+				prefetchTimeoutRef.current = null;
+			}
+		}, []);
+
+		// Cleanup timeout on unmount
+		useEffect(() => {
+			return () => {
+				if (prefetchTimeoutRef.current) {
+					clearTimeout(prefetchTimeoutRef.current);
+				}
+			};
+		}, []);
 
 		const handleNavigation = (id: string, foodId: string) => {
 			router.push({
@@ -132,6 +173,10 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 									handleNavigation(item?.id, foodId);
 								}
 							}}
+							onPressIn={handlePrefetchStart}
+							onPressOut={handlePrefetchEnd}
+							onMouseEnter={isWeb ? handlePrefetchStart : undefined}
+							onMouseLeave={isWeb ? handlePrefetchEnd : undefined}
 							imageSource={
 								foodItem?.image_remote_url || foodItem?.image
 									? {

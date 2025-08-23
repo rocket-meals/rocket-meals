@@ -48,6 +48,8 @@ import useSetPageTitle from '@/hooks/useSetPageTitle';
 import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
 import { RootState } from '@/redux/reducer';
 import MarkingBottomSheet from '@/components/MarkingBottomSheet';
+import { prefetchCache } from '@/helper/prefetchCache';
+import { FoodItemSkeleton } from '@/components/SkeletonLoader/SkeletonLoader';
 
 export const SHEET_COMPONENTS = {
 	canteen: CanteenSelectionSheet,
@@ -390,35 +392,27 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		try {
 			setLoading(true);
 			const canteenId = selectedCanteen?.id as string;
-			let foodOffers = prefetchedFoodOffers[canteenId]?.[selectedDate];
+			
+			// Check cache first for faster loading
+			let foodOffers = prefetchCache.getCachedFoodOffers(canteenId, selectedDate);
 
 			if (!foodOffers) {
 				const foodData = await fetchFoodOffersByCanteen(canteenId, selectedDate);
 				foodOffers = foodData?.data || [];
+				// Cache the fetched data
+				prefetchCache.cacheFoodOffers(canteenId, selectedDate, foodOffers);
 			}
 
-			setPrefetchedFoodOffers(prev => ({
-				...prev,
-				[canteenId]: {
-					...(prev[canteenId] || {}),
-					[selectedDate]: foodOffers,
-				},
-			}));
-
-			// Prefetch next two days
+			// Prefetch next two days in the background for smoother navigation
 			for (let i = 1; i <= 2; i++) {
 				const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
-				if (!prefetchedFoodOffers[canteenId]?.[date]) {
+				const cachedOffers = prefetchCache.getCachedFoodOffers(canteenId, date);
+				if (!cachedOffers) {
+					// Don't await, run in background
 					fetchFoodOffersByCanteen(canteenId, date)
 						.then(res => {
 							const offers = res?.data || [];
-							setPrefetchedFoodOffers(p => ({
-								...p,
-								[canteenId]: {
-									...(p[canteenId] || {}),
-									[date]: offers,
-								},
-							}));
+							prefetchCache.cacheFoodOffers(canteenId, date, offers);
 						})
 						.catch(e => console.error('Error prefetching Food Offers:', e));
 				}
@@ -475,13 +469,13 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		const canteenId = selectedCanteen?.id as string;
 		for (let i = 1; i <= 2; i++) {
 			const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
-			const offers = prefetchedFoodOffers[canteenId]?.[date];
+			const offers = prefetchCache.getCachedFoodOffers(canteenId, date);
 			if (offers && offers.length > 0) {
 				return date;
 			}
 		}
 		return null;
-	}, [prefetchedFoodOffers, selectedCanteen, selectedDate]);
+	}, [selectedCanteen, selectedDate]);
 
 	const getWeekdayKey = (date: string) => {
 		const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -790,9 +784,15 @@ const index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 										width: '100%',
 										height: 400,
 										justifyContent: 'center',
+										flexDirection: 'row',
+										flexWrap: 'wrap',
+										gap: 10,
 									}}
 								>
-									<ActivityIndicator size={'large'} color={theme.screen.icon} />
+									{/* Show skeleton loaders for better perceived performance */}
+									{Array.from({ length: 6 }).map((_, index) => (
+										<FoodItemSkeleton key={`skeleton-${index}`} screenWidth={screenWidth} />
+									))}
 								</View>
 							) : dayItems && dayItems.length > 0 ? (
 								dayItems.map((dayItem: DayItem, index: number) => (dayItem.foodoffer ? <FoodItem canteen={selectedCanteen} item={dayItem.foodoffer} key={dayItem.foodoffer.id || `food-item-${index}`} handleMenuSheet={openSheet} handleImageSheet={openManagementSheet} handleEatingHabitsSheet={openSheet} setSelectedFoodId={setSelectedFoodId} /> : dayItem.foodofferInfoItem ? <FoodOfferInfoItem key={dayItem.foodofferInfoItem.id || `info-item-${index}`} item={dayItem.foodofferInfoItem} content={getInfoItemContent(dayItem.foodofferInfoItem).content || ''} /> : null))

@@ -34,6 +34,7 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { handleFoodRating } from '@/helper/feedback';
 import { RootState } from '@/redux/reducer';
+import { prefetchCache } from '@/helper/prefetchCache';
 
 const selectFoodState = (state: RootState) => state.food;
 
@@ -176,11 +177,82 @@ export default function FoodDetailsScreen() {
 		setFoodAttributesLoading(false);
 	};
 
-	useEffect(() => {
-		if (foodAttributeGroups && foodAttributes) {
-			filterAttributes();
+	// Memoized version of filterAttributes to prevent unnecessary recalculations
+	const memoizedGroupedAttributes = useMemo(() => {
+		if (!foodAttributeGroups || !foodAttributes) return null;
+
+		const groupedAttributes = foodAttributeGroups?.map((group: any) => {
+			const attributes = foodAttributes
+				?.filter((attr: any) => attr?.food_attribute?.group === group?.id)
+				?.sort((a: any, b: any) => {
+					const sortA = a?.food_attribute?.sort || 0;
+					const sortB = b?.food_attribute?.sort || 0;
+					return sortA - sortB;
+				});
+
+			return {
+				...group,
+				attributes: attributes || [],
+			};
+		});
+
+		const generalAttributes: any[] = [];
+		if (foodDetails && foodCategories.length) {
+			const name = getFoodCategoryName(foodCategories, foodDetails.food_category, languageCode);
+			if (name) {
+				generalAttributes.push({
+					id: 'food_category',
+					string_value: name,
+					food_attribute: {
+						status: 'published',
+						translations: [
+							{
+								languages_code: languageCode,
+								name: translate(TranslationKeys.food_category_label),
+							},
+						],
+					},
+				});
+			}
 		}
-	}, [foodAttributes, foodAttributeGroups, foodDetails, foodCategories, foodOfferCategories]);
+
+		if (foodDetails && foodOfferCategories.length && foodDetails.foodoffer_category) {
+			const name = getFoodOfferCategoryName(foodOfferCategories, foodDetails.foodoffer_category, languageCode);
+			if (name) {
+				generalAttributes.push({
+					id: 'foodoffer_category',
+					string_value: name,
+					food_attribute: {
+						status: 'published',
+						translations: [
+							{
+								languages_code: languageCode,
+								name: translate(TranslationKeys.foodoffer_category_label),
+							},
+						],
+					},
+				});
+			}
+		}
+
+		if (generalAttributes.length) {
+			groupedAttributes?.push({
+				id: 'general',
+				translations: [{ languages_code: languageCode, name: translate(TranslationKeys.general) }],
+				attributes: generalAttributes,
+			});
+		}
+
+		return groupedAttributes;
+	}, [foodAttributeGroups, foodAttributes, foodDetails, foodCategories, foodOfferCategories, languageCode, translate]);
+
+	// Update state only when memoized value changes
+	useEffect(() => {
+		if (memoizedGroupedAttributes) {
+			setGroupedAttributes(memoizedGroupedAttributes);
+			setFoodAttributesLoading(false);
+		}
+	}, [memoizedGroupedAttributes]);
 
 	const renderContent = useCallback(
 		(foodDetails: DatabaseTypes.Foods) => {
@@ -195,7 +267,7 @@ export default function FoodDetailsScreen() {
 					return null;
 			}
 		},
-		[activeTab, id, foodOfferCanteenId]
+		[activeTab, id, foodOfferCanteenId, groupedAttributes, foodAttributesLoading, foods_area_color]
 	);
 
 	const rateFood = (rating: number) => {
@@ -239,9 +311,31 @@ export default function FoodDetailsScreen() {
 
 	const getFoodDetails = async () => {
 		try {
+			// First check cache for faster loading
+			const cachedData = prefetchCache.getCachedFoodDetails(id.toString());
+			if (cachedData) {
+				const { food, attribute_values, foodoffer_category } = cachedData;
+				
+				const translation = food?.translations?.find((val: FoodsTranslations) => String(val?.languages_code)?.split('-')[0] === languageCode);
+				setFoodDetails({
+					...food,
+					foodoffer_category,
+					name: translation ? translation.name : null,
+				});
+				if (attribute_values) {
+					setFoodAttributesLoading(true);
+					setFoodAttributes(attribute_values);
+				}
+				return; // Use cached data, no need to fetch
+			}
+
+			// If not cached, fetch from API
 			const foodData = await fetchFoodOffersDetailsById(id.toString());
 			if (foodData && foodData.data) {
 				const { food, attribute_values, foodoffer_category } = foodData?.data;
+
+				// Cache the fetched data
+				prefetchCache.cacheFoodDetails(id.toString(), foodData.data);
 
 				const translation = food?.translations?.find((val: FoodsTranslations) => String(val?.languages_code)?.split('-')[0] === languageCode);
 				setFoodDetails({
