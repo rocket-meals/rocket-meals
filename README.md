@@ -45,3 +45,28 @@ npm install
 # oder
 yarn install
 ```
+
+### Backend Auto-Sync Konfiguration
+
+Das Backend unterstützt automatische Collection-Synchronisation während des Starts. Diese Funktion ermöglicht nahtlose Deployments ohne manuelle Schema-Synchronisation.
+
+#### Setup-Modi konfigurieren
+
+```bash
+# Automatisches Setup verwenden
+./setup-auto-sync.sh
+```
+
+**Verfügbare Modi:**
+- `disabled` - Keine automatische Synchronisation (Standard)
+- `test` - Test-Umgebung mit begrenzter Synchronisation  
+- `full` - Vollständige Synchronisation für Produktionsumgebungen
+
+#### Manuelle Konfiguration
+
+In der `.env` Datei:
+```bash
+BACKEND_AUTO_SYNC_MODE="full"  # oder "test" oder "disabled"
+```
+
+**Weitere Informationen:** Siehe [`apps/backend/BACKEND_AUTO_SYNC_SETUP.md`](apps/backend/BACKEND_AUTO_SYNC_SETUP.md)
