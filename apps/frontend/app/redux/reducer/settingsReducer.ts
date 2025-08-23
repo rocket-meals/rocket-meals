@@ -1,5 +1,6 @@
-import { CHANGE_LANGUAGE, CHANGE_THEME, CLEAR_SETTINGS, SET_AMOUNT_COLUMNS_FOR_CARDS, SET_APARTMENTS_SORTING, SET_APP_SETTINGS, SET_CAMPUSES_SORTING, SET_COLOR, SET_DRAWER_POSITION, SET_FIRST_DAY_OF_THE_WEEK, SET_NICKNAME_LOCAL, SET_SERVER_INFO, SET_SORTING, SET_WARNING, SET_WIKIS, SET_WIKIS_PAGES, SET_USE_WEBP_FOR_ASSETS } from '@/redux/Types/types';
+import { CHANGE_LANGUAGE, CHANGE_THEME, CLEAR_SETTINGS, SET_AMOUNT_COLUMNS_FOR_CARDS, SET_APARTMENTS_SORTING, SET_APP_SETTINGS, SET_CAMPUSES_SORTING, SET_COLOR, SET_DRAWER_POSITION, SET_FIRST_DAY_OF_THE_WEEK, SET_NICKNAME_LOCAL, SET_SERVER_INFO, SET_SORTING, SET_WARNING, SET_WIKIS, SET_WIKIS_DICT, SET_WIKIS_PAGES, SET_USE_WEBP_FOR_ASSETS } from '@/redux/Types/types';
 import { FoodSortOption, CampusSortOption, ApartmentSortOption } from 'repo-depkit-common';
+import { CollectionHelper } from '@/helper/collectionHelper';
 
 const initialState = {
 	selectedTheme: 'systematic',
@@ -15,6 +16,7 @@ const initialState = {
 	drawerPosition: 'left',
 	wikisPages: [],
 	wikis: [],
+	wikisDict: {},
 	nickNameLocal: '',
 	amountColumnsForcard: 0,
 	useWebpForAssets: true,
@@ -89,9 +91,17 @@ const settingReducer = (state = initialState, actions: any) => {
 			};
 		}
 		case SET_WIKIS: {
+			const wikisDict = CollectionHelper.convertListToDict(actions.payload, 'id');
 			return {
 				...state,
 				wikis: actions.payload,
+				wikisDict,
+			};
+		}
+		case SET_WIKIS_DICT: {
+			return {
+				...state,
+				wikisDict: actions.payload,
 			};
 		}
 		case SET_NICKNAME_LOCAL: {

@@ -12,6 +12,7 @@ export interface AuthState {
 
 export interface AppElementState {
 	appElements: DatabaseTypes.AppElements[];
+	appElementsDict: Record<string, DatabaseTypes.AppElements>;
 }
 
 export interface ApartmentsState {
@@ -23,13 +24,18 @@ export interface ApartmentsState {
 
 export interface CanteensState {
 	canteens: DatabaseTypes.Canteens[];
+	canteensDict: Record<string, DatabaseTypes.Canteens>;
 	buildings: DatabaseTypes.Buildings[];
+	buildingsDict: Record<string, DatabaseTypes.Buildings>;
 	selectedCanteen: DatabaseTypes.Canteens | null;
 	selectedCanteenFoodOffers: any[];
 	canteenFoodOffers: DatabaseTypes.Foodoffers[];
 	businessHours: DatabaseTypes.Businesshours[];
+	businessHoursDict: Record<string, DatabaseTypes.Businesshours>;
 	businessHoursGroups: DatabaseTypes.BusinesshoursGroups[];
+	businessHoursGroupsDict: Record<string, DatabaseTypes.BusinesshoursGroups>;
 	canteenFeedbackLabels: DatabaseTypes.CanteensFeedbacksLabels[];
+	canteenFeedbackLabelsDict: Record<string, DatabaseTypes.CanteensFeedbacksLabels>;
 	ownCanteenFeedBackLabelEntries: DatabaseTypes.CanteensFeedbacksLabelsEntries[];
 }
 
@@ -47,6 +53,7 @@ export interface SettingsState {
 	drawerPosition: 'left' | 'right';
 	wikisPages: any[];
 	wikis: DatabaseTypes.Wikis[];
+	wikisDict: Record<string, DatabaseTypes.Wikis>;
 	nickNameLocal: string;
 	amountColumnsForcard: number;
 	useWebpForAssets: boolean;
@@ -54,18 +61,24 @@ export interface SettingsState {
 
 export interface FoodState {
 	foodFeedbackLabels: DatabaseTypes.FoodsFeedbacksLabels[];
+	foodFeedbackLabelsDict: Record<string, DatabaseTypes.FoodsFeedbacksLabels>;
 	ownFoodFeedbacks: DatabaseTypes.FoodsFeedbacks[];
 	ownfoodFeedbackLabelEntries: DatabaseTypes.FoodsFeedbacksLabelsEntries[];
 	markings: DatabaseTypes.Markings[];
+	markingsDict: Record<string, DatabaseTypes.Markings>;
 	selectedFoodMarkings: any[];
 	foodCategories: DatabaseTypes.FoodsCategories[];
+	foodCategoriesDict: Record<string, DatabaseTypes.FoodsCategories>;
 	foodOfferCategories: DatabaseTypes.FoodoffersCategories[];
+	foodOfferCategoriesDict: Record<string, DatabaseTypes.FoodoffersCategories>;
 	foodOffersInfoItems: DatabaseTypes.FoodoffersInfoItems[];
+	foodOffersInfoItemsDict: Record<string, DatabaseTypes.FoodoffersInfoItems>;
 	markingDetails: DatabaseTypes.Markings;
 	mostLikedFoods: any[];
 	mostDislikedFoods: any[];
 	foodCollection: Record<string, any>;
 	popupEvents: ExtendedPopUpEvents[];
+	popupEventsDict: Record<string, ExtendedPopUpEvents>;
 	selectedDate: string;
 }
 
@@ -76,6 +89,7 @@ interface ExtendedPopUpEvents extends DatabaseTypes.PopupEvents {
 
 export interface FoodAttributesState {
 	foodAttributeGroups: DatabaseTypes.FoodsAttributesGroups[];
+	foodAttributeGroupsDict: Record<string, DatabaseTypes.FoodsAttributesGroups>;
 	foodAttributes: DatabaseTypes.FoodsAttributes[];
 	foodAttributesDict: Record<string, DatabaseTypes.FoodsAttributes>;
 }
@@ -94,6 +108,7 @@ export interface CampusState {
 
 export interface NewsState {
 	news: DatabaseTypes.News[];
+	newsDict: Record<string, DatabaseTypes.News>;
 }
 
 export interface LastUpdatedState {
@@ -139,4 +154,5 @@ export interface PopupEventsHashState {
 
 export interface ChatsState {
 	chats: DatabaseTypes.Chats[];
+	chatsDict: Record<string, DatabaseTypes.Chats>;
 }
