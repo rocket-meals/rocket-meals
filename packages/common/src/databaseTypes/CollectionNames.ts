@@ -59,4 +59,7 @@ export enum CollectionNames {
   FOODOFFER_CATEGORIES = 'foodoffers_categories',
   WORKFLOWS = 'workflows',
   WORKFLOWS_RUNS = 'workflows_runs',
+  CHATS = 'chats',
+  CHAT_MESSAGES = 'chat_messages',
+  CHATS_PARTICIPANTS = 'chats_participants',
 }
