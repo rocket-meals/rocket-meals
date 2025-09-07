@@ -1,115 +1,96 @@
-name: 🚀 Unified CI
+name: "🚀 CI"
 
 on:
   push:
     branches: [main, master, dev]
-  workflow_dispatch: # Allow manual triggering
+  workflow_dispatch:
 
 jobs:
-  setup:
-    name: 🧰 Setup and Install
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🔄 Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: 🧰 Setup Node.js, Yarn & Dependencies
-        uses: ./.github/actions/setup-and-install
-        with:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
   check-repository:
-    name: 🔍 Check Repository
+    name: "🔍 Check Repository"
     runs-on: ubuntu-latest
-    needs: setup
     outputs:
       is-upstream: ${{ steps.check.outputs.is-upstream }}
     steps:
-      - name: 🔄 Checkout Repository
+      - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-      - name: 🔍 Check Repository Type
+      - name: "🔍 Check Repository Type"
         id: check
         uses: ./.github/actions/check-repository
 
-  lint:
-    name: 🎨 Prettier & ESLint
+  check-build:
+    name: "🔍 Check Build Number"
     runs-on: ubuntu-latest
     needs: check-repository
     if: ${{ needs.check-repository.outputs.is-upstream == 'true' }}
-    steps:
-      - name: 🔄 Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: 🧰 Setup Node.js, Yarn & Dependencies
-        uses: ./.github/actions/setup-and-install
-        with:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      - name: 🎨 Prettier
-        run: yarn format
-      - name: ✨ ESLint
-        run: yarn lint
-      - name: 📤 Commit linting changes
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git diff --quiet || (git add -A && git commit -m "chore: apply lint fixes" && git push)
-
-  check-build:
-    name: 🔍 Check Build Number
-    runs-on: ubuntu-latest
-    needs: [sonarqube, sonarcloud-report]
-    if: ${{ always() }}
     outputs:
       changed: ${{ steps.check.outputs.changed }}
     steps:
-      - name: 🔄 Checkout Repository
+      - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-      - name: 🔍 Compare Build Number
+      - name: "🔍 Compare Build Number"
         id: check
         uses: ./.github/actions/check-build-number
 
+  lint:
+    name: "🎨 Prettier & ESLint"
+    runs-on: ubuntu-latest
+    needs: [check-build, check-repository]
+    if: ${{ needs.check-repository.outputs.is-upstream == 'true' }}
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: "🎨 Prettier"
+        run: yarn format
+      - name: "✨ ESLint"
+        run: yarn lint
+      - name: "📤 Commit linting changes"
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git diff --quiet || (git add -A && git commit -m "chore: apply lint fixes [skip ci]" && git push)
+
   sonarqube:
-    name: 🔍 SonarQube Analysis
+    name: "🔍 SonarQube Analysis"
     runs-on: ubuntu-latest
     needs: [lint, check-repository]
     if: ${{ needs.check-repository.outputs.is-upstream == 'true' }}
     steps:
-      - name: 🔄 Checkout Repository
+      - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-      - name: 🔍 SonarQube Scan
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: "🔍 SonarQube Scan"
         if: ${{ env.SONAR_TOKEN != '' }}
         uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 # v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   sonarcloud-report:
-    name: 📥 Download SonarCloud Report
+    name: "📥 Download SonarCloud Report"
     runs-on: ubuntu-latest
     needs: [sonarqube, check-repository]
     if: ${{ needs.check-repository.outputs.is-upstream == 'true' }}
     steps:
-      - name: 🔄 Checkout Repository
+      - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: 🧰 Setup Node.js, Yarn & Dependencies
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      - name: 📥 Download SonarCloud reports
+      - name: "📥 Download SonarCloud reports"
         run: |
           SONAR_PROJECT=$(grep -E '^sonar.projectKey' sonar-project.properties | cut -d= -f2)
           OUTPUT_DIR=reports
@@ -117,14 +98,14 @@ jobs:
           yarn workspace sonarCloudReportDownloader start --token "$SONAR_TOKEN" --project "$SONAR_PROJECT" --output-dir "$OUTPUT_DIR"
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: 💾 Commit reports
+      - name: "💾 Commit reports"
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           if [ -d apps/sonarCloudReportDownloader/reports ]; then
             echo "Committing reports from apps/sonarCloudReportDownloader/reports"
             git add -f apps/sonarCloudReportDownloader/reports
-            git commit -m "chore: update sonarcloud reports" || echo "No changes to commit"
+            git commit -m "chore: update sonarcloud reports [skip ci]" || echo "No changes to commit"
             git push
           else
             echo "No reports generated at apps/sonarCloudReportDownloader/reports, skipping commit"
@@ -133,118 +114,118 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   backend-directus:
-    name: 🔨 Directus Backend Build
+    name: "🔨 Directus Backend Build"
     runs-on: ubuntu-latest
-    needs: check-build
+    needs: sonarcloud-report
     steps:
-      - name: 🏗 Setup repo
+      - name: "🏗 Setup repo"
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
-      - name: 🚀 Build backend
+      - name: "🚀 Build backend"
         uses: ./.github/actions/backend-build
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
   expo-update:
-    name: 🏗 EAS Update Production
+    name: "🏗 EAS Update Production"
     runs-on: ubuntu-latest
-    needs: check-build
+    needs: sonarcloud-report
     steps:
-      - name: 🔄 Checkout Repository
+      - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
           ref: master
-      - name: 🧰 Setup Node.js, Yarn & Dependencies
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      - name: 🚀 Publish update
+      - name: "🚀 Publish update"
         run: eas update --auto --platform all --non-interactive --channel production
         working-directory: ./apps/frontend/app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
   build-android:
-    name: 📦 Build & 🚀 Submit Android App
+    name: "📦 Build & 🚀 Submit Android App"
     runs-on: ubuntu-latest
-    needs: check-build
+    needs: [sonarcloud-report, check-build]
     if: needs.check-build.outputs.changed == 'true'
     steps:
-      - name: 🔄 Checkout Repository
+      - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
           ref: master
-      - name: 🧰 Setup Node.js, Yarn & Dependencies
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      - name: 🛠️ Build and Submit Android App
+      - name: "🛠️ Build and Submit Android App"
         run: eas build --platform android --non-interactive --profile production --auto-submit
         working-directory: ./apps/frontend/app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
   build-android-preview:
-    name: 🧪 Build Android Preview APK
+    name: "🧪 Build Android Preview APK"
     runs-on: ubuntu-latest
-    needs: check-build
+    needs: [sonarcloud-report, check-build]
     if: needs.check-build.outputs.changed == 'true'
     steps:
-      - name: 🔄 Checkout Repository
+      - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
-      - name: 🧰 Setup Node.js, Yarn & Dependencies
+          ref: ${{ github.ref_name }}
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      - name: 🧪 Build with previewApk profile
+      - name: "🧪 Build with previewApk profile"
         run: eas build --platform android --non-interactive --profile previewApk
         working-directory: ./apps/frontend/app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
   build-ios:
-    name: 📦 Build & 🚀 Submit iOS App
+    name: "📦 Build & 🚀 Submit iOS App"
     runs-on: ubuntu-latest
-    needs: check-build
+    needs: [sonarcloud-report, check-build]
     if: needs.check-build.outputs.changed == 'true'
     steps:
-      - name: 🔄 Checkout Repository
+      - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
           ref: master
-      - name: 🧰 Setup Node.js, Yarn & Dependencies
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      - name: 🛠️ Build and Submit iOS App
+      - name: "🛠️ Build and Submit iOS App"
         run: eas build --platform ios --non-interactive --auto-submit
         working-directory: ./apps/frontend/app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
   deploy-gh-pages:
-    name: 🌍 Deploy to GitHub Pages
+    name: "🌍 Deploy to GitHub Pages"
     runs-on: ubuntu-latest
-    needs: check-build
-    if: github.ref == 'refs/heads/master'
+    needs: sonarcloud-report
+    if: github.ref_name == 'master'
     steps:
-      - name: 🔄 Checkout Repository
+      - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
-      - name: 🧰 Setup Node.js, Yarn & Dependencies
+          ref: ${{ github.ref_name }}
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      - name: 👤 Git User Configuration
+      - name: "👤 Git User Configuration"
         run: |
           git config --global user.name 'Rocket Meals'
           git config --global user.email 'nils@baumgartner-software.de'
-      - name: 🚀 Deploy to GitHub Pages
+      - name: "🚀 Deploy to GitHub Pages"
         run: |
           git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           CI=false yarn deploy:gh:pages
@@ -253,19 +234,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   push-changes:
-    name: 📤 Push Changes
+    name: "📤 Push Changes"
     runs-on: ubuntu-latest
-    needs: [backend-directus, sonarcloud-report, lint, check-repository]
+    needs: [backend-directus, sonarcloud-report, check-repository]
     if: ${{ needs.check-repository.outputs.is-upstream == 'true' }}
     steps:
-      - name: 🔄 Checkout Repository
+      - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: 📤 Push accumulated changes
+      - name: "📤 Push accumulated changes"
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git push
+
