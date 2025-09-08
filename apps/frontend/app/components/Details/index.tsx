@@ -25,7 +25,8 @@ const Details: React.FC<DetailsProps> = ({ groupedAttributes, loading }) => {
 		Linking.openURL(food_responsible_organization_link).catch(err => console.error('Failed to open URL:', err));
 	};
 
-	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
+        const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
+        const contrastColor = useMyContrastColor(foods_area_color, theme, mode === 'dark');
 
 	return (
 		<View style={styles.container}>
@@ -62,9 +63,8 @@ const Details: React.FC<DetailsProps> = ({ groupedAttributes, loading }) => {
 										const suffix = attr?.food_attribute?.suffix || '';
 										const status = attr?.food_attribute?.status;
 										const full_width = attr?.food_attribute?.full_width;
-										const background_color = attr?.food_attribute?.background_color || '';
-										const image = attr?.food_attribute?.image_remote_url ? { uri: attr?.food_attribute?.image_remote_url } : { uri: getImageUrl(attr?.food_attribute?.image) };
-										const contrastColor = useMyContrastColor(background_color || '', theme, mode === 'dark');
+                                                                                const background_color = attr?.food_attribute?.background_color || '';
+                                                                                const image = attr?.food_attribute?.image_remote_url ? { uri: attr?.food_attribute?.image_remote_url } : { uri: getImageUrl(attr?.food_attribute?.image) };
 										const label = attr?.food_attribute?.translations ? getFoodAttributesTranslation(attr?.food_attribute?.translations, language) : '';
 
 										const iconParts = attr?.food_attribute?.icon_expo?.split(':') || [];
