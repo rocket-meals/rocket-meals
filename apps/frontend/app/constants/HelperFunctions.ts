@@ -191,14 +191,20 @@ export const filterNullishProperties = (obj: Record<string, any>) => {
 
 export function formatFoodInformationValue(value: string | number | null | undefined, unit: string | null | undefined): string | null {
 	// If the value is not found, return null early
-	if (!value) return null;
+	// Note: 0 is a valid value, so we check for null/undefined explicitly
+	if (value == null || value === '') return null;
 
 	// If value is a number, format it; otherwise, treat it as a string
 	let valueWithUnit: string = '';
 
 	if (typeof value === 'number') {
-		// Assuming NumberHelper.formatNumber handles null/undefined unit gracefully
-		valueWithUnit = NumberHelper.formatNumber(value, unit, false, ',', '.', 1);
+		// Determine the number of decimal places to use
+		// Check if the number is a whole number (no fractional part)
+		const isWholeNumber = Number.isInteger(value);
+		const amountDecimals = isWholeNumber ? 0 : 1;
+		
+		// Format the number with German formatting: comma for decimals, dot for thousands
+		valueWithUnit = NumberHelper.formatNumber(value, unit, false, ',', '.', amountDecimals);
 	} else {
 		// If value is not a number, convert it to string
 		valueWithUnit = String(value);
