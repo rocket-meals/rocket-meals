@@ -108,11 +108,6 @@ Key,Message,Component,Line
 "AZnlPd9GjqHa6CjL-2XP","Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.","rocket-meals_rocket-meals:apps/backend/backupRestore.sh",57
 "AZnlPd9GjqHa6CjL-2XQ","Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.","rocket-meals_rocket-meals:apps/backend/backupRestore.sh",69
 "AZnlPd9GjqHa6CjL-2XR","Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.","rocket-meals_rocket-meals:apps/backend/backupRestore.sh",70
-"AZnlPd81jqHa6CjL-2XI","Remove this redundant self-assignment.","rocket-meals_rocket-meals:apps/backend/dockerDatabaseBackupRestore/restore.sh",25
-"AZnlPd81jqHa6CjL-2XJ","Remove this redundant self-assignment.","rocket-meals_rocket-meals:apps/backend/dockerDatabaseBackupRestore/restore.sh",29
-"AZnlPd81jqHa6CjL-2XK","Remove this redundant self-assignment.","rocket-meals_rocket-meals:apps/backend/dockerDatabaseBackupRestore/restore.sh",33
-"AZnlPd81jqHa6CjL-2XL","Remove this redundant self-assignment.","rocket-meals_rocket-meals:apps/backend/dockerDatabaseBackupRestore/restore.sh",38
-"AZnlPd81jqHa6CjL-2XM","Remove this redundant self-assignment.","rocket-meals_rocket-meals:apps/backend/dockerDatabaseBackupRestore/restore.sh",41
 "AZnlPd8SjqHa6CjL-2XF","Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.","rocket-meals_rocket-meals:apps/backend/dockerDatabaseBackup/dump.sh",15
 "AZnlPd79jqHa6CjL-2XD","Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.","rocket-meals_rocket-meals:apps/backend/dockerDatabaseBackup/start.sh",22
 "AZnlPd79jqHa6CjL-2XE","Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.","rocket-meals_rocket-meals:apps/backend/dockerDatabaseBackup/start.sh",25
