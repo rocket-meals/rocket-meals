@@ -39,14 +39,17 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	const apartmentsHelper = new ApartmentsHelper();
 	const buildingsHelper = new BuildingsHelper();
 	const [query, setQuery] = useState<string>('');
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useState(true);
 	const [isActive, setIsActive] = useState(false);
 	const sortSheetRef = useRef<BottomSheet>(null);
 	const imageManagementSheetRef = useRef<BottomSheet>(null);
+
 	const [distanceModalVisible, setDistanceModalVisible] = useState(false);
 	const [apartmentsDispatched, setApartmentsDispatched] = useState(false);
-	const [refreshing, setRefreshing] = useState(false);
 	const [distanceAdded, setDistanceAdded] = useState(false);
+	const [hasLoaded, setHasLoaded] = useState(false);
+
+	const [refreshing, setRefreshing] = useState(false);
 	const [selectedBuilding, setSelectedBuilding] = useState<DatabaseTypes.Buildings | null>();
 	const [selectedApartmentId, setSelectedApartementId] = useState<string>('');
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
@@ -94,69 +97,87 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	const onRefresh = useCallback(() => {
 		setRefreshing(true);
 		setApartmentsDispatched(false);
-		fetchAllApartments();
-		setRefreshing(false);
+		fetchAllApartments().finally(() => {
+			setRefreshing(false);
+		});
 	}, []);
 
 	const fetchAllApartments = async () => {
 		setLoading(true);
 		try {
-			// Fetch all apartments
 			const apartmentData = (await apartmentsHelper.fetchApartments({})) as DatabaseTypes.Apartments[];
-			const apartments = apartmentData || [];
+			const list = apartmentData || [];
 
-			if (apartments && apartments?.length > 0) {
-				const apartmentWithBuilding = await Promise.all(
-					apartments.map(async apartment => {
-						const buildingData = (await buildingsHelper.fetchBuildingById(String(apartment?.building))) as DatabaseTypes.Buildings;
+			const apartmentWithBuilding = await Promise.all(
+				list.map(async apartment => {
+					const buildingData = (await buildingsHelper.fetchBuildingById(String(apartment?.building))) as DatabaseTypes.Buildings;
 
-						return {
-							...apartment,
-							...buildingData,
-						};
-					})
-				);
+					return {
+						...apartment,
+						...buildingData,
+					};
+				})
+			);
 
-				if (apartmentWithBuilding) {
-					dispatch({ type: SET_APARTMENTS, payload: apartmentWithBuilding });
-					setApartmentsDispatched(true);
-				}
-			}
+			const apartmentsDict = apartmentWithBuilding.reduce(
+				(acc, apt: any) => {
+					if (apt.id) {
+						acc[apt.id] = apt;
+					}
+					return acc;
+				},
+				{} as Record<string, any>
+			);
+
+			dispatch({ type: SET_APARTMENTS, payload: apartmentWithBuilding });
+			dispatch({ type: SET_UNSORTED_APARTMENTS, payload: apartmentWithBuilding });
+			dispatch({ type: SET_APARTMENTS_LOCAL, payload: apartmentWithBuilding });
+			dispatch({ type: SET_APARTMENTS_DICT, payload: apartmentsDict });
+
+			setApartmentsDispatched(true);
+			setHasLoaded(true);
 		} catch (error) {
 			console.error('Error fetching apartments or buildings:', error);
+			toast('Failed to load apartments', 'error');
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	useEffect(() => {
-		if (apartments && selectedBuilding && apartmentsDispatched) {
-			setLoading(true);
-			const apartmentsWithDistance = addDistance(apartments);
-			if (apartmentsWithDistance) {
-				const apartmentsDict = apartmentsWithDistance.reduce(
-					(acc, apartment) => {
-						if (apartment.id) {
-							acc[apartment.id] = apartment;
-						}
-						return acc;
-					},
-					{} as Record<string, any>
-				);
-				dispatch({ type: SET_APARTMENTS_DICT, payload: apartmentsDict });
-				dispatch({
-					type: SET_APARTMENTS,
-					payload: apartmentsWithDistance,
-				});
-				dispatch({
-					type: SET_UNSORTED_APARTMENTS,
-					payload: apartmentsWithDistance,
-				});
+		if (!apartmentsDispatched) return;
+
+		if (apartments && apartments.length > 0) {
+			let next = apartments;
+
+			if (selectedBuilding) {
+				const apartmentsWithDistance = addDistance(apartments);
+				if (apartmentsWithDistance && apartmentsWithDistance.length > 0) {
+					next = apartmentsWithDistance;
+				}
+			}
+
+			const apartmentsDict = next.reduce(
+				(acc, apartment: any) => {
+					if (apartment.id) {
+						acc[apartment.id] = apartment;
+					}
+					return acc;
+				},
+				{} as Record<string, any>
+			);
+
+			dispatch({ type: SET_APARTMENTS, payload: next });
+			dispatch({ type: SET_UNSORTED_APARTMENTS, payload: next });
+			dispatch({ type: SET_APARTMENTS_DICT, payload: apartmentsDict });
+
+			if (!distanceAdded && selectedBuilding) {
 				setDistanceAdded(true);
-				setLoading(false);
 			}
 		}
-	}, [selectedBuilding, apartmentsDispatched]);
+
+		setLoading(false);
+	}, [apartmentsDispatched, selectedBuilding]);
 
 	const addDistance = (apartments: DatabaseTypes.Apartments[]) => {
 		let campusWithDistance: Array<DatabaseTypes.Buildings> = [];
@@ -299,23 +320,26 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	}, [apartmentsSortBy, distanceAdded]);
 
 	useEffect(() => {
+		if (!hasLoaded) return;
+
 		const debounceTimer = setTimeout(() => {
-			if (query === '') {
-				dispatch({
-					type: SET_APARTMENTS,
-					payload: apartmentsLocal,
-				});
-			} else {
-				const filteredApartments = apartments?.filter(apartment => apartment?.alias?.toLowerCase()?.includes(query?.toLowerCase()));
-				dispatch({
-					type: SET_APARTMENTS,
-					payload: filteredApartments,
-				});
+			// if search is empty, keep current apartments list as-is
+			if (query.trim() === '') {
+				return;
 			}
+
+			const filteredApartments = apartmentsLocal?.filter((apartment: any) =>
+				apartment?.alias?.toLowerCase()?.includes(query.toLowerCase())
+			);
+
+			dispatch({
+				type: SET_APARTMENTS,
+				payload: filteredApartments ?? [],
+			});
 		}, 500);
 
 		return () => clearTimeout(debounceTimer);
-	}, [query]);
+	}, [query, hasLoaded, apartmentsLocal, dispatch]);
 
 	useEffect(() => {
 		const handleResize = () => {

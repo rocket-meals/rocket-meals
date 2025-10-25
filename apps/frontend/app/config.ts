@@ -192,6 +192,7 @@ export function getFinalConfig(config?: any) {
 				'expo-secure-store',
 				'expo-location',
 				'expo-notifications',
+				'expo-web-browser',
 				['expo-document-picker', { iCloudContainerEnvironment: 'Production' }],
 				[
 					'expo-splash-screen',

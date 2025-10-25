@@ -39,7 +39,8 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 
 	const [query, setQuery] = useState<string>('');
 	const [refreshing, setRefreshing] = useState(false);
-	const [loading, setLoading] = useState(false);
+	const [hasLoaded, setHasLoaded] = useState(false);
+	const [loading, setLoading] = useState(true);
 	const [campusesDispatched, setCampusesDispatched] = useState(false);
 	const [selectedBuilding, setSelectedBuilding] = useState<DatabaseTypes.Buildings | null>();
 	const [isActive, setIsActive] = useState(false);
@@ -91,27 +92,37 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	const onRefresh = useCallback(() => {
 		setRefreshing(true);
 		setCampusesDispatched(false);
-		fetchAllCampuses();
-		setRefreshing(false);
+		fetchAllCampuses().finally(() => {
+			setRefreshing(false);
+		});
 	}, []);
 
 	const fetchAllCampuses = async () => {
-		setLoading(true);
-		const campusData = (await campusHelper.fetchCampus({})) as DatabaseTypes.Buildings[];
-		const campuses = campusData || [];
-		if (campuses) {
-			const attributesDict = campuses.reduce(
-				(acc, campus) => {
-					if (campus.id) {
-						acc[campus.id] = campus;
-					}
-					return acc;
-				},
-				{} as Record<string, DatabaseTypes.Buildings>
-			);
-			dispatch({ type: SET_CAMPUSES, payload: campuses });
-			dispatch({ type: SET_CAMPUSES_DICT, payload: attributesDict });
+		try {
+			setLoading(true);
+
+			const campusData = (await campusHelper.fetchCampus({})) as DatabaseTypes.Buildings[];
+			const list = campusData || [];
+
+			const dict = list.reduce((acc, campus) => {
+				if (campus.id) {
+					acc[campus.id] = campus;
+				}
+				return acc;
+			}, {} as Record<string, DatabaseTypes.Buildings>);
+
+			dispatch({ type: SET_CAMPUSES, payload: list });
+			dispatch({ type: SET_CAMPUSES_DICT, payload: dict });
+			dispatch({ type: SET_UNSORTED_CAMPUSES, payload: list });
+			dispatch({ type: SET_CAMPUSES_LOCAL, payload: list });
+
 			setCampusesDispatched(true);
+			setHasLoaded(true);
+		} catch (e) {
+			console.log('fetchAllCampuses error', e);
+			toast('Failed to load campuses', 'error');
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -144,23 +155,6 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		});
 		setLoading(false);
 	};
-
-	useEffect(() => {
-		if (campuses && selectedBuilding && campusesDispatched) {
-			setLoading(true);
-			const campusesWithDistance = addDistance(campuses);
-			dispatch({
-				type: SET_CAMPUSES,
-				payload: campusesWithDistance,
-			});
-			dispatch({
-				type: SET_UNSORTED_CAMPUSES,
-				payload: campusesWithDistance,
-			});
-			setDistanceAdded(true);
-			setLoading(false);
-		}
-	}, [selectedBuilding, campusesDispatched]);
 
 	const addDistance = (campuses: DatabaseTypes.Buildings[]) => {
 		let campusWithDistance: Array<DatabaseTypes.Buildings> = [];
@@ -227,29 +221,54 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	}, []);
 
 	useEffect(() => {
+		if (!campusesDispatched) return;
+
+		if (campuses && campuses.length > 0) {
+			let next = campuses;
+
+			if (selectedBuilding) {
+				const campusesWithDistance = addDistance(campuses);
+				if (campusesWithDistance && campusesWithDistance.length > 0) {
+					next = campusesWithDistance;
+				}
+			}
+
+			dispatch({ type: SET_CAMPUSES, payload: next });
+			dispatch({ type: SET_UNSORTED_CAMPUSES, payload: next });
+
+			if (!distanceAdded && selectedBuilding) {
+				setDistanceAdded(true);
+			}
+		}
+
+		setLoading(false);
+	}, [campusesDispatched, selectedBuilding]);
+
+	useEffect(() => {
 		if (campuses && distanceAdded) {
 			updateSort(campusesSortBy as CampusSortOption, campuses);
 		}
 	}, [campusesSortBy, distanceAdded]);
 
 	useEffect(() => {
+		if (!hasLoaded) return;
+
 		const debounceTimer = setTimeout(() => {
-			if (query === '') {
-				dispatch({
-					type: SET_CAMPUSES,
-					payload: campusesLocal,
-				});
-			} else {
-				const filteredCampuses = campuses?.filter((campus: any) => campus?.alias?.toLowerCase()?.includes(query?.toLowerCase()));
-				dispatch({
-					type: SET_CAMPUSES,
-					payload: filteredCampuses,
-				});
+			if (query.trim() === '') {
+				return;
 			}
+			const filteredCampuses = campusesLocal?.filter((campus: any) =>
+				campus?.alias?.toLowerCase()?.includes(query.toLowerCase())
+			);
+
+			dispatch({
+				type: SET_CAMPUSES,
+				payload: filteredCampuses ?? [],
+			});
 		}, 500);
 
 		return () => clearTimeout(debounceTimer);
-	}, [query]);
+	}, [query, hasLoaded, campusesLocal]);
 
 	useEffect(() => {
 		const handleResize = () => {

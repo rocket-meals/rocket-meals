@@ -189,7 +189,8 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 												placement="top"
 												trigger={triggerProps => (
 													<TouchableOpacity {...triggerProps} onPress={() => updateRating(5)}>
-														<AntDesign name="staro" size={20} color={'white'} />
+														{/* <AntDesign name="staro" size={20} color={'white'} /> */}
+														<MaterialIcons name="star" size={20} color={'white'} />
 													</TouchableOpacity>
 												)}
 											>
