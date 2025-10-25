@@ -486,8 +486,7 @@ export default function FoodDetailsScreen() {
 													placement="top"
 													trigger={triggerProps => (
 														<TouchableOpacity key={index} {...triggerProps} onPress={() => rateFood(index + 1)} style={{ padding: 5 }}>
-															{/* <AntDesign name={previousFeedback?.rating > index ? 'star' : 'staro'} size={22} color={foods_area_color} /> */}
-															<MaterialIcons name={previousFeedback?.rating > index ? 'star' : 'star-border'} size={22} color={foods_area_color} />
+															<AntDesign name={previousFeedback?.rating > index ? 'star' : 'staro'} size={22} color={foods_area_color} />
 														</TouchableOpacity>
 													)}
 												>
@@ -587,8 +586,7 @@ export default function FoodDetailsScreen() {
 								<View style={styles.mobileStars}>
 									{Array.from({ length: 5 }).map((_, index) => (
 										<TouchableOpacity key={index} onPress={() => rateFood(index + 1)}>
-											{/* <AntDesign name={previousFeedback?.rating > index ? 'star' : 'staro'} size={20} color={foods_area_color} /> */}
-											<MaterialIcons name={previousFeedback?.rating > index ? 'star' : 'star-border'} size={20} color={foods_area_color} />
+											<AntDesign name={previousFeedback?.rating > index ? 'star' : 'staro'} size={20} color={foods_area_color} />
 										</TouchableOpacity>
 									))}
 								</View>
