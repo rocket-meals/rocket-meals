@@ -328,9 +328,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 				return;
 			}
 
-			const filteredApartments = apartmentsLocal?.filter((apartment: any) =>
-				apartment?.alias?.toLowerCase()?.includes(query.toLowerCase())
-			);
+			const filteredApartments = apartmentsLocal?.filter((apartment: any) => apartment?.alias?.toLowerCase()?.includes(query.toLowerCase()));
 
 			dispatch({
 				type: SET_APARTMENTS,

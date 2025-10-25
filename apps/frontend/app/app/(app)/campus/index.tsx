@@ -104,12 +104,15 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 			const campusData = (await campusHelper.fetchCampus({})) as DatabaseTypes.Buildings[];
 			const list = campusData || [];
 
-			const dict = list.reduce((acc, campus) => {
-				if (campus.id) {
-					acc[campus.id] = campus;
-				}
-				return acc;
-			}, {} as Record<string, DatabaseTypes.Buildings>);
+			const dict = list.reduce(
+				(acc, campus) => {
+					if (campus.id) {
+						acc[campus.id] = campus;
+					}
+					return acc;
+				},
+				{} as Record<string, DatabaseTypes.Buildings>
+			);
 
 			dispatch({ type: SET_CAMPUSES, payload: list });
 			dispatch({ type: SET_CAMPUSES_DICT, payload: dict });
@@ -257,9 +260,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 			if (query.trim() === '') {
 				return;
 			}
-			const filteredCampuses = campusesLocal?.filter((campus: any) =>
-				campus?.alias?.toLowerCase()?.includes(query.toLowerCase())
-			);
+			const filteredCampuses = campusesLocal?.filter((campus: any) => campus?.alias?.toLowerCase()?.includes(query.toLowerCase()));
 
 			dispatch({
 				type: SET_CAMPUSES,
