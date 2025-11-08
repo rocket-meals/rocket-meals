@@ -72,10 +72,15 @@ Für den regelmäßigen Neustart des Haupt-Docker-Compose-Stacks steht ein zusä
 | `MAIN_COMPOSE_PROJECT_DIR`  | Projektverzeichnis, in dem `docker compose` ausgeführt wird (entspricht deinem `cd` Schritt). | `.` (wird auf das Repository im Container aufgelöst) |
 | `MAIN_COMPOSE_FILE`         | Pfad/Name des Haupt-Compose-Files relativ zum Projektverzeichnis oder absolut.                | `docker-compose.yaml`                         |
 | `MAIN_COMPOSE_PROJECT_NAME` | Optionaler Projektname, der an `docker compose` weitergegeben wird (entspricht `-p <name>`). | *(leer)*                                      |
+| `MAIN_COMPOSE_ENV_FILE`     | Optionale zusätzliche `.env`-Datei(en) für den Haupt-Stack (kommagetrennt, relativ zum Projekt). | *(leer)*                                      |
 
 > ℹ️  Standardmäßig läuft die Wartung jede Minute (Debug-Modus). Setze z. B. `CRON_SCHEDULE_DAYS=3` und `CRON_SCHEDULE_MINUTES=180`, um alle drei Tage plus zusätzlich drei Stunden zu warten.
 
 > ℹ️  Das tatsächliche Intervall berechnet sich aus `CRON_SCHEDULE_DAYS * 1440 + CRON_SCHEDULE_MINUTES` Minuten. Werte für `MAIN_COMPOSE_*` bleiben unverändert zum Haupt-Compose-Stack.
+
+> ℹ️  Der Wartungs-Stack läuft mit dem Compose-Projektnamen `compose-maintenance`. Dadurch stoppt ein `docker compose down` für deinen Haupt-Stack den Wartungscontainer nicht. Nutzt dein Haupt-Stack einen eigenen Namen, kannst du ihn über `MAIN_COMPOSE_PROJECT_NAME` explizit setzen.
+
+> ℹ️  Liegt im Projektverzeichnis eine `.env`, wird sie automatisch für die `docker compose`-Aufrufe verwendet. Über `MAIN_COMPOSE_ENV_FILE` kannst du zusätzliche oder alternative `.env`-Dateien (kommagetrennt) angeben.
 
 > ℹ️  Damit `docker compose` funktioniert, muss der Wartungs-Container Zugriff auf den Docker-Socket (`/var/run/docker.sock`) erhalten. Dies ist bereits im Compose-File konfiguriert.
 

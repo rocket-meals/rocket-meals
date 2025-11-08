@@ -1,4 +1,5 @@
 version: "3.9"
+name: compose-maintenance
 services:
   compose-maintenance:
     image: docker:26.1.0-cli
@@ -8,6 +9,7 @@ services:
       MAIN_COMPOSE_PROJECT_DIR: "."
       MAIN_COMPOSE_FILE: "docker-compose.yaml"
       MAIN_COMPOSE_PROJECT_NAME: ""
+      MAIN_COMPOSE_ENV_FILE: ""
       CRON_SCHEDULE_MINUTES: "1"
       CRON_SCHEDULE_DAYS: "0"
     volumes:
