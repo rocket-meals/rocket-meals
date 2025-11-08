@@ -52,7 +52,7 @@ yarn install
 
 ## 🔁 Automatisches Neustarten des Haupt-Docker-Stacks
 
-Für den regelmäßigen Neustart des Haupt-Docker-Compose-Stacks steht ein zusätzliches Compose-File zur Verfügung: `docker-compose.maintenance.yaml`. Dieses startet einen kleinen Cron-Container, der in dem von dir gewünschten Intervall `docker compose down` und `docker compose up -d` in deinem Projektordner ausführt. Dadurch verhält es sich genauso wie dein manuelles `cd rocket-meals && docker compose up`, sodass die `.env`-Variablen automatisch eingelesen werden.
+Für den regelmäßigen Neustart des Haupt-Docker-Compose-Stacks steht ein zusätzliches Compose-File zur Verfügung: `docker-compose.maintenance.yaml`. Dieses startet einen kleinen Cron-Container, der in dem von dir gewünschten Intervall `docker compose down` und `docker compose up -d` in deinem Projektordner ausführt. Dadurch verhält es sich genauso wie dein manuelles `cd rocket-meals && docker compose up`, sodass die `.env`-Variablen automatisch eingelesen werden. Das Skript akzeptiert dabei auch relative Pfade für `MAIN_COMPOSE_PROJECT_DIR` (ausgehend vom Repository-Verzeichnis), sodass kein absoluter Pfad benötigt wird.
 
 ### Nutzung
 
@@ -66,10 +66,13 @@ Für den regelmäßigen Neustart des Haupt-Docker-Compose-Stacks steht ein zusä
 
 | Variable                    | Beschreibung                                                                                 | Standardwert                                   |
 |-----------------------------|----------------------------------------------------------------------------------------------|------------------------------------------------|
-| `CRON_SCHEDULE`             | Cron-Syntax für das Intervall. Beispiel: `0 3 */2 * *` startet alle zwei Tage um 03:00 Uhr. | `0 3 */3 * *`                                  |
-| `MAIN_COMPOSE_PROJECT_DIR`  | Projektverzeichnis, in dem `docker compose` ausgeführt wird (entspricht deinem `cd` Schritt). | `/workspace/rocket-meals`                     |
+| `CRON_SCHEDULE_DAYS`        | Anzahl der Tage zwischen zwei Neustarts. `0` schaltet in den Minuten-Intervallmodus (siehe unten). | `0`                                            |
+| `CRON_SCHEDULE_MINUTES`     | Im Tagesmodus: Minuten nach Mitternacht (0–1439), im Intervallmodus: alle X Minuten.               | `1` (Debug: jede Minute)                       |
+| `MAIN_COMPOSE_PROJECT_DIR`  | Projektverzeichnis, in dem `docker compose` ausgeführt wird (entspricht deinem `cd` Schritt). | `.` (Repository-Wurzel im Container)          |
 | `MAIN_COMPOSE_FILE`         | Pfad/Name des Haupt-Compose-Files relativ zum Projektverzeichnis oder absolut.                | `docker-compose.yaml`                         |
 | `MAIN_COMPOSE_PROJECT_NAME` | Optionaler Projektname, der an `docker compose` weitergegeben wird (entspricht `-p <name>`). | *(leer)*                                      |
+
+> ℹ️  Standardmäßig läuft der Cronjob jede Minute (Debug-Modus). Setze z. B. `CRON_SCHEDULE_DAYS=3` und `CRON_SCHEDULE_MINUTES=180`, um alle drei Tage um 03:00 Uhr zu starten.
 
 > ℹ️  Damit `docker compose` funktioniert, muss der Wartungs-Container Zugriff auf den Docker-Socket (`/var/run/docker.sock`) erhalten. Dies ist bereits im Compose-File konfiguriert.
 

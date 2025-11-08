@@ -4,39 +4,50 @@ set -eu
 DEFAULT_PROJECT_DIR="/workspace/rocket-meals"
 DEFAULT_COMPOSE_FILE="docker-compose.yaml"
 
-PROJECT_DIR="${MAIN_COMPOSE_PROJECT_DIR:-}"
-COMPOSE_FILE="${MAIN_COMPOSE_FILE:-}"
+resolve_project_dir() {
+  local raw="$1"
 
-if [ -z "${PROJECT_DIR}" ]; then
-  if [ -n "${COMPOSE_FILE}" ]; then
-    case "${COMPOSE_FILE}" in
-      /*)
-        PROJECT_DIR="$(dirname "${COMPOSE_FILE}")"
-        COMPOSE_FILE="$(basename "${COMPOSE_FILE}")"
-        ;;
-      */*)
-        PROJECT_DIR="$(dirname "${COMPOSE_FILE}")"
-        COMPOSE_FILE="$(basename "${COMPOSE_FILE}")"
-        ;;
-      *)
-        PROJECT_DIR="${DEFAULT_PROJECT_DIR}"
-        ;;
-    esac
-  else
-    PROJECT_DIR="${DEFAULT_PROJECT_DIR}"
+  if [ -z "${raw}" ] || [ "${raw}" = "." ]; then
+    printf '%s\n' "${DEFAULT_PROJECT_DIR}"
+    return 0
   fi
-fi
 
-if [ -z "${COMPOSE_FILE}" ]; then
-  COMPOSE_FILE="${DEFAULT_COMPOSE_FILE}"
-fi
+  case "${raw}" in
+    /*)
+      if [ -d "${raw}" ]; then
+        (cd "${raw}" && pwd)
+        return 0
+      fi
+      ;;
+    *)
+      if [ -d "${DEFAULT_PROJECT_DIR}/${raw}" ]; then
+        (cd "${DEFAULT_PROJECT_DIR}/${raw}" && pwd)
+        return 0
+      fi
+      ;;
+  esac
 
-if [ ! -d "${PROJECT_DIR}" ]; then
-  echo "MAIN_COMPOSE_PROJECT_DIR '${PROJECT_DIR}' does not exist" >&2
+  echo "MAIN_COMPOSE_PROJECT_DIR '${raw}' does not exist" >&2
+  exit 1
+}
+
+PROJECT_DIR="$(resolve_project_dir "${MAIN_COMPOSE_PROJECT_DIR:-}")"
+
+COMPOSE_FILE_INPUT="${MAIN_COMPOSE_FILE:-${DEFAULT_COMPOSE_FILE}}"
+
+case "${COMPOSE_FILE_INPUT}" in
+  /*)
+    COMPOSE_FILE="${COMPOSE_FILE_INPUT}"
+    ;;
+  *)
+    COMPOSE_FILE="${PROJECT_DIR}/${COMPOSE_FILE_INPUT}"
+    ;;
+esac
+
+if [ ! -f "${COMPOSE_FILE}" ]; then
+  echo "Compose file '${COMPOSE_FILE}' does not exist" >&2
   exit 1
 fi
-
-cd "${PROJECT_DIR}"
 
 COMPOSE_PROJECT_NAME_ARG=""
 if [ "${MAIN_COMPOSE_PROJECT_NAME:-}" != "" ]; then
@@ -44,6 +55,8 @@ if [ "${MAIN_COMPOSE_PROJECT_NAME:-}" != "" ]; then
 fi
 
 echo "[cron] Restarting docker compose project in ${PROJECT_DIR} using ${COMPOSE_FILE}" >&2
+
+cd "${PROJECT_DIR}"
 
 docker compose -f "${COMPOSE_FILE}" ${COMPOSE_PROJECT_NAME_ARG} down --remove-orphans
 
