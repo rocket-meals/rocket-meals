@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  compose-maintenance:
+    image: docker:26.1.0-cli
+    container_name: compose-maintenance
+    restart: unless-stopped
+    environment:
+      MAIN_COMPOSE_FILE: "${MAIN_COMPOSE_FILE:-/workspace/rocket-meals/docker-compose.yaml}"
+      MAIN_COMPOSE_PROJECT_NAME: "${MAIN_COMPOSE_PROJECT_NAME:-}"
+      CRON_SCHEDULE: "${CRON_SCHEDULE:-0 3 */3 * *}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/workspace/rocket-meals:ro
+      - ./ops/maintenance/restart_main_compose.sh:/usr/local/bin/restart_main_compose.sh:ro
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        echo "${CRON_SCHEDULE} /usr/local/bin/restart_main_compose.sh" > /etc/crontabs/root
+        crond -f -L /var/log/cron.log
