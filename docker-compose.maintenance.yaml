@@ -5,7 +5,8 @@ services:
     container_name: compose-maintenance
     restart: unless-stopped
     environment:
-      MAIN_COMPOSE_FILE: "${MAIN_COMPOSE_FILE:-/workspace/rocket-meals/docker-compose.yaml}"
+      MAIN_COMPOSE_PROJECT_DIR: "${MAIN_COMPOSE_PROJECT_DIR:-/workspace/rocket-meals}"
+      MAIN_COMPOSE_FILE: "${MAIN_COMPOSE_FILE:-docker-compose.yaml}"
       MAIN_COMPOSE_PROJECT_NAME: "${MAIN_COMPOSE_PROJECT_NAME:-}"
       CRON_SCHEDULE: "${CRON_SCHEDULE:-0 3 */3 * *}"
     volumes:

@@ -52,7 +52,7 @@ yarn install
 
 ## 🔁 Automatisches Neustarten des Haupt-Docker-Stacks
 
-Für den regelmäßigen Neustart des Haupt-Docker-Compose-Stacks steht ein zusätzliches Compose-File zur Verfügung: `docker-compose.maintenance.yaml`. Dieses startet einen kleinen Cron-Container, der in dem von dir gewünschten Intervall `docker compose down` und `docker compose up -d` auf dein Haupt-Compose-File ausführt, damit neue Environment-Variablen übernommen werden.
+Für den regelmäßigen Neustart des Haupt-Docker-Compose-Stacks steht ein zusätzliches Compose-File zur Verfügung: `docker-compose.maintenance.yaml`. Dieses startet einen kleinen Cron-Container, der in dem von dir gewünschten Intervall `docker compose down` und `docker compose up -d` in deinem Projektordner ausführt. Dadurch verhält es sich genauso wie dein manuelles `cd rocket-meals && docker compose up`, sodass die `.env`-Variablen automatisch eingelesen werden.
 
 ### Nutzung
 
@@ -67,7 +67,8 @@ Für den regelmäßigen Neustart des Haupt-Docker-Compose-Stacks steht ein zusä
 | Variable                    | Beschreibung                                                                                 | Standardwert                                   |
 |-----------------------------|----------------------------------------------------------------------------------------------|------------------------------------------------|
 | `CRON_SCHEDULE`             | Cron-Syntax für das Intervall. Beispiel: `0 3 */2 * *` startet alle zwei Tage um 03:00 Uhr. | `0 3 */3 * *`                                  |
-| `MAIN_COMPOSE_FILE`         | Pfad zum Haupt-Compose-File innerhalb des Wartungs-Containers.                               | `/workspace/rocket-meals/docker-compose.yaml` |
+| `MAIN_COMPOSE_PROJECT_DIR`  | Projektverzeichnis, in dem `docker compose` ausgeführt wird (entspricht deinem `cd` Schritt). | `/workspace/rocket-meals`                     |
+| `MAIN_COMPOSE_FILE`         | Pfad/Name des Haupt-Compose-Files relativ zum Projektverzeichnis oder absolut.                | `docker-compose.yaml`                         |
 | `MAIN_COMPOSE_PROJECT_NAME` | Optionaler Projektname, der an `docker compose` weitergegeben wird (entspricht `-p <name>`). | *(leer)*                                      |
 
 > ℹ️  Damit `docker compose` funktioniert, muss der Wartungs-Container Zugriff auf den Docker-Socket (`/var/run/docker.sock`) erhalten. Dies ist bereits im Compose-File konfiguriert.
