@@ -56,7 +56,8 @@ Für den regelmäßigen Neustart des Haupt-Docker-Compose-Stacks steht ein zusä
 
 ### Nutzung
 
-1. Passe bei Bedarf die Variablen in einer `.env`-Datei an (siehe Tabelle unten) oder übergib sie direkt beim Start.
+1. Passe bei Bedarf die Werte im `environment`-Block der `docker-compose.maintenance.yaml` an (siehe Tabelle unten) oder setze
+   die Variablen kurzfristig direkt im Shell-Kommando (`VAR=value docker compose ...`).
 2. Starte den Wartungs-Stack:
    ```bash
    docker compose -f docker-compose.maintenance.yaml up -d
@@ -64,11 +65,11 @@ Für den regelmäßigen Neustart des Haupt-Docker-Compose-Stacks steht ein zusä
 
 ### Konfigurierbare Variablen
 
-| Variable                    | Beschreibung                                                                                 | Standardwert                                   |
+| Variable                    | Beschreibung                                                                                 | Standardwert (in der Compose-Datei)            |
 |-----------------------------|----------------------------------------------------------------------------------------------|------------------------------------------------|
 | `CRON_SCHEDULE_DAYS`        | Anzahl der Tage zwischen zwei Neustarts. `0` schaltet in den Minuten-Intervallmodus (siehe unten). | `0`                                            |
-| `CRON_SCHEDULE_MINUTES`     | Im Tagesmodus: Minuten nach Mitternacht (0–1439), im Intervallmodus: alle X Minuten.               | `1` (Debug: jede Minute)                       |
-| `MAIN_COMPOSE_PROJECT_DIR`  | Projektverzeichnis, in dem `docker compose` ausgeführt wird (entspricht deinem `cd` Schritt). | `.` (Repository-Wurzel im Container)          |
+| `CRON_SCHEDULE_MINUTES`     | Im Tagesmodus: Minuten nach Mitternacht (0–1439), im Intervallmodus: alle X Minuten.          | `1` (Debug: jede Minute)                       |
+| `MAIN_COMPOSE_PROJECT_DIR`  | Projektverzeichnis, in dem `docker compose` ausgeführt wird (entspricht deinem `cd` Schritt). | `.` (wird auf das Repository im Container aufgelöst) |
 | `MAIN_COMPOSE_FILE`         | Pfad/Name des Haupt-Compose-Files relativ zum Projektverzeichnis oder absolut.                | `docker-compose.yaml`                         |
 | `MAIN_COMPOSE_PROJECT_NAME` | Optionaler Projektname, der an `docker compose` weitergegeben wird (entspricht `-p <name>`). | *(leer)*                                      |
 

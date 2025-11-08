@@ -5,11 +5,11 @@ services:
     container_name: compose-maintenance
     restart: unless-stopped
     environment:
-      MAIN_COMPOSE_PROJECT_DIR: "${MAIN_COMPOSE_PROJECT_DIR:-.}"
-      MAIN_COMPOSE_FILE: "${MAIN_COMPOSE_FILE:-docker-compose.yaml}"
-      MAIN_COMPOSE_PROJECT_NAME: "${MAIN_COMPOSE_PROJECT_NAME:-}"
-      CRON_SCHEDULE_MINUTES: "${CRON_SCHEDULE_MINUTES:-1}"
-      CRON_SCHEDULE_DAYS: "${CRON_SCHEDULE_DAYS:-0}"
+      MAIN_COMPOSE_PROJECT_DIR: "."
+      MAIN_COMPOSE_FILE: "docker-compose.yaml"
+      MAIN_COMPOSE_PROJECT_NAME: ""
+      CRON_SCHEDULE_MINUTES: "1"
+      CRON_SCHEDULE_DAYS: "0"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - .:/workspace/rocket-meals:ro
@@ -18,8 +18,16 @@ services:
       - /bin/sh
       - -c
       - |
-        MINUTES="${CRON_SCHEDULE_MINUTES:-1}"
-        DAYS="${CRON_SCHEDULE_DAYS:-0}"
+        MINUTES="${CRON_SCHEDULE_MINUTES:-}"
+        DAYS="${CRON_SCHEDULE_DAYS:-}"
+
+        if [ -z "${MINUTES}" ]; then
+          MINUTES="1"
+        fi
+
+        if [ -z "${DAYS}" ]; then
+          DAYS="0"
+        fi
 
         case "${MINUTES}" in
           ''|*[!0-9]*)
