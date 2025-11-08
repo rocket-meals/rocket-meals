@@ -73,6 +73,7 @@ Für den regelmäßigen Neustart des Haupt-Docker-Compose-Stacks steht ein zusä
 | `MAIN_COMPOSE_FILE`         | Pfad/Name des Haupt-Compose-Files relativ zum Projektverzeichnis oder absolut.                | `docker-compose.yaml`                         |
 | `MAIN_COMPOSE_PROJECT_NAME` | Optionaler Projektname, der an `docker compose` weitergegeben wird (entspricht `-p <name>`). | *(leer)*                                      |
 | `MAIN_COMPOSE_ENV_FILE`     | Optionale zusätzliche `.env`-Datei(en) für den Haupt-Stack (kommagetrennt, relativ zum Projekt). | *(leer)*                                      |
+| `MAIN_COMPOSE_HOST_PROJECT_DIR` | Absoluter Host-Pfad zum Projektverzeichnis. Wichtig, wenn Bind-Mounts aus dem Haupt-Stack (`.env` u. a.) verwendet werden. | `${PWD}`                                     |
 
 > ℹ️  Standardmäßig läuft die Wartung jede Minute (Debug-Modus). Setze z. B. `CRON_SCHEDULE_DAYS=3` und `CRON_SCHEDULE_MINUTES=180`, um alle drei Tage plus zusätzlich drei Stunden zu warten.
 
@@ -83,4 +84,6 @@ Für den regelmäßigen Neustart des Haupt-Docker-Compose-Stacks steht ein zusä
 > ℹ️  Liegt im Projektverzeichnis eine `.env`, wird sie automatisch für die `docker compose`-Aufrufe verwendet. Über `MAIN_COMPOSE_ENV_FILE` kannst du zusätzliche oder alternative `.env`-Dateien (kommagetrennt) angeben.
 
 > ℹ️  Damit `docker compose` funktioniert, muss der Wartungs-Container Zugriff auf den Docker-Socket (`/var/run/docker.sock`) erhalten. Dies ist bereits im Compose-File konfiguriert.
+
+> ℹ️  Auf macOS/Windows kann der Docker-Daemon nur Pfade mounten, die im Docker-Desktop freigegeben wurden. Über `MAIN_COMPOSE_HOST_PROJECT_DIR` und das entsprechende Volume `${PWD}:${PWD}:ro` wird der Wartungs-Container so konfiguriert, dass der gleiche Host-Pfad wie beim manuellen Start verwendet wird. Stelle sicher, dass dieser Pfad in Docker Desktop freigegeben ist.
 

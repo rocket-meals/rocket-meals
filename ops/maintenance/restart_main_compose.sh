@@ -39,7 +39,38 @@ resolve_project_dir() {
   exit 1
 }
 
-PROJECT_DIR="$(resolve_project_dir "${MAIN_COMPOSE_PROJECT_DIR:-}")"
+LOCAL_PROJECT_DIR="$(resolve_project_dir "${MAIN_COMPOSE_PROJECT_DIR:-}")"
+
+resolve_host_project_dir() {
+  local raw="$1"
+
+  if [ -z "${raw}" ] || [ "${raw}" = "." ]; then
+    printf '%s\n' "${LOCAL_PROJECT_DIR}"
+    return 0
+  fi
+
+  case "${raw}" in
+    /*)
+      if [ -d "${raw}" ]; then
+        (cd "${raw}" && pwd)
+        return 0
+      fi
+      ;;
+    *)
+      if [ -d "${LOCAL_PROJECT_DIR}/${raw}" ]; then
+        (cd "${LOCAL_PROJECT_DIR}/${raw}" && pwd)
+        return 0
+      fi
+      ;;
+  esac
+
+  echo "MAIN_COMPOSE_HOST_PROJECT_DIR '${raw}' does not exist" >&2
+  exit 1
+}
+
+HOST_PROJECT_DIR="$(resolve_host_project_dir "${MAIN_COMPOSE_HOST_PROJECT_DIR:-}")"
+
+PROJECT_DIR="${HOST_PROJECT_DIR}"
 
 COMPOSE_FILE_INPUT="${MAIN_COMPOSE_FILE:-${DEFAULT_COMPOSE_FILE}}"
 

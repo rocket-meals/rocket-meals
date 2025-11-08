@@ -10,11 +10,13 @@ services:
       MAIN_COMPOSE_FILE: "docker-compose.yaml"
       MAIN_COMPOSE_PROJECT_NAME: ""
       MAIN_COMPOSE_ENV_FILE: ""
+      MAIN_COMPOSE_HOST_PROJECT_DIR: "${PWD}"
       CRON_SCHEDULE_MINUTES: "1"
       CRON_SCHEDULE_DAYS: "0"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - .:/workspace/rocket-meals:ro
+      - ${PWD}:${PWD}:ro
       - ./ops/maintenance/restart_main_compose.sh:/usr/local/bin/restart_main_compose.sh:ro
       - ./ops/maintenance/maintenance_cron_entrypoint.sh:/usr/local/bin/maintenance_cron_entrypoint.sh:ro
     entrypoint: ["/usr/local/bin/maintenance_cron_entrypoint.sh"]
