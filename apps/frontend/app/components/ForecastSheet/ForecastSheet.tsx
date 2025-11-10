@@ -1,25 +1,25 @@
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
-import { useTheme } from '@/hooks/useTheme';
-import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
+import {ActivityIndicator, Text, TouchableOpacity, View} from 'react-native';
+import {AntDesign} from '@expo/vector-icons';
+import React, {useEffect, useState} from 'react';
+import {useTheme} from '@/hooks/useTheme';
+import {BottomSheetScrollView, BottomSheetView} from '@gorhom/bottom-sheet';
 import styles from './styles';
-import { isWeb } from '@/constants/Constants';
-import { ForecastSheetProps } from './types';
-import { format, parseISO } from 'date-fns';
-import { UtilizationEntryHelper } from '@/redux/actions/UtilizationEntries/UtilizationEntries';
+import {isWeb} from '@/constants/Constants';
+import {ForecastSheetProps} from './types';
+import {format, parseISO} from 'date-fns';
+import {UtilizationEntryHelper} from '@/redux/actions/UtilizationEntries/UtilizationEntries';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
-import { DatabaseTypes } from 'repo-depkit-common';
+import {useLanguage} from '@/hooks/useLanguage';
+import {TranslationKeys} from '@/locales/keys';
+import {DatabaseTypes} from 'repo-depkit-common';
 import SettingsList from '@/components/SettingsList/SettingsList';
 
 type ForecastEntry = {
         time: string;
         percentage: number;
         color: string;
-        value_real?: number;
-        value_forecast_current?: number;
+        value_real: number | null | undefined;
+        value_forecast_current: number | null | undefined;
 };
 
 const showDebugInformation = false;

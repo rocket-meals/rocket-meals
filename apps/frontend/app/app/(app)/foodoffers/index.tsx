@@ -1,50 +1,68 @@
-import { ActivityIndicator, Dimensions, Platform, RefreshControl, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DatabaseTypes, FoodSortOption, sortBySortField } from 'repo-depkit-common';
+import {
+	ActivityIndicator,
+	Dimensions,
+	Platform,
+	RefreshControl,
+	SafeAreaView,
+	ScrollView,
+	Text,
+	TouchableOpacity,
+	View
+} from 'react-native';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {DatabaseTypes, FoodSortOption, sortBySortField} from 'repo-depkit-common';
 import styles from './styles';
-import { useTheme } from '@/hooks/useTheme';
-import { DrawerContentComponentProps, DrawerNavigationProp } from '@react-navigation/drawer';
-import { isWeb } from '@/constants/Constants';
+import {useTheme} from '@/hooks/useTheme';
+import {DrawerContentComponentProps, DrawerNavigationProp} from '@react-navigation/drawer';
+import {isWeb} from '@/constants/Constants';
 import FoodItem from '@/components/FoodItem/FoodItem';
 import FoodOfferInfoItem from '@/components/FoodOfferInfoItem/FoodOfferInfoItem';
-import { useFocusEffect, useNavigation, useRouter } from 'expo-router';
-import { useDispatch, useSelector } from 'react-redux';
+import {useFocusEffect, useNavigation, useRouter} from 'expo-router';
+import {useDispatch, useSelector} from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import useKioskMode from '@/hooks/useKioskMode';
-import { fetchFoodOffersByCanteen } from '@/redux/actions/FoodOffers/FoodOffers';
-import { SET_BUSINESS_HOURS, SET_CANTEEN_FEEDBACK_LABELS, SET_POPUP_EVENTS, SET_SELECTED_CANTEEN_FOOD_OFFERS, SET_SELECTED_CANTEEN_FOOD_OFFERS_LOCAL, SET_SELECTED_DATE, UPDATE_PROFILE } from '@/redux/Types/types';
-import { Entypo, FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { RootDrawerParamList } from './types';
+import {fetchFoodOffersByCanteen} from '@/redux/actions/FoodOffers/FoodOffers';
+import {
+	SET_BUSINESS_HOURS,
+	SET_CANTEEN_FEEDBACK_LABELS,
+	SET_POPUP_EVENTS,
+	SET_SELECTED_CANTEEN_FOOD_OFFERS,
+	SET_SELECTED_CANTEEN_FOOD_OFFERS_LOCAL,
+	SET_SELECTED_DATE,
+	UPDATE_PROFILE
+} from '@/redux/Types/types';
+import {Entypo, FontAwesome6, Ionicons, MaterialCommunityIcons, MaterialIcons} from '@expo/vector-icons';
+import {RootDrawerParamList} from './types';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import CanteenSelectionSheet from '@/components/CanteenSelectionSheet/CanteenSelectionSheet';
 import SortSheet from '@/components/SortSheet/SortSheet';
 import HourSheet from '@/components/HoursSheet/HoursSheet';
 import CalendarSheet from '@/components/CalendarSheet/CalendarSheet';
-import { excerpt } from '@/constants/HelperFunctions';
-import { useLanguage } from '@/hooks/useLanguage';
+import {excerpt} from '@/constants/HelperFunctions';
+import {useLanguage} from '@/hooks/useLanguage';
 import ForecastSheet from '@/components/ForecastSheet/ForecastSheet';
 import ImageManagementSheet from '@/components/ImageManagementSheet/ImageManagementSheet';
 import EatingHabitsSheet from '@/components/EatingHabitsSheet/EatingHabitsSheet';
-import { CanteenFeedbackLabelHelper } from '@/redux/actions/CanteenFeedbacksLabel/CanteenFeedbacksLabel';
+import {CanteenFeedbackLabelHelper} from '@/redux/actions/CanteenFeedbacksLabel/CanteenFeedbacksLabel';
 import CanteenFeedbackLabels from '@/components/CanteenFeedbackLabels/CanteenFeedbackLabels';
-import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
+import {Tooltip, TooltipContent, TooltipText} from '@gluestack-ui/themed';
 import * as Notifications from 'expo-notifications';
-import { sortFoodOffers } from '@/helper/foodOfferSortHelper';
-import { addDays, format } from 'date-fns';
-import { BusinessHoursHelper } from '@/redux/actions/BusinessHours/BusinessHours';
+import {sortFoodOffers} from '@/helper/foodOfferSortHelper';
+import {addDays, format} from 'date-fns';
+import {BusinessHoursHelper} from '@/redux/actions/BusinessHours/BusinessHours';
 import PopupEventSheet from '@/components/PopupEventSheet/PopupEventSheet';
-import { PopupEventHelper } from '@/helper/PopupEventHelper';
-import { getAppElementTranslation } from '@/helper/resourceHelper';
+import {PopupEventHelper} from '@/helper/PopupEventHelper';
+import {getAppElementTranslation} from '@/helper/resourceHelper';
 import noFoodOffersFound from '@/assets/animations/noFoodOffersFound.json';
 import LottieView from 'lottie-react-native';
-import { replaceLottieColors } from '@/helper/animationHelper';
-import { myContrastColor } from '@/helper/ColorHelper';
-import { TranslationKeys } from '@/locales/keys';
+import {replaceLottieColors} from '@/helper/animationHelper';
+import {myContrastColor} from '@/helper/ColorHelper';
+import {TranslationKeys} from '@/locales/keys';
 
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
-import { RootState } from '@/redux/reducer';
+import {RootState} from '@/redux/reducer';
 import MarkingBottomSheet from '@/components/MarkingBottomSheet';
 import AIGeneratedHintSheet from '@/components/AIGeneratedHintSheet';
 import useFoodOffersDefaultDate from '@/hooks/useFoodOffersDefaultDate';
