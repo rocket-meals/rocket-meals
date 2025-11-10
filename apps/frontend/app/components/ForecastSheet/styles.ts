@@ -21,7 +21,7 @@ export default StyleSheet.create({
 	},
 	titleContainer: {
 		width: '100%',
-		flexDirection: 'row',
+		flexDirection: 'column',
 		justifyContent: 'center',
 		alignItems: 'center',
 		borderTopRightRadius: 28,
@@ -59,8 +59,8 @@ export default StyleSheet.create({
                 justifyContent: 'center',
         },
         colorIndicator: {
-                width: 18,
-                height: 18,
+                width: "100%",
+                height: "100%",
                 borderRadius: 4,
         },
         noDataText: {
