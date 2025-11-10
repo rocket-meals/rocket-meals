@@ -58,21 +58,10 @@ export default StyleSheet.create({
                 alignItems: 'center',
                 justifyContent: 'center',
         },
-        forecastItem: {
-                width: '100%',
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingVertical: 12,
-        },
         colorIndicator: {
-                width: 20,
-                height: 20,
+                width: 18,
+                height: 18,
                 borderRadius: 4,
-                marginRight: 16,
-        },
-        timeText: {
-                fontFamily: 'Poppins_500Medium',
-                fontSize: 18,
         },
         noDataText: {
                 width: '100%',

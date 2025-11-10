@@ -12,6 +12,7 @@ import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { DatabaseTypes } from 'repo-depkit-common';
+import SettingsList from '@/components/SettingsList/SettingsList';
 
 type ForecastEntry = {
         time: string;
@@ -157,19 +158,31 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ closeSheet, forDate }) =>
                                                 <ActivityIndicator size={40} color={theme.screen.icon} />
                                         </View>
                                 ) : forecastEntries.length > 0 ? (
-                                        forecastEntries.map((entry, index) => (
-                                                <View key={`${entry.time}-${index}`} style={styles.forecastItem}>
-                                                        <View
-                                                                style={[
-                                                                        styles.colorIndicator,
-                                                                        {
-                                                                                backgroundColor: entry.color,
-                                                                        },
-                                                                ]}
+                                        forecastEntries.map((entry, index) => {
+                                                const isSingle = forecastEntries.length === 1;
+                                                const isFirst = index === 0;
+                                                const isLast = index === forecastEntries.length - 1;
+
+                                                const groupPosition = isSingle
+                                                        ? 'single'
+                                                        : isFirst
+                                                        ? 'top'
+                                                        : isLast
+                                                        ? 'bottom'
+                                                        : 'middle';
+
+                                                return (
+                                                        <SettingsList
+                                                                key={`${entry.time}-${index}`}
+                                                                leftIcon={<View style={[styles.colorIndicator, { backgroundColor: entry.color }]} />}
+                                                                title={entry.time}
+                                                                value={`${entry.percentage}%`}
+                                                                showSeparator={!isLast}
+                                                                groupPosition={groupPosition}
+                                                                iconBackgroundColor={theme.sheet.sheetBg}
                                                         />
-                                                        <Text style={[styles.timeText, { color: theme.sheet.text }]}>{entry.time}</Text>
-                                                </View>
-                                        ))
+                                                );
+                                        })
                                 ) : (
                                         <Text style={[styles.noDataText, { color: theme.sheet.text }]}>
                                                 {translate(TranslationKeys.no_data_found)}
