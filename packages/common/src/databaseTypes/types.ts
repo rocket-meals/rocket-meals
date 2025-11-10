@@ -1,3 +1,5 @@
+import { ChatConversationState } from '../ChatConversationState';
+
 export type Apartments = {
   available_from?: string | null;
   building?: string | Buildings | null;
@@ -451,6 +453,7 @@ export type Chats = {
   date_updated?: string | null;
   foods_feedback?: string | FoodsFeedbacks | null;
   id: string;
+  conversation_state?: ChatConversationState | null;
   linked_entities: string;
   messages: any[] | ChatMessages[];
   participants: any[] | ChatsParticipants[];

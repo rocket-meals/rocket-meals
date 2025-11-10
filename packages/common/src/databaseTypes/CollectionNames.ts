@@ -39,6 +39,8 @@ export enum CollectionNames {
   WASHINGMACHINES = 'washingmachines',
   WASHINGMACHINES_JOBS = 'washingmachines_jobs',
   NEWS = 'news',
+  CHATS = 'chats',
+  CHAT_MESSAGES = 'chat_messages',
   LANGUAGES = 'languages',
   PROFILES = 'profiles',
   UTILIZATION_GROUPS = 'utilizations_groups',

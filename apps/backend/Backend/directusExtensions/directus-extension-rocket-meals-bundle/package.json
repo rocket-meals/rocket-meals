@@ -55,6 +55,11 @@
       },
       {
         "type": "hook",
+        "name": "chat-conversation-state-hook",
+        "source": "src/chat-conversation-state-hook/index.ts"
+      },
+      {
+        "type": "hook",
         "name": "cashregister-hook",
         "source": "src/cashregister-hook/index.ts"
       },
