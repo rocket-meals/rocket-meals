@@ -82,28 +82,13 @@ export class TranslationHelper {
     itemsTablename: CollectionNames, // the name of the table of our item
     myDatabaseHelper: MyDatabaseHelper
   ) {
-    const specificItemServiceReader = await myDatabaseHelper.getItemsServiceHelper<T>(itemsTablename);
-    if (!!itemWithTranslations) {
-      const { updateObject: updateObject, updateNeeded: updateNeeded } = await TranslationHelper._getUpdateInformationForTranslations(itemWithTranslations, itemWithTranslations, translationsFromParsing, items_primary_field_in_translation_table);
-
-      if (updateNeeded) {
-        //const createTranslations = updateObject.translations.create;
-        //const updateTranslations = updateObject.translations.update;
-        //const deleteTranslations = updateObject.translations.delete;
-        // @ts-ignore
-        //console.log("Update Translations for item with id: " + item?.id+ " - alias: "+item?.alias);
-        //console.log("Update Translations: create (" + createTranslations.length + "), update (" + updateTranslations.length + "), delete (" + deleteTranslations.length + ")");
-        //console.log("createTranslations: "+JSON.stringify(createTranslations, null, 2));
-        //console.log("updateTranslations: "+JSON.stringify(updateTranslations, null, 2));
-        //console.log("deleteTranslations: "+JSON.stringify(deleteTranslations, null, 2));
-        //console.log(JSON.stringify(updateObject, null, 2));
-
-        await specificItemServiceReader.updateOne(itemWithTranslations?.id, {
-          id: itemWithTranslations?.id,
-          ...updateObject,
-        });
-      }
-    }
+    return TranslationHelper.applyTranslationUpdates({
+      itemWithTranslations,
+      translationsFromParsing,
+      itemsPrimaryFieldInTranslationTable: items_primary_field_in_translation_table,
+      itemsTablename,
+      myDatabaseHelper,
+    });
   }
 
   static FIELD_FOR_TRANSLATION_FETCHING = 'translations.*';
@@ -137,17 +122,61 @@ export class TranslationHelper {
     let itemWithTranslations = await specificItemServiceReader.readOne(item?.id, {
       ...TranslationHelper.QUERY_FIELDS_FOR_ALL_FIELDS_AND_FOR_TRANSLATION_FETCHING,
     }); // Bottleneck HERE. Takes on average 1.0s
-    return TranslationHelper.updateItemTranslationsForItemWithTranslationsFetched(itemWithTranslations, translationsFromParsing, items_primary_field_in_translation_table, itemsTablename, myDatabaseHelper);
+    return TranslationHelper.applyTranslationUpdates({
+      itemWithTranslations,
+      translationsFromParsing,
+      itemsPrimaryFieldInTranslationTable: items_primary_field_in_translation_table,
+      itemsTablename,
+      myDatabaseHelper,
+    });
+  }
+
+  private static async applyTranslationUpdates<
+    T extends ItemWithExistingTranslations,
+    E extends ExistingTranslation,
+  >({
+    itemWithTranslations,
+    translationsFromParsing,
+    itemsPrimaryFieldInTranslationTable,
+    itemsTablename,
+    myDatabaseHelper,
+  }: {
+    itemWithTranslations: T;
+    translationsFromParsing: TranslationsFromParsingType;
+    itemsPrimaryFieldInTranslationTable: TranslationRelationField<E>;
+    itemsTablename: CollectionNames;
+    myDatabaseHelper: MyDatabaseHelper;
+  }) {
+    const specificItemServiceReader = await myDatabaseHelper.getItemsServiceHelper<T>(itemsTablename);
+    if (!!itemWithTranslations) {
+      const { updateObject: updateObject, updateNeeded: updateNeeded } = await TranslationHelper._getUpdateInformationForTranslations({
+        itemWithTranslations,
+        translationsFromParsing,
+        itemsPrimaryFieldInTranslationTable,
+      });
+
+      if (updateNeeded) {
+        await specificItemServiceReader.updateOne(itemWithTranslations?.id, {
+          id: itemWithTranslations?.id,
+          ...updateObject,
+        });
+      }
+    }
   }
 
   static async _getUpdateInformationForTranslations<
     T extends ItemWithExistingTranslations, // T must have an id and translations field
     E extends ExistingTranslation, // the collection of the related translations
   >(
-    itemWithTranslations: T, // the item we want to update the translations for
-    item: T, // the item we want to update the translations for
-    translationsFromParsing: TranslationsFromParsingType, // the translations we got from the parser
-    items_primary_field_in_translation_table: TranslationRelationField<E> // the primary field (to our item) in the translation table, e.g. "food_id" when translating foods
+    {
+      itemWithTranslations,
+      translationsFromParsing,
+      itemsPrimaryFieldInTranslationTable,
+    }: {
+      itemWithTranslations: T; // the item we want to update the translations for
+      translationsFromParsing: TranslationsFromParsingType; // the translations we got from the parser
+      itemsPrimaryFieldInTranslationTable: TranslationRelationField<E>; // the primary field (to our item) in the translation table, e.g. "food_id" when translating foods
+    },
   ) {
     /** translationsFromParsing is an object with the following structure:
          {
@@ -250,7 +279,7 @@ export class TranslationHelper {
           }
 
           createTranslations.push({
-            [items_primary_field_in_translation_table]: item?.id,
+            [itemsPrimaryFieldInTranslationTable]: itemWithTranslations?.id,
             be_source_for_translations: be_source_for_translations,
             let_be_translated: false, // if we have a translation from the parser, we dont need to translate it
             ...translationFromParsing,
