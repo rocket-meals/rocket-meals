@@ -524,7 +524,7 @@ export class ReportGenerator {
       },
     };
 
-    let filterDateUpdatedFeedbackLabelEntries: Filter[] = ReportGenerator.getFilterDateUpdatedForReportFeedbackPeriodDays(startDate, endDate);
+    let filterDateUpdatedFeedbackLabelEntries: Filter[] = this.buildFeedbackDateFilters(startDate, endDate);
 
     let labels_counted_as_list: ReportFoodEntryLabelType[] = [];
 
@@ -606,6 +606,13 @@ export class ReportGenerator {
     ];
   }
 
+  private buildFeedbackDateFilters(startDate: Date | null, endDate: Date | null): Filter[] {
+    if (startDate != null && endDate != null) {
+      return ReportGenerator.getFilterDateUpdatedForReportFeedbackPeriodDays(startDate, endDate);
+    }
+    return [];
+  }
+
   async getAllFoodFeedbacksWithCommentsForFood(food_id: string, startDate: Date | null, endDate: Date | null) {
     let itemService = this.myDatabaseHelper.getFoodFeedbacksHelper();
 
@@ -620,14 +627,8 @@ export class ReportGenerator {
           _nnull: true,
         },
       },
+      ...this.buildFeedbackDateFilters(startDate, endDate),
     ];
-
-    if (startDate != null && endDate != null) {
-      let filterDateUpdated = ReportGenerator.getFilterDateUpdatedForReportFeedbackPeriodDays(startDate, endDate);
-      if (filterDateUpdated) {
-        filter.push(...filterDateUpdated);
-      }
-    }
 
     let feedbacksWithCommentsAndCanteenObject = await itemService.readByQuery({
       filter: {
