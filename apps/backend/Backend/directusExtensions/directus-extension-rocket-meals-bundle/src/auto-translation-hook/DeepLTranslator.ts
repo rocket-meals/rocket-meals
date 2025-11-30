@@ -1,5 +1,4 @@
 import deepl, { SourceLanguageCode, TargetLanguageCode, Translator } from 'deepl-node';
-import { StringHelper } from 'repo-depkit-common';
 import { MyTranslatorInterface } from './MyTranslatorInterface';
 
 export class DeepLTranslator implements MyTranslatorInterface {
@@ -66,7 +65,7 @@ export class DeepLTranslator implements MyTranslatorInterface {
 
     //replace all keys in dictWithReplacement with their values
     for (const [key, value] of Object.entries(dictWithReplacement)) {
-      textToTranslate = StringHelper.replaceAll(textToTranslate, key, value);
+      textToTranslate = this.replaceAllDeepL(textToTranslate, key, value);
     }
 
     //console.log("translate:")
@@ -79,7 +78,7 @@ export class DeepLTranslator implements MyTranslatorInterface {
 
     //replace all values in dictWithReplacement with their keys
     for (const [key, value] of Object.entries(dictWithReplacement)) {
-      translation = StringHelper.replaceAll(translation, value, key);
+      translation = this.replaceAllDeepL(translation, value, key);
     }
 
     //replace all <*>'s with *'s
@@ -119,6 +118,17 @@ export class DeepLTranslator implements MyTranslatorInterface {
   /**
    * Private Methods
    */
+
+  /**
+   * DeepL-specific replacement that escapes both the search pattern and replacement string.
+   * Useful for placeholder markers such as '*' that would otherwise be treated as regex or
+   * replacement tokens.
+   */
+  private replaceAllDeepL(str: string, find: string, replace: string) {
+    const escapedFind = find.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const escapedReplace = replace.replace(/\$/g, '$$$$');
+    return str.replace(new RegExp(escapedFind, 'g'), escapedReplace);
+  }
 
   getDeepLLanguageCodeSource(directus_language_code: string) {
     return this.getDeepLLanguageCode(directus_language_code) as SourceLanguageCode;
