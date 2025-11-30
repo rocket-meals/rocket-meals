@@ -1,34 +1,18 @@
-import deepl, { SourceLanguageCode, TargetLanguageCode, Translator } from 'deepl-node';
-import { MyTranslatorInterface } from './MyTranslatorInterface';
+import deepl, { SourceLanguageCode, TargetLanguageCode, Translator as DeepLTranslatorClient } from 'deepl-node';
+import { Translator } from './Translator';
+import { TranslatorSettings } from './TranslatorSettings';
+import { MyDatabaseHelper } from '../helpers/MyDatabaseHelper';
 
-export class DeepLTranslator implements MyTranslatorInterface {
-  private readonly translator: Translator;
+export class DeepLTranslator extends Translator {
+  private translator: DeepLTranslatorClient | undefined;
 
-  constructor(auth_key: string) {
-    this.translator = new deepl.Translator(auth_key);
+  constructor(translatorSettings: TranslatorSettings, myDatabaseHelper: MyDatabaseHelper) {
+    super(translatorSettings, myDatabaseHelper);
   }
 
-  async init() {
-    /**
-        console.log("Initializing DeepL Translator");
-        const sourceLanguages = await this.translator.getSourceLanguages();
-        console.log("Source Languages: ");
-        for (let i = 0; i < sourceLanguages.length; i++) {
-            const lang = sourceLanguages[i];
-            console.log(`${lang.name} (${lang.code})`); // Example: 'English (en)'
-        }
+  async translateImplementation(text: string, source_language: string, destination_language: string) {
+    if (!this.translator) return null;
 
-        console.log("");
-        const targetLanguages = await this.translator.getTargetLanguages();
-        console.log("Target Languages: ");
-        for (let i = 0; i < targetLanguages.length; i++) {
-            const lang = targetLanguages[i];
-            console.log(`${lang.name} (${lang.code}) supports formality`);
-        }
-         */
-  }
-
-  async translate(text: string, source_language: string, destination_language: string) {
     let translationResponse = null;
     let sourceLanguageCode = this.getDeepLLanguageCodeSource(source_language);
     let destinationLanguageCode = this.getDeepLLanguageCodeTarget(destination_language);
@@ -53,13 +37,81 @@ export class DeepLTranslator implements MyTranslatorInterface {
     return translationResponse;
   }
 
+  async reloadAuthKeyImplementation(auth_key: string) {
+    this.translator = new deepl.Translator(auth_key);
+    await this.initTranslator();
+  }
+
+  async getExtraImplementation() {
+    if (!this.translator) return { extra: '' };
+
+    const sourceLanguages = await this.translator.getSourceLanguages();
+    const targetLanguages = await this.translator.getTargetLanguages();
+
+    let extraObj = {
+      sourceLanguages: sourceLanguages,
+      targetLanguages: targetLanguages,
+    };
+    const extra = JSON.stringify(extraObj, null, 2);
+
+    return {
+      extra: extra || '',
+    };
+  }
+
+  async getUsageImplementation() {
+    if (!this.translator) return { used: 0, limit: 0 };
+
+    //console.log("DeepL Translator get Usage");
+    const usage = await this.translator.getUsage();
+    if (usage.anyLimitReached()) {
+      //console.log('Translation limit exceeded.');
+    }
+    const characterUsage = usage?.character; // {"character":{"count":0,"limit":500000}}
+
+    return {
+      used: characterUsage?.count || 0,
+      limit: characterUsage?.limit || 0,
+    };
+  }
+
+  /**
+   * Private Methods
+   */
+
+  private async initTranslator() {
+    /**
+        console.log("Initializing DeepL Translator");
+        const sourceLanguages = await this.translator.getSourceLanguages();
+        console.log("Source Languages: ");
+        for (let i = 0; i < sourceLanguages.length; i++) {
+            const lang = sourceLanguages[i];
+            console.log(`${lang.name} (${lang.code})`); // Example: 'English (en)'
+        }
+
+        console.log("");
+        const targetLanguages = await this.translator.getTargetLanguages();
+        console.log("Target Languages: ");
+        for (let i = 0; i < targetLanguages.length; i++) {
+            const lang = targetLanguages[i];
+            console.log(`${lang.name} (${lang.code}) supports formality`);
+        }
+         */
+  }
+
   private replaceAll(str: string, find: string, replace: string) {
     // use regex where find is replaced with replace globally and multiple times
     // find could be a special character like * which needs to be escaped
     return str.replace(new RegExp(find.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), replace);
   }
 
-  async translateRaw(text: string, source_language_code: SourceLanguageCode, destination_language_code: TargetLanguageCode) {
+  private async translateRaw(
+    text: string,
+    source_language_code: SourceLanguageCode,
+    destination_language_code: TargetLanguageCode,
+  ) {
+    if (!this.translator) return null;
+
     //copy text string to another variable
     let textToTranslate: string = text;
 
@@ -92,48 +144,15 @@ export class DeepLTranslator implements MyTranslatorInterface {
     return translation;
   }
 
-  async getExtra() {
-    const sourceLanguages = await this.translator.getSourceLanguages();
-    const targetLanguages = await this.translator.getTargetLanguages();
-
-    let extraObj = {
-      sourceLanguages: sourceLanguages,
-      targetLanguages: targetLanguages,
-    };
-    const extra = JSON.stringify(extraObj, null, 2);
-
-    return {
-      extra: extra || '',
-    };
-  }
-
-  async getUsage() {
-    //console.log("DeepL Translator get Usage");
-    const usage = await this.translator.getUsage();
-    if (usage.anyLimitReached()) {
-      //console.log('Translation limit exceeded.');
-    }
-    const characterUsage = usage?.character; // {"character":{"count":0,"limit":500000}}
-
-    return {
-      used: characterUsage?.count || 0,
-      limit: characterUsage?.limit || 0,
-    };
-  }
-
-  /**
-   * Private Methods
-   */
-
-  getDeepLLanguageCodeSource(directus_language_code: string) {
+  private getDeepLLanguageCodeSource(directus_language_code: string) {
     return this.getDeepLLanguageCode(directus_language_code) as SourceLanguageCode;
   }
 
-  getDeepLLanguageCodeTarget(directus_language_code: string) {
+  private getDeepLLanguageCodeTarget(directus_language_code: string) {
     return this.getDeepLLanguageCode(directus_language_code) as TargetLanguageCode;
   }
 
-  getDeepLLanguageCode(directus_language_code: string) {
+  private getDeepLLanguageCode(directus_language_code: string) {
     /** directus_language_code
      * e.g. "en-US" -> "en"
      */

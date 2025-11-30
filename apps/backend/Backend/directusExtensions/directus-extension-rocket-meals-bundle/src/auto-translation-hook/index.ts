@@ -1,6 +1,6 @@
 import { defineHook } from '@directus/extensions-sdk';
 
-import { Translator } from './Translator';
+import { DeepLTranslator } from './DeepLTranslator';
 import { TranslatorSettings } from './TranslatorSettings';
 import { DirectusCollectionTranslator } from './DirectusCollectionTranslator.js';
 import { EventHelper } from '../helpers/EventHelper';
@@ -17,7 +17,7 @@ const DEV_MODE = false;
 
 async function getAndInitItemsServiceCreatorAndTranslatorSettingsAndTranslatorAndSchema(myDatabaseHelper: MyDatabaseHelper) {
   let translatorSettings = new TranslatorSettings(myDatabaseHelper);
-  let translator = new Translator(translatorSettings, myDatabaseHelper);
+  let translator = new DeepLTranslator(translatorSettings, myDatabaseHelper);
   await translator.init();
   return {
     translatorSettings: translatorSettings,
@@ -153,7 +153,7 @@ export default MyDefineHook.defineHookWithAllTablesExisting(scheduleNameAutoTran
 
     try {
       let translatorSettings = new TranslatorSettings(myDatabaseHelper);
-      let translator = new Translator(translatorSettings, myDatabaseHelper);
+      let translator = new DeepLTranslator(translatorSettings, myDatabaseHelper);
       await translator.init();
 
       registerCollectionAutoTranslation(filter, apiContext);

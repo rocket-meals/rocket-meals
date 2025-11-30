@@ -1,13 +1,11 @@
-import { DeepLTranslator } from './DeepLTranslator';
-import { MyTranslatorInterface } from './MyTranslatorInterface';
 import { TranslatorSettings } from './TranslatorSettings';
 import { EnvVariableHelper } from '../helpers/EnvVariableHelper';
 import { MyDatabaseHelper } from '../helpers/MyDatabaseHelper';
 
-export class Translator {
+export abstract class Translator {
   private readonly logger: any;
   translatorSettings: TranslatorSettings;
-  private translatorImplementation: undefined | MyTranslatorInterface;
+  private initialized = false;
 
   constructor(translatorSettings: TranslatorSettings, myDatabaseHelper: MyDatabaseHelper) {
     this.logger = myDatabaseHelper?.apiContext?.logger;
@@ -25,18 +23,20 @@ export class Translator {
     try {
       //console.log("Auth Key found");
       await this.reloadAuthKey(auth_key);
+      this.initialized = true;
       let correctObj = await this.getSettingsAuthKeyCorrectObject();
       await this.setSettings(correctObj);
     } catch (error: any) {
       console.log('Error Initializing Translatior');
       console.log(error.toString());
       await this.setSettings(this.getSettingsAuthKeyErrorObject(error));
+      this.initialized = false;
     }
   }
 
   async translate(text: string, source_language: string, destination_language: string) {
-    if (!this.translatorImplementation) return null;
-    const translation = await this.translatorImplementation.translate(text, source_language, destination_language);
+    if (!this.initialized) return null;
+    const translation = await this.translateImplementation(text, source_language, destination_language);
     await this.reloadUsage(); //update usage stats
     return translation;
   }
@@ -64,8 +64,7 @@ export class Translator {
 
   async reloadAuthKey(auth_key: string) {
     //console.log("Reload AuthKey");
-    this.translatorImplementation = new DeepLTranslator(auth_key);
-    await this.translatorImplementation.init();
+    await this.reloadAuthKeyImplementation(auth_key);
     await this.reloadUsage();
   }
 
@@ -82,13 +81,11 @@ export class Translator {
   }
 
   async getUsage() {
-    if (!this.translatorImplementation) return { used: 0, limit: 0 };
-    return await this.translatorImplementation.getUsage();
+    return await this.getUsageImplementation();
   }
 
   async getExtra() {
-    if (!this.translatorImplementation) return { extra: '' };
-    return await this.translatorImplementation.getExtra();
+    return await this.getExtraImplementation();
   }
 
   async setSettings(newSettings: any) {
@@ -98,4 +95,16 @@ export class Translator {
   async getAuthKey() {
     return await this.translatorSettings.getAuthKey();
   }
+
+  abstract translateImplementation(
+    text: string,
+    source_language: string,
+    destination_language: string,
+  ): Promise<any>;
+
+  abstract reloadAuthKeyImplementation(auth_key: string): Promise<void>;
+
+  abstract getUsageImplementation(): Promise<any>;
+
+  abstract getExtraImplementation(): Promise<any>;
 }
