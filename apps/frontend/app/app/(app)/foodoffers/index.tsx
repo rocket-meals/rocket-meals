@@ -390,24 +390,11 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		dispatch({ type: SET_SELECTED_DATE, payload: currentDate.toISOString().split('T')[0] });
 	};
 
-
-
-	const updateSort = (id: FoodSortOption, foodOffers: DatabaseTypes.Foodoffers[]) => {
-		const sortedOffers = sortFoodOffers(id, foodOffers, {
-			languageCode,
-			ownFoodFeedbacks,
-			profile,
-			foodCategories,
-			foodOfferCategories,
-		});
-		dispatch({ type: SET_SELECTED_CANTEEN_FOOD_OFFERS, payload: sortedOffers });
-	};
-
-	useEffect(() => {
-		const handleResize = () => setScreenWidth(Dimensions.get('window').width);
-		const subscription = Dimensions.addEventListener('change', handleResize);
-		return () => subscription?.remove();
-	}, []);
+        useEffect(() => {
+                const handleResize = () => setScreenWidth(Dimensions.get('window').width);
+                const subscription = Dimensions.addEventListener('change', handleResize);
+                return () => subscription?.remove();
+        }, []);
 
 	const getPriceGroup = (price_group: string) => {
 		if (price_group) {
@@ -416,50 +403,102 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		return '';
 	};
 
-	const fetchFoods = async (forceFetch = false) => {
-		try {
-			setLoading(true);
+        const haveOffersChanged = useCallback(
+                (nextOffers: DatabaseTypes.Foodoffers[] = [], currentOffers: DatabaseTypes.Foodoffers[] = []) => {
+                        if (nextOffers.length !== currentOffers.length) return true;
+                        for (let i = 0; i < nextOffers.length; i++) {
+                                const next = nextOffers[i];
+                                const current = currentOffers[i];
+                                if (next.id !== current?.id || next.date !== current?.date || next.updated_at !== current?.updated_at) {
+                                        return true;
+                                }
+                        }
+                        return false;
+                },
+                []
+        );
+
+        const applyFoodOffers = useCallback(
+                (offers: DatabaseTypes.Foodoffers[] = []) => {
+                        const sortedOffers = sortFoodOffers(sortBy as FoodSortOption, offers, {
+                                languageCode,
+                                ownFoodFeedbacks,
+                                profile,
+                                foodCategories,
+                                foodOfferCategories,
+                        });
+
+                        if (!haveOffersChanged(sortedOffers, selectedCanteenFoodOffers || [])) return;
+
+                        dispatch({ type: SET_SELECTED_CANTEEN_FOOD_OFFERS, payload: sortedOffers });
+                        dispatch({ type: SET_SELECTED_CANTEEN_FOOD_OFFERS_LOCAL, payload: offers });
+                },
+                [
+                        dispatch,
+                        foodCategories,
+                        foodOfferCategories,
+                        languageCode,
+                        ownFoodFeedbacks,
+                        haveOffersChanged,
+                        profile,
+                        selectedCanteenFoodOffers,
+                        sortBy,
+                ]
+        );
+
+        const fetchFoods = useCallback(
+                async (forceFetch = false) => {
                         const canteenId = selectedCanteen?.id as string;
                         if (!canteenId || !selectedDate) {
                                 setLoading(false);
                                 return;
                         }
 
-                        let foodOffers = getCachedOffers(canteenId, selectedDate);
-                        if (!foodOffers || forceFetch) {
-                                const foodData = await fetchFoodOffersByCanteen(canteenId, selectedDate);
-                                foodOffers = foodData?.data || [];
+                        const cacheKey = getCacheKey(canteenId, selectedDate);
+                        const cachedOffers = getCachedOffers(canteenId, selectedDate);
+
+                        if (!forceFetch && cachedOffers) {
+                                applyFoodOffers(cachedOffers);
                         }
 
-                        setPrefetchedFoodOffers(prev => ({ ...prev, [getCacheKey(canteenId, selectedDate)]: foodOffers }));
+                        try {
+                                if (!cachedOffers || forceFetch) {
+                                        setLoading(true);
+                                        const foodData = await fetchFoodOffersByCanteen(canteenId, selectedDate);
+                                        const foodOffers = foodData?.data || [];
+                                        setPrefetchedFoodOffers(prev => ({ ...prev, [cacheKey]: foodOffers }));
+                                        applyFoodOffers(foodOffers);
+                                } else {
+                                        setPrefetchedFoodOffers(prev => (prev[cacheKey] ? prev : { ...prev, [cacheKey]: cachedOffers }));
+                                        setLoading(false);
+                                }
 
-			for (let i = 1; i <= 2; i++) {
-                                const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
-                                const cacheKey = getCacheKey(canteenId, date);
-                                if (!prefetchedFoodOffers[cacheKey]) {
-                                        fetchFoodOffersByCanteen(canteenId, date)
-                                                .then(res => {
-                                                        const offers = res?.data || [];
-                                                        setPrefetchedFoodOffers(p => ({ ...p, [cacheKey]: offers }));
-                                                        try {
-                                                                offers.slice(0, 6).forEach((o: any) => {
-                                                                        const img = o?.food?.image_remote_url || o?.food?.image;
-									if (img) Image.prefetch(img).catch(() => { });
-								});
-							} catch (e) { }
-						})
-						.catch(e => console.error('Error prefetching Food Offers:', e));
-				}
-			}
-
-			updateSort(sortBy as FoodSortOption, foodOffers);
-			dispatch({ type: SET_SELECTED_CANTEEN_FOOD_OFFERS_LOCAL, payload: foodOffers });
-			setLoading(false);
-		} catch (error) {
-			setLoading(false);
-			console.error('Error fetching Food Offers:', error);
-		}
-	};
+                                for (let i = 1; i <= 2; i++) {
+                                        const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
+                                        const nextCacheKey = getCacheKey(canteenId, date);
+                                        if (!prefetchedFoodOffers[nextCacheKey]) {
+                                                fetchFoodOffersByCanteen(canteenId, date)
+                                                        .then(res => {
+                                                                const offers = res?.data || [];
+                                                                setPrefetchedFoodOffers(p => ({ ...p, [nextCacheKey]: offers }));
+                                                                try {
+                                                                        offers.slice(0, 6).forEach((o: any) => {
+                                                                                const img = o?.food?.image_remote_url || o?.food?.image;
+                                                                                if (img) Image.prefetch(img).catch(() => {});
+                                                                        });
+                                                                } catch (e) {}
+                                                        })
+                                                        .catch(e => console.error('Error prefetching Food Offers:', e));
+                                        }
+                                }
+                        } catch (error) {
+                                console.error('Error fetching Food Offers:', error);
+                        } finally {
+                                setLoading(false);
+                        }
+                },
+                [applyFoodOffers, prefetchedFoodOffers, selectedCanteen?.id, selectedDate]
+        );
 
 	const fetchCanteenLabels = async () => {
 		try {
@@ -473,18 +512,18 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		}
 	};
 
-	useEffect(() => {
-		fetchFoods();
-	}, [selectedCanteen, selectedDate]);
+        useEffect(() => {
+                fetchFoods();
+        }, [fetchFoods]);
 
 	useEffect(() => {
 		fetchCanteenLabels();
 	}, []);
 
-	const onRefresh = useCallback(() => {
-		setRefreshing(true);
-		Promise.all([fetchFoods(true), fetchCanteenLabels()]).finally(() => setRefreshing(false));
-	}, [selectedCanteen, selectedDate]);
+        const onRefresh = useCallback(() => {
+                setRefreshing(true);
+                Promise.all([fetchFoods(true), fetchCanteenLabels()]).finally(() => setRefreshing(false));
+        }, [fetchFoods]);
 
 	const memoizedCanteenFeedbackLabels = useMemo(
 		() =>
