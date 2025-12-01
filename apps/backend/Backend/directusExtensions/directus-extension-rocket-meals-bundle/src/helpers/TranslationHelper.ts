@@ -40,6 +40,37 @@ type NonRelationFields = (typeof NonRelationFieldsArray)[number];
 
 export type TranslationRelationField<E> = Exclude<keyof E, NonRelationFields> & string;
 
+type TranslationUpdateBaseContext<E extends ExistingTranslation> = {
+  translationsFromParsing: TranslationsFromParsingType;
+  items_primary_field_in_translation_table: TranslationRelationField<E>;
+};
+
+type TranslationUpdateContextWithFetchedTranslations<
+  T extends ItemWithExistingTranslations,
+  E extends ExistingTranslation,
+> = TranslationUpdateBaseContext<E> & {
+  itemWithTranslations: T;
+  itemsTablename: CollectionNames;
+  myDatabaseHelper: MyDatabaseHelper;
+};
+
+type TranslationUpdateContextWithItem<
+  T extends ItemWithExistingTranslations,
+  E extends ExistingTranslation,
+> = TranslationUpdateBaseContext<E> & {
+  item: T;
+  itemsTablename: CollectionNames;
+  myDatabaseHelper: MyDatabaseHelper;
+};
+
+type TranslationUpdateInformationContext<
+  T extends ItemWithExistingTranslations,
+  E extends ExistingTranslation,
+> = TranslationUpdateBaseContext<E> & {
+  itemWithTranslations: T;
+  item: T;
+};
+
 export class TranslationHelper {
   static LANGUAGE_CODE_DE: LanguageCodesType = LanguageCodes.DE;
   static LANGUAGE_CODE_EN: LanguageCodesType = LanguageCodes.EN;
@@ -76,15 +107,23 @@ export class TranslationHelper {
     T extends ItemWithExistingTranslations, // T must have an id and translations field
     E extends ExistingTranslation, // the collection of the related translations
   >(
-    itemWithTranslations: T, // the item we want to update the translations for
-    translationsFromParsing: TranslationsFromParsingType, // the translations we got from the parser
-    items_primary_field_in_translation_table: TranslationRelationField<E>, // the primary field (to our item) in the translation table, e.g. "food_id" when translating foods
-    itemsTablename: CollectionNames, // the name of the table of our item
-    myDatabaseHelper: MyDatabaseHelper
+    context: TranslationUpdateContextWithFetchedTranslations<T, E>
   ) {
+    const {
+      itemWithTranslations,
+      translationsFromParsing,
+      items_primary_field_in_translation_table,
+      itemsTablename,
+      myDatabaseHelper,
+    } = context;
     const specificItemServiceReader = await myDatabaseHelper.getItemsServiceHelper<T>(itemsTablename);
     if (!!itemWithTranslations) {
-      const { updateObject: updateObject, updateNeeded: updateNeeded } = await TranslationHelper._getUpdateInformationForTranslations(itemWithTranslations, itemWithTranslations, translationsFromParsing, items_primary_field_in_translation_table);
+      const { updateObject: updateObject, updateNeeded: updateNeeded } = await TranslationHelper._getUpdateInformationForTranslations({
+        itemWithTranslations,
+        item: itemWithTranslations,
+        translationsFromParsing,
+        items_primary_field_in_translation_table,
+      });
 
       if (updateNeeded) {
         //const createTranslations = updateObject.translations.create;
@@ -127,28 +166,29 @@ export class TranslationHelper {
     T extends ItemWithExistingTranslations, // T must have an id and translations field
     E extends ExistingTranslation, // the collection of the related translations
   >(
-    item: T, // the item we want to update the translations for
-    translationsFromParsing: TranslationsFromParsingType, // the translations we got from the parser
-    items_primary_field_in_translation_table: TranslationRelationField<E>, // the primary field (to our item) in the translation table, e.g. "food_id" when translating foods
-    itemsTablename: CollectionNames, // the name of the table of our item
-    myDatabaseHelper: MyDatabaseHelper
+    context: TranslationUpdateContextWithItem<T, E>
   ) {
+    const { item, translationsFromParsing, items_primary_field_in_translation_table, itemsTablename, myDatabaseHelper } = context;
     const specificItemServiceReader = await myDatabaseHelper.getItemsServiceHelper<T>(itemsTablename);
     let itemWithTranslations = await specificItemServiceReader.readOne(item?.id, {
       ...TranslationHelper.QUERY_FIELDS_FOR_ALL_FIELDS_AND_FOR_TRANSLATION_FETCHING,
     }); // Bottleneck HERE. Takes on average 1.0s
-    return TranslationHelper.updateItemTranslationsForItemWithTranslationsFetched(itemWithTranslations, translationsFromParsing, items_primary_field_in_translation_table, itemsTablename, myDatabaseHelper);
+    return TranslationHelper.updateItemTranslationsForItemWithTranslationsFetched({
+      itemWithTranslations,
+      translationsFromParsing,
+      items_primary_field_in_translation_table,
+      itemsTablename,
+      myDatabaseHelper,
+    });
   }
 
   static async _getUpdateInformationForTranslations<
     T extends ItemWithExistingTranslations, // T must have an id and translations field
     E extends ExistingTranslation, // the collection of the related translations
   >(
-    itemWithTranslations: T, // the item we want to update the translations for
-    item: T, // the item we want to update the translations for
-    translationsFromParsing: TranslationsFromParsingType, // the translations we got from the parser
-    items_primary_field_in_translation_table: TranslationRelationField<E> // the primary field (to our item) in the translation table, e.g. "food_id" when translating foods
+    context: TranslationUpdateInformationContext<T, E>
   ) {
+    const { itemWithTranslations, item, translationsFromParsing, items_primary_field_in_translation_table } = context;
     /** translationsFromParsing is an object with the following structure:
          {
          [LanguageCodes.DE]: {
