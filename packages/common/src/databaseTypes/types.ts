@@ -485,6 +485,14 @@ export type CollectibleEventParticipants = {
 
 export type CollectibleEvents = {
   alias?: string | null;
+  collectable_at_card_reader?: boolean | null;
+  collectable_at_canteen_selection?: boolean | null;
+  collectable_at_food_details?: boolean | null;
+  collectable_at_foodoffers?: boolean | null;
+  collectable_at_marking_modal?: boolean | null;
+  collectable_at_marking_settings?: boolean | null;
+  collectable_at_price_setting?: boolean | null;
+  collectable_at_settings?: boolean | null;
   collectible_image?: string | DirectusFiles | null;
   collectible_settings: string;
   date_created?: string | null;
