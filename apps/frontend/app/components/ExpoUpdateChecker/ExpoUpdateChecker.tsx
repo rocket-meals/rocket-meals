@@ -12,12 +12,17 @@ import { myContrastColor } from '@/helper/ColorHelper';
 import { isInExpoGo } from '@/helper/DeviceRuntimeHelper';
 
 interface ExpoUpdateCheckerProps {
-	children?: ReactNode;
+        children?: ReactNode;
 }
 
 interface UpdateCheckerContextType {
-	manualCheck: () => void;
+        manualCheck: () => Promise<UpdateCheckResult>;
 }
+
+export type UpdateCheckResult = {
+        status: 'available' | 'up-to-date' | 'skipped' | 'error';
+        details?: string;
+};
 
 const UpdateCheckerContext = createContext<UpdateCheckerContextType | null>(null);
 
@@ -35,26 +40,38 @@ const ExpoUpdateChecker: React.FC<ExpoUpdateCheckerProps> = ({ children }) => {
 	const [titleKey, setTitleKey] = useState<TranslationKeys>(TranslationKeys.update_available);
 	const [messageKey, setMessageKey] = useState<TranslationKeys>(TranslationKeys.update_available_message);
 
-	const checkForUpdates = async (showUpToDate = false) => {
-		if (!isSmartPhone()) return;
-		if (isInExpoGo()) return;
-		try {
-			const update = await Updates.checkForUpdateAsync();
-			if (update.isAvailable) {
-				setUpdateAvailable(true);
-				setTitleKey(TranslationKeys.update_available);
-				setMessageKey(TranslationKeys.update_available_message);
-				setModalVisible(true);
-			} else if (showUpToDate) {
-				setUpdateAvailable(false);
-				setTitleKey(TranslationKeys.updates);
-				setMessageKey(TranslationKeys.no_updates_available);
-				setModalVisible(true);
-			}
-		} catch (e) {
-			console.error('Error while checking updates', e);
-		}
-	};
+        const checkForUpdates = async (showUpToDate = false): Promise<UpdateCheckResult> => {
+                if (!isSmartPhone())
+                        return { status: 'skipped', details: 'Update checks are only supported on smartphones.' };
+                if (isInExpoGo())
+                        return { status: 'skipped', details: 'Update checks are not available inside Expo Go.' };
+                try {
+                        const update = await Updates.checkForUpdateAsync();
+                        if (update.isAvailable) {
+                                setUpdateAvailable(true);
+                                setTitleKey(TranslationKeys.update_available);
+                                setMessageKey(TranslationKeys.update_available_message);
+                                setModalVisible(true);
+                                return { status: 'available', details: translate(TranslationKeys.update_available) };
+                        } else if (showUpToDate) {
+                                setUpdateAvailable(false);
+                                setTitleKey(TranslationKeys.updates);
+                                setMessageKey(TranslationKeys.no_updates_available);
+                                setModalVisible(true);
+                                return {
+                                        status: 'up-to-date',
+                                        details: translate(TranslationKeys.no_updates_available),
+                                };
+                        }
+                        return { status: 'skipped', details: translate(TranslationKeys.no_updates_available) };
+                } catch (e) {
+                        console.error('Error while checking updates', e);
+                        return {
+                                status: 'error',
+                                details: e instanceof Error ? e.message : String(e),
+                        };
+                }
+        };
 
 	useEffect(() => {
 		if (!isSmartPhone()) return;
@@ -69,19 +86,19 @@ const ExpoUpdateChecker: React.FC<ExpoUpdateCheckerProps> = ({ children }) => {
 		};
 	}, []);
 
-	const applyUpdate = async () => {
-		try {
-			setUpdating(true);
-			await Updates.fetchUpdateAsync();
-			await Updates.reloadAsync();
+        const applyUpdate = async () => {
+                try {
+                        setUpdating(true);
+                        await Updates.fetchUpdateAsync();
+                        await Updates.reloadAsync();
 		} catch (e) {
 			console.error('Error while applying updates', e);
 		}
-	};
+        };
 
-	return (
-		<UpdateCheckerContext.Provider value={{ manualCheck: () => checkForUpdates(true) }}>
-			{children}
+        return (
+                <UpdateCheckerContext.Provider value={{ manualCheck: () => checkForUpdates(true) }}>
+                        {children}
 			{modalVisible && (
 				<ModalSheet visible={modalVisible} onClose={() => setModalVisible(false)} title={translate(titleKey)}>
 					<View style={{ padding: 20 }}>

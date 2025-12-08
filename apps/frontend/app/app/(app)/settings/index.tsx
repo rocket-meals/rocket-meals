@@ -7,7 +7,7 @@ import { Languages, PriceGroupKey } from './types';
 import { AntDesign, Entypo, Feather, FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons, Octicons } from '@expo/vector-icons';
 import { isWeb } from '@/constants/Constants';
 import SettingsList from '@/components/SettingsList';
-import { useExpoUpdateChecker } from '@/components/ExpoUpdateChecker/ExpoUpdateChecker';
+import { type UpdateCheckResult, useExpoUpdateChecker } from '@/components/ExpoUpdateChecker/ExpoUpdateChecker';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import NicknameSheet from '@/components/NicknameSheet/NicknameSheet';
 import ColorSchemeSheet from '@/components/ColorSchemeSheet/ColorSchemeSheet';
@@ -45,16 +45,17 @@ const Settings = () => {
 	const dispatch = useDispatch();
 	const canteenSheetRef = useRef<BottomSheet>(null);
 	const [isActive, setIsActive] = useState(false);
-	const { translate, setLanguageMode, language } = useLanguage();
-	const [nickname, setNickname] = useState<string>('');
-	const nicknameSheetRef = useRef<BottomSheet>(null);
-	const openNicknameSheet = () => nicknameSheetRef?.current?.expand();
-	const closeNicknameSheet = () => {
-		Keyboard.dismiss();
-		nicknameSheetRef?.current?.close();
-	};
-	const [selectedLanguage, setSelectedLanguage] = useState<string>('');
-	const drawerSheetRef = useRef<BottomSheet>(null);
+        const { translate, setLanguageMode, language } = useLanguage();
+        const [nickname, setNickname] = useState<string>('');
+        const nicknameSheetRef = useRef<BottomSheet>(null);
+        const openNicknameSheet = () => nicknameSheetRef?.current?.expand();
+        const closeNicknameSheet = () => {
+                Keyboard.dismiss();
+                nicknameSheetRef?.current?.close();
+        };
+        const [selectedLanguage, setSelectedLanguage] = useState<string>('');
+        const [updateCheckLog, setUpdateCheckLog] = useState<string | null>(null);
+        const drawerSheetRef = useRef<BottomSheet>(null);
 	const languageSheetRef = useRef<BottomSheet>(null);
 	const amountColumnSheetRef = useRef<BottomSheet>(null);
 	const firstDaySheetRef = useRef<BottomSheet>(null);
@@ -67,9 +68,9 @@ const Settings = () => {
 	const isRegisteredUser = UserHelper.isRegisteredUser(user);
 
         const { primaryColor, drawerPosition, selectedTheme, nickNameLocal, firstDayOfTheWeek, amountColumnsForcard, serverInfo, appSettings, useWebpForAssets, foodOffersNextDayThreshold, debugMode } = useSelector((state: RootState) => state.settings);
-	const selectedCanteen = useSelectedCanteen();
-	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
-	const profileHelper = useMemo(() => new ProfileHelper(), []);
+        const selectedCanteen = useSelectedCanteen();
+        const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
+        const profileHelper = useMemo(() => new ProfileHelper(), []);
 
 	const languageCode = language;
 
@@ -197,9 +198,35 @@ const Settings = () => {
                 });
         };
 
-	const handleCheckForUpdates = () => {
-		manualCheck();
-	};
+        const formatUpdateLogMessage = useCallback(
+                (result: UpdateCheckResult) => {
+                        const statusLabels: Record<UpdateCheckResult['status'], string> = {
+                                available: translate(TranslationKeys.update_available),
+                                'up-to-date': translate(TranslationKeys.no_updates_available),
+                                skipped: translate(TranslationKeys.updates),
+                                error: translate(TranslationKeys.error),
+                        };
+                        const details = result.details ? ` - ${result.details}` : '';
+
+                        return `${statusLabels[result.status]}${details}`;
+                },
+                [translate]
+        );
+
+        const handleCheckForUpdates = async () => {
+                const result = await manualCheck();
+
+                if (debugMode) {
+                        const timestamp = new Date().toLocaleString();
+                        setUpdateCheckLog(`[${timestamp}] ${formatUpdateLogMessage(result)}`);
+                }
+        };
+
+        useEffect(() => {
+                if (!debugMode) {
+                        setUpdateCheckLog(null);
+                }
+        }, [debugMode]);
 
 	const changeLanguage = (language: { label?: string; flag?: string; value: any }) => {
 		setSelectedLanguage(language.value);
@@ -327,6 +354,24 @@ const Settings = () => {
                                                 {/* Terms & Conditions */}
                                                 <SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="file-document-check" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.terms_and_conditions_accepted_and_privacy_policy_read_at_date)} value={termsAndPrivacyConsentAcceptedDate} handleFunction={() => {}} groupPosition="bottom" />
                                         </View>
+                                        {debugMode && updateCheckLog && (
+                                                <View
+                                                        style={[
+                                                                styles.debugUpdateLogContainer,
+                                                                {
+                                                                        borderColor: theme.screen.icon,
+                                                                        backgroundColor: theme.screen.background,
+                                                                },
+                                                        ]}
+                                                >
+                                                        <Text style={{ ...styles.debugUpdateLogTitle, color: theme.screen.text }}>
+                                                                {translate(TranslationKeys.CHECK_FOR_APP_UPDATES)}
+                                                        </Text>
+                                                        <Text style={{ ...styles.debugUpdateLogText, color: theme.screen.text }}>
+                                                                {updateCheckLog}
+                                                        </Text>
+                                                </View>
+                                        )}
                                         <TouchableOpacity
                                                 style={styles.footer}
                                                 onPress={() => {

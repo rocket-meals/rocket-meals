@@ -168,8 +168,23 @@ export default StyleSheet.create({
 		width: 72,
 		height: 72,
 	},
-	devModeText: {
-		fontSize: 16,
-		fontFamily: 'Poppins_400Regular',
-	},
+        devModeText: {
+                fontSize: 16,
+                fontFamily: 'Poppins_400Regular',
+        },
+        debugUpdateLogContainer: {
+                padding: 12,
+                borderRadius: 12,
+                borderWidth: 1,
+                marginTop: 10,
+        },
+        debugUpdateLogTitle: {
+                fontSize: 16,
+                fontFamily: 'Poppins_700Bold',
+                marginBottom: 4,
+        },
+        debugUpdateLogText: {
+                fontSize: 12,
+                fontFamily: 'Poppins_400Regular',
+        },
 });
