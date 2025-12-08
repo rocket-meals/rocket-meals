@@ -70,7 +70,8 @@ export class WorkflowsRunHelper extends ItemsServiceHelper<DatabaseTypes.Workflo
         //console.log("workflowRuns: ")
         //console.log(workflowRuns);
         let workflowRun = workflowRuns[0];
-        return new WorkflowResultHash(workflowRun?.result_hash);
+        const resultHash = typeof workflowRun?.result_hash === 'string' ? workflowRun.result_hash : null;
+        return new WorkflowResultHash(resultHash);
       })
       .catch(async (exception: any) => {
         //console.log("getPreviousResultHash workflowRuns readByQuery Error");
