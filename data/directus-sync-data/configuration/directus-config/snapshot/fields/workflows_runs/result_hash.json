@@ -1,7 +1,7 @@
 {
   "collection": "workflows_runs",
   "field": "result_hash",
-  "type": "string",
+  "type": "json",
   "meta": {
     "collection": "workflows_runs",
     "conditions": null,
@@ -10,13 +10,15 @@
     "field": "result_hash",
     "group": null,
     "hidden": false,
-    "interface": "input",
+    "interface": "input-code",
     "note": null,
     "options": null,
     "readonly": false,
     "required": false,
     "sort": 15,
-    "special": null,
+    "special": [
+      "cast-json"
+    ],
     "translations": null,
     "validation": null,
     "validation_message": null,
@@ -25,9 +27,9 @@
   "schema": {
     "name": "result_hash",
     "table": "workflows_runs",
-    "data_type": "character varying",
+    "data_type": "json",
     "default_value": null,
-    "max_length": 255,
+    "max_length": null,
     "numeric_precision": null,
     "numeric_scale": null,
     "is_nullable": true,
