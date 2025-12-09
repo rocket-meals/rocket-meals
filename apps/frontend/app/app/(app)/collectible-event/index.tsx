@@ -13,7 +13,6 @@ import { getDescriptionFromTranslation, getTitleFromTranslation } from '@/helper
 import useToast from '@/hooks/useToast';
 import styles from './styles';
 import { CollectibleEventParticipantsHelper } from '@/redux/actions/CollectibleEvents/CollectibleEventParticipants';
-import CollectibleItem from '@/components/CollectibleItem';
 import useCollectibleDict from '@/hooks/useCollectibleDict';
 import PermissionModal from '@/components/PermissionModal/PermissionModal';
 import SettingsList from '@/components/SettingsList';
@@ -402,11 +401,11 @@ const CollectibleEventScreen = () => {
                                         <Text style={{ ...styles.description, color: theme.inactiveText }}>{description}</Text>
                                 ) : null}
 
-                                {debugMode && sampleCollectibleKey ? (
+                                {sampleCollectibleKey ? (
                                         <View style={{ alignItems: 'center', marginTop: 16 }}>
-                                                <CollectibleItem collectibleKey={sampleCollectibleKey} hideOnCollect={false} isPreview />
-                                                <Text style={{ color: theme.inactiveText, marginTop: 8 }}>
-                                                        {translate(TranslationKeys.collectible_event_preview_label)}
+                                                <CollectibleSpot collectibleKey={sampleCollectibleKey} isPreview />
+                                                <Text style={{ color: theme.inactiveText, marginTop: 8, textAlign: 'center' }}>
+                                                        {translate(TranslationKeys.collectible_event_collectible_preview_label)}
                                                 </Text>
                                         </View>
                                 ) : null}

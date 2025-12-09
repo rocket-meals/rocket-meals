@@ -1989,6 +1989,16 @@
     "tr": "Debug collectible spot",
     "zh": "Debug collectible spot"
   },
+  "collectible_event_collectible_preview_label": {
+    "de": "So sieht das zu sammelnde Objekt aus.",
+    "en": "This is what the collectible looks like.",
+    "ar": "This is what the collectible looks like.",
+    "es": "Así es como se ve el objeto coleccionable.",
+    "fr": "Voici à quoi ressemble l'objet à collectionner.",
+    "ru": "Так выглядит собираемый объект.",
+    "tr": "Koleksiyon objesi böyle görünüyor.",
+    "zh": "收集物品看起来是这样的。"
+  },
   "create": {
     "de": "Erstellen",
     "en": "Create",

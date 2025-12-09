@@ -197,6 +197,7 @@ export enum TranslationKeys {
         collectible_event_hint_prefix = 'collectible_event_hint_prefix',
         collectible_event_found_label = 'collectible_event_found_label',
         collectible_event_debug_spot = 'collectible_event_debug_spot',
+        collectible_event_collectible_preview_label = 'collectible_event_collectible_preview_label',
         create = 'create',
         delete = 'delete',
         account_delete = 'account_delete',
