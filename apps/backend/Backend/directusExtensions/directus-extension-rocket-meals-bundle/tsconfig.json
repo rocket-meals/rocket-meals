@@ -23,7 +23,11 @@
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "lib/*": ["../helpers/directus-extension-generate-types/src/lib/*"]
+    }
   },
   "include": ["./src/**/*.ts"]
 }

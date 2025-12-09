@@ -1,8 +1,9 @@
 import { ChildProcess, exec, spawn } from 'child_process';
-import { FetchHelper } from './FetchHelper';
 import * as os from 'node:os';
 import path from 'path';
 import fse from 'fs-extra';
+import { FetchHelper } from './FetchHelper';
+import { DirectusTypesGenerator } from './DirectusTypesGenerator';
 
 // Server configuration
 const ADMIN_EMAIL = 'test@example.com';
@@ -31,6 +32,16 @@ export interface DirectusTestServerOptions {
   extensionsPath?: string;
   /** Enable extensions path in environment (default: false) */
   enableExtensions?: boolean;
+  /** Generate database types for shared packages after startup (default: true) */
+  generateTypes?: boolean;
+  /**
+   * Target path for generated database types (default: packages/common/src/databaseTypes/types.ts)
+   */
+  typesOutputPath?: string;
+  /** Use intersection types instead of union types for generated relations (default: false) */
+  useIntersectionTypesForTypes?: boolean;
+  /** Generate type layout compatible with Directus SDK v11 (default: true) */
+  sdk11TypesFormat?: boolean;
   /** Maximum attempts to check server readiness (default: 60) */
   maxStartupAttempts?: number;
   /** Delay between startup attempts in milliseconds (default: 1000) */
@@ -48,6 +59,7 @@ export class DirectusTestServerSetup {
   private directusProcess: ChildProcess | null = null;
   private readonly options: Required<DirectusTestServerOptions>;
   private readonly directusUrl: string;
+  private readonly typesGenerator: DirectusTypesGenerator;
 
   static ADMIN_EMAIL = ADMIN_EMAIL;
   static ADMIN_PASSWORD = ADMIN_PASSWORD;
@@ -71,12 +83,26 @@ export class DirectusTestServerSetup {
       adminPassword: options.adminPassword ?? ADMIN_PASSWORD,
       extensionsPath: options.extensionsPath ?? EXTENSIONS_PATH,
       enableExtensions: options.enableExtensions ?? true,
+      generateTypes: options.generateTypes ?? true,
+      typesOutputPath: options.typesOutputPath,
+      useIntersectionTypesForTypes: options.useIntersectionTypesForTypes ?? false,
+      sdk11TypesFormat: options.sdk11TypesFormat ?? true,
       maxStartupAttempts: options.maxStartupAttempts ?? 60,
       startupCheckDelay: options.startupCheckDelay ?? 1000,
       debug: options.debug ?? true,
     };
 
     this.directusUrl = `http://${this.options.host}:${this.options.port}`;
+
+    this.typesGenerator = new DirectusTypesGenerator({
+      directusUrl: this.directusUrl,
+      adminEmail: this.options.adminEmail,
+      adminPassword: this.options.adminPassword,
+      outputPath: this.options.typesOutputPath,
+      useIntersectionTypes: this.options.useIntersectionTypesForTypes,
+      sdk11: this.options.sdk11TypesFormat,
+      logger: message => this.log(message),
+    });
   }
 
   /**
@@ -139,6 +165,9 @@ export class DirectusTestServerSetup {
       // 4. Wait for server to be ready
       await this.waitForServerReady();
 
+      // 5. Generate Directus database types for shared packages
+      await this.generateTypes();
+
       this.log('Directus test server setup completed successfully!');
     } catch (error) {
       // Clean up in case of errors
@@ -147,6 +176,19 @@ export class DirectusTestServerSetup {
       await this.teardown();
       throw error;
     }
+  }
+
+  /**
+   * Generates Directus database types into the shared package using the running server
+   * @returns Promise<void>
+   */
+  public async generateTypes(): Promise<void> {
+    if (!this.options.generateTypes) {
+      this.log('Skipping Directus type generation (disabled via options).');
+      return;
+    }
+
+    await this.typesGenerator.generateTypes();
   }
 
   /**
