@@ -62,7 +62,6 @@ const Settings = () => {
 	};
 	const [selectedLanguage, setSelectedLanguage] = useState<string>('');
 	const drawerSheetRef = useRef<BottomSheet>(null);
-        const languageSheetRef = useRef<BottomSheet>(null);
         const amountColumnSheetRef = useRef<BottomSheet>(null);
         const firstDaySheetRef = useRef<BottomSheet>(null);
         const colorSchemeSheetRef = useRef<BottomSheet>(null);
@@ -70,7 +69,7 @@ const Settings = () => {
         const foodOffersTimeSheetRef = useRef<BottomSheet>(null);
         const collectibleSettingsModalRef = useRef<() => void>(() => {});
         const isOpeningNestedCollectibleModal = useRef(false);
-        const { show: showScrollViewModal } = useMyScrollViewModal();
+        const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
         const [disabled, setDisabled] = useState(false);
         const { manualCheck } = useExpoUpdateChecker();
         const { user, profile, termsAndPrivacyConsentAcceptedDate, isManagement, isDevMode } = useSelector((state: RootState) => state.authReducer);
@@ -146,17 +145,9 @@ const Settings = () => {
 		setSelectedLanguage(language);
 	}, [language]);
 
-	const openLanguageModal = () => {
-		languageSheetRef?.current?.expand();
-	};
-
-	const closeLanguageModal = () => {
-		languageSheetRef?.current?.close();
-	};
-
-	const openColorSchemeSheet = () => {
-		colorSchemeSheetRef?.current?.expand();
-	};
+        const openColorSchemeSheet = () => {
+                colorSchemeSheetRef?.current?.expand();
+        };
 
 	const closeColorSchemeSheet = () => {
 		colorSchemeSheetRef?.current?.close();
@@ -248,15 +239,33 @@ const Settings = () => {
 		manualCheck();
 	};
 
-	const changeLanguage = (language: { label?: string; flag?: string; value: any }) => {
-		setSelectedLanguage(language.value);
-		setLanguageMode(language.value);
-		closeLanguageModal();
-	};
+        const changeLanguage = (language: { label?: string; flag?: string; value: any }) => {
+                setSelectedLanguage(language.value);
+                setLanguageMode(language.value);
+                closeScrollViewModal();
+        };
 
-	const handleDrawerPosition = (position: string) => {
-		dispatch({
-			type: SET_DRAWER_POSITION,
+        const openLanguageModal = () => {
+                showScrollViewModal(
+                        {
+                                title: translate(TranslationKeys.language),
+                                children: (
+                                        <LanguageSheet
+                                                closeSheet={closeScrollViewModal}
+                                                selectedLanguage={selectedLanguage}
+                                                onSelect={value => {
+                                                        changeLanguage({ value } as any);
+                                                }}
+                                        />
+                                ),
+                        },
+                        { backgroundStyle: { backgroundColor: theme.sheet.sheetBg }, headerBackgroundColor: theme.sheet.sheetBg }
+                );
+        };
+
+        const handleDrawerPosition = (position: string) => {
+                dispatch({
+                        type: SET_DRAWER_POSITION,
 			payload: position,
 		});
 		closeDrawerSheet();
@@ -548,25 +557,6 @@ const Settings = () => {
 						onClose={closeCanteenSheet}
 					>
 						<CanteenSelectionSheet closeSheet={closeCanteenSheet} />
-					</BaseBottomSheet>
-					<BaseBottomSheet
-						ref={languageSheetRef}
-						index={-1}
-						backgroundStyle={{
-							...styles.sheetBackground,
-							backgroundColor: theme.sheet.sheetBg,
-						}}
-						enablePanDownToClose
-						handleComponent={null}
-						onClose={closeLanguageModal}
-					>
-						<LanguageSheet
-							closeSheet={closeLanguageModal}
-							selectedLanguage={selectedLanguage}
-							onSelect={value => {
-								changeLanguage({ value } as any);
-							}}
-						/>
 					</BaseBottomSheet>
 					<BaseBottomSheet
 						ref={amountColumnSheetRef}
