@@ -50,7 +50,6 @@ const Settings = () => {
         const { theme, setThemeMode } = useTheme();
         const dispatch = useDispatch();
         const toast = useToast();
-        const canteenSheetRef = useRef<BottomSheet>(null);
         const [isActive, setIsActive] = useState(false);
         const { translate, setLanguageMode, language } = useLanguage();
         const [nickname, setNickname] = useState<string>('');
@@ -70,7 +69,7 @@ const Settings = () => {
         const foodOffersTimeSheetRef = useRef<BottomSheet>(null);
         const collectibleSettingsModalRef = useRef<() => void>(() => {});
         const isOpeningNestedCollectibleModal = useRef(false);
-        const { show: showScrollViewModal } = useMyScrollViewModal();
+        const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
         const [disabled, setDisabled] = useState(false);
         const { manualCheck } = useExpoUpdateChecker();
         const { user, profile, termsAndPrivacyConsentAcceptedDate, isManagement, isDevMode } = useSelector((state: RootState) => state.authReducer);
@@ -274,13 +273,24 @@ const Settings = () => {
 		performLogout(dispatch, router, true);
 	};
 
-	const openCanteenSheet = () => {
-		canteenSheetRef?.current?.expand();
-	};
+        const openCanteenSheet = () => {
+                showScrollViewModal(
+                        {
+                                title: translate(TranslationKeys.canteen),
+                                children: (
+                                        <CanteenSelectionSheet
+                                                closeSheet={closeScrollViewModal}
+                                                useBottomSheetScrollView={false}
+                                        />
+                                ),
+                        },
+                        {
+                                backgroundStyle: { backgroundColor: theme.sheet.sheetBg },
+                                headerBackgroundColor: theme.sheet.sheetBg,
+                        }
+                );
+        };
 
-	const closeCanteenSheet = () => {
-		canteenSheetRef?.current?.close();
-	};
 
 	const handleDeleteAccount = async () => {
 		router.navigate('/(user)/delete-user');
@@ -536,22 +546,9 @@ const Settings = () => {
                         </ScrollView>
 			{isActive && (
 				<>
-					<BaseBottomSheet
-						ref={canteenSheetRef}
-						index={-1}
-						backgroundStyle={{
-							...styles.sheetBackground,
-							backgroundColor: theme.sheet.sheetBg,
-						}}
-						enablePanDownToClose
-						handleComponent={null}
-						onClose={closeCanteenSheet}
-					>
-						<CanteenSelectionSheet closeSheet={closeCanteenSheet} />
-					</BaseBottomSheet>
-					<BaseBottomSheet
-						ref={languageSheetRef}
-						index={-1}
+                                        <BaseBottomSheet
+                                                ref={languageSheetRef}
+                                                index={-1}
 						backgroundStyle={{
 							...styles.sheetBackground,
 							backgroundColor: theme.sheet.sheetBg,

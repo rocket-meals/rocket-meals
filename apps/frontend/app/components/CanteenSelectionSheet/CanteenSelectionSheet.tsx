@@ -17,7 +17,7 @@ import { RootState } from '@/redux/reducer';
 import CanteenSelection from '../CanteenSelection/CanteenSelection';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 
-const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({ closeSheet }) => {
+const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({ closeSheet, useBottomSheetScrollView = true }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
@@ -103,21 +103,15 @@ const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({ closeShee
 		return () => subscription?.remove();
 	}, []);
 
-	return (
-		<BottomSheetScrollView
-			style={{ ...styles.sheetView, backgroundColor: theme.sheet.sheetBg }}
-			contentContainerStyle={{
-				...styles.contentContainer,
-				paddingHorizontal: isWeb ? (screenWidth < 500 ? 5 : 20) : 5,
-			}}
-		>
-			<View
-				style={{
-					...styles.sheetHeader,
-					paddingRight: isWeb ? 10 : 0,
-					paddingTop: isWeb ? 10 : 0,
-				}}
-			></View>
+        const selectionContent = (
+                <>
+                        <View
+                                style={{
+                                        ...styles.sheetHeader,
+                                        paddingRight: isWeb ? 10 : 0,
+                                        paddingTop: isWeb ? 10 : 0,
+                                }}
+                        ></View>
                         <Text
                                 style={{
                                         ...styles.sheetHeading,
@@ -129,6 +123,32 @@ const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({ closeShee
                         </Text>
                         <CanteenSelection onSelectCanteen={handleSelectCanteen} />
                         <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_canteen_selection} />
+                </>
+        );
+
+        if (!useBottomSheetScrollView) {
+                return (
+                        <View
+                                style={{
+                                        ...styles.sheetView,
+                                        backgroundColor: theme.sheet.sheetBg,
+                                        paddingHorizontal: isWeb ? (screenWidth < 500 ? 5 : 20) : 5,
+                                }}
+                        >
+                                {selectionContent}
+                        </View>
+                );
+        }
+
+        return (
+                <BottomSheetScrollView
+                        style={{ ...styles.sheetView, backgroundColor: theme.sheet.sheetBg }}
+                        contentContainerStyle={{
+                                ...styles.contentContainer,
+                                paddingHorizontal: isWeb ? (screenWidth < 500 ? 5 : 20) : 5,
+                        }}
+                >
+                        {selectionContent}
                 </BottomSheetScrollView>
         );
 };
