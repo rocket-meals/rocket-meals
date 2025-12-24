@@ -116,6 +116,18 @@ const DebugView: React.FC<DebugViewProps> = ({
                                         ))}
                                 </View>
                         ) : null}
+
+                        <View style={styles.themeBackgroundRow}>
+                                <Text style={[styles.themeBackgroundLabel, { color: theme.screen.text }]}>
+                                        {theme.screen.background}
+                                </Text>
+                                <View
+                                        style={[
+                                                styles.themeBackgroundSwatch,
+                                                { backgroundColor: theme.screen.background },
+                                        ]}
+                                />
+                        </View>
                 </View>
         );
 };

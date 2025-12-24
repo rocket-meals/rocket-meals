@@ -50,6 +50,21 @@ const styles = StyleSheet.create({
                 fontFamily: 'monospace',
                 marginBottom: 4,
         },
+        themeBackgroundRow: {
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginTop: 12,
+        },
+        themeBackgroundLabel: {
+                fontSize: 13,
+        },
+        themeBackgroundSwatch: {
+                width: 32,
+                height: 32,
+                borderWidth: 1,
+                borderColor: '#FF0000',
+        },
 });
 
 export default styles;
