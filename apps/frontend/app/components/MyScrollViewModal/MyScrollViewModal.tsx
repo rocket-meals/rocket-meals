@@ -61,7 +61,7 @@ const MyScrollViewModal: React.FC<MyScrollViewModalProps> = ({
   const contentStyle = { paddingBottom: 24 + insets.bottom, paddingHorizontal: 20 };
   const scrollInsets = { bottom: insets.bottom };
 
-  const containerStyle = { backgroundColor: resolvedBackgroundColor };
+  const containerStyle = { backgroundColor: resolvedBackgroundColor, flex: 1 };
 
   if (useFlatList && renderItem && keyExtractor) {
     return (
