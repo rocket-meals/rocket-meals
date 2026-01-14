@@ -134,7 +134,11 @@ export class HannoverTL1HousingFileReader implements HannoverHousingFileReaderIn
 
       // iconv-lite supports many encodings, including 'win1252' and 'iso-8859-1'
       // Normalize encoding name for iconv-lite
-      const normalizedEncoding = StringHelper.replaceAll(encoding.toLowerCase(), '_', '-');
+      const normalizedEncoding = StringHelper.replaceAllWithOptions({
+        str: encoding.toLowerCase(),
+        find: '_',
+        replace: '-',
+      });
 
       if (iconv.encodingExists(normalizedEncoding)) {
         rawReport = iconv.decode(rawBuffer, normalizedEncoding);
@@ -283,7 +287,11 @@ export class HannoverTL1HousingFileReader implements HannoverHousingFileReaderIn
     // e.G. "21-3" -> "213"
     let zimmernummer = housingContract[HANNOVER_TL1_EXTERNAL_HOUSING_CONTRACT_FIELDS.ZIMMERNR];
     if (zimmernummer) {
-      zimmernummer = StringHelper.replaceAll(zimmernummer, '-', '');
+      zimmernummer = StringHelper.replaceAllWithOptions({
+        str: zimmernummer,
+        find: '-',
+        replace: '',
+      });
       return zimmernummer;
     } else {
       return null;
@@ -366,7 +374,15 @@ export class HannoverTL1HousingFileReader implements HannoverHousingFileReaderIn
 
     let nachname = housingContract[ROCKET_MEALS_HANNOVER_HOUSING_CONTRACT_FORM_FIELDS.MIETER_PERSON_NACHNAME];
 
+
     let dateAndMieter = mietende + '-' + nachname;
+
+    // Include tenant number (MIETER_PERSONENNUMMER) in the alias if present
+    let mieternummer = housingContract[ROCKET_MEALS_HANNOVER_HOUSING_CONTRACT_FORM_FIELDS.MIETER_PERSONENNUMMER];
+    if (mieternummer) {
+      // append the tenant number to make aliases more specific
+      dateAndMieter += `${dateAndMieter} - ${ROCKET_MEALS_HANNOVER_HOUSING_CONTRACT_FORM_FIELDS.MIETER_PERSONENNUMMER}: ${mieternummer}`;
+    }
     partialIds.push(dateAndMieter);
 
     // if any partial id is missing, return id

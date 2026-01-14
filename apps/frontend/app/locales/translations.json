@@ -1,4 +1,44 @@
 {
+  "EXPO_UPDATE_TEST": {
+    "de": "Expo Update Test",
+    "en": "Expo Update Test",
+    "ar": "اختبار تحديث Expo",
+    "es": "Prueba de actualización de Expo",
+    "fr": "Test de mise à jour Expo",
+    "ru": "Тест обновления Expo",
+    "tr": "Expo güncelleme testi",
+    "zh": "Expo 更新测试"
+  },
+  "EXPO_UPDATE_LOGS": {
+    "de": "Debug-Nachrichten",
+    "en": "Debug Messages",
+    "ar": "رسائل التصحيح",
+    "es": "Mensajes de depuración",
+    "fr": "Messages de débogage",
+    "ru": "Сообщения отладки",
+    "tr": "Hata ayıklama mesajları",
+    "zh": "调试信息"
+  },
+  "RELOAD_APP": {
+    "de": "App neu laden",
+    "en": "Reload App",
+    "ar": "إعادة تحميل التطبيق",
+    "es": "Recargar aplicación",
+    "fr": "Recharger l'application",
+    "ru": "Перезагрузить приложение",
+    "tr": "Uygulamayı yeniden yükle",
+    "zh": "重新加载应用"
+  },
+  "RUN_ALL_STEPS": {
+    "de": "Alle Schritte ausführen",
+    "en": "Run all steps",
+    "ar": "تشغيل جميع الخطوات",
+    "es": "Ejecutar todos los pasos",
+    "fr": "Exécuter toutes les étapes",
+    "ru": "Выполнить все шаги",
+    "tr": "Tüm adımları çalıştır",
+    "zh": "运行所有步骤"
+  },
   "CHECK_FOR_APP_UPDATES": {
     "de": "Nach App-Updates suchen",
     "en": "Check for App Updates",
@@ -139,6 +179,46 @@
     "tr": "Geliştirici",
     "zh": "开发者"
   },
+  "debug_mode": {
+    "de": "Debug-Modus",
+    "en": "Debug mode",
+    "ar": "وضع التصحيح",
+    "es": "Modo de depuración",
+    "fr": "Mode débogage",
+    "ru": "Режим отладки",
+    "tr": "Hata ayıklama modu",
+    "zh": "调试模式"
+  },
+  "simulate_expo_update_available": {
+    "de": "Expo-Update verfügbar simulieren",
+    "en": "Simulate Expo update available",
+    "ar": "محاكاة توفر تحديث Expo",
+    "es": "Simular actualización de Expo disponible",
+    "fr": "Simuler une mise à jour Expo disponible",
+    "ru": "Сымитировать доступность обновления Expo",
+    "tr": "Expo güncellemesi varmış gibi simüle et",
+    "zh": "模拟 Expo 更新可用"
+  },
+  "cached_foodoffers_days": {
+    "de": "Im Cache befindliche Foodoffers-Tage",
+    "en": "Cached food offers days",
+    "ar": "أيام عروض الطعام المخزنة مؤقتًا",
+    "es": "Días de ofertas de comida en caché",
+    "fr": "Jours d'offres alimentaires en cache",
+    "ru": "Дни предложений еды в кеше",
+    "tr": "Önbellekteki yemek teklifleri günleri",
+    "zh": "缓存的餐饮优惠日期"
+  },
+  "cached_foodoffers_days_empty": {
+    "de": "Keine Foodoffers im Cache",
+    "en": "No cached food offers",
+    "ar": "لا توجد عروض طعام مخزنة مؤقتًا",
+    "es": "No hay ofertas de comida en caché",
+    "fr": "Aucune offre alimentaire en cache",
+    "ru": "Нет предложений еды в кеше",
+    "tr": "Önbellekte yemek teklifi yok",
+    "zh": "没有缓存的餐饮优惠"
+  },
   "developerModeActive": {
     "de": "Entwicklermodus aktiv",
     "en": "Developer Mode Active",
@@ -180,14 +260,14 @@
     "zh": "时间格式无效（例如 HH:MM）"
   },
   "backend_server": {
-    "de": "Backend-Server",
-    "en": "Backend Server",
-    "ar": "خادم الخلفية",
-    "es": "Servidor Backend",
-    "fr": "Serveur Backend",
-    "ru": "Сервер Бэкэнда",
-    "tr": "Arka Uç Sunucusu",
-    "zh": "后端服务器"
+    "de": "Kunden Konfiguration",
+    "en": "Customer Configuration",
+    "ar": "Customer Configuration",
+    "es": "Customer Configuration",
+    "fr": "Customer Configuration",
+    "ru": "Customer Configuration",
+    "tr": "Customer Configuration",
+    "zh": "Customer Configuration"
   },
   "developer_homepage": {
     "de": "Entwickler-Homepage",
@@ -1059,6 +1139,16 @@
     "tr": "Kartı okumak için cihazınızı karta tutun.",
     "zh": "将设备靠近卡片以读取。"
   },
+  "showNfcInstruction": {
+    "de": "NFC-Anleitung anzeigen",
+    "en": "Show NFC instruction",
+    "ar": "عرض تعليمات NFC",
+    "es": "Mostrar instrucción NFC",
+    "fr": "Afficher l'instruction NFC",
+    "ru": "Показать инструкцию NFC",
+    "tr": "NFC talimatını göster",
+    "zh": "显示 NFC 指南"
+  },
   "new": {
     "de": "Neu",
     "en": "New",
@@ -1269,6 +1359,36 @@
     "tr": "Konuma Navigasyonu Aç",
     "zh": "打开导航到位置"
   },
+  "open_in_google_maps": {
+    "de": "In Google Maps öffnen",
+    "en": "Open in Google Maps",
+    "ar": "افتح في خرائط Google",
+    "es": "Abrir en Google Maps",
+    "fr": "Ouvrir dans Google Maps",
+    "ru": "Открыть в Google Maps",
+    "tr": "Google Haritalar'da aç",
+    "zh": "在谷歌地图中打开"
+  },
+  "open_in_apple_maps": {
+    "de": "In Apple Karten öffnen",
+    "en": "Open in Apple Maps",
+    "ar": "افتح في خرائط Apple",
+    "es": "Abrir en Apple Maps",
+    "fr": "Ouvrir dans Plans Apple",
+    "ru": "Открыть в Apple Maps",
+    "tr": "Apple Haritalar'da aç",
+    "zh": "在 Apple 地图中打开"
+  },
+  "copy_coordinates": {
+    "de": "Koordinaten kopieren",
+    "en": "Copy coordinates",
+    "ar": "انسخ الإحداثيات",
+    "es": "Copiar coordenadas",
+    "fr": "Copier les coordonnées",
+    "ru": "Скопировать координаты",
+    "tr": "Koordinatları kopyala",
+    "zh": "复制坐标"
+  },
   "distance_based_canteen_selection_or_if_asked_on_real_location": {
     "de": "Die Distanz wird basierend auf der Entfernung zu deiner ausgewählten Mensa berechnet oder, wenn du explizit gefragt hast, zu dem Standort deines Geräts.",
     "en": "The distance is calculated based on the distance to your selected canteen or, if you explicitly asked, to your device",
@@ -1278,6 +1398,16 @@
     "ru": "Расстояние рассчитывается на основе расстояния до выбранной вами столовой или, если вы специально запросили, до местоположения вашего устройства.",
     "tr": "Mesafe, seçtiğiniz kantine veya açıkça sorduysanız cihazınızın konumuna olan mesafeye göre hesaplanır.",
     "zh": "距离是根据您选择的食堂的距离或，如果您明确要求，根据您设备的位置计算的。"
+  },
+  "distance_based_on_selected_canteen": {
+    "de": "Die Entfernung wird von deiner ausgewählten Mensa aus berechnet.",
+    "en": "The distance is calculated from your selected canteen.",
+    "ar": "يتم حساب المسافة انطلاقًا من المقصف الذي اخترته.",
+    "es": "La distancia se calcula a partir de tu comedor seleccionado.",
+    "fr": "La distance est calculée à partir de votre cantine sélectionnée.",
+    "ru": "Расстояние рассчитывается от выбранной вами столовой.",
+    "tr": "Mesafe, seçtiğiniz kantinden itibaren hesaplanır.",
+    "zh": "距离以你选择的食堂为起点计算。"
   },
   "use_current_position_for_distance": {
     "de": "Aktuelle Position für Entfernung nutzen",
@@ -1308,6 +1438,16 @@
     "ru": "Координаты",
     "tr": "Koordinatlar",
     "zh": "坐标"
+  },
+  "location_information": {
+    "de": "Information zum Standort",
+    "en": "Location information",
+    "ar": "معلومات الموقع",
+    "es": "Información de la ubicación",
+    "fr": "Informations sur le lieu",
+    "ru": "Информация о местоположении",
+    "tr": "Konum bilgisi",
+    "zh": "位置信息"
   },
   "copy_url": {
     "de": "URL kopieren",
@@ -1799,6 +1939,306 @@
     "tr": "Etkinlik",
     "zh": "事件"
   },
+  "collectible_events": {
+    "de": "Sammel Events",
+    "en": "Collectible Events",
+    "ar": "فعاليات قابلة للتحصيل",
+    "es": "Eventos coleccionables",
+    "fr": "Événements à collectionner",
+    "ru": "Коллекционные события",
+    "tr": "Koleksiyon etkinlikleri",
+    "zh": "收集活动"
+  },
+  "collectible_event_active": {
+    "de": "Aktives Sammel Event",
+    "en": "Collectible Event Active",
+    "ar": "فعالية قابلة للتحصيل نشطة",
+    "es": "Evento coleccionable activo",
+    "fr": "Événement à collectionner actif",
+    "ru": "Активное коллекционное событие",
+    "tr": "Aktif koleksiyon etkinliği",
+    "zh": "正在进行的收集活动"
+  },
+  "collectible_event": {
+    "de": "Sammel Event",
+    "en": "Collectible Event",
+    "ar": "فعالية قابلة للتحصيل",
+    "es": "Evento coleccionable",
+    "fr": "Événement à collectionner",
+    "ru": "Коллекционное событие",
+    "tr": "Koleksiyon etkinliği",
+    "zh": "收集活动"
+  },
+  "collectible_event_start_date": {
+    "de": "Start des Events",
+    "en": "Event start",
+    "ar": "بداية الحدث",
+    "es": "Inicio del evento",
+    "fr": "Début de l'événement",
+    "ru": "Начало события",
+    "tr": "Etkinlik başlangıcı",
+    "zh": "活动开始"
+  },
+  "collectible_event_end_date": {
+    "de": "Ende des Events",
+    "en": "Event end",
+    "ar": "نهاية الحدث",
+    "es": "Fin del evento",
+    "fr": "Fin de l'événement",
+    "ru": "Окончание события",
+    "tr": "Etkinlik bitişi",
+    "zh": "活动结束"
+  },
+  "collectible_event_points": {
+    "de": "Aktuelle Punkte",
+    "en": "Current points",
+    "ar": "النقاط الحالية",
+    "es": "Puntos actuales",
+    "fr": "Points actuels",
+    "ru": "Текущие баллы",
+    "tr": "Güncel puanlar",
+    "zh": "当前积分"
+  },
+  "collectible_event_no_active": {
+    "de": "Aktuell ist kein Collectible-Event aktiv.",
+    "en": "No collectible event is active right now.",
+    "ar": "لا توجد فعالية قابلة للتحصيل نشطة حاليًا.",
+    "es": "No hay ningún evento coleccionable activo en este momento.",
+    "fr": "Aucun événement à collectionner n'est actif pour le moment.",
+    "ru": "Сейчас нет активных коллекционных событий.",
+    "tr": "Şu anda etkin bir koleksiyon etkinliği yok.",
+    "zh": "目前没有正在进行的收集活动。"
+  },
+  "collectible_event_save_success": {
+    "de": "Punkte wurden gespeichert.",
+    "en": "Points were saved.",
+    "ar": "تم حفظ النقاط.",
+    "es": "Los puntos se guardaron.",
+    "fr": "Les points ont été enregistrés.",
+    "ru": "Баллы сохранены.",
+    "tr": "Puanlar kaydedildi.",
+    "zh": "积分已保存。"
+  },
+  "collectible_event_save_error": {
+    "de": "Punkte konnten nicht gespeichert werden.",
+    "en": "Points could not be saved.",
+    "ar": "تعذر حفظ النقاط.",
+    "es": "No se pudieron guardar los puntos.",
+    "fr": "Les points n'ont pas pu être enregistrés.",
+    "ru": "Не удалось сохранить баллы.",
+    "tr": "Puanlar kaydedilemedi.",
+    "zh": "无法保存积分。"
+  },
+  "collectible_event_load_error": {
+    "de": "Teilnahme konnte nicht geladen werden.",
+    "en": "Participation could not be loaded.",
+    "ar": "تعذر تحميل المشاركة.",
+    "es": "No se pudo cargar la participación.",
+    "fr": "La participation n'a pas pu être chargée.",
+    "ru": "Не удалось загрузить участие.",
+    "tr": "Katılım yüklenemedi.",
+    "zh": "无法加载参与信息。"
+  },
+  "collectible_event_loading_participation": {
+    "de": "Teilnahme wird geladen...",
+    "en": "Loading participation...",
+    "ar": "جارٍ تحميل المشاركة...",
+    "es": "Cargando participación...",
+    "fr": "Chargement de la participation...",
+    "ru": "Загрузка участия...",
+    "tr": "Katılım yükleniyor...",
+    "zh": "正在加载参与信息..."
+  },
+  "collectible_event_login_required": {
+    "de": "Bitte melde dich an, um Punkte zu speichern.",
+    "en": "Please sign in to save points.",
+    "ar": "يرجى تسجيل الدخول لحفظ النقاط.",
+    "es": "Inicia sesión para guardar puntos.",
+    "fr": "Connectez-vous pour enregistrer vos points.",
+    "ru": "Войдите, чтобы сохранять баллы.",
+    "tr": "Puan kaydetmek için lütfen giriş yapın.",
+    "zh": "请登录以保存积分。"
+  },
+  "collectible_event_collected": {
+    "de": "gesammelt",
+    "en": "collected",
+    "ar": "تم جمعها",
+    "es": "recogidos",
+    "fr": "collectés",
+    "ru": "собрано",
+    "tr": "toplandı",
+    "zh": "已收集"
+  },
+  "collectible_event_preview_label": {
+    "de": "Zu sammelnde Objekte",
+    "en": "Items to collect",
+    "ar": "عناصر لجمعها",
+    "es": "Objetos para coleccionar",
+    "fr": "Éléments à collecter",
+    "ru": "Предметы для сбора",
+    "tr": "Toplanacak öğeler",
+    "zh": "待收集的物品"
+  },
+  "collectible_event_data_notice": {
+    "de": "Die Angabe deiner Daten ist freiwillig. Es gelten die Teilnahmebedingungen.",
+    "en": "Providing your data is voluntary. The terms and conditions apply.",
+    "ar": "تقديم بياناتك اختياري. تنطبق الشروط والأحكام.",
+    "es": "Proporcionar tus datos es voluntario. Se aplican los términos y condiciones.",
+    "fr": "Fournir vos données est volontaire. Les conditions générales s'appliquent.",
+    "ru": "Предоставление данных добровольно. Применяются условия и положения.",
+    "tr": "Verilerinizi sağlamak isteğe bağlıdır. Şartlar ve koşullar geçerlidir.",
+    "zh": "提供您的数据是自愿的。适用条款和条件。"
+  },
+  "collectible_event_progress_title": {
+    "de": "Sammelobjekte im Event",
+    "en": "Collectibles in the event",
+    "ar": "العناصر القابلة للجمع في الفعالية",
+    "es": "Objetos coleccionables en el evento",
+    "fr": "Objets à collectionner dans l'événement",
+    "ru": "Коллекционные предметы в событии",
+    "tr": "Etkinlikteki koleksiyon öğeleri",
+    "zh": "活动中的收集品"
+  },
+  "collectible_event_show_hint": {
+    "de": "Hinweis anzeigen lassen",
+    "en": "Show hint",
+    "ar": "عرض التلميح",
+    "es": "Mostrar pista",
+    "fr": "Afficher l'indice",
+    "ru": "Показать подсказку",
+    "tr": "İpucunu göster",
+    "zh": "显示提示"
+  },
+  "collectible_event_hint_prefix": {
+    "de": "Hinweis:",
+    "en": "Hint:",
+    "ar": "تلميح:",
+    "es": "Pista:",
+    "fr": "Indice :",
+    "ru": "Подсказка:",
+    "tr": "İpucu:",
+    "zh": "提示："
+  },
+  "collectible_event_found_label": {
+    "de": "Gefunden",
+    "en": "Found",
+    "ar": "تم العثور عليه",
+    "es": "Encontrado",
+    "fr": "Trouvé",
+    "ru": "Найдено",
+    "tr": "Bulundu",
+    "zh": "已找到"
+  },
+  "collectible_event_debug_spot": {
+    "de": "Debug-Collectible-Spot",
+    "en": "Debug collectible spot",
+    "ar": "موضع عنصر تجميعي للتصحيح",
+    "es": "Punto de coleccionable de depuración",
+    "fr": "Emplacement de collectible de débogage",
+    "ru": "Точка коллекционного предмета для отладки",
+    "tr": "Hata ayıklama koleksiyon noktası",
+    "zh": "调试收集点"
+  },
+  "collectible_event_collectible_preview_label": {
+    "de": "So sieht das zu sammelnde Objekt aus.",
+    "en": "This is what the collectible looks like.",
+    "ar": "هكذا يبدو العنصر القابل للتحصيل.",
+    "es": "Así es como se ve el objeto coleccionable.",
+    "fr": "Voici à quoi ressemble l'objet à collectionner.",
+    "ru": "Так выглядит собираемый объект.",
+    "tr": "Koleksiyon objesi böyle görünüyor.",
+    "zh": "收集物品看起来是这样的。"
+  },
+  "collectible_event_congratulations_title": {
+    "de": "Glückwunsch!",
+    "en": "Congratulations!",
+    "ar": "تهانينا!",
+    "es": "¡Enhorabuena!",
+    "fr": "Félicitations !",
+    "ru": "Поздравляем!",
+    "tr": "Tebrikler!",
+    "zh": "恭喜！"
+  },
+  "collectible_event_rate_app_prompt": {
+    "de": "Möchtest du die App bewerten?",
+    "en": "Would you like to rate the app?",
+    "ar": "هل ترغب في تقييم التطبيق؟",
+    "es": "¿Te gustaría valorar la app?",
+    "fr": "Souhaitez-vous évaluer l'application ?",
+    "ru": "Хотите оценить приложение?",
+    "tr": "Uygulamayı değerlendirmek ister misin?",
+    "zh": "要为此应用评分吗？"
+  },
+  "collectible_event_settings": {
+    "de": "Collectible-Event Einstellungen",
+    "en": "Collectible event settings",
+    "ar": "إعدادات الفعالية القابلة للتحصيل",
+    "es": "Configuración del evento coleccionable",
+    "fr": "Paramètres de l'événement à collectionner",
+    "ru": "Настройки коллекционного события",
+    "tr": "Koleksiyon etkinliği ayarları",
+    "zh": "收集活动设置"
+  },
+  "collectible_event_reset_collected": {
+    "de": "Alle gesammelten Objekte zurücksetzen",
+    "en": "Reset collected items",
+    "ar": "إعادة تعيين العناصر المجمعة",
+    "es": "Restablecer los objetos recogidos",
+    "fr": "Réinitialiser les objets collectés",
+    "ru": "Сбросить собранные предметы",
+    "tr": "Toplanan öğeleri sıfırla",
+    "zh": "重置已收集的物品"
+  },
+  "collectible_event_item_size": {
+    "de": "Größe der Collectibles",
+    "en": "Collectible size",
+    "ar": "حجم العنصر القابل للتحصيل",
+    "es": "Tamaño del coleccionable",
+    "fr": "Taille de l'objet à collectionner",
+    "ru": "Размер коллекционного предмета",
+    "tr": "Koleksiyon öğesi boyutu",
+    "zh": "收藏品大小"
+  },
+  "collectible_event_item_size_small": {
+    "de": "Klein",
+    "en": "Small",
+    "ar": "صغير",
+    "es": "Pequeño",
+    "fr": "Petit",
+    "ru": "Маленький",
+    "tr": "Küçük",
+    "zh": "小"
+  },
+  "collectible_event_item_size_medium": {
+    "de": "Mittel",
+    "en": "Medium",
+    "ar": "متوسط",
+    "es": "Mediano",
+    "fr": "Moyen",
+    "ru": "Средний",
+    "tr": "Orta",
+    "zh": "中等"
+  },
+  "collectible_event_item_size_large": {
+    "de": "Groß",
+    "en": "Large",
+    "ar": "كبير",
+    "es": "Grande",
+    "fr": "Grand",
+    "ru": "Большой",
+    "tr": "Büyük",
+    "zh": "大"
+  },
+  "collectible_event_random_position": {
+    "de": "Zufällige Positionierung",
+    "en": "Random positioning",
+    "ar": "تموضع عشوائي",
+    "es": "Posicionamiento aleatorio",
+    "fr": "Positionnement aléatoire",
+    "ru": "Случайное размещение",
+    "tr": "Rastgele konumlandırma",
+    "zh": "随机定位"
+  },
   "create": {
     "de": "Erstellen",
     "en": "Create",
@@ -1830,7 +2270,7 @@
     "zh": "删除账户"
   },
   "location": {
-    "de": "Ort",
+    "de": "Standort",
     "en": "Location",
     "ar": "موقع",
     "es": "Ubicación",
@@ -1918,6 +2358,16 @@
     "ru": "Отправить",
     "tr": "Gönder",
     "zh": "提交"
+  },
+  "done": {
+    "de": "Fertig",
+    "en": "Done",
+    "ar": "تم",
+    "es": "Listo",
+    "fr": "Terminé",
+    "ru": "Готово",
+    "tr": "Tamam",
+    "zh": "完成"
   },
   "warning": {
     "de": "Warnung",
@@ -2132,6 +2582,36 @@
     "ru": "Вчера",
     "tr": "Dün",
     "zh": "昨天"
+  },
+  "yes":{
+    "de": "Ja",
+    "en": "Yes",
+    "ar": "نعم",
+    "es": "Sí",
+    "fr": "Oui",
+    "ru": "Да",
+    "tr": "Evet",
+    "zh": "是"
+  },
+  "no": {
+    "de": "Nein",
+    "en": "No",
+    "ar": "لا",
+    "es": "No",
+    "fr": "Non",
+    "ru": "Нет",
+    "tr": "Hayır",
+    "zh": "不"
+  },
+  "undefined": {
+    "de": "Nicht definiert",
+    "en": "Undefined",
+    "ar": "غير معرف",
+    "es": "Indefinido",
+    "fr": "Indéfini",
+    "ru": "Неопределено",
+    "tr": "Tanımsız",
+    "zh": "未定义"
   },
   "nutrition": {
     "de": "Durchschnittliche Nährwerte pro Portion",
@@ -2383,6 +2863,26 @@
     "tr": "Çıkış Yap",
     "zh": "登出"
   },
+  "are_you_sure_to_logout": {
+    "de": "Möchtest du dich wirklich abmelden?",
+    "en": "Do you really want to log out?",
+    "ar": "هل تريد حقًا تسجيل الخروج؟",
+    "es": "¿Realmente quieres cerrar sesión?",
+    "fr": "Voulez-vous vraiment vous déconnecter ?",
+    "ru": "Вы действительно хотите выйти?",
+    "tr": "Gerçekten çıkış yapmak istiyor musun?",
+    "zh": "您确定要注销吗？"
+  },
+  "logout_flow_modal_description": {
+    "de": "Du wirst zum Anmeldebildschirm geleitet. Wenn du ein Konto hast, wirst du abgemeldet.",
+    "en": "You will be taken to the login screen. If you have an account, you will be logged out.",
+    "ar": "سيتم نقلك إلى شاشة تسجيل الدخول. إذا كان لديك حساب، سيتم تسجيل خروجك.",
+    "es": "Se te llevará a la pantalla de inicio de sesión. Si tienes una cuenta, se cerrará tu sesión.",
+    "fr": "Vous serez redirigé vers l'écran de connexion. Si vous avez un compte, vous serez déconnecté.",
+    "ru": "Вы будете перенаправлены на экран входа. Если у вас есть аккаунт, вы будете разлогинены.",
+    "tr": "Giriş ekranına yönlendirileceksiniz. Bir hesabınız varsa oturumunuz kapatılacak.",
+    "zh": "您将被带到登录界面。如果您有账户，将会退出登录。"
+  },
   "register": {
     "de": "Registrieren",
     "en": "Register",
@@ -2575,13 +3075,33 @@
   },
   "rate_app": {
     "de": "App bewerten",
-    "en": "Rate App",
-    "ar": "Rate App",
-    "es": "Rate App",
-    "fr": "Rate App",
-    "ru": "Rate App",
-    "tr": "Rate App",
-    "zh": "Rate App"
+    "en": "Rate app",
+    "ar": "قيّم التطبيق",
+    "es": "Valorar la app",
+    "fr": "Noter l'application",
+    "ru": "Оценить приложение",
+    "tr": "Uygulamayı değerlendir",
+    "zh": "为应用评分"
+  },
+  "rate_now": {
+    "de": "Jetzt bewerten",
+    "en": "Rate now",
+    "ar": "قيّم الآن",
+    "es": "Valorar ahora",
+    "fr": "Noter maintenant",
+    "ru": "Оценить сейчас",
+    "tr": "Şimdi değerlendir",
+    "zh": "立即评分"
+  },
+  "rate_later": {
+    "de": "Später",
+    "en": "Later",
+    "ar": "لاحقًا",
+    "es": "Más tarde",
+    "fr": "Plus tard",
+    "ru": "Позже",
+    "tr": "Daha sonra",
+    "zh": "稍后"
   },
   "app_download": {
     "de": "App-Download",
@@ -2603,15 +3123,75 @@
     "tr": "React Native QRCode SVG",
     "zh": "React Native QRCode SVG"
   },
-  "settings_list_check": {
-    "de": "Settings List Check",
-    "en": "Settings List Check",
-    "ar": "Settings List Check",
-    "es": "Settings List Check",
-    "fr": "Settings List Check",
-    "ru": "Settings List Check",
-    "tr": "Settings List Check",
-    "zh": "Settings List Check"
+  "test_use_modal": {
+    "de": "Test useModal",
+    "en": "Test useModal",
+    "ar": "Test useModal",
+    "es": "Test useModal",
+    "fr": "Test useModal",
+    "ru": "Test useModal",
+    "tr": "Test useModal",
+    "zh": "Test useModal"
+  },
+  "open_modal_example": {
+    "de": "Beispiel-Modal öffnen",
+    "en": "Open example modal",
+    "ar": "Open example modal",
+    "es": "Open example modal",
+    "fr": "Open example modal",
+    "ru": "Open example modal",
+    "tr": "Open example modal",
+    "zh": "Open example modal"
+  },
+  "modal_example_body": {
+    "de": "Dies ist ein Beispiel dafür, wie der useModal-Hook Inhalte anzeigen kann.",
+    "en": "This is an example of how the useModal hook can display content.",
+    "ar": "This is an example of how the useModal hook can display content.",
+    "es": "This is an example of how the useModal hook can display content.",
+    "fr": "This is an example of how the useModal hook can display content.",
+    "ru": "This is an example of how the useModal hook can display content.",
+    "tr": "This is an example of how the useModal hook can display content.",
+    "zh": "This is an example of how the useModal hook can display content."
+  },
+  "close_modal": {
+    "de": "Modal schließen",
+    "en": "Close modal",
+    "ar": "Close modal",
+    "es": "Close modal",
+    "fr": "Close modal",
+    "ru": "Close modal",
+    "tr": "Close modal",
+    "zh": "Close modal"
+  },
+  "modal_text_input_label": {
+    "de": "useMyScrollviewTextInputModal Test",
+    "en": "useMyScrollviewTextInputModal test",
+    "ar": "useMyScrollviewTextInputModal test",
+    "es": "useMyScrollviewTextInputModal test",
+    "fr": "useMyScrollviewTextInputModal test",
+    "ru": "useMyScrollviewTextInputModal test",
+    "tr": "useMyScrollviewTextInputModal test",
+    "zh": "useMyScrollviewTextInputModal test"
+  },
+  "modal_text_input_placeholder": {
+    "de": "Text eingeben",
+    "en": "Enter text",
+    "ar": "Enter text",
+    "es": "Enter text",
+    "fr": "Enter text",
+    "ru": "Enter text",
+    "tr": "Enter text",
+    "zh": "Enter text"
+  },
+  "modal_text_input_empty": {
+    "de": "Kein Wert gesetzt",
+    "en": "No value set",
+    "ar": "No value set",
+    "es": "No value set",
+    "fr": "No value set",
+    "ru": "No value set",
+    "tr": "No value set",
+    "zh": "No value set"
   },
   "vertical_image_scroll": {
     "de": "Vertikaler Bildlauf",
@@ -2723,6 +3303,26 @@
     "tr": "RSS Beslemesi",
     "zh": "RSS 提要"
   },
+  "meal_guidance_system": {
+    "de": "Speise Leitsystem",
+    "en": "Meal guidance system",
+    "ar": "نظام توجيه الوجبات",
+    "es": "Sistema de guía de comidas",
+    "fr": "Système d'orientation des repas",
+    "ru": "Система навигации по блюдам",
+    "tr": "Yemek yönlendirme sistemi",
+    "zh": "餐品导航系统"
+  },
+  "forms": {
+    "de": "Formulare",
+    "en": "Forms",
+    "ar": "نماذج",
+    "es": "Formularios",
+    "fr": "Formulaires",
+    "ru": "Формы",
+    "tr": "Formlar",
+    "zh": "表单"
+  },
   "markings": {
     "de": "Kennzeichnungen",
     "en": "Labels",
@@ -2744,14 +3344,34 @@
     "zh": "类别"
   },
   "form_categories": {
-    "de": "Formkategorien",
-    "en": "Form Categories",
-    "ar": "فئات النموذج",
-    "es": "Categorías de formulario",
-    "fr": "Catégories de formulaire",
-    "ru": "Категории форм",
-    "tr": "Form Kategorileri",
-    "zh": "表单类别"
+    "de": "Formulare",
+    "en": "Forms",
+    "ar": "نماذج",
+    "es": "Formularios",
+    "fr": "Formulaires",
+    "ru": "Формы",
+    "tr": "Formlar",
+    "zh": "表单"
+  },
+  "event_monitors": {
+    "de": "Events Monitore",
+    "en": "Event monitors",
+    "ar": "شاشات الأحداث",
+    "es": "Monitores de eventos",
+    "fr": "Moniteurs d'événements",
+    "ru": "Экраны с событиями",
+    "tr": "Etkinlik monitörleri",
+    "zh": "事件监视器"
+  },
+  "collectible_event_monitor": {
+    "de": "Collectible Event Monitor",
+    "en": "Collectible event monitor",
+    "ar": "عرض حدث قابل للتجميع، شاشة",
+    "es": "Monitor de evento coleccionable",
+    "fr": "Moniteur d'événement collectionnable",
+    "ru": "Монитор коллекционного события",
+    "tr": "Koleksiyon etkinliği monitörü",
+    "zh": "收集活动监视"
   },
   "monitore": {
     "de": "Monitore",
@@ -2913,6 +3533,16 @@
     "tr": "E-posta",
     "zh": "电子邮件"
   },
+  "phone_number": {
+    "de": "Telefonnummer",
+    "en": "Phone number",
+    "ar": "رقم الهاتف",
+    "es": "Número de teléfono",
+    "fr": "Numéro de téléphone",
+    "ru": "Номер телефона",
+    "tr": "Telefon numarası",
+    "zh": "电话号码"
+  },
   "password": {
     "de": "Passwort",
     "en": "Password",
@@ -2953,6 +3583,16 @@
     "tr": "Hesap olmadan devam et",
     "zh": "无需账户继续"
   },
+  "continue_without_rating": {
+    "de": "Weiter ohne Bewertung",
+    "en": "Continue without rating",
+    "ar": "المتابعة بدون تقييم",
+    "es": "Continuar sin calificar",
+    "fr": "Continuer sans évaluation",
+    "ru": "Продолжить без оценки",
+    "tr": "Değerlendirme olmadan devam et",
+    "zh": "继续而不评分"
+  },
   "access_limited": {
     "de": "Zugriff eingeschränkt",
     "en": "Access Limited",
@@ -2972,6 +3612,26 @@
     "ru": "Чтобы пользоваться всеми функциями, войдите или создайте аккаунт. Либо продолжайте как гость с ограниченными возможностями.",
     "tr": "Kişiselleştirilmiş bir deneyim için lütfen giriş yapın veya hesap oluşturun. Alternatif olarak sınırlı özelliklerle misafir olarak devam edebilirsiniz.",
     "zh": "要获得个性化体验，请登录或创建帐户。或者，您可以以访客身份继续，但功能受限。"
+  },
+  "rating_requires_account_title": {
+    "de": "Bewerten nur mit Account",
+    "en": "Ratings require an account",
+    "ar": "التقييمات تتطلب حسابًا",
+    "es": "Las valoraciones requieren una cuenta",
+    "fr": "Les évaluations nécessitent un compte",
+    "ru": "Оценки требуют аккаунта",
+    "tr": "Değerlendirmeler için hesap gerekir",
+    "zh": "评分需要账户"
+  },
+  "rating_requires_account_description": {
+    "de": "Bewertungen sind an einen Account gebunden – zum Schutz vor Missbrauch und zur geräteübergreifenden Zuordnung.",
+    "en": "Ratings are linked to an account to prevent misuse and keep them available across devices.",
+    "ar": "التقييمات مرتبطة بحساب لحماية الاستخدام السيئ وللتزامن عبر الأجهزة.",
+    "es": "Las valoraciones están vinculadas a una cuenta para evitar abusos y mantenerlas entre dispositivos.",
+    "fr": "Les évaluations sont liées à un compte pour éviter les abus et les retrouver sur tous vos appareils.",
+    "ru": "Оценки привязаны к аккаунту для защиты от злоупотреблений и синхронизации между устройствами.",
+    "tr": "Değerlendirmeler kötüye kullanımı önlemek ve cihazlar arasında eşlemek için hesaba bağlıdır.",
+    "zh": "评分与账户绑定，用于防止滥用并在设备间同步。"
   },
   "sign_in_with": {
     "de": "Anmelden mit",

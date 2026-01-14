@@ -18,6 +18,6 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		fontFamily: 'Poppins_400Regular',
 		marginTop: 20,
-		marginBottom: 10,
+		marginBottom: 4,
 	},
 });

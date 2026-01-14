@@ -1,3 +1,1 @@
-export interface AIGeneratedHintSheetProps {
-        closeSheet: () => void;
-}
+export interface AIGeneratedHintSheetProps {}

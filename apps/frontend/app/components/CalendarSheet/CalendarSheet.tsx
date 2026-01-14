@@ -1,11 +1,11 @@
-import { TouchableOpacity, View } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { CalendarSheetProps, Direction } from './types';
 import MyScrollViewModal from '@/components/MyScrollViewModal';
 import { isWeb } from '@/constants/Constants';
-import { AntDesign } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -13,12 +13,17 @@ import { myContrastColor } from '@/helper/ColorHelper';
 import { SET_SELECTED_DATE } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
+import { CollectibleAt } from 'repo-depkit-common';
+import { format, isValid, parse } from 'date-fns';
 
 const CalendarSheet: React.FC<CalendarSheetProps> = ({ closeSheet, onSelect, selectedDateProp, updateGlobal }) => {
     const { theme } = useTheme();
     const { translate } = useLanguage();
     const dispatch = useDispatch();
     const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [manualDate, setManualDate] = useState('');
+    const [manualError, setManualError] = useState('');
     const { primaryColor, appSettings, selectedTheme: mode, firstDayOfTheWeek } = useSelector((state: RootState) => state.settings);
     const { selectedDate } = useSelector((state: RootState) => state.food);
     const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
@@ -41,6 +46,53 @@ const CalendarSheet: React.FC<CalendarSheetProps> = ({ closeSheet, onSelect, sel
         setCurrentMonth(newMonth);
     };
 
+    const formatManualInput = (value: string) => {
+        const digitsOnly = value.replace(/\D/g, '').slice(0, 8);
+        const day = digitsOnly.slice(0, 2);
+        const month = digitsOnly.slice(2, 4);
+        const year = digitsOnly.slice(4, 8);
+        let formatted = day;
+        if (month.length > 0) {
+            formatted = `${formatted}.${month}`;
+        }
+        if (year.length > 0) {
+            formatted = `${formatted}.${year}`;
+        }
+        return formatted;
+    };
+
+    const parseManualDate = (value: string) => {
+        const trimmed = value.trim();
+        if (/^\d{2}\.\d{2}\.\d{4}$/.test(trimmed)) {
+            const parsed = parse(trimmed, 'dd.MM.yyyy', new Date());
+            return isValid(parsed) ? parsed : null;
+        }
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+            const parsed = parse(trimmed, 'yyyy-MM-dd', new Date());
+            return isValid(parsed) ? parsed : null;
+        }
+        return null;
+    };
+
+    const handleManualSubmit = () => {
+        const parsed = parseManualDate(manualDate);
+        if (!parsed) {
+            setManualError('Invalid date format (e.g., DD.MM.YYYY)');
+            return;
+        }
+        const formatted = format(parsed, 'yyyy-MM-dd');
+        if (onSelect) {
+            onSelect(formatted);
+        } else if (updateGlobal) {
+            dispatch({
+                type: SET_SELECTED_DATE,
+                payload: formatted,
+            });
+        }
+        setManualError('');
+        closeSheet();
+    };
+
     LocaleConfig.locales['custom'] = {
         monthNames: [translate(TranslationKeys.January), translate(TranslationKeys.February), translate(TranslationKeys.March), translate(TranslationKeys.April), translate(TranslationKeys.May), translate(TranslationKeys.June), translate(TranslationKeys.July), translate(TranslationKeys.August), translate(TranslationKeys.September), translate(TranslationKeys.October), translate(TranslationKeys.November), translate(TranslationKeys.December)],
         monthNamesShort: [translate(TranslationKeys.Jan), translate(TranslationKeys.Feb), translate(TranslationKeys.Mar), translate(TranslationKeys.Apr), translate(TranslationKeys.MayShort), translate(TranslationKeys.Jun), translate(TranslationKeys.Jul), translate(TranslationKeys.Aug), translate(TranslationKeys.Sep), translate(TranslationKeys.Oct), translate(TranslationKeys.Nov), translate(TranslationKeys.Dec)],
@@ -56,6 +108,32 @@ const CalendarSheet: React.FC<CalendarSheetProps> = ({ closeSheet, onSelect, sel
             title={`${translate(TranslationKeys.select)} : ${translate(TranslationKeys.date)}`}
             closeSheet={closeSheet}
         >
+            <View style={styles.manualInputWrapper}>
+                <TextInput
+                    style={[
+                        styles.manualInput,
+                        {
+                            color: theme.screen.text,
+                            backgroundColor: theme.sheet.inputBg,
+                            borderColor: manualError ? theme.sheet.inputBorderInvalid : theme.sheet.inputBg,
+                        },
+                    ]}
+                    cursorColor={theme.screen.text}
+                    placeholderTextColor={theme.sheet.placeholder}
+                    placeholder="DD.MM.YYYY"
+                    value={manualDate}
+                    onChangeText={text => {
+                        setManualDate(formatManualInput(text));
+                        if (manualError) setManualError('');
+                    }}
+                    onSubmitEditing={handleManualSubmit}
+                    returnKeyType="done"
+                    returnKeyLabel={translate(TranslationKeys.done)}
+                    keyboardType="number-pad"
+                    inputMode="numeric"
+                />
+                {manualError ? <Text style={[styles.manualErrorText, { color: theme.sheet.inputBorderInvalid }]}>{manualError}</Text> : null}
+            </View>
             <View
                 style={{
                     ...styles.calendarView,
@@ -98,7 +176,7 @@ const CalendarSheet: React.FC<CalendarSheetProps> = ({ closeSheet, onSelect, sel
                             }}
                             onPress={() => navigateMonth(direction === 'left' ? 'prev' : 'next')}
                         >
-                            <AntDesign name={direction === 'left' ? 'arrowleft' : 'arrowright'} size={20} color={contrastColor} />
+                            <Entypo name={direction === 'left' ? 'chevron-left' : 'chevron-right'} size={20} color={contrastColor} />
                         </TouchableOpacity>
                     )}
                     onMonthChange={(month: any) => {
@@ -125,6 +203,7 @@ const CalendarSheet: React.FC<CalendarSheetProps> = ({ closeSheet, onSelect, sel
                         textDayHeaderFontSize: 14,
                     }}
                 />
+                <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_foodoffers_select_date} />
             </View>
         </MyScrollViewModal>
     );

@@ -17,21 +17,16 @@ import { RootDrawerParamList } from './types';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import CanteenSelectionSheet from '@/components/CanteenSelectionSheet/CanteenSelectionSheet';
-import SortSheet from '@/components/SortSheet/SortSheet';
 import HourSheet from '@/components/HoursSheet/HoursSheet';
 import CalendarSheet from '@/components/CalendarSheet/CalendarSheet';
 import { excerpt } from '@/constants/HelperFunctions';
 import { useLanguage } from '@/hooks/useLanguage';
-import ForecastSheet from '@/components/ForecastSheet/ForecastSheet';
-import ImageManagementSheet from '@/components/ImageManagementSheet/ImageManagementSheet';
 import EatingHabitsSheet from '@/components/EatingHabitsSheet/EatingHabitsSheet';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import * as Notifications from 'expo-notifications';
 import { sortFoodOffers } from '@/helper/foodOfferSortHelper';
 import { addDays, format } from 'date-fns';
 import { BusinessHoursHelper } from '@/redux/actions/BusinessHours/BusinessHours';
-import PopupEventSheet from '@/components/PopupEventSheet/PopupEventSheet';
-import { PopupEventHelper } from '@/helper/PopupEventHelper';
 import noFoodOffersFound from '@/assets/animations/noFoodOffersFound.json';
 import LottieView from 'lottie-react-native';
 import { replaceLottieColors } from '@/helper/animationHelper';
@@ -42,16 +37,16 @@ import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
 import MarkingBottomSheet from '@/components/MarkingBottomSheet';
 import AIGeneratedHintSheet from '@/components/AIGeneratedHintSheet';
+import usePopupEventModal from '@/hooks/usePopupEventModal';
+import useUtilizationModal from '@/hooks/useUtilizationModal';
+import useFoodofferSortingModal from '@/hooks/useFoodofferSortingModal';
 
 export const SHEET_COMPONENTS = {
-        canteen: CanteenSelectionSheet,
-        sort: SortSheet,
-        hours: HourSheet,
-        calendar: CalendarSheet,
-        forecast: ForecastSheet,
-        imageManagement: ImageManagementSheet,
-        aiGeneratedInfo: AIGeneratedHintSheet,
-        eatingHabits: EatingHabitsSheet,
+	canteen: CanteenSelectionSheet,
+	hours: HourSheet,
+	calendar: CalendarSheet,
+	aiGeneratedInfo: AIGeneratedHintSheet,
+	eatingHabits: EatingHabitsSheet,
 };
 
 const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
@@ -61,29 +56,28 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	const router = useRouter();
 	const drawerNavigation = useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
 	const bottomSheetRef = useRef<BottomSheet>(null);
-	const eventSheetRef = useRef<BottomSheet>(null);
 	const businessHoursHelper = new BusinessHoursHelper();
 	const [loading, setLoading] = useState(false);
 	const [isActive, setIsActive] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
-	const [selectedFoodId, setSelectedFoodId] = useState('');
 	const [sheetProps, setSheetProps] = useState<Record<string, any>>({});
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const [selectedSheet, setSelectedSheet] = useState<'menu' | keyof typeof SHEET_COMPONENTS | null>(null);
-	const [sessionDismissed, setSessionDismissed] = useState<Set<string>>(PopupEventHelper.getAll());
-	const [currentPopupEvent, setCurrentPopupEvent] = useState<any | null>(null);
 
 	const { sortBy, language: languageCode, drawerPosition, appSettings, primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
-	const { ownFoodFeedbacks, popupEvents, selectedDate, foodCategories, foodOfferCategories } = useSelector((state: RootState) => state.food);
+	const { ownFoodFeedbacks, selectedDate, foodCategories, foodOfferCategories } = useSelector((state: RootState) => state.food);
 	const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
 	const animationRef = useRef<LottieView>(null);
 	const [animationJson, setAmimationJson] = useState<any>(null);
 	const { profile, user } = useSelector((state: RootState) => state.authReducer);
-	const selectedCanteen = useSelectedCanteen();
-		const kioskMode = useKioskMode();
-	const [prefetchedFoodOffers, setPrefetchedFoodOffers] = useState<Record<string, Record<string, DatabaseTypes.Foodoffers[]>>>({});
-	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
-	const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
+        const selectedCanteen = useSelectedCanteen();
+        const kioskMode = useKioskMode();
+        const [prefetchedFoodOffers, setPrefetchedFoodOffers] = useState<Record<string, DatabaseTypes.Foodoffers[]>>({});
+        const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
+        const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
+	const { openUtilizationModal } = useUtilizationModal();
+	const { openActiveModal, activePopupEvent } = usePopupEventModal();
+	const { openFoodofferSortingModal } = useFoodofferSortingModal();
 
 	// Set Page Title
 	useSetPageTitle(selectedCanteen?.alias || TranslationKeys.food_offers);
@@ -142,58 +136,23 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		}, [])
 	);
 
+	const openSheet = useCallback(
+		(sheet: 'menu' | 'sort' | keyof typeof SHEET_COMPONENTS, props = {}) => {
+			if (sheet === 'sort') {
+				openFoodofferSortingModal();
+				return;
+			}
+
+                        setSelectedSheet(sheet);
+                        setSheetProps(props);
+		},
+		[openFoodofferSortingModal]
+	);
+
+
 	useEffect(() => {
-		if (kioskMode) {
-			return;
-		}
-		const nextEvent = popupEvents?.find((e: any) => !e.isOpen && !PopupEventHelper.isDismissed(e.id));
-		if (nextEvent) {
-			setCurrentPopupEvent(nextEvent);
-			setTimeout(() => {
-				openEventSheet();
-			}, 300);
-		} else {
-			setCurrentPopupEvent(null);
-		}
-	}, [popupEvents, kioskMode, sessionDismissed]);
-
-	const openSheet = useCallback((sheet: 'menu' | keyof typeof SHEET_COMPONENTS, props = {}) => {
-		setSelectedSheet(sheet);
-		setSheetProps(props);
-	}, []);
-
-	const openManagementSheet = (id: string) => {
-		if (id) {
-			openSheet('imageManagement', {
-				selectedFoodId: id,
-				fileName: 'foods',
-				closeSheet: closeSheet,
-				handleFetch: fetchFoods,
-			});
-		}
-	};
-
-	const openEventSheet = () => {
-		if (kioskMode) return;
-		eventSheetRef?.current?.expand();
-	};
-
-	const closeEventSheet = () => {
-		eventSheetRef?.current?.close();
-		setTimeout(() => {
-			if (!currentPopupEvent) return;
-			const updatedEvents = popupEvents.map((e: any) => (e.id === currentPopupEvent.id ? { ...e, isOpen: true } : e));
-			dispatch({ type: SET_POPUP_EVENTS, payload: updatedEvents });
-			setCurrentPopupEvent(null);
-		}, 500);
-	};
-
-	const closeEventSheetForSession = () => {
-		eventSheetRef?.current?.close();
-		PopupEventHelper.dismiss(currentPopupEvent?.id);
-		setSessionDismissed(PopupEventHelper.getAll());
-		setCurrentPopupEvent(null);
-	};
+		openActiveModal();
+	}, [activePopupEvent, openActiveModal]);
 
 	useEffect(() => {
 		if (isActive && selectedSheet) {
@@ -310,43 +269,46 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		return '';
 	};
 
-	const fetchFoods = async () => {
-		try {
-			setLoading(true);
-			const canteenId = selectedCanteen?.id as string;
-			let foodOffers = prefetchedFoodOffers[canteenId]?.[selectedDate];
+        const getCacheKey = (canteenId: string, date: string) => {
+                return `${canteenId}_${format(new Date(date), 'dd.MM.yyyy')}`;
+        };
 
-			if (!foodOffers) {
-				const foodData = await fetchFoodOffersByCanteen(canteenId, selectedDate);
-				foodOffers = foodData?.data || [];
-			}
+        const getCachedOffers = (canteenId: string, date: string) => {
+                return prefetchedFoodOffers[getCacheKey(canteenId, date)];
+        };
 
-			setPrefetchedFoodOffers(prev => ({
-				...prev,
-				[canteenId]: {
-					...(prev[canteenId] || {}),
-					[selectedDate]: foodOffers,
-				},
-			}));
+        const fetchFoods = async () => {
+                try {
+                        setLoading(true);
+                        const canteenId = selectedCanteen?.id as string;
+                        let foodOffers = getCachedOffers(canteenId, selectedDate);
+
+                        if (!foodOffers) {
+                                const foodData = await fetchFoodOffersByCanteen(canteenId, selectedDate);
+                                foodOffers = foodData?.data || [];
+                        }
+
+                        setPrefetchedFoodOffers(prev => ({
+                                ...prev,
+                                [getCacheKey(canteenId, selectedDate)]: foodOffers,
+                        }));
 
 			// Prefetch next two days
 			for (let i = 1; i <= 2; i++) {
-				const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
-				if (!prefetchedFoodOffers[canteenId]?.[date]) {
-					fetchFoodOffersByCanteen(canteenId, date)
-						.then(res => {
-							const offers = res?.data || [];
-							setPrefetchedFoodOffers(p => ({
-								...p,
-								[canteenId]: {
-									...(p[canteenId] || {}),
-									[date]: offers,
-								},
-							}));
-						})
-						.catch(e => console.error('Error prefetching Food Offers:', e));
-				}
-			}
+                                const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
+                                const cacheKey = getCacheKey(canteenId, date);
+                                if (!prefetchedFoodOffers[cacheKey]) {
+                                        fetchFoodOffersByCanteen(canteenId, date)
+                                                .then(res => {
+                                                        const offers = res?.data || [];
+                                                        setPrefetchedFoodOffers(p => ({
+                                                                ...p,
+                                                                [cacheKey]: offers,
+                                                        }));
+                                                })
+                                                .catch(e => console.error('Error prefetching Food Offers:', e));
+                                }
+                        }
 
 			updateSort(sortBy as FoodSortOption, foodOffers);
 
@@ -371,17 +333,17 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		setRefreshing(false);
 	}, []);
 
-	const nextAvailableDate = useMemo(() => {
-		const canteenId = selectedCanteen?.id as string;
-		for (let i = 1; i <= 2; i++) {
-			const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
-			const offers = prefetchedFoodOffers[canteenId]?.[date];
-			if (offers && offers.length > 0) {
-				return date;
-			}
-		}
-		return null;
-	}, [prefetchedFoodOffers, selectedCanteen, selectedDate]);
+        const nextAvailableDate = useMemo(() => {
+                const canteenId = selectedCanteen?.id as string;
+                for (let i = 1; i <= 2; i++) {
+                        const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
+                        const offers = getCachedOffers(canteenId, date);
+                        if (offers && offers.length > 0) {
+                                return date;
+                        }
+                }
+                return null;
+        }, [prefetchedFoodOffers, selectedCanteen, selectedDate]);
 
 	const getWeekdayKey = (date: string) => {
 		const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -624,7 +586,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 										trigger={triggerProps => (
 											<TouchableOpacity
 												{...triggerProps}
-												onPress={() => openSheet('forecast', { forDate: selectedDate })}
+                                                                                                onPress={() => openUtilizationModal(selectedDate, selectedCanteen)}
 												style={{
 													padding: isWeb ? (screenWidth < 500 ? 2 : 5) : 2,
 												}}
@@ -682,19 +644,19 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 						<BaseBottomSheet
 							key={selectedSheet}
 							ref={bottomSheetRef}
-							backgroundStyle={{
-								...styles.sheetBackground,
-								backgroundColor: theme.sheet.sheetBg,
-							}}
-							enablePanDownToClose={selectedSheet === 'forecast' ? false : true}
-							enableContentPanningGesture={selectedSheet === 'forecast' ? false : true}
-							enableHandlePanningGesture={selectedSheet === 'forecast' ? false : true}
-							enableDynamicSizing={selectedSheet === 'forecast' ? false : true}
-							onChange={index => {
-								if (index === -1) {
-									closeSheet();
-								}
-							}}
+                                                        backgroundStyle={{
+                                                                ...styles.sheetBackground,
+                                                                backgroundColor: theme.sheet.sheetBg,
+                                                        }}
+                                                        enablePanDownToClose
+                                                        enableContentPanningGesture
+                                                        enableHandlePanningGesture
+                                                        enableDynamicSizing
+                                                        onChange={index => {
+                                                                if (index === -1) {
+                                                                        closeSheet();
+                                                                }
+                                                        }}
 							onClose={closeSheet}
 							handleComponent={null}
 						>
@@ -702,21 +664,6 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 						</BaseBottomSheet>
 					))}
 
-				{isActive && currentPopupEvent && (
-					<BaseBottomSheet
-						ref={eventSheetRef}
-						index={-1}
-						backgroundStyle={{
-							...styles.sheetBackground,
-							backgroundColor: theme.sheet.sheetBg,
-						}}
-						enablePanDownToClose={false}
-						handleComponent={null}
-						onClose={closeEventSheetForSession}
-					>
-						<PopupEventSheet closeSheet={closeEventSheet} eventData={currentPopupEvent} />
-					</BaseBottomSheet>
-				)}
 			</SafeAreaView>
 		</>
 	);

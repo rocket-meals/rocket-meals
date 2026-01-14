@@ -35,6 +35,13 @@ export class MyTimers<T extends string> {
   }
 }
 
+type TimerProgressOptions = {
+  progress: number;
+  total: number;
+  prefix?: string | null;
+  suffix?: string | null;
+};
+
 export class MyTimer {
   public startTime: number = 0;
   public endTime: number = 0;
@@ -97,8 +104,7 @@ export class MyTimer {
     return estimatedTime;
   }
 
-  public printEstimatedTimeRemaining(progress: number, total: number, prefix?: string | null, suffix?: string | null) {
-    let remaining = total - progress;
+  public printEstimatedTimeRemaining({ progress, total, prefix, suffix }: TimerProgressOptions) {
     let estimatedTime = this.getEstimatedTimeRemaining(progress, total);
     let estimatedTimeStr = this.formatTimeToString(estimatedTime);
     prefix = prefix ? `${prefix}: ` : '';
@@ -114,7 +120,7 @@ export class MyTimer {
     return `${progressStr}/${totalStr}`;
   }
 
-  public printElapsedTimeAndEstimatedTimeRemaining(progress: number, total: number, prefix?: string | null, suffix?: string | null) {
+  public printElapsedTimeAndEstimatedTimeRemaining({ progress, total, prefix, suffix }: TimerProgressOptions) {
     const elapsed = this.getElapsedTime();
     const estimatedTime = this.getEstimatedTimeRemaining(progress, total);
     const elapsedStr = this.formatTimeToString(elapsed);

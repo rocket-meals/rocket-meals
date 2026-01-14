@@ -10,7 +10,7 @@ import { DatabaseTypes } from 'repo-depkit-common';
 import { useDispatch, useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { DELETE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES, UPDATE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES } from '@/redux/Types/types';
-import PermissionModal from '../PermissionModal/PermissionModal';
+import useRatingPermissionModal from '@/hooks/useRatingPermissionModal';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { CanteenFeedbackLabelEntryHelper } from '@/redux/actions/CanteenFeedbackLabelEntries/CanteenFeedbackLabelEntries';
 import { isSameDay } from 'date-fns';
@@ -25,7 +25,7 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({ label, dat
 	const dispatch = useDispatch();
 	const { translate } = useLanguage();
 	const canteenFeedbackLabelEntryHelper = new CanteenFeedbackLabelEntryHelper();
-	const [warning, setWarning] = useState(false);
+	const { openRatingPermissionModal } = useRatingPermissionModal();
 	const [showTooltip, setShowTooltip] = useState(false);
 	const { primaryColor, language, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const [count, setCount] = useState({ likes: 0, dislikes: 0 });
@@ -43,7 +43,7 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({ label, dat
 	// Function to handle updating the entry
 	const handleUpdateEntry = async (isLike: boolean | null) => {
 		if (!user?.id) {
-			setWarning(true);
+			openRatingPermissionModal();
 			return;
 		}
 		let likeStats = null;
@@ -55,12 +55,20 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({ label, dat
 			likeStats = isLike;
 		}
 		// Update the entry
-		const result = (await canteenFeedbackLabelEntryHelper.updateCanteenFeedbackLabelEntry(profile.id, ownCanteenFeedBackLabelEntries, label?.id, likeStats, selectedCanteen.id, date)) as DatabaseTypes.CanteensFeedbacksLabelsEntries;
-		getLabelEntries(label?.id);
-		dispatch({
-			type: result ? UPDATE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES : DELETE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES,
-			payload: result ? result : labelData.id,
-		});
+		try {
+			const result = (await canteenFeedbackLabelEntryHelper.updateCanteenFeedbackLabelEntry(profile.id, ownCanteenFeedBackLabelEntries, label?.id, likeStats, selectedCanteen.id, date)) as DatabaseTypes.CanteensFeedbacksLabelsEntries;
+			getLabelEntries(label?.id);
+			dispatch({
+				type: result ? UPDATE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES : DELETE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES,
+				payload: result ? result : labelData.id,
+			});
+		} catch (error) {
+			if ((error as any)?.status === 403) {
+				openRatingPermissionModal();
+			} else {
+				console.error('Failed to update canteen feedback label entry:', error);
+			}
+		}
 	};
 
 	const getLabelEntries = async (labelId: string) => {
@@ -174,7 +182,6 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({ label, dat
 					</TooltipContent>
 				</Tooltip>
 			</View>
-			<PermissionModal isVisible={warning} setIsVisible={setWarning} />
 		</View>
 	);
 };

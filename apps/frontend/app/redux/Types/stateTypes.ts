@@ -1,6 +1,7 @@
+import { ConfigCustomerEnum } from '@/config';
 import { ApartmentSortOption, CampusSortOption, DatabaseTypes, FoodSortOption } from 'repo-depkit-common';
 
-export interface AuthState {
+export type AuthState = {
 	user: DatabaseTypes.DirectusUsers | Record<string, any> | null;
 	profile: DatabaseTypes.Profiles;
 	loggedIn: boolean;
@@ -9,18 +10,18 @@ export interface AuthState {
 	termsAndPrivacyConsentAcceptedDate: string | null;
 }
 
-export interface AppElementState {
+export type AppElementState = {
 	appElements: DatabaseTypes.AppElements[];
 }
 
-export interface ApartmentsState {
+export type ApartmentsState = {
 	apartments: DatabaseTypes.Apartments[];
 	apartmentsLocal: DatabaseTypes.Apartments[];
 	unSortedApartments: DatabaseTypes.Apartments[];
 	apartmentsDict: Record<string, DatabaseTypes.Apartments>;
 }
 
-export interface CanteensState {
+export type CanteensState = {
 	canteens: DatabaseTypes.Canteens[];
 	buildings: DatabaseTypes.Buildings[];
 	selectedCanteen: DatabaseTypes.Canteens | null;
@@ -32,27 +33,32 @@ export interface CanteensState {
 	ownCanteenFeedBackLabelEntries: DatabaseTypes.CanteensFeedbacksLabelsEntries[];
 }
 
-export interface SettingsState {
+export type SettingsState = {
 	selectedTheme: string;
 	isWarning: boolean;
 	sortBy: FoodSortOption;
 	campusesSortBy: CampusSortOption;
 	apartmentsSortBy: ApartmentSortOption;
 	serverInfo: Record<string, any>;
-	primaryColor: string;
-	appSettings: DatabaseTypes.AppSettings;
-	language: string;
-	firstDayOfTheWeek: { id: string; name: string };
-	drawerPosition: 'left' | 'right' | 'system';
-	wikisPages: any[];
-	wikis: DatabaseTypes.Wikis[];
-	nickNameLocal: string;
-	amountColumnsForcard: number;
-	useWebpForAssets: boolean;
-	foodOffersNextDayThreshold: string | null;
+        primaryColor: string;
+        appSettings: DatabaseTypes.AppSettings;
+        language: string;
+        firstDayOfTheWeek: { id: string; name: string };
+        drawerPosition: 'left' | 'right' | 'system';
+        selectedCustomer: ConfigCustomerEnum | null;
+        wikisPages: any[];
+        wikis: DatabaseTypes.Wikis[];
+        nickNameLocal: string;
+        amountColumnsForcard: number;
+        useWebpForAssets: boolean;
+        foodOffersNextDayThreshold: string | null;
+        debugMode: boolean;
+        simulateExpoUpdateAvailable: boolean;
+        collectibleItemSize: 'small' | 'medium' | 'large';
+        collectibleRandomPosition: boolean;
 }
 
-export interface FoodState {
+export type FoodState = {
 	foodFeedbackLabels: DatabaseTypes.FoodsFeedbacksLabels[];
 	ownFoodFeedbacks: DatabaseTypes.FoodsFeedbacks[];
 	ownfoodFeedbackLabelEntries: DatabaseTypes.FoodsFeedbacksLabelsEntries[];
@@ -69,56 +75,62 @@ export interface FoodState {
 	selectedDate: string;
 }
 
-interface ExtendedPopUpEvents extends DatabaseTypes.PopupEvents {
+type ExtendedPopUpEvents = {
 	isOpen: boolean;
 	isCurrent: number;
-}
+} & DatabaseTypes.PopupEvents;
 
-export interface FoodAttributesState {
+export type FoodAttributesState = {
 	foodAttributeGroups: DatabaseTypes.FoodsAttributesGroups[];
 	foodAttributes: DatabaseTypes.FoodsAttributes[];
 	foodAttributesDict: Record<string, DatabaseTypes.FoodsAttributes>;
 }
 
-export interface FormState {
+export type FormState = {
 	filterBy: string;
 	formSubmission: DatabaseTypes.FormSubmissions;
 }
 
-export interface CampusState {
+export type CampusState = {
 	campuses: DatabaseTypes.Buildings[];
 	campusesLocal: DatabaseTypes.Buildings[];
 	unSortedCampuses: DatabaseTypes.Buildings[];
 	campusesDict: Record<string, DatabaseTypes.Buildings>;
 }
 
-export interface NewsState {
+export type NewsState = {
 	news: DatabaseTypes.News[];
 }
 
-export interface LastUpdatedState {
+export type CollectibleEventsState = {
+        collectibleEvents: DatabaseTypes.CollectibleEvents[];
+        collectibleEventsDict: Record<string, Record<string, boolean>>;
+};
+
+export type LastUpdatedState = {
 	lastUpdatedMap: Record<string, string>;
 }
 
-interface DayPlan {
+export type DayPlan = {
 	selectedCanteen: DatabaseTypes.Canteens;
 	mealOfferCategory: { id: string; alias: string };
 	isMenuCategory: boolean;
 	nextFoodInterval: number;
 	refreshInterval: number;
 	isFullScreen: boolean;
+	showMarkingsOnCard: boolean;
 	foodCategory: { id: string; alias: string };
 	isMenuCategoryName: boolean;
 }
 
-interface FoodPlan {
+export type FoodPlan = {
 	selectedCanteen: DatabaseTypes.Canteens;
 	additionalSelectedCanteen: DatabaseTypes.Canteens;
 	nextFoodInterval: number;
 	refreshInterval: number;
 }
 
-interface WeekPlan {
+export type WeekPlan = {
 	selectedCanteen: DatabaseTypes.Canteens;
 	isAllergene: boolean;
 	selectedWeek: {
@@ -127,17 +139,17 @@ interface WeekPlan {
 	};
 }
 
-export interface ManagementState {
+export type ManagementState = {
 	dayPlan: DayPlan;
 	foodPlan: FoodPlan;
 	weekPlan: WeekPlan;
 }
 
-export interface PopupEventsHashState {
+export type PopupEventsHashState = {
 	hashValue: string;
 }
 
-export interface ChatsState {
+export type ChatsState = {
         chats: DatabaseTypes.Chats[];
         readStatus: Record<string, string>;
 }

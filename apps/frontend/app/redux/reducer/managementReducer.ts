@@ -8,6 +8,7 @@ const initialState = {
 		nextFoodInterval: 10,
 		refreshInterval: 300,
 		isFullScreen: true,
+		showMarkingsOnCard: true,
 		foodCategory: { id: '', alias: '' },
 		isMenuCategoryName: true,
 	},

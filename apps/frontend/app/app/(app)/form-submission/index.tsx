@@ -13,13 +13,15 @@ import useToast from '@/hooks/useToast';
 import { FormAnswersHelper } from '@/redux/actions/Forms/FormAnswers';
 import SubmissionWarningModal from '@/components/SubmissionWarningModal/SubmissionWarningModal';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
-import { DatabaseTypes } from 'repo-depkit-common';
+import { DatabaseTypes, FormHelperCommon } from 'repo-depkit-common';
 import SingleLineInput from '@/components/SingleLineInput/SingleLineInput';
 import MultiLineInput from '@/components/MultiLineInput/MultiLineInput';
 import IBANInput from '@/components/IBANInput/IBANInput';
 import NumberInput from '@/components/NumberInput/NumberInput';
 import EmailInput from '@/components/EmailInput/EmailInput';
-import { DateInput, DateWithTimeInput, PreciseTimestampInput, TimeInput } from '@/components/DateTimeInputs';
+import { DateWithTimeInput, PreciseTimestampInput, TimeInput } from '@/components/DateTimeInputs';
+import SettingsListDate from '@/components/SettingsListDate';
+import DebugView from '@/components/DebugView';
 import TriStateCheckbox from '@/components/TriStateCheckbox/TriStateCheckbox';
 import FileUpload from '@/components/FileUpload/FileUpload';
 import ImageUpload from '@/components/ImageUpload/ImageUpload';
@@ -91,14 +93,15 @@ const normalizeExpectedValue = (value: unknown): string => {
 };
 
 const normalizeCurrentValue = (value: unknown, customType?: string): string => {
-	if (value === null || value === undefined) return '';
+        if (customType === 'value_boolean') {
+                if (value === null || value === undefined) return 'false';
+                if (value === 1 || value === true) return 'true';
+                if (value === 0 || value === false) return 'false';
 
-	if (customType === 'value_boolean') {
-		if (value === 1 || value === true) return 'true';
-		if (value === 0 || value === false) return 'false';
+                return 'null';
+        }
 
-		return 'null';
-	}
+        if (value === null || value === undefined) return '';
 
 	if (typeof value === 'string') return value.trim().toLowerCase();
 	if (typeof value === 'number') return String(value);
@@ -133,7 +136,7 @@ const Index = () => {
 	const { user } = useSelector((state: RootState) => state.authReducer);
 	const [submissionLoading, setSubmissionLoading] = useState(false);
 	const [formData, setFormData] = useState<{
-		[key: string]: { value: any; error: string; custom_type: string };
+		[key: string]: { value: any; error: string; custom_type?: string };
 	}>({});
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const { language, drawerPosition, primaryColor } = useSelector((state: RootState) => state.settings);
@@ -176,7 +179,7 @@ const Index = () => {
 		});
 	}, [formData]);
 
-	const handleChange = (id: string, value: any, custom_type: string) => {
+	const handleChange = (id: string, value: any, custom_type?: string) => {
 		setFormData(prev => ({
 			...prev,
 			[id]: { ...prev[id], value, error: '', custom_type },
@@ -300,18 +303,17 @@ const Index = () => {
 				const fieldType = answer?.form_field?.field_type || '';
 				const prefix = answer?.form_field?.value_prefix || '-';
 				const [custom_type, ...idParts] = fieldType.split('-');
-				const custom_id = idParts.join('-');
 				const defaultValue = answer[custom_type];
 				let value;
 
 				if (custom_type === 'value_custom') {
 					value = defaultValue ? defaultValue : null;
-				} else if (custom_type === 'value_number') {
+				} else if (FormHelperCommon.isFieldTypeNumber(fieldType)) {
 					value = defaultValue ? String(defaultValue)?.replace('.', ',') : null;
 				} else if (custom_type === 'value_boolean') {
 					value = defaultValue === false ? 0 : defaultValue === true ? 1 : null;
-				} else if (['date_hh_mm', 'date', 'hh_mm', 'timestamp'].includes(custom_id)) {
-					value = parseDateForEdit(custom_id, defaultValue);
+				} else if (FormHelperCommon.isDateFieldType(fieldType)) {
+					value = parseDateForEdit(fieldType, defaultValue);
 				} else if (custom_type === 'value_files') {
 					value = defaultValue ? await getDirectusFilesData(defaultValue) : [];
 				} else if (custom_type === 'value_image') {
@@ -376,28 +378,28 @@ const Index = () => {
 		}
 	};
 
-	const formatDateForSubmission = (custom_id: string, value: string): string | null => {
+	const formatDateForSubmission = (fieldType: string, value: string): string | null => {
 		try {
 			if (!value) return null;
 
 			let dateObj;
 
-			switch (custom_id) {
-				case 'date_hh_mm': // Convert DD-MM-YYYY HH:MM → ISO
-					dateObj = parse(value, 'dd-MM-yyyy HH:mm', new Date());
+			switch (fieldType) {
+				case FormHelperCommon.FORM_FIELD_TYPE.DATE_DATE_AND_HH_MM: // Convert DD.MM.YYYY HH:MM → ISO
+					dateObj = parse(value, 'dd.MM.yyyy HH:mm', new Date());
 					break;
 
-				case 'date': // Convert DD-MM-YYYY → ISO
-					dateObj = parse(value, 'dd-MM-yyyy', new Date());
+				case FormHelperCommon.FORM_FIELD_TYPE.DATE: // Convert DD.MM.YYYY → ISO
+					dateObj = parse(value, 'dd.MM.yyyy', new Date());
 					break;
 
-				case 'hh_mm': // Convert HH:MM → ISO (Assuming today's date)
+				case FormHelperCommon.FORM_FIELD_TYPE.DATE_HH_MM: // Convert HH:MM → ISO (Assuming today's date)
 					const today = format(new Date(), 'yyyy-MM-dd');
 					dateObj = parse(`${today} ${value}`, 'yyyy-MM-dd HH:mm', new Date());
 					break;
 
-				case 'timestamp': // Convert DD-MM-YYYY HH:MM:SS → ISO
-					dateObj = parse(value, 'dd-MM-yyyy HH:mm:ss', new Date());
+				case FormHelperCommon.FORM_FIELD_TYPE.DATE_TIMESTAMP: // Convert DD.MM.YYYY HH:MM:SS → ISO
+					dateObj = parse(value, 'dd.MM.yyyy HH:mm:ss', new Date());
 					break;
 
 				default:
@@ -413,24 +415,24 @@ const Index = () => {
 		}
 	};
 
-	const parseDateForEdit = (custom_id: string, value: string): string => {
+	const parseDateForEdit = (fieldType: string, value: string): string => {
 		try {
 			if (!value) return '';
 
 			let dateObj = parseISO(value);
 			if (!isValid(dateObj)) return value; // Return raw value if parsing fails
 
-			switch (custom_id) {
-				case 'date_hh_mm': // Convert ISO → DD.MM.YYYY HH:MM
+			switch (fieldType) {
+				case FormHelperCommon.FORM_FIELD_TYPE.DATE_DATE_AND_HH_MM: // Convert ISO → DD.MM.YYYY HH:MM
 					return format(dateObj, 'dd.MM.yyyy HH:mm');
 
-				case 'date': // Convert ISO → DD.MM.YYYY
+				case FormHelperCommon.FORM_FIELD_TYPE.DATE: // Convert ISO → DD.MM.YYYY
 					return format(dateObj, 'dd.MM.yyyy');
 
-				case 'hh_mm': // Convert ISO → HH:MM
+				case FormHelperCommon.FORM_FIELD_TYPE.DATE_HH_MM: // Convert ISO → HH:MM
 					return format(dateObj, 'HH:mm');
 
-				case 'timestamp': // Convert ISO → DD.MM.YYYY HH:MM:SS
+				case FormHelperCommon.FORM_FIELD_TYPE.DATE_TIMESTAMP: // Convert ISO → DD.MM.YYYY HH:MM:SS
 					return format(dateObj, 'dd.MM.yyyy HH:mm:ss');
 
 				default:
@@ -534,8 +536,8 @@ const Index = () => {
 
 				const { custom_type } = formDataEntry;
 				let formateDate;
-				if (['date_hh_mm', 'date', 'hh_mm', 'timestamp'].includes(custom_id)) {
-					formateDate = formatDateForSubmission(custom_id, value);
+				if (FormHelperCommon.isDateFieldType(fieldType)) {
+					formateDate = formatDateForSubmission(fieldType, value);
 				}
 
 				let updatedValueFields = {};
@@ -596,7 +598,8 @@ const Index = () => {
 				}
 			} catch (error) {
 				console.error('Error updating form answers:', error);
-				toast('An error occurred while updating form answers', 'error');
+				const errorMessage = error instanceof Error ? error.message : String(error);
+				toast(errorMessage || 'An error occurred while updating form answers', 'error');
 			} finally {
 				setSubmissionLoading(false);
 				setFormData({});
@@ -829,10 +832,20 @@ const Index = () => {
 											{custom_id === 'number' && showInForm && <NumberInput id={fieldId} value={formData[fieldId]?.value || ''} onChange={handleChange} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} prefix={prefix} suffix={suffix} />}
 											{custom_id === 'email' && showInForm && <EmailInput id={fieldId} value={formData[fieldId]?.value || ''} onChange={handleChange} onError={handleError} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} prefix={prefix} suffix={suffix} />}
 											{custom_id === 'date_hh_mm' && showInForm && <DateWithTimeInput id={fieldId} value={formData[fieldId]?.value || ''} onChange={handleChange} onError={handleError} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} prefix={prefix} suffix={suffix} />}
-											{custom_id === 'date' && showInForm && <DateInput id={fieldId} value={formData[fieldId]?.value || ''} onChange={handleChange} onError={handleError} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} prefix={prefix} suffix={suffix} />}
+											{custom_id === 'date' && showInForm && <SettingsListDate id={fieldId} value={formData[fieldId]?.value || ''} onChange={handleChange} onError={handleError} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} prefix={prefix} suffix={suffix} />}
 											{custom_id === 'hh_mm' && showInForm && <TimeInput id={fieldId} value={formData[fieldId]?.value || ''} onChange={handleChange} onError={handleError} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} prefix={prefix} suffix={suffix} />}
 											{custom_id === 'timestamp' && showInForm && <PreciseTimestampInput id={fieldId} value={formData[fieldId]?.value || ''} onChange={handleChange} onError={handleError} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} prefix={prefix} suffix={suffix} />}
-											{custom_id === 'checkbox' && showInForm && <TriStateCheckbox id={fieldId} value={formData[fieldId]?.value} onChange={handleChange} isDisabled={isDisabled} custom_type={custom_type} />}
+                                                                                        {custom_id === 'checkbox' &&
+                                                                                                showInForm && (
+                                                                                                        <TriStateCheckbox
+                                                                                                                id={fieldId}
+                                                                                                                value={formData[fieldId]?.value}
+                                                                                                                onChange={handleChange}
+                                                                                                                isDisabled={isDisabled}
+                                                                                                                custom_type={custom_type}
+                                                                                                                onlyTwo
+                                                                                                        />
+                                                                                                )}
 											{custom_id === 'files' && showInForm && <FileUpload id={fieldId} value={formData[fieldId]?.value} onChange={handleChange} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} />}
 											{custom_id === 'image' && showInForm && <ImageUpload id={fieldId} value={formData[fieldId]?.value} onChange={handleChange} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} />}
 											{custom_id === 'signature' && showInForm && <SignatureInterface id={fieldId} value={formData[fieldId]?.value} onChange={handleChange} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} scrollViewRef={scrollViewRef} />}
@@ -840,6 +853,9 @@ const Index = () => {
 										</View>
 									);
 								})}
+							<DebugView title="Form Data" isVisible>
+								<Text style={{ ...styles.body, color: theme.screen.text }}>{JSON.stringify(formData, null, 2)}</Text>
+							</DebugView>
 						</View>
 					)}
 				</View>

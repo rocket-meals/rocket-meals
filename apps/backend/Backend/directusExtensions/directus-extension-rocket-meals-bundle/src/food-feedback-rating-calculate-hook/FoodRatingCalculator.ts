@@ -1,10 +1,10 @@
-import { DatabaseTypes } from 'repo-depkit-common';
+import { DatabaseTypes, RatingHelper } from 'repo-depkit-common';
 import { ApiContext } from '../helpers/ApiContext';
 import { MyDatabaseHelper } from '../helpers/MyDatabaseHelper';
 
 export class FoodRatingCalculator {
-  static MAX_RATING_VALUE = 5;
-  static MIN_RATING_VALUE = 1;
+  static MAX_RATING_VALUE = RatingHelper.MAX_RATING;
+  static MIN_RATING_VALUE = RatingHelper.MIN_RATING;
 
   private readonly myDatabaseHelper: MyDatabaseHelper;
 
@@ -42,22 +42,12 @@ export class FoodRatingCalculator {
     return await foodsService.readOne(food_id);
   }
 
-  static getNumberIfValueInRatingRange(value: number | null | undefined) {
-    if (value === null || value === undefined) {
-      return null;
-    }
-    if (FoodRatingCalculator.MIN_RATING_VALUE <= value && value <= FoodRatingCalculator.MAX_RATING_VALUE) {
-      return value;
-    }
-    return null;
-  }
-
   static calculateFoodRating(food: Partial<DatabaseTypes.Foods>, food_feedbacks: Partial<DatabaseTypes.FoodsFeedbacks>[]) {
     let sum_rating_values = 0;
     let rating_amount = 0;
     for (let food_feedback of food_feedbacks) {
       let rating = food_feedback?.rating;
-      const valid_rating = FoodRatingCalculator.getNumberIfValueInRatingRange(rating);
+      const valid_rating = RatingHelper.getNumberIfValueInRatingRange(rating);
       if (valid_rating !== null) {
         sum_rating_values += valid_rating;
         rating_amount++;

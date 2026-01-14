@@ -1,100 +1,100 @@
 [
   {
-    "accountability": "all",
-    "status": "active",
-    "trigger": "schedule",
-    "operation": "20fb7fd4-2daa-41d2-b9b0-e2d95e4efd38",
+    "description": null,
     "options": {
       "cron": "5 0 18 * * *"
     },
-    "icon": "bolt",
+    "accountability": "all",
+    "trigger": "schedule",
+    "status": "active",
     "color": null,
+    "icon": "bolt",
     "name": "Food-Notify-Cron-18:00",
-    "description": null,
+    "operation": "20fb7fd4-2daa-41d2-b9b0-e2d95e4efd38",
     "_syncId": "017ffe97-5499-43ce-87fc-f755815d2b62"
   },
   {
-    "accountability": "all",
-    "status": "active",
-    "trigger": "schedule",
-    "operation": "998bc28d-0989-4004-81db-030acb7e9ced",
+    "description": null,
     "options": {
       "cron": "0 */5 * * * *"
     },
-    "icon": "bolt",
+    "accountability": "all",
+    "trigger": "schedule",
+    "status": "active",
     "color": null,
+    "icon": "bolt",
     "name": "Cashregister-Sync-Cron-5min",
-    "description": null,
+    "operation": "998bc28d-0989-4004-81db-030acb7e9ced",
     "_syncId": "16feb8c5-d138-454a-8fd6-e60394661f91"
   },
   {
-    "accountability": "all",
-    "status": "inactive",
-    "trigger": "schedule",
-    "operation": "5ffa1c3f-8417-47ee-99a6-265eedd2e628",
+    "description": null,
     "options": {
       "cron": "30 */10 * * * *"
     },
-    "icon": "bolt",
+    "accountability": "all",
+    "trigger": "schedule",
+    "status": "inactive",
     "color": null,
+    "icon": "bolt",
     "name": "Washingmachines-Sync-Cron-10min",
-    "description": null,
+    "operation": "5ffa1c3f-8417-47ee-99a6-265eedd2e628",
     "_syncId": "3a675c40-2a17-4a25-a3ba-ab8fc9d5e7a0"
   },
   {
-    "accountability": "all",
-    "status": "active",
-    "trigger": "schedule",
-    "operation": "b69818ed-f3ba-41ba-9822-75fb159d9342",
+    "description": null,
     "options": {
       "cron": "25 */15 * * * *"
     },
-    "icon": "bolt",
+    "accountability": "all",
+    "trigger": "schedule",
+    "status": "active",
     "color": null,
+    "icon": "bolt",
     "name": "UtilizationParse-Cron-15min",
-    "description": null,
+    "operation": "b69818ed-f3ba-41ba-9822-75fb159d9342",
     "_syncId": "4bb7441a-82da-4d3c-b778-dbca944fe4d5"
   },
   {
-    "accountability": "all",
-    "status": "active",
-    "trigger": "schedule",
-    "operation": "0fe81b52-6bf8-4464-93a2-a99ba09e81b2",
+    "description": null,
     "options": {
       "cron": "10 */5 * * * *"
     },
-    "icon": "bolt",
+    "accountability": "all",
+    "trigger": "schedule",
+    "status": "active",
     "color": null,
+    "icon": "bolt",
     "name": "Food-Sync-Cron-5min",
-    "description": null,
+    "operation": "0fe81b52-6bf8-4464-93a2-a99ba09e81b2",
     "_syncId": "c5c0602c-889f-4d4a-8af3-90b4be91a20c"
   },
   {
-    "accountability": "all",
-    "status": "inactive",
-    "trigger": "schedule",
-    "operation": "a2921f71-77e7-42d2-82a4-54968e7cdcb7",
+    "description": null,
     "options": {
       "cron": "15 0 4 * * *"
     },
-    "icon": "bolt",
+    "accountability": "all",
+    "trigger": "schedule",
+    "status": "inactive",
     "color": null,
+    "icon": "bolt",
     "name": "Housing-Sync-Cron-4AM",
-    "description": null,
+    "operation": "a2921f71-77e7-42d2-82a4-54968e7cdcb7",
     "_syncId": "d1b80b70-debc-442c-89f2-3a0f32731247"
   },
   {
-    "accountability": "all",
-    "status": "active",
-    "trigger": "schedule",
-    "operation": "1d3d7604-b5bc-4e1a-a1d5-9b57b6092093",
+    "description": null,
     "options": {
       "cron": "20 0 4 * * *"
     },
-    "icon": "bolt",
+    "accountability": "all",
+    "trigger": "schedule",
+    "status": "active",
     "color": null,
+    "icon": "bolt",
     "name": "News-Sync-Cron-4AM",
-    "description": null,
+    "operation": "1d3d7604-b5bc-4e1a-a1d5-9b57b6092093",
     "_syncId": "fcd01059-33f0-486e-a407-2eb361848025"
   }
 ]

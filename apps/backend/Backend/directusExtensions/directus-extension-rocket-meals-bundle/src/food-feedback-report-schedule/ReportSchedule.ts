@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { ReportGenerator, ReportType } from './ReportGenerator';
+import {ReportContext, ReportGenerator, ReportType} from './ReportGenerator';
 import { ItemsServiceCreator } from '../helpers/ItemsServiceCreator';
 import { CollectionNames, DatabaseTypes, DateHelper, Weekday } from 'repo-depkit-common';
 import { ApiContext } from '../helpers/ApiContext';
@@ -43,15 +43,21 @@ export class ReportSchedule {
           let recipientEmailList = await this.getRecipientEmailList(reportSchedule);
 
           if (recipientEmailList.length > 0) {
-            let canteensDict = await this.getCanteenEntries(reportSchedule);
-            if (Object.keys(canteensDict).length > 0) {
+            let canteenEntries = await this.getCanteenEntries(reportSchedule);
+            if (Object.keys(canteenEntries).length > 0) {
               try {
                 // 3. send report
 
-                let generated_report_data: ReportType = await reportGenerator.generateReportJSON(reportSchedule, startDate, endDate, canteensDict);
+                let reportContext: ReportContext = {
+                  reportSchedule: reportSchedule,
+                  startDate: startDate,
+                  endDate: endDate,
+                  canteenEntries: canteenEntries,
+                }
+                let generated_report_data: ReportType = await reportGenerator.generateReportJSON(reportContext);
                 if (!!generated_report_data) {
                   for (let toMail of recipientEmailList) {
-                    await this.sendReport(generated_report_data, reportSchedule, canteensDict, toMail);
+                    await this.sendReport(generated_report_data, reportSchedule, canteenEntries, toMail);
                   }
                   //console.log("Report was sent successfully for the date: setting the next report date")
                   await this.setNextReportDate(reportSchedule);

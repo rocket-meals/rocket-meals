@@ -1,16 +1,17 @@
 import React from 'react';
-import { Image, ScrollView, View } from 'react-native';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux/reducer';
-import { useTheme } from '@/hooks/useTheme';
-import { TranslationKeys } from '@/locales/keys';
+import {Image, ScrollView, View} from 'react-native';
+import {useSelector} from 'react-redux';
+import {RootState} from '@/redux/reducer';
+import {useTheme} from '@/hooks/useTheme';
+import {TranslationKeys} from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { getImageUrl } from '@/constants/HelperFunctions';
-import { CommonSystemActionHelper } from '@/helper/SystemActionHelper';
+import {getImageUrl} from '@/constants/HelperFunctions';
+import {CommonSystemActionHelper} from '@/helper/SystemActionHelper';
 import DownloadItem from '@/components/DownloadItem';
 import appleStoreIcon from '@/assets/icons/apple-store.png';
 import googlePlayIcon from '@/assets/icons/google-play.png';
 import styles from './styles';
+import {getAppIconInsideExpoLocalSaved} from "@/config";
 
 const AppDownload = () => {
 	useSetPageTitle(TranslationKeys.app_download);
@@ -19,7 +20,7 @@ const AppDownload = () => {
 
 	const projectLogo = serverInfo?.info?.project?.project_logo && getImageUrl(serverInfo.info.project.project_logo);
 
-	const iconSource = projectLogo ? { uri: projectLogo } : require('../../../../assets/images/icon.png');
+	const iconSource = projectLogo ? { uri: projectLogo } : getAppIconInsideExpoLocalSaved()
 
 	const iosUrl = appSettings?.app_stores_url_to_apple;
 	const androidUrl = appSettings?.app_stores_url_to_google;

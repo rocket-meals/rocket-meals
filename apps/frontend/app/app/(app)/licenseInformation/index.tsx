@@ -7,6 +7,8 @@ import { isWeb } from '@/constants/Constants';
 import { Entypo } from '@expo/vector-icons';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
+import { CollectibleAt } from 'repo-depkit-common';
 
 const LicenseInformation = () => {
 	useSetPageTitle(TranslationKeys.license_information);
@@ -187,12 +189,13 @@ const LicenseInformation = () => {
 									</View>
 								)}
 							</View>
-						))}
-					</View>
-				</View>
-			</ScrollView>
-		</View>
-	);
+                                                ))}
+                                        </View>
+                                        <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_license_information} />
+                                </View>
+                        </ScrollView>
+                </View>
+        );
 };
 
 export default LicenseInformation;

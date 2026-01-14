@@ -229,8 +229,11 @@ async function handleActionRunningCreatedOrUpdatedWorkflow(payload: Partial<Data
           for (let workflowRun of workflowRuns) {
             //console.log("-- Running workflowRun: "+workflowRun.id);
             let date_started = new Date().toISOString();
-            await myDatabaseHelper.getWorkflowsRunsHelper().updateOneWithoutHookTrigger(workflowRun.id, {
-              date_started: date_started,
+            await myDatabaseHelper.getWorkflowsRunsHelper().updateOneWithoutHookTrigger({
+                primary_key: workflowRun.id,
+                update: {
+                    date_started: date_started,
+                }
             });
 
             let result: Partial<DatabaseTypes.WorkflowsRuns> = workflowRun;
@@ -264,7 +267,10 @@ async function handleActionRunningCreatedOrUpdatedWorkflow(payload: Partial<Data
             result.date_finished = new Date().toISOString();
             result.runtime_in_seconds = parseInt('' + (new Date(result.date_finished).getTime() - new Date(date_started).getTime()) / 1000);
 
-            await myDatabaseHelper.getWorkflowsRunsHelper().updateOneWithoutHookTrigger(workflowRun.id, result);
+            await myDatabaseHelper.getWorkflowsRunsHelper().updateOneWithoutHookTrigger({
+              primary_key: workflowRun.id,
+              update: result,
+            });
           }
         }
       }

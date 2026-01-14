@@ -11,22 +11,22 @@ import { FoodFeedbackLabelEntryHelper } from '@/redux/actions/FoodFeeedbackLabel
 import { useDispatch, useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { DELETE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES_LOCAL, UPDATE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES_LOCAL } from '@/redux/Types/types';
-import PermissionModal from '../PermissionModal/PermissionModal';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
+import useRatingPermissionModal from '@/hooks/useRatingPermissionModal';
 
 const FeedbackLabel: React.FC<FeedbackLabelProps> = ({ label, icon, imageUrl, labelEntries, foodId, offerId }) => {
 	const { theme } = useTheme();
 	const dispatch = useDispatch();
 	const { translate } = useLanguage();
 	const { primaryColor, language, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
-	const [warning, setWarning] = useState(false);
 	const [showTooltip, setShowTooltip] = useState(false);
 	const { user, profile } = useSelector((state: RootState) => state.authReducer);
 	const selectedCanteen = useSelectedCanteen();
+	const { openRatingPermissionModal } = useRatingPermissionModal();
 	const foodFeedbackLabelEntryHelper = new FoodFeedbackLabelEntryHelper();
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
 	const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
@@ -39,7 +39,7 @@ const FeedbackLabel: React.FC<FeedbackLabelProps> = ({ label, icon, imageUrl, la
 	// Function to handle updating the entry
 	const handleUpdateEntry = async (isLike: boolean | null) => {
 		if (!user?.id) {
-			setWarning(true);
+			openRatingPermissionModal();
 			return;
 		}
 		let likeStats = null;
@@ -146,7 +146,6 @@ const FeedbackLabel: React.FC<FeedbackLabelProps> = ({ label, icon, imageUrl, la
 					</TooltipContent>
 				</Tooltip>
 			</View>
-			<PermissionModal isVisible={warning} setIsVisible={setWarning} />
 		</View>
 	);
 };

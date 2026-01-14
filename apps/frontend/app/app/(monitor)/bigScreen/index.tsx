@@ -1,12 +1,11 @@
 import { Animated, Dimensions, Easing, Image, ScrollView, Text, View } from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFoodsByCanteen } from '@/redux/actions/FoodOffers/FoodOffers';
 import { getImageUrl, showDayPlanPrice, showFormatedPrice } from '@/constants/HelperFunctions';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
-import { myContrastColor } from '@/helper/ColorHelper';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useLocalSearchParams } from 'expo-router';
 import NetInfo from '@react-native-community/netinfo';
@@ -20,6 +19,11 @@ import { DatabaseTypes } from 'repo-depkit-common';
 import { SET_FOOD_CATEGORIES, SET_FOOD_OFFERS_CATEGORIES } from '@/redux/Types/types';
 import { FoodOffersCategoriesHelper } from '@/redux/actions/FoodOffersCategories/FoodOffersCategories';
 import { PriceGroupKey } from '@/app/(app)/settings/types';
+import { getAppIconInsideExpoLocalSaved } from '@/config';
+
+export const bigScreenDefaultValues = {
+	showMarkingsOnCard: true,
+};
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.big_screen);
@@ -34,11 +38,11 @@ const Index = () => {
 	const [currentTime, setCurrentTime] = useState('');
 	const { markings, foodCategories, foodOfferCategories } = useSelector((state: RootState) => state.food);
 	const [logoStyle, setLogoStyle] = useState(styles.logo);
-	const { language, primaryColor: projectColor, appSettings, serverInfo, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
+	const { language, primaryColor: projectColor, appSettings, serverInfo } = useSelector((state: RootState) => state.settings);
 	const [foods, setFoods] = useState([]);
 	const [currentFoodIndex, setCurrentFoodIndex] = useState(0);
 	const [currentFood, setCurrentFood] = useState<any>(null);
-	const [currentMarking, setCurrentMarking] = useState([]);
+	const [currentMarking, setCurrentMarking] = useState<DatabaseTypes.Markings[]>([]);
 	const [currentFoodCategory, setCurrentFoodCategory] = useState<any>(null);
 	const [currentFoodOfferCategory, setCurrentFoodOfferCategory] = useState<any>(null);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
@@ -50,6 +54,27 @@ const Index = () => {
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
 
 	const defaultImage = getImageUrl(String(appSettings.foods_placeholder_image)) || appSettings.foods_placeholder_image_remote_url || getImageUrl(serverInfo?.info?.project?.project_logo);
+
+	const resolveBooleanParam = (param: string | string[] | undefined, fallback: boolean) => {
+		if (Array.isArray(param)) {
+			return param[0] === 'true';
+		}
+		if (typeof param === 'string') {
+			return param === 'true';
+		}
+		return fallback;
+	};
+
+	const showMarkingsOnCard = useMemo(
+		() => resolveBooleanParam(params?.showMarkingsOnCard, bigScreenDefaultValues.showMarkingsOnCard),
+		[params?.showMarkingsOnCard]
+	);
+
+	const cardMarkingSize = useMemo(() => (screenWidth > 1200 ? 100 : screenWidth > 900 ? 80 : 60), [screenWidth]);
+	const cardMarkings = useMemo(
+		() => currentMarking.filter(mark => mark?.show_on_card),
+		[currentMarking]
+	);
 
 	useEffect(() => {
 		const unsubscribe = NetInfo.addEventListener(state => {
@@ -243,32 +268,15 @@ const Index = () => {
 	};
 
 	const fetchMarkingLabels = useCallback(() => {
-		if (!currentFood?.markings || !markings) return;
+		if (!currentFood?.markings || !markings) {
+			setCurrentMarking([]);
+			return;
+		}
 
 		const markingIds = currentFood?.markings?.map((mark: any) => mark.markings_id);
 
-		const filteredMarkings = markings?.filter((mark: any) => markingIds?.includes(mark.id));
-
-		let dummyMarkings: any = [];
-		if (filteredMarkings) {
-			filteredMarkings?.forEach((item: any) => {
-				const markingImage = item?.image_remote_url ? { uri: item?.image_remote_url } : { uri: getImageUrl(item?.image) };
-
-				const backgroundColor = item?.background_color;
-				const MarkingColor = myContrastColor(item?.background_color, theme, mode === 'dark');
-				dummyMarkings.push({
-					image: markingImage,
-					bgColor: backgroundColor,
-					color: MarkingColor,
-					shortCode: item?.short_code,
-					icon: item?.icon,
-					hide_border: item?.hide_border,
-				});
-			});
-			if (dummyMarkings) {
-				setCurrentMarking(dummyMarkings);
-			}
-		}
+		const filteredMarkings = markings?.filter((mark: any) => markingIds?.includes(mark.id)) || [];
+		setCurrentMarking(filteredMarkings);
 	}, [currentFood, markings]);
 
 	useEffect(() => {
@@ -298,6 +306,26 @@ const Index = () => {
 			useNativeDriver: false,
 		}).start();
 	};
+
+	const imageSource =
+		currentFood?.food?.image_remote_url || getImageUrl(currentFood?.food?.image)
+			? {
+					uri: currentFood?.food?.image_remote_url || getImageUrl(currentFood?.food?.image),
+				}
+			: { uri: defaultImage };
+
+	const renderFoodImage = (containerStyle: { width: number; height: number; backgroundColor?: string }) => (
+		<View style={[styles.imageWrapper, containerStyle]}>
+			<Image source={imageSource} style={styles.image} resizeMode="cover" />
+			{showMarkingsOnCard && cardMarkings.length > 0 && (
+				<View style={styles.cardMarkingsContainer}>
+					{cardMarkings.map(marking => (
+						<MarkingIcon key={marking.id} marking={marking} size={cardMarkingSize} compact />
+					))}
+				</View>
+			)}
+		</View>
+	);
 
 	return (
 		<ScrollView
@@ -386,20 +414,7 @@ const Index = () => {
 					<>
 						{height > width && (
 							<View style={{ ...styles.col2 }}>
-								<Image
-									source={
-										currentFood?.food?.image_remote_url || getImageUrl(currentFood?.food?.image)
-											? {
-													uri: currentFood?.food?.image_remote_url || getImageUrl(currentFood?.food?.image),
-												}
-											: { uri: defaultImage }
-									}
-									style={{
-										width: width,
-										height: width,
-									}}
-									resizeMode="cover"
-								/>
+								{renderFoodImage({ width: width, height: width })}
 							</View>
 						)}
 						<View
@@ -493,16 +508,9 @@ const Index = () => {
 								</Text>
 								<View style={styles.labelsContainer}>
 									{currentMarking &&
-										currentMarking?.map((item: any, idx: number) => {
-											const marking = {
-												icon: item.icon,
-												short_code: item.shortCode,
-												image_remote_url: item.image?.uri,
-												background_color: item.bgColor,
-												hide_border: item.hide_border,
-											} as any;
-											return <MarkingIcon key={idx} marking={marking} size={30} color={item.color} />;
-										})}
+										currentMarking?.map((item: DatabaseTypes.Markings) => (
+											<MarkingIcon key={item.id} marking={item} size={30} />
+										))}
 								</View>
 							</View>
 						</View>
@@ -513,21 +521,11 @@ const Index = () => {
 				<>
 					{height < width && (
 						<View style={{ ...styles.col2 }}>
-							<Image
-								source={
-									currentFood?.food?.image_remote_url || getImageUrl(currentFood?.food?.image)
-										? {
-												uri: currentFood?.food?.image_remote_url || getImageUrl(currentFood?.food?.image),
-											}
-										: { uri: defaultImage }
-								}
-								style={{
-									width: imageSize,
-									height: width > height ? height - 2 : imageSize,
-									backgroundColor: theme.screen.iconBg,
-								}}
-								resizeMode="cover"
-							/>
+							{renderFoodImage({
+								width: imageSize,
+								height: width > height ? height - 2 : imageSize,
+								backgroundColor: theme.screen.iconBg,
+							})}
 						</View>
 					)}
 				</>
@@ -535,7 +533,7 @@ const Index = () => {
 			{foods && foods?.length < 1 && (
 				<View style={styles.emptyContainer}>
 					<View style={{ flex: 1 }}>
-						<Image source={require('@/assets/images/icon.png')} resizeMode="cover" />
+						<Image source={getAppIconInsideExpoLocalSaved()} resizeMode="cover" />
 					</View>
 				</View>
 			)}

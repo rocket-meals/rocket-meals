@@ -1,86 +1,93 @@
 [
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "Mensen",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Mensen",
     "_syncId": "09b59cc1-13e5-4210-84b8-ad6704b867e4"
   },
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "Workflows",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Workflows",
     "_syncId": "107ae978-0259-41e8-9bf0-3b4f0830112b"
   },
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "Nutzer",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Nutzer",
     "_syncId": "116a8172-4d9a-4e62-adeb-24160389d016"
   },
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "Speise Feedback Labels",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Speise Feedback Labels",
     "_syncId": "11c0294b-0d31-4145-81e4-5a52b9180af1"
   },
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "Server",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Server",
     "_syncId": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62"
   },
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "App",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "App",
     "_syncId": "2b4f29a0-8fb8-4ed2-8a6c-6244b788c9cd"
   },
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "Mensa Auslatungen",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Mensa Auslatungen",
     "_syncId": "43d488cb-5723-455c-a1f0-db366bf32512"
   },
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "Kassendaten",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Kassendaten",
     "_syncId": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab"
   },
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "Geräte",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Geräte",
     "_syncId": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25"
   },
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "Mails",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Mails",
     "_syncId": "b46df209-45f2-4a9e-ba1b-dfbc7d78602d"
   },
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "Waschmaschienen",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Collectible Events",
+    "_syncId": "c9c0ce22-3267-4371-b45d-150caad14114"
+  },
+  {
+    "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Waschmaschienen",
     "_syncId": "e337cf40-e1f1-4381-9e20-6f50a19aebc4"
   },
   {
-    "icon": "space_dashboard",
-    "color": null,
-    "name": "Speisen",
     "note": null,
+    "color": null,
+    "icon": "space_dashboard",
+    "name": "Speisen",
     "_syncId": "e64e5e4c-7a81-43ce-aa89-85ae27971add"
   }
 ]

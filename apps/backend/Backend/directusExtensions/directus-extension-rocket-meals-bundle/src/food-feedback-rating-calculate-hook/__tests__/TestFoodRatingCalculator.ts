@@ -1,14 +1,14 @@
 // small jest test
 import { describe, expect, it } from '@jest/globals';
-import { DatabaseTypes } from 'repo-depkit-common';
+import { DatabaseTypes, RatingHelper } from 'repo-depkit-common';
 import { FoodRatingCalculator } from '../FoodRatingCalculator';
 
 describe('FoodRatingCalculator Test', () => {
-  const RATING_VALUE_AVG = (FoodRatingCalculator.MAX_RATING_VALUE + FoodRatingCalculator.MIN_RATING_VALUE) / 2;
-  const RATING_VALUE_LOW = FoodRatingCalculator.MIN_RATING_VALUE;
-  const RATING_VALUE_HIGH = FoodRatingCalculator.MAX_RATING_VALUE;
-  const RATING_VALUE_INVALID_LOW = FoodRatingCalculator.MIN_RATING_VALUE - 1;
-  const RATING_VALUE_INVALID_HIGH = FoodRatingCalculator.MAX_RATING_VALUE + 1;
+  const RATING_VALUE_AVG = RatingHelper.RATING_VALUE_AVG;
+  const RATING_VALUE_LOW = RatingHelper.RATING_VALUE_LOW;
+  const RATING_VALUE_HIGH = RatingHelper.RATING_VALUE_HIGH;
+  const RATING_VALUE_INVALID_LOW = RatingHelper.RATING_VALUE_INVALID_LOW;
+  const RATING_VALUE_INVALID_HIGH = RatingHelper.RATING_VALUE_INVALID_HIGH;
 
   // Medium rating
   it('medium feedback rating', async () => {
@@ -200,16 +200,16 @@ describe('FoodRatingCalculator Test', () => {
 
   // check valid rating values
   it('valid rating values', async () => {
-    for (let i = FoodRatingCalculator.MIN_RATING_VALUE; i <= FoodRatingCalculator.MAX_RATING_VALUE; i++) {
-      const valid_rating = FoodRatingCalculator.getNumberIfValueInRatingRange(i);
+    for (let i = RatingHelper.MIN_RATING; i <= RatingHelper.MAX_RATING; i++) {
+      const valid_rating = RatingHelper.getNumberIfValueInRatingRange(i);
       expect(valid_rating).toBe(i);
     }
   });
 
   // check invalid rating values
   it('invalid rating values', async () => {
-    const invalid_rating_low = FoodRatingCalculator.getNumberIfValueInRatingRange(FoodRatingCalculator.MIN_RATING_VALUE - 1);
-    const invalid_rating_high = FoodRatingCalculator.getNumberIfValueInRatingRange(FoodRatingCalculator.MAX_RATING_VALUE + 1);
+    const invalid_rating_low = RatingHelper.getNumberIfValueInRatingRange(RatingHelper.MIN_RATING - 1);
+    const invalid_rating_high = RatingHelper.getNumberIfValueInRatingRange(RatingHelper.MAX_RATING + 1);
     expect(invalid_rating_low).toBe(null);
     expect(invalid_rating_high).toBe(null);
   });
@@ -218,7 +218,7 @@ describe('FoodRatingCalculator Test', () => {
   it('randomized feedback ratings', async () => {
     const amount_feedbacks = 100;
     const rating_values_valid_and_invalid: number[] = [];
-    for (let i = FoodRatingCalculator.MIN_RATING_VALUE - 5; i <= FoodRatingCalculator.MAX_RATING_VALUE + 5; i++) {
+    for (let i = RatingHelper.MIN_RATING - 5; i <= RatingHelper.MAX_RATING + 5; i++) {
       rating_values_valid_and_invalid.push(i);
     }
 
@@ -232,7 +232,7 @@ describe('FoodRatingCalculator Test', () => {
         rating: rating_value,
       });
 
-      const valid_rating = FoodRatingCalculator.getNumberIfValueInRatingRange(rating_value);
+      const valid_rating = RatingHelper.getNumberIfValueInRatingRange(rating_value);
       if (valid_rating !== null) {
         valid_rating_sum += valid_rating;
         valid_rating_amount++;

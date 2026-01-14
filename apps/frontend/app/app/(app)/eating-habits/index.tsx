@@ -18,6 +18,8 @@ import useSetPageTitle from '@/hooks/useSetPageTitle';
 import MarkingBottomSheet from '@/components/MarkingBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { RootState } from '@/redux/reducer';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
+import { CollectibleAt } from 'repo-depkit-common';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.eating_habits);
@@ -125,14 +127,15 @@ const Index = () => {
 							</TouchableOpacity>
 						</View>
 						<View style={styles.feedbackLabelsContainer}>
-							{markings?.map(marking => {
-								return <MarkingLabels key={marking?.id} markingId={marking?.id} handleMenuSheet={openMenuSheet} />;
-							})}
-						</View>
-					</View>
-				</ScrollView>
-			</View>
-			{isActive && <MarkingBottomSheet ref={menuSheetRef} onClose={closeMenuSheet} />}
+                                                {markings?.map(marking => {
+                                                        return <MarkingLabels key={marking?.id} markingId={marking?.id} handleMenuSheet={openMenuSheet} />;
+                                                })}
+                                        </View>
+                                        <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_markings} />
+                                </View>
+                        </ScrollView>
+                </View>
+                {isActive && <MarkingBottomSheet ref={menuSheetRef} onClose={closeMenuSheet} />}
 		</SafeAreaView>
 	);
 };

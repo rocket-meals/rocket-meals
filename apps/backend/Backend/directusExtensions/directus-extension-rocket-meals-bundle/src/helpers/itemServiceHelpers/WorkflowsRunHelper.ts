@@ -4,14 +4,34 @@ import { WorkflowRunLogger } from '../../workflows-runs-hook/WorkflowRunJobInter
 import { WORKFLOW_RUN_STATE } from './WorkflowsRunEnum';
 
 export class WorkflowResultHash {
-  private readonly result_hash: string | null | undefined;
+  private readonly result_hash: Record<string, unknown> | Array<unknown> | null;
 
-  constructor(result_hash: string | null | undefined) {
-    this.result_hash = result_hash;
+  constructor(result_hash: unknown) {
+    this.result_hash = WorkflowResultHash.convertToObject(result_hash);
+  }
+
+  private static convertToObject(result_hash: unknown): Record<string, unknown> | Array<unknown> | null {
+    if (result_hash === null || result_hash === undefined) {
+      return null;
+    }
+
+    if (typeof result_hash === 'string') {
+      try {
+        return JSON.parse(result_hash);
+      } catch {
+        return { value: result_hash };
+      }
+    }
+
+    if (typeof result_hash === 'object') {
+      return result_hash as Record<string, unknown> | Array<unknown>;
+    }
+
+    return { value: result_hash };
   }
 
   public isSame(otherResultHash: WorkflowResultHash) {
-    return this.result_hash === otherResultHash.result_hash;
+    return JSON.stringify(this.result_hash) === JSON.stringify(otherResultHash.result_hash);
   }
 
   public getHash() {

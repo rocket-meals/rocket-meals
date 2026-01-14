@@ -11,6 +11,8 @@ import { SET_NEWS } from '@/redux/Types/types';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
+import { CollectibleAt } from 'repo-depkit-common';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.news);
@@ -73,6 +75,7 @@ const Index = () => {
 				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
 			>
 				<View style={styles.newsListContainer}>
+					<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_news} />
 					{loading ? (
 						<View
 							style={{
@@ -85,17 +88,17 @@ const Index = () => {
 							<ActivityIndicator size={30} color={theme.screen.text} />
 						</View>
 					) : (
-						news &&
-						news?.map((item: DatabaseTypes.News, index: number) => {
-							if (item?.translations?.length > 1) {
-								return <NewsItem key={item?.id} news={item} />;
-							}
-						})
-					)}
-				</View>
-			</ScrollView>
-		</SafeAreaView>
-	);
+                                                news &&
+                                                news?.map((item: DatabaseTypes.News, index: number) => {
+                                                        if (item?.translations?.length > 1) {
+                                                                return <NewsItem key={item?.id} news={item} />;
+                                                        }
+                                                })
+                                        )}
+                                </View>
+                        </ScrollView>
+                </SafeAreaView>
+        );
 };
 
 export default Index;

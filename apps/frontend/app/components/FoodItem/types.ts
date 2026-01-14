@@ -6,9 +6,8 @@ export interface FoodItemProps {
 	canteen: DatabaseTypes.Canteens;
 	// handleNavigation: (id: string, foodId: string) => void;
 	handleMenuSheet: (sheet: keyof typeof SHEET_COMPONENTS) => void;
-	handleImageSheet: (id: string) => void;
+	handleImageSheet: (item: DatabaseTypes.Foods) => void;
 	handleEatingHabitsSheet: (sheet: keyof typeof SHEET_COMPONENTS) => void;
 	// setItemMarkings: React.Dispatch<React.SetStateAction<DatabaseTypes.FoodoffersMarkings[]>>;
-	setSelectedFoodId: React.Dispatch<React.SetStateAction<string>>;
 	cardWidth?: number; 
 }

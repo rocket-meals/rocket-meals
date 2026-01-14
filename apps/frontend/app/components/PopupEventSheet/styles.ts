@@ -4,8 +4,6 @@ export default StyleSheet.create({
 	sheetView: {
 		width: '100%',
 		height: '100%',
-		borderTopRightRadius: 28,
-		borderTopLeftRadius: 28,
 		padding: 10,
 		paddingBottom: 0,
 	},
@@ -15,8 +13,6 @@ export default StyleSheet.create({
 	sheetHeaderClose: {
 		width: '100%',
 		flexDirection: 'column',
-		borderTopRightRadius: 28,
-		borderTopLeftRadius: 28,
 	},
 	sheetHeaderText: {
 		width: '100%',

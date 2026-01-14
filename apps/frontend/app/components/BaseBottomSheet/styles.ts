@@ -6,8 +6,8 @@ export default StyleSheet.create({
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
-		borderTopRightRadius: 28,
-		borderTopLeftRadius: 28,
+//		borderTopRightRadius: 28,
+//		borderTopLeftRadius: 28,
 		padding: 10,
 	},
 	closeButton: {

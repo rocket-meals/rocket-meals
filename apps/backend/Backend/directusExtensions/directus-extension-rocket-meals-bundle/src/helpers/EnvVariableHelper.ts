@@ -2,9 +2,12 @@ import { DateHelperTimezone } from 'repo-depkit-common';
 
 export enum SyncForCustomerEnum {
   TEST = 'Test',
+  // Real customers
   OSNABRUECK = 'Osnabrück',
   HANNOVER = 'Hannover',
+  // Test customer for development purposes
   AACHEN = 'Aachen',
+  MUENSTER = 'Münster',
 }
 
 export class EnvVariableHelper {

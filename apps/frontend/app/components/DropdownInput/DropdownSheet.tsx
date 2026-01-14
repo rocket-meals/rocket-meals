@@ -8,7 +8,6 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/reducer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SingleLineInput from '@/components/SingleLineInput/SingleLineInput';
-import MyScrollViewModal from '@/components/MyScrollViewModal';
 
 export interface DropdownSheetProps {
   closeSheet: () => void;
@@ -93,17 +92,13 @@ const DropdownSheet: React.FC<DropdownSheetProps> = ({ closeSheet, options, allo
   }, [normalizedOptions, allowCustomValues, customSelected]);
 
   return (
-    <MyScrollViewModal
-      title={translate(TranslationKeys.select)}
-      closeSheet={closeSheet}
-      useFlatList
-      data={listItems}
-      keyExtractor={(item, index) => (item.kind === 'option' ? `opt-${item.value}` : `${item.kind}-${index}`)}
-      renderItem={({ item }) => {
+    <View style={{ gap: 10 }}>
+      {listItems.map((item, index) => {
         if (item.kind === 'deselect') {
           const active = !customSelected && value.trim().length === 0;
           return (
             <TouchableOpacity
+              key={`deselect-${index}`}
               style={[styles.optionRow, { backgroundColor: active ? primaryColor : theme.screen.iconBg }]}
               onPress={handleDeselect}
               disabled={isDisabled}
@@ -119,6 +114,7 @@ const DropdownSheet: React.FC<DropdownSheetProps> = ({ closeSheet, options, allo
         if (item.kind === 'custom') {
           return (
             <TouchableOpacity
+              key={`custom-${index}`}
               style={[styles.optionRow, { backgroundColor: customSelected ? primaryColor : theme.screen.iconBg }]}
               onPress={handleSelectCustom}
               disabled={isDisabled}
@@ -133,7 +129,7 @@ const DropdownSheet: React.FC<DropdownSheetProps> = ({ closeSheet, options, allo
         }
         if (item.kind === 'customInput') {
           return (
-            <View style={{ width: '100%', marginBottom: 12 }}>
+            <View key={`custom-input-${index}`} style={{ width: '100%', marginBottom: 2 }}>
               <SingleLineInput
                 id="custom"
                 value={customValue}
@@ -156,6 +152,7 @@ const DropdownSheet: React.FC<DropdownSheetProps> = ({ closeSheet, options, allo
         const isSelected = !customSelected && value === item.value;
         return (
           <TouchableOpacity
+            key={`option-${item.value}-${index}`}
             style={[styles.optionRow, { backgroundColor: isSelected ? primaryColor : theme.screen.iconBg }]}
             onPress={() => handleSelectOption(item.value)}
             disabled={isDisabled}
@@ -165,8 +162,8 @@ const DropdownSheet: React.FC<DropdownSheetProps> = ({ closeSheet, options, allo
             <MaterialCommunityIcons name={isSelected ? 'checkbox-marked' : 'checkbox-blank-outline'} size={24} color={isSelected ? theme.activeText : theme.screen.icon} />
           </TouchableOpacity>
         );
-      }}
-    />
+      })}
+    </View>
   );
 };
 

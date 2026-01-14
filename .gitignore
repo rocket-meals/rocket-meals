@@ -22,6 +22,7 @@ data/database_file_uploads/
 
 # Ignore all ios generated files
 apps/frontend/app/ios
+apps/frontend/app/eas.json
 
 # Ignore all android generated files
 apps/frontend/app/android

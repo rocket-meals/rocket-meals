@@ -1,7 +1,7 @@
 {
   "collection": "collectible_event_participants",
   "field": "points",
-  "type": "string",
+  "type": "integer",
   "meta": {
     "collection": "collectible_event_participants",
     "conditions": null,
@@ -15,7 +15,7 @@
     "options": null,
     "readonly": false,
     "required": false,
-    "sort": 11,
+    "sort": 12,
     "special": null,
     "translations": null,
     "validation": null,
@@ -25,11 +25,11 @@
   "schema": {
     "name": "points",
     "table": "collectible_event_participants",
-    "data_type": "character varying",
+    "data_type": "integer",
     "default_value": null,
-    "max_length": 255,
-    "numeric_precision": null,
-    "numeric_scale": null,
+    "max_length": null,
+    "numeric_precision": 32,
+    "numeric_scale": 0,
     "is_nullable": true,
     "is_unique": false,
     "is_indexed": false,

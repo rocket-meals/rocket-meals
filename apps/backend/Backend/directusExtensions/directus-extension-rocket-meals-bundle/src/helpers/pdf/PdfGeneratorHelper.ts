@@ -5,25 +5,10 @@
 // html2pdf.js only works in the browser
 
 import { PuppeteerGenerator } from './PuppeteerGenerator';
+import { PdfGeneratorOptions, RequestOptions } from './PdfGeneratorInterfaces';
+import {GeneratePdfFromHtmlProps, HtmlPdfGeneratorInterface} from "./HtmlPdfGeneratorInterface";
 
-export type PdfGeneratorOptions = {
-  format?: 'A3' | 'A4' | 'A5' | 'Legal' | 'Letter' | 'Tabloid';
-  landscape?: boolean;
-  printBackground?: boolean;
-  margin?: {
-    top?: string;
-    bottom?: string;
-    left?: string;
-    right?: string;
-  };
-};
-
-export type RequestOptions = {
-  bearerToken?: string | null | undefined;
-  mockImageResolution?: boolean; // if true, images are mocked with a placeholder image
-};
-
-export class PdfGeneratorHelper {
+export class PdfGeneratorHelper implements HtmlPdfGeneratorInterface {
   /** Returns the default PDF generation options */
   public static getDefaultPdfGeneratorOptions(): PdfGeneratorOptions {
     return {
@@ -40,8 +25,22 @@ export class PdfGeneratorHelper {
   }
 
   /** Generates a PDF from the provided HTML string */
-  public static async generatePdfFromHtml(html: string, requestOptions: RequestOptions, options?: PdfGeneratorOptions): Promise<Buffer> {
-    options = { ...this.getDefaultPdfGeneratorOptions(), ...options };
-    return await PuppeteerGenerator.generatePdfFromHtmlPuppeteer(html, requestOptions, options);
+  public static async generatePdfFromHtml(
+    data: GeneratePdfFromHtmlProps
+  ): Promise<Buffer> {
+    const { html, requestOptions, options } = data;
+    let newOptions = { ...this.getDefaultPdfGeneratorOptions(), ...options };
+    let newData: GeneratePdfFromHtmlProps = {
+      html,
+      requestOptions,
+      options: newOptions,
+    };
+    return await PuppeteerGenerator.generatePdfFromHtmlPuppeteer(newData);
+  }
+
+  public async generatePdfFromHtml(
+    data: GeneratePdfFromHtmlProps
+  ): Promise<Buffer> {
+    return await PdfGeneratorHelper.generatePdfFromHtml(data);
   }
 }

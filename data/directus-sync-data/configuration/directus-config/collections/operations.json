@@ -1,7 +1,7 @@
 [
   {
     "position_y": 1,
-    "resolve": null,
+    "position_x": 19,
     "options": {
       "collection": "app_settings",
       "permissions": "$full",
@@ -21,17 +21,17 @@
         "foods_parsing_status": "start"
       }
     },
-    "flow": "c5c0602c-889f-4d4a-8af3-90b4be91a20c",
-    "reject": null,
-    "key": "item_update_jrrlc",
-    "type": "item-update",
     "name": "Daten aktualisieren",
-    "position_x": 19,
+    "type": "item-update",
+    "key": "item_update_jrrlc",
+    "resolve": null,
+    "reject": null,
+    "flow": "c5c0602c-889f-4d4a-8af3-90b4be91a20c",
     "_syncId": "0fe81b52-6bf8-4464-93a2-a99ba09e81b2"
   },
   {
     "position_y": 1,
-    "resolve": null,
+    "position_x": 19,
     "options": {
       "collection": "app_settings",
       "permissions": "$full",
@@ -45,17 +45,17 @@
         "news_parsing_status": "start"
       }
     },
-    "flow": "fcd01059-33f0-486e-a407-2eb361848025",
-    "reject": null,
-    "key": "item_update_jrrlc",
-    "type": "item-update",
     "name": "Daten aktualisieren",
-    "position_x": 19,
+    "type": "item-update",
+    "key": "item_update_jrrlc",
+    "resolve": null,
+    "reject": null,
+    "flow": "fcd01059-33f0-486e-a407-2eb361848025",
     "_syncId": "1d3d7604-b5bc-4e1a-a1d5-9b57b6092093"
   },
   {
     "position_y": 1,
-    "resolve": null,
+    "position_x": 19,
     "options": {
       "collection": "app_settings",
       "permissions": "$full",
@@ -69,17 +69,17 @@
         "notifications_foods_status": "start"
       }
     },
-    "flow": "017ffe97-5499-43ce-87fc-f755815d2b62",
-    "reject": null,
-    "key": "item_update_jrrlc",
-    "type": "item-update",
     "name": "Daten aktualisieren",
-    "position_x": 19,
+    "type": "item-update",
+    "key": "item_update_jrrlc",
+    "resolve": null,
+    "reject": null,
+    "flow": "017ffe97-5499-43ce-87fc-f755815d2b62",
     "_syncId": "20fb7fd4-2daa-41d2-b9b0-e2d95e4efd38"
   },
   {
     "position_y": 1,
-    "resolve": null,
+    "position_x": 19,
     "options": {
       "collection": "app_settings",
       "permissions": "$full",
@@ -93,17 +93,17 @@
         "washingmachine_parsing_status": "start"
       }
     },
-    "flow": "3a675c40-2a17-4a25-a3ba-ab8fc9d5e7a0",
-    "reject": null,
-    "key": "item_update_jrrlc",
-    "type": "item-update",
     "name": "Daten aktualisieren",
-    "position_x": 19,
+    "type": "item-update",
+    "key": "item_update_jrrlc",
+    "resolve": null,
+    "reject": null,
+    "flow": "3a675c40-2a17-4a25-a3ba-ab8fc9d5e7a0",
     "_syncId": "5ffa1c3f-8417-47ee-99a6-265eedd2e628"
   },
   {
     "position_y": 1,
-    "resolve": null,
+    "position_x": 19,
     "options": {
       "collection": "app_settings",
       "permissions": "$full",
@@ -117,17 +117,17 @@
         "cashregisters_parsing_status": "start"
       }
     },
-    "flow": "16feb8c5-d138-454a-8fd6-e60394661f91",
-    "reject": null,
-    "key": "item_update_jrrlc",
-    "type": "item-update",
     "name": "Daten aktualisieren",
-    "position_x": 19,
+    "type": "item-update",
+    "key": "item_update_jrrlc",
+    "resolve": null,
+    "reject": null,
+    "flow": "16feb8c5-d138-454a-8fd6-e60394661f91",
     "_syncId": "998bc28d-0989-4004-81db-030acb7e9ced"
   },
   {
     "position_y": 1,
-    "resolve": null,
+    "position_x": 19,
     "options": {
       "collection": "app_settings",
       "permissions": "$full",
@@ -141,17 +141,17 @@
         "housing_parsing_status": "start"
       }
     },
-    "flow": "d1b80b70-debc-442c-89f2-3a0f32731247",
-    "reject": null,
-    "key": "item_update_jrrlc",
-    "type": "item-update",
     "name": "Daten aktualisieren",
-    "position_x": 19,
+    "type": "item-update",
+    "key": "item_update_jrrlc",
+    "resolve": null,
+    "reject": null,
+    "flow": "d1b80b70-debc-442c-89f2-3a0f32731247",
     "_syncId": "a2921f71-77e7-42d2-82a4-54968e7cdcb7"
   },
   {
     "position_y": 1,
-    "resolve": null,
+    "position_x": 19,
     "options": {
       "collection": "app_settings",
       "permissions": "$full",
@@ -165,12 +165,12 @@
         "utilization_forecast_calculation_status": "start"
       }
     },
-    "flow": "4bb7441a-82da-4d3c-b778-dbca944fe4d5",
-    "reject": null,
-    "key": "item_update_jrrlc",
-    "type": "item-update",
     "name": "Daten aktualisieren",
-    "position_x": 19,
+    "type": "item-update",
+    "key": "item_update_jrrlc",
+    "resolve": null,
+    "reject": null,
+    "flow": "4bb7441a-82da-4d3c-b778-dbca944fe4d5",
     "_syncId": "b69818ed-f3ba-41ba-9822-75fb159d9342"
   }
 ]

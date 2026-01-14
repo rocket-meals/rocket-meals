@@ -134,6 +134,12 @@ export default function MonitorLayout() {
 				}}
 			/>
 			<Stack.Screen
+				name="collectible-event-monitor/index"
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<Stack.Screen
 				name="labels/index"
 				options={{
 					title: 'Labels',

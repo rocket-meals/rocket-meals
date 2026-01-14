@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export interface MyScrollViewModalProps {
   title?: string;
   closeSheet?: () => void;
+  backgroundColor?: string;
   children?: ReactNode;
   // For FlatList mode
   useFlatList?: boolean;
@@ -18,12 +19,14 @@ export interface MyScrollViewModalProps {
   // Optional additional props
   showsVerticalScrollIndicator?: boolean;
   keyboardShouldPersistTaps?: 'always' | 'never' | 'handled';
+  onClose?: () => void;
 }
 
 const MyScrollViewModal: React.FC<MyScrollViewModalProps> = ({
   title,
   children,
   useFlatList = false,
+  backgroundColor,
   data = [],
   renderItem,
   keyExtractor,
@@ -31,25 +34,34 @@ const MyScrollViewModal: React.FC<MyScrollViewModalProps> = ({
   ListFooterComponent,
   showsVerticalScrollIndicator = true,
   keyboardShouldPersistTaps = 'handled',
+  onClose,
 }) => {
   const { theme } = useTheme();
   const insets = useSafeAreaInsets();
 
+  const resolvedBackgroundColor = backgroundColor ?? theme.screen.background;
+
+  React.useEffect(() => () => onClose?.(), [onClose]);
+
   const headerComponent = (
     <>
       {title && (
-        <View style={{ backgroundColor: theme.sheet.sheetBg, paddingHorizontal: 20, paddingTop: 8, paddingBottom: 8 }}>
-          <Text style={{ fontSize: 18, fontWeight: '600', color: theme.sheet.text }}>{title}</Text>
+        <View
+          style={{ backgroundColor: resolvedBackgroundColor, paddingHorizontal: 20, paddingTop: 6, paddingBottom: 4 }}
+        >
+          <Text style={{ fontSize: 16, fontWeight: '600', color: theme.sheet.text }}>{title}</Text>
         </View>
       )}
       {ListHeaderComponent}
     </>
   );
 
-  const footerComponent = ListFooterComponent || <View style={{ height: Math.max(40, insets.bottom + 80) }} />;
+  const footerComponent = ListFooterComponent || <View style={{ height: Math.max(24, insets.bottom + 16) }} />;
 
-  const contentStyle = { paddingBottom: 24 + insets.bottom + 80, paddingHorizontal: 20 };
-  const scrollInsets = { bottom: insets.bottom + 80 };
+  const contentStyle = { paddingBottom: 24 + insets.bottom, paddingHorizontal: 20 };
+  const scrollInsets = { bottom: insets.bottom };
+
+  const containerStyle = { backgroundColor: resolvedBackgroundColor };
 
   if (useFlatList && renderItem && keyExtractor) {
     return (
@@ -59,6 +71,7 @@ const MyScrollViewModal: React.FC<MyScrollViewModalProps> = ({
         renderItem={renderItem}
         ListHeaderComponent={headerComponent}
         ListFooterComponent={footerComponent}
+        style={containerStyle}
         contentContainerStyle={contentStyle}
         showsVerticalScrollIndicator={showsVerticalScrollIndicator}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps}
@@ -69,6 +82,7 @@ const MyScrollViewModal: React.FC<MyScrollViewModalProps> = ({
 
   return (
     <BottomSheetScrollView
+      style={containerStyle}
       contentContainerStyle={contentStyle}
       showsVerticalScrollIndicator={showsVerticalScrollIndicator}
       keyboardShouldPersistTaps={keyboardShouldPersistTaps}
@@ -82,4 +96,3 @@ const MyScrollViewModal: React.FC<MyScrollViewModalProps> = ({
 };
 
 export default MyScrollViewModal;
-

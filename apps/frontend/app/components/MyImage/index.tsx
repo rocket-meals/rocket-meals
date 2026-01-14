@@ -1,13 +1,54 @@
-import React from 'react';
-import { Image as RNImage, ImageProps as RNImageProps } from 'react-native';
-import { Image as ExpoImage } from 'expo-image';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/redux/reducer';
+import React, { useMemo } from 'react';
+import { Image, ImageProps, ImageSourcePropType } from 'react-native';
 
-const MyImage: React.FC<RNImageProps> = props => {
-	const useWebp = useSelector((state: RootState) => state.settings.useWebpForAssets);
-	const ImageComponent = useWebp ? ExpoImage : RNImage;
-	return <ImageComponent {...props} />;
+import { getHighResImageUrl } from '@/constants/HelperFunctions';
+import { getAppIconInsideExpoLocalSaved } from '@/config';
+
+export type MyImageProps = {
+        remote_image_url?: string | null;
+        directus_asset_id?: string | number | { id?: string | number } | null;
+        defaultImage?: ImageSourcePropType;
+        defaultImageUrl?: string | null;
+} & Omit<ImageProps, 'source'>;
+
+const MyImage: React.FC<MyImageProps> = ({
+        remote_image_url,
+        directus_asset_id,
+        defaultImage,
+        defaultImageUrl,
+        ...props
+}) => {
+        const directusAssetId = useMemo(() => {
+                if (typeof directus_asset_id === 'object' && directus_asset_id !== null) {
+                        return (directus_asset_id as any).id ?? directus_asset_id;
+                }
+
+                return directus_asset_id;
+        }, [directus_asset_id]);
+
+        const fallbackImage = defaultImage ?? getAppIconInsideExpoLocalSaved();
+
+        const source: ImageSourcePropType | undefined = useMemo(() => {
+                if (remote_image_url) {
+                        return { uri: remote_image_url };
+                }
+
+                if (directusAssetId) {
+                        return { uri: getHighResImageUrl(String(directusAssetId)) };
+                }
+
+                if (defaultImageUrl) {
+                        return { uri: defaultImageUrl };
+                }
+
+                return fallbackImage;
+        }, [defaultImageUrl, directusAssetId, fallbackImage, remote_image_url]);
+
+        if (!source) {
+                return null;
+        }
+
+        return <Image source={source} {...props} />;
 };
 
 export default MyImage;

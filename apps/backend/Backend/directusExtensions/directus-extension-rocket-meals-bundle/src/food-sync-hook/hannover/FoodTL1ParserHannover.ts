@@ -1,6 +1,12 @@
-import { FoodTL1Parser, RawFoodofferInformationType, RawTL1FoodofferType, Tl1AttributeType, TL1AttributeValueType } from '../FoodTL1Parser';
-import { FoodTL1Parser_GetRawReportInterface } from '../FoodTL1Parser_GetRawReportInterface';
-import { FoodParseFoodAttributesType } from '../FoodParserInterface';
+import {
+  FoodTL1Parser,
+  RawFoodofferInformationType,
+  RawTL1FoodofferType,
+  Tl1AttributeType,
+  TL1AttributeValueType
+} from '../FoodTL1Parser';
+import {FoodTL1Parser_GetRawReportInterface} from '../FoodTL1Parser_GetRawReportInterface';
+import {FoodParseFoodAttributesType} from '../FoodParserInterface';
 
 export class FoodTL1ParserHannover extends FoodTL1Parser {
   static MENUEKENNZEICHEN_FIELD = 'MENUEKENNZEICHEN';
@@ -86,6 +92,8 @@ export class FoodTL1ParserHannover extends FoodTL1Parser {
   }
 
   static KLIMA_TELLER_EXTERNAL_IDENTIFIER = 'kt';
+  static NIEDERSACHSEN_MENUE_EXTERNAL_IDENTIFIER = 'q';
+  static FOOD_ID_EXCLUDED_MARKINGS = [FoodTL1ParserHannover.NIEDERSACHSEN_MENUE_EXTERNAL_IDENTIFIER];
 
   /**
    * Rating like A, B, C, D, E will be transformed to CO2_RATING_A, CO2_RATING_B, CO2_RATING_C, CO2_RATING_D, CO2_RATING_E
@@ -105,6 +113,20 @@ export class FoodTL1ParserHannover extends FoodTL1Parser {
     let sorted_marking_external_identifiers = total_marking_external_identifier_list.sort((a, b) => a.localeCompare(b));
     let combined_marking_ids_as_string = sorted_marking_external_identifiers.join('-');
     return combined_marking_ids_as_string;
+  }
+
+  /**
+   * Schmidt 05.12.2025 E-Mail
+   * CO2 Bewertung Kennzeichnungen sollen nicht zur Food Id Bildung beitragen
+   * @param markingExternalIdentifiers
+   */
+  private filterMarkingsNotImportantForFoodID(markingExternalIdentifiers: string[]): string[] {
+    return markingExternalIdentifiers.filter(marking => {
+      if (marking.startsWith(FoodTL1ParserHannover.CO2_BEWERTUNG_PREFIX_IDENTIFIER)) {
+        return false;
+      }
+      return !FoodTL1ParserHannover.FOOD_ID_EXCLUDED_MARKINGS.includes(marking);
+    });
   }
 
   static getHannoverFoodIdByRecipeIdsAndMarkings(recipe_ids: string[] | number[], marking_ids: string[]) {
@@ -133,7 +155,9 @@ export class FoodTL1ParserHannover extends FoodTL1Parser {
     }
     let total_marking_external_identifier_list = this._getMarkingsExternalIdentifiersFromRawFoodoffer(firstRawTL1Foodoffer);
 
-    let food_id = FoodTL1ParserHannover.getHannoverFoodIdByRecipeIdsAndMarkings(recipe_ids, total_marking_external_identifier_list);
+    let filtered_marking_identifiers_for_food_id = this.filterMarkingsNotImportantForFoodID(total_marking_external_identifier_list);
+
+    let food_id = FoodTL1ParserHannover.getHannoverFoodIdByRecipeIdsAndMarkings(recipe_ids, filtered_marking_identifiers_for_food_id);
 
     return food_id;
   }

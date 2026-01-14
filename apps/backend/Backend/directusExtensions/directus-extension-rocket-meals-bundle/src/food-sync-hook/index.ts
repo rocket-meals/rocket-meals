@@ -1,21 +1,20 @@
-import { ParseSchedule } from './ParseSchedule';
-import { defineHook } from '@directus/extensions-sdk';
-import { FoodParserInterface } from './FoodParserInterface';
-import { FoodTL1Parser_RawReportFtpReader } from './FoodTL1Parser_RawReportFtpReader';
-import { FoodTL1Parser_RawReportUrlReader } from './FoodTL1Parser_RawReportUrlReader';
-import { MarkingTL1Parser } from './MarkingTL1Parser';
-import { MarkingParserInterface } from './MarkingParserInterface';
-import { MyDatabaseHelper } from '../helpers/MyDatabaseHelper';
-import { FoodParserWithCustomerAdaptions } from './FoodParserWithCustomerAdaptions';
-import { EnvVariableHelper, SyncForCustomerEnum } from '../helpers/EnvVariableHelper';
-import { WorkflowScheduleHelper } from '../workflows-runs-hook';
-import { SingleWorkflowRun } from '../workflows-runs-hook/WorkflowRunJobInterface';
-import { WorkflowRunContext } from '../helpers/WorkflowRunContext';
-import { DatabaseTypes } from 'repo-depkit-common';
-import { WORKFLOW_RUN_STATE } from '../helpers/itemServiceHelpers/WorkflowsRunEnum';
-import { FoodAndMarkingWebParserAachen } from './aachen/FoodAndMarkingWebParserAachen';
-import {CronHelper, CronObject} from "repo-depkit-common";
+import {ParseSchedule} from './ParseSchedule';
+import {FoodParserInterface} from './FoodParserInterface';
+import {FoodTL1Parser_RawReportFtpReader} from './FoodTL1Parser_RawReportFtpReader';
+import {FoodTL1Parser_RawReportUrlReader} from './FoodTL1Parser_RawReportUrlReader';
+import {MarkingTL1Parser} from './MarkingTL1Parser';
+import {MarkingParserInterface} from './MarkingParserInterface';
+import {MyDatabaseHelper} from '../helpers/MyDatabaseHelper';
+import {FoodParserWithCustomerAdaptions} from './FoodParserWithCustomerAdaptions';
+import {EnvVariableHelper, SyncForCustomerEnum} from '../helpers/EnvVariableHelper';
+import {WorkflowScheduleHelper} from '../workflows-runs-hook';
+import {SingleWorkflowRun} from '../workflows-runs-hook/WorkflowRunJobInterface';
+import {WorkflowRunContext} from '../helpers/WorkflowRunContext';
+import {CronHelper, DatabaseTypes} from 'repo-depkit-common';
+import {WORKFLOW_RUN_STATE} from '../helpers/itemServiceHelpers/WorkflowsRunEnum';
+import {FoodAndMarkingWebParserAachen} from './aachen/FoodAndMarkingWebParserAachen';
 import {MyDefineHook} from "../helpers/MyDefineHook";
+import {FoodAndMarkingWebParserMuenster} from "./muenster/FoodAndMarkingWebParserMuenster";
 
 const SCHEDULE_NAME = 'food-sync-hook';
 
@@ -25,8 +24,9 @@ const DIRECTUS_TL1_MARKING_PATH = '/directus/tl1/markings.csv'; // This is defin
 function getFoodParser(): FoodParserInterface | null {
   switch (EnvVariableHelper.getSyncForCustomer()) {
     case SyncForCustomerEnum.AACHEN:
-      let parser: FoodAndMarkingWebParserAachen = new FoodAndMarkingWebParserAachen();
-      return parser;
+      return new FoodAndMarkingWebParserAachen();
+    case SyncForCustomerEnum.MUENSTER:
+      return new FoodAndMarkingWebParserMuenster();
   }
 
   const FOOD_SYNC_MODE = EnvVariableHelper.getFoodSyncMode();
@@ -60,8 +60,9 @@ function getFoodParser(): FoodParserInterface | null {
 function getMarkingParser(): MarkingParserInterface | null {
   switch (EnvVariableHelper.getSyncForCustomer()) {
     case SyncForCustomerEnum.AACHEN:
-      let parser: FoodAndMarkingWebParserAachen = new FoodAndMarkingWebParserAachen();
-      return parser;
+      return new FoodAndMarkingWebParserAachen();
+    case SyncForCustomerEnum.MUENSTER:
+      return new FoodAndMarkingWebParserMuenster();
   }
 
   const MARKING_SYNC_MODE = EnvVariableHelper.getMarkingSyncMode();

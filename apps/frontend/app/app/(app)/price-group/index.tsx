@@ -1,9 +1,8 @@
-import { Text, TouchableOpacity, View } from 'react-native';
-import React, { cloneElement, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { FontAwesome, FontAwesome5, Ionicons } from '@expo/vector-icons';
-import Checkbox from 'expo-checkbox';
+import { FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { isWeb } from '@/constants/Constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
@@ -15,11 +14,12 @@ import { useFocusEffect } from 'expo-router';
 import { replaceLottieColors } from '@/helper/animationHelper';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { DatabaseTypes } from 'repo-depkit-common';
+import { CollectibleAt, DatabaseTypes } from 'repo-depkit-common';
 import { RootState } from '@/redux/reducer';
-import { myContrastColor } from '@/helper/ColorHelper';
 import { PriceGroupKey } from '@/app/(app)/settings/types';
 import { UserHelper } from '@/helper/UserHelper';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
+import SettingsList from '@/components/SettingsList';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.price_group);
@@ -31,8 +31,7 @@ const Index = () => {
 	const { user, profile } = useSelector((state: RootState) => state.authReducer);
 	const isRegisteredUser = UserHelper.isRegisteredUser(user);
 
-	const { primaryColor, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
-	const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
+	const { primaryColor, appSettings } = useSelector((state: RootState) => state.settings);
 	const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
 	const animationRef = useRef<LottieView>(null);
 	const [animationJson, setAmimationJson] = useState<any>(null);
@@ -41,17 +40,17 @@ const Index = () => {
 		{
 			id: PriceGroupKey.student,
 			label: translate(TranslationKeys.price_group_student),
-			icon: <FontAwesome name="graduation-cap" size={24} />,
+			icon: <FontAwesome name="graduation-cap" size={24} color={theme.screen.icon} />,
 		},
 		{
 			id: PriceGroupKey.employee,
 			label: translate(TranslationKeys.price_group_employee),
-			icon: <Ionicons name="bag" size={24} />,
+			icon: <Ionicons name="bag" size={24} color={theme.screen.icon} />,
 		},
 		{
 			id: PriceGroupKey.guest,
 			label: translate(TranslationKeys.price_group_guest),
-			icon: <FontAwesome5 name="users" size={24} />,
+			icon: <FontAwesome5 name="users" size={24} color={theme.screen.icon} />,
 		},
 	];
 
@@ -116,44 +115,37 @@ const Index = () => {
 		<View style={{ ...styles.container, backgroundColor: theme.screen.background }}>
 			<View style={styles.gifContainer}>{renderLottie}</View>
 			<View style={{ ...styles.priceGroupContainer, width: isWeb ? '80%' : '100%' }}>
-				{sortingOptions.map(option => (
-					<TouchableOpacity
-						key={option.id}
-						style={[
-							styles.actionItem,
-							selectedOption === option.id
-								? {
-										backgroundColor: primaryColor,
-									}
-								: {
-										backgroundColor: theme.card.background,
-									},
-						]}
-						onPress={() => updatePricing(option.id)}
-					>
-						<View style={styles.col}>
-							{cloneElement(option.icon, selectedOption === option.id ? { color: contrastColor } : { color: theme.screen.icon })}
-							<Text
-								style={[
-									styles.label,
-									selectedOption === option.id
-										? {
-												color: contrastColor,
-											}
-										: { color: theme.screen.text },
-								]}
-							>
-								{option.label}
-							</Text>
-						</View>
-						<Checkbox
-							style={styles.checkbox}
-							value={selectedOption === option.id}
-							// onValueChange={() => updatePricing(option.id)}
-							color={selectedOption === option.id ? '#000000' : undefined}
+				{sortingOptions.map((option, index) => {
+					const isSelected = selectedOption === option.id;
+					const groupPosition =
+						sortingOptions.length === 1
+							? 'single'
+							: index === 0
+								? 'top'
+								: index === sortingOptions.length - 1
+									? 'bottom'
+									: 'middle';
+
+					return (
+						<SettingsList
+							key={option.id}
+							label={option.label}
+							leftIcon={option.icon}
+							iconBgColor={primaryColor}
+							groupPosition={groupPosition}
+							showSeparator={index !== sortingOptions.length - 1}
+							rightIcon={
+								<MaterialCommunityIcons
+									name={isSelected ? 'radiobox-marked' : 'radiobox-blank'}
+									size={24}
+									color={isSelected ? primaryColor : theme.screen.icon}
+								/>
+							}
+							handleFunction={() => updatePricing(option.id)}
 						/>
-					</TouchableOpacity>
-				))}
+					);
+				})}
+				<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_price_group_selection} />
 			</View>
 		</View>
 	);

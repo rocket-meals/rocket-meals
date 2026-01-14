@@ -1,8 +1,9 @@
-import { PdfGeneratorOptions, RequestOptions } from './PdfGeneratorHelper';
+import { PdfGeneratorOptions, RequestOptions } from './PdfGeneratorInterfaces';
+import {GeneratePdfFromHtmlProps, HtmlPdfGeneratorInterface} from "./HtmlPdfGeneratorInterface";
 import { default as puppeteerCore } from 'puppeteer-core';
 import { EnvVariableHelper } from '../EnvVariableHelper';
 
-export class PuppeteerGenerator {
+export class PuppeteerGenerator implements HtmlPdfGeneratorInterface {
   public static PuppeteerCore: any = puppeteerCore;
   public static PuppeteerForJest: any = undefined;
 
@@ -24,7 +25,10 @@ export class PuppeteerGenerator {
    * rocket-meals-directus-2         |     at async Promise.all (index 1)
    */
 
-  static async generatePdfFromHtmlPuppeteer(html: string, requestOptions: RequestOptions, options: PdfGeneratorOptions): Promise<Buffer> {
+  static async generatePdfFromHtmlPuppeteer(
+    data: GeneratePdfFromHtmlProps
+  ): Promise<Buffer> {
+    const { html, requestOptions, options = {} } = data;
     let browser;
     let puppeteer = PuppeteerGenerator.getPuppeteerLib();
 
@@ -90,7 +94,7 @@ export class PuppeteerGenerator {
             : request.headers();
 
           if (requestOptions.mockImageResolution && request.resourceType() === 'image') {
-            console.log('Mocking image resolution for:', request.url());
+            //console.log('Mocking image resolution for:', request.url());
 
             // Aus URL evtl. Breite/Höhe extrahieren
             const match = request.url().match(/\/(\d+)(?:\/(\d+))?/);
@@ -151,5 +155,11 @@ export class PuppeteerGenerator {
         await browser.close();
       }
     }
+  }
+
+  public async generatePdfFromHtml(
+    data: GeneratePdfFromHtmlProps
+  ): Promise<Buffer> {
+    return await PuppeteerGenerator.generatePdfFromHtmlPuppeteer(data);
   }
 }

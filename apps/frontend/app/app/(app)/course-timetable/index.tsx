@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Linking, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useFocusEffect } from 'expo-router';
 import TimeTableData from '@/constants/TimeTable';
@@ -19,6 +19,8 @@ import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
+import { CollectibleAt } from 'repo-depkit-common';
 
 const extractTextAndLink = (description: string) => {
 	// Remove unintended spaces between `]` and `(`
@@ -135,52 +137,55 @@ const TimetableScreen = () => {
 		});
 	};
 
-	return (
-		<View style={{ ...styles.container, backgroundColor: theme.screen.background }}>
-			<TouchableOpacity
-				style={{
-					...styles.createButton,
-					backgroundColor: course_timetable_area_color,
-				}}
-				onPress={openSheet}
-			>
-				<FontAwesome name="calendar-plus-o" size={20} color={contrastColor} />
-				<View>
-					<Text style={{ ...styles.createButtonText, color: contrastColor }}>{`${translate(TranslationKeys.event)} ${translate(TranslationKeys.create)}`}</Text>
-				</View>
-			</TouchableOpacity>
-			{events && events?.length > 0 ? (
-				<CourseTimetable events={events} openSheet={openSheet} setIsUpdate={setIsUpdate} setTimeTableData={setTimeTableData} setSelectedEventId={setSelectedEventId} />
-			) : (
-				<View style={styles.noEventsContainer}>
-					<Text
-						style={{
-							...styles.body,
-							color: theme.sheet.text,
-						}}
-					>
-						{parseMarkdown(text)}
-					</Text>
-					{link && <RedirectButton label={label} type="link" backgroundColor={course_timetable_area_color} color={contrastColor} onClick={() => handleOpenInBrowser(link)} />}
-				</View>
-			)}
-			{isActive && (
-				<BaseBottomSheet
-					ref={bottomSheetRef}
-					index={-1}
-					backgroundStyle={{
-						...styles.sheetBackground,
-						backgroundColor: theme.sheet.sheetBg,
-					}}
-					enablePanDownToClose
-					handleComponent={null}
-					onClose={closeSheet}
-				>
-					<CourseBottomSheet timeTableData={timeTableData} closeSheet={closeSheet} isUpdate={isUpdate} selectedEventId={selectedEventId} />
-				</BaseBottomSheet>
-			)}
-		</View>
-	);
+        return (
+                <View style={{ ...styles.container, backgroundColor: theme.screen.background }}>
+                        <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+                                <TouchableOpacity
+                                        style={{
+                                                ...styles.createButton,
+                                                backgroundColor: course_timetable_area_color,
+                                        }}
+                                        onPress={openSheet}
+                                >
+                                        <FontAwesome name="calendar-plus-o" size={20} color={contrastColor} />
+                                        <View>
+                                                <Text style={{ ...styles.createButtonText, color: contrastColor }}>{`${translate(TranslationKeys.event)} ${translate(TranslationKeys.create)}`}</Text>
+                                        </View>
+                                </TouchableOpacity>
+                                {events && events?.length > 0 ? (
+                                        <CourseTimetable events={events} openSheet={openSheet} setIsUpdate={setIsUpdate} setTimeTableData={setTimeTableData} setSelectedEventId={setSelectedEventId} />
+                                ) : (
+                                        <View style={styles.noEventsContainer}>
+                                                <Text
+                                                        style={{
+                                                                ...styles.body,
+                                                                color: theme.sheet.text,
+                                                        }}
+                                                >
+                                                        {parseMarkdown(text)}
+                                                </Text>
+                                                {link && <RedirectButton label={label} type="link" backgroundColor={course_timetable_area_color} color={contrastColor} onClick={() => handleOpenInBrowser(link)} />}
+                                        </View>
+                                )}
+                                <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_course_timetable} />
+                        </ScrollView>
+                        {isActive && (
+                                <BaseBottomSheet
+                                        ref={bottomSheetRef}
+                                        index={-1}
+                                        backgroundStyle={{
+                                                ...styles.sheetBackground,
+                                                backgroundColor: theme.sheet.sheetBg,
+                                        }}
+                                        enablePanDownToClose
+                                        handleComponent={null}
+                                        onClose={closeSheet}
+                                >
+                                        <CourseBottomSheet timeTableData={timeTableData} closeSheet={closeSheet} isUpdate={isUpdate} selectedEventId={selectedEventId} />
+                                </BaseBottomSheet>
+                        )}
+                </View>
+        );
 };
 
 export default TimetableScreen;

@@ -18,30 +18,6 @@ export default StyleSheet.create({
 	},
 	priceGroupContainer: {
 		paddingHorizontal: 10,
-		gap: 20,
 		marginTop: 40,
-	},
-	actionItem: {
-		width: '100%',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-		padding: 10,
-		paddingHorizontal: 20,
-		borderRadius: 10,
-	},
-	col: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 10,
-	},
-	label: {
-		fontSize: 18,
-		fontFamily: 'Poppins_400Regular',
-	},
-	checkbox: {
-		width: 20,
-		height: 20,
-		borderRadius: 50,
 	},
 });

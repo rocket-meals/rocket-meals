@@ -1,24 +1,20 @@
-export interface ManagementModalProps {
-	isVisible: boolean;
-	setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
-	handleLogin: (token: string | undefined, email: string, password: string) => void;
-	loading: Boolean;
-}
+// define handleLogin type
+type HandleLoginType = (token: string | undefined, email: string, password: string) => void;
 
-export interface FormProps {
+export type FormProps = {
 	openSheet: () => void;
 	openAttentionSheet: () => void;
 	onSuccess: (token: string) => void;
 	providers: any;
 }
 
-export interface SheetProps {
+export type SheetProps = {
 	closeSheet: () => void;
-	handleLogin: (token: string | undefined, email: string, password: string) => void;
+	handleLogin: HandleLoginType;
 	loading: Boolean;
 }
 
-export interface AttentionSheetProps {
+export type AttentionSheetProps = {
 	closeSheet: () => void;
 	handleLogin: () => void;
 	isBottomSheetVisible: boolean;

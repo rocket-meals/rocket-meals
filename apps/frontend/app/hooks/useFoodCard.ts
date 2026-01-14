@@ -35,7 +35,7 @@ export const useFoodCard = (borderWidth: number = 0) => {
 	};
 
 	const contentStyle: ViewStyle = {
-		gap: isWeb ? 15 : 5,
+		gap: 5,
 		paddingHorizontal: 5,
 	};
 

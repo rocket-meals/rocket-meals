@@ -1,13 +1,15 @@
 import { FormExtractFormAnswer, FormExtractFormAnswerValueFileSingle, FormExtractFormAnswerValueFileSingleOrString, FormExtractRelevantInformation, FormExtractRelevantInformationSingle } from '../../forms-sync-hook';
 import { BaseGermanMarkdownTemplateHelper, DEFAULT_HTML_TEMPLATE, HtmlGenerator } from '../html/HtmlGenerator';
-import { PdfGeneratorHelper, RequestOptions } from '../pdf/PdfGeneratorHelper';
+import { PdfGeneratorHelper } from '../pdf/PdfGeneratorHelper';
+import { RequestOptions } from '../pdf/PdfGeneratorInterfaces';
 import { DirectusFilesAssetHelper } from '../DirectusFilesAssetHelper';
 import { MarkdownHelper } from '../html/MarkdownHelper';
 import { MyDatabaseTestableHelperInterface } from '../MyDatabaseHelperInterface';
 import { TranslationBackendKeys, TranslationsBackend } from '../TranslationsBackend';
-import { DatabaseTypes, DateHelper, DateHelperTimezone } from 'repo-depkit-common';
+import {DatabaseTypes, DateHelper, DateHelperTimezone, FormHelperCommon} from 'repo-depkit-common';
 import { EnvVariableHelper } from '../EnvVariableHelper';
 import { HashHelper } from '../HashHelper';
+import {GeneratePdfFromHtmlProps} from "../pdf/HtmlPdfGeneratorInterface";
 
 type FormFieldExampleData = {
   value_string?: string | null;
@@ -19,19 +21,127 @@ type FormFieldExampleData = {
   value_custom?: string | null;
 };
 
+type AddFormFieldParams = {
+  alias: string;
+  data: FormFieldExampleData;
+  form_field_type: string;
+  prefix?: string;
+  suffix?: string;
+  form_submission_id: string;
+  index: number;
+};
+
+export type FormGenerationParams = {
+  form: DatabaseTypes.Forms;
+  formExtractRelevantInformation: FormExtractRelevantInformation;
+  myDatabaseHelperInterface: MyDatabaseTestableHelperInterface;
+};
+
 export class FormHelper {
   private static readonly FORM_IMAGE_TRANSFORM_OPTIONS = DirectusFilesAssetHelper.PRESET_FILE_TRANSFORMATION_IMAGE_HD;
+
+  public static getExampleForm(): DatabaseTypes.Forms {
+    return {
+      form_fields: [], form_submissions: [], translations: [],
+      id: 'example-form',
+      alias: 'Example Form: Abnahmeprotokoll',
+      date_created: '2021-09-01T00:00:00.000Z',
+      date_updated: '2021-09-01T00:00:00.000Z',
+      status: 'published',
+      user_created: '1',
+      user_updated: '1'
+    };
+  }
 
   public static getExampleFormExtractRelevantInformation(): FormExtractRelevantInformation {
     let formExtractRelevantInformation: FormExtractRelevantInformation = [];
     let form_submission_id = Math.random().toString();
 
     let index = 0;
-    formExtractRelevantInformation.push(this.addFormField('Text Field', { value_string: 'This is a long text example' }, form_submission_id, index++));
-    formExtractRelevantInformation.push(this.addFormField('Text Field 2', { value_string: 'This is a long text example' }, form_submission_id, index++));
-    formExtractRelevantInformation.push(this.addFormField('Number Field', { value_number: 123 }, form_submission_id, index++));
-    formExtractRelevantInformation.push(this.addFormField('Boolean Field', { value_boolean: true }, form_submission_id, index++));
-    formExtractRelevantInformation.push(this.addFormField('Date Field', { value_date: '2021-09-01T00:00:00.000Z' }, form_submission_id, index++));
+
+    formExtractRelevantInformation.push(this.addFormField({
+        alias: 'Text Field',
+        data: { value_string: 'This is a long text example' },
+        form_field_type: FormHelperCommon.FORM_FIELD_TYPE.STRING,
+        form_submission_id: form_submission_id,
+        index: index++
+    }));
+
+    formExtractRelevantInformation.push(this.addFormField({
+        alias: 'Text Field 2',
+        data: { value_string: 'This is a long text example This is a long text example This is a long text example This is a long text example This is a long text example This is a long text example ' },
+        form_field_type: FormHelperCommon.FORM_FIELD_TYPE.MULTILINE_TEXT,
+        form_submission_id: form_submission_id,
+        index: index++
+    }));
+
+    formExtractRelevantInformation.push(this.addFormField({
+      alias: 'IBAN',
+      data: { value_string: 'DE02202208000051066366' }, // example iban
+      form_field_type: FormHelperCommon.FORM_FIELD_TYPE.STRING_BANK_ACCOUNT,
+      form_submission_id: form_submission_id,
+      index: index++
+    }));
+
+    formExtractRelevantInformation.push(this.addFormField({
+        alias: 'Number Field',
+        data: { value_number: 123 },
+        form_field_type: FormHelperCommon.FORM_FIELD_TYPE.NUMBER,
+        form_submission_id: form_submission_id,
+        index: index++
+    }));
+
+    formExtractRelevantInformation.push(this.addFormField({
+      alias: 'Number Field With Prefix',
+      data: { value_number: 123 },
+      form_field_type: FormHelperCommon.FORM_FIELD_TYPE.NUMBER,
+      prefix: "$ ",
+      form_submission_id: form_submission_id,
+      index: index++
+    }));
+
+    formExtractRelevantInformation.push(this.addFormField({
+      alias: 'Number Field With Suffix',
+      data: { value_number: 123 },
+      form_field_type: FormHelperCommon.FORM_FIELD_TYPE.NUMBER,
+        suffix: " €",
+      form_submission_id: form_submission_id,
+      index: index++
+    }));
+
+    formExtractRelevantInformation.push(this.addFormField({
+      alias: 'Number Field With Prefix And Suffix',
+      data: { value_number: 123 },
+      form_field_type: FormHelperCommon.FORM_FIELD_TYPE.NUMBER,
+      prefix: "€ ",
+      suffix: " EUR",
+      form_submission_id: form_submission_id,
+      index: index++
+    }));
+
+    formExtractRelevantInformation.push(this.addFormField({
+      alias: 'Boolean Field',
+      data: { value_boolean: false },
+      form_field_type: FormHelperCommon.FORM_FIELD_TYPE.BOOLEAN_CHECKBOX,
+      form_submission_id: form_submission_id,
+      index: index++
+    }));
+
+    let dateTypes = [
+        FormHelperCommon.FORM_FIELD_TYPE.DATE,
+        FormHelperCommon.FORM_FIELD_TYPE.DATE_HH_MM,
+      FormHelperCommon.FORM_FIELD_TYPE.DATE_TIMESTAMP,
+      FormHelperCommon.FORM_FIELD_TYPE.DATE_DATE_AND_HH_MM,
+    ]
+    for (let dateType of dateTypes) {
+      formExtractRelevantInformation.push(this.addFormField({
+        alias: dateType,
+        data: { value_date: '2021-09-01T00:00:00.000Z' },
+        form_field_type: dateType,
+        form_submission_id: form_submission_id,
+        index: index++
+      }));
+    }
 
     let sizes = [200, 400, 800, 1600];
     let images: string[] = [];
@@ -41,25 +151,40 @@ export class FormHelper {
       images.push(imageUrl);
     }
 
-    formExtractRelevantInformation.push(this.addFormField('Image Field', { value_image: images[0] }, form_submission_id, index++));
-    formExtractRelevantInformation.push(this.addFormField('Files Field', { value_files: images }, form_submission_id, index++));
+    formExtractRelevantInformation.push(this.addFormField({
+        alias: 'Image Field',
+        data: { value_image: images[0] },
+        form_field_type: FormHelperCommon.FORM_FIELD_TYPE.FILES_IMAGE,
+        form_submission_id: form_submission_id,
+        index: index++
+    }));
+
+    formExtractRelevantInformation.push(this.addFormField({
+      alias: 'Files Field',
+      data: { value_files: images },
+      form_field_type: FormHelperCommon.FORM_FIELD_TYPE.FILES_FILES,
+      form_submission_id: form_submission_id,
+      index: index++
+    }));
 
     return formExtractRelevantInformation;
   }
 
-  private static addFormField(alias: string, data: FormFieldExampleData, form_submission_id: string, index: number): FormExtractRelevantInformationSingle {
-    let form_field = this.getExampleFormField(alias);
+
+
+  private static addFormField(obj: AddFormFieldParams): FormExtractRelevantInformationSingle {
+    let form_field = this.getExampleFormField(obj);
     return {
       form_field_id: form_field.id,
-      sort: index,
+      sort: obj.index,
       form_field: form_field,
-      form_answer: this.getExampleFormExtractFormAnswer(form_field.id, form_submission_id, data),
+      form_answer: this.getExampleFormExtractFormAnswer(form_field.id, obj.form_submission_id, obj.data),
     };
   }
 
-  private static getExampleFormField(alias: string) {
+  private static getExampleFormField(obj: AddFormFieldParams): DatabaseTypes.FormFields {
     return {
-      alias: alias,
+      alias: obj.alias,
       background_color: '#FFFFFF',
       date_created: '2021-09-01T00:00:00.000Z',
       date_updated: '2021-09-01T00:00:00.000Z',
@@ -67,12 +192,12 @@ export class FormHelper {
       external_export_field_name: null,
       external_export_id: null,
       external_import_id: null,
-      field_type: 'string',
+      field_type: obj.form_field_type,
       form: '1',
       form_settings: '',
       icon: '',
       icon_expo: '',
-      id: Math.random().toString() + alias,
+      id: Math.random().toString() + obj.alias,
       image: null,
       image_remote_url: null,
       image_thumb_hash: null,
@@ -88,8 +213,8 @@ export class FormHelper {
       translations: [],
       user_created: '1',
       user_updated: '1',
-      value_prefix: null,
-      value_suffix: null,
+      value_prefix: obj.prefix || null,
+      value_suffix: obj.suffix || null,
     };
   }
 
@@ -138,27 +263,61 @@ export class FormHelper {
     };
   }
 
-  private static generateMarkdownForTypeStringValue(value: string | null | undefined): string {
+  private static getFieldMarkdownNameBold(fieldName: string): string {
+    return `**${fieldName}:** ` ;
+  }
+
+  private static getPrefix(formField: DatabaseTypes.FormFields){
+    return formField.value_prefix || '';
+  }
+
+  private static getSuffix(formField: DatabaseTypes.FormFields){
+    return formField.value_suffix || '';
+  }
+
+  private static formatValueWithPrefixAndSuffix(value: string | number, formField: DatabaseTypes.FormFields): string {
+    let prefix = this.getPrefix(formField);
+    let suffix = this.getSuffix(formField);
+    return `${prefix}${value}${suffix}`;
+  }
+
+  private static generateMarkdownForTypeStringValue(fieldName: string, formExtract: FormExtractRelevantInformationSingle): string {
     let markdownContent = '';
+
+    let value = formExtract.form_answer.value_string;
     if (value) {
-      markdownContent += `${value}`;
+      markdownContent += FormHelper.getFieldMarkdownNameBold(fieldName);
+
+
+      if(formExtract.form_field.field_type === FormHelperCommon.FORM_FIELD_TYPE.STRING_BANK_ACCOUNT){
+        // format IBAN
+        let formattedIban = FormHelperCommon.formatIban(value);
+        markdownContent += `${formattedIban}`;
+      } else {
+        markdownContent += FormHelper.formatValueWithPrefixAndSuffix(value, formExtract.form_field);
+
+      }
+
       markdownContent += MarkdownHelper.getMarkdownNewLine();
     }
     return markdownContent;
   }
 
-  private static generateMarkdownForTypeNumberValue(value: number | null | undefined): string {
+  private static generateMarkdownForTypeNumberValue(fieldName: string, formExtract: FormExtractRelevantInformationSingle): string {
     let markdownContent = '';
+    let value = formExtract.form_answer.value_number;
     if (value) {
-      markdownContent += `${value}`;
+      markdownContent += FormHelper.getFieldMarkdownNameBold(fieldName);
+      markdownContent += FormHelper.formatValueWithPrefixAndSuffix(value, formExtract.form_field);
       markdownContent += MarkdownHelper.getMarkdownNewLine();
     }
     return markdownContent;
   }
 
-  private static generateMarkdownForTypeBooleanValue(value: boolean | null | undefined): string {
+  private static generateMarkdownForTypeBooleanValue(fieldName: string, value: boolean | null | undefined): string {
     let markdownContent = '';
     if (value === true || value === false) {
+      markdownContent += FormHelper.getFieldMarkdownNameBold(fieldName);
       let booleanValueString = value ? TranslationsBackend.getTranslation(TranslationBackendKeys.FORM_VALUE_BOOLEAN_TRUE) : TranslationsBackend.getTranslation(TranslationBackendKeys.FORM_VALUE_BOOLEAN_FALSE);
       markdownContent += `${booleanValueString}`;
       markdownContent += MarkdownHelper.getMarkdownNewLine();
@@ -166,10 +325,28 @@ export class FormHelper {
     return markdownContent;
   }
 
-  private static generateMarkdownForTypeDateValue(value: string | null | undefined): string {
+  private static generateMarkdownForTypeDateValue(fieldName: string, formExtract: FormExtractRelevantInformationSingle): string {
     let markdownContent = '';
+    let value = formExtract.form_answer.value_date;
     if (value) {
-      let dateString = DateHelper.formatDateToTimeZoneReadable(new Date(value), EnvVariableHelper.getTimeZoneString());
+      markdownContent += FormHelper.getFieldMarkdownNameBold(fieldName);
+      let momentFormat = DateHelper.MOMENT_FORMAT.DATE_ONLY;
+      switch (formExtract.form_field.field_type){
+        case FormHelperCommon.FORM_FIELD_TYPE.DATE_HH_MM:
+          momentFormat = DateHelper.MOMENT_FORMAT.DATE_HH_MM;
+          break;
+        case FormHelperCommon.FORM_FIELD_TYPE.DATE_DATE_AND_HH_MM:
+          momentFormat = DateHelper.MOMENT_FORMAT.DATE_AND_HH_MM;
+          break;
+        case FormHelperCommon.FORM_FIELD_TYPE.DATE_TIMESTAMP:
+          momentFormat = DateHelper.MOMENT_FORMAT.DATE_TIMESTAMP
+          break;
+        case FormHelperCommon.FORM_FIELD_TYPE.DATE:
+          momentFormat = DateHelper.MOMENT_FORMAT.DATE_ONLY;
+          break;
+      }
+
+      let dateString = DateHelper.formatDateToTimeZoneReadable(new Date(value), EnvVariableHelper.getTimeZoneString(), momentFormat);
       markdownContent += `${dateString}`;
       markdownContent += MarkdownHelper.getMarkdownNewLine();
     }
@@ -179,6 +356,8 @@ export class FormHelper {
   private static generateMarkdownForTypeImageUrl(fieldName: string, imageUrl: string | undefined): string {
     let markdownContent = '';
     if (imageUrl) {
+      markdownContent += FormHelper.getFieldMarkdownNameBold(fieldName);
+      markdownContent += MarkdownHelper.getMarkdownNewLine();
       markdownContent += `![${fieldName}](${imageUrl})`;
       markdownContent += MarkdownHelper.getMarkdownNewLine();
     }
@@ -214,12 +393,18 @@ export class FormHelper {
     return this.generateMarkdownForTypeImageUrl(fieldName, assetUrl);
   }
 
-  public static async generateMarkdownContentFromForm(formExtractRelevantInformation: FormExtractRelevantInformationSingle[], myDatabaseHelperInterface: MyDatabaseTestableHelperInterface): Promise<string> {
+  public static getFieldMarkdownNameAsHeading(fieldName: string): string {
+    return `### ${fieldName}` + MarkdownHelper.getMarkdownNewLine();
+  }
+
+  public static async generateMarkdownContentFromForm(form: DatabaseTypes.Forms, formExtractRelevantInformation: FormExtractRelevantInformationSingle[], myDatabaseHelperInterface: MyDatabaseTestableHelperInterface): Promise<string> {
+    let markdownNewLine = MarkdownHelper.getMarkdownNewLine();
+
     let markdownContent = '';
 
-    markdownContent += ``;
+    markdownContent += `# ${form.alias || form.id}`;
+    markdownContent += markdownNewLine;
 
-    let markdownNewLine = MarkdownHelper.getMarkdownNewLine();
 
     //console.log("generateMarkdownContentFromForm");
     //console.log(JSON.stringify(formExtractRelevantInformation, null, 2));
@@ -228,16 +413,16 @@ export class FormHelper {
     // export type FormExtractRelevantInformationSingle = {form_field_id: string, sort: number | null | undefined, form_field: FormFields, form_answer: FormAnswers }
     for (let formExtractRelevantInformationSingle of formExtractRelevantInformation) {
       let fieldName = formExtractRelevantInformationSingle.form_field.alias || formExtractRelevantInformationSingle.form_field.id;
-      markdownContent += `### ${fieldName}`;
-      markdownContent += markdownNewLine;
 
-      markdownContent += this.generateMarkdownForTypeStringValue(formExtractRelevantInformationSingle.form_answer.value_string);
-      markdownContent += this.generateMarkdownForTypeNumberValue(formExtractRelevantInformationSingle.form_answer.value_number);
-      markdownContent += this.generateMarkdownForTypeBooleanValue(formExtractRelevantInformationSingle.form_answer.value_boolean);
-      markdownContent += this.generateMarkdownForTypeDateValue(formExtractRelevantInformationSingle.form_answer.value_date);
+      markdownContent += this.generateMarkdownForTypeStringValue(fieldName, formExtractRelevantInformationSingle);
+      markdownContent += this.generateMarkdownForTypeNumberValue(fieldName, formExtractRelevantInformationSingle);
+      markdownContent += this.generateMarkdownForTypeBooleanValue(fieldName, formExtractRelevantInformationSingle.form_answer.value_boolean);
+      markdownContent += this.generateMarkdownForTypeDateValue(fieldName, formExtractRelevantInformationSingle);
       markdownContent += this.generateMarkdownForTypeImageValue(fieldName, formExtractRelevantInformationSingle.form_answer.value_image, myDatabaseHelperInterface);
-      for (let formAnswerValueFile of formExtractRelevantInformationSingle.form_answer.value_files || []) {
-        markdownContent += this.generateMarkdownForTypeFilesValue(fieldName, formAnswerValueFile, myDatabaseHelperInterface);
+      if(formExtractRelevantInformationSingle.form_answer.value_files.length > 0){
+        for (let formAnswerValueFile of formExtractRelevantInformationSingle.form_answer.value_files || []) {
+          markdownContent += this.generateMarkdownForTypeFilesValue(fieldName, formAnswerValueFile, myDatabaseHelperInterface);
+        }
       }
     }
 
@@ -268,20 +453,27 @@ export class FormHelper {
     //console.log("Generating PDF from HTML with length:", html.length);
     //console.log("Using request options:", requestOptions);
 
-    let pdfBuffer = await PdfGeneratorHelper.generatePdfFromHtml(html, requestOptions);
+    let data: GeneratePdfFromHtmlProps = {
+      html: html,
+      requestOptions: requestOptions,
+    };
+    let pdfBuffer = await PdfGeneratorHelper.generatePdfFromHtml(data);
     return pdfBuffer;
   }
 
-  public static async generateHtmlFromForm(formExtractRelevantInformation: FormExtractRelevantInformation, myDatabaseHelperInterface: MyDatabaseTestableHelperInterface): Promise<string> {
-    let markdownContent = await this.generateMarkdownContentFromForm(formExtractRelevantInformation, myDatabaseHelperInterface);
+  public static async generateHtmlFromForm(params: FormGenerationParams): Promise<string> {
+    let { form, formExtractRelevantInformation, myDatabaseHelperInterface } = params;
+    let markdownContent = await this.generateMarkdownContentFromForm(form, formExtractRelevantInformation, myDatabaseHelperInterface);
     let template = DEFAULT_HTML_TEMPLATE;
     let html = await HtmlGenerator.generateHtml(BaseGermanMarkdownTemplateHelper.getTemplateDataForMarkdownContent(markdownContent), myDatabaseHelperInterface, template);
 
     return html;
   }
 
-  public static async generatePdfFromForm(formExtractRelevantInformation: FormExtractRelevantInformation, myDatabaseHelperInterface: MyDatabaseTestableHelperInterface, requestOptions?: RequestOptions): Promise<Buffer> {
-    let html = await this.generateHtmlFromForm(formExtractRelevantInformation, myDatabaseHelperInterface);
+  public static async generatePdfFromForm(params: FormGenerationParams & { requestOptions?: RequestOptions }): Promise<Buffer> {
+    let { requestOptions, ...formGenerationParams } = params;
+    let { myDatabaseHelperInterface } = formGenerationParams;
+    let html = await this.generateHtmlFromForm(formGenerationParams);
     let pdfBuffer = await this.generatePdfFromHtml(html, myDatabaseHelperInterface, requestOptions);
     return pdfBuffer;
   }

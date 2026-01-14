@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { Linking, Text, TouchableOpacity, View, Image } from 'react-native';
 import MyImage from '@/components/MyImage';
 import styles from './styles';
@@ -8,10 +8,9 @@ import { AntDesign, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-i
 import { FoodItemProps } from './types';
 import { excerpt, getImageUrl, getpreviousFeedback, showFormatedPrice, showPrice } from '@/constants/HelperFunctions';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
-import { DatabaseTypes } from 'repo-depkit-common';
+import { DatabaseTypes, RatingHelper } from 'repo-depkit-common';
 import { useDispatch, useSelector } from 'react-redux';
 import { SET_MARKING_DETAILS, SET_SELECTED_FOOD_MARKINGS } from '@/redux/Types/types';
-import PermissionModal from '../PermissionModal/PermissionModal';
 import { router } from 'expo-router';
 import { createSelector } from 'reselect';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
@@ -22,6 +21,9 @@ import { handleFoodRating } from '@/helper/feedback';
 import { RootState } from '@/redux/reducer';
 import CardWithText from '../CardWithText/CardWithText';
 import useFoodCard from '@/hooks/useFoodCard';
+import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
+import AIGeneratedHintSheet from '../AIGeneratedHintSheet';
+import useRatingPermissionModal from '@/hooks/useRatingPermissionModal';
 
 
 const selectFoodState = (state: RootState) => state.food;
@@ -31,18 +33,18 @@ const selectPreviousFeedback = createSelector([selectFoodState, (_: RootState, f
 const selectMarkings = createSelector([selectFoodState], foodState => foodState.markings);
 
 const FoodItem: React.FC<FoodItemProps> = memo(
-  ({ item, canteen, handleMenuSheet, handleImageSheet, setSelectedFoodId, handleEatingHabitsSheet, cardWidth }) => {
+  ({ item, canteen, handleMenuSheet, handleImageSheet, handleEatingHabitsSheet, cardWidth }) => {
     const toast = useToast();
     const dispatch = useDispatch();
     const { theme } = useTheme();
     const { translate } = useLanguage();
-
-    const [warning, setWarning] = useState(false);
+    const { show: showScrollViewModal } = useMyScrollViewModal();
 
     const { food } = item;
     const foodItem = food as DatabaseTypes.Foods;
     const { language, serverInfo, appSettings, primaryColor } = useSelector((state: RootState) => state.settings);
     const { user, profile, isManagement } = useSelector((state: RootState) => state.authReducer);
+    const { openRatingPermissionModal } = useRatingPermissionModal();
 
     const previousFeedback = useSelector(state => selectPreviousFeedback(state as RootState, foodItem.id));
     const markings = useSelector(selectMarkings);
@@ -111,6 +113,10 @@ const FoodItem: React.FC<FoodItemProps> = memo(
 
     const updateRating = useCallback(
       async (rating: number | null) => {
+        if (!user?.id) {
+          openRatingPermissionModal();
+          return;
+        }
         try {
           await handleFoodRating({
             foodId: foodItem?.id,
@@ -120,18 +126,17 @@ const FoodItem: React.FC<FoodItemProps> = memo(
             canteenId: canteen?.id,
             previousFeedback,
             dispatch,
-            setWarning,
           });
         } catch (err) {
           if ((err as any).status === 403) {
-            setWarning(true);
+            openRatingPermissionModal();
           } else {
             console.error('Failed to update rating:', err);
             toast('Could not update rating', 'error');
           }
         }
       },
-      [foodItem?.id, profile?.id, canteen?.id, previousFeedback, dispatch, user.id, toast]
+      [foodItem?.id, profile?.id, canteen?.id, previousFeedback, dispatch, user?.id, toast, openRatingPermissionModal]
     );
 
     const openMarkingLabel = useCallback(
@@ -192,31 +197,51 @@ const FoodItem: React.FC<FoodItemProps> = memo(
                     <TouchableOpacity
                       style={styles.editImageButton}
                       onPress={() => {
-                        setSelectedFoodId(foodItem?.id);
-                        handleImageSheet(foodItem?.id);
+                        handleImageSheet(foodItem);
                       }}
                     >
                       <MaterialCommunityIcons name="image-edit" size={20} color="white" />
                     </TouchableOpacity>
                   )}
 
-                  <TouchableOpacity style={styles.favContainer}>
-                    {previousFeedback?.rating === 5 ? (
-                      <TouchableOpacity onPress={() => updateRating(null)}>
-                        <AntDesign name="star" size={20} color={foods_area_color} />
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity onPress={() => updateRating(5)}>
-                        <MaterialIcons name="star" size={20} color="white" />
-                      </TouchableOpacity>
-                    )}
-                  </TouchableOpacity>
+                  <View style={styles.overlayActionsContainer}>
+                    <TouchableOpacity style={styles.favContainer}>
+                      {RatingHelper.isMaxRating(previousFeedback?.rating) ? (
+                        <TouchableOpacity onPress={() => updateRating(null)}>
+                          <AntDesign name="star" size={20} color={foods_area_color} />
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity onPress={() => updateRating(RatingHelper.MAX_RATING)}>
+                          <MaterialIcons name="star" size={20} color="white" />
+                        </TouchableOpacity>
+                      )}
+                    </TouchableOpacity>
 
-                  {dislikedMarkings.length > 0 && (
-                    <TouchableOpacity style={styles.favContainerWarn} onPress={handleOpenSheet}>
-                      <MaterialIcons name="warning" size={20} color={foods_area_color} />
+                  {foodItem?.image_generated && (
+                    <TouchableOpacity
+                      style={styles.aiBadgeContainer}
+                      onPress={() =>
+                        showScrollViewModal(
+                          {
+                            title: translate(TranslationKeys.ai_generated_image),
+                            children: <AIGeneratedHintSheet />,
+                          },
+                          {}
+                        )
+                      }
+                    >
+                      <Text style={styles.aiGeneratedBadgeText}>
+                        {translate(TranslationKeys.ai_generated_badge_label)}
+                      </Text>
                     </TouchableOpacity>
                   )}
+
+                    {dislikedMarkings.length > 0 && (
+                      <TouchableOpacity style={styles.favContainerWarn} onPress={handleOpenSheet}>
+                        <MaterialIcons name="warning" size={20} color={foods_area_color} />
+                      </TouchableOpacity>
+                    )}
+                  </View>
 
                   <View style={styles.categoriesContainer}>
                     {markingsData?.map(mark =>
@@ -266,8 +291,6 @@ const FoodItem: React.FC<FoodItemProps> = memo(
             </TooltipText>
           </TooltipContent>
         </Tooltip>
-
-        <PermissionModal isVisible={warning} setIsVisible={setWarning} />
       </>
     );
   },

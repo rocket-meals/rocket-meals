@@ -11,6 +11,8 @@ import { useSelector } from 'react-redux';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
+import { CollectibleAt } from 'repo-depkit-common';
 
 const SupportFaq = () => {
 	useSetPageTitle(TranslationKeys.feedback_support_faq);
@@ -124,26 +126,27 @@ const SupportFaq = () => {
 							value="Baumgartner Software UG"
 							rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
 							handleFunction={() => {
-								openInBrowser('https://baumgartner-software.de/homepage/');
+								openInBrowser('https://baumgartner-software.de');
 							}}
 							groupPosition="middle"
 						/>
-						<SettingsList
-							iconBgColor={primaryColor}
-							leftIcon={<MaterialIcons name="apps" size={24} color={theme.screen.icon} />}
-							label={translate(TranslationKeys.software_name)}
-							value="Rocket Meals"
+                                                <SettingsList
+                                                        iconBgColor={primaryColor}
+                                                        leftIcon={<MaterialIcons name="apps" size={24} color={theme.screen.icon} />}
+                                                        label={translate(TranslationKeys.software_name)}
+                                                        value="Rocket Meals"
 							rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
 							handleFunction={() => {
-								openInBrowser('https://rocket-meals.de/homepage/');
+								openInBrowser('https://rocket-meals.de');
 							}}
-							groupPosition="bottom"
-						/>
-					</View>
-				</View>
-			</ScrollView>
-		</View>
-	);
+                                                        groupPosition="bottom"
+                                                />
+                                        </View>
+                                        <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_faq} />
+                                </View>
+                        </ScrollView>
+                </View>
+        );
 };
 
 export default SupportFaq;

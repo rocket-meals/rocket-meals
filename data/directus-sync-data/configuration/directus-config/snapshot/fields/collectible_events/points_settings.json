@@ -1,0 +1,29 @@
+{
+  "collection": "collectible_events",
+  "field": "points_settings",
+  "type": "alias",
+  "meta": {
+    "collection": "collectible_events",
+    "conditions": null,
+    "display": null,
+    "display_options": null,
+    "field": "points_settings",
+    "group": null,
+    "hidden": false,
+    "interface": "group-detail",
+    "note": null,
+    "options": null,
+    "readonly": false,
+    "required": false,
+    "sort": 13,
+    "special": [
+      "alias",
+      "no-data",
+      "group"
+    ],
+    "translations": null,
+    "validation": null,
+    "validation_message": null,
+    "width": "full"
+  }
+}

@@ -2,6 +2,17 @@ import { DatabaseTypes, DateHelper } from 'repo-depkit-common';
 import { WORKFLOW_RUN_STATE } from '../helpers/itemServiceHelpers/WorkflowsRunEnum';
 import { WorkflowRunContext } from '../helpers/WorkflowRunContext';
 
+type Interval = {
+  date_start: Date;
+  date_end: Date;
+};
+
+type UtiliztationContext = {
+  canteen: DatabaseTypes.Canteens;
+  cashregisters: DatabaseTypes.Cashregisters[];
+  utilization_group: DatabaseTypes.UtilizationsGroups;
+};
+
 export class ParseSchedule {
   private readonly context: WorkflowRunContext;
 
@@ -69,23 +80,29 @@ export class ParseSchedule {
       for (let date of dates) {
         await this.context.logger.appendLog('- Calculating forecast for date: ' + date.toISOString());
 
-        await this.updateUtilizationEntryForCanteenAtDate(canteen, utilization_group_for_canteen, cashregisters, date, intervalMinutes);
+        let utilizationContext: UtiliztationContext = {
+            canteen: canteen,
+            cashregisters: cashregisters,
+            utilization_group: utilization_group_for_canteen,
+        }
+
+        await this.updateUtilizationEntryForCanteenAtDate(utilizationContext, date, intervalMinutes);
       }
     } else {
       console.log('Houston we got a problem at calcForecastForCanteen');
     }
   }
 
-  async createUtilizationEntry(utilization_group: DatabaseTypes.UtilizationsGroups, date_start: Date, date_end: Date) {
+  async createUtilizationEntry(utilization_group: DatabaseTypes.UtilizationsGroups, interval: Interval) {
     let itemService = this.context.myDatabaseHelper.getUtilizationEntriesHelper();
     await itemService.createOne({
       utilization_group: utilization_group?.id,
-      date_start: DateHelper.formatDateToIso8601WithoutTimezone(date_start),
-      date_end: DateHelper.formatDateToIso8601WithoutTimezone(date_end),
+      date_start: DateHelper.formatDateToIso8601WithoutTimezone(interval.date_start),
+      date_end: DateHelper.formatDateToIso8601WithoutTimezone(interval.date_end),
     });
   }
 
-  async getUtilizationEntry(utilization_group: DatabaseTypes.UtilizationsGroups, date_start: Date, date_end: Date) {
+  async getUtilizationEntry(utilization_group: DatabaseTypes.UtilizationsGroups, interval: Interval) {
     //console.log("getUtilizationEntry");
     let itemService = this.context.myDatabaseHelper.getUtilizationEntriesHelper();
 
@@ -99,12 +116,12 @@ export class ParseSchedule {
           },
           {
             date_start: {
-              _eq: DateHelper.formatDateToIso8601WithoutTimezone(date_start),
+              _eq: DateHelper.formatDateToIso8601WithoutTimezone(interval.date_start),
             },
           },
           {
             date_end: {
-              _eq: DateHelper.formatDateToIso8601WithoutTimezone(date_end),
+              _eq: DateHelper.formatDateToIso8601WithoutTimezone(interval.date_end),
             },
           },
         ],
@@ -133,7 +150,7 @@ export class ParseSchedule {
          */
   }
 
-  async countCashRegistersTransactionsForInterval(cashregisters: DatabaseTypes.Cashregisters[], date_start: Date, date_end: Date) {
+  async countCashRegistersTransactionsForInterval(cashregisters: DatabaseTypes.Cashregisters[], interval: Interval) {
     let transactions = 0;
     //console.log("")
     //console.log("countCashRegistersTransactionsForInterval")
@@ -148,7 +165,12 @@ export class ParseSchedule {
       //console.log("cashregister_id: "+cashregister.id);
 
       // Instead we need to use the itemServiceCreator
-      let transactions_ids_for_cashregister = await cashregisterHelper.getTransactionIdsForCashregister(cashregister.id, date_start, date_end, assumedMaxLimit);
+      let transactions_ids_for_cashregister = await cashregisterHelper.getTransactionIdsForCashregister(
+        cashregister.id,
+        interval.date_start,
+        interval.date_end,
+        assumedMaxLimit,
+      );
 
       let amount_transactions_for_cashregister = transactions_ids_for_cashregister.length;
       //console.log("-- in timeslot: "+amount_transactions_for_cashregister)
@@ -159,20 +181,22 @@ export class ParseSchedule {
     return transactions;
   }
 
-  async updateUtilizationEntryForCanteenAtDate(canteen: DatabaseTypes.Canteens, utilization_group: DatabaseTypes.UtilizationsGroups, cashregisters: DatabaseTypes.Cashregisters[], date: Date, intervalMinutes: number) {
+  async updateUtilizationEntryForCanteenAtDate(
+    utilizationContext: UtiliztationContext,
+    date: Date,
+    intervalMinutes: number,
+  ) {
     let now = new Date();
+    const { canteen, cashregisters, utilization_group } = utilizationContext;
 
     let interval = await this.getInterval(intervalMinutes, date);
 
     for (let interval_entry of interval) {
-      let date_start = interval_entry.date_start;
-      let date_end = interval_entry.date_end;
-
-      let utilizationEntryCurrent = await this.getUtilizationEntry(utilization_group, date_start, date_end);
+      let utilizationEntryCurrent = await this.getUtilizationEntry(utilization_group, interval_entry);
       if (!utilizationEntryCurrent) {
         // when we update an existing entry
-        await this.createUtilizationEntry(utilization_group, date_start, date_end);
-        utilizationEntryCurrent = await this.getUtilizationEntry(utilization_group, date_start, date_end);
+        await this.createUtilizationEntry(utilization_group, interval_entry);
+        utilizationEntryCurrent = await this.getUtilizationEntry(utilization_group, interval_entry);
       }
       //console.log("utilizationEntryCurrent");
       //console.log(utilizationEntryCurrent);
@@ -180,18 +204,26 @@ export class ParseSchedule {
       if (!!utilizationEntryCurrent) {
         //console.log("date_start: "+date_start.toISOString()+" --> "+"date_end: "+date_end.toISOString())
         let isEntryInPast = false;
-        if (date_start < now && date_end < now) {
+        if (interval_entry.date_start < now && interval_entry.date_end < now) {
           // if start AND end date is in the past.
           isEntryInPast = true;
         }
         //console.log("isEntryInPast: "+isEntryInPast);
 
         if (!isEntryInPast) {
-          utilizationEntryCurrent.value_forecast_current = await this.predictUtilizationForInterval(utilization_group, cashregisters, canteen, date_start, date_end);
+          let utilizationContext: UtiliztationContext = {
+            canteen: canteen,
+            cashregisters: cashregisters,
+            utilization_group: utilization_group,
+          };
+
+          utilizationEntryCurrent.value_forecast_current = await this.predictUtilizationForInterval(utilizationContext,
+            interval_entry,
+          );
         }
         if (isEntryInPast) {
           // we need just to count the cash register actions
-          let value_real = await this.countCashRegistersTransactionsForInterval(cashregisters, date_start, date_end);
+          let value_real = await this.countCashRegistersTransactionsForInterval(cashregisters, interval_entry);
           //console.log("value_real: "+value_real);
           utilizationEntryCurrent.value_real = value_real;
 
@@ -222,24 +254,31 @@ export class ParseSchedule {
    * @param date_start
    * @param date_end
    */
-  async predictUtilizationForInterval(utilization_group: DatabaseTypes.UtilizationsGroups, cashregisters: DatabaseTypes.Cashregisters[], canteen: DatabaseTypes.Canteens, date_start: Date, date_end: Date) {
+  async predictUtilizationForInterval(
+    utilizationContext: UtiliztationContext,
+    interval: Interval,
+  ) {
+    let utilization_group = utilizationContext.utilization_group;
     // calc forecast - kept very simple
-    let date_start_last_week = new Date(date_start);
-    date_start_last_week.setDate(date_start.getDate() - 7);
+    let date_start_last_week = new Date(interval.date_start);
+    date_start_last_week.setDate(interval.date_start.getDate() - 7);
 
-    let date_end_last_week = new Date(date_end);
-    date_end_last_week.setDate(date_end.getDate() - 7);
+    let date_end_last_week = new Date(interval.date_end);
+    date_end_last_week.setDate(interval.date_end.getDate() - 7);
 
-    let utilizationEntryLastWeek = await this.getUtilizationEntry(utilization_group, date_start_last_week, date_end_last_week);
+    let utilizationEntryLastWeek = await this.getUtilizationEntry(utilization_group, {
+      date_start: date_start_last_week,
+      date_end: date_end_last_week,
+    });
     let last_week_forecast_value = utilizationEntryLastWeek?.value_forecast_current; // if we want to predict beyond 7 days we need to predict using predicted values, better than displaying 0
 
     let value_forecast_current = utilizationEntryLastWeek?.value_real || last_week_forecast_value;
     return value_forecast_current;
   }
 
-  async getInterval(intervalMinutes: number, date: Date) {
+  async getInterval(intervalMinutes: number, date: Date): Promise<Interval[]> {
     let minutesPerDay = 24 * 60;
-    let interval = [];
+    let interval: Interval[] = [];
     let currentDate = new Date(date);
 
     currentDate.setHours(0, 0, 0, 0); // Set to start of the day (midnight)

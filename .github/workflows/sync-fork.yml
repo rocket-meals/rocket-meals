@@ -60,8 +60,8 @@ jobs:
           echo "Upstream repository: rocket-meals/rocket-meals"
           echo "Target branch: master"
 
-          # Sync the fork with the upstream repository using --force to handle conflicts
-          if gh repo sync "$REPO_FULL_NAME" -b master --force; then
+          # Sync the fork with the upstream repository without overwriting local commits
+          if gh repo sync "$REPO_FULL_NAME" -b master; then
             echo "✅ Fork synchronization completed successfully!"
             echo "sync-success=true" >> $GITHUB_OUTPUT
           else

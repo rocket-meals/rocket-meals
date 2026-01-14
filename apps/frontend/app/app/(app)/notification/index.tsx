@@ -19,6 +19,8 @@ import { replaceLottieColors } from '@/helper/animationHelper';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
+import { CollectibleAt } from 'repo-depkit-common';
 
 const NotificationScreen = () => {
 	useSetPageTitle(TranslationKeys.notification);
@@ -195,11 +197,12 @@ const NotificationScreen = () => {
 									</TouchableOpacity>
 								)}
 							</View>
-						))}
-				</View>
-			</View>
-		</ScrollView>
-	);
+                                                ))}
+                                </View>
+                                <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_noticiation} />
+                        </View>
+                </ScrollView>
+        );
 };
 
 export default NotificationScreen;

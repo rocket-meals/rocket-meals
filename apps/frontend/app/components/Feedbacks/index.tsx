@@ -11,14 +11,14 @@ import { DatabaseTypes, DateHelper } from 'repo-depkit-common';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
 import useToast from '@/hooks/useToast';
 import { DELETE_FOOD_FEEDBACK_LOCAL, UPDATE_FOOD_FEEDBACK_LOCAL } from '@/redux/Types/types';
-import PermissionModal from '../PermissionModal/PermissionModal';
 import { createSelector } from 'reselect';
 import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/ColorHelper';
-import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
+import SettingsList from '@/components/SettingsList';
 import { TranslationKeys } from '@/locales/keys';
 import { FeedbacksProps } from './types';
 import { RootState } from '@/redux/reducer';
+import useRatingPermissionModal from '@/hooks/useRatingPermissionModal';
 
 const loadingState = {
 	submitLoading: false,
@@ -41,8 +41,8 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 	const { appSettings, primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const [commentType, setCommentType] = useState('');
 	const [loading, setLoading] = useState(loadingState);
-	const [warning, setWarning] = useState(false);
 	const [comment, setComment] = useState('');
+	const { openRatingPermissionModal } = useRatingPermissionModal();
 	const foodFeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
 	const { labels, labelEntries, previousFeedback } = useSelector((state: any) => selectFeedbackData(state, foodDetails?.id));
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
@@ -55,7 +55,7 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 
 	const submitCommentFeedback = async (string: string | null) => {
 		if (!user?.id) {
-			setWarning(true);
+			openRatingPermissionModal();
 			return;
 		}
 
@@ -95,7 +95,7 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 
 	const handleTextChange = (text: string) => {
 		if (!user?.id) {
-			setWarning(true);
+			openRatingPermissionModal();
 			return;
 		}
 
@@ -108,12 +108,32 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 
 	const resp = Dimensions.get('window').width > 800;
 	const rating = foodDetails?.rating_average ?? foodDetails?.rating_average_legacy;
+	const ratingAmount = foodDetails?.rating_amount ?? foodDetails?.rating_amount_legacy;
+	const showRatingsAmount = appSettings?.foods_ratings_amount_display;
+	const showRatingsAverage = appSettings?.foods_ratings_average_display;
+	const ratingSummaryItems = [];
+	if (showRatingsAmount) {
+		ratingSummaryItems.push({
+			key: 'ratings-amount',
+			icon: <Ionicons name="bar-chart" size={20} />,
+			leftText: translate(TranslationKeys.amount_ratings),
+			rightText: ratingAmount !== null && ratingAmount !== undefined ? `${ratingAmount}` : '-',
+		});
+	}
+	if (showRatingsAverage) {
+		ratingSummaryItems.push({
+			key: 'ratings-average',
+			icon: <AntDesign name="star" size={20} />,
+			leftText: translate(TranslationKeys.average_rating),
+			rightText: typeof rating === 'number' && !isNaN(rating) ? `${numToOneDecimal(rating)}` : '-',
+		});
+	}
 
 	const otherComments = foodDetails?.feedbacks?.filter(feedback => feedback.profile !== profile.id && feedback.comment).sort((a, b) => new Date(b.date_updated).getTime() - new Date(a.date_updated).getTime());
 	return (
 		<View style={styles.container}>
-			{appSettings?.foods_ratings_amount_display ||
-				(appSettings?.foods_ratings_average_display && (
+			{showRatingsAmount ||
+				(showRatingsAverage && (
 					<Text
 						style={{
 							...styles.heading,
@@ -124,79 +144,23 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 						{translate(TranslationKeys.food_feedbacks)}
 					</Text>
 				))}
-			{appSettings?.foods_ratings_amount_display && (
-				<Tooltip
-					placement="top"
-					trigger={triggerProps => (
-						<TouchableOpacity {...triggerProps} style={{ ...styles.row, cursor: 'default' }}>
-							<View style={styles.col}>
-								<Ionicons name="bar-chart" size={isWeb ? 24 : 22} color={theme.screen.text} />
-								<Text
-									style={{
-										...styles.label,
-										color: theme.screen.text,
-										fontSize: isWeb ? 18 : 14,
-									}}
-								>
-									{translate(TranslationKeys.amount_ratings)}
-								</Text>
-							</View>
-							<Text
-								style={{
-									...styles.label,
-									color: theme.screen.text,
-									fontSize: isWeb ? 18 : 14,
-								}}
-							>
-								{foodDetails?.rating_amount || foodDetails?.rating_amount_legacy}
-							</Text>
-						</TouchableOpacity>
-					)}
-				>
-					<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
-						<TooltipText fontSize="$sm" color={theme.tooltip.text}>
-							{translate(TranslationKeys.amount_ratings)}
-						</TooltipText>
-					</TooltipContent>
-				</Tooltip>
-			)}
-			{appSettings?.foods_ratings_average_display && (
-				<Tooltip
-					placement="top"
-					trigger={triggerProps => (
-						<TouchableOpacity {...triggerProps} style={{ ...styles.row, cursor: 'default' }}>
-							<View style={styles.col}>
-								<AntDesign name="area-chart" size={isWeb ? 24 : 22} color={theme.screen.icon} />
-								<Text
-									style={{
-										...styles.label,
-										color: theme.screen.text,
-										fontSize: isWeb ? 18 : 14,
-										marginTop: 2,
-									}}
-								>
-									{translate(TranslationKeys.average_rating)}
-								</Text>
-							</View>
-							<Text
-								style={{
-									...styles.label,
-									color: theme.screen.text,
-									fontSize: isWeb ? 18 : 14,
-									marginTop: 2,
-								}}
-							>
-								{typeof rating === 'number' && !isNaN(rating) && <Text>{numToOneDecimal(rating)}</Text>}
-							</Text>
-						</TouchableOpacity>
-					)}
-				>
-					<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
-						<TooltipText fontSize="$sm" color={theme.tooltip.text}>
-							{translate(TranslationKeys.average_rating)}
-						</TooltipText>
-					</TooltipContent>
-				</Tooltip>
+			{ratingSummaryItems.length > 0 && (
+				<View style={{ width: '100%', marginBottom: 20 }}>
+					{ratingSummaryItems.map((item, index) => {
+						const groupPosition =
+							ratingSummaryItems.length === 1 ? 'single' : index === 0 ? 'top' : index === ratingSummaryItems.length - 1 ? 'bottom' : 'middle';
+						return (
+							<SettingsList
+								key={item.key}
+								iconBgColor={foods_area_color}
+								leftIcon={item.icon}
+								label={item.leftText}
+								value={item.rightText}
+								groupPosition={groupPosition}
+							/>
+						);
+					})}
+				</View>
 			)}
 
 			<Text
@@ -317,7 +281,6 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 				</>
 			)}
 
-			<PermissionModal isVisible={warning} setIsVisible={setWarning} />
 		</View>
 	);
 };

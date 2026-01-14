@@ -1,9 +1,14 @@
-import { CanteensTypeForParser, FoodoffersTypeForParser, FoodParserInterface, FoodsInformationTypeForParser, FoodWithBasicData } from '../FoodParserInterface';
-import { MarkingParserInterface, MarkingsTypeForParser } from '../MarkingParserInterface';
-import { FoodWebParserAachenReadHtmlFiles } from './FoodWebParserAachenReadHtmlFiles';
-import { FoodWebParserAachenParseHtml } from './FoodWebParserAachenParseHtml';
-import { LanguageCodes, TranslationsFromParsingType } from '../../helpers/TranslationHelper';
-import { FoodWebParser_RawReportWebReaderAachen } from './FoodWebParser_RawReportWebReaderAachen';
+import {
+  CanteensTypeForParser,
+  FoodoffersTypeForParser,
+  FoodParserHelper,
+  FoodParserInterface,
+  FoodsInformationTypeForParser
+} from '../FoodParserInterface';
+import {MarkingParserInterface, MarkingsTypeForParser} from '../MarkingParserInterface';
+import {FoodWebParserAachenReadHtmlFiles} from './FoodWebParserAachenReadHtmlFiles';
+import {FoodWebParserAachenParseHtml} from './FoodWebParserAachenParseHtml';
+import {FoodWebParser_RawReportWebReaderAachen} from './FoodWebParser_RawReportWebReaderAachen';
 
 export type CanteenNamesToHtmlFileDict = { [canteenName: string]: string };
 
@@ -41,47 +46,9 @@ export class FoodAndMarkingWebParserAachen implements FoodParserInterface, Marki
     return Promise.resolve(canteensList);
   }
 
-  public getFoodsListForParser(): Promise<FoodsInformationTypeForParser[]> {
-    let foodoffersList: FoodoffersTypeForParser[] = this.getFullFoodoffersListAfterCreateNeededData(this.canteensHtmlFilesMap);
-    let foodsInformationDict: { [key: string]: FoodsInformationTypeForParser } = {};
-    for (let rawFoodoffer of foodoffersList) {
-      const foodInformation = this.getFoodInformationListFromFoodoffer(rawFoodoffer);
-      if (foodInformation) {
-        foodsInformationDict[foodInformation.basicFoodData.id] = foodInformation;
-      }
-    }
-    const foodsInformationList = Object.values(foodsInformationDict);
-    return Promise.resolve(foodsInformationList);
-  }
-
-  private getFoodInformationListFromFoodoffer(foodoffer: FoodoffersTypeForParser): FoodsInformationTypeForParser | null {
-    const food_id = foodoffer.food_id;
-    if (!food_id) {
-      return null;
-    }
-    const alias = foodoffer.basicFoodofferData.alias;
-    if (!alias) {
-      return null;
-    }
-
-    const translations: TranslationsFromParsingType = {
-      [LanguageCodes.DE]: {
-        name: alias,
-      },
-    };
-
-    const basicFoodData: FoodWithBasicData = {
-      id: food_id,
-      alias: alias,
-    };
-
-    return {
-      basicFoodData: basicFoodData,
-      attribute_values: foodoffer.attribute_values,
-      translations: translations,
-      category_external_identifier: foodoffer.category_external_identifier,
-      marking_external_identifiers: foodoffer.marking_external_identifiers,
-    };
+  public async getFoodsListForParser(): Promise<FoodsInformationTypeForParser[]> {
+    let foodoffersList: FoodoffersTypeForParser[] = await this.getFoodoffersForParser();
+    return FoodParserHelper.getFoodsListFromFoodoffersList(foodoffersList);
   }
 
   public getFoodoffersForParser(): Promise<FoodoffersTypeForParser[]> {

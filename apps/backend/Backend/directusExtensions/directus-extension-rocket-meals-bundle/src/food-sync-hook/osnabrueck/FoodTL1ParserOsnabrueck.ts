@@ -1,12 +1,12 @@
 import { FoodTL1Parser, RawFoodofferInformationType, RawTL1FoodofferType, TL1AttributeValueType } from '../FoodTL1Parser';
 import { FoodTL1Parser_GetRawReportInterface } from '../FoodTL1Parser_GetRawReportInterface';
-import { FoodParseFoodAttributesType } from '../FoodParserInterface';
+import {FoodoffersTypeForParser, FoodParseFoodAttributesType} from '../FoodParserInterface';
 
 export class FoodTL1ParserOsnabrueck extends FoodTL1Parser {
-  static DEFAULT_CO2_GRAMM_FIELD = 'EXTINFO_CO2_WERT';
-  static DEFAULT_CO2_SAVING_PERCENTAGE_FIELD = 'EXTINFO_CO2_EINSPARUNG';
   static DEFAULT_CO2_RATING_FIELD = 'EXTINFO_CO2_BEWERTUNG';
-  static CO2_BEWERTUNG_PREFIX_IDENTIFIER = 'CO2_RATING_';
+
+  static MARKING_EXTERNAL_IDENTIFIER_NIEDERSACHSEN_MENU = "custom_niedersachsen_menu";
+  static FOODOFFER_CATEGORY_NIEDERSACHSEN_MENU = "Niedersachsenmenü"
 
   constructor(rawFoodofferReader: FoodTL1Parser_GetRawReportInterface) {
     super(rawFoodofferReader);
@@ -44,6 +44,13 @@ export class FoodTL1ParserOsnabrueck extends FoodTL1Parser {
       }
     }
 
+    // Niedersachsen Menü
+    let foodofferCategory = this.getFoodofferCategoryFromRawFoodoffer(rawFoodoffer);
+    if (foodofferCategory === FoodTL1ParserOsnabrueck.FOODOFFER_CATEGORY_NIEDERSACHSEN_MENU) {
+      combinedMarkings.push(FoodTL1ParserOsnabrueck.MARKING_EXTERNAL_IDENTIFIER_NIEDERSACHSEN_MENU);
+    }
+
+
     return combinedMarkings;
   }
 
@@ -54,11 +61,18 @@ export class FoodTL1ParserOsnabrueck extends FoodTL1Parser {
   static CO2RATING_A_VALUE = 'A';
 
   static getCO2RatingMarkingExternalIdentifier(co2_bewertung_string: string) {
-    return FoodTL1ParserOsnabrueck.CO2_BEWERTUNG_PREFIX_IDENTIFIER + co2_bewertung_string;
+    return "CO2_RATING_" + co2_bewertung_string;
   }
 
   static getKlimaTellerMarkingExternalIdentifier() {
     return FoodTL1ParserOsnabrueck.getCO2RatingMarkingExternalIdentifier(FoodTL1ParserOsnabrueck.CO2RATING_A_VALUE);
+  }
+
+
+  override async getFoodoffersForParser(): Promise<FoodoffersTypeForParser[]> {
+    let superPromise = await super.getFoodoffersForParser();
+
+    return superPromise;
   }
 
   override getFoodAttributesFromRawTL1Foodoffer(parsedReportItem: RawTL1FoodofferType): FoodParseFoodAttributesType {
@@ -66,12 +80,12 @@ export class FoodTL1ParserOsnabrueck extends FoodTL1Parser {
 
     const csvAttributes = [
       {
-        field_name: FoodTL1ParserOsnabrueck.DEFAULT_CO2_GRAMM_FIELD,
+        field_name: "EXTINFO_CO2_WERT",
         external_identifier: 'co2_g',
         value_type: TL1AttributeValueType.NUMBER,
       },
       {
-        field_name: FoodTL1ParserOsnabrueck.DEFAULT_CO2_SAVING_PERCENTAGE_FIELD,
+        field_name: "EXTINFO_CO2_EINSPARUNG",
         external_identifier: 'co2_saving_percentage',
         value_type: TL1AttributeValueType.NUMBER,
       },

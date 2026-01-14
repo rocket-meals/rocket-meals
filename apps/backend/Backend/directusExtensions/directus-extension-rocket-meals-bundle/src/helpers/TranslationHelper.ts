@@ -1,5 +1,5 @@
 import { PrimaryKey } from '@directus/types';
-import { CollectionNames, DatabaseTypes } from 'repo-depkit-common';
+import { CollectionNames, DatabaseTypes, LanguageCodes, LanguageCodesType } from 'repo-depkit-common';
 
 import { MyDatabaseHelper } from './MyDatabaseHelper';
 
@@ -14,18 +14,6 @@ export type ExistingTranslation = {
   [key: string]: any;
 };
 type NewTranslationForCreation = Omit<ExistingTranslation, 'id'>;
-
-export class LanguageCodes {
-  public static readonly _codes = {
-    de: 'de-DE' as const,
-    en: 'en-US' as const,
-  };
-
-  static readonly DE = LanguageCodes._codes.de;
-  static readonly EN = LanguageCodes._codes.en;
-}
-
-export type LanguageCodesType = (typeof LanguageCodes._codes)[keyof typeof LanguageCodes._codes];
 
 export type TranslationBaseFields = {
   be_source_for_translations?: boolean | null;

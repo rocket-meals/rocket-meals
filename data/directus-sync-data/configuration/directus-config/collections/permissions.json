@@ -1,121 +1,113 @@
 [
   {
-    "validation": null,
-    "collection": "directus_comments",
-    "action": "read",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "read",
+    "collection": "directus_comments",
+    "policy": "_sync_default_public_policy",
     "_syncId": "6943cd00-95d7-4096-a97d-42935bb51937"
   },
   {
-    "validation": null,
-    "collection": "directus_dashboards",
-    "action": "create",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "create",
+    "collection": "directus_dashboards",
+    "policy": "_sync_default_public_policy",
     "_syncId": "e49380d9-c7ec-4418-8b94-cfe10abfd8e7"
   },
   {
-    "validation": null,
-    "collection": "directus_dashboards",
-    "action": "delete",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "delete",
+    "collection": "directus_dashboards",
+    "policy": "_sync_default_public_policy",
     "_syncId": "2781e1b7-8668-4598-ac5a-b5c137dbe128"
   },
   {
-    "validation": null,
-    "collection": "directus_dashboards",
-    "action": "read",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "read",
+    "collection": "directus_dashboards",
+    "policy": "_sync_default_public_policy",
     "_syncId": "d44ed0d8-5dae-401a-b4d7-ca164dc86595"
   },
   {
-    "validation": null,
-    "collection": "directus_dashboards",
-    "action": "update",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "update",
+    "collection": "directus_dashboards",
+    "policy": "_sync_default_public_policy",
     "_syncId": "6736a04f-5d2f-4079-bb8a-82acccec5b3b"
   },
   {
-    "validation": null,
-    "collection": "directus_files",
-    "action": "create",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "create",
+    "collection": "directus_files",
+    "policy": "_sync_default_public_policy",
     "_syncId": "42b27e1f-3d3b-4732-857a-e5181614cbf6"
   },
   {
-    "validation": null,
-    "collection": "directus_files",
-    "action": "delete",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "delete",
+    "collection": "directus_files",
+    "policy": "_sync_default_public_policy",
     "_syncId": "77e02188-9566-4a02-b578-2703cd0f0e57"
   },
   {
-    "validation": null,
-    "collection": "directus_files",
-    "action": "read",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "read",
+    "collection": "directus_files",
+    "policy": "_sync_default_public_policy",
     "_syncId": "d01453f9-01c9-48da-9dd6-de54445a0788"
   },
   {
-    "validation": null,
-    "collection": "directus_files",
-    "action": "update",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "update",
+    "collection": "directus_files",
+    "policy": "_sync_default_public_policy",
     "_syncId": "a9dfac42-45db-456d-9a66-6504b04a2d6e"
   },
   {
-    "validation": null,
-    "collection": "directus_flows",
-    "action": "read",
-    "permissions": {
-      "trigger": {
-        "_eq": "manual"
-      }
-    },
     "fields": [
       "id",
       "status",
@@ -125,148 +117,158 @@
       "options",
       "trigger"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {
+      "trigger": {
+        "_eq": "manual"
+      }
+    },
+    "action": "read",
+    "collection": "directus_flows",
+    "policy": "_sync_default_public_policy",
     "_syncId": "5d00a411-0f0b-44a3-978f-de5a7c370f93"
   },
   {
-    "validation": null,
-    "collection": "directus_folders",
-    "action": "create",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "create",
+    "collection": "directus_folders",
+    "policy": "_sync_default_public_policy",
     "_syncId": "53f007de-cc1d-42f7-a579-3ccceae21e9e"
   },
   {
-    "validation": null,
-    "collection": "directus_folders",
-    "action": "delete",
-    "permissions": {},
     "fields": null,
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "delete",
+    "collection": "directus_folders",
+    "policy": "_sync_default_public_policy",
     "_syncId": "22ed426a-933a-4c42-9ac8-a0238c0e5a47"
   },
   {
-    "validation": null,
-    "collection": "directus_folders",
-    "action": "read",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "read",
+    "collection": "directus_folders",
+    "policy": "_sync_default_public_policy",
     "_syncId": "7e77b6a3-b000-4f48-b144-88044c9b420e"
   },
   {
-    "validation": null,
-    "collection": "directus_folders",
-    "action": "update",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "update",
+    "collection": "directus_folders",
+    "policy": "_sync_default_public_policy",
     "_syncId": "ade94ccb-b07f-4210-b33f-98d24b696cae"
   },
   {
-    "validation": null,
-    "collection": "directus_panels",
-    "action": "create",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "create",
+    "collection": "directus_panels",
+    "policy": "_sync_default_public_policy",
     "_syncId": "8fb799f5-b8ee-433d-8b48-bd26d344f74a"
   },
   {
-    "validation": null,
-    "collection": "directus_panels",
-    "action": "delete",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "delete",
+    "collection": "directus_panels",
+    "policy": "_sync_default_public_policy",
     "_syncId": "c195d2a6-07e6-4638-95b2-997c24da681f"
   },
   {
-    "validation": null,
-    "collection": "directus_panels",
-    "action": "read",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "read",
+    "collection": "directus_panels",
+    "policy": "_sync_default_public_policy",
     "_syncId": "797ac65e-895d-4ec4-af69-fc716a4ac680"
   },
   {
-    "validation": null,
-    "collection": "directus_panels",
-    "action": "update",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "update",
+    "collection": "directus_panels",
+    "policy": "_sync_default_public_policy",
     "_syncId": "f4d654ce-2bdf-4ddc-8175-92cd3647dac2"
   },
   {
-    "validation": null,
-    "collection": "directus_roles",
-    "action": "read",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "read",
+    "collection": "directus_roles",
+    "policy": "_sync_default_public_policy",
     "_syncId": "1acebb83-a034-4b2a-90e6-103d904a0e4e"
   },
   {
-    "validation": null,
-    "collection": "directus_shares",
-    "action": "create",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "create",
+    "collection": "directus_shares",
+    "policy": "_sync_default_public_policy",
     "_syncId": "68f56815-d80a-4f25-87b8-752e898457f5"
   },
   {
+    "fields": [
+      "*"
+    ],
+    "presets": null,
     "validation": null,
-    "collection": "directus_shares",
-    "action": "delete",
     "permissions": {
       "user_created": {
         "_eq": "$CURRENT_USER"
       }
     },
-    "fields": [
-      "*"
-    ],
+    "action": "delete",
+    "collection": "directus_shares",
     "policy": "_sync_default_public_policy",
-    "presets": null,
     "_syncId": "398018b2-8a37-4fb4-9af6-492e04fdb136"
   },
   {
+    "fields": [
+      "*"
+    ],
+    "presets": null,
     "validation": null,
-    "collection": "directus_shares",
-    "action": "read",
     "permissions": {
       "_or": [
         {
@@ -281,50 +283,40 @@
         }
       ]
     },
-    "fields": [
-      "*"
-    ],
+    "action": "read",
+    "collection": "directus_shares",
     "policy": "_sync_default_public_policy",
-    "presets": null,
     "_syncId": "c5cf4023-4bc0-410e-a145-a113324653d4"
   },
   {
+    "fields": [
+      "*"
+    ],
+    "presets": null,
     "validation": null,
-    "collection": "directus_shares",
-    "action": "update",
     "permissions": {
       "user_created": {
         "_eq": "$CURRENT_USER"
       }
     },
-    "fields": [
-      "*"
-    ],
+    "action": "update",
+    "collection": "directus_shares",
     "policy": "_sync_default_public_policy",
-    "presets": null,
     "_syncId": "706e0554-17e5-47e8-b66d-cd5d7b705333"
   },
   {
-    "validation": null,
-    "collection": "directus_users",
-    "action": "read",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {},
+    "action": "read",
+    "collection": "directus_users",
+    "policy": "_sync_default_public_policy",
     "_syncId": "6055162f-0fb0-4498-b889-bd51757b9947"
   },
   {
-    "validation": null,
-    "collection": "directus_users",
-    "action": "update",
-    "permissions": {
-      "id": {
-        "_eq": "$CURRENT_USER"
-      }
-    },
     "fields": [
       "first_name",
       "last_name",
@@ -342,123 +334,127 @@
       "theme_dark_overrides",
       "tfa_secret"
     ],
-    "policy": "_sync_default_public_policy",
     "presets": null,
+    "validation": null,
+    "permissions": {
+      "id": {
+        "_eq": "$CURRENT_USER"
+      }
+    },
+    "action": "update",
+    "collection": "directus_users",
+    "policy": "_sync_default_public_policy",
     "_syncId": "3284bfb2-5a66-48fd-8250-af628cdb6ca5"
   },
   {
-    "validation": null,
-    "collection": "apartments",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "create",
+    "collection": "apartments",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "e95ae072-56bb-4222-aad2-0564e0f8cbfe"
   },
   {
-    "validation": null,
-    "collection": "apartments",
-    "action": "delete",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "delete",
+    "collection": "apartments",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "fc1e17a2-8262-47eb-ac60-7d369c7f12f5"
   },
   {
-    "validation": null,
-    "collection": "apartments",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "apartments",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "cc0e7d5b-15be-407b-99ee-83c3960881c1"
   },
   {
-    "validation": null,
-    "collection": "apartments",
-    "action": "update",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "update",
+    "collection": "apartments",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "c5597e2b-7d0c-4994-a073-0a93c41ed6d0"
   },
   {
-    "validation": null,
-    "collection": "app_settings_housing_translations",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "create",
+    "collection": "app_settings_housing_translations",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "adfb584c-aa0f-42dc-8e11-478694b8e07a"
   },
   {
-    "validation": null,
-    "collection": "app_settings_housing_translations",
-    "action": "delete",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "delete",
+    "collection": "app_settings_housing_translations",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "5de3f45f-fe93-4957-b919-96beefd12371"
   },
   {
-    "validation": null,
-    "collection": "app_settings_housing_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "app_settings_housing_translations",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "370515ce-a19b-4311-bf4f-0ed9a3f85030"
   },
   {
-    "validation": null,
-    "collection": "app_settings_housing_translations",
-    "action": "update",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "update",
+    "collection": "app_settings_housing_translations",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "bb5cf168-9d3d-4f30-a5ec-016365b0c7a8"
   },
   {
-    "validation": null,
-    "collection": "app_settings",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "app_settings",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "b8b1e4f7-2f91-4ebe-953a-e9a171a30c43"
   },
   {
-    "validation": null,
-    "collection": "app_settings",
-    "action": "update",
-    "permissions": null,
     "fields": [
       "housing_settings",
       "housing_enabled",
@@ -471,80 +467,63 @@
       "washingmachine_parsing_last_date",
       "id"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "update",
+    "collection": "app_settings",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "1a9499b4-1e0a-4567-8bd1-6d93b856efdf"
   },
   {
-    "validation": null,
-    "collection": "washingmachines",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "create",
+    "collection": "washingmachines",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "c83252ec-2ab2-4bbd-b3c3-0d3236735c02"
   },
   {
-    "validation": null,
-    "collection": "washingmachines",
-    "action": "delete",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "delete",
+    "collection": "washingmachines",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "0b43f604-49b9-4173-b7f7-58f752a4dfb9"
   },
   {
-    "validation": null,
-    "collection": "washingmachines",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "washingmachines",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "0e70b0fe-49ef-42d0-9003-726e33314cdc"
   },
   {
-    "validation": null,
-    "collection": "washingmachines",
-    "action": "update",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "update",
+    "collection": "washingmachines",
+    "policy": "5b24cdda-d563-485b-8bfe-5f0ab7afb482",
     "_syncId": "f3664e8a-2553-4cd4-bc75-115839398d14"
   },
   {
-    "validation": {
-      "_and": [
-        {
-          "_or": [
-            {
-              "profile": {
-                "_eq": "$CURRENT_USER.profile"
-              }
-            },
-            {
-              "profile": {
-                "_null": true
-              }
-            }
-          ]
-        }
-      ]
-    },
-    "collection": "app_feedbacks",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "positive",
       "content",
@@ -565,14 +544,35 @@
       "user_updated",
       "date_updated"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": {
+      "_and": [
+        {
+          "_or": [
+            {
+              "profile": {
+                "_eq": "$CURRENT_USER.profile"
+              }
+            },
+            {
+              "profile": {
+                "_null": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "permissions": null,
+    "action": "create",
+    "collection": "app_feedbacks",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "fed1c1e4-0677-4b01-b9f5-52914c646763"
   },
   {
+    "fields": null,
+    "presets": null,
     "validation": null,
-    "collection": "app_feedbacks",
-    "action": "delete",
     "permissions": {
       "_and": [
         {
@@ -582,35 +582,17 @@
         }
       ]
     },
-    "fields": null,
+    "action": "delete",
+    "collection": "app_feedbacks",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "ffcb1d81-7a50-4551-b3b4-5ef2e65eeff7"
   },
   {
-    "validation": {},
-    "collection": "app_feedbacks",
-    "action": "read",
-    "permissions": {
-      "_and": [
-        {
-          "profile": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
     "fields": [
       "*"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
-    "_syncId": "c51f50a5-1211-4dc5-8267-0f2c388c0876"
-  },
-  {
-    "validation": null,
-    "collection": "app_feedbacks",
-    "action": "update",
+    "validation": {},
     "permissions": {
       "_and": [
         {
@@ -620,6 +602,12 @@
         }
       ]
     },
+    "action": "read",
+    "collection": "app_feedbacks",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
+    "_syncId": "c51f50a5-1211-4dc5-8267-0f2c388c0876"
+  },
+  {
     "fields": [
       "content",
       "positive",
@@ -636,11 +624,39 @@
       "display_pixelratio",
       "display_scale"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": null,
+    "permissions": {
+      "_and": [
+        {
+          "profile": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "action": "update",
+    "collection": "app_feedbacks",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "27bfda66-184c-4131-85c3-c490ca8c6a5c"
   },
   {
+    "fields": [
+      "id",
+      "status",
+      "sort",
+      "user_updated",
+      "date_created",
+      "user_created",
+      "date_updated",
+      "profile",
+      "label",
+      "dislike",
+      "date",
+      "canteen",
+      "like"
+    ],
+    "presets": null,
     "validation": {
       "_and": [
         {
@@ -650,32 +666,16 @@
         }
       ]
     },
-    "collection": "canteens_feedbacks_labels_entries",
-    "action": "create",
     "permissions": null,
-    "fields": [
-      "id",
-      "status",
-      "sort",
-      "user_updated",
-      "date_created",
-      "user_created",
-      "date_updated",
-      "profile",
-      "label",
-      "dislike",
-      "date",
-      "canteen",
-      "like"
-    ],
+    "action": "create",
+    "collection": "canteens_feedbacks_labels_entries",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "8f6c659a-5bd9-4ff4-8640-3de154d78b45"
   },
   {
+    "fields": null,
+    "presets": null,
     "validation": null,
-    "collection": "canteens_feedbacks_labels_entries",
-    "action": "delete",
     "permissions": {
       "_and": [
         {
@@ -685,36 +685,24 @@
         }
       ]
     },
-    "fields": null,
+    "action": "delete",
+    "collection": "canteens_feedbacks_labels_entries",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "8b8c7098-5020-499f-a6f2-87bd7c0795b5"
   },
   {
-    "validation": null,
-    "collection": "canteens_feedbacks_labels_entries",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "canteens_feedbacks_labels_entries",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "c8b99dbf-87dd-494b-b501-643677743fa4"
   },
   {
-    "validation": null,
-    "collection": "canteens_feedbacks_labels_entries",
-    "action": "update",
-    "permissions": {
-      "_and": [
-        {
-          "profile": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
     "fields": [
       "id",
       "status",
@@ -730,11 +718,38 @@
       "canteen",
       "like"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": null,
+    "permissions": {
+      "_and": [
+        {
+          "profile": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "action": "update",
+    "collection": "canteens_feedbacks_labels_entries",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "b75cde2c-cec5-4f4e-bf72-8dc28e7d5b37"
   },
   {
+    "fields": [
+      "id",
+      "status",
+      "sort",
+      "user_created",
+      "date_created",
+      "user_updated",
+      "date_updated",
+      "chat",
+      "profile",
+      "message",
+      "attachment",
+      "image"
+    ],
+    "presets": null,
     "validation": {
       "_and": [
         {
@@ -753,31 +768,16 @@
         }
       ]
     },
-    "collection": "chat_messages",
-    "action": "create",
     "permissions": null,
-    "fields": [
-      "id",
-      "status",
-      "sort",
-      "user_created",
-      "date_created",
-      "user_updated",
-      "date_updated",
-      "chat",
-      "profile",
-      "message",
-      "attachment",
-      "image"
-    ],
+    "action": "create",
+    "collection": "chat_messages",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "1f0c048b-449d-45be-a79f-66445085e09b"
   },
   {
+    "fields": null,
+    "presets": null,
     "validation": null,
-    "collection": "chat_messages",
-    "action": "delete",
     "permissions": {
       "_and": [
         {
@@ -789,15 +789,17 @@
         }
       ]
     },
-    "fields": null,
+    "action": "delete",
+    "collection": "chat_messages",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "0d8a3247-355a-451a-9af5-2cbdaa6a2d89"
   },
   {
+    "fields": [
+      "*"
+    ],
+    "presets": null,
     "validation": null,
-    "collection": "chat_messages",
-    "action": "read",
     "permissions": {
       "_and": [
         {
@@ -835,28 +837,12 @@
         }
       ]
     },
-    "fields": [
-      "*"
-    ],
+    "action": "read",
+    "collection": "chat_messages",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "91f12b27-8e66-401c-a90b-8a35d93cf668"
   },
   {
-    "validation": null,
-    "collection": "chat_messages",
-    "action": "update",
-    "permissions": {
-      "_and": [
-        {
-          "profile": {
-            "id": {
-              "_eq": "$CURRENT_USER.profile"
-            }
-          }
-        }
-      ]
-    },
     "fields": [
       "id",
       "status",
@@ -869,14 +855,32 @@
       "attachment",
       "image"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": null,
+    "permissions": {
+      "_and": [
+        {
+          "profile": {
+            "id": {
+              "_eq": "$CURRENT_USER.profile"
+            }
+          }
+        }
+      ]
+    },
+    "action": "update",
+    "collection": "chat_messages",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "9a368919-2a3f-4e80-bb88-135160d0ffce"
   },
   {
+    "fields": [
+      "id",
+      "chats_id",
+      "profiles_id"
+    ],
+    "presets": null,
     "validation": null,
-    "collection": "chats_participants",
-    "action": "read",
     "permissions": {
       "_and": [
         {
@@ -894,19 +898,31 @@
         }
       ]
     },
-    "fields": [
-      "id",
-      "chats_id",
-      "profiles_id"
-    ],
+    "action": "read",
+    "collection": "chats_participants",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "8d168dc4-8157-46d4-a35c-6c13a45d83eb"
   },
   {
+    "fields": [
+      "id",
+      "status",
+      "sort",
+      "user_created",
+      "date_created",
+      "user_updated",
+      "date_updated",
+      "participants",
+      "alias",
+      "messages",
+      "foods_feedback",
+      "conversation_state",
+      "initial_message",
+      "food_feedbacks",
+      "linked_entities"
+    ],
+    "presets": null,
     "validation": null,
-    "collection": "chats",
-    "action": "read",
     "permissions": {
       "_and": [
         {
@@ -933,31 +949,17 @@
         }
       ]
     },
-    "fields": [
-      "id",
-      "status",
-      "sort",
-      "user_created",
-      "date_created",
-      "user_updated",
-      "date_updated",
-      "participants",
-      "alias",
-      "messages",
-      "foods_feedback",
-      "conversation_state",
-      "initial_message",
-      "food_feedbacks",
-      "linked_entities"
-    ],
+    "action": "read",
+    "collection": "chats",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "6286436a-f502-4408-ad19-18ccdbd6c2d4"
   },
   {
+    "fields": [
+      "conversation_state"
+    ],
+    "presets": null,
     "validation": null,
-    "collection": "chats",
-    "action": "update",
     "permissions": {
       "_and": [
         {
@@ -986,14 +988,28 @@
         }
       ]
     },
-    "fields": [
-      "conversation_state"
-    ],
+    "action": "update",
+    "collection": "chats",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "3e049916-fcb4-4644-8842-0adf8d5abba3"
   },
   {
+    "fields": [
+      "id",
+      "user_created",
+      "date_created",
+      "user_updated",
+      "date_updated",
+      "profile",
+      "email",
+      "phone_number",
+      "points",
+      "collectible_event",
+      "sort",
+      "status",
+      "data"
+    ],
+    "presets": null,
     "validation": {
       "_and": [
         {
@@ -1003,9 +1019,101 @@
         }
       ]
     },
-    "collection": "devices",
-    "action": "create",
     "permissions": null,
+    "action": "create",
+    "collection": "collectible_event_participants",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
+    "_syncId": "189249af-e05d-4b38-962a-b3a947fa5a66"
+  },
+  {
+    "fields": null,
+    "presets": null,
+    "validation": null,
+    "permissions": {
+      "_and": [
+        {
+          "profile": {
+            "id": {
+              "_eq": "$CURRENT_USER.profile"
+            }
+          }
+        }
+      ]
+    },
+    "action": "delete",
+    "collection": "collectible_event_participants",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
+    "_syncId": "a5352c4c-db04-40dc-acc2-df33914e123c"
+  },
+  {
+    "fields": [
+      "id",
+      "status",
+      "sort",
+      "user_created",
+      "date_created",
+      "user_updated",
+      "date_updated",
+      "profile",
+      "email",
+      "phone_number",
+      "points",
+      "collectible_event",
+      "data"
+    ],
+    "presets": null,
+    "validation": null,
+    "permissions": {
+      "_and": [
+        {
+          "profile": {
+            "id": {
+              "_eq": "$CURRENT_USER.profile"
+            }
+          }
+        }
+      ]
+    },
+    "action": "read",
+    "collection": "collectible_event_participants",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
+    "_syncId": "db1e2fc2-48e0-45bd-8b8e-9c82c524d708"
+  },
+  {
+    "fields": [
+      "email",
+      "phone_number",
+      "points",
+      "date_updated",
+      "data"
+    ],
+    "presets": null,
+    "validation": {
+      "_and": [
+        {
+          "profile": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "permissions": {
+      "_and": [
+        {
+          "profile": {
+            "id": {
+              "_eq": "$CURRENT_USER.profile"
+            }
+          }
+        }
+      ]
+    },
+    "action": "update",
+    "collection": "collectible_event_participants",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
+    "_syncId": "c19742cf-825e-4911-a3b3-1403a7f8f7d4"
+  },
+  {
     "fields": [
       "status",
       "user_created",
@@ -1034,78 +1142,7 @@
       "pushTokenObj",
       "is_landscape"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
-    "_syncId": "3485c3d9-4aeb-4ebe-90a4-6950809bfa95"
-  },
-  {
-    "validation": null,
-    "collection": "devices",
-    "action": "delete",
-    "permissions": {
-      "_and": [
-        {
-          "profile": {
-            "id": {
-              "_eq": "$CURRENT_USER.profile"
-            }
-          }
-        }
-      ]
-    },
-    "fields": null,
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
-    "_syncId": "ba9c8316-cb6c-436c-a1db-f6088fbc4f92"
-  },
-  {
-    "validation": null,
-    "collection": "devices",
-    "action": "read",
-    "permissions": {
-      "_and": [
-        {
-          "profile": {
-            "id": {
-              "_eq": "$CURRENT_USER.profile"
-            }
-          }
-        }
-      ]
-    },
-    "fields": [
-      "id",
-      "sort",
-      "date_created",
-      "date_updated",
-      "profile",
-      "user_updated",
-      "user_created",
-      "status",
-      "alias",
-      "display_group",
-      "display_height",
-      "display_width",
-      "display_scale",
-      "display_pixelratio",
-      "system_group",
-      "display_fontscale",
-      "platform",
-      "brand",
-      "is_ios",
-      "system_version",
-      "is_android",
-      "is_web",
-      "is_simulator",
-      "is_tablet",
-      "is_landscape",
-      "pushTokenObj"
-    ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
-    "_syncId": "5f20c520-7337-46e0-bd05-4126a8623264"
-  },
-  {
     "validation": {
       "_and": [
         {
@@ -1115,8 +1152,16 @@
         }
       ]
     },
+    "permissions": null,
+    "action": "create",
     "collection": "devices",
-    "action": "update",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
+    "_syncId": "3485c3d9-4aeb-4ebe-90a4-6950809bfa95"
+  },
+  {
+    "fields": null,
+    "presets": null,
+    "validation": null,
     "permissions": {
       "_and": [
         {
@@ -1128,6 +1173,59 @@
         }
       ]
     },
+    "action": "delete",
+    "collection": "devices",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
+    "_syncId": "ba9c8316-cb6c-436c-a1db-f6088fbc4f92"
+  },
+  {
+    "fields": [
+      "id",
+      "sort",
+      "date_created",
+      "date_updated",
+      "profile",
+      "user_updated",
+      "user_created",
+      "status",
+      "alias",
+      "display_group",
+      "display_height",
+      "display_width",
+      "display_scale",
+      "display_pixelratio",
+      "system_group",
+      "display_fontscale",
+      "platform",
+      "brand",
+      "is_ios",
+      "system_version",
+      "is_android",
+      "is_web",
+      "is_simulator",
+      "is_tablet",
+      "is_landscape",
+      "pushTokenObj"
+    ],
+    "presets": null,
+    "validation": null,
+    "permissions": {
+      "_and": [
+        {
+          "profile": {
+            "id": {
+              "_eq": "$CURRENT_USER.profile"
+            }
+          }
+        }
+      ]
+    },
+    "action": "read",
+    "collection": "devices",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
+    "_syncId": "5f20c520-7337-46e0-bd05-4126a8623264"
+  },
+  {
     "fields": [
       "id",
       "status",
@@ -1156,14 +1254,36 @@
       "is_landscape",
       "pushTokenObj"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": {
+      "_and": [
+        {
+          "profile": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "permissions": {
+      "_and": [
+        {
+          "profile": {
+            "id": {
+              "_eq": "$CURRENT_USER.profile"
+            }
+          }
+        }
+      ]
+    },
+    "action": "update",
+    "collection": "devices",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "6fd19d40-365c-4927-b21a-b2aee2f71d2b"
   },
   {
+    "fields": null,
+    "presets": null,
     "validation": null,
-    "collection": "directus_users",
-    "action": "delete",
     "permissions": {
       "_and": [
         {
@@ -1184,35 +1304,12 @@
         }
       ]
     },
-    "fields": null,
+    "action": "delete",
+    "collection": "directus_users",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "340b9998-8ff7-4546-859e-d2d10e0da62f"
   },
   {
-    "validation": null,
-    "collection": "directus_users",
-    "action": "read",
-    "permissions": {
-      "_and": [
-        {
-          "_or": [
-            {
-              "id": {
-                "_eq": "$CURRENT_USER"
-              }
-            },
-            {
-              "profile": {
-                "id": {
-                  "_eq": "$CURRENT_USER.profile"
-                }
-              }
-            }
-          ]
-        }
-      ]
-    },
     "fields": [
       "first_name",
       "last_name",
@@ -1245,14 +1342,8 @@
       "auth_data",
       "external_identifier"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
-    "_syncId": "3fed0012-05b4-4902-a34f-ab67d164beb5"
-  },
-  {
     "validation": null,
-    "collection": "directus_users",
-    "action": "update",
     "permissions": {
       "_and": [
         {
@@ -1273,6 +1364,12 @@
         }
       ]
     },
+    "action": "read",
+    "collection": "directus_users",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
+    "_syncId": "3fed0012-05b4-4902-a34f-ab67d164beb5"
+  },
+  {
     "fields": [
       "first_name",
       "last_name",
@@ -1296,23 +1393,34 @@
       "id",
       "last_page"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": null,
+    "permissions": {
+      "_and": [
+        {
+          "_or": [
+            {
+              "id": {
+                "_eq": "$CURRENT_USER"
+              }
+            },
+            {
+              "profile": {
+                "id": {
+                  "_eq": "$CURRENT_USER.profile"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "action": "update",
+    "collection": "directus_users",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "4dd9e997-86c7-4840-9f76-70139a40e8b5"
   },
   {
-    "validation": {
-      "_and": [
-        {
-          "profile": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
-    "collection": "foods_feedbacks_labels_entries",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "id",
       "profile",
@@ -1329,14 +1437,26 @@
       "dislike",
       "like"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": {
+      "_and": [
+        {
+          "profile": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "permissions": null,
+    "action": "create",
+    "collection": "foods_feedbacks_labels_entries",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "62522f16-421f-4145-9053-caff6640aa3b"
   },
   {
+    "fields": null,
+    "presets": null,
     "validation": null,
-    "collection": "foods_feedbacks_labels_entries",
-    "action": "delete",
     "permissions": {
       "_and": [
         {
@@ -1346,36 +1466,24 @@
         }
       ]
     },
-    "fields": null,
+    "action": "delete",
+    "collection": "foods_feedbacks_labels_entries",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "d037d1b0-f2fc-49a3-8029-68ecdcb57bbe"
   },
   {
-    "validation": {},
-    "collection": "foods_feedbacks_labels_entries",
-    "action": "read",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": {},
+    "permissions": {},
+    "action": "read",
+    "collection": "foods_feedbacks_labels_entries",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "a67c05c1-ed38-4d13-8172-55bb1e3c9bc0"
   },
   {
-    "validation": null,
-    "collection": "foods_feedbacks_labels_entries",
-    "action": "update",
-    "permissions": {
-      "_and": [
-        {
-          "profile": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
     "fields": [
       "id",
       "status",
@@ -1392,23 +1500,23 @@
       "dislike",
       "like"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": null,
+    "permissions": {
+      "_and": [
+        {
+          "profile": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "action": "update",
+    "collection": "foods_feedbacks_labels_entries",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "e0075f6a-f247-44a3-a81a-23078780e2d2"
   },
   {
-    "validation": {
-      "_and": [
-        {
-          "profile": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
-    "collection": "foods_feedbacks",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "id",
       "status",
@@ -1425,14 +1533,26 @@
       "profile",
       "canteen"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": {
+      "_and": [
+        {
+          "profile": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "permissions": null,
+    "action": "create",
+    "collection": "foods_feedbacks",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "ea1e11b5-7a37-4551-a16e-6b517f39ffe3"
   },
   {
+    "fields": null,
+    "presets": null,
     "validation": null,
-    "collection": "foods_feedbacks",
-    "action": "delete",
     "permissions": {
       "_and": [
         {
@@ -1442,36 +1562,24 @@
         }
       ]
     },
-    "fields": null,
+    "action": "delete",
+    "collection": "foods_feedbacks",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "560e166e-562d-42a9-8435-82bc26809829"
   },
   {
-    "validation": {},
-    "collection": "foods_feedbacks",
-    "action": "read",
-    "permissions": {},
     "fields": [
       "*"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": {},
+    "permissions": {},
+    "action": "read",
+    "collection": "foods_feedbacks",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "b2a99720-050a-4628-8233-970e0fe31430"
   },
   {
-    "validation": null,
-    "collection": "foods_feedbacks",
-    "action": "update",
-    "permissions": {
-      "_and": [
-        {
-          "profile": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
     "fields": [
       "id",
       "status",
@@ -1488,11 +1596,29 @@
       "profile",
       "canteen"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": null,
+    "permissions": {
+      "_and": [
+        {
+          "profile": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "action": "update",
+    "collection": "foods_feedbacks",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "1a89b6bd-ff12-40a4-8bdf-b1eaaec780ff"
   },
   {
+    "fields": [
+      "id",
+      "profiles_id",
+      "buildings_id"
+    ],
+    "presets": null,
     "validation": {
       "_and": [
         {
@@ -1502,22 +1628,16 @@
         }
       ]
     },
-    "collection": "profiles_buildings_favorites",
-    "action": "create",
     "permissions": null,
-    "fields": [
-      "id",
-      "profiles_id",
-      "buildings_id"
-    ],
+    "action": "create",
+    "collection": "profiles_buildings_favorites",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "cc36053b-26b4-4035-9a87-401b9b0066f9"
   },
   {
+    "fields": null,
+    "presets": null,
     "validation": null,
-    "collection": "profiles_buildings_favorites",
-    "action": "delete",
     "permissions": {
       "_and": [
         {
@@ -1527,45 +1647,19 @@
         }
       ]
     },
-    "fields": null,
+    "action": "delete",
+    "collection": "profiles_buildings_favorites",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "44c5a3b3-1221-48dc-b43b-3fa48baebb24"
   },
   {
-    "validation": null,
-    "collection": "profiles_buildings_favorites",
-    "action": "read",
-    "permissions": {
-      "_and": [
-        {
-          "profiles_id": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
     "fields": [
       "id",
       "profiles_id",
       "buildings_id"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
-    "_syncId": "51a82048-caf0-4d61-9580-2c29f314e676"
-  },
-  {
-    "validation": {
-      "_and": [
-        {
-          "profiles_id": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
-    "collection": "profiles_buildings_favorites",
-    "action": "update",
+    "validation": null,
     "permissions": {
       "_and": [
         {
@@ -1575,16 +1669,48 @@
         }
       ]
     },
+    "action": "read",
+    "collection": "profiles_buildings_favorites",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
+    "_syncId": "51a82048-caf0-4d61-9580-2c29f314e676"
+  },
+  {
     "fields": [
       "id",
       "buildings_id",
       "profiles_id"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": {
+      "_and": [
+        {
+          "profiles_id": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "permissions": {
+      "_and": [
+        {
+          "profiles_id": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "action": "update",
+    "collection": "profiles_buildings_favorites",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "60eaf5b4-aded-4f76-9e0c-37ec9c9b3c58"
   },
   {
+    "fields": [
+      "id",
+      "profiles_id",
+      "buildings_id"
+    ],
+    "presets": null,
     "validation": {
       "_and": [
         {
@@ -1594,22 +1720,16 @@
         }
       ]
     },
-    "collection": "profiles_buildings_last_opened",
-    "action": "create",
     "permissions": null,
-    "fields": [
-      "id",
-      "profiles_id",
-      "buildings_id"
-    ],
+    "action": "create",
+    "collection": "profiles_buildings_last_opened",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "9f26a2f6-bcf6-4506-badc-df2241245e19"
   },
   {
+    "fields": null,
+    "presets": null,
     "validation": null,
-    "collection": "profiles_buildings_last_opened",
-    "action": "delete",
     "permissions": {
       "_and": [
         {
@@ -1619,15 +1739,19 @@
         }
       ]
     },
-    "fields": null,
+    "action": "delete",
+    "collection": "profiles_buildings_last_opened",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "e4837c39-852a-499c-8fde-65eb224e6921"
   },
   {
+    "fields": [
+      "id",
+      "profiles_id",
+      "buildings_id"
+    ],
+    "presets": null,
     "validation": null,
-    "collection": "profiles_buildings_last_opened",
-    "action": "read",
     "permissions": {
       "_and": [
         {
@@ -1637,16 +1761,18 @@
         }
       ]
     },
-    "fields": [
-      "id",
-      "profiles_id",
-      "buildings_id"
-    ],
+    "action": "read",
+    "collection": "profiles_buildings_last_opened",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "17b8733a-6394-4a9a-b16b-36cd3e4d9441"
   },
   {
+    "fields": [
+      "id",
+      "profiles_id",
+      "buildings_id"
+    ],
+    "presets": null,
     "validation": {
       "_and": [
         {
@@ -1656,8 +1782,6 @@
         }
       ]
     },
-    "collection": "profiles_buildings_last_opened",
-    "action": "update",
     "permissions": {
       "_and": [
         {
@@ -1667,28 +1791,12 @@
         }
       ]
     },
-    "fields": [
-      "id",
-      "profiles_id",
-      "buildings_id"
-    ],
+    "action": "update",
+    "collection": "profiles_buildings_last_opened",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "e2ad7762-628b-4245-82b4-11962522fada"
   },
   {
-    "validation": {
-      "_and": [
-        {
-          "profiles_id": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
-    "collection": "profiles_markings",
-    "action": "create",
-    "permissions": {},
     "fields": [
       "id",
       "profiles_id",
@@ -1696,14 +1804,26 @@
       "dislike",
       "like"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": {
+      "_and": [
+        {
+          "profiles_id": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "permissions": {},
+    "action": "create",
+    "collection": "profiles_markings",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "be0581a1-2250-4b07-aaa0-de30819066f3"
   },
   {
+    "fields": null,
+    "presets": null,
     "validation": null,
-    "collection": "profiles_markings",
-    "action": "delete",
     "permissions": {
       "_and": [
         {
@@ -1713,15 +1833,21 @@
         }
       ]
     },
-    "fields": null,
+    "action": "delete",
+    "collection": "profiles_markings",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "4bea6093-6c19-4e0f-a3cc-b2c331518e8d"
   },
   {
+    "fields": [
+      "id",
+      "profiles_id",
+      "markings_id",
+      "dislike",
+      "like"
+    ],
+    "presets": null,
     "validation": null,
-    "collection": "profiles_markings",
-    "action": "read",
     "permissions": {
       "_and": [
         {
@@ -1733,38 +1859,12 @@
         }
       ]
     },
-    "fields": [
-      "id",
-      "profiles_id",
-      "markings_id",
-      "dislike",
-      "like"
-    ],
+    "action": "read",
+    "collection": "profiles_markings",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "56f8d39e-46c6-4272-a45a-8a7bcf29e4fc"
   },
   {
-    "validation": {
-      "_and": [
-        {
-          "profiles_id": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
-    "collection": "profiles_markings",
-    "action": "update",
-    "permissions": {
-      "_and": [
-        {
-          "profiles_id": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
     "fields": [
       "id",
       "markings_id",
@@ -1772,14 +1872,34 @@
       "dislike",
       "like"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": {
+      "_and": [
+        {
+          "profiles_id": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "permissions": {
+      "_and": [
+        {
+          "profiles_id": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "action": "update",
+    "collection": "profiles_markings",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "f5da685f-8e02-4519-921f-86072ba19577"
   },
   {
+    "fields": null,
+    "presets": null,
     "validation": null,
-    "collection": "profiles",
-    "action": "delete",
     "permissions": {
       "_and": [
         {
@@ -1789,24 +1909,12 @@
         }
       ]
     },
-    "fields": null,
+    "action": "delete",
+    "collection": "profiles",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "246d534c-d571-45fd-9f3a-36d964372a51"
   },
   {
-    "validation": null,
-    "collection": "profiles",
-    "action": "read",
-    "permissions": {
-      "_and": [
-        {
-          "id": {
-            "_eq": "$CURRENT_USER.profile"
-          }
-        }
-      ]
-    },
     "fields": [
       "id",
       "status",
@@ -1832,11 +1940,49 @@
       "credit_balance_last_transaction",
       "credit_balance_date_updated"
     ],
-    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "presets": null,
+    "validation": null,
+    "permissions": {
+      "_and": [
+        {
+          "id": {
+            "_eq": "$CURRENT_USER.profile"
+          }
+        }
+      ]
+    },
+    "action": "read",
+    "collection": "profiles",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
     "_syncId": "b06cc6e8-f9b3-46f8-a3a4-132a5f4d1ef0"
   },
   {
+    "fields": [
+      "id",
+      "status",
+      "sort",
+      "user_created",
+      "date_created",
+      "user_updated",
+      "date_updated",
+      "credit_balance",
+      "language",
+      "nickname",
+      "foods_feedbacks",
+      "price_group",
+      "date_privacy_policy_accepted",
+      "buildings_favorites",
+      "buildings_last_opened",
+      "markings",
+      "devices",
+      "canteen",
+      "course_timetable",
+      "notifiy_on_free_apartments",
+      "avatar",
+      "credit_balance_last_transaction",
+      "credit_balance_date_updated"
+    ],
+    "presets": null,
     "validation": {
       "_and": [
         {
@@ -1846,8 +1992,6 @@
         }
       ]
     },
-    "collection": "profiles",
-    "action": "update",
     "permissions": {
       "_and": [
         {
@@ -1857,328 +2001,300 @@
         }
       ]
     },
-    "fields": [
-      "id",
-      "status",
-      "sort",
-      "user_created",
-      "date_created",
-      "user_updated",
-      "date_updated",
-      "credit_balance",
-      "language",
-      "nickname",
-      "foods_feedbacks",
-      "price_group",
-      "date_privacy_policy_accepted",
-      "buildings_favorites",
-      "buildings_last_opened",
-      "markings",
-      "devices",
-      "canteen",
-      "course_timetable",
-      "notifiy_on_free_apartments",
-      "avatar",
-      "credit_balance_last_transaction",
-      "credit_balance_date_updated"
-    ],
+    "action": "update",
+    "collection": "profiles",
     "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
-    "presets": null,
     "_syncId": "9b089144-257f-42b3-831e-1178132d5772"
   },
   {
-    "validation": null,
-    "collection": "buildings_businesshours",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "create",
+    "collection": "buildings_businesshours",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "5a9fafd8-15af-4930-8cce-a69c868c651b"
   },
   {
-    "validation": null,
-    "collection": "buildings_businesshours",
-    "action": "delete",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "delete",
+    "collection": "buildings_businesshours",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "144f3666-2089-4d3f-9814-b7aa3b3efacd"
   },
   {
-    "validation": null,
-    "collection": "buildings_businesshours",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "buildings_businesshours",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "5f976b36-630d-4487-a2e5-dac395b7b2cc"
   },
   {
-    "validation": null,
-    "collection": "buildings_businesshours",
-    "action": "update",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "update",
+    "collection": "buildings_businesshours",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "081a2e20-988f-459e-829a-4c46dc3fe94f"
   },
   {
-    "validation": null,
-    "collection": "buildings_translations",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "create",
+    "collection": "buildings_translations",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "39bc9a69-7789-42c5-817e-5d8e10401fac"
   },
   {
-    "validation": null,
-    "collection": "buildings_translations",
-    "action": "delete",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "delete",
+    "collection": "buildings_translations",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "21f33b12-461b-40fb-997c-18a841fdff83"
   },
   {
-    "validation": null,
-    "collection": "buildings_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "buildings_translations",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "b67d6d8b-84bf-4cf3-b262-62c609ba8fda"
   },
   {
-    "validation": null,
-    "collection": "buildings_translations",
-    "action": "update",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "update",
+    "collection": "buildings_translations",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "849eb2fe-2002-4d9e-aad9-3b955932aa77"
   },
   {
-    "validation": null,
-    "collection": "buildings",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "create",
+    "collection": "buildings",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "08bfcb22-baaf-4dcc-8d00-fde894e0fb6e"
   },
   {
-    "validation": null,
-    "collection": "buildings",
-    "action": "delete",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "delete",
+    "collection": "buildings",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "a5350a52-cad3-4b4b-bcbc-543235dc2c1e"
   },
   {
-    "validation": null,
-    "collection": "buildings",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "buildings",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "2e721395-f9e5-4ad6-956d-ffede7f6c9e0"
   },
   {
-    "validation": null,
-    "collection": "buildings",
-    "action": "update",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "update",
+    "collection": "buildings",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "81c75033-4b0d-46fe-8f02-183baff50cae"
   },
   {
-    "validation": null,
-    "collection": "businesshours",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "create",
+    "collection": "businesshours",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "c603e012-d044-48eb-9904-621afc199572"
   },
   {
-    "validation": null,
-    "collection": "businesshours",
-    "action": "delete",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "delete",
+    "collection": "businesshours",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "a1ae4af3-8bf6-4a65-b07f-0537fbb9c30b"
   },
   {
-    "validation": null,
-    "collection": "businesshours",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "businesshours",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "3cd77645-3a4d-402a-9b3b-2e0446f07ae5"
   },
   {
-    "validation": null,
-    "collection": "businesshours",
-    "action": "update",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "update",
+    "collection": "businesshours",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "a86c4a1a-e06e-446c-b0b0-333b00289911"
   },
   {
-    "validation": null,
-    "collection": "directus_files",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "create",
+    "collection": "directus_files",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "262057c5-2272-4ed2-8d90-34edf676c8ed"
   },
   {
-    "validation": null,
-    "collection": "directus_files",
-    "action": "delete",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "delete",
+    "collection": "directus_files",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "724081c6-bad9-4502-ae3b-a8640283a965"
   },
   {
-    "validation": null,
-    "collection": "directus_files",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_files",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "84421767-8b3d-4c7e-92f7-910ece981d2a"
   },
   {
-    "validation": null,
-    "collection": "directus_files",
-    "action": "update",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "update",
+    "collection": "directus_files",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "92a1cdec-d7da-4c90-9f20-de0788d198a6"
   },
   {
-    "validation": null,
-    "collection": "directus_folders",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_folders",
+    "policy": "e836149f-70da-4884-8985-a622acd6221b",
     "_syncId": "9d9c0c3f-3a41-44b2-95c2-82892c21ced6"
   },
   {
-    "validation": null,
-    "collection": "apartments",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "apartments",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "0279bf60-9aaf-4cce-ba56-8ebac45ec6ab"
   },
   {
-    "validation": null,
-    "collection": "app_elements_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "app_elements_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "66b2b4e9-ec43-4589-87cc-8b9434812e9c"
   },
   {
-    "validation": null,
-    "collection": "app_elements",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "app_elements",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "55510588-53a1-452c-b215-441359cb5e13"
   },
   {
-    "validation": null,
-    "collection": "app_feedbacks",
-    "action": "create",
-    "permissions": null,
     "fields": [
       "id",
       "positive",
@@ -2198,302 +2314,332 @@
       "display_height",
       "display_width"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "create",
+    "collection": "app_feedbacks",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "1db67696-1ec2-488b-8627-061d9ef4d8a6"
   },
   {
-    "validation": null,
-    "collection": "app_settings_balance_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "app_settings_balance_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "7c7b75a2-888e-464f-9479-0a43af946efb"
   },
   {
-    "validation": null,
-    "collection": "app_settings_housing_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "app_settings_housing_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "f504bbf5-cf00-40f6-abf3-cccf11a37dbe"
   },
   {
-    "validation": null,
-    "collection": "app_settings_login_screen_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "app_settings_login_screen_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "fe16bbfa-ca8e-4991-8247-f7a67db0b05d"
   },
   {
-    "validation": null,
-    "collection": "app_settings",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "app_settings",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "8e649748-0db5-40c4-b1ad-47d81a20ab85"
   },
   {
-    "validation": null,
-    "collection": "buildings_attributes",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "buildings_attributes",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "166fa019-1abb-4f37-8f65-d2ea4e5f3eec"
   },
   {
-    "validation": null,
-    "collection": "buildings_businesshours",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "buildings_businesshours",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "e370860d-80e0-4228-a506-673df4dc1962"
   },
   {
-    "validation": null,
-    "collection": "buildings_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "buildings_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "aa434364-5f38-44b2-ab19-656ca5165384"
   },
   {
-    "validation": null,
-    "collection": "buildings",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "buildings",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "e3a952b4-ce90-4d2c-9b69-b4c1859f83fb"
   },
   {
-    "validation": null,
-    "collection": "businesshours_groups_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "businesshours_groups_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "0bfc4acf-4731-49f4-98b1-174ebaa6cb46"
   },
   {
-    "validation": null,
-    "collection": "businesshours_groups",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "businesshours_groups",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "ba83deae-eafe-4bc2-aef0-f0d95138d23e"
   },
   {
-    "validation": null,
-    "collection": "businesshours",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "businesshours",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "d4e35a43-a35a-4877-9793-3c5ecdb50aa7"
   },
   {
-    "validation": null,
-    "collection": "canteens_feedbacks_labels_entries",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "canteens_feedbacks_labels_entries",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "7015f4d6-54cf-48f7-8140-5ddfb4f01b32"
   },
   {
-    "validation": null,
-    "collection": "canteens_feedbacks_labels_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "canteens_feedbacks_labels_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "8a9f6979-4980-4c65-95fe-6dddcdce16fd"
   },
   {
-    "validation": null,
-    "collection": "canteens_feedbacks_labels",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "canteens_feedbacks_labels",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "6165bfce-92df-4818-93c0-ea00f966d191"
   },
   {
-    "validation": null,
-    "collection": "canteens_foodservice_hours_during_semester_break",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "canteens_foodservice_hours_during_semester_break",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "7f58a1bc-188e-4b68-a978-73718f486e74"
   },
   {
-    "validation": null,
-    "collection": "canteens_foodservice_hours",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "canteens_foodservice_hours",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "d0a3b64f-a174-4748-b949-520e08bcc90a"
   },
   {
-    "validation": null,
-    "collection": "canteens",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "canteens",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "3c663872-54e1-47c1-bacf-9bf8879b030d"
   },
   {
-    "validation": null,
-    "collection": "collections_dates_last_update",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "collectible_events_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
+    "_syncId": "bcbc0bd1-e155-46f4-ab0f-9034d87b3cd0"
+  },
+  {
+    "fields": [
+      "*"
+    ],
+    "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "collectible_events",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
+    "_syncId": "69fb7a06-dfae-418f-b75c-7dddb3b28ebc"
+  },
+  {
+    "fields": [
+      "*"
+    ],
+    "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "collections_dates_last_update",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "8fb2ab41-5aa0-41ef-99f8-4b2ba4e8713d"
   },
   {
-    "validation": null,
-    "collection": "directus_access",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_access",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "0bcca9bf-41d0-4d3c-9f44-f9e208a630e3"
   },
   {
-    "validation": null,
-    "collection": "directus_activity",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_activity",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "de4cb445-eb8f-4866-af99-025847e87d60"
   },
   {
-    "validation": null,
-    "collection": "directus_collections",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_collections",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "188d4d29-ea6d-4251-92d1-c02511ed7374"
   },
   {
-    "validation": null,
-    "collection": "directus_dashboards",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_dashboards",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "3298a0b0-a5e6-4b3f-81c2-eb9b1345cd3e"
   },
   {
-    "validation": null,
-    "collection": "directus_extensions",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_extensions",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "3339e3f1-1ebd-47d3-8591-d7728d80c63d"
   },
   {
-    "validation": null,
-    "collection": "directus_fields",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_fields",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "1ad5d4fc-911a-4380-a87c-0da0b083105a"
   },
   {
+    "fields": [
+      "*"
+    ],
+    "presets": null,
     "validation": null,
-    "collection": "directus_files",
-    "action": "read",
     "permissions": {
       "_and": [
         {
@@ -2507,683 +2653,681 @@
         }
       ]
     },
-    "fields": [
-      "*"
-    ],
+    "action": "read",
+    "collection": "directus_files",
     "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
-    "presets": null,
     "_syncId": "e9d16856-c0f5-47fc-bcd8-8babb4d2a0ab"
   },
   {
-    "validation": null,
-    "collection": "directus_flows",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_flows",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "07bc92b4-0e9c-4700-8718-596bb213ae33"
   },
   {
-    "validation": null,
-    "collection": "directus_folders",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_folders",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "c45bc19a-ef85-4015-9c97-d1aeb6da5c1f"
   },
   {
-    "validation": null,
-    "collection": "directus_migrations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_migrations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "7f8a8a54-47f6-4f61-8e51-cd5e61ae9620"
   },
   {
-    "validation": null,
-    "collection": "directus_notifications",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_notifications",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "14248561-f0cc-4153-92ef-28cf9e92a72f"
   },
   {
-    "validation": null,
-    "collection": "directus_operations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_operations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "0f3d2d21-1f8b-4834-bcac-e5d39ad74b99"
   },
   {
-    "validation": null,
-    "collection": "directus_panels",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_panels",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "ee80ea7c-a741-4c2b-9c95-e8659b188f1a"
   },
   {
-    "validation": null,
-    "collection": "directus_permissions",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_permissions",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "581dd9da-0deb-47a5-b9c5-f3c04abb3a72"
   },
   {
-    "validation": null,
-    "collection": "directus_policies",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_policies",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "45f21e43-e100-4509-965c-1466a548f6f6"
   },
   {
-    "validation": null,
-    "collection": "directus_presets",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_presets",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "9a654ed0-f48f-4086-ac8d-de4d136679da"
   },
   {
-    "validation": null,
-    "collection": "directus_relations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_relations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "a19fdc75-bb9e-4893-ad15-425fc2555792"
   },
   {
-    "validation": null,
-    "collection": "directus_revisions",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_revisions",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "80280e29-edd9-4ce6-b454-71ee0d045972"
   },
   {
-    "validation": null,
-    "collection": "directus_roles",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_roles",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "813cf2a6-04d1-48f7-9856-69a3c163b0eb"
   },
   {
-    "validation": null,
-    "collection": "directus_sessions",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_sessions",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "8c0d13b7-7de1-461f-810d-3e8873176a12"
   },
   {
-    "validation": null,
-    "collection": "directus_settings",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_settings",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "511b6611-9e36-4978-9c68-550eec8376a7"
   },
   {
-    "validation": null,
-    "collection": "directus_shares",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_shares",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "f16ccec6-c07e-48d9-a972-46ce7840d9b8"
   },
   {
-    "validation": null,
-    "collection": "directus_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "1b95d775-6cbf-4ca1-9065-d8086a2015ab"
   },
   {
-    "validation": null,
-    "collection": "directus_users",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_users",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "44569754-b71b-41ee-9a26-5d397969cd56"
   },
   {
-    "validation": null,
-    "collection": "directus_versions",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_versions",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "0a3636c0-ae24-4962-a82e-a37f1a91df3c"
   },
   {
-    "validation": null,
-    "collection": "directus_webhooks",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "directus_webhooks",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "4c1c667b-ceb3-4438-8621-52990a4aa8c7"
   },
   {
-    "validation": null,
-    "collection": "foodoffers_categories_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foodoffers_categories_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "a3cfced3-b99f-4e45-9a53-90aa7e38ccbe"
   },
   {
-    "validation": null,
-    "collection": "foodoffers_categories",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foodoffers_categories",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "8a769583-45cf-4b57-a4fd-c05f9c6b253d"
   },
   {
-    "validation": null,
-    "collection": "foodoffers_components",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foodoffers_components",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "eb56dcb0-a1bc-42e4-b556-089c3804ee65"
   },
   {
-    "validation": null,
-    "collection": "foodoffers_info_items",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foodoffers_info_items",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "487f1842-77b6-4b2c-a7ec-b8e5b6f60e0c"
   },
   {
-    "validation": null,
-    "collection": "foodoffers_markings",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foodoffers_markings",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "f90bfe90-ef59-49a0-8d85-1fffd2745681"
   },
   {
-    "validation": null,
-    "collection": "foodoffers",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foodoffers",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "04ef96ae-153d-41e9-bab6-25f00d4ac227"
   },
   {
-    "validation": null,
-    "collection": "foods_attributes_groups_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_attributes_groups_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "97cbbfb9-d68c-4909-8fe6-3e6fd0a9df68"
   },
   {
-    "validation": null,
-    "collection": "foods_attributes_groups",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_attributes_groups",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "14e3ef54-e45e-467e-a570-0bc485b28b75"
   },
   {
-    "validation": null,
-    "collection": "foods_attributes_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_attributes_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "c7c13266-f806-4548-9295-e69f37dcc240"
   },
   {
-    "validation": null,
-    "collection": "foods_attributes_values",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_attributes_values",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "10900ad4-6898-40b7-8f6a-b942d806464d"
   },
   {
-    "validation": null,
-    "collection": "foods_attributes",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_attributes",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "1dc6f007-538c-4d89-a9e5-9e3217dfb2de"
   },
   {
-    "validation": null,
-    "collection": "foods_categories_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_categories_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "cfae73cf-f3d2-4167-bcac-24d80bfad7d3"
   },
   {
-    "validation": null,
-    "collection": "foods_categories",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_categories",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "cc827492-1cce-4929-9570-1ca1b2056b3f"
   },
   {
-    "validation": null,
-    "collection": "foods_feedbacks_foods_feedbacks_labels",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_feedbacks_foods_feedbacks_labels",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "03fa1cd9-b894-4db6-bd33-d4eed200fecf"
   },
   {
-    "validation": null,
-    "collection": "foods_feedbacks_labels_entries",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_feedbacks_labels_entries",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "6f7aa4d9-407a-4764-b440-f22621183484"
   },
   {
-    "validation": null,
-    "collection": "foods_feedbacks_labels_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_feedbacks_labels_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "086a3f41-e915-4152-a624-1de277c07cb1"
   },
   {
-    "validation": null,
-    "collection": "foods_feedbacks_labels",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_feedbacks_labels",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "8dd2cb00-b022-4969-a910-0de51880d34b"
   },
   {
-    "validation": null,
-    "collection": "foods_feedbacks",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_feedbacks",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "641f3489-5855-4f98-b029-2b20b5f26ce5"
   },
   {
-    "validation": null,
-    "collection": "foods_markings",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_markings",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "3b3f779a-9938-4322-98a3-fecf25fe24ec"
   },
   {
-    "validation": null,
-    "collection": "foods_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "6b94ef94-4344-4cad-9bf0-f2572497c889"
   },
   {
-    "validation": null,
-    "collection": "foods",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "foods",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "53e94b5f-df8c-424e-9ba2-a6b527f066e0"
   },
   {
-    "validation": null,
-    "collection": "languages",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "languages",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "f73e58b0-ec7a-404a-9064-bdf24035cc10"
   },
   {
-    "validation": null,
-    "collection": "markings_groups_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "markings_groups_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "1e68e9a0-4683-42e5-b577-75a0d7645bd4"
   },
   {
-    "validation": null,
-    "collection": "markings_groups",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "markings_groups",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "02fd0727-b849-4435-9418-89c4c190cfa9"
   },
   {
-    "validation": null,
-    "collection": "markings_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "markings_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "f846a99d-b0ec-437a-b61f-3957bac0b0e0"
   },
   {
-    "validation": null,
-    "collection": "markings",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "markings",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "4110a693-6614-4699-a63f-1415cab34c51"
   },
   {
-    "validation": null,
-    "collection": "news_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "news_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "9aeb9c9a-af38-4ed8-a445-c7718fa9597c"
   },
   {
-    "validation": null,
-    "collection": "news",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "news",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "dc19e091-0beb-4168-aa86-8e864164c10b"
   },
   {
-    "validation": null,
-    "collection": "popup_events_canteens",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "popup_events_canteens",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "6bf8bb56-c88d-46ce-bd10-4a358ae91b2f"
   },
   {
-    "validation": null,
-    "collection": "popup_events_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "popup_events_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "10bf125a-6b1a-49a4-857e-3e1b8001e44d"
   },
   {
-    "validation": null,
-    "collection": "popup_events",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "popup_events",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "bb793196-aaec-4f25-a7cf-5994a9bd503b"
   },
   {
-    "validation": null,
-    "collection": "utilizations_entries",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "utilizations_entries",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "c7d08802-00d4-4300-a8bf-5f4515b03a54"
   },
   {
-    "validation": null,
-    "collection": "utilizations_groups",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "utilizations_groups",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "95e9806e-9b5a-4598-b75a-7e97f67d15da"
   },
   {
-    "validation": null,
-    "collection": "washingmachines",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "washingmachines",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "9be199aa-c95c-4d1e-993f-203a7fb0aa94"
   },
   {
-    "validation": null,
-    "collection": "wikis_directus_roles",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "wikis_directus_roles",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "020caed4-5470-43d0-afc1-0e8c0a9fded4"
   },
   {
-    "validation": null,
-    "collection": "wikis_translations",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "wikis_translations",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "54e267f3-dff6-4f7e-bd0f-8c4a825625cd"
   },
   {
-    "validation": null,
-    "collection": "wikis",
-    "action": "read",
-    "permissions": null,
     "fields": [
       "*"
     ],
-    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "presets": null,
+    "validation": null,
+    "permissions": null,
+    "action": "read",
+    "collection": "wikis",
+    "policy": "edf04ec1-3c5f-4ac7-8c88-b7c1a62ea615",
     "_syncId": "87f82e08-e213-4774-86f9-f7a744fc83d0"
   }
 ]

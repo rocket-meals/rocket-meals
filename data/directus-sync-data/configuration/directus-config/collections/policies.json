@@ -1,12 +1,12 @@
 [
   {
-    "app_access": true,
-    "admin_access": true,
     "enforce_tfa": false,
-    "icon": "verified",
-    "description": "$t:admin_policy_description",
-    "name": "Administrator",
+    "admin_access": true,
+    "app_access": true,
     "ip_access": null,
+    "description": "$t:admin_policy_description",
+    "icon": "verified",
+    "name": "Administrator",
     "roles": [
       {
         "role": "_sync_default_admin_role",
@@ -16,13 +16,13 @@
     "_syncId": "_sync_default_admin_policy"
   },
   {
-    "app_access": true,
-    "admin_access": false,
     "enforce_tfa": false,
-    "icon": "badge",
-    "description": null,
-    "name": "AppAccess",
+    "admin_access": false,
+    "app_access": true,
     "ip_access": null,
+    "description": null,
+    "icon": "badge",
+    "name": "AppAccess",
     "roles": [
       {
         "role": null,
@@ -32,13 +32,13 @@
     "_syncId": "_sync_default_public_policy"
   },
   {
-    "app_access": true,
-    "admin_access": false,
     "enforce_tfa": false,
-    "icon": "badge",
-    "description": null,
-    "name": "Apartmentmanagement",
+    "admin_access": false,
+    "app_access": true,
     "ip_access": null,
+    "description": null,
+    "icon": "badge",
+    "name": "Apartmentmanagement",
     "roles": [
       {
         "role": "e0d3b51c-8f50-4844-a788-b5152180bf43",
@@ -48,13 +48,13 @@
     "_syncId": "5b24cdda-d563-485b-8bfe-5f0ab7afb482"
   },
   {
-    "app_access": false,
-    "admin_access": false,
     "enforce_tfa": false,
-    "icon": "supervised_user_circle",
-    "description": null,
-    "name": "User",
+    "admin_access": false,
+    "app_access": false,
     "ip_access": null,
+    "description": null,
+    "icon": "supervised_user_circle",
+    "name": "User",
     "roles": [
       {
         "role": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
@@ -68,13 +68,13 @@
     "_syncId": "abe3a726-f85c-4d70-a86c-15e7092e5da2"
   },
   {
-    "app_access": true,
-    "admin_access": false,
     "enforce_tfa": false,
-    "icon": "badge",
-    "description": null,
-    "name": "Gebäudemanagement",
+    "admin_access": false,
+    "app_access": true,
     "ip_access": null,
+    "description": null,
+    "icon": "badge",
+    "name": "Gebäudemanagement",
     "roles": [
       {
         "role": "9aaa0300-e0ee-4874-b32f-2d165607867d",
@@ -88,13 +88,13 @@
     "_syncId": "e836149f-70da-4884-8985-a622acd6221b"
   },
   {
-    "app_access": false,
-    "admin_access": false,
     "enforce_tfa": false,
-    "icon": "badge",
-    "description": null,
-    "name": "Anonymous",
+    "admin_access": false,
+    "app_access": false,
     "ip_access": null,
+    "description": null,
+    "icon": "badge",
+    "name": "Anonymous",
     "roles": [
       {
         "role": "abe3a726-f85c-4d70-a86c-15e7092e5da2",

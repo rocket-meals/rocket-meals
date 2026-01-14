@@ -1,16 +1,10 @@
 import {generateAppleJWTShell} from "./generateAppleClientSecretShell";
+import type {AppleClientSecretCredentials} from "./types";
+export {AppleClientSecretCredentials} from "./types";
 
 export const APPLE_AUDIENCE = 'https://appleid.apple.com';
 const days = 90; // could be to the max of 180 days which Apple allows
 export const MAX_TOKEN_LIFETIME_SECONDS = 60 * 60 * 24 * days;
-
-export type AppleClientSecretConfig = {
-  teamId: string;
-  clientId: string;
-  keyId: string;
-  privateKey: string;
-  lifetimeSeconds?: number;
-};
 
 export type AppleClientSecretResult = {
   token: string;
@@ -63,17 +57,17 @@ export function decodeAppleClientSecretExpiry(token: string): number | null {
     return parseInt(exp.toString());
 }
 
-export function generateAppleClientSecret(config: AppleClientSecretConfig): AppleClientSecretResult {
-  const { teamId, clientId, keyId } = config;
+export function generateAppleClientSecret(config: AppleClientSecretCredentials): AppleClientSecretResult {
+  const { teamId, clientId, keyId, privateKey } = config;
   if (!teamId || !clientId || !keyId || !config.privateKey) {
     throw new Error('Missing configuration for Apple client secret generation.');
   }
 
   let result = generateAppleJWTShell({
-    teamId: config.teamId,
-    clientId: config.clientId,
-    keyId: config.keyId,
-    keyFileContent: config.privateKey,
+    teamId,
+    clientId,
+    keyId,
+    privateKey,
   })
 
   return {

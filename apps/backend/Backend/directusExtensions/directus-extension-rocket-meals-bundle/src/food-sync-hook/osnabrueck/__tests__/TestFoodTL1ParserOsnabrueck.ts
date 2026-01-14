@@ -136,4 +136,14 @@ describe('FoodTL1ParserOsnabrueck Test', () => {
       expect(firstFood.category_external_identifier).toBe('Beilagen');
     }
   });
+
+  it('Find Niedersachsen Menu line in external identifiers for meal offer', async () => {
+    let foodOfferJson = await getFoodoffersJson(FoodTL1Parser_RawReportTestReaderOsnabrueck.getSavedRawReportWithNiedersachsenMenu());
+    expect(!!foodOfferJson).toBe(true);
+    expect(foodOfferJson.length).toBeGreaterThan(0);
+    const expectedMarkingExternalIdentifiers = [FoodTL1ParserOsnabrueck.MARKING_EXTERNAL_IDENTIFIER_NIEDERSACHSEN_MENU];
+    for (let foodOffer of foodOfferJson) {
+        expect(foodOffer.marking_external_identifiers).toEqual(expect.arrayContaining(expectedMarkingExternalIdentifiers));
+    }
+  });
 });

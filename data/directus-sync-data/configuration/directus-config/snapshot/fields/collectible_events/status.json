@@ -69,7 +69,7 @@
     "name": "status",
     "table": "collectible_events",
     "data_type": "character varying",
-    "default_value": "draft",
+    "default_value": "published",
     "max_length": 255,
     "numeric_precision": null,
     "numeric_scale": null,
