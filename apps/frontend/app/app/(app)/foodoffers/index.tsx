@@ -25,6 +25,7 @@ import { fetchFoodOffersByCanteen } from '@/redux/actions/FoodOffers/FoodOffers'
 import {
 	SET_BUSINESS_HOURS,
 	SET_CANTEEN_FEEDBACK_LABELS,
+	SET_HAS_USER_SELECTED_DATE,
 	SET_POPUP_EVENTS,
 	SET_SELECTED_CANTEEN_FOOD_OFFERS,
 	SET_SELECTED_CANTEEN_FOOD_OFFERS_LOCAL,
@@ -88,9 +89,9 @@ interface DayItem {
 
 const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	const dispatch = useDispatch();
+	const allowSheetsRef = useRef(true);
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const allowSheetsRef = useRef(true);
 	const router = useRouter();
 	const drawerNavigation = useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
 	const bottomSheetRef = useRef<BottomSheet>(null);
@@ -290,23 +291,14 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		setAfterElement(after);
 	}, [appElements, appSettings, languageCode]);
 
-	// useFocusEffect(
-	// 	useCallback(() => {
-	// 		setIsActive(true);
-	// 		return () => setIsActive(false);
-	// 	}, [])
-	// );
-
 	useFocusEffect(
 		useCallback(() => {
-			setIsActive(true);
 			allowSheetsRef.current = true;
 			return () => {
-				allowSheetsRef.current = false;
+			allowSheetsRef.current = false;
 			};
 		}, [])
 	);
-
         const openSheet = useCallback((sheet: 'menu' | 'sort' | keyof typeof SHEET_COMPONENTS, props = {}) => {
                 if (sheet === 'sort') {
                         openFoodofferSortingModal();
@@ -362,14 +354,9 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		const currentDate = new Date(selectedDate);
 		if (direction === 'prev') currentDate.setDate(currentDate.getDate() - 1);
 		else currentDate.setDate(currentDate.getDate() + 1);
-
-		dispatch({
-			type: SET_SELECTED_DATE,
-			payload: currentDate.toISOString().split('T')[0],
-		});
+		dispatch({ type: SET_HAS_USER_SELECTED_DATE, payload: true });
+		dispatch({ type: SET_SELECTED_DATE, payload: currentDate.toISOString().split('T')[0] });
 	};
-
-
 
 	const updateSort = (id: FoodSortOption, foodOffers: DatabaseTypes.Foodoffers[]) => {
 		const sortedOffers = sortFoodOffers(id, foodOffers, {
@@ -623,7 +610,10 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 				<View style={styles.animationContainer}>{renderLottie}</View>
 				{nextAvailableDate && (
 					<Button
-						onPress={() => dispatch({ type: SET_SELECTED_DATE, payload: nextAvailableDate })}
+						onPress={() => {
+							dispatch({ type: SET_HAS_USER_SELECTED_DATE, payload: true });
+							dispatch({ type: SET_SELECTED_DATE, payload: nextAvailableDate });
+						}}
 						style={[styles.jumpButton, { backgroundColor: foods_area_color }]}
 					>
 						<Text style={[styles.jumpButtonText, { color: contrastColor }]}>{`${translate(TranslationKeys.show_offers_on)} ${translate(TranslationKeys[getWeekdayKey(nextAvailableDate)])}`}</Text>
@@ -891,12 +881,6 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 							)}
 						</BaseBottomSheet>
 					))}
-
-				{allowSheetsRef.current && currentPopupEvent && (
-					<BaseBottomSheet ref={eventSheetRef} index={-1} backgroundStyle={{ ...styles.sheetBackground, backgroundColor: theme.sheet.sheetBg }} enablePanDownToClose={false} handleComponent={null} onClose={closeEventSheetForSession}>
-						<PopupEventSheet closeSheet={closeEventSheet} eventData={currentPopupEvent} />
-					</BaseBottomSheet>
-				)}
 			</SafeAreaView>
 		</>
 	);

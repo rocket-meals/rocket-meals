@@ -10,7 +10,7 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/ColorHelper';
-import { SET_SELECTED_DATE } from '@/redux/Types/types';
+import { SET_HAS_USER_SELECTED_DATE, SET_SELECTED_DATE } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
@@ -84,6 +84,7 @@ const CalendarSheet: React.FC<CalendarSheetProps> = ({ closeSheet, onSelect, sel
         if (onSelect) {
             onSelect(formatted);
         } else if (updateGlobal) {
+            dispatch({ type: SET_HAS_USER_SELECTED_DATE, payload: true });
             dispatch({
                 type: SET_SELECTED_DATE,
                 payload: formatted,
@@ -152,6 +153,7 @@ const CalendarSheet: React.FC<CalendarSheetProps> = ({ closeSheet, onSelect, sel
                             onSelect(day.dateString);
                         } else if (updateGlobal) {
                             console.log('[CalendarSheet] onDayPress -> updating global selectedDate', day.dateString);
+                            dispatch({ type: SET_HAS_USER_SELECTED_DATE, payload: true });
                             dispatch({
                                 type: SET_SELECTED_DATE,
                                 payload: day.dateString,
