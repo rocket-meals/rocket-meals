@@ -13,13 +13,17 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 import useChatUnreadStatus from '@/hooks/useChatUnreadStatus';
+import useActiveCollectibleEvent from '@/hooks/useActiveCollectibleEvent';
 
 const CustomMenuHeader: React.FC<CustomMenuHeaderProps> = ({ label }) => {
 	const { theme } = useTheme();
-	const { translate } = useLanguage();
+        const { translate } = useLanguage();
         const { drawerPosition } = useSelector((state: RootState) => state.settings);
         const { hasUnreadChats } = useChatUnreadStatus();
+        const { hasActiveCollectibleEvent } = useActiveCollectibleEvent();
         const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
+
+        const showNotificationDot = hasUnreadChats || hasActiveCollectibleEvent;
 
         return (
 		<View
@@ -51,7 +55,7 @@ const CustomMenuHeader: React.FC<CustomMenuHeaderProps> = ({ label }) => {
                                                         >
                                                                 <View style={styles.menuIconWrapper}>
                                                                         <Ionicons name="menu" size={24} color={theme.header.text} />
-                                                                        {hasUnreadChats ? (
+                                                                        {showNotificationDot ? (
                                                                                 <View
                                                                                         style={[
                                                                                                 styles.notificationDot,

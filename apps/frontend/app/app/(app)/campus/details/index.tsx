@@ -1,9 +1,9 @@
-import { ActivityIndicator, Dimensions, Linking, Platform, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
 import { Foundation, MaterialCommunityIcons } from '@expo/vector-icons';
-import Information from '@/components/Information';
+import LocationInformation from '@/components/LocationInformation/LocationInformation';
 import BuildingDescription from '@/components/BuildingDescription';
 import { useLocalSearchParams } from 'expo-router';
 import { useSelector } from 'react-redux';
@@ -16,11 +16,13 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
 import { Image as ExpoImage } from 'expo-image';
+import useLinkCoordinateModal from '@/hooks/useLinkCoordinateModal';
 
 const Details = () => {
   useSetPageTitle(TranslationKeys.building_details);
   const { theme } = useTheme();
   const { translate } = useLanguage();
+  const { openLinkCoordinateModal } = useLinkCoordinateModal();
   const { id } = useLocalSearchParams();
   const { serverInfo, appSettings, primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
   const { campusesDict } = useSelector((state: RootState) => state.campus);
@@ -89,21 +91,13 @@ const Details = () => {
       return;
     }
     const [longitude, latitude] = coordinates;
-    const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
-    if (Platform.OS === 'web') {
-      window.open(googleMapsUrl, '_blank');
-    } else {
-      const mapsUrl = Platform.OS === 'ios' ? `maps://?q=${latitude},${longitude}` : `geo:${latitude},${longitude}?q=${latitude},${longitude}`;
-      Linking.openURL(mapsUrl).catch(err => {
-        console.error('Error opening navigation:', err);
-        Linking.openURL(googleMapsUrl).catch(() => {});
-      });
-    }
-  }, [campusDetails]);
+    openLinkCoordinateModal({
+      latlon: { latitude, longitude },
+    });
+  }, [campusDetails, openLinkCoordinateModal, translate]);
 
   const renderContent = useMemo(() => {
-    if (activeTab === 'information') return <Information campusDetails={campusDetails} />;
+    if (activeTab === 'information') return <LocationInformation campusDetails={campusDetails} />;
     if (activeTab === 'description') return <BuildingDescription campusDetails={campusDetails} />;
     return null;
   }, [activeTab, campusDetails]);

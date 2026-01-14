@@ -5,7 +5,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import SingleLineInput from '@/components/SingleLineInput/SingleLineInput';
-import { useModal } from '@/components/GlobalModal/useModal';
+import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import DropdownSheet from './DropdownSheet';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
@@ -22,19 +22,21 @@ const ensureStringArray = (options: string[]): string[] => {
 };
 
 type DropdownInputProps = {
-	id: string;
-	value: string | null | undefined;
-	onChange: (id: string, value: string, custom_type: string) => void;
-	error?: string;
-	isDisabled: boolean;
-	custom_type: string;
-	options?: string[];
-	prefix?: string | null;
-	suffix?: string | null;
-	allowCustomValues?: boolean;
+        id: string;
+        value: string | null | undefined;
+        onChange: (id: string, value: string, custom_type: string) => void;
+        error?: string;
+        isDisabled: boolean;
+        custom_type: string;
+        options?: string[];
+        prefix?: string | null;
+        suffix?: string | null;
+        allowCustomValues?: boolean;
+        onOpenSheet?: () => void;
+        onCloseSheet?: () => void;
 };
 
-const DropdownInput = ({ id, value, onChange, error, isDisabled, custom_type, options = [], prefix, suffix, allowCustomValues = true }: DropdownInputProps) => {
+const DropdownInput = ({ id, value, onChange, error, isDisabled, custom_type, options = [], prefix, suffix, allowCustomValues = true, onOpenSheet, onCloseSheet }: DropdownInputProps) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const { primaryColor } = useSelector((state: RootState) => state.settings);
@@ -57,31 +59,52 @@ const DropdownInput = ({ id, value, onChange, error, isDisabled, custom_type, op
 
 	const valueMatchesOption = normalizedOptions.includes(currentValue);
 
-	const { show, close } = useModal();
+        const { show, close } = useMyScrollViewModal();
 
 	const openSheet = useCallback(() => {
-		console.log('[DropdownInput] openSheet invoked, disabled=', isDisabled);
-		if (isDisabled) return;
-		console.log('[DropdownInput] showing DropdownSheet with value=', currentValue, ' options=', normalizedOptions);
-		show(
-			<DropdownSheet
-				closeSheet={close}
-				options={normalizedOptions}
-				allowCustomValues={allowCustomValues}
-				value={currentValue}
-				onSelectOption={(val: string) => onChange(id, val, custom_type)}
-				onSelectCustom={(val: string) => onChange(id, val, custom_type)}
-				onDeselect={() => onChange(id, '', custom_type)}
-				isDisabled={isDisabled}
-				prefix={prefix}
-				suffix={suffix}
-				error={error}
-			/>,
-			{ backgroundStyle: { backgroundColor: theme.sheet?.sheetBg } }
-		);
-	}, [isDisabled, normalizedOptions, allowCustomValues, currentValue, show, close, onChange, id, custom_type, prefix, suffix, error, theme.sheet?.sheetBg]);
+                console.log('[DropdownInput] openSheet invoked, disabled=', isDisabled);
+                if (isDisabled) return;
+                console.log('[DropdownInput] showing DropdownSheet with value=', currentValue, ' options=', normalizedOptions);
+                onOpenSheet?.();
+                show(
+                        {
+                                title: translate(TranslationKeys.select),
+                                onClose: onCloseSheet,
+                                children: (
+                                        <DropdownSheet
+                                                closeSheet={close}
+                                                options={normalizedOptions}
+                                                allowCustomValues={allowCustomValues}
+                                                value={currentValue}
+                                                onSelectOption={(val: string) => onChange(id, val, custom_type)}
+                                                onSelectCustom={(val: string) => onChange(id, val, custom_type)}
+                                                onDeselect={() => onChange(id, '', custom_type)}
+                                                isDisabled={isDisabled}
+                                                prefix={prefix}
+                                                suffix={suffix}
+                                                error={error}
+                                        />
+                                ),
+                        },
+                        {}
+                );
+        }, [
+                isDisabled,
+                normalizedOptions,
+                allowCustomValues,
+                currentValue,
+                show,
+                close,
+                onChange,
+                id,
+                custom_type,
+                prefix,
+                suffix,
+                error,
+                translate,
+        ]);
 
-	const placeholderLabel = translate(TranslationKeys.select);
+        const placeholderLabel = translate(TranslationKeys.select);
 	const customLabel = translate(TranslationKeys.enter_custom_value);
 
 	const trimmedValue = currentValue.trim();

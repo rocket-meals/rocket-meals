@@ -1,7 +1,8 @@
 // small jest test
-import { describe, expect, it } from '@jest/globals';
-import { LanguageCodes, LanguageCodesType, TranslationHelper, TranslationsFromParsingType } from '../TranslationHelper';
-import { PrimaryKey } from '@directus/types';
+import {describe, expect, it} from '@jest/globals';
+import {TranslationHelper, TranslationsFromParsingType} from '../TranslationHelper';
+import {LanguageCodes, LanguageCodesType} from 'repo-depkit-common';
+import {PrimaryKey} from '@directus/types';
 
 // Mock Data for Testing
 // Define a type for the main item

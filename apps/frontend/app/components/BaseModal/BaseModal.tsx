@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, {PropsWithChildren, useEffect, useState} from 'react';
 import { Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
 import { AntDesign } from '@expo/vector-icons';
 import { styles } from './styles';
 import { useTheme } from '@/hooks/useTheme';
 
-export interface BaseModalProps {
+type BaseModalOwnProps = {
 	isVisible: boolean;
 	title?: string;
 	onClose: () => void;
-	children?: React.ReactNode;
-}
+};
+
+export type BaseModalProps = PropsWithChildren<BaseModalOwnProps>;
 
 const BaseModal: React.FC<BaseModalProps> = ({ isVisible, title, onClose, children }) => {
 	const { theme } = useTheme();

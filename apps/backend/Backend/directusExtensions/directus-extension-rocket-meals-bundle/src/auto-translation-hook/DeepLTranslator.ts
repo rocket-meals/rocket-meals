@@ -1,5 +1,6 @@
 import deepl, { SourceLanguageCode, TargetLanguageCode, Translator } from 'deepl-node';
 import { MyTranslatorInterface } from './MyTranslatorInterface';
+import { ReplaceOptions } from "repo-depkit-common";
 
 export class DeepLTranslator implements MyTranslatorInterface {
   private readonly translator: Translator;
@@ -53,9 +54,10 @@ export class DeepLTranslator implements MyTranslatorInterface {
     return translationResponse;
   }
 
-  private replaceAll(str: string, find: string, replace: string) {
+  private replaceAll(replaceOptions: ReplaceOptions){
     // use regex where find is replaced with replace globally and multiple times
     // find could be a special character like * which needs to be escaped
+    const { str, find, replace } = replaceOptions;
     return str.replace(new RegExp(find.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), replace);
   }
 
@@ -71,7 +73,7 @@ export class DeepLTranslator implements MyTranslatorInterface {
 
     //replace all keys in dictWithReplacement with their values
     for (const [key, value] of Object.entries(dictWithReplacement)) {
-      textToTranslate = this.replaceAll(textToTranslate, key, value);
+      textToTranslate = this.replaceAll({str: textToTranslate, find: key, replace: value});
     }
 
     //console.log("translate:")
@@ -84,7 +86,7 @@ export class DeepLTranslator implements MyTranslatorInterface {
 
     //replace all values in dictWithReplacement with their keys
     for (const [key, value] of Object.entries(dictWithReplacement)) {
-      translation = this.replaceAll(translation, value, key);
+      translation = this.replaceAll({str: translation, find: value, replace: key});
     }
 
     //replace all <*>'s with *'s

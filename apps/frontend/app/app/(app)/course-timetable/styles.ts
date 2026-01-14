@@ -1,10 +1,14 @@
 import { Dimensions, StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-	container: {
-		flex: 1,
-		paddingTop: 50,
-	},
+        container: {
+                flex: 1,
+                paddingTop: 50,
+        },
+        contentContainer: {
+                flexGrow: 1,
+                paddingBottom: 20,
+        },
 	createButton: {
 		maxWidth: 300,
 		height: 50,

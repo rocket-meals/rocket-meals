@@ -1,0 +1,47 @@
+{
+  "collection": "collectible_events",
+  "field": "collectible_item_image",
+  "type": "uuid",
+  "meta": {
+    "collection": "collectible_events",
+    "conditions": null,
+    "display": null,
+    "display_options": null,
+    "field": "collectible_item_image",
+    "group": "collectible_item_settings",
+    "hidden": false,
+    "interface": "file-image",
+    "note": null,
+    "options": {
+      "folder": "20b0740a-d3bd-4a35-8dfa-9a9ff40c40f9"
+    },
+    "readonly": false,
+    "required": false,
+    "sort": 1,
+    "special": [
+      "file"
+    ],
+    "translations": null,
+    "validation": null,
+    "validation_message": null,
+    "width": "full"
+  },
+  "schema": {
+    "name": "collectible_item_image",
+    "table": "collectible_events",
+    "data_type": "uuid",
+    "default_value": null,
+    "max_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null,
+    "is_nullable": true,
+    "is_unique": false,
+    "is_indexed": false,
+    "is_primary_key": false,
+    "is_generated": false,
+    "generation_expression": null,
+    "has_auto_increment": false,
+    "foreign_key_table": "directus_files",
+    "foreign_key_column": "id"
+  }
+}

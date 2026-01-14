@@ -1,6 +1,6 @@
 import fs from 'fs';
 import {
-  AppleClientSecretConfig,
+  AppleClientSecretCredentials,
   decodeAppleClientSecretExpiry,
   generateAppleClientSecret,
   MAX_TOKEN_LIFETIME_SECONDS
@@ -11,7 +11,7 @@ const REFRESH_THRESHOLD_SECONDS = 60 * 60 * 24 * refreshIfExpiringWithinDays;
 
 const HOOK_NAME = 'apple-secret-rotator';
 
-export function buildConfigFromEnv(hostEnvFilePath: string): AppleClientSecretConfig | null {
+export function buildConfigFromEnv(hostEnvFilePath: string): AppleClientSecretCredentials | null {
   const teamId = getEnvValue(hostEnvFilePath, 'AUTH_APPLE_HOOK_APPLE_TEAM_ID');
   const clientId = getEnvValue(hostEnvFilePath, 'AUTH_APPLE_CLIENT_ID');
   const keyId = getEnvValue(hostEnvFilePath, 'AUTH_APPLE_HOOK_APPLE_KEY_ID');
@@ -78,7 +78,7 @@ function setEnvValue(hostEnvFilePath: string, key: string, value: string) {
   console.log("["+HOOK_NAME+"] Updated " + key + " in " + hostEnvFilePath);
 }
 
-async function refreshSecret(config: AppleClientSecretConfig, hostEnvFilePath: string) {
+async function refreshSecret(config: AppleClientSecretCredentials, hostEnvFilePath: string) {
   try {
     const result = generateAppleClientSecret(config);
     let token = result.token;
@@ -95,7 +95,7 @@ async function refreshSecret(config: AppleClientSecretConfig, hostEnvFilePath: s
   }
 }
 
-export async function ensureAppleClientSecret(config: AppleClientSecretConfig, hostEnvFilePath: string): Promise<{changed: boolean, reason?: string}> {
+export async function ensureAppleClientSecret(config: AppleClientSecretCredentials, hostEnvFilePath: string): Promise<{changed: boolean, reason?: string}> {
   if (!config) {
     console.warn('['+HOOK_NAME+'] Rotator disabled due to missing configuration.');
     return { changed: false, reason: 'missing_config' };

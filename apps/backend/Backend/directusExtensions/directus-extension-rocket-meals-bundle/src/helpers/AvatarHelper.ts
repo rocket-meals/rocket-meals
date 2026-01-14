@@ -1,4 +1,4 @@
-import { AccountHelper } from './AccountHelper';
+import {MyDatabaseHelper} from './MyDatabaseHelper';
 
 export class AvatarHelper {
   /**
@@ -6,8 +6,11 @@ export class AvatarHelper {
    * @param userId the userId
    * @returns {Promise<void>}
    */
-  static async deleteAvatarOfUser(services: any, database: any, schema: any, accountability: any, userId: string) {
-    const filesService = await AvatarHelper.getAdminFileServiceInstance(schema, accountability, services);
+  static async deleteAvatarOfUser(myDatabaseHelper: MyDatabaseHelper, userId: string) {
+    const database = myDatabaseHelper?.eventContext?.database || myDatabaseHelper?.apiContext.database;
+    // TODO: check if we can use instead of database the userService to handle/manipulate users
+
+    const filesService = await myDatabaseHelper.getFilesHelper();
     if (!userId) {
       throw new Error('deleteAvatarOfUser: No userId provided: ');
     }
@@ -23,17 +26,5 @@ export class AvatarHelper {
       //if has image
       await filesService.deleteOne(avatar_filename); //delete file
     }
-  }
-
-  /**
-   * get a fileService with admin permission
-   * @returns {*}
-   */
-  static async getAdminFileServiceInstance(schema: any, accountability: any, services: any) {
-    // TODO: Replace with MyDatabaseHelper.getFilesHelper()
-
-    const { FilesService } = services;
-    const adminAccountAbility = AccountHelper.getAdminAccountability(accountability);
-    return new FilesService({ schema, accountability: adminAccountAbility });
   }
 }

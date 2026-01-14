@@ -1,34 +1,16 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-        sheetView: {
-                width: '100%',
-                height: '100%',
-                borderTopRightRadius: 28,
-                borderTopLeftRadius: 28,
-                padding: 10,
-                paddingBottom: 0,
-        },
         contentContainer: {
                 alignItems: 'center',
-                paddingBottom: 40,
-        },
-        sheetHeader: {
-                width: '100%',
-                flexDirection: 'row',
                 justifyContent: 'center',
-                alignItems: 'center',
-                borderTopRightRadius: 28,
-                borderTopLeftRadius: 28,
-        },
-        sheetHeading: {
-                fontFamily: 'Poppins_700Bold',
+                paddingHorizontal: 20,
+                paddingBottom: 40,
+                paddingTop: 10,
         },
         sheetDescription: {
-                width: '90%',
                 fontFamily: 'Poppins_400Regular',
                 fontSize: 16,
                 textAlign: 'center',
-                marginTop: 20,
         },
 });

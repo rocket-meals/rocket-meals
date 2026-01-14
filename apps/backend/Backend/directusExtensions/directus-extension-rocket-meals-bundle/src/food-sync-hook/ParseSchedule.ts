@@ -1,16 +1,22 @@
-import { CanteensTypeForParser, FoodofferDateType, FoodoffersTypeForParser, FoodParseFoodAttributesType, FoodParserInterface, FoodsInformationTypeForParser, FoodWithBasicData } from './FoodParserInterface';
-import {LanguageCodes, TranslationHelper} from '../helpers/TranslationHelper';
-import { MarkingParserInterface, MarkingsTypeForParser } from './MarkingParserInterface';
-import { CollectionNames, DatabaseTypes, DateHelper } from 'repo-depkit-common';
-import { ListHelper } from '../helpers/ListHelper';
-import { DictMarkingsExclusions, MarkingFilterHelper } from '../helpers/MarkingFilterHelper';
-import { MyTimer, MyTimers } from '../helpers/MyTimer';
-import { HashHelper } from '../helpers/HashHelper';
-import { WORKFLOW_RUN_STATE } from '../helpers/itemServiceHelpers/WorkflowsRunEnum';
-import { WorkflowResultHash } from '../helpers/itemServiceHelpers/WorkflowsRunHelper';
-import { WorkflowRunContext } from '../helpers/WorkflowRunContext';
-import {MarkingTranslationFields} from "./MarkingTranslationFields";
-import {FoodsCategoryTranslationFields} from "./FoodsCategoryTranslationFields";
+import {
+  CanteensTypeForParser,
+  FoodofferDateType,
+  FoodoffersTypeForParser,
+  FoodParseFoodAttributesType,
+  FoodParserInterface,
+  FoodsInformationTypeForParser,
+  FoodWithBasicData
+} from './FoodParserInterface';
+import {TranslationHelper} from '../helpers/TranslationHelper';
+import {CollectionNames, DatabaseTypes, DateHelper} from 'repo-depkit-common';
+import {MarkingParserInterface, MarkingsTypeForParser} from './MarkingParserInterface';
+import {ListHelper} from '../helpers/ListHelper';
+import {DictMarkingsExclusions, MarkingFilterHelper} from '../helpers/MarkingFilterHelper';
+import {MyTimer, MyTimers} from '../helpers/MyTimer';
+import {HashHelper} from '../helpers/HashHelper';
+import {WORKFLOW_RUN_STATE} from '../helpers/itemServiceHelpers/WorkflowsRunEnum';
+import {WorkflowResultHash} from '../helpers/itemServiceHelpers/WorkflowsRunHelper';
+import {WorkflowRunContext} from '../helpers/WorkflowRunContext';
 
 const SCHEDULE_NAME = 'FoodParseSchedule';
 
@@ -92,8 +98,11 @@ export class ParseSchedule {
         let isSameHash = currentMealOffersHash.isSame(previousMealOffersHash);
         if (noPreviousMealOffersHash || !isSameHash) {
           await this.context.logger.appendLog('Meal offers changed, start parsing');
-          await this.context.myDatabaseHelper.getWorkflowsRunsHelper().updateOneItemWithoutHookTrigger(this.context.workflowRun, {
-            result_hash: currentMealOffersHash.getHash(),
+          await this.context.myDatabaseHelper.getWorkflowsRunsHelper().updateOneWithoutHookTrigger({
+            primary_key: this.context.workflowRun.id,
+            update: {
+                result_hash: currentMealOffersHash.getHash(),
+            }
           });
 
           await this.context.logger.appendLog('Meal offers changed, start parsing');
@@ -547,7 +556,7 @@ export class ParseSchedule {
         foodsDict[foodId] = foodWithTranslations;
       }
       index++;
-      myTimer.printElapsedTimeAndEstimatedTimeRemaining(index, amount);
+      myTimer.printElapsedTimeAndEstimatedTimeRemaining({ progress: index, total: amount });
     }
 
     myTimer.printElapsedTime();
@@ -621,7 +630,10 @@ export class ParseSchedule {
         await this.updateFoodTranslations(foundFoodWithTranslations, foodsInformationForParser);
 
         amountCompleted++;
-        myTimer.printElapsedTimeAndEstimatedTimeRemaining(amountCompleted, foodsInformationForParserList.length);
+        myTimer.printElapsedTimeAndEstimatedTimeRemaining({
+          progress: amountCompleted,
+          total: foodsInformationForParserList.length,
+        });
       }
     }
 
@@ -810,7 +822,12 @@ export class ParseSchedule {
       await myFoodOffersService.createManyItems(batch, {
         disableEventEmit: disableEventEmit,
       });
-      myTimer.printElapsedTimeAndEstimatedTimeRemaining(batchIndex, amountOfBatches, null, 'Total amount of food offers: ' + foodoffersToCreate.length);
+      myTimer.printElapsedTimeAndEstimatedTimeRemaining({
+        progress: batchIndex,
+        total: amountOfBatches,
+        prefix: null,
+        suffix: 'Total amount of food offers: ' + foodoffersToCreate.length,
+      });
       batchIndex++;
     }
   }

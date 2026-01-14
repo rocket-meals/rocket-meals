@@ -1,6 +1,7 @@
-import { DatabaseTypes } from 'repo-depkit-common';
-import { TranslationsFromParsingType } from '../helpers/TranslationHelper';
-import { MarkingsTypeForParser } from './MarkingParserInterface';
+import {TranslationsFromParsingType} from '../helpers/TranslationHelper';
+import {DatabaseTypes, DateHelper, LanguageCodes} from 'repo-depkit-common';
+import {MarkingsTypeForParser} from './MarkingParserInterface';
+import {HashHelper} from '../helpers/HashHelper';
 
 export type FoodParseFoodAttributeValueType = {
   external_identifier: string;
@@ -47,6 +48,135 @@ export type FoodofferTypeForCreation = FoodofferTypeWithBasicData & {
   canteen: string; // we require the primary key of the canteen
   food: string; // we require the primary key of the food
 };
+
+export class FoodParserHelper {
+  static getFoodofferForParserInformation(foodoffer: DatabaseTypes.Foodoffers): FoodoffersTypeForParser | null {
+    const dateString = foodoffer.date;
+    if (!dateString) {
+      return null;
+    }
+
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+
+    const foodId = typeof foodoffer.food === 'object' ? foodoffer.food?.id : foodoffer.food;
+    if (!foodId) {
+      return null;
+    }
+
+    const canteenExternalIdentifier =
+      typeof foodoffer.canteen === 'object' ? foodoffer.canteen?.external_identifier : null;
+    if (!canteenExternalIdentifier) {
+      return null;
+    }
+
+    const categoryExternalIdentifier =
+      typeof foodoffer.foodoffer_category === 'object'
+        ? foodoffer.foodoffer_category?.external_identifier || null
+        : null;
+
+    const {id, user_created, user_updated, canteen, food, markings, date: _, foodoffer_category, category, ...rest} = foodoffer;
+
+    const basicFoodofferData: FoodofferTypeWithBasicData = {
+      ...rest,
+      alias:
+        foodoffer.alias ?? (typeof foodoffer.food === 'object' && foodoffer.food ? foodoffer.food.alias ?? null : null),
+      foodoffer_components: foodoffer.foodoffer_components ?? [],
+    } as FoodofferTypeWithBasicData;
+
+    const attribute_values: FoodParseFoodAttributesType = [];
+    for (const attributeValue of (foodoffer.attribute_values as DatabaseTypes.FoodsAttributesValues[]) || []) {
+      const foodAttribute = attributeValue.food_attribute as DatabaseTypes.FoodsAttributes | null | undefined;
+      const externalIdentifier =
+        typeof foodAttribute === 'object' && foodAttribute ? foodAttribute.external_identifier || null : null;
+      if (!externalIdentifier) {
+        continue;
+      }
+
+      const {id, food_attribute, food_id, foodoffer_id, ...attributeValueWithoutRelations} = attributeValue;
+      attribute_values.push({
+        external_identifier: externalIdentifier,
+        attribute_value: attributeValueWithoutRelations,
+      });
+    }
+
+    const marking_external_identifiers: string[] = [];
+    for (const markingRelation of (foodoffer.markings as DatabaseTypes.FoodoffersMarkings[]) || []) {
+      const marking = markingRelation.markings_id as DatabaseTypes.Markings | null | undefined;
+      if (typeof marking === 'object' && marking?.external_identifier) {
+        marking_external_identifiers.push(marking.external_identifier);
+      }
+    }
+
+    return {
+      basicFoodofferData,
+      attribute_values,
+      marking_external_identifiers,
+      category_external_identifier: categoryExternalIdentifier,
+      date: DateHelper.getFoodofferDateTypeFromDate(date),
+      canteen_external_identifier: canteenExternalIdentifier,
+      food_id: foodId,
+    };
+  }
+
+  static getFoodTypeForParserFromFoodofferTypeForParser(foodoffer: FoodoffersTypeForParser): FoodsInformationTypeForParser | null {
+    const food_id = foodoffer.food_id;
+    if (!food_id) {
+      return null;
+    }
+    const alias = foodoffer.basicFoodofferData.alias;
+    if (!alias) {
+      return null;
+    }
+
+
+    const translations: TranslationsFromParsingType = {
+      [LanguageCodes.DE]: {
+        name: alias,
+      },
+    };
+
+    const basicFoodData: FoodWithBasicData = {
+      id: food_id,
+      alias: alias,
+    };
+
+    return {
+      basicFoodData: basicFoodData,
+      attribute_values: foodoffer.attribute_values,
+      translations: translations,
+      category_external_identifier: foodoffer.category_external_identifier,
+      marking_external_identifiers: foodoffer.marking_external_identifiers,
+    };
+  }
+
+  static getFoodsListFromFoodoffersList(foodoffersList: FoodoffersTypeForParser[]): FoodsInformationTypeForParser[] {
+    let foodsInformationDict: { [key: string]: FoodsInformationTypeForParser } = {};
+    for (let rawFoodoffer of foodoffersList) {
+      const foodInformation = FoodParserHelper.getFoodTypeForParserFromFoodofferTypeForParser(rawFoodoffer);
+      if (foodInformation) {
+        foodsInformationDict[foodInformation.basicFoodData.id] = foodInformation;
+      }
+    }
+    const foodsInformationList = Object.values(foodsInformationDict);
+    return foodsInformationList
+  }
+
+  static getFoodofferIdFromFoodofferInformationForParser(foodofferInformationForParser: FoodoffersTypeForParser): string {
+    const normalizedMarkings = [...foodofferInformationForParser.marking_external_identifiers].sort();
+    const normalizedDate = DateHelper.foodofferDateTypeToString(foodofferInformationForParser.date);
+
+    const normalizedFoodofferInformationForParser = {
+      ...foodofferInformationForParser,
+      marking_external_identifiers: normalizedMarkings,
+      date: normalizedDate,
+    };
+
+    return HashHelper.hashFromObject(normalizedFoodofferInformationForParser);
+  }
+}
 
 export interface FoodParserInterface {
   /**

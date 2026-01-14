@@ -1,0 +1,29 @@
+{
+  "collection": "collectible_events",
+  "field": "collectable_at",
+  "type": "alias",
+  "meta": {
+    "collection": "collectible_events",
+    "conditions": null,
+    "display": null,
+    "display_options": null,
+    "field": "collectable_at",
+    "group": null,
+    "hidden": false,
+    "interface": "group-detail",
+    "note": null,
+    "options": null,
+    "readonly": false,
+    "required": false,
+    "sort": 12,
+    "special": [
+      "alias",
+      "no-data",
+      "group"
+    ],
+    "translations": null,
+    "validation": null,
+    "validation_message": null,
+    "width": "full"
+  }
+}

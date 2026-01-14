@@ -23,8 +23,11 @@ export class WorkflowRunLogger {
   }
 
   async setLog(workflowRunId: string, log: string) {
-    this.myDatabaseHelper.getWorkflowsRunsHelper().updateOneWithoutHookTrigger(workflowRunId, {
-      log: log,
+    this.myDatabaseHelper.getWorkflowsRunsHelper().updateOneWithoutHookTrigger({
+      primary_key: workflowRunId,
+      update: {
+        log: log,
+      }
     });
   }
 

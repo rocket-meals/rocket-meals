@@ -7,8 +7,8 @@ import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { Redirect, useGlobalSearchParams } from 'expo-router';
 import useKioskMode from '@/hooks/useKioskMode';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
-import { AppScreens, DatabaseTypes, sortBySortField, sortMarkingsByGroup } from 'repo-depkit-common';
-import { SET_APP_ELEMENTS, SET_APP_SETTINGS, SET_BUSINESS_HOURS, SET_BUSINESS_HOURS_GROUPS, SET_CANTEENS, SET_CHATS, SET_CHAT_READ_STATUS, SET_COLLECTION_DATES_LAST_UPDATED, SET_FOOD_ATTRIBUTE_GROUPS, SET_FOOD_ATTRIBUTES, SET_FOOD_ATTRIBUTES_DICT, SET_FOOD_CATEGORIES, SET_FOOD_COLLECTION, SET_FOOD_OFFERS_CATEGORIES, SET_FOODOFFERS_INFO_ITEMS, SET_NEWS, SET_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES, SET_POPUP_EVENTS, SET_POPUP_EVENTS_HASH, SET_SELECTED_CANTEEN, SET_SELECTED_DATE, SET_WIKIS, UPDATE_FOOD_FEEDBACK_LABELS, UPDATE_MARKINGS, UPDATE_OWN_FOOD_FEEDBACK, UPDATE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES, UPDATE_PRIVACY_POLICY_DATE, UPDATE_PROFILE } from '@/redux/Types/types';
+import {AppScreens, DatabaseTypes, filterPopupEvents, sortBySortField, sortMarkingsByGroup} from 'repo-depkit-common';
+import { SET_APP_ELEMENTS, SET_APP_SETTINGS, SET_BUSINESS_HOURS, SET_BUSINESS_HOURS_GROUPS, SET_CANTEENS, SET_CHATS, SET_CHAT_READ_STATUS, SET_COLLECTION_DATES_LAST_UPDATED, SET_FOOD_ATTRIBUTE_GROUPS, SET_FOOD_ATTRIBUTES, SET_FOOD_ATTRIBUTES_DICT, SET_FOOD_CATEGORIES, SET_FOOD_COLLECTION, SET_FOOD_OFFERS_CATEGORIES, SET_FOODOFFERS_INFO_ITEMS, SET_NEWS, SET_COLLECTIBLE_EVENTS, SET_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES, SET_POPUP_EVENTS, SET_POPUP_EVENTS_HASH, SET_SELECTED_CANTEEN, SET_SELECTED_DATE, SET_WIKIS, UPDATE_FOOD_FEEDBACK_LABELS, UPDATE_MARKINGS, UPDATE_OWN_FOOD_FEEDBACK, UPDATE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES, UPDATE_PRIVACY_POLICY_DATE, UPDATE_PROFILE } from '@/redux/Types/types';
 import { FoodFeedbackLabelHelper } from '@/redux/actions/FoodFeedbacksLabel/FoodFeedbacksLabel';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
 import { FoodFeedbackLabelEntryHelper } from '@/redux/actions/FoodFeeedbackLabelEntries/FoodFeedbackLabelEntries';
@@ -25,6 +25,7 @@ import { WikisHelper } from '@/redux/actions/Wikis/Wikis';
 import { AppSettingsHelper } from '@/redux/actions/AppSettings/AppSettings';
 import { MarkingGroupsHelper } from '@/redux/actions/MarkingGroups/MarkingGroups';
 import { NewsHelper } from '@/redux/actions/News/News';
+import { CollectibleEventsHelper } from '@/redux/actions/CollectibleEvents/CollectibleEvents';
 import { ChatsHelper } from '@/redux/actions/Chats/Chats';
 import { FoodAttributeGroupHelper } from '@/redux/actions/FoodAttributes/FoodAttributeGroup';
 import { FoodAttributesHelper } from '@/redux/actions/FoodAttributes/FoodAttributes';
@@ -66,14 +67,15 @@ export default function Layout() {
 	const foodAttributesHelper = new FoodAttributesHelper();
 	const foodCategoriesHelper = new FoodCategoriesHelper();
 	const foodfeedbackLabelHelper = new FoodFeedbackLabelHelper();
-	const foodAttributeGroupHelper = new FoodAttributeGroupHelper();
-	const businessHoursGroupsHelper = new BusinessHoursGroupsHelper();
-	const foodOffersCategoriesHelper = new FoodOffersCategoriesHelper();
-	const foodOffersInfoItemsHelper = new FoodOffersInfoItemsHelper();
-	const newsHelper = new NewsHelper();
-	const chatsHelper = new ChatsHelper();
-	const collectionLastUpdateHelper = new CollectionLastUpdateHelper();
-	const foodFeedbackLabelEntryHelper = new FoodFeedbackLabelEntryHelper();
+        const foodAttributeGroupHelper = new FoodAttributeGroupHelper();
+        const businessHoursGroupsHelper = new BusinessHoursGroupsHelper();
+        const foodOffersCategoriesHelper = new FoodOffersCategoriesHelper();
+        const foodOffersInfoItemsHelper = new FoodOffersInfoItemsHelper();
+        const newsHelper = new NewsHelper();
+        const collectibleEventsHelper = new CollectibleEventsHelper();
+        const chatsHelper = new ChatsHelper();
+        const collectionLastUpdateHelper = new CollectionLastUpdateHelper();
+        const foodFeedbackLabelEntryHelper = new FoodFeedbackLabelEntryHelper();
 	const canteenFeedbackLabelEntryHelper = new CanteenFeedbackLabelEntryHelper();
 	const { popupEvents } = useSelector((state: RootState) => state.food);
 	const { hashValue } = useSelector((state: RootState) => state.popup_events_hash);
@@ -242,11 +244,11 @@ export default function Layout() {
 		}
 	};
 
-	const getNews = async () => {
-		try {
-			const result = (await newsHelper.fetchNews({})) as DatabaseTypes.News[];
-			if (result) {
-				const today = new Date().toISOString().split('T')[0];
+        const getNews = async () => {
+                try {
+                        const result = (await newsHelper.fetchNews({})) as DatabaseTypes.News[];
+                        if (result) {
+                                const today = new Date().toISOString().split('T')[0];
 				const sortedNews = [...result].sort((a, b) => {
 					const dateA = a?.date;
 					const dateB = b?.date;
@@ -266,9 +268,20 @@ export default function Layout() {
 				dispatch({ type: SET_NEWS, payload: sortedNews });
 			}
 		} catch (error) {
-			console.error('Error fetching news:', error);
-		}
-	};
+                        console.error('Error fetching news:', error);
+                }
+        };
+
+        const getCollectibleEvents = async () => {
+                try {
+                        const result = (await collectibleEventsHelper.fetchCollectibleEvents({})) as DatabaseTypes.CollectibleEvents[];
+                        if (result) {
+                                dispatch({ type: SET_COLLECTIBLE_EVENTS, payload: sortBySortField(result) });
+                        }
+                } catch (error) {
+                        console.error('Error fetching collectible events:', error);
+                }
+        };
 
 	const getFoodCategories = async () => {
 		try {
@@ -389,27 +402,14 @@ export default function Layout() {
 		}
 		try {
 			const response = (await popupEventsHelper.fetchAllPopupEvents()) as DatabaseTypes.PopupEvents[];
-			if (response) {
-				const currentDate = new Date();
+                        if (response) {
+                                const platformKey = Platform.OS === 'ios' ? 'show_on_ios' : Platform.OS === 'android' ? 'show_on_android' : 'show_on_web';
 
-				const platformKey = Platform.OS === 'ios' ? 'show_on_ios' : Platform.OS === 'android' ? 'show_on_android' : 'show_on_web';
-
-				const filteredEvents = response
-					.filter((event: DatabaseTypes.PopupEvents) => {
-						const start = event.date_start ? new Date(event.date_start) : null;
-						const end = event.date_end ? new Date(event.date_end) : null;
-
-						const isDateValid = (!start && !end) || (start && !end && currentDate >= start) || (start && end && currentDate >= start && currentDate <= end);
-
-						const isPlatformValid = event[platformKey];
-
-						return isDateValid && isPlatformValid;
-					})
-					.map((event, index) => ({
-						...event,
-						isOpen: false,
-						isCurrent: index === 0,
-					}));
+                                const filteredEvents = filterPopupEvents(response, platformKey).map((event, index) => ({
+                                        ...event,
+                                        isOpen: false,
+                                        isCurrent: index === 0,
+                                }));
 				const eventsHash = HashHelper.md5(JSON.stringify(filteredEvents));
 				if (eventsHash !== hashValue) {
 					dispatch({ type: SET_POPUP_EVENTS, payload: filteredEvents });
@@ -455,8 +455,12 @@ export default function Layout() {
 			key: CollectionKeys.FOODS_FEEDBACKS_LABELS,
 			action: getFoodFeedBackLabels,
 		},
-		{ key: CollectionKeys.NEWS, action: getNews },
-		{ key: CollectionKeys.BUSINESSHOURS, action: getBusinessHours },
+                { key: CollectionKeys.NEWS, action: getNews },
+                {
+                        key: [CollectionKeys.COLLECTIBLE_EVENTS, CollectionKeys.COLLECTIBLE_EVENTS_TRANSLATIONS],
+                        action: getCollectibleEvents,
+                },
+                { key: CollectionKeys.BUSINESSHOURS, action: getBusinessHours },
 		{
 			key: CollectionKeys.BUSINESSHOURS_GROUPS,
 			action: getAllBusinessHoursGroups,
@@ -654,18 +658,37 @@ export default function Layout() {
 						title: translate(TranslationKeys.notification),
 					}}
 				/>
-				<Drawer.Screen
-					name="events/index"
-					options={{
-						header: () => <CustomStackHeader label={translate(TranslationKeys.events)} key={'events'} />,
-						title: translate(TranslationKeys.events),
-					}}
-				/>
-				<Drawer.Screen
-					name="support-FAQ/index"
-					options={{
-						title: translate(TranslationKeys.feedback_support_faq),
-						header: () => <CustomStackHeader label={translate(TranslationKeys.feedback_support_faq)} key={'Feedback Support Faq'} />,
+                                <Drawer.Screen
+                                        name="events/index"
+                                        options={{
+                                                header: () => <CustomStackHeader label={translate(TranslationKeys.events)} key={'events'} />,
+                                                title: translate(TranslationKeys.events),
+                                        }}
+                                />
+                                <Drawer.Screen
+                                        name="collectible-events/index"
+                                        options={{
+                                                header: () => (
+                                                        <CustomStackHeader
+                                                                label={translate(TranslationKeys.collectible_events)}
+                                                                key={'collectible_events'}
+                                                        />
+                                                ),
+                                                title: translate(TranslationKeys.collectible_events),
+                                        }}
+                                />
+                                <Drawer.Screen
+                                        name="collectible-event/index"
+                                        options={{
+                                                title: translate(TranslationKeys.collectible_event_active),
+                                                headerShown: false,
+                                        }}
+                                />
+                                <Drawer.Screen
+                                        name="support-FAQ/index"
+                                        options={{
+                                                title: translate(TranslationKeys.feedback_support_faq),
+                                                header: () => <CustomStackHeader label={translate(TranslationKeys.feedback_support_faq)} key={'Feedback Support Faq'} />,
 					}}
 				/>
 

@@ -42,21 +42,27 @@ function registerWashingmachinesFilterUpdate(apiContext: any, registerFunctions:
             // then save it as a finished washing job
             let time_diff = new Date(current_date_finished).getTime() - new Date(current_date_stated).getTime();
             if (time_diff > 0) {
-              let time_hours = parseInt(time_diff / 1000 / 60 / 60 + '');
-              let time_minutes = parseInt(((time_diff / 1000 / 60) % 60) + '');
-              let time_seconds = parseInt(((time_diff / 1000) % 60) + '');
-              let hh_mm_ss = time_hours + ':' + time_minutes + ':' + time_seconds;
+              const durationInMilliseconds = time_diff;
+              const millisecondsInDay = 24 * 60 * 60 * 1000;
+              // Postgres time fields do not accept 24:xx:xx, so we cap durations at 23:59:59.
+              const maxPostgresTimeValueMilliseconds = millisecondsInDay - 1000; // 23:59:59
+              const cappedDurationInMilliseconds = Math.min(
+                durationInMilliseconds,
+                maxPostgresTimeValueMilliseconds
+              );
 
-              // check if duration out of range (more than 24 hours)
-              let isDurationOutOfRange = time_hours > 24;
-              if (isDurationOutOfRange) {
-                // no normal washing machine job can take more than 24 hours
-                // therefore we will not create a washing machine job
-                // we might have missed the start of the washing machine job
-                return input;
+              if (durationInMilliseconds > maxPostgresTimeValueMilliseconds) {
+                console.log(
+                  `Capping washingmachine job duration to 23:59:59. date_start=${current_date_stated}, date_end=${current_date_finished}, washingmachine=${washingmachine_curent.id}`
+                );
               }
 
-              const duration_in_minutes = parseInt(time_diff / 1000 / 60 + ''); // Total duration in minutes
+              const time_hours = Math.floor(cappedDurationInMilliseconds / 1000 / 60 / 60);
+              const time_minutes = Math.floor((cappedDurationInMilliseconds / 1000 / 60) % 60);
+              const time_seconds = Math.floor((cappedDurationInMilliseconds / 1000) % 60);
+              const hh_mm_ss = time_hours + ':' + time_minutes + ':' + time_seconds;
+
+              const duration_in_minutes = parseInt(cappedDurationInMilliseconds / 1000 / 60 + ''); // Total duration in minutes
 
               // Round duration to the nearest 10-minute interval
               const duration_rounded_10min_calculated = Math.ceil(duration_in_minutes / 10) * 10;

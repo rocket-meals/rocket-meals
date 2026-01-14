@@ -1,12 +1,4 @@
-export class LanguageCodes {
-  public static readonly _codes = {
-    de: 'de-DE' as const,
-    en: 'en-US' as const,
-  };
-
-  static readonly DE = LanguageCodes._codes.de;
-  static readonly EN = LanguageCodes._codes.en;
-}
+export { LanguageCodes } from 'repo-depkit-common';
 
 export class TranslationsBackend {
   public static getTranslation(key: TranslationBackendKeys, language?: string): string {

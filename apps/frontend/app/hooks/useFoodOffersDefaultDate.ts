@@ -34,7 +34,7 @@ const calculateDefaultDate = (now: Date, thresholdTime: string) => {
 
 const useFoodOffersDefaultDate = () => {
 	const dispatch = useDispatch();
-	const { selectedDate } = useSelector((state: RootState) => state.food);
+	const { selectedDate, hasUserSelectedDate } = useSelector((state: RootState) => state.food);
 	const { foodOffersNextDayThreshold } = useSelector((state: RootState) => state.settings);
 
 	const [currentTime, setCurrentTime] = useState(() => new Date());
@@ -63,6 +63,8 @@ const useFoodOffersDefaultDate = () => {
 	}, [defaultDate]);
 
 	useEffect(() => {
+		if (hasUserSelectedDate) return;
+
 		if (selectedDate === defaultDate) {
 			hasAppliedRef.current = true;
 			return;
@@ -76,7 +78,7 @@ const useFoodOffersDefaultDate = () => {
 
 		dispatch({ type: SET_SELECTED_DATE, payload: defaultDate });
 		hasAppliedRef.current = true;
-	}, [defaultDate, dispatch, selectedDate, todayString]);
+	}, [defaultDate, dispatch, selectedDate, todayString, hasUserSelectedDate]);
 
 	const applyDefaultDate = useCallback(() => {
 		dispatch({ type: SET_SELECTED_DATE, payload: defaultDate });

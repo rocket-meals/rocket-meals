@@ -60,7 +60,6 @@ describe('FoodAndMarkingWebParserAachen Test', () => {
     for (const expectedMarkingId of expectedMarkingIds) {
       const found = markingsList.find(marking => marking.external_identifier === expectedMarkingId);
       expect(found).toBeDefined();
-      console.log(found);
     }
   });
 });

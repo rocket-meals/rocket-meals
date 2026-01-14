@@ -12,9 +12,6 @@ import { format } from 'date-fns';
 import useMyCardReader, { MyCardReaderInterface } from './MyCardReader';
 import { isWeb } from '@/constants/Constants';
 import CardResponse from '@/helper/nfcCardReaderHelper/CardResponse';
-import BaseBottomSheet from '@/components/BaseBottomSheet';
-import type BottomSheet from '@gorhom/bottom-sheet';
-import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useFocusEffect } from 'expo-router';
 import useToast from '@/hooks/useToast';
 import { UPDATE_PROFILE } from '@/redux/Types/types';
@@ -30,6 +27,12 @@ import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
 import { RootState } from '@/redux/reducer';
 import Server from '@/constants/ServerUrl';
 import { ServerAPI } from '@/redux/actions';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
+import { CollectibleAt } from 'repo-depkit-common';
+import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
+import DebugView from '@/components/DebugView';
+import ProjectButton from '@/components/ProjectButton';
+import { myContrastColor } from '@/helper/ColorHelper';
 
 enum BalanceStateLowerBound {
 	CONFIDENT = 10,
@@ -45,17 +48,27 @@ const AccountBalanceScreen = () => {
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
 	const { profile, isDevMode } = useSelector((state: RootState) => state.authReducer);
-	const { appSettings, language, primaryColor } = useSelector((state: RootState) => state.settings);
+	const { appSettings, language, primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const balance_area_color = appSettings?.balance_area_color ? appSettings?.balance_area_color : primaryColor;
 	const [isNfcSupported, setIsNfcSupported] = useState(false);
 	const [isNfcEnabled, setIsNfcEnabled] = useState(false);
 	const [isActive, setIsActive] = useState(false);
-	const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
-	const animationRef = useRef<LottieView>(null);
-	const nfcSheetRef = useRef<BottomSheet>(null);
-	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
-	const [animationJson, setAmimationJson] = useState<any>(null);
-	const [debugErrors, setDebugErrors] = useState<Array<{ timestamp: Date; error: string; source: string }>>([]);
+        const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
+        const animationRef = useRef<LottieView>(null);
+        const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
+        const [animationJson, setAmimationJson] = useState<any>(null);
+        const [debugErrors, setDebugErrors] = useState<Array<{ timestamp: Date; error: string; source: string }>>([]);
+        const { show: showModal, close: closeModal } = useMyScrollViewModal();
+        const closeInstructionRef = useRef(closeModal);
+
+        const debugLogMessages = useMemo(
+                () =>
+                        debugErrors.map(errorItem =>
+                                `${format(errorItem.timestamp, 'dd.MM.yyyy HH:mm:ss')} - ${errorItem.source}: ${errorItem.error}`
+                        ),
+                [debugErrors]
+        );
+	const contrastColor = useMemo(() => myContrastColor(primaryColor, theme, mode === 'dark'), [mode, primaryColor, theme]);
 
 	// Helper function to add errors to debug list
 	const addDebugError = useCallback((error: any, source: string) => {
@@ -70,9 +83,7 @@ const AccountBalanceScreen = () => {
 		]);
 	}, []);
 
-	console.log(profile)
-
-	useFocusEffect(
+        useFocusEffect(
 		useCallback(() => {
 			if (profile?.credit_balance) {
 				if (Number(profile?.credit_balance) >= BalanceStateLowerBound.CONFIDENT) {
@@ -165,13 +176,46 @@ const AccountBalanceScreen = () => {
 		}
 	};
 
-	const showInstruction = () => {
-		nfcSheetRef.current?.expand();
-	};
+        const showInstruction = useCallback(() => {
+                if (!isActive) return;
 
-	const hideInstruction = () => {
-		nfcSheetRef?.current?.close();
-	};
+                showModal(
+                        {
+                                title: 'NFC',
+                                showsVerticalScrollIndicator: false,
+                                children: (
+                                        <View style={styles.sheetView}>
+                                                <Text
+                                                        style={{
+                                                                ...styles.nfcInstructionRead,
+                                                                color: theme.screen.text,
+                                                        }}
+                                                >
+                                                        {translate(TranslationKeys.nfcInstructionRead)}
+                                                </Text>
+                                                <View style={styles.nfcAnimationContainer}>
+                                                        <LottieView
+                                                                source={require('@/assets/gifs/nfc.json')}
+                                                                resizeMode="contain"
+                                                                style={styles.nfcAnimation}
+                                                                autoPlay
+                                                                loop
+                                                        />
+                                                </View>
+                                        </View>
+                                ),
+                        },
+                        {}
+                );
+        }, [isActive, showModal, theme.screen.text, translate]);
+
+        useEffect(() => {
+                closeInstructionRef.current = closeModal;
+        }, [closeModal]);
+
+        const hideInstruction = useCallback(() => {
+                closeInstructionRef.current();
+        }, []);
 
 	const onReadNfcPress = async () => {
 		await myCardReader.readCard(callBack, showInstruction, hideInstruction, translate(TranslationKeys.nfcInstructionRead));
@@ -189,11 +233,11 @@ const AccountBalanceScreen = () => {
 		};
 	}, []);
 
-	useFocusEffect(
-		useCallback(() => {
-			setIsActive(true);
-			return () => {
-				setIsActive(false);
+        useFocusEffect(
+                useCallback(() => {
+                        setIsActive(true);
+                        return () => {
+                                setIsActive(false);
 			};
 		}, [])
 	);
@@ -234,11 +278,17 @@ const AccountBalanceScreen = () => {
 		}, [appSettings?.animations_auto_start])
 	);
 
-	useEffect(() => {
-		if (animationJson && autoPlay && animationRef.current) {
-			animationRef?.current?.play(); // Reset animation to ensure it starts fresh
-		}
-	}, [animationJson, autoPlay]);
+        useEffect(() => {
+                if (animationJson && autoPlay && animationRef.current) {
+                        animationRef?.current?.play(); // Reset animation to ensure it starts fresh
+                }
+        }, [animationJson, autoPlay]);
+
+        useEffect(() => {
+                if (!isActive) {
+                        closeInstructionRef.current();
+                }
+        }, [isActive]);
 
 	const renderLottie = useMemo(() => {
 		if (animationJson) {
@@ -256,8 +306,8 @@ const AccountBalanceScreen = () => {
 			<Text style={{ ...styles.balance, color: theme.header.text }}>{profile?.credit_balance ? showFormatedPrice(formatPrice(profile?.credit_balance)) : '? €'}</Text>
 			{(isWeb || !isNfcSupported) && <Text style={{ ...styles.subText, color: theme.header.text }}>{translate(TranslationKeys.nfcNotSupported)}</Text>}
 			{!isWeb && isNfcEnabled && isNfcSupported && (
-				<TouchableOpacity
-					style={{ ...styles.nfcButton, borderColor: theme.screen.iconBg }}
+				<ProjectButton
+					style={{ width: '80%' }}
 					onPress={async () => {
 						try {
 							await onReadNfcPress();
@@ -267,10 +317,9 @@ const AccountBalanceScreen = () => {
 							addDebugError(e, 'NFC Card Read');
 						}
 					}}
-				>
-					<MaterialCommunityIcons name="credit-card-wireless-outline" size={24} color={theme.screen.icon} />
-					<Text style={{ ...styles.nfcLabel, color: theme.screen.text }}>{translate(TranslationKeys.nfcReadCard)}</Text>
-				</TouchableOpacity>
+					text={translate(TranslationKeys.nfcReadCard)}
+					iconLeft={<MaterialCommunityIcons name="credit-card-wireless-outline" size={24} color={contrastColor} />}
+				/>
 			)}
 			{isNfcSupported && !isNfcEnabled && (
 				<TouchableOpacity
@@ -307,11 +356,20 @@ const AccountBalanceScreen = () => {
 					<Text style={{ ...styles.value, color: theme.header.text }}>{profile?.credit_balance_date_updated ? format(profile?.credit_balance_date_updated, 'dd.MM.yyyy HH:mm') : ''}</Text>
 				</View>
 				<View style={styles.additionalInfoContainer}>{appSettings && appSettings?.balance_translations && <CustomMarkdown content={getTextFromTranslation(appSettings?.balance_translations, language) || ''} backgroundColor={balance_area_color} imageWidth={'100%'} imageHeight={400} />}</View>
-			</View>
-			<View style={styles.additionalInfoContainer}>
-				{/* Dev mode: Simulate NFC reads */}
-				{isDevMode && (
-					<View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 12 }}>
+				<DebugView
+					title={translate(TranslationKeys.debugErrors)}
+					logs={debugLogMessages}
+					actions={[
+						{
+							label: translate(TranslationKeys.showNfcInstruction),
+							icon: 'cellphone-nfc',
+							onPress: showInstruction,
+							borderColor: theme.screen.iconBg,
+							backgroundColor: theme.drawerBg,
+						},
+					]}
+				>
+					<View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 4 }}>
 						{[1, 5, 20].map(amount => (
 							<TouchableOpacity
 								key={`simulate-${amount}`}
@@ -322,6 +380,7 @@ const AccountBalanceScreen = () => {
 									borderWidth: 1,
 									borderColor: theme.screen.iconBg,
 									marginHorizontal: 6,
+									marginTop: 8,
 								}}
 								onPress={async () => {
 									const mock: CardResponse = {
@@ -346,74 +405,11 @@ const AccountBalanceScreen = () => {
 							</TouchableOpacity>
 						))}
 					</View>
-				)}
-
-				{/* Debug Logs if isDevMode active*/}
-				{isDevMode && debugErrors.length > 0 && (
-					<View style={{ marginTop: 20 }}>
-						<Text style={{ ...styles.label, color: theme.header.text }}>{translate(TranslationKeys.debugErrors)}:</Text>
-						{debugErrors.map((errorItem, index) => (
-							<View key={index} style={{ marginVertical: 4 }}>
-								<Text style={{ ...styles.errorText, color: theme.header.text }}>{`${format(errorItem.timestamp, 'dd.MM.yyyy HH:mm:ss')} - ${errorItem.source}: ${errorItem.error}`}</Text>
-							</View>
-						))}
-					</View>
-				)}
+				</DebugView>
 			</View>
-			{isActive && (
-				<BaseBottomSheet
-					ref={nfcSheetRef}
-					index={-1}
-					backgroundStyle={{
-						...styles.sheetBackground,
-						backgroundColor: theme.sheet.sheetBg,
-					}}
-					enablePanDownToClose
-					handleComponent={null}
-					onClose={hideInstruction}
-				>
-					<BottomSheetView>
-						<View
-							style={{
-								...styles.sheetHeader,
-							}}
-						>
-							<View />
-							<Text
-								style={{
-									...styles.sheetHeading,
-									fontSize: 28,
-									color: theme.sheet.text,
-								}}
-							>
-								NFC
-							</Text>
-						</View>
-						<View style={styles.sheetView}>
-							<Text
-								style={{
-									...styles.nfcInstructionRead,
-									color: theme.screen.text,
-								}}
-							>
-								{translate(TranslationKeys.nfcInstructionRead)}
-							</Text>
-							<View
-								style={{
-									width: 400,
-									height: 400,
-									justifyContent: 'center',
-									alignItems: 'center',
-								}}
-							>
-								<LottieView source={require('@/assets/gifs/nfc.json')} resizeMode="contain" style={{ width: '100%', height: '100%' }} autoPlay loop />
-							</View>
-						</View>
-					</BottomSheetView>
-				</BaseBottomSheet>
-			)}
-		</ScrollView>
-	);
+                        <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_card_balance} />
+                </ScrollView>
+        );
 };
 
 export default AccountBalanceScreen;

@@ -5,6 +5,9 @@ inputs:
   EXPO_TOKEN:
     required: true
     description: Expo Access Token (für EAS CLI Login)
+  EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT:
+    required: false
+    description: Inhalt des Apple App Store Connect API Keys (.p8)
 
 runs:
   using: "composite"
@@ -44,3 +47,85 @@ runs:
     - name: 📦 Install dependencies
       run: yarn install --immutable
       shell: bash
+
+    - name: 🔐 Prepare Apple App Store Connect API key
+      if: inputs.EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT != ''
+      shell: bash
+      env:
+        EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT: ${{ inputs.EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT }}
+      run: |
+        set -euo pipefail
+
+        ASC_KEY_DIR="$(mktemp -d)"
+        ASC_KEY_PATH="${ASC_KEY_DIR}/AuthKey.p8"
+
+        printf "%s" "$EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT" > "$ASC_KEY_PATH"
+
+        ASC_ENV_VARS=$(node - <<'EOF'
+        require('ts-node').register({
+          transpileOnly: true,
+          compilerOptions: { module: 'Node16', moduleResolution: 'node16' },
+        });
+
+        const { getEasSubmitEnvVariables } = require('./apps/frontend/scripts/getEasSubmitEnvVariables.ts');
+
+        const envVars = getEasSubmitEnvVariables();
+
+        for (const [key, value] of Object.entries(envVars)) {
+          if (!value) {
+            throw new Error(`Missing value for ${key}`);
+          }
+          console.log(`${key}=${value}`);
+        }
+        EOF
+        )
+
+        {
+          echo "EXPO_ASC_API_KEY_PATH=$ASC_KEY_PATH"
+          echo "$ASC_ENV_VARS"
+        } >> "$GITHUB_ENV"
+
+    - name: 🛠️ Generate EAS config
+      run: yarn workspace rocket-meals-scripts generate:eas
+      shell: bash
+
+    - name: 🖼️ Generate customer icons
+      shell: bash
+      working-directory: ./apps/frontend
+      env:
+        NODE_PATH: ./app/node_modules
+      run: |
+        set -euxo pipefail
+
+        sudo apt-get update
+        sudo apt-get install -y imagemagick
+
+        ICON_PATH=$(node - <<'EOF'
+        require('ts-node').register({
+                transpileOnly: true,
+                compilerOptions: { module: 'Node16', moduleResolution: 'node16' },
+        });
+
+        const { getCustomerConfig } = require('./app/config.ts');
+        const config = getCustomerConfig();
+
+        console.log(config.images.icon_logo_source_path);
+        EOF
+        )
+        echo "ICON_PATH=${ICON_PATH}"
+
+        COMPANY_PATH=$(node - <<'EOF'
+        require('ts-node').register({
+                transpileOnly: true,
+                compilerOptions: { module: 'Node16', moduleResolution: 'node16' },
+        });
+
+        const { getCustomerConfig } = require('./app/config.ts');
+        const config = getCustomerConfig();
+
+        console.log(config.images.company_logo_source_path);
+        EOF
+        )
+        echo "COMPANY_PATH=${COMPANY_PATH}"
+
+        ./generateIcons.sh "./app/${ICON_PATH}" "./app/${COMPANY_PATH}" "./app/assets/images/"

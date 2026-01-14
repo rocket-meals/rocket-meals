@@ -1,24 +1,27 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, PixelRatio, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Dimensions, KeyboardTypeOptions, PixelRatio, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import FeedbackItem from '../../../components/FeedbackSupport/FeedbackSupport';
 import styles from './styles';
 import { isWeb } from '@/constants/Constants';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { deviceData, feedbackData } from '../../../constants/FeedbackSupportData';
-import ModalComponent from '../../../components/ModalSetting/ModalComponent';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useSelector } from 'react-redux';
 import * as DeviceInfo from 'expo-device';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { AppFeedback } from '@/redux/actions/AppFeedback/AppFeedback';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5, MaterialIcons, Octicons } from '@expo/vector-icons';
 import useToast from '@/hooks/useToast';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { DatabaseTypes } from 'repo-depkit-common';
+import { DatabaseTypes, EmailHelper } from 'repo-depkit-common';
 import { RootState } from '@/redux/reducer';
 import { myContrastColor } from '@/helper/ColorHelper';
+import SettingsList from '@/components/SettingsList';
+import SettingsListEditable from '@/components/SettingsListEditable';
+import useMyScrollviewTextInputModal from '@/hooks/useMyScrollviewTextInputModal';
+import { excerpt } from '@/constants/HelperFunctions';
 
 const FeedbackScreen = () => {
 	useSetPageTitle(TranslationKeys.feedback_and_support);
@@ -30,9 +33,6 @@ const FeedbackScreen = () => {
 	const { profile } = useSelector((state: RootState) => state.authReducer);
 	const { primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
-	const [isModalVisible, setModalVisible] = useState(false);
-	const [selectedTitle, setSelectedTitle] = useState('');
-	const [selectedKey, setSelectedKey] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [inputValues, setInputValues] = useState<{
 		[key: string]: string | boolean | number | any;
@@ -40,6 +40,7 @@ const FeedbackScreen = () => {
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [errorJson, setErrorJson] = useState<string | null>(null);
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
+	const { openTextInputModal } = useMyScrollviewTextInputModal();
 
 	useFocusEffect(
 		useCallback(() => {
@@ -115,12 +116,34 @@ const FeedbackScreen = () => {
 		setErrorJson(null);
 	};
 
-	const handleInputChange = (key: string, text: string) => {
-		setInputValues(prevState => ({
-			...prevState,
-			[key]: text,
+	const feedbackSettingsItems = useMemo(
+		() =>
+			feedbackData
+				.filter(item => item.key !== 'positive')
+				.map(item => ({
+					...item,
+					multiline: item.key === 'content',
+					keyboardType: item.key === 'contact_email' ? 'email-address' : undefined,
+				})),
+		[]
+	);
+	const deviceSettingsItems = useMemo(() => {
+		const numericDeviceKeys = new Set(['display_height', 'display_width', 'display_fontscale', 'display_pixelratio', 'display_scale']);
+		return deviceData.map(item => ({
+			...item,
+			keyboardType: numericDeviceKeys.has(item.key) ? 'numeric' : undefined,
 		}));
-	};
+	}, []);
+
+	const getFeedbackIcon = useCallback(
+		(iconName: string) => {
+			if (iconName === 'feed') {
+				return <MaterialIcons name={iconName as any} size={24} color={theme.screen.icon} />;
+			}
+			return <MaterialCommunityIcons name={iconName as any} size={24} color={theme.screen.icon} />;
+		},
+		[theme.screen.icon]
+	);
 
 	useEffect(() => {
 		const onChange = ({ window }: { window: any }) => {
@@ -133,17 +156,49 @@ const FeedbackScreen = () => {
 		};
 	}, []);
 
-	const openModal = (key: string, title: string) => {
-		setSelectedTitle(title);
-		setSelectedKey(key);
-		setModalVisible(true);
-	};
-
-	const closeModal = () => {
-		setSelectedTitle('');
-		setSelectedKey('');
-		setModalVisible(false);
-	};
+	const openFeedbackSheet = useCallback(
+		({
+			key,
+			title,
+			multiline,
+			keyboardType,
+		}: {
+			key: string;
+			title: string;
+			multiline?: boolean;
+			keyboardType?: KeyboardTypeOptions;
+		}) => {
+			const isEmailField = key === 'contact_email';
+			openTextInputModal({
+				title: translate(title as any),
+				placeholder: translate(title as any),
+				initialValue: String(inputValues[key] ?? ''),
+				saveLabel: translate(TranslationKeys.save),
+				onSave: value => {
+					setInputValues(prevState => ({
+						...prevState,
+						[key]: value,
+					}));
+				},
+				multiline,
+				keyboardType,
+				numberOfLines: multiline ? 4 : 1,
+				textAlignVertical: multiline ? 'top' : 'center',
+				inputStyle: multiline ? { height: 150 } : undefined,
+				checkTextInput: isEmailField
+					? value => {
+							const cleanedEmail = value.replace(/\s+/g, '');
+							if (cleanedEmail.trim().length === 0) {
+								return { isValid: true, value: '' };
+							}
+							const { trimmedEmail, isValid } = EmailHelper.sanitizeAndValidate(cleanedEmail);
+							return { isValid, value: trimmedEmail };
+						}
+					: value => ({ isValid: true, value }),
+			});
+		},
+		[inputValues, openTextInputModal, translate]
+	);
 
 	const handleCreateAppFeedback = async () => {
 		if (inputValues) {
@@ -243,25 +298,39 @@ const FeedbackScreen = () => {
 						>
 							{translate(TranslationKeys.your_request)}
 						</Text>
-						{feedbackData.map((item, index) => (
-							<FeedbackItem
-								key={index}
-								icon={item.icon}
-								title={item.title}
-								extraIcons={item.extraIcons}
-								theme={theme}
-								windowWidth={windowWidth}
-								value={inputValues[item.key] || ''}
-								inputValues={inputValues}
-								setInputValues={setInputValues}
-								onPress={() => {
-									if (item.title !== 'like_status') {
-										openModal(item.key, item.title);
-									} else {
-									}
+						{feedbackSettingsItems.map((item, index) => (
+							<SettingsListEditable
+								key={item.key}
+								iconBgColor={primaryColor}
+								leftIcon={getFeedbackIcon(item.icon)}
+								label={translate(item.title as any)}
+								value={excerpt(String(inputValues[item.key] ?? ''), windowWidth > 850 ? 50 : 20)}
+								handleFunction={() => {
+									openFeedbackSheet({
+										key: item.key,
+										title: item.title,
+										multiline: item.multiline,
+										keyboardType: item.keyboardType,
+									});
 								}}
+								groupPosition={index === 0 ? 'top' : index === feedbackSettingsItems.length - 1 ? 'bottom' : 'middle'}
 							/>
 						))}
+						{feedbackData
+							.filter(item => item.key === 'positive')
+							.map(item => (
+								<FeedbackItem
+									key={item.key}
+									icon={item.icon}
+									title={item.title}
+									extraIcons={item.extraIcons}
+									theme={theme}
+									windowWidth={windowWidth}
+									value={inputValues[item.key] || ''}
+									inputValues={inputValues}
+									setInputValues={setInputValues}
+								/>
+							))}
 						{!profile?.id && (
 							<Text
 								style={{
@@ -398,39 +467,28 @@ const FeedbackScreen = () => {
 								</View>
 							</View>
 						)}
-						{deviceData.map((item, index) => (
-							<TouchableOpacity key={index}>
-								<FeedbackItem key={index} title={item.title} value={item?.key === 'device_brand' ? (inputValues[item.key] ? inputValues[item.key] : translate(TranslationKeys.unknown)) : inputValues[item.key] || ''} theme={theme} windowWidth={windowWidth} onPress={() => openModal(item.key, item.title)} />
-							</TouchableOpacity>
+						{deviceSettingsItems.map((item, index) => (
+							<SettingsList
+								key={item.key}
+								iconBgColor={primaryColor}
+								label={translate(item.title as any)}
+								value={excerpt(String(item.key === 'device_brand' ? (inputValues[item.key] ? inputValues[item.key] : translate(TranslationKeys.unknown)) : inputValues[item.key] || ''), windowWidth > 850 ? 50 : 20)}
+								rightIcon={<MaterialCommunityIcons name="pencil" size={24} color={theme.screen.icon} />}
+								handleFunction={() => {
+									openFeedbackSheet({
+										key: item.key,
+										title: item.title,
+										keyboardType: item.keyboardType,
+									});
+								}}
+								groupPosition={index === 0 ? 'top' : index === deviceSettingsItems.length - 1 ? 'bottom' : 'middle'}
+								noIconIndent
+							/>
 						))}
 
 						{errorJson && <Text style={{ color: 'red', marginVertical: 10 }}>{errorJson}</Text>}
 						{errorMessage && <Text style={{ color: 'red', marginBottom: 10 }}>{errorMessage}</Text>}
 					</View>
-
-					<ModalComponent
-						isVisible={isModalVisible}
-						title={selectedTitle}
-						onClose={closeModal}
-						onSave={() => {
-							closeModal();
-						}}
-					>
-						<TextInput
-							style={{
-								...styles.input,
-								color: 'black',
-								backgroundColor: '#fff',
-								borderWidth: 1,
-								height: selectedTitle === 'feedback' ? 150 : 60,
-								textAlignVertical: 'top',
-							}}
-							value={inputValues[selectedKey] || ''}
-							onChangeText={text => handleInputChange(selectedKey, text)}
-							multiline={true}
-							numberOfLines={selectedTitle === 'feedback' ? 4 : 1}
-						/>
-					</ModalComponent>
 				</View>
 			</ScrollView>
 		</View>

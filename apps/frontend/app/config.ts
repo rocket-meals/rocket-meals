@@ -1,24 +1,43 @@
 // This file can not have any imports. See app.config.ts as it will transpile this file to  JavaScript
 import { ServerHelper } from 'repo-depkit-common';
+import {ImageSourcePropType} from "react-native";
+
+export const EXPO_ASC_KEY_ID = '39JT9543R7';
+export const EXPO_ASC_ISSUER_ID = 'a8db47e8-cb43-4861-b383-58ec4f9a9fc6';
+export const EXPO_APPLE_TEAM_ID = '6U99CRVHVR';
+export const EXPO_APPLE_TEAM_TYPE = 'IN_HOUSE';
 
 export type CustomerConfig = {
-	projectName: string;
-	projectSlug: string;
-	easUpdateId: string;
-	easProjectId: string;
-	appScheme: string;
-	bundleIdIos: string;
-	bundleIdAndroid: string;
+        projectName: string;
+        projectSlug: string | undefined;
+	easUpdateId: string | undefined;
+	easProjectId: string | undefined;
+	appScheme: string | undefined;
+	bundleIdIos: string | undefined;
+	bundleIdAndroid: string | undefined;
 	baseUrl: string;
 	server_url: string;
+	appleAppId?: string;
+        images: {
+                company_logo_source_path: string;
+                company_logo_source_get_for_react_native: () => ImageSourcePropType;
+                icon_logo_source_path: string;
+                icon_logo_source_get_for_react_native: () => ImageSourcePropType;
+        }
 };
+
+export enum ConfigCustomerEnum {
+        TEST = 'test',
+        SWOSY = 'swosy',
+        STUDI_FUTTER = 'studi-futter'
+}
 
 // DO NOT CHANGE THE NAME OF THIS FUNCTION: getBuildNumber
 // The workflow action check-build-number will use this function to determine the build number
 // and will fail if the function is not present or does not return a number.
 // The build number is used to determine if a new build is required.
 export function getBuildNumber() {
-	return 170;
+	return 180;
 }
 
 export function getMajorVersion() {
@@ -26,7 +45,7 @@ export function getMajorVersion() {
 }
 
 export function getVersionPatch() {
-	return 0;
+        return 2;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
@@ -41,6 +60,16 @@ export function getIosBuildNumber() {
 	return getBuildNumber().toString();
 }
 
+export function getAppIconInsideExpoLocalSaved(): ImageSourcePropType {
+	const customerConfig: CustomerConfig = getCustomerConfig();
+	return customerConfig.images.icon_logo_source_get_for_react_native();
+}
+
+export function getCompanyLogoLocalSaved(): ImageSourcePropType {
+	const customerConfig: CustomerConfig = getCustomerConfig();
+	return customerConfig.images.company_logo_source_get_for_react_native();
+}
+
 export const devConfig: CustomerConfig = {
 	projectName: 'Rocket Meals',
 	projectSlug: 'rocket-meals-dev',
@@ -51,6 +80,13 @@ export const devConfig: CustomerConfig = {
 	bundleIdAndroid: 'com.baumgartnersoftware.rocketmealsdev',
 	baseUrl: '/rocket-meals',
 	server_url: ServerHelper.TEST_SERVER_CONFIG.server_url,
+	appleAppId: '6483930801',
+	images: {
+		company_logo_source_path: 'assets/images/customers/rocket-meals/company.png',
+		company_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/rocket-meals/company.png')},
+		icon_logo_source_path: 'assets/images/customers/rocket-meals/icon.png',
+		icon_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/swosy/icon.png')},
+	},
 };
 
 export const swosyConfig: CustomerConfig = {
@@ -63,11 +99,18 @@ export const swosyConfig: CustomerConfig = {
 	bundleIdAndroid: 'de.baumgartnersoftware.swosy',
 	baseUrl: '/swosy',
 	server_url: ServerHelper.SWOSY_SERVER_CONFIG.server_url,
+	appleAppId: '6667117575',
+	images: {
+		company_logo_source_path: 'assets/images/customers/swosy/company.png',
+		company_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/swosy/company.png')},
+		icon_logo_source_path: 'assets/images/customers/swosy/icon.png',
+		icon_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/swosy/icon.png')},
+	}
 };
 
 export const studiFutterConfig: CustomerConfig = {
-	projectName: 'Studi|Futter',
-	projectSlug: 'rocket-meals-studi-futter',
+        projectName: 'Studi|Futter',
+        projectSlug: 'rocket-meals-studi-futter',
 	easUpdateId: '461671f9-774f-4bc4-80a8-5601313539b0',
 	easProjectId: '461671f9-774f-4bc4-80a8-5601313539b0',
 	appScheme: 'app-rocket-meals-studi-futter',
@@ -75,20 +118,57 @@ export const studiFutterConfig: CustomerConfig = {
 	bundleIdAndroid: 'de.baumgartnersoftware.studifutter',
 	baseUrl: '/studi-futter',
 	server_url: ServerHelper.STUDI_FUTTER_SERVER_CONFIG.server_url,
+	appleAppId: '1548108390',
+	images: {
+		company_logo_source_path: 'assets/images/customers/studi-futter/company.png',
+		company_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/studi-futter/company.png')},
+		icon_logo_source_path: 'assets/images/customers/studi-futter/icon.png',
+		icon_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/studi-futter/icon.png')},
+        }
 };
 
-export const aachenConfig: CustomerConfig = {
-	// apple app id: 6754844700
-	projectName: 'AachenMensa',
-	projectSlug: 'rocket-meals-aachen',
-	easUpdateId: '88b123c6-b8d8-4968-9ab5-86cd0c8b9657',
-	easProjectId: '88b123c6-b8d8-4968-9ab5-86cd0c8b9657',
-	appScheme: 'app-rocket-meals-aachen',
-	bundleIdIos: 'de.rocket-meals.aachen',
-	bundleIdAndroid: 'com.baumgartner_software.aachen',
-	baseUrl: '/aachpetito',
-	server_url: ServerHelper.AACHEN_SERVER_CONFIG.server_url,
+export function getCustomerConfigsDict(): Record<ConfigCustomerEnum, CustomerConfig> {
+        return {
+                [ConfigCustomerEnum.TEST]: devConfig,
+                [ConfigCustomerEnum.SWOSY]: swosyConfig,
+                [ConfigCustomerEnum.STUDI_FUTTER]: studiFutterConfig,
+        };
+}
+
+export function getCustomerEnumForConfig(config: CustomerConfig): ConfigCustomerEnum | null {
+        const matchingEntry = Object.entries(getCustomerConfigsDict()).find(([, customerConfig]) =>
+                customerConfig.server_url === config.server_url
+        );
+
+        return matchingEntry ? (matchingEntry[0] as ConfigCustomerEnum) : null;
+}
+
+export const configMuenster: CustomerConfig = {
+        projectName: 'Münster',
+        projectSlug: undefined,
+	easUpdateId:  undefined,
+	easProjectId:  undefined,
+	appScheme:  undefined,
+	bundleIdIos:  undefined,
+	bundleIdAndroid:  undefined,
+	baseUrl: '/muenster',
+	server_url: ServerHelper.SERVER_CONFIG_MUENSTER.server_url,
+	images: {
+		company_logo_source_path: 'assets/images/customers/rocket-meals/company.png',
+		company_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/rocket-meals/company.png')},
+		icon_logo_source_path: 'assets/images/customers/rocket-meals/icon.png',
+		icon_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/rocket-meals/icon.png')},
+	}
 };
+
+export function getCustomerConfigurations(): CustomerConfig[] {
+	return [
+		devConfig,
+		swosyConfig,
+		studiFutterConfig,
+		configMuenster,
+	];
+}
 
 export function getCustomerConfig(): CustomerConfig {
 	return devConfig;
@@ -123,6 +203,7 @@ export function getFinalConfig(config?: any) {
 				supportsTablet: true,
 				bundleIdentifier: customerConfig.bundleIdIos,
 				buildNumber: getIosBuildNumber(),
+				...(customerConfig.appleAppId ? { appId: customerConfig.appleAppId } : {}),
 				infoPlist: {
 					NSPhotoLibraryUsageDescription: 'We need access to your photo library to select files',
 					NSDocumentDirectoryUsageDescription: 'We need access to your document directory to select files',

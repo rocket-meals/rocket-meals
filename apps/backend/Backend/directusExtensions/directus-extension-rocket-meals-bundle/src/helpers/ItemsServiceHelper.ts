@@ -14,6 +14,12 @@ type AnyTypeWithId = { id: PrimaryKey };
 
 type TypeWithId<T> = T & AnyTypeWithId;
 
+type UpdateOneProps<T> = {
+  primary_key: PrimaryKey;
+  update: Partial<T>;
+  optsCustom?: OptsCustomType;
+};
+
 export class ItemsServiceHelper<T> implements ItemsService<T> {
   protected apiContext: ApiContext;
   protected eventContext: EventContext | undefined;
@@ -53,13 +59,9 @@ export class ItemsServiceHelper<T> implements ItemsService<T> {
     return await itemsService.updateOne(primary_key, update, opts);
   }
 
-  async updateOneItemWithoutHookTrigger(item: TypeWithId<Partial<T>>, update: Partial<T>, optsCustom?: OptsCustomType): Promise<void> {
-    let primary_key = item.id;
-    return await this.updateOneWithoutHookTrigger(primary_key, update, optsCustom);
-  }
-
-  async updateOneWithoutHookTrigger(primary_key: PrimaryKey, update: Partial<T>, optsCustom?: OptsCustomType): Promise<void> {
-    //console.log("Updating item without hook trigger - pre");
+  // async updateOneItemWithoutHookTrigger(item: TypeWithId<Partial<T>>, update: Partial<T>, optsCustom?: OptsCustomType): Promise<void> {
+  async updateOneWithoutHookTrigger(data: UpdateOneProps<T>): Promise<void> {
+    let { primary_key, update, optsCustom } = data;
     let database = this.apiContext.database;
     //console.log("Updating item without hook trigger - post");
     await database(this.tablename).update(update).where('id', primary_key);

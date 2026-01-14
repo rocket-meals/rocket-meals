@@ -10,6 +10,8 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
+import { CollectibleAt } from 'repo-depkit-common';
 
 const parseMarkdown = (text: string, theme: any) => {
 	return text.split('\n').map((line, index) => {
@@ -38,11 +40,12 @@ const parseMarkdown = (text: string, theme: any) => {
 const DataAccess = ({ onOpenBottomSheet }: any) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const { user, profile } = useSelector((state: RootState) => state.authReducer);
-	const { primaryColor } = useSelector((state: RootState) => state.settings);
-	const { canteens, buildings, selectedCanteenFoodOffers, canteenFoodOffers, businessHours, canteenFeedbackLabels, ownCanteenFeedBackLabelEntries } = useSelector((state: RootState) => state.canteenReducer);
+        const { user, profile } = useSelector((state: RootState) => state.authReducer);
+        const { primaryColor } = useSelector((state: RootState) => state.settings);
+        const { collectibleEvents } = useSelector((state: RootState) => state.collectibleEvents ?? {});
+        const { canteens, buildings, selectedCanteenFoodOffers, canteenFoodOffers, businessHours, canteenFeedbackLabels, ownCanteenFeedBackLabelEntries } = useSelector((state: RootState) => state.canteenReducer);
 
-	const { foodFeedbackLabels, ownFoodFeedbacks, ownfoodFeedbackLabelEntries, markings, selectedFoodMarkings, foodCategories, foodOfferCategories, markingDetails } = useSelector((state: RootState) => state.food);
+        const { foodFeedbackLabels, ownFoodFeedbacks, ownfoodFeedbackLabelEntries, markings, selectedFoodMarkings, foodCategories, foodOfferCategories, markingDetails } = useSelector((state: RootState) => state.food);
 
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
 
@@ -84,10 +87,11 @@ const DataAccess = ({ onOpenBottomSheet }: any) => {
 		},
 		{ label: 'Markings', value: markings },
 		{ label: 'Selected Food Markings', value: selectedFoodMarkings },
-		{ label: 'Food Categories', value: foodCategories },
-		{ label: 'FoodOffer Categories', value: foodOfferCategories },
-		{ label: 'MarkingDetails', value: markingDetails },
-	];
+                { label: 'Food Categories', value: foodCategories },
+                { label: 'FoodOffer Categories', value: foodOfferCategories },
+                { label: 'MarkingDetails', value: markingDetails },
+                { label: 'Collectible Events', value: collectibleEvents },
+        ];
 
 	return (
 		<View style={{ ...styles.container, backgroundColor: theme.screen.background }}>
@@ -105,6 +109,7 @@ const DataAccess = ({ onOpenBottomSheet }: any) => {
 				</View>
 				<SettingsGroupTitle>{translate(TranslationKeys.your_data_which_we_know_if_you_have_a_profile)}</SettingsGroupTitle>
 				{/* Info Items List */}
+				<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_data_access} />
 				<View
 					style={{
 						width: windowWidth < 500 ? '100%' : isWeb ? '80%' : '100%',
@@ -119,17 +124,17 @@ const DataAccess = ({ onOpenBottomSheet }: any) => {
 
 					{/* Device Data List */}
 					<SettingsGroupTitle>{translate(TranslationKeys.translation_all_on_device_saved_data)}</SettingsGroupTitle>
-					{dataDevice.map((data, index) => {
-						if (!data?.value) return null;
-						const last = index === dataDevice.length - 1;
-						const first = index === 0;
-						const groupPosition = dataDevice.length === 1 ? 'single' : first ? 'top' : last ? 'bottom' : 'middle';
-						return <SettingsList key={index} iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />} label={data.label} rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />} handleFunction={() => onOpenBottomSheet(data)} groupPosition={groupPosition as any} />;
-					})}
-				</View>
-			</ScrollView>
-		</View>
-	);
+                                        {dataDevice.map((data, index) => {
+                                                if (!data?.value) return null;
+                                                const last = index === dataDevice.length - 1;
+                                                const first = index === 0;
+                                                const groupPosition = dataDevice.length === 1 ? 'single' : first ? 'top' : last ? 'bottom' : 'middle';
+                                                return <SettingsList key={index} iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />} label={data.label} rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />} handleFunction={() => onOpenBottomSheet(data)} groupPosition={groupPosition as any} />;
+                                        })}
+                                </View>
+                        </ScrollView>
+                </View>
+        );
 };
 
 export default DataAccess;

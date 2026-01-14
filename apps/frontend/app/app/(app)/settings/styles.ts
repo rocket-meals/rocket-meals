@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { horizontalScreenPadding } from '@/constants/Constants';
 
 export default StyleSheet.create({
 	container: {
@@ -6,7 +7,7 @@ export default StyleSheet.create({
 	},
 	contentContainer: {
 		width: '100%',
-		paddingHorizontal: 10,
+		paddingHorizontal: horizontalScreenPadding,
 		paddingVertical: 40,
 		alignItems: 'center',
 	},
@@ -57,11 +58,11 @@ export default StyleSheet.create({
 
 	languageContainer: {
 		marginTop: 10,
-		paddingHorizontal: 10,
+		paddingHorizontal: horizontalScreenPadding,
 	},
 	amountOfCardContainer: {
 		marginTop: 10,
-		paddingHorizontal: 10,
+		paddingHorizontal: horizontalScreenPadding,
 		maxHeight: '100%',
 		height: 400,
 	},
@@ -72,27 +73,6 @@ export default StyleSheet.create({
 		alignItems: 'center',
 	},
 
-	languageRow: {
-		marginTop: 10,
-		width: '100%',
-		height: 50,
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		borderRadius: 12,
-	},
-	flagIcon: {
-		width: 35.2,
-		height: 22,
-		marginRight: 10,
-	},
-	languageText: {
-		flex: 1,
-		fontSize: 18,
-	},
-	radioButton: {
-		marginLeft: 10,
-	},
 	icon: {
 		marginRight: 8,
 	},

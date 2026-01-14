@@ -282,20 +282,19 @@ export const styles = StyleSheet.create({
 		marginTop: 10,
 		paddingHorizontal: 10,
 	},
-	languageRow: {
-		marginTop: 10,
-		width: '100%',
-		height: 50,
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		borderRadius: 12,
-	},
-	flagIcon: {
-		width: 35.2,
-		height: 22,
-		marginRight: 10,
-	},
+        languageRow: {
+                marginTop: 10,
+                width: '100%',
+                height: 50,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderRadius: 12,
+        },
+        languageEmoji: {
+                fontSize: 24,
+                marginRight: 10,
+        },
 
 	languageText: {
 		flex: 1,

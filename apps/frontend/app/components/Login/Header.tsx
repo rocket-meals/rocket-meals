@@ -1,5 +1,5 @@
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { styles } from './styles';
 import { isWeb } from '@/constants/Constants';
@@ -7,23 +7,21 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useLocales } from 'expo-localization';
 import { useDispatch, useSelector } from 'react-redux';
 import { SET_DRAWER_POSITION } from '@/redux/Types/types';
-import ModalComponent from '../ModalSetting/ModalComponent';
 import { languages } from '../../constants/SettingData';
 import MyImage from '@/components/MyImage';
-import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
 import { getImageUrl } from '@/constants/HelperFunctions';
-import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
+import { useLanguageModal } from '@/hooks/useLanguageModal';
 
 const LoginHeader = () => {
-	const { translate, setLanguageMode, language } = useLanguage();
-	const locales = useLocales();
-	const dispatch = useDispatch();
-	const { theme } = useTheme();
-	const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
-	const [selectedLanguage, setSelectedLanguage] = useState<string>('');
-	const { primaryColor, serverInfo } = useSelector((state: RootState) => state.settings);
-	const deviceLocale: any = useDeviceLocaleCodesWithoutRegionCode();
+        const { setLanguageMode, language } = useLanguage();
+        const locales = useLocales();
+        const dispatch = useDispatch();
+        const { theme } = useTheme();
+        const { serverInfo } = useSelector((state: RootState) => state.settings);
+        const deviceLocale: any = useDeviceLocaleCodesWithoutRegionCode();
+        const { openLanguageModal } = useLanguageModal();
 
 	function useDeviceLocaleCodesWithoutRegionCode(): string[] {
 		let localeCodes: string[] = [];
@@ -71,27 +69,7 @@ const LoginHeader = () => {
 		}
 	}, []);
 
-	const openLanguageModal = () => {
-		setIsLanguageModalVisible(true);
-	};
-
-	const closeLanguageModal = () => {
-		setIsLanguageModalVisible(false);
-	};
-
-	useEffect(() => {
-		setSelectedLanguage(language);
-	}, [language]);
-
-	const saveLanguage = () => {
-		closeLanguageModal();
-	};
-
-	const changeLanguage = (language: { label?: string; flag?: any; value: any }) => {
-		setSelectedLanguage(language.value);
-		setLanguageMode(language.value);
-		closeLanguageModal();
-	};
+        const selectedLanguage = language;
 	return (
 		<View style={styles.header}>
 			<MyImage
@@ -105,9 +83,9 @@ const LoginHeader = () => {
 					borderRadius: 6,
 				}}
 			/>
-			<TouchableOpacity
-				onPress={openLanguageModal}
-				style={{
+                        <TouchableOpacity
+                                onPress={openLanguageModal}
+                                style={{
 					...styles.picker,
 					height: isWeb ? 41 : 'auto',
 					backgroundColor: theme.login.pickerBg,
@@ -120,44 +98,12 @@ const LoginHeader = () => {
 						color: theme.screen.text,
 					}}
 				>
-					{languages.find(lang => lang.value === selectedLanguage)?.label || 'selected language'}
-				</Text>
-				<Entypo name="chevron-small-down" size={25} color={theme.screen.icon} />
-			</TouchableOpacity>
-
-			<ModalComponent isVisible={isLanguageModalVisible} onClose={closeLanguageModal} title={translate(TranslationKeys.language)} onSave={saveLanguage} showButtons={false}>
-				<View style={styles.languageContainer}>
-					{languages.map((language, index) => (
-						<TouchableOpacity
-							key={index}
-							style={{
-								...styles.languageRow,
-								paddingHorizontal: isWeb ? 20 : 10,
-
-								backgroundColor: selectedLanguage === language.value ? primaryColor : theme.screen.iconBg,
-							}}
-							onPress={() => {
-								changeLanguage(language);
-							}}
-						>
-							<MyImage source={language.flag} style={styles.flagIcon} />
-							<Text
-								style={{
-									...styles.languageText,
-									color: selectedLanguage === language.value ? theme.activeText : theme.screen.text,
-								}}
-							>
-								{language.label}
-							</Text>
-
-							{/* Radio Button */}
-							<MaterialCommunityIcons name={selectedLanguage === language.value ? 'checkbox-marked' : 'checkbox-blank'} size={24} color="#ffffff" style={styles.radioButton} />
-						</TouchableOpacity>
-					))}
-				</View>
-			</ModalComponent>
-		</View>
-	);
+                                        {languages.find(lang => lang.value === selectedLanguage)?.label || 'selected language'}
+                                </Text>
+                                <Entypo name="chevron-small-down" size={25} color={theme.screen.icon} />
+                        </TouchableOpacity>
+                </View>
+        );
 };
 
 export default LoginHeader;

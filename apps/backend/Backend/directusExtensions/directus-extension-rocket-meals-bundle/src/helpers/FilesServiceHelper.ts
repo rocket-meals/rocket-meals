@@ -8,6 +8,7 @@ import { AssetsService } from './MyServiceClassHelpers';
 import { CreateShareLinkOptionForDirectusFiles, ShareDirectusFileMethod, ShareServiceHelper } from './ShareServiceHelper';
 import { Buffer } from 'node:buffer';
 import { MyDatabaseHelperInterface } from './MyDatabaseHelperInterface';
+import {AccountHelper} from "./AccountHelper";
 
 export enum MyFileTypes {
   PDF = 'application/pdf',
@@ -20,12 +21,16 @@ export enum MyFileTypes {
 }
 
 export class FilesServiceHelper extends ItemsServiceHelper<DatabaseTypes.DirectusFiles> implements FilesService, ShareDirectusFileMethod {
-  constructor(myDatabaseHelper: MyDatabaseHelperInterface) {
+
+  private useAdminAccountability: boolean = false;
+
+  constructor(myDatabaseHelper: MyDatabaseHelperInterface, useAdminAccountability: boolean = false) {
     super(myDatabaseHelper, CollectionNames.DIRECTUS_FILES);
+    this.useAdminAccountability = useAdminAccountability;
   }
 
   protected override async getItemsService() {
-    const filesServiceCreator = new FileServiceCreator(this.apiContext, this.eventContext);
+    const filesServiceCreator = new FileServiceCreator(this.apiContext, this.eventContext, this.useAdminAccountability);
     let filesService = await filesServiceCreator.getFileService();
     return filesService;
   }

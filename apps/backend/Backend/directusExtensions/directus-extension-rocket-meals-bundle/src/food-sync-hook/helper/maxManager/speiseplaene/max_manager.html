@@ -1,0 +1,1336 @@
+<html lang="de"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://sw-muenster-spl24.maxmanager.xyz/bootstrap-5.3.3-dist/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="https://sw-muenster-spl24.maxmanager.xyz/fontawesome-free-6.6.0-web/css/all.min.css" rel="stylesheet" media="screen">
+    <link href="https://sw-muenster-spl24.maxmanager.xyz/css/project.css?v=4" rel="stylesheet" media="screen">
+    <script src="https://sw-muenster-spl24.maxmanager.xyz/js/jquery-3.7.1.min.js"></script>
+    <script src="https://sw-muenster-spl24.maxmanager.xyz/js/js.cookie-3.js"></script>
+    <script src="https://sw-muenster-spl24.maxmanager.xyz/js/project.js?v=3"></script>
+
+</head>
+
+<body>
+
+<!-- VERBESSERUNG: Skip-Links für bessere Navigation -->
+<a href="#hauptinhalt" class="skip-link">Zum Hauptinhalt springen</a>
+<a href="#filter" class="skip-link">Zum Filter springen</a>
+<a href="#legende" class="skip-link">Zur Legende springen</a>
+
+<!-- VERBESSERUNG: Hauptüberschrift hinzufügen -->
+<header class="sr-only">
+    <h1>Speiseplan Mensa am Ring</h1>
+</header>
+
+<main id="hauptinhalt">
+
+    <input id="hiddenDomain" type="hidden" value="sw-muenster-spl24.maxmanager.xyz">
+    <input id="hiddenLocId" type="hidden" value="2">
+    <input id="hiddenDate" type="hidden" value="2025-11-25">
+    <input id="hiddenLang" type="hidden" value="de">
+    <input id="hidden_date_start" type="hidden" value="2025-11-24">
+    <input id="startThisWeek" type="hidden" value="2025-11-24">
+    <input id="startNextWeek" type="hidden" value="2025-12-01">
+
+    <div class="container-fluid">
+
+        <!-- E I N R I C H T U N G E N -->
+        <div class="row">
+
+            <div class="col-12 col-md-6 align-left" style="height:auto">
+                <div class="mb-3 cv form-inline">
+                    <label for="listbox-locations" style="font-size:16px">
+                        <strong>Ort</strong>&nbsp;
+                    </label>
+                    <select id="listbox-locations" tabindex="1" style="color: rgb(0, 0, 0); padding: 10px 15px;" aria-label="Mensa-Standort auswählen">
+                        <option value="2">Mensa Aasee</option><option value="1">Mensa am Ring</option><option value="3">Mensa Steinfurt</option><option value="4">Mensa Bispinghof</option><option value="5">Mensa da Vinci</option><option value="6">Bistro Kabu</option><option value="7">Bistro Oeconomicum</option><option value="9">Bistro katho</option><option value="11">Bistro Durchblick</option><option value="12">Bistro Denkpause</option><option value="16">Hier&amp;Jetzt</option><option value="17">Viva Campus-Café</option><option value="15">Foodtruck</option>				</select>
+                </div>
+            </div>
+
+            <div id="toggleFilterPanel" class="col-12 col-md-6 text-end align-left" style="height:auto">
+                <div class="cv">
+                    <button class="ptr btn-filter text-right" style="color:#000000;padding:10px 15px" tabindex="2" aria-expanded="false" aria-controls="filter" aria-label="Filter für Allergene und Zusatzstoffe öffnen">
+                        <i class="fa-solid fa-filter" aria-hidden="true"></i>&nbsp;&nbsp;Filter Allergene | Zusatzstoffe				</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row" style="padding: 0; margin: 0">
+            <div class="col-xs-12" style="height:16px;">
+                <img src="assets/icons/AjaxLoader.gif" id="loader" class="hide" style="width:16px;height:16px;" alt="Wird geladen" aria-hidden="true">
+            </div>
+        </div>
+
+        <section id="filter" class="kennzfilter padd-top-5 hide" aria-label="Filter für Allergene und Zusatzstoffe">
+            <div class="well">
+                <div class="row">
+                    <div class="col-6 pt-3">
+                        <strong>Exklusionsfilter:</strong><br>Essen mit ausgewählten Eigenschaften werden blasser dargestellt.				</div>
+                    <div class="col-6 pt-3 text-end">
+                        <button id="clearAll" class="ptr btn btn-link" tabindex="3" aria-label="Alle Filter zurücksetzen">
+                            <i class="glyphicon glyphicon-remove" aria-hidden="true"></i> FILTER ZURÜCKSETZEN					</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-12 col-sm-4">
+                    <table class="table table-condensed">
+                        <thead>
+                        <tr>
+                            <td colspan="2" class="clrGrey">ALLERGENE</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-A" class="itemkennz" onclick="filterArtikel()" tabindex="6">
+                            </td>
+                            <td class="td2" id="kname-A">enthält glutenhaltiges Getreide</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-ADI" class="itemkennz" onclick="filterArtikel()" tabindex="7">
+                            </td>
+                            <td class="td2" id="kname-ADI">enthält Dinkel</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-AGI" class="itemkennz" onclick="filterArtikel()" tabindex="8">
+                            </td>
+                            <td class="td2" id="kname-AGI">enthält Gerste</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-AHA" class="itemkennz" onclick="filterArtikel()" tabindex="9">
+                            </td>
+                            <td class="td2" id="kname-AHA">enthält Hafer</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-AKA" class="itemkennz" onclick="filterArtikel()" tabindex="10">
+                            </td>
+                            <td class="td2" id="kname-AKA">enthält Kamut</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-ARO" class="itemkennz" onclick="filterArtikel()" tabindex="11">
+                            </td>
+                            <td class="td2" id="kname-ARO">enthält Roggen</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-AWE" class="itemkennz" onclick="filterArtikel()" tabindex="12">
+                            </td>
+                            <td class="td2" id="kname-AWE">enthält Weizen</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-B" class="itemkennz" onclick="filterArtikel()" tabindex="13">
+                            </td>
+                            <td class="td2" id="kname-B">enthält Krebstiere</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-C" class="itemkennz" onclick="filterArtikel()" tabindex="14">
+                            </td>
+                            <td class="td2" id="kname-C">enthält Ei</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-D" class="itemkennz" onclick="filterArtikel()" tabindex="15">
+                            </td>
+                            <td class="td2" id="kname-D">enthält Fisch</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-E" class="itemkennz" onclick="filterArtikel()" tabindex="16">
+                            </td>
+                            <td class="td2" id="kname-E">enthält Erdnuss</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-F" class="itemkennz" onclick="filterArtikel()" tabindex="17">
+                            </td>
+                            <td class="td2" id="kname-F">enthält Soja</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-G" class="itemkennz" onclick="filterArtikel()" tabindex="18">
+                            </td>
+                            <td class="td2" id="kname-G">enthält Milch</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-H" class="itemkennz" onclick="filterArtikel()" tabindex="19">
+                            </td>
+                            <td class="td2" id="kname-H">enthält Schalenfrüchte</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-HMA" class="itemkennz" onclick="filterArtikel()" tabindex="20">
+                            </td>
+                            <td class="td2" id="kname-HMA">enthält Mandeln</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-HHA" class="itemkennz" onclick="filterArtikel()" tabindex="21">
+                            </td>
+                            <td class="td2" id="kname-HHA">enthält Haselnüsse</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-HWA" class="itemkennz" onclick="filterArtikel()" tabindex="22">
+                            </td>
+                            <td class="td2" id="kname-HWA">enthält Walnüsse</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-HCA" class="itemkennz" onclick="filterArtikel()" tabindex="23">
+                            </td>
+                            <td class="td2" id="kname-HCA">enthält Cashewkerne/Kaschunüsse</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-HPE" class="itemkennz" onclick="filterArtikel()" tabindex="24">
+                            </td>
+                            <td class="td2" id="kname-HPE">enthält Pecannüsse</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-HPA" class="itemkennz" onclick="filterArtikel()" tabindex="25">
+                            </td>
+                            <td class="td2" id="kname-HPA">enthält Paranüsse</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-HPI" class="itemkennz" onclick="filterArtikel()" tabindex="26">
+                            </td>
+                            <td class="td2" id="kname-HPI">enthält Pistazien</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-HQU" class="itemkennz" onclick="filterArtikel()" tabindex="27">
+                            </td>
+                            <td class="td2" id="kname-HQU">enthält Queenslandnüsse/Macadamianüsse</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-I" class="itemkennz" onclick="filterArtikel()" tabindex="28">
+                            </td>
+                            <td class="td2" id="kname-I">enthält Sellerie</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-J" class="itemkennz" onclick="filterArtikel()" tabindex="29">
+                            </td>
+                            <td class="td2" id="kname-J">enthält Senf</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-K" class="itemkennz" onclick="filterArtikel()" tabindex="30">
+                            </td>
+                            <td class="td2" id="kname-K">enthält Sesam</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-L" class="itemkennz" onclick="filterArtikel()" tabindex="31">
+                            </td>
+                            <td class="td2" id="kname-L">enthält Lupine</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-M" class="itemkennz" onclick="filterArtikel()" tabindex="32">
+                            </td>
+                            <td class="td2" id="kname-M">enthält Weichtiere</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-N" class="itemkennz" onclick="filterArtikel()" tabindex="33">
+                            </td>
+                            <td class="td2" id="kname-N">enthält Schwefeldioxid und Sulfite</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-12 col-sm-4">
+                    <table class="table table-condensed">
+                        <thead>
+                        <tr>
+                            <td colspan="2" class="clrGrey">FISCH UND FLEISCH</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-Sch" class="itemkennz" onclick="filterArtikel()" tabindex="34">
+                            </td>
+                            <td id="kname-Sch" class="k-item-name ptr td2">
+                                Schwein							</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-Rin" class="itemkennz" onclick="filterArtikel()" tabindex="35">
+                            </td>
+                            <td id="kname-Rin" class="k-item-name ptr td2">
+                                Rind							</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-Gfl" class="itemkennz" onclick="filterArtikel()" tabindex="36">
+                            </td>
+                            <td id="kname-Gfl" class="k-item-name ptr td2">
+                                Geflügel							</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-Fis" class="itemkennz" onclick="filterArtikel()" tabindex="37">
+                            </td>
+                            <td id="kname-Fis" class="k-item-name ptr td2">
+                                Fisch							</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-12 col-sm-4">
+                    <table class="table table-condensed">
+                        <thead>
+                        <tr>
+                            <td colspan="2" class="clrGrey">ZUSATZSTOFFE</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-1" class="itemkennz" onclick="filterArtikel()" tabindex="38">
+                            </td>
+                            <td id="kname-1" class="k-item-name td2">(1) mit Farbstoff</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-2" class="itemkennz" onclick="filterArtikel()" tabindex="39">
+                            </td>
+                            <td id="kname-2" class="k-item-name td2">(2) mit Konservierungsstoff</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-3" class="itemkennz" onclick="filterArtikel()" tabindex="40">
+                            </td>
+                            <td id="kname-3" class="k-item-name td2">(3) mit Antioxidationsmittel</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-4" class="itemkennz" onclick="filterArtikel()" tabindex="41">
+                            </td>
+                            <td id="kname-4" class="k-item-name td2">(4) mit Geschmacksverstärker</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-5" class="itemkennz" onclick="filterArtikel()" tabindex="42">
+                            </td>
+                            <td id="kname-5" class="k-item-name td2">(5) geschwefelt</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-6" class="itemkennz" onclick="filterArtikel()" tabindex="43">
+                            </td>
+                            <td id="kname-6" class="k-item-name td2">(6) geschwärzt</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-7" class="itemkennz" onclick="filterArtikel()" tabindex="44">
+                            </td>
+                            <td id="kname-7" class="k-item-name td2">(7) gewachst</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-8" class="itemkennz" onclick="filterArtikel()" tabindex="45">
+                            </td>
+                            <td id="kname-8" class="k-item-name td2">(8) mit Phosphat</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-9" class="itemkennz" onclick="filterArtikel()" tabindex="46">
+                            </td>
+                            <td id="kname-9" class="k-item-name td2">(9) mit Süßungsmittel</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-10" class="itemkennz" onclick="filterArtikel()" tabindex="47">
+                            </td>
+                            <td id="kname-10" class="k-item-name td2">(10) enthält eine Phenylalaninquelle</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-15" class="itemkennz" onclick="filterArtikel()" tabindex="48">
+                            </td>
+                            <td id="kname-15" class="k-item-name td2">(15) chininhaltig</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">
+                                <input type="checkbox" id="stoff-16" class="itemkennz" onclick="filterArtikel()" tabindex="49">
+                            </td>
+                            <td id="kname-16" class="k-item-name td2">(16) koffeinhaltig</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- P A N E L  -->
+        <div class="splReiter">
+            <div id="2025-11-24" class="panel_item marginRght">
+                <div class="panelItemInner" tabindex="50" data-before-date="Montag" data-after-date="24.11." role="button" aria-pressed="false" style=""><span>Montag 24.11.</span></div>
+            </div><div id="2025-11-25" class="panel_item marginRght active">
+            <div class="panelItemInner" tabindex="51" data-before-date="Dienstag" data-after-date="25.11." role="button" aria-pressed="true" style=""><span>Dienstag 25.11.</span></div>
+        </div><div id="2025-11-26" class="panel_item marginRght">
+            <div class="panelItemInner" tabindex="52" data-before-date="Mittwoch" data-after-date="26.11." role="button" aria-pressed="false"><span>Mittwoch 26.11.</span></div>
+        </div><div id="2025-11-27" class="panel_item marginRght">
+            <div class="panelItemInner" tabindex="53" data-before-date="Donnerstag" data-after-date="27.11." role="button" aria-pressed="false"><span>Donnerstag 27.11.</span></div>
+        </div><div id="2025-11-28" class="panel_item">
+            <div class="panelItemInner" tabindex="54" data-before-date="Freitag" data-after-date="28.11." role="button" aria-pressed="false"><span>Freitag 28.11.</span></div>
+        </div><div id="nw" class="wowe" title="Nächste Woche" style="height: 32.5px; line-height: 32.5px; vertical-align: middle;" role="button" aria-label="Nächste Woche"><i class="fa-solid fa-chevron-right" tabindex="55"></i></div>
+            <div id="dw" class="hidden wowe" title="Diese Woche" style="height: 32.5px; line-height: 32.5px; vertical-align: middle;" role="button" aria-label="Diese Woche"><i class="fa-solid fa-chevron-left" tabindex="55"></i></div>
+        </div>
+        <!-- M A I N -->
+        <div id="speiseplan"><div class="container-fluid"><section aria-labelledby="information-heading">
+            <header>
+                <div class="row gruppenkopf">
+                    <div class="col-5 gruppenname">
+                        <h2 id="information-heading" class="mb-0 gruppenname">Information</h2>
+                    </div>
+                    <div class="col-7 preise-head">Preis Studierende* / Gäste</div>
+                </div>
+            </header><article>
+            <div class="row splMeal" data-kennz="" tabindex="0" role="button" aria-label="Gericht: Der Buffetsaal ist für Euch ab 11:15 Uhr geöffnet. Wir bieten Euch ein Imbissangebot , eine Salat-Pasta-Bar in Selbstbedienung und immer ein neues Aktionsgericht!!, Preis: ">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Der Buffetsaal ist für Euch ab 11:15 Uhr geöffnet. Wir bieten Euch ein Imbissangebot , eine Salat-Pasta-Bar in Selbstbedienung und immer ein neues Aktionsgericht!!</span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Der Buffetsaal ist für Euch ab 11:15 Uhr geöffnet. Wir bieten Euch ein Imbissangebot , eine Salat-Pasta-Bar in Selbstbedienung und immer ein neues Aktionsgericht!!</span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article></section><section aria-labelledby="hauptkomponenten-heading">
+            <header>
+                <div class="row gruppenkopf">
+                    <div class="col-5 gruppenname">
+                        <h2 id="hauptkomponenten-heading" class="mb-0 gruppenname">Hauptkomponenten</h2>
+                    </div>
+                    <div class="col-7 preise-head">Preis Studierende* / Gäste</div>
+                </div>
+            </header><article>
+            <div class="row splMeal" data-kennz="9,G,J,Rin" tabindex="0" role="button" aria-label="Gericht: Rindergeschnetzeltes nach Stroganoff Art - vom westfälischen Weiderind Hof Keil&nbsp;9,G,Jmit Süßungsmittel, enthält Milch, enthält Senf, Preis:  €&nbsp;4,70&nbsp;/&nbsp;7,05" aria-describedby="meal-icons-1">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Rindergeschnetzeltes nach Stroganoff Art - vom westfälischen Weiderind Hof Keil<sup class="tooltip-trigger ptr" data-tooltip="mit Süßungsmittel, enthält Milch, enthält Senf" aria-describedby="allergen-c872bc6e741402a03d6558605fe6dd72" role="button" tabindex="0" style="font-size:[26]px">&nbsp;9,G,J</sup><span id="allergen-c872bc6e741402a03d6558605fe6dd72" class="sr-only">mit Süßungsmittel, enthält Milch, enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Rindergeschnetzeltes nach Stroganoff Art - vom westfälischen Weiderind Hof Keil<sup class="tooltip-trigger ptr" data-tooltip="mit Süßungsmittel, enthält Milch, enthält Senf" aria-describedby="allergen-c872bc6e741402a03d6558605fe6dd72" role="button" tabindex="0" style="font-size:[26]px">&nbsp;9,G,J</sup><span id="allergen-c872bc6e741402a03d6558605fe6dd72" class="sr-only">mit Süßungsmittel, enthält Milch, enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_B.png?v=1" class="iconNormal" alt="26,64 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt."><span class="tooltip">26,64 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_C.png?v=1" class="iconNormal" alt="3176 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt."><span class="tooltip">3176 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist schlechter als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/R.png?v=1" class="iconNormal" alt="Rind"><span class="tooltip">Rind</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;4,70&nbsp;/&nbsp;7,05<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_B.png?v=1" class="iconLarge" alt="26,64 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt."><span class="tooltip">26,64 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_C.png?v=1" class="iconLarge" alt="3176 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt."><span class="tooltip">3176 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist schlechter als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/R.png?v=1" class="iconLarge" alt="Rind"><span class="tooltip">Rind</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;4,70&nbsp;/&nbsp;7,05 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="AWE,F,Gfl" tabindex="0" role="button" aria-label="Gericht: Hähnchengeschnetzeltes Asia mit Gemüse und Basmatireis&nbsp;AWE,Fenthält Weizen, enthält Soja, Preis:  €&nbsp;3,90&nbsp;/&nbsp;5,85" aria-describedby="meal-icons-2">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Hähnchengeschnetzeltes Asia mit Gemüse und Basmatireis<sup class="tooltip-trigger ptr" data-tooltip="enthält Weizen, enthält Soja" aria-describedby="allergen-4cb0d9738216b1ccf2b73ecab3a6f8a3" role="button" tabindex="0" style="font-size:[26]px">&nbsp;AWE,F</sup><span id="allergen-4cb0d9738216b1ccf2b73ecab3a6f8a3" class="sr-only">enthält Weizen, enthält Soja</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Hähnchengeschnetzeltes Asia mit Gemüse und Basmatireis<sup class="tooltip-trigger ptr" data-tooltip="enthält Weizen, enthält Soja" aria-describedby="allergen-4cb0d9738216b1ccf2b73ecab3a6f8a3" role="button" tabindex="0" style="font-size:[26]px">&nbsp;AWE,F</sup><span id="allergen-4cb0d9738216b1ccf2b73ecab3a6f8a3" class="sr-only">enthält Weizen, enthält Soja</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_B.png?v=1" class="iconNormal" alt="63,99 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt."><span class="tooltip">63,99 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_C.png?v=1" class="iconNormal" alt="1496 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt."><span class="tooltip">1496 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist schlechter als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/G.png?v=1" class="iconNormal" alt="Geflügel"><span class="tooltip">Geflügel</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;3,90&nbsp;/&nbsp;5,85<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_B.png?v=1" class="iconLarge" alt="63,99 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt."><span class="tooltip">63,99 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_C.png?v=1" class="iconLarge" alt="1496 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt."><span class="tooltip">1496 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist schlechter als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/G.png?v=1" class="iconLarge" alt="Geflügel"><span class="tooltip">Geflügel</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;3,90&nbsp;/&nbsp;5,85 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="AWE,F,J,Vgn" tabindex="0" role="button" aria-label="Gericht: Gebratene Mie-Nudeln mit Gemüse&nbsp;AWE,Fenthält Weizen, enthält Soja mit Asiasauce&nbsp;AWE,F,Jenthält Weizen, enthält Soja, enthält Senf, Preis:  €&nbsp;3,40&nbsp;/&nbsp;5,10" aria-describedby="meal-icons-3">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Gebratene Mie-Nudeln mit Gemüse<sup class="tooltip-trigger ptr" data-tooltip="enthält Weizen, enthält Soja" aria-describedby="allergen-4cb0d9738216b1ccf2b73ecab3a6f8a3" role="button" tabindex="0" style="font-size:[26]px">&nbsp;AWE,F</sup><span id="allergen-4cb0d9738216b1ccf2b73ecab3a6f8a3" class="sr-only">enthält Weizen, enthält Soja</span> mit Asiasauce<sup class="tooltip-trigger ptr" data-tooltip="enthält Weizen, enthält Soja, enthält Senf" aria-describedby="allergen-e7a3b24ccbb16b4a5aedf57d331b737d" role="button" tabindex="0" style="font-size:[26]px">&nbsp;AWE,F,J</sup><span id="allergen-e7a3b24ccbb16b4a5aedf57d331b737d" class="sr-only">enthält Weizen, enthält Soja, enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Gebratene Mie-Nudeln mit Gemüse<sup class="tooltip-trigger ptr" data-tooltip="enthält Weizen, enthält Soja" aria-describedby="allergen-4cb0d9738216b1ccf2b73ecab3a6f8a3" role="button" tabindex="0" style="font-size:[26]px">&nbsp;AWE,F</sup><span id="allergen-4cb0d9738216b1ccf2b73ecab3a6f8a3" class="sr-only">enthält Weizen, enthält Soja</span> mit Asiasauce<sup class="tooltip-trigger ptr" data-tooltip="enthält Weizen, enthält Soja, enthält Senf" aria-describedby="allergen-e7a3b24ccbb16b4a5aedf57d331b737d" role="button" tabindex="0" style="font-size:[26]px">&nbsp;AWE,F,J</sup><span id="allergen-e7a3b24ccbb16b4a5aedf57d331b737d" class="sr-only">enthält Weizen, enthält Soja, enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconNormal" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="8,88 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">8,88 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconNormal" alt="365 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">365 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconNormal" alt="vegan"><span class="tooltip">vegan</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;3,40&nbsp;/&nbsp;5,10<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconLarge" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="8,88 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">8,88 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconLarge" alt="365 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">365 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconLarge" alt="vegan"><span class="tooltip">vegan</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;3,40&nbsp;/&nbsp;5,10 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="AHA,AWE,C,G,I,N,Alk,Vgt" tabindex="0" role="button" aria-label="Gericht: Blumenkohl Schnitzel&nbsp;AHA,AWEenthält Hafer, enthält Weizen mit Sauce beárnaise&nbsp;C,G,I,Nenthält Ei, enthält Milch, enthält Sellerie, enthält Schwefeldioxid und Sulfite, Preis:  €&nbsp;2,85&nbsp;/&nbsp;4,30" aria-describedby="meal-icons-4">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Blumenkohl Schnitzel<sup class="tooltip-trigger ptr" data-tooltip="enthält Hafer, enthält Weizen" aria-describedby="allergen-c612798a4b67d6fc033ddf810c31cdde" role="button" tabindex="0" style="font-size:[26]px">&nbsp;AHA,AWE</sup><span id="allergen-c612798a4b67d6fc033ddf810c31cdde" class="sr-only">enthält Hafer, enthält Weizen</span> mit Sauce beárnaise<sup class="tooltip-trigger ptr" data-tooltip="enthält Ei, enthält Milch, enthält Sellerie, enthält Schwefeldioxid und Sulfite" aria-describedby="allergen-6f431ab8d3bf782dd9ce018e7ad7b12d" role="button" tabindex="0" style="font-size:[26]px">&nbsp;C,G,I,N</sup><span id="allergen-6f431ab8d3bf782dd9ce018e7ad7b12d" class="sr-only">enthält Ei, enthält Milch, enthält Sellerie, enthält Schwefeldioxid und Sulfite</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Blumenkohl Schnitzel<sup class="tooltip-trigger ptr" data-tooltip="enthält Hafer, enthält Weizen" aria-describedby="allergen-c612798a4b67d6fc033ddf810c31cdde" role="button" tabindex="0" style="font-size:[26]px">&nbsp;AHA,AWE</sup><span id="allergen-c612798a4b67d6fc033ddf810c31cdde" class="sr-only">enthält Hafer, enthält Weizen</span> mit Sauce beárnaise<sup class="tooltip-trigger ptr" data-tooltip="enthält Ei, enthält Milch, enthält Sellerie, enthält Schwefeldioxid und Sulfite" aria-describedby="allergen-6f431ab8d3bf782dd9ce018e7ad7b12d" role="button" tabindex="0" style="font-size:[26]px">&nbsp;C,G,I,N</sup><span id="allergen-6f431ab8d3bf782dd9ce018e7ad7b12d" class="sr-only">enthält Ei, enthält Milch, enthält Sellerie, enthält Schwefeldioxid und Sulfite</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconNormal" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="12,24 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">12,24 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconNormal" alt="480 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">480 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/V.png?v=1" class="iconNormal" alt="vegetarisch"><span class="tooltip">vegetarisch</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;2,85&nbsp;/&nbsp;4,30<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconLarge" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="12,24 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">12,24 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconLarge" alt="480 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">480 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/V.png?v=1" class="iconLarge" alt="vegetarisch"><span class="tooltip">vegetarisch</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;2,85&nbsp;/&nbsp;4,30 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="Vgn" tabindex="0" role="button" aria-label="Gericht: Kartoffeleintopf, Preis:  €&nbsp;1,65&nbsp;/&nbsp;2,50" aria-describedby="meal-icons-5">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Kartoffeleintopf</span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Kartoffeleintopf</span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconNormal" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="1,19 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,19 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconNormal" alt="100 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">100 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconNormal" alt="vegan"><span class="tooltip">vegan</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;1,65&nbsp;/&nbsp;2,50<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconLarge" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="1,19 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,19 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconLarge" alt="100 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">100 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconLarge" alt="vegan"><span class="tooltip">vegan</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;1,65&nbsp;/&nbsp;2,50 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="1,2,3,4,8,F,I,J,Gfl" tabindex="0" role="button" aria-label="Gericht: Bockwurst Pute&nbsp;1,2,3,4,8,F,I,Jmit Farbstoff, mit Konservierungsstoff, mit Antioxidationsmittel, mit Geschmacksverstärker, mit Phosphat, enthält Soja, enthält Sellerie, enthält Senf, Preis:  €&nbsp;1,40&nbsp;/&nbsp;2,10" aria-describedby="meal-icons-6">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Bockwurst Pute<sup class="tooltip-trigger ptr" data-tooltip="mit Farbstoff, mit Konservierungsstoff, mit Antioxidationsmittel, mit Geschmacksverstärker, mit Phosphat, enthält Soja, enthält Sellerie, enthält Senf" aria-describedby="allergen-a7298b3dd0b8bb0187d52a845d651fcc" role="button" tabindex="0" style="font-size:[26]px">&nbsp;1,2,3,4,8,F,I,J</sup><span id="allergen-a7298b3dd0b8bb0187d52a845d651fcc" class="sr-only">mit Farbstoff, mit Konservierungsstoff, mit Antioxidationsmittel, mit Geschmacksverstärker, mit Phosphat, enthält Soja, enthält Sellerie, enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Bockwurst Pute<sup class="tooltip-trigger ptr" data-tooltip="mit Farbstoff, mit Konservierungsstoff, mit Antioxidationsmittel, mit Geschmacksverstärker, mit Phosphat, enthält Soja, enthält Sellerie, enthält Senf" aria-describedby="allergen-a7298b3dd0b8bb0187d52a845d651fcc" role="button" tabindex="0" style="font-size:[26]px">&nbsp;1,2,3,4,8,F,I,J</sup><span id="allergen-a7298b3dd0b8bb0187d52a845d651fcc" class="sr-only">mit Farbstoff, mit Konservierungsstoff, mit Antioxidationsmittel, mit Geschmacksverstärker, mit Phosphat, enthält Soja, enthält Sellerie, enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_B.png?v=1" class="iconNormal" alt="13,73 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt."><span class="tooltip">13,73 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_B.png?v=1" class="iconNormal" alt="397 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt."><span class="tooltip">397 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/G.png?v=1" class="iconNormal" alt="Geflügel"><span class="tooltip">Geflügel</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;1,40&nbsp;/&nbsp;2,10<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_B.png?v=1" class="iconLarge" alt="13,73 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt."><span class="tooltip">13,73 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_B.png?v=1" class="iconLarge" alt="397 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt."><span class="tooltip">397 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/G.png?v=1" class="iconLarge" alt="Geflügel"><span class="tooltip">Geflügel</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;1,40&nbsp;/&nbsp;2,10 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="" tabindex="0" role="button" aria-label="Gericht: Salat.- und Pastabar in Selbstbedienung, Preis je 100g Wir bieten Euch eine Auswahl an vegetarischen und veganen Gerichten. Im Buffetsaal, Preis:  €&nbsp;0,75&nbsp;/&nbsp;1,13">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Salat.- und Pastabar in Selbstbedienung, Preis je 100g Wir bieten Euch eine Auswahl an vegetarischen und veganen Gerichten. Im Buffetsaal</span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Salat.- und Pastabar in Selbstbedienung, Preis je 100g Wir bieten Euch eine Auswahl an vegetarischen und veganen Gerichten. Im Buffetsaal</span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;0,75&nbsp;/&nbsp;1,13<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;0,75&nbsp;/&nbsp;1,13 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article></section><section aria-labelledby="beilagen-heading">
+            <header>
+                <div class="row gruppenkopf">
+                    <div class="col-5 gruppenname">
+                        <h2 id="beilagen-heading" class="mb-0 gruppenname">Beilagen</h2>
+                    </div>
+                    <div class="col-7 preise-head">Preis Studierende* / Gäste</div>
+                </div>
+            </header><article>
+            <div class="row splMeal" data-kennz="1,3,Vgn" tabindex="0" role="button" aria-label="Gericht: Apfelrotkohl&nbsp;1,3mit Farbstoff, mit Antioxidationsmittel, Preis:  €&nbsp;1,10&nbsp;/&nbsp;1,65" aria-describedby="meal-icons-8">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Apfelrotkohl<sup class="tooltip-trigger ptr" data-tooltip="mit Farbstoff, mit Antioxidationsmittel" aria-describedby="allergen-3c0dc6a44870ab1cf56ce738f456b964" role="button" tabindex="0" style="font-size:[26]px">&nbsp;1,3</sup><span id="allergen-3c0dc6a44870ab1cf56ce738f456b964" class="sr-only">mit Farbstoff, mit Antioxidationsmittel</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Apfelrotkohl<sup class="tooltip-trigger ptr" data-tooltip="mit Farbstoff, mit Antioxidationsmittel" aria-describedby="allergen-3c0dc6a44870ab1cf56ce738f456b964" role="button" tabindex="0" style="font-size:[26]px">&nbsp;1,3</sup><span id="allergen-3c0dc6a44870ab1cf56ce738f456b964" class="sr-only">mit Farbstoff, mit Antioxidationsmittel</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="2,59 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">2,59 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconNormal" alt="110 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">110 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconNormal" alt="vegan"><span class="tooltip">vegan</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;1,10&nbsp;/&nbsp;1,65<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="2,59 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">2,59 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconLarge" alt="110 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">110 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconLarge" alt="vegan"><span class="tooltip">vegan</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;1,10&nbsp;/&nbsp;1,65 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="F,J,Vgn" tabindex="0" role="button" aria-label="Gericht: Beilagensalat mit veganem Joghurt-Dressing&nbsp;F,Jenthält Soja, enthält Senf, Preis:  €&nbsp;1,10&nbsp;/&nbsp;1,65" aria-describedby="meal-icons-9">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Beilagensalat mit veganem Joghurt-Dressing<sup class="tooltip-trigger ptr" data-tooltip="enthält Soja, enthält Senf" aria-describedby="allergen-49685b83ea27cbddb9790c05565b02b9" role="button" tabindex="0" style="font-size:[26]px">&nbsp;F,J</sup><span id="allergen-49685b83ea27cbddb9790c05565b02b9" class="sr-only">enthält Soja, enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Beilagensalat mit veganem Joghurt-Dressing<sup class="tooltip-trigger ptr" data-tooltip="enthält Soja, enthält Senf" aria-describedby="allergen-49685b83ea27cbddb9790c05565b02b9" role="button" tabindex="0" style="font-size:[26]px">&nbsp;F,J</sup><span id="allergen-49685b83ea27cbddb9790c05565b02b9" class="sr-only">enthält Soja, enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="1,70 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,70 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconNormal" alt="143 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">143 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconNormal" alt="vegan"><span class="tooltip">vegan</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;1,10&nbsp;/&nbsp;1,65<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="1,70 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,70 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconLarge" alt="143 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">143 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconLarge" alt="vegan"><span class="tooltip">vegan</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;1,10&nbsp;/&nbsp;1,65 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="1,F,Vgn" tabindex="0" role="button" aria-label="Gericht: Kürbis-Möhrensuppe&nbsp;1,Fmit Farbstoff, enthält Soja, Preis:  €&nbsp;0,50&nbsp;/&nbsp;0,75" aria-describedby="meal-icons-10">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Kürbis-Möhrensuppe<sup class="tooltip-trigger ptr" data-tooltip="mit Farbstoff, enthält Soja" aria-describedby="allergen-a51736fb870a0ecb4ade4376bf5fd2ac" role="button" tabindex="0" style="font-size:[26]px">&nbsp;1,F</sup><span id="allergen-a51736fb870a0ecb4ade4376bf5fd2ac" class="sr-only">mit Farbstoff, enthält Soja</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Kürbis-Möhrensuppe<sup class="tooltip-trigger ptr" data-tooltip="mit Farbstoff, enthält Soja" aria-describedby="allergen-a51736fb870a0ecb4ade4376bf5fd2ac" role="button" tabindex="0" style="font-size:[26]px">&nbsp;1,F</sup><span id="allergen-a51736fb870a0ecb4ade4376bf5fd2ac" class="sr-only">mit Farbstoff, enthält Soja</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="1,16 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,16 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconNormal" alt="65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">65 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconNormal" alt="vegan"><span class="tooltip">vegan</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;0,50&nbsp;/&nbsp;0,75<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="1,16 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,16 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconLarge" alt="65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">65 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconLarge" alt="vegan"><span class="tooltip">vegan</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;0,50&nbsp;/&nbsp;0,75 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="1,AWE,C,Vgt" tabindex="0" role="button" aria-label="Gericht: Spätzle&nbsp;1,AWE,Cmit Farbstoff, enthält Weizen, enthält Ei, Preis:  €&nbsp;0,50&nbsp;/&nbsp;0,75" aria-describedby="meal-icons-11">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Spätzle<sup class="tooltip-trigger ptr" data-tooltip="mit Farbstoff, enthält Weizen, enthält Ei" aria-describedby="allergen-38b1325c5d8105cd44ed387426b909bf" role="button" tabindex="0" style="font-size:[26]px">&nbsp;1,AWE,C</sup><span id="allergen-38b1325c5d8105cd44ed387426b909bf" class="sr-only">mit Farbstoff, enthält Weizen, enthält Ei</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Spätzle<sup class="tooltip-trigger ptr" data-tooltip="mit Farbstoff, enthält Weizen, enthält Ei" aria-describedby="allergen-38b1325c5d8105cd44ed387426b909bf" role="button" tabindex="0" style="font-size:[26]px">&nbsp;1,AWE,C</sup><span id="allergen-38b1325c5d8105cd44ed387426b909bf" class="sr-only">mit Farbstoff, enthält Weizen, enthält Ei</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="1,25 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,25 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconNormal" alt="83 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">83 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/V.png?v=1" class="iconNormal" alt="vegetarisch"><span class="tooltip">vegetarisch</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;0,50&nbsp;/&nbsp;0,75<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="1,25 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,25 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconLarge" alt="83 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">83 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/V.png?v=1" class="iconLarge" alt="vegetarisch"><span class="tooltip">vegetarisch</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;0,50&nbsp;/&nbsp;0,75 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="1,Vgn" tabindex="0" role="button" aria-label="Gericht: Reis&nbsp;1mit Farbstoff, Preis:  €&nbsp;0,30&nbsp;/&nbsp;0,45" aria-describedby="meal-icons-12">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Reis<sup class="tooltip-trigger ptr" data-tooltip="mit Farbstoff" aria-describedby="allergen-5e2d4b6385009f7dc15bd2cc56e27c66" role="button" tabindex="0" style="font-size:[26]px">&nbsp;1</sup><span id="allergen-5e2d4b6385009f7dc15bd2cc56e27c66" class="sr-only">mit Farbstoff</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Reis<sup class="tooltip-trigger ptr" data-tooltip="mit Farbstoff" aria-describedby="allergen-5e2d4b6385009f7dc15bd2cc56e27c66" role="button" tabindex="0" style="font-size:[26]px">&nbsp;1</sup><span id="allergen-5e2d4b6385009f7dc15bd2cc56e27c66" class="sr-only">mit Farbstoff</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="3,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">3,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconNormal" alt="59 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">59 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconNormal" alt="vegan"><span class="tooltip">vegan</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;0,30&nbsp;/&nbsp;0,45<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="3,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">3,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconLarge" alt="59 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">59 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconLarge" alt="vegan"><span class="tooltip">vegan</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;0,30&nbsp;/&nbsp;0,45 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article></section><section aria-labelledby="dessert-heading">
+            <header>
+                <div class="row gruppenkopf">
+                    <div class="col-5 gruppenname">
+                        <h2 id="dessert-heading" class="mb-0 gruppenname">Dessert</h2>
+                    </div>
+                    <div class="col-7 preise-head">Preis Studierende* / Gäste</div>
+                </div>
+            </header><article>
+            <div class="row splMeal" data-kennz="G,Vgt" tabindex="0" role="button" aria-label="Gericht: Schokoladenpudding&nbsp;Genthält Milch, Preis:  €&nbsp;0,90&nbsp;/&nbsp;1,35" aria-describedby="meal-icons-13">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Schokoladenpudding<sup class="tooltip-trigger ptr" data-tooltip="enthält Milch" aria-describedby="allergen-8e4ded5e1b61dfc50d85fbf0a2bad298" role="button" tabindex="0" style="font-size:[26]px">&nbsp;G</sup><span id="allergen-8e4ded5e1b61dfc50d85fbf0a2bad298" class="sr-only">enthält Milch</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Schokoladenpudding<sup class="tooltip-trigger ptr" data-tooltip="enthält Milch" aria-describedby="allergen-8e4ded5e1b61dfc50d85fbf0a2bad298" role="button" tabindex="0" style="font-size:[26]px">&nbsp;G</sup><span id="allergen-8e4ded5e1b61dfc50d85fbf0a2bad298" class="sr-only">enthält Milch</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="6,01 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">6,01 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_B.png?v=1" class="iconNormal" alt="256 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt."><span class="tooltip">256 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/V.png?v=1" class="iconNormal" alt="vegetarisch"><span class="tooltip">vegetarisch</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;0,90&nbsp;/&nbsp;1,35<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="6,01 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">6,01 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_B.png?v=1" class="iconLarge" alt="256 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt."><span class="tooltip">256 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/V.png?v=1" class="iconLarge" alt="vegetarisch"><span class="tooltip">vegetarisch</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;0,90&nbsp;/&nbsp;1,35 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="G,Vgt" tabindex="0" role="button" aria-label="Gericht: Mandarinenquark&nbsp;Genthält Milch, Preis:  €&nbsp;0,70&nbsp;/&nbsp;1,05" aria-describedby="meal-icons-14">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Mandarinenquark<sup class="tooltip-trigger ptr" data-tooltip="enthält Milch" aria-describedby="allergen-8e4ded5e1b61dfc50d85fbf0a2bad298" role="button" tabindex="0" style="font-size:[26]px">&nbsp;G</sup><span id="allergen-8e4ded5e1b61dfc50d85fbf0a2bad298" class="sr-only">enthält Milch</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Mandarinenquark<sup class="tooltip-trigger ptr" data-tooltip="enthält Milch" aria-describedby="allergen-8e4ded5e1b61dfc50d85fbf0a2bad298" role="button" tabindex="0" style="font-size:[26]px">&nbsp;G</sup><span id="allergen-8e4ded5e1b61dfc50d85fbf0a2bad298" class="sr-only">enthält Milch</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_B.png?v=1" class="iconNormal" alt="13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt."><span class="tooltip">13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_C.png?v=1" class="iconNormal" alt="500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt."><span class="tooltip">500 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist schlechter als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/V.png?v=1" class="iconNormal" alt="vegetarisch"><span class="tooltip">vegetarisch</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;0,70&nbsp;/&nbsp;1,05<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_B.png?v=1" class="iconLarge" alt="13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt."><span class="tooltip">13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_C.png?v=1" class="iconLarge" alt="500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt."><span class="tooltip">500 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist schlechter als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/V.png?v=1" class="iconLarge" alt="vegetarisch"><span class="tooltip">vegetarisch</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;0,70&nbsp;/&nbsp;1,05 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article></section><section aria-labelledby="hauptkomponenten-heading">
+            <header>
+                <div class="row gruppenkopf">
+                    <div class="col-5 gruppenname">
+                        <h2 id="hauptkomponenten-heading" class="mb-0 gruppenname">Hauptkomponenten</h2>
+                    </div>
+                    <div class="col-7 preise-head">Preis Studierende* / Gäste</div>
+                </div>
+            </header><article>
+            <div class="row splMeal" data-kennz="Vgn" tabindex="0" role="button" aria-label="Gericht: Pommes frites klein, Preis:  €&nbsp;0,70&nbsp;/&nbsp;1,05" aria-describedby="meal-icons-15">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Pommes frites klein</span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Pommes frites klein</span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconNormal" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconNormal" alt="252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">252 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconNormal" alt="vegan"><span class="tooltip">vegan</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;0,70&nbsp;/&nbsp;1,05<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconLarge" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconLarge" alt="252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">252 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconLarge" alt="vegan"><span class="tooltip">vegan</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;0,70&nbsp;/&nbsp;1,05 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="4,Sch" tabindex="0" role="button" aria-label="Gericht: Bratwurst aus der Region vom Ameker Strohschwein Hof May&nbsp;4mit Geschmacksverstärker, Preis:  €&nbsp;2,05&nbsp;/&nbsp;3,10" aria-describedby="meal-icons-16">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Bratwurst aus der Region vom Ameker Strohschwein Hof May<sup class="tooltip-trigger ptr" data-tooltip="mit Geschmacksverstärker" aria-describedby="allergen-9a2f2593054a5c20f0b4ea5a76265793" role="button" tabindex="0" style="font-size:[26]px">&nbsp;4</sup><span id="allergen-9a2f2593054a5c20f0b4ea5a76265793" class="sr-only">mit Geschmacksverstärker</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Bratwurst aus der Region vom Ameker Strohschwein Hof May<sup class="tooltip-trigger ptr" data-tooltip="mit Geschmacksverstärker" aria-describedby="allergen-9a2f2593054a5c20f0b4ea5a76265793" role="button" tabindex="0" style="font-size:[26]px">&nbsp;4</sup><span id="allergen-9a2f2593054a5c20f0b4ea5a76265793" class="sr-only">mit Geschmacksverstärker</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_B.png?v=1" class="iconNormal" alt="14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt."><span class="tooltip">14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_B.png?v=1" class="iconNormal" alt="443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt."><span class="tooltip">443 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/S.png?v=1" class="iconNormal" alt="Schwein"><span class="tooltip">Schwein</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;2,05&nbsp;/&nbsp;3,10<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_B.png?v=1" class="iconLarge" alt="14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt."><span class="tooltip">14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_B.png?v=1" class="iconLarge" alt="443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt."><span class="tooltip">443 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/S.png?v=1" class="iconLarge" alt="Schwein"><span class="tooltip">Schwein</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;2,05&nbsp;/&nbsp;3,10 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="4,J,Sch" tabindex="0" role="button" aria-label="Gericht: Currywurst scharf aus der Region vom Strohschwein Hof May&nbsp;4,Jmit Geschmacksverstärker, enthält Senf, Preis:  €&nbsp;2,60&nbsp;/&nbsp;3,90" aria-describedby="meal-icons-17">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Currywurst scharf aus der Region vom Strohschwein Hof May<sup class="tooltip-trigger ptr" data-tooltip="mit Geschmacksverstärker, enthält Senf" aria-describedby="allergen-546ac9f3bc8b53d8b5271759a52ee654" role="button" tabindex="0" style="font-size:[26]px">&nbsp;4,J</sup><span id="allergen-546ac9f3bc8b53d8b5271759a52ee654" class="sr-only">mit Geschmacksverstärker, enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Currywurst scharf aus der Region vom Strohschwein Hof May<sup class="tooltip-trigger ptr" data-tooltip="mit Geschmacksverstärker, enthält Senf" aria-describedby="allergen-546ac9f3bc8b53d8b5271759a52ee654" role="button" tabindex="0" style="font-size:[26]px">&nbsp;4,J</sup><span id="allergen-546ac9f3bc8b53d8b5271759a52ee654" class="sr-only">mit Geschmacksverstärker, enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_B.png?v=1" class="iconNormal" alt="515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt."><span class="tooltip">515 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/S.png?v=1" class="iconNormal" alt="Schwein"><span class="tooltip">Schwein</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;2,60&nbsp;/&nbsp;3,90<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_B.png?v=1" class="iconLarge" alt="515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt."><span class="tooltip">515 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/S.png?v=1" class="iconLarge" alt="Schwein"><span class="tooltip">Schwein</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;2,60&nbsp;/&nbsp;3,90 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="Vgn" tabindex="0" role="button" aria-label="Gericht: Vegane Bratwurst, Preis:  €&nbsp;2,30&nbsp;/&nbsp;3,45" aria-describedby="meal-icons-18">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Vegane Bratwurst</span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Vegane Bratwurst</span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconNormal" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconNormal" alt="109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">109 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconNormal" alt="vegan"><span class="tooltip">vegan</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;2,30&nbsp;/&nbsp;3,45<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconLarge" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconLarge" alt="109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">109 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconLarge" alt="vegan"><span class="tooltip">vegan</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;2,30&nbsp;/&nbsp;3,45 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article><article>
+            <div class="row splMeal" data-kennz="J,Vgn" tabindex="0" role="button" aria-label="Gericht: Vegane Currywurst&nbsp;Jenthält Senf, Preis:  €&nbsp;2,85&nbsp;/&nbsp;4,30" aria-describedby="meal-icons-19">
+
+                <div class="col-12 d-block d-md-none">
+                    <span style="font-size:15px">Vegane Currywurst<sup class="tooltip-trigger ptr" data-tooltip="enthält Senf" aria-describedby="allergen-73b88ce16dd9ad7e30bb7fcf40ef517a" role="button" tabindex="0" style="font-size:[26]px">&nbsp;J</sup><span id="allergen-73b88ce16dd9ad7e30bb7fcf40ef517a" class="sr-only">enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-6 d-none d-md-block">
+                    <span style="font-size: 15px">Vegane Currywurst<sup class="tooltip-trigger ptr" data-tooltip="enthält Senf" aria-describedby="allergen-73b88ce16dd9ad7e30bb7fcf40ef517a" role="button" tabindex="0" style="font-size:[26]px">&nbsp;J</sup><span id="allergen-73b88ce16dd9ad7e30bb7fcf40ef517a" class="sr-only">enthält Senf</span></span>
+                </div>
+
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    <div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconNormal" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconNormal" alt="4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconNormal" alt="180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">180 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconNormal" alt="vegan"><span class="tooltip">vegan</span></div>
+                </div>
+                <div class="col-md-3 d-none d-md-block" style="text-align:right">
+                    €&nbsp;2,85&nbsp;/&nbsp;4,30<br>
+                </div>
+
+                <div class="col-6 d-block d-md-none" style="height:30px;padding:0 0 10px 0">
+                    <div style="padding:0 0 20px 10px"><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" class="iconLarge" alt="Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht."><span class="tooltip">Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" class="iconLarge" alt="4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt."><span class="tooltip">4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" class="iconLarge" alt="180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt."><span class="tooltip">180 g CO2 / Portion | Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</span></div><div class="tooltip-container"><img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" class="iconLarge" alt="vegan"><span class="tooltip">vegan</span></div></div>
+                </div>
+                <div class="col-6 d-block d-md-none" style="height:30px;text-align: right">
+                    <div style="font-size:15px;padding:20px 0"> €&nbsp;2,85&nbsp;/&nbsp;4,30 </div>
+                </div>
+
+                <div class="col-12 d-block d-md-none">
+                    <div style="height:16px">&nbsp;</div>
+                </div>
+            </div>
+        </article></section></div>
+            <div class="container-fluid mt-3">
+                <div class="row padd-15 pdf-download d-none d-sm-flex rounded-3">
+                    <div class="col-sm-6">
+                        Speiseplan dieser Woche <a href="https://sw-muenster-spl24.maxmanager.xyz/assets/pdf/wochenplaene/mensa-am-ring/aktuelle_woche.pdf?t=1764074675" class="downloadpdf" download="aktuelle_woche" tabindex="0" role="button" aria-label="Speiseplan dieser Woche als PDF herunterladen">PDF-Download</a>
+                    </div>
+                    <div class="col-sm-6 text-end">
+                        Speiseplan kommender Woche <a href="https://sw-muenster-spl24.maxmanager.xyz/assets/pdf/wochenplaene/mensa-am-ring/naechste_woche.pdf?t=1764074675" class="downloadpdf" download="naechste_woche" tabindex="0" role="button" aria-label="Speiseplan kommender Woche als PDF herunterladen">PDF-Download</a>
+                    </div>
+                </div>
+                <div class="row padd-15 pdf-download d-sm-none rounded-3">
+                    <div class="col-12">
+                        Speiseplan dieser Woche <a href="https://sw-muenster-spl24.maxmanager.xyz/assets/pdf/wochenplaene/mensa-am-ring/aktuelle_woche.pdf?t=1764074675" class="downloadpdf" download="aktuelle_woche" tabindex="0" role="button" aria-label="Speiseplan dieser Woche als PDF herunterladen">PDF-Download</a>
+                    </div>
+                    <div class="col-12">
+                        Speiseplan kommender Woche <a href="https://sw-muenster-spl24.maxmanager.xyz/assets/pdf/wochenplaene/mensa-am-ring/naechste_woche.pdf?t=1764074675" class="downloadpdf" download="naechste_woche" tabindex="0" role="button" aria-label="Speiseplan kommender Woche als PDF herunterladen">PDF-Download</a>
+                    </div>
+                </div>
+            </div></div>
+
+        <!-- L E G E N D E -->
+        <section id="legende">
+            <div id="toggleLegende" class="container-fluid rounded-3 mt-3 mb-3 preiserlaeuterung ptr" tabindex="0" role="button" aria-expanded="false" aria-controls="legende-content" aria-label="Legende für Piktogramme, Allergene und Zusatzstoffe öffnen">
+                <div class="row padd-15">
+                    <div class="col-12">
+                        <i class="fas fa-chevron-down"></i> &nbsp;Legende				</div>
+                </div>
+            </div>
+
+            <div id="legende-content" class="container-fluid legende hidden mt-3">
+                <div class="row">
+                    <div class="col-12 col-sm-4">
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th colspan="2">PIKTOGRAMME</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/A.png?v=1" style="height:20px" alt="Piktogramm Alkohol" title="Piktogramm Alkohol">
+                                </td>
+                                <td>Alkohol</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/VGN.png?v=1" style="height:20px" alt="Piktogramm vegan" title="Piktogramm vegan">
+                                </td>
+                                <td>vegan</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/V.png?v=1" style="height:20px" alt="Piktogramm vegetarisch" title="Piktogramm vegetarisch">
+                                </td>
+                                <td>vegetarisch</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/S.png?v=1" style="height:20px" alt="Piktogramm Schwein" title="Piktogramm Schwein">
+                                </td>
+                                <td>Schwein</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/R.png?v=1" style="height:20px" alt="Piktogramm Rind" title="Piktogramm Rind">
+                                </td>
+                                <td>Rind</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/G.png?v=1" style="height:20px" alt="Piktogramm Geflügel" title="Piktogramm Geflügel">
+                                </td>
+                                <td>Geflügel</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/F.png?v=1" style="height:20px" alt="Piktogramm Fisch" title="Piktogramm Fisch">
+                                </td>
+                                <td>Fisch</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/KT.png?v=1" style="height:20px" alt="Piktogramm Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht." title="Piktogramm Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht.">
+                                </td>
+                                <td>Dieses Gericht verursacht mind. 50% weniger CO<sub>2</sub> Emissionen als ein vergleichbares Gericht.</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_A.png?v=1" style="height:20px" alt="Piktogramm Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt." title="Piktogramm Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt.">
+                                </td>
+                                <td>Der CO<sub>2</sub>-Verbrauch ist mind. 50% besser als der Durchschnitt.</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_B.png?v=1" style="height:20px" alt="Piktogramm Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt." title="Piktogramm Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt.">
+                                </td>
+                                <td>Der CO<sub>2</sub>-Verbrauch ist besser als der Durchschnitt.</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/CO2_bewertung_C.png?v=1" style="height:20px" alt="Piktogramm Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt." title="Piktogramm Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt.">
+                                </td>
+                                <td>Der CO<sub>2</sub>-Verbrauch ist schlechter als der Durchschnitt.</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_A.png?v=1" style="height:20px" alt="Piktogramm Der Wasserverbrauch liegt unter dem Durchschnitt." title="Piktogramm Der Wasserverbrauch liegt unter dem Durchschnitt.">
+                                </td>
+                                <td>Der Wasserverbrauch liegt unter dem Durchschnitt.</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_B.png?v=1" style="height:20px" alt="Piktogramm Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt." title="Piktogramm Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.">
+                                </td>
+                                <td>Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt.</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">
+                                    <img src="https://sw-muenster-spl24.maxmanager.xyz/assets/icons/H2O_bewertung_C.png?v=1" style="height:20px" alt="Piktogramm Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt." title="Piktogramm Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt.">
+                                </td>
+                                <td>Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th colspan="2">ALLERGENE</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(A)</td>
+                                <td>enthält glutenhaltiges Getreide</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(ADI)</td>
+                                <td>enthält Dinkel</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(AGI)</td>
+                                <td>enthält Gerste</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(AHA)</td>
+                                <td>enthält Hafer</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(AKA)</td>
+                                <td>enthält Kamut</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(ARO)</td>
+                                <td>enthält Roggen</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(AWE)</td>
+                                <td>enthält Weizen</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(B)</td>
+                                <td>enthält Krebstiere</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(C)</td>
+                                <td>enthält Ei</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(D)</td>
+                                <td>enthält Fisch</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(E)</td>
+                                <td>enthält Erdnuss</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(F)</td>
+                                <td>enthält Soja</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(G)</td>
+                                <td>enthält Milch</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(H)</td>
+                                <td>enthält Schalenfrüchte</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(HMA)</td>
+                                <td>enthält Mandeln</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(HHA)</td>
+                                <td>enthält Haselnüsse</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(HWA)</td>
+                                <td>enthält Walnüsse</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(HCA)</td>
+                                <td>enthält Cashewkerne/Kaschunüsse</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(HPE)</td>
+                                <td>enthält Pecannüsse</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(HPA)</td>
+                                <td>enthält Paranüsse</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(HPI)</td>
+                                <td>enthält Pistazien</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(HQU)</td>
+                                <td>enthält Queenslandnüsse/Macadamianüsse</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(I)</td>
+                                <td>enthält Sellerie</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(J)</td>
+                                <td>enthält Senf</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(K)</td>
+                                <td>enthält Sesam</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(L)</td>
+                                <td>enthält Lupine</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(M)</td>
+                                <td>enthält Weichtiere</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(N)</td>
+                                <td>enthält Schwefeldioxid und Sulfite</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <table class="table table-sm">
+                            <thead>
+                            <tr>
+                                <th colspan="2">ZUSATZSTOFFE</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(1)</td>
+                                <td>mit Farbstoff</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(2)</td>
+                                <td>mit Konservierungsstoff</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(3)</td>
+                                <td>mit Antioxidationsmittel</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(4)</td>
+                                <td>mit Geschmacksverstärker</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(5)</td>
+                                <td>geschwefelt</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(6)</td>
+                                <td>geschwärzt</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(7)</td>
+                                <td>gewachst</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(8)</td>
+                                <td>mit Phosphat</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(9)</td>
+                                <td>mit Süßungsmittel</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(10)</td>
+                                <td>enthält eine Phenylalaninquelle</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(15)</td>
+                                <td>chininhaltig</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" style="width: 50px;">(16)</td>
+                                <td>koffeinhaltig</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<div class="hidden-lg hidden-md hidden-sm hidden-xs"></div><div id="meal-icons-2" class="sr-only">Eigenschaften: 52,54 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 1765 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Rind, 52,54 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 1765 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Rind</div><div id="meal-icons-3" class="sr-only">Eigenschaften: 16,80 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 777 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch, 16,80 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 777 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-4" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,56 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 244 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,56 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 244 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-5" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 49,32 l Wasserverbrauch / Portion | Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt., 289 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 49,32 l Wasserverbrauch / Portion | Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt., 289 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-6" class="sr-only">Eigenschaften: 15,34 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 452 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 15,34 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 452 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-7" class="sr-only">Eigenschaften: 3,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 277 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegan, 3,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 277 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegan</div><div id="meal-icons-9" class="sr-only">Eigenschaften: 6,10 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 320 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch, 6,10 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 320 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-10" class="sr-only">Eigenschaften: 6,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 128 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 6,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 128 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-11" class="sr-only">Eigenschaften: 19,85 l Wasserverbrauch / Portion | Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt., 53 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 19,85 l Wasserverbrauch / Portion | Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt., 53 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-12" class="sr-only">Eigenschaften: 3,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 277 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegan, 3,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 277 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegan</div><div id="meal-icons-13" class="sr-only">Eigenschaften: 1,21 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 106 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,21 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 106 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-14" class="sr-only">Eigenschaften: 0,55 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 63 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 0,55 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 63 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-15" class="sr-only">Eigenschaften: 1,47 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 48 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,47 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 48 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-16" class="sr-only">Eigenschaften: 12,07 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 488 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch, 12,07 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 488 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch</div><div id="meal-icons-17" class="sr-only">Eigenschaften: 6,67 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 256 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch, 6,67 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 256 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch</div><div id="meal-icons-18" class="sr-only">Eigenschaften: 1,21 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 98 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,21 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 98 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-19" class="sr-only">Eigenschaften: 5,77 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 267 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch, 5,77 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 267 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-20" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-21" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-22" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-23" class="sr-only">Eigenschaften: 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-24" class="sr-only">Eigenschaften: 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-1" class="sr-only">Eigenschaften: 26,64 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 3176 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Rind, 26,64 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 3176 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Rind</div><div id="meal-icons-2" class="sr-only">Eigenschaften: 63,99 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 1496 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Geflügel, 63,99 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 1496 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Geflügel</div><div id="meal-icons-3" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 8,88 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 365 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 8,88 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 365 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-4" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 12,24 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 480 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 12,24 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 480 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-5" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,19 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 100 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,19 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 100 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-6" class="sr-only">Eigenschaften: 13,73 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 397 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Geflügel, 13,73 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 397 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Geflügel</div><div id="meal-icons-8" class="sr-only">Eigenschaften: 2,59 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 110 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 2,59 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 110 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-9" class="sr-only">Eigenschaften: 1,70 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 143 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,70 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 143 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-10" class="sr-only">Eigenschaften: 1,16 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,16 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-11" class="sr-only">Eigenschaften: 1,25 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 83 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, 1,25 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 83 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-12" class="sr-only">Eigenschaften: 3,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 59 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 3,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 59 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-13" class="sr-only">Eigenschaften: 6,01 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 256 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch, 6,01 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 256 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-14" class="sr-only">Eigenschaften: 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch, 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch</div><div id="meal-icons-15" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-16" class="sr-only">Eigenschaften: 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-17" class="sr-only">Eigenschaften: 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-18" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-19" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-1" class="sr-only">Eigenschaften: 22,08 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 717 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 22,08 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 717 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-2" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 11,46 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 548 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 11,46 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 548 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-3" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 3,89 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 228 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 3,89 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 228 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-4" class="sr-only">Eigenschaften: 15,34 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 452 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 15,34 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 452 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-5" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 48,23 l Wasserverbrauch / Portion | Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt., 204 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 48,23 l Wasserverbrauch / Portion | Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt., 204 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-7" class="sr-only">Eigenschaften: 1,28 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 102 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,28 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 102 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-8" class="sr-only">Eigenschaften: 1,12 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 94 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,12 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 94 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-9" class="sr-only">Eigenschaften: 1,71 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 134 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegan, 1,71 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 134 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegan</div><div id="meal-icons-10" class="sr-only">Eigenschaften: 2,45 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, 2,45 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-11" class="sr-only">Eigenschaften: 1,21 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 106 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,21 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 106 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-12" class="sr-only">Eigenschaften: 8,74 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 406 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch, 8,74 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 406 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch</div><div id="meal-icons-13" class="sr-only">Eigenschaften: 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch, 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch</div><div id="meal-icons-14" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-15" class="sr-only">Eigenschaften: 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-16" class="sr-only">Eigenschaften: 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-17" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-18" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-1" class="sr-only">Eigenschaften: 22,08 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 717 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 22,08 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 717 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-2" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 11,46 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 548 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 11,46 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 548 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-3" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 3,89 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 228 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 3,89 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 228 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-4" class="sr-only">Eigenschaften: 15,34 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 452 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 15,34 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 452 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-5" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 48,23 l Wasserverbrauch / Portion | Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt., 204 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 48,23 l Wasserverbrauch / Portion | Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt., 204 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-7" class="sr-only">Eigenschaften: 1,28 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 102 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,28 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 102 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-8" class="sr-only">Eigenschaften: 1,12 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 94 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,12 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 94 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-9" class="sr-only">Eigenschaften: 1,71 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 134 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegan, 1,71 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 134 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegan</div><div id="meal-icons-10" class="sr-only">Eigenschaften: 2,45 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, 2,45 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-11" class="sr-only">Eigenschaften: 1,21 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 106 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,21 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 106 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-12" class="sr-only">Eigenschaften: 8,74 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 406 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch, 8,74 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 406 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch</div><div id="meal-icons-13" class="sr-only">Eigenschaften: 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch, 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch</div><div id="meal-icons-14" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-15" class="sr-only">Eigenschaften: 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-16" class="sr-only">Eigenschaften: 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-17" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-18" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-1" class="sr-only">Eigenschaften: 26,64 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 3176 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Rind, 26,64 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 3176 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Rind</div><div id="meal-icons-2" class="sr-only">Eigenschaften: 63,99 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 1496 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Geflügel, 63,99 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 1496 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Geflügel</div><div id="meal-icons-3" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 8,88 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 365 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 8,88 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 365 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-4" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 12,24 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 480 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 12,24 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 480 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-5" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,19 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 100 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,19 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 100 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-6" class="sr-only">Eigenschaften: 13,73 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 397 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Geflügel, 13,73 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 397 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Geflügel</div><div id="meal-icons-8" class="sr-only">Eigenschaften: 2,59 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 110 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 2,59 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 110 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-9" class="sr-only">Eigenschaften: 1,70 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 143 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,70 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 143 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-10" class="sr-only">Eigenschaften: 1,16 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,16 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-11" class="sr-only">Eigenschaften: 1,25 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 83 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, 1,25 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 83 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-12" class="sr-only">Eigenschaften: 3,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 59 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 3,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 59 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-13" class="sr-only">Eigenschaften: 6,01 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 256 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch, 6,01 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 256 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-14" class="sr-only">Eigenschaften: 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch, 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch</div><div id="meal-icons-15" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-16" class="sr-only">Eigenschaften: 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-17" class="sr-only">Eigenschaften: 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-18" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-19" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-1" class="sr-only">Eigenschaften: 22,08 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 717 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 22,08 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 717 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-2" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 11,46 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 548 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 11,46 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 548 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-3" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 3,89 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 228 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 3,89 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 228 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-4" class="sr-only">Eigenschaften: 15,34 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 452 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 15,34 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 452 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-5" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 48,23 l Wasserverbrauch / Portion | Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt., 204 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 48,23 l Wasserverbrauch / Portion | Der Wasserverbrauch ist mehr als doppelt so hoch wie der Durchschnitt., 204 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-7" class="sr-only">Eigenschaften: 1,28 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 102 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,28 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 102 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-8" class="sr-only">Eigenschaften: 1,12 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 94 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,12 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 94 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-9" class="sr-only">Eigenschaften: 1,71 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 134 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegan, 1,71 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 134 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegan</div><div id="meal-icons-10" class="sr-only">Eigenschaften: 2,45 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, 2,45 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-11" class="sr-only">Eigenschaften: 1,21 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 106 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,21 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 106 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-12" class="sr-only">Eigenschaften: 8,74 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 406 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch, 8,74 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 406 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch</div><div id="meal-icons-13" class="sr-only">Eigenschaften: 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch, 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch</div><div id="meal-icons-14" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-15" class="sr-only">Eigenschaften: 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-16" class="sr-only">Eigenschaften: 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-17" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-18" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-1" class="sr-only">Eigenschaften: 26,64 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 3176 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Rind, 26,64 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 3176 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Rind</div><div id="meal-icons-2" class="sr-only">Eigenschaften: 63,99 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 1496 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Geflügel, 63,99 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 1496 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., Geflügel</div><div id="meal-icons-3" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 8,88 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 365 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 8,88 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 365 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-4" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 12,24 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 480 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 12,24 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 480 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-5" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,19 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 100 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,19 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 100 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-6" class="sr-only">Eigenschaften: 13,73 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 397 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Geflügel, 13,73 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 397 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Geflügel</div><div id="meal-icons-8" class="sr-only">Eigenschaften: 2,59 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 110 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 2,59 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 110 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-9" class="sr-only">Eigenschaften: 1,70 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 143 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,70 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 143 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-10" class="sr-only">Eigenschaften: 1,16 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 1,16 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 65 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-11" class="sr-only">Eigenschaften: 1,25 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 83 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch, 1,25 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 83 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-12" class="sr-only">Eigenschaften: 3,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 59 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, 3,30 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 59 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-13" class="sr-only">Eigenschaften: 6,01 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 256 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch, 6,01 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 256 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., vegetarisch</div><div id="meal-icons-14" class="sr-only">Eigenschaften: 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch, 13,87 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 500 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist schlechter als der Durchschnitt., vegetarisch</div><div id="meal-icons-15" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,99 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 252 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-16" class="sr-only">Eigenschaften: 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 14,70 l Wasserverbrauch / Portion | Der Wasserverbrauch ist doppelt so hoch wie der Durchschnitt., 443 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-17" class="sr-only">Eigenschaften: 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein, 17,29 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 515 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist besser als der Durchschnitt., Schwein</div><div id="meal-icons-18" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 1,66 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 109 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div><div id="meal-icons-19" class="sr-only">Eigenschaften: Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan, Dieses Gericht verursacht mind. 50% weniger CO&lt;sub&gt;2&lt;/sub&gt; Emissionen als ein vergleichbares Gericht., 4,41 l Wasserverbrauch / Portion | Der Wasserverbrauch liegt unter dem Durchschnitt., 180 g CO2 / Portion | Der CO&lt;sub&gt;2&lt;/sub&gt;-Verbrauch ist mind. 50% besser als der Durchschnitt., vegan</div></body></html>

@@ -676,14 +676,21 @@ export class DateHelper {
     return new Date(year, month - 1, day);
   }
 
+  static MOMENT_FORMAT = {
+    DATE_ONLY: 'DD.MM.YYYY',
+    DATE_AND_HH_MM: 'DD.MM.YYYY HH:mm',
+    DATE_HH_MM: 'HH:mm',
+    DATE_TIMESTAMP: 'YYYY-MM-DDTHH:mm:ssZ',
+  }
+
   static formatDDMMYYYYToDateWithTimeZone(value_raw: string, timezone: DateHelperTimezone) {
     let date_with_timezone = moment.tz(value_raw, 'DD.MM.YYYY', timezone);
     return date_with_timezone.toDate();
   }
 
-  static formatDateToTimeZoneReadable(date: Date, timezone: DateHelperTimezone): string {
+  static formatDateToTimeZoneReadable(date: Date, timezone: DateHelperTimezone, momentFormat?: string): string {
     const dateWithTimezone = moment.tz(date, timezone);
-    return dateWithTimezone.format('DD.MM.YYYY HH:mm:ss');
+    return dateWithTimezone.format(momentFormat || 'DD.MM.YYYY HH:mm:ss');
   }
 
   static getDate(mySimpleDate: MySimpleDate): Date {

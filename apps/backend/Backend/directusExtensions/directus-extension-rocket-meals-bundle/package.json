@@ -70,6 +70,16 @@
       },
       {
         "type": "hook",
+        "name": "collectible-events-hook",
+        "source": "src/collectible-events-hook/index.ts"
+      },
+      {
+        "type": "hook",
+        "name": "collectible-events-repeat-hook",
+        "source": "src/collectible-events-repeat-hook/index.ts"
+      },
+      {
+        "type": "hook",
         "name": "directus-file-owner-update-on-user-delete-hook",
         "source": "src/directus-file-owner-update-on-user-delete-hook/index.ts"
       },

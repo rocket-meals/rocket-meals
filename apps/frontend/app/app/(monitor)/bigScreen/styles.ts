@@ -8,6 +8,21 @@ export default StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
+	imageWrapper: {
+		position: 'relative',
+	},
+	image: {
+		width: '100%',
+		height: '100%',
+	},
+	cardMarkingsContainer: {
+		position: 'absolute',
+		left: 16,
+		top: 16,
+		flexDirection: 'row',
+		gap: 8,
+		flexWrap: 'wrap',
+	},
 	text: {
 		fontSize: 18,
 		textAlign: 'center',

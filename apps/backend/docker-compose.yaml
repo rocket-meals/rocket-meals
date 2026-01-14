@@ -192,6 +192,10 @@ services:
     build:
       context: ./../../ # Build from project root for monorepo access
       dockerfile: apps/backend-sync/Dockerfile
+    develop:
+      watch:
+        - path: ./../../data/directus-sync-data
+          action: rebuild
     environment:
       # Directus Admin user
       ADMIN_EMAIL: "${ADMIN_EMAIL}"

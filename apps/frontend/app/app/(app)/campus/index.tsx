@@ -10,7 +10,7 @@ import {
 	StyleSheet,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
-import { CampusSortOption, DatabaseTypes } from 'repo-depkit-common';
+import { CampusSortOption, CollectibleAt, CollectionNames, DatabaseTypes } from 'repo-depkit-common';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
@@ -24,21 +24,20 @@ import { CampusHelper } from '@/redux/actions/Campus/Campus';
 import { SET_CAMPUSES, SET_CAMPUSES_DICT, SET_CAMPUSES_LOCAL, SET_UNSORTED_CAMPUSES } from '@/redux/Types/types';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
 import { calculateDistanceInMeter } from '@/helper/distanceHelper';
-import BaseBottomSheet from '@/components/BaseBottomSheet';
-import type BottomSheet from '@gorhom/bottom-sheet';
 import DistanceModal from '@/components/DistanceModal';
 import * as Location from 'expo-location';
-import BuildingSortSheet from '@/components/BuildingSortSheet/BuildingSortSheet';
 import useToast from '@/hooks/useToast';
 import { useLanguage } from '@/hooks/useLanguage';
-import ImageManagementSheet from '@/components/ImageManagementSheet/ImageManagementSheet';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
+import useCampusSortingModal from '@/hooks/useCampusSortingModal';
+import useMyScrollviewDirectusImageEditModal from '@/hooks/useMyScrollviewDirectusImageEditModal';
 
 import IconButton from '@/components/UI/IconButton';
 import Button from '@/components/UI/Button';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 
 const ITEM_HEIGHT = 140;
 
@@ -58,24 +57,20 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 	const [campusesDispatched, setCampusesDispatched] = useState(false);
 	const [selectedBuilding, setSelectedBuilding] = useState<DatabaseTypes.Buildings | null>(null);
 	const [distanceAdded, setDistanceAdded] = useState(false);
-	const [selectedApartmentId, setSelectedApartementId] = useState<string>('');
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const [listWidth, setListWidth] = useState<number | null>(null);
 
 	const { drawerPosition, campusesSortBy, amountColumnsForcard, primaryColor, serverInfo, appSettings, selectedTheme } =
 		useSelector((state: RootState) => state.settings);
 	const { campuses, campusesLocal, unSortedCampuses } = useSelector((state: RootState) => state.campus);
+	const { isManagement } = useSelector((state: RootState) => state.authReducer);
 	const selectedCanteen = useSelectedCanteen();
 	const drawerNavigation = useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
 
-	const sortSheetRef = useRef<BottomSheet>(null);
-	const imageManagementSheetRef = useRef<BottomSheet>(null);
 	const [distanceModalVisible, setDistanceModalVisible] = useState(false);
+	const { openCampusSortingModal } = useCampusSortingModal();
+	const { openDirectusImageEditModal } = useMyScrollviewDirectusImageEditModal();
 
-	const openSortSheet = useCallback(() => sortSheetRef.current?.expand(), []);
-	const closeSortSheet = useCallback(() => sortSheetRef.current?.close(), []);
-	const openImageManagementSheet = useCallback(() => imageManagementSheetRef.current?.expand(), []);
-	const closeImageManagementSheet = useCallback(() => imageManagementSheetRef.current?.close(), []);
 	const openDistanceSheet = useCallback(() => setDistanceModalVisible(true), []);
 	const closeDistanceSheet = useCallback(() => setDistanceModalVisible(false), []);
 
@@ -274,7 +269,24 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 		appSettings,
 		selectedTheme,
 		screenWidth,
-	}), [amountColumnsForcard, primaryColor, serverInfo, appSettings, selectedTheme, screenWidth]);
+		isManagement,
+	}), [amountColumnsForcard, primaryColor, serverInfo, appSettings, selectedTheme, screenWidth, isManagement]);
+
+	const openImageManagementModal = useCallback(
+		(campus: DatabaseTypes.Buildings) => {
+			if (!campus?.id) return;
+			openDirectusImageEditModal({
+				itemId: campus.id,
+				field: 'image',
+				collection: CollectionNames.BUILDINGS,
+				onUpdated: () => {
+					setCampusesDispatched(false);
+					fetchAllCampuses();
+				},
+			});
+		},
+		[fetchAllCampuses, openDirectusImageEditModal]
+	);
 
 	const renderItem = useCallback(
 		({ item }: { item: DatabaseTypes.Buildings }) => {
@@ -289,8 +301,7 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 				>
 					<BuildingItem
 						campus={item}
-						setSelectedApartementId={setSelectedApartementId}
-						openImageManagementSheet={openImageManagementSheet}
+						onEditImage={openImageManagementModal}
 						openDistanceSheet={openDistanceSheet}
 						settings={settingsForItem}
 					/>
@@ -298,9 +309,8 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 			);
 		},
 		[
-			openImageManagementSheet,
+			openImageManagementModal,
 			openDistanceSheet,
-			setSelectedApartementId,
 			settingsForItem,
 			itemGap,
 		]
@@ -312,6 +322,9 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 		const widthStyle = { width: screenWidth > 768 ? '60%' : '100%' };
 		return (
 			<View style={{ width: '100%', paddingHorizontal: 5, marginBottom: 10, alignItems: 'center' }}>
+
+				<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_campus} />
+
 				<View style={[styles.searchContainer, widthStyle]}>
 					<TextInput
 						style={[styles.searchInput, { color: theme.screen.text }]}
@@ -370,7 +383,7 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 							<Tooltip
 								placement="top"
 								trigger={triggerProps => (
-									<IconButton {...triggerProps} onPress={openSortSheet} style={{ padding: 10 }}>
+									<IconButton {...triggerProps} onPress={openCampusSortingModal} style={{ padding: 10 }}>
 										<MaterialIcons name="sort" size={24} color={theme.header.text} />
 									</IconButton>
 								)}
@@ -405,44 +418,18 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 							renderItem={renderItem}
 							keyExtractor={keyExtractor}
 							numColumns={numColumns}
-							contentContainerStyle={{
-								marginTop: 20,
-							}}
-							ListHeaderComponent={ListHeaderComponent}
-							ListEmptyComponent={ListEmptyComponent}
-							refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                                                        contentContainerStyle={{
+                                                                marginTop: 20,
+                                                        }}
+                                                        ListHeaderComponent={ListHeaderComponent}
+                                                        ListEmptyComponent={ListEmptyComponent}
+                                                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
 							removeClippedSubviews={false}
 							showsVerticalScrollIndicator={false}
 							onEndReachedThreshold={0.4}
 						/>
 					</View>
 				</View>
-
-
-				<BaseBottomSheet ref={sortSheetRef} index={-1} backgroundStyle={{ ...styles.sheetBackground }} enablePanDownToClose handleComponent={null} onClose={closeSortSheet}>
-					<BuildingSortSheet closeSheet={closeSortSheet} freeRooms={false} />
-				</BaseBottomSheet>
-
-				<BaseBottomSheet
-					ref={imageManagementSheetRef}
-					index={-1}
-					backgroundStyle={{ ...styles.sheetBackground }}
-					handleComponent={null}
-					enablePanDownToClose
-					enableHandlePanningGesture={false}
-					enableContentPanningGesture={false}
-					onClose={closeImageManagementSheet}
-				>
-					<ImageManagementSheet
-						closeSheet={closeImageManagementSheet}
-						selectedFoodId={selectedApartmentId}
-						handleFetch={() => {
-							setCampusesDispatched(false);
-							fetchAllCampuses();
-						}}
-						fileName="buildings"
-					/>
-				</BaseBottomSheet>
 
 				<DistanceModal visible={distanceModalVisible} onClose={closeDistanceSheet} onUseCurrentPosition={useCurrentLocationForDistance} />
 			</View>

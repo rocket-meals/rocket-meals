@@ -1,14 +1,10 @@
-import {ActivityIndicator, Text, TouchableOpacity, View} from 'react-native';
-import {AntDesign} from '@expo/vector-icons';
+import {ActivityIndicator, Text, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useTheme} from '@/hooks/useTheme';
-import {BottomSheetScrollView, BottomSheetView} from '@gorhom/bottom-sheet';
 import styles from './styles';
-import {isWeb} from '@/constants/Constants';
 import {ForecastSheetProps} from './types';
 import {format, parseISO} from 'date-fns';
 import {UtilizationEntryHelper} from '@/redux/actions/UtilizationEntries/UtilizationEntries';
-import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import {useLanguage} from '@/hooks/useLanguage';
 import {TranslationKeys} from '@/locales/keys';
 import {DatabaseTypes} from 'repo-depkit-common';
@@ -24,12 +20,11 @@ type ForecastEntry = {
 
 const showDebugInformation = false;
 
-const ForecastSheet: React.FC<ForecastSheetProps> = ({ closeSheet, forDate }) => {
+const ForecastSheet: React.FC<ForecastSheetProps> = ({ forDate, canteen }) => {
         const { theme } = useTheme();
         const { translate } = useLanguage();
         const utilizationEntryHelper = new UtilizationEntryHelper();
         const [loading, setLoading] = useState(false);
-        const selectedCanteen = useSelectedCanteen();
         const [forecastEntries, setForecastEntries] = useState<ForecastEntry[]>([]);
         const [currentUtilizationGroup, setCurrentUtilizationGroup] = useState<DatabaseTypes.UtilizationsGroups | null>(null);
 
@@ -102,7 +97,7 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ closeSheet, forDate }) =>
                 try {
                         setLoading(true);
 
-                        const utlizationGroupId = selectedCanteen?.utilization_group as string | undefined;
+                        const utlizationGroupId = canteen?.utilization_group as string | undefined;
 
                         if (!utlizationGroupId) {
                                 setForecastEntries([]);
@@ -132,64 +127,28 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ closeSheet, forDate }) =>
         };
 
         useEffect(() => {
-                if (selectedCanteen) {
+                if (canteen) {
                         getUtilization(forDate);
+                } else {
+                        setForecastEntries([]);
+                        setCurrentUtilizationGroup(null);
+                        setLoading(false);
                 }
-        }, [selectedCanteen, forDate]);
+        }, [canteen, forDate]);
 
-        const title = translate(TranslationKeys.forecast);
         let debugInformationInTitle = '';
         if(showDebugInformation) {
             debugInformationInTitle = `all_time_high ${currentUtilizationGroup?.all_time_high ?? 'N/A'}, threshold_until_max ${currentUtilizationGroup?.threshold_until_max ?? 'N/A'}`;
         }
 
         return (
-                <BottomSheetView style={{ ...styles.container, backgroundColor: theme.sheet.sheetBg }}>
-			<View
-				style={{
-					...styles.header,
-					paddingRight: isWeb ? 10 : 0,
-					paddingTop: isWeb ? 10 : 0,
-				}}
-			>
-				<View style={styles.placeholder} />
-				<View style={[styles.handle, { backgroundColor: theme.sheet.closeBg }]} />
-				<TouchableOpacity style={[styles.closeButton, { backgroundColor: theme.sheet.closeBg }]} onPress={closeSheet}>
-					<AntDesign name="close" size={24} color={theme.sheet.closeIcon} />
-				</TouchableOpacity>
-			</View>
-			<View style={styles.titleContainer}>
-                <View>
-                    <Text
-                        style={{
-                            ...styles.sheetHeading,
-                            fontSize: isWeb ? 40 : 28,
-                            color: theme.sheet.text,
-                        }}
-                    >
-                        {title}
-                    </Text>
-                </View>
-                {showDebugInformation && (
-                    <View>
-                        <Text
-                            style={{
-                                color: theme.sheet.text,
-                            }}
-                        >
-                            {debugInformationInTitle}
-                        </Text>
-                    </View>
-                )}
-			</View>
-                        <BottomSheetScrollView
-                                style={styles.forecastContainer}
-                                contentContainerStyle={{
-                                        paddingHorizontal: 10,
-                                        paddingBottom: 40,
-                                        paddingTop: 20,
-                                }}
-                        >
+                <View style={styles.container}>
+                        {showDebugInformation && (
+                                <Text style={[styles.debugInformation, { color: theme.sheet.text }]}>
+                                        {debugInformationInTitle}
+                                </Text>
+                        )}
+                        <View style={styles.forecastContainer}>
                                 {loading ? (
                                         <View style={styles.loadingContainer}>
                                                 <ActivityIndicator size={40} color={theme.screen.icon} />
@@ -230,8 +189,8 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ closeSheet, forDate }) =>
                                                 {translate(TranslationKeys.no_data_found)}
                                         </Text>
                                 )}
-                        </BottomSheetScrollView>
-                </BottomSheetView>
+                        </View>
+                </View>
         );
 };
 

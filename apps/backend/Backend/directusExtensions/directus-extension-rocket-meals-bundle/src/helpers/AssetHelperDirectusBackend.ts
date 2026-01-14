@@ -5,30 +5,24 @@
 // inside: Fit the image within the specified dimensions, maintaining aspect ratio, crop if necessary
 // outside: Fill the specified dimensions, maintaining aspect ratio, do not crop
 import { DatabaseTypes } from 'repo-depkit-common';
-
-export interface ImageTransform {
-  fit?: string;
-  width?: number;
-  height?: number;
-  quality?: number;
-}
+import { DirectusFileTransformOptions } from './DirectusFilesAssetHelper';
 
 export class AssetHelperTransformOptions {
-  static DEFAULT_IMAGE_TRANSFORM: ImageTransform = {
+  static DEFAULT_IMAGE_TRANSFORM: DirectusFileTransformOptions = {
     fit: 'cover',
     width: 512,
     height: 512,
     quality: 100,
   };
 
-  static SMALL_IMAGE_TRANSFORM: ImageTransform = {
+  static SMALL_IMAGE_TRANSFORM: DirectusFileTransformOptions = {
     fit: 'cover',
     width: 128,
     height: 128,
     quality: 90,
   };
 
-  static ORIGINAL_IMAGE_TRANSFORM: ImageTransform = {
+  static ORIGINAL_IMAGE_TRANSFORM: DirectusFileTransformOptions = {
     fit: undefined,
     width: undefined,
     height: undefined,
@@ -43,7 +37,10 @@ export class BackendHelperDirectus {
 }
 
 export class AssetHelperDirectusBackend {
-  static getAssetImageURL(imageID: string | null | undefined | DatabaseTypes.DirectusFiles, imageTransform: ImageTransform = AssetHelperTransformOptions.DEFAULT_IMAGE_TRANSFORM): string | null {
+  static getAssetImageURL(
+    imageID: string | null | undefined | DatabaseTypes.DirectusFiles,
+    imageTransform: DirectusFileTransformOptions = AssetHelperTransformOptions.DEFAULT_IMAGE_TRANSFORM,
+  ): string | null {
     let usedImageId;
 
     // maybe imageID is a http:// or https:// url that we can use directly

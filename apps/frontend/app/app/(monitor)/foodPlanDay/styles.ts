@@ -9,37 +9,13 @@ export default StyleSheet.create({
 		paddingTop: 30,
 		alignItems: 'center',
 	},
-	list: {
+	settingContainer: {
 		width: '100%',
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		borderRadius: 12,
-		padding: 10,
-		marginBottom: 20,
+		gap: 0,
 	},
-	col1: {
-		maxWidth: '60%',
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 10,
-	},
-	col2: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 10,
-	},
-	label: {
-		fontSize: 16,
-		fontFamily: 'Poppins_400Regular',
-	},
-	button: {
+	settingsListGroup: {
 		width: '100%',
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-		borderRadius: 12,
-		padding: 10,
+		gap: 0,
 		marginTop: 20,
 	},
 	sheetBackground: {

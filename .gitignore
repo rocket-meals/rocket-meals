@@ -1,6 +1,8 @@
 **/*.DS_Store
 .idea/**
 
+android
+.expo
 apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/coverage/
 apps/backend/Backend/directusExtensions/.registry/
 
@@ -11,6 +13,7 @@ secrets/**
 apps/backend/database_backups/
 .expo
 android
+
 !data/.keep
 !data/database/.keep
 data/database/
@@ -21,6 +24,7 @@ data/database_file_uploads/
 
 # Ignore all ios generated files
 apps/frontend/app/ios
+apps/frontend/app/eas.json
 
 # Ignore all android generated files
 apps/frontend/app/android

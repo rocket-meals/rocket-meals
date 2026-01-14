@@ -1,8 +1,13 @@
-import { CheerioAPI, load } from 'cheerio';
-import { FoodofferDateType, FoodoffersTypeForParser, FoodofferTypeWithBasicData, FoodParseFoodAttributeValueType } from '../FoodParserInterface';
-import { MarkingsTypeForParser } from '../MarkingParserInterface';
-import { LanguageCodes } from '../../helpers/TranslationHelper';
-import { MarkingTranslationFields } from '../MarkingTranslationFields';
+import {CheerioAPI, load} from 'cheerio';
+import {
+  FoodofferDateType,
+  FoodoffersTypeForParser,
+  FoodofferTypeWithBasicData,
+  FoodParseFoodAttributeValueType
+} from '../FoodParserInterface';
+import {MarkingsTypeForParser} from '../MarkingParserInterface';
+import {LanguageCodes} from 'repo-depkit-common';
+import {MarkingTranslationFields} from '../MarkingTranslationFields';
 
 export class FoodWebParserAachenParseHtml {
   public static getMarkingsJSONListFromWebHtml(rawReport: string | Buffer | undefined): MarkingsTypeForParser[] {

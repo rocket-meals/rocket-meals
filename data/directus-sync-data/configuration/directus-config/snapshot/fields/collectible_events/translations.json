@@ -8,7 +8,7 @@
     "display": null,
     "display_options": null,
     "field": "translations",
-    "group": null,
+    "group": "collectible_settings",
     "hidden": false,
     "interface": "translations",
     "note": null,
@@ -18,7 +18,7 @@
     },
     "readonly": false,
     "required": false,
-    "sort": 11,
+    "sort": 2,
     "special": [
       "translations"
     ],

@@ -9,12 +9,13 @@ import { isWeb } from '@/constants/Constants';
 import { SET_BUILDINGS, SET_CANTEENS, SET_SELECTED_CANTEEN } from '@/redux/Types/types';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { useLanguage } from '@/hooks/useLanguage';
-import { DatabaseTypes } from 'repo-depkit-common';
+import { CollectibleAt, DatabaseTypes } from 'repo-depkit-common';
 import { CanteenHelper } from '@/redux/actions';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 import CanteenSelection from '../CanteenSelection/CanteenSelection';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 
 const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({ closeSheet }) => {
 	const { theme } = useTheme();
@@ -117,18 +118,19 @@ const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({ closeShee
 					paddingTop: isWeb ? 10 : 0,
 				}}
 			></View>
-			<Text
-				style={{
-					...styles.sheetHeading,
-					fontSize: isWeb ? 40 : 32,
-					color: theme.sheet.text,
-				}}
-			>
-				{translate(TranslationKeys.canteen)}
-			</Text>
-			<CanteenSelection onSelectCanteen={handleSelectCanteen} />
-		</BottomSheetScrollView>
-	);
+                        <Text
+                                style={{
+                                        ...styles.sheetHeading,
+                                        fontSize: isWeb ? 40 : 32,
+                                        color: theme.sheet.text,
+                                }}
+                        >
+                                {translate(TranslationKeys.canteen)}
+                        </Text>
+                        <CanteenSelection onSelectCanteen={handleSelectCanteen} />
+                        <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_canteen_selection} />
+                </BottomSheetScrollView>
+        );
 };
 
 export default CanteenSelectionSheet;

@@ -1,18 +1,12 @@
 // import child_process for execSync
 import {execSync} from 'child_process';
-
-interface AppleJWTParams {
-  teamId: string;
-  clientId: string;
-  keyId: string;
-  keyFileContent: string;
-}
+import {AppleClientSecretCredentials} from './types';
 
 /**
  * Generate Apple SSO JWT token
  */
-export function generateAppleJWTShell(params: AppleJWTParams) {
-  const { teamId, clientId, keyId, keyFileContent } = params;
+export function generateAppleJWTShell(params: AppleClientSecretCredentials) {
+  const { teamId, clientId, keyId, privateKey } = params;
 
   // Validate required parameters
   const missingParams: string[] = [];
@@ -20,7 +14,7 @@ export function generateAppleJWTShell(params: AppleJWTParams) {
   if (!teamId) missingParams.push('teamId');
   if (!clientId) missingParams.push('clientId');
   if (!keyId) missingParams.push('keyId');
-  if (!keyFileContent) {
+  if (!privateKey) {
     missingParams.push('keyFileContent or keyFilePath');
   }
 
@@ -52,7 +46,7 @@ export function generateAppleJWTShell(params: AppleJWTParams) {
   execSync(`chmod +x ${target}`);
 
   // Execute the shell script with parameters
-  let command = `${target} --team_id "${teamId}" --client_id "${clientId}" --key_id "${keyId}" --key_file_content '${keyFileContent}'`;
+  let command = `${target} --team_id "${teamId}" --client_id "${clientId}" --key_id "${keyId}" --key_file_content '${privateKey}'`;
 
   let token: string;
   try {

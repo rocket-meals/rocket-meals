@@ -13,3 +13,8 @@ export * from './src/FormCommonHelper';
 export * from './src/ChatConversationState';
 export * from './src/CronHelper';
 export * from './src/EmailHelper';
+export * from './src/EventHelper';
+export * from './src/form/FormHelperCommon';
+export * from './src/RatingHelper';
+export * from './src/LanguageCodes';
+export * from './src/CollectibleEvents';

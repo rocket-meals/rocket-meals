@@ -128,22 +128,33 @@ const MISSING_TRANSLATION = 'Missing translation';
 export function getDirectusTranslation(params: any, translations: TranslationEntry[], field: string, ignoreFallbackLanguage?: boolean, fallback_text?: string | null): string {
 	const languageCode = params?.languageCode || FALLBACK_LANGUAGE_CODE_ENGLISH;
 
-	const translationDict = translations.reduce(
-		(acc, translation) => {
-			acc[translation.languages_code] = translation;
-			return acc;
-		},
-		{} as { [key: string]: TranslationEntry }
-	);
+        const translationDict = translations.reduce(
+                (acc, translation) => {
+                        acc[translation.languages_code] = translation;
+
+                        const [baseLanguageCode] = translation.languages_code?.split?.('-') || [];
+                        if (baseLanguageCode && !acc[baseLanguageCode]) {
+                                acc[baseLanguageCode] = translation;
+                        }
+
+                        return acc;
+                },
+                {} as { [key: string]: TranslationEntry }
+        );
 
 	const getTranslation = (dict: { [key: string]: TranslationEntry }, langCode: string, params?: any) => {
-		const translationEntry = dict[langCode];
+		const languageKey = langCode?.split('-')[0];
+		const translationEntry = dict[langCode] || dict[languageKey];
 		if (!translationEntry) return null;
 
 		let translation = translationEntry[field];
 		if (params) {
 			Object.keys(params).forEach(key => {
-				translation = StringHelper.replaceAll(translation, `%${key}`, params[key]);
+				translation = StringHelper.replaceAllWithOptions({
+					str: translation,
+					find: `%${key}`,
+					replace: params[key],
+				});
 			});
 		}
 		return translation;
@@ -194,16 +205,34 @@ export function getFoodName(food: string | DatabaseTypes.Foods | null | undefine
 }
 
 export const getNewsTranslationByLanguageCode = (translations: NewsTranslations[], languageCode: string): any => {
-	if (!translations || translations.length === 0) return '';
+        if (!translations || translations.length === 0) return '';
 
 	const translation = translations?.find(item => item.languages_code?.toString().split('-')[0] === languageCode);
 
-	if (translation) {
-		return {
-			title: translation.title,
-			content: translation.content,
-		};
-	}
+        if (translation) {
+                return {
+                        title: translation.title,
+                        content: translation.content,
+                };
+        }
+};
+
+export const getCollectibleEventTranslation = (
+        translations: DatabaseTypes.CollectibleEventsTranslations[] = [],
+        languageCode: string,
+        fallbackTitle?: string | null,
+        fallbackDescription?: string | null
+) => {
+        const title = getDirectusTranslation({ languageCode }, translations as any, 'title', false, fallbackTitle || '');
+        const description = getDirectusTranslation(
+                { languageCode },
+                translations as any,
+                'description',
+                false,
+                fallbackDescription || ''
+        );
+
+        return { title, description };
 };
 
 export const getBuildingTranslationByLanguageCode = (translations: BuildingsTranslations[], languageCode: string) => {

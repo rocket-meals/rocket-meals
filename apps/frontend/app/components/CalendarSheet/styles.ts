@@ -32,11 +32,10 @@ export default StyleSheet.create({
 		justifyContent: 'center',
 		borderRadius: 12,
 	},
-	calendar: {
-		width: '100%',
-		height: '100%',
-		borderRadius: 12,
-	},
+        calendar: {
+                width: '100%',
+                borderRadius: 12,
+        },
 	customHeader: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
@@ -55,5 +54,22 @@ export default StyleSheet.create({
 		width: '100%',
 		fontSize: 18,
 		fontWeight: 'bold',
+	},
+	manualInputWrapper: {
+		width: '100%',
+		marginTop: 12,
+		marginBottom: 12,
+	},
+	manualInput: {
+		width: '100%',
+		borderRadius: 10,
+		borderWidth: 1,
+		paddingHorizontal: 12,
+		paddingVertical: 10,
+		fontSize: 16,
+	},
+	manualErrorText: {
+		marginTop: 6,
+		fontSize: 12,
 	},
 });

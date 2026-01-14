@@ -1,10 +1,16 @@
-export interface SettingsListProps {
-	leftIcon: React.ReactNode;
-	/**
-	 * Title text for the row. "label" is kept for backwards
-	 * compatibility with the old `SettingList` component.
-	 */
-	title?: string;
+import {PropsWithChildren} from "react";
+
+type SettingsListPropsOwn = {
+        leftIcon?: React.ReactNode;
+        /**
+         * Custom component rendered in place of the default left icon wrapper.
+         */
+        leftIconComponent?: React.ReactNode;
+        /**
+         * Title text for the row. "label" is kept for backwards
+         * compatibility with the old `SettingList` component.
+         */
+        title?: string;
 	label?: string;
 	value?: string;
 	/**
@@ -24,8 +30,13 @@ export interface SettingsListProps {
 	 * kept for backwards compatibility with the old `SettingList`
 	 * component.
 	 */
-	iconBackgroundColor?: string;
-	iconBgColor?: string;
+        iconBackgroundColor?: string;
+        iconBgColor?: string;
+        /**
+         * Disable indentation that is normally reserved for the icon column.
+         * Useful when no icon should be displayed.
+         */
+        noIconIndent?: boolean;
 	/**
 	 * Optional separator below the item.
 	 */
@@ -38,3 +49,5 @@ export interface SettingsListProps {
 	 */
 	groupPosition?: 'top' | 'middle' | 'bottom' | 'single';
 }
+
+export type SettingsListProps = PropsWithChildren<SettingsListPropsOwn>;

@@ -1,3 +1,5 @@
+import {CollectibleEventParticipants} from "./types";
+
 /**
  * Helper for Account things
  */
@@ -12,6 +14,8 @@ export enum CollectionNames {
   CASHREGISTERS = 'cashregisters',
   CASHREGISTERS_TRANSACTIONS = 'cashregisters_transactions',
   COLLECTIONS_DATES_LAST_UPDATE = 'collections_dates_last_update',
+  COLLECTIBLE_EVENTS = "collectible_events",
+  COLLECTIBLE_EVENT_PARTICIPANTS = "collectible_event_participants",
   BUILDINGS = 'buildings',
   FOODS = 'foods',
   FOODS_FEEDBACKS = 'foods_feedbacks',

@@ -1,69 +1,52 @@
-//import flagUs from '@/assets/images/flags/us.svg';
-//import flagTr from '@/assets/images/flags/tr.svg';
-//import flagEs from '@/assets/images/flags/es.svg';
-//import flagFr from '@/assets/images/flags/fr.svg';
-//import flagDe from '@/assets/images/flags/de.svg';
-//import flagCn from '@/assets/images/flags/cn.svg';
-//import flagSa from '@/assets/images/flags/sa.svg';
-//import flagRu from '@/assets/images/flags/ru.svg';
-const flagUs = require('@/assets/images/flags/us.png');
-const flagTr = require('@/assets/images/flags/tr.png');
-const flagEs = require('@/assets/images/flags/es.png');
-const flagFr = require('@/assets/images/flags/fr.png');
-const flagDe = require('@/assets/images/flags/de.png');
-const flagCn = require('@/assets/images/flags/cn.png');
-const flagSa = require('@/assets/images/flags/sa.png');
-const flagRu = require('@/assets/images/flags/ru.png');
-
 // Themes
 export const themes = [
-	{ id: 'light', name: 'color_scheme_light', icon: 'white-balance-sunny' },
+        { id: 'light', name: 'color_scheme_light', icon: 'white-balance-sunny' },
 	{ id: 'dark', name: 'color_scheme_dark', icon: 'moon-waning-crescent' },
 	{ id: 'systematic', name: 'color_scheme_system', icon: 'theme-light-dark' },
 ];
 
 // Languages
 export const languages = [
-	{
-		label: 'English',
-		flag: flagUs,
-		value: 'en',
-	},
-	{
-		label: 'Turkish (Türkçe)',
-		flag: flagTr,
-		value: 'tr',
-	},
-	{
-		label: 'Spanish (Español)',
-		flag: flagEs,
-		value: 'es',
-	},
-	{
-		label: 'French (Français)',
-		flag: flagFr,
-		value: 'fr',
-	},
-	{
-		label: 'German',
-		flag: flagDe,
-		value: 'de',
-	},
-	{
-		label: 'Chinese (中文)',
-		flag: flagCn,
-		value: 'zh',
-	},
-	{
-		label: 'Arabic (العربية)',
-		flag: flagSa,
-		value: 'ar',
-	},
-	{
-		label: 'Russian (Русский)',
-		flag: flagRu,
-		value: 'ru',
-	},
+        {
+                label: 'English (English)',
+                emoji: '🇬🇧',
+                value: 'en',
+        },
+        {
+                label: 'Turkish (Türkçe)',
+                emoji: '🇹🇷',
+                value: 'tr',
+        },
+        {
+                label: 'Spanish (Español)',
+                emoji: '🇪🇸',
+                value: 'es',
+        },
+        {
+                label: 'French (Français)',
+                emoji: '🇫🇷',
+                value: 'fr',
+        },
+        {
+                label: 'German (Deutsch)',
+                emoji: '🇩🇪',
+                value: 'de',
+        },
+        {
+                label: 'Chinese (中文)',
+                emoji: '🇨🇳',
+                value: 'zh',
+        },
+        {
+                label: 'Arabic (العربية)',
+                emoji: '🇸🇦',
+                value: 'ar',
+        },
+        {
+                label: 'Russian (Русский)',
+                emoji: '🇷🇺',
+                value: 'ru',
+        },
 ];
 
 // Drawers

@@ -146,6 +146,10 @@ export class MyDatabaseHelper implements MyDatabaseHelperInterface {
     return new ItemsServiceHelper<DatabaseTypes.CollectionsDatesLastUpdate>(this, CollectionNames.COLLECTIONS_DATES_LAST_UPDATE);
   }
 
+  getCollectibleEventsHelper() {
+    return new ItemsServiceHelper<DatabaseTypes.CollectibleEvents>(this, CollectionNames.COLLECTIBLE_EVENTS);
+  }
+
   getFoodFeedbacksHelper() {
     return new ItemsServiceHelper<DatabaseTypes.FoodsFeedbacks>(this, CollectionNames.FOODS_FEEDBACKS);
   }

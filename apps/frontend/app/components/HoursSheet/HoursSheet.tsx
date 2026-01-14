@@ -14,6 +14,8 @@ import { BusinessHour, HourSheetProps } from './types';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
+import SettingsList from '@/components/SettingsList/SettingsList';
+import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 
 const getSortedBusinessHoursGroups = (groups: { id: string; sort?: number | null }[]) => {
 	return [...groups].sort((a, b) => {
@@ -351,61 +353,67 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
 
 	const formatTime = (time: string | null): string => time?.slice(0, 5) || 'N/A';
 
-	const renderHours = (
-		groupId: string,
-		hoursData: {
-			day: string[];
-			time_start: string | null;
-			time_end: string | null;
-		}[]
-	) => {
-		if (!hoursData.length) {
-			return <Text style={{ ...styles.body, color: theme.screen.text }}>{translate(TranslationKeys.no_business_hours_available)}</Text>;
-		}
+        const renderHours = (
+                groupId: string,
+                hoursData: {
+                        day: string[];
+                        time_start: string | null;
+                        time_end: string | null;
+                }[]
+        ) => {
+                if (!hoursData.length) {
+                        return <Text style={{ ...styles.body, color: theme.screen.text }}>{translate(TranslationKeys.no_business_hours_available)}</Text>;
+                }
 
-		const daysOfWeek = [
-			{ name: translate(TranslationKeys.Mon), key: 'monday' },
-			{ name: translate(TranslationKeys.Tue), key: 'tuesday' },
-			{ name: translate(TranslationKeys.Wed), key: 'wednesday' },
-			{ name: translate(TranslationKeys.Thu), key: 'thursday' },
-			{ name: translate(TranslationKeys.Fri), key: 'friday' },
-			{ name: translate(TranslationKeys.Sat), key: 'saturday' },
-			{ name: translate(TranslationKeys.Sun), key: 'sunday' },
-		];
+                const daysOfWeek = [
+                        { name: translate(TranslationKeys.Mon), key: 'monday' },
+                        { name: translate(TranslationKeys.Tue), key: 'tuesday' },
+                        { name: translate(TranslationKeys.Wed), key: 'wednesday' },
+                        { name: translate(TranslationKeys.Thu), key: 'thursday' },
+                        { name: translate(TranslationKeys.Fri), key: 'friday' },
+                        { name: translate(TranslationKeys.Sat), key: 'saturday' },
+                        { name: translate(TranslationKeys.Sun), key: 'sunday' },
+                ];
 
-		let renderedOuput: React.ReactNode[] = [];
-		hoursData.forEach(range => {
-			let firstDayKey = range.day[0];
-			let lastDayKey = range.day[range.day.length - 1];
-			let firstDay = daysOfWeek.find(d => d.key === firstDayKey);
-			let lastDay = daysOfWeek.find(d => d.key === lastDayKey);
-			let label = `${firstDay?.name}`;
-			if (firstDayKey !== lastDayKey) {
-				label += ` - ${lastDay?.name}`;
-			}
-			let hoursDataKey = groupId + range.day.join('-') + range.time_start + range.time_end;
+                return hoursData.map((range, index) => {
+                        let firstDayKey = range.day[0];
+                        let lastDayKey = range.day[range.day.length - 1];
+                        let firstDay = daysOfWeek.find(d => d.key === firstDayKey);
+                        let lastDay = daysOfWeek.find(d => d.key === lastDayKey);
+                        let label = `${firstDay?.name}`;
+                        if (firstDayKey !== lastDayKey) {
+                                label += ` - ${lastDay?.name}`;
+                        }
+                        let hoursDataKey = groupId + range.day.join('-') + range.time_start + range.time_end;
 
-			let timeText = translate(TranslationKeys.closed_hours);
-			if (range.time_start && range.time_end) {
-				timeText = `${formatTime(range.time_start)} - ${formatTime(range.time_end)}`;
-				if (range.time_start === range.time_end) {
-					timeText = `${formatTime(range.time_start)}`;
-				}
-			}
+                        let timeText = translate(TranslationKeys.closed_hours);
+                        if (range.time_start && range.time_end) {
+                                timeText = `${formatTime(range.time_start)} - ${formatTime(range.time_end)}`;
+                                if (range.time_start === range.time_end) {
+                                        timeText = `${formatTime(range.time_start)}`;
+                                }
+                        }
 
-			renderedOuput.push(
-				<View key={hoursDataKey} style={styles.row}>
-					<Text style={{ ...styles.body, color: theme.screen.text }}>{label}</Text>
-					<Text style={{ ...styles.body, color: theme.screen.text }}>{timeText}</Text>
-				</View>
-			);
-		});
+                        const isFirst = index === 0;
+                        const isLast = index === hoursData.length - 1;
+                        const isSingle = hoursData.length === 1;
+                        const groupPosition = isSingle ? 'single' : isFirst ? 'top' : isLast ? 'bottom' : 'middle';
 
-		return renderedOuput;
-	};
+                        return (
+                                <SettingsList
+                                        key={hoursDataKey}
+                                        title={label}
+                                        value={timeText}
+                                        showSeparator={!isLast}
+                                        groupPosition={groupPosition}
+                                        noIconIndent
+                                />
+                        );
+                });
+        };
 
-	return (
-		<BottomSheetScrollView style={{ ...styles.sheetView, backgroundColor: theme.sheet.sheetBg }} contentContainerStyle={styles.contentContainer}>
+        return (
+                <BottomSheetScrollView style={{ ...styles.sheetView, backgroundColor: 'transparent' }} contentContainerStyle={styles.contentContainer}>
 			<View
 				style={{
 					...styles.sheetHeader,
@@ -453,20 +461,12 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
 								.filter(group => hours[group.id])
 								.map(group => {
 									const { name, entries } = hours[group.id];
-									return (
-										<View key={group.id} style={{ marginBottom: 20 }}>
-											<Text
-												style={{
-													...styles.hoursHeading,
-													color: theme.sheet.text,
-													fontSize: isWeb ? (ScreenWidth <= 500 ? 18 : 24) : 24,
-												}}
-											>
-												{name}
-											</Text>
-											{renderHours(group.id, entries)}
-										</View>
-									);
+                                                                        return (
+                                                                                <View key={group.id} style={{ marginBottom: 20 }}>
+                                                                                        <SettingsGroupTitle>{name}</SettingsGroupTitle>
+                                                                                        {renderHours(group.id, entries)}
+                                                                                </View>
+                                                                        );
 								})}
 						</View>
 					) : (

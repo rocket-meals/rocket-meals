@@ -3,6 +3,7 @@ import type { Knex } from 'knex';
 import { ApiContext } from './ApiContext';
 import { Readable } from 'node:stream';
 import { DatabaseTypes } from 'repo-depkit-common';
+import {AccountHelper} from "./AccountHelper";
 
 export type MyEventContext = EventContext;
 
@@ -119,10 +120,12 @@ export interface FilesService extends ItemsService<DatabaseTypes.DirectusFiles> 
 
 export class FileServiceCreator extends GetItemsService {
   private readonly eventContext: MyEventContext | undefined;
+  private useAdminAccountability: boolean = true;
 
-  constructor(apiContext: ApiContext, eventContext?: MyEventContext) {
+  constructor(apiContext: ApiContext, eventContext?: MyEventContext, useAdminAccountability: boolean = true) {
     super(apiContext);
     this.eventContext = eventContext;
+    this.useAdminAccountability = useAdminAccountability;
   }
 
   //https://github.com/directus/directus/blob/main/api/src/services/files.ts
@@ -130,8 +133,13 @@ export class FileServiceCreator extends GetItemsService {
     const { FilesService } = this.apiContext.services;
     const schema = await this.apiContext.getSchema();
     const database = this.apiContext.database;
+    let accountability: Accountability | null | undefined = this.eventContext?.accountability;
+    if (this.useAdminAccountability) {
+      accountability = AccountHelper.getAdminAccountability(accountability);
+    }
+
     return new FilesService({
-      accountability: null, //this makes us admin
+      accountability: accountability, //this makes us admin
       knex: database, //TODO: i think this is not neccessary
       schema: schema,
     });

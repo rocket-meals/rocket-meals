@@ -17,13 +17,15 @@ import { RootState } from '@/redux/reducer';
 import CardWithText from '../CardWithText/CardWithText';
 import CardDimensionHelper from '@/helper/CardDimensionHelper';
 import AvailableFromModal from '../AvailableFromModal';
+import useMyScrollviewModalDistanceInformation from '@/hooks/useMyScrollviewModalDistanceInformation';
 
-const ApartmentItem: React.FC<BuildingItemProps> = ({ apartment, setSelectedApartementId, openImageManagementSheet, openDistanceSheet }) => {
+const ApartmentItem: React.FC<BuildingItemProps> = ({ apartment, onEditImage, openDistanceSheet }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const { primaryColor: projectColor, appSettings, serverInfo, selectedTheme: mode, amountColumnsForcard } = useSelector((state: RootState) => state.settings);
 	const defaultImage = getImageUrl(serverInfo?.info?.project?.project_logo);
 	const { isManagement } = useSelector((state: RootState) => state.authReducer);
+	const { openDistanceInformationModal } = useMyScrollviewModalDistanceInformation();
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const [showFreeModal, setShowFreeModal] = useState(false);
 	const housing_area_color = appSettings?.housing_area_color ? appSettings?.housing_area_color : projectColor;
@@ -114,8 +116,7 @@ const ApartmentItem: React.FC<BuildingItemProps> = ({ apartment, setSelectedApar
 													{...triggerProps}
 													style={styles.editImageButton}
 													onPress={() => {
-														setSelectedApartementId(apartment.id);
-														openImageManagementSheet();
+														onEditImage?.(apartment);
 													}}
 												>
 													<MaterialCommunityIcons name="image-edit" size={20} color={'white'} />
@@ -131,16 +132,19 @@ const ApartmentItem: React.FC<BuildingItemProps> = ({ apartment, setSelectedApar
 									) : (
 										<View />
 									)}
-									<TouchableOpacity
-										style={{
-											...styles.directionButton,
-											backgroundColor: housing_area_color,
-										}}
-										onPress={openDistanceSheet}
-									>
-										<MaterialCommunityIcons name="map-marker-distance" size={20} color={contrastColor} />
-										<Text style={{ ...styles.distance, color: contrastColor }}>{getDistanceUnit(apartment?.distance)}</Text>
-									</TouchableOpacity>
+									<View style={styles.distanceActions}>
+										<TouchableOpacity
+											style={{
+												...styles.directionButton,
+												backgroundColor: housing_area_color,
+											}}
+											onPress={openDistanceInformationModal}
+											onLongPress={openDistanceSheet}
+										>
+											<MaterialCommunityIcons name="map-marker-distance" size={20} color={contrastColor} />
+											<Text style={{ ...styles.distance, color: contrastColor }}>{getDistanceUnit(apartment?.distance)}</Text>
+										</TouchableOpacity>
+									</View>
 								</View>
 							</>
 						}

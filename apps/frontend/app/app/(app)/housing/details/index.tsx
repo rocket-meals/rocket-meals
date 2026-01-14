@@ -1,9 +1,9 @@
-import { ActivityIndicator, Dimensions, Image, Linking, Platform, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
 import { Foundation, MaterialCommunityIcons } from '@expo/vector-icons';
-import Information from '@/components/Information';
+import LocationInformation from '@/components/LocationInformation/LocationInformation';
 import BuildingDescription from '@/components/BuildingDescription';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useSelector } from 'react-redux';
@@ -16,11 +16,13 @@ import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
+import useLinkCoordinateModal from '@/hooks/useLinkCoordinateModal';
 
 const Details = () => {
 	useSetPageTitle(TranslationKeys.apartment_details);
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const { openLinkCoordinateModal } = useLinkCoordinateModal();
 	const { id } = useLocalSearchParams();
 	const { appSettings, serverInfo, primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const { apartmentsDict } = useSelector((state: RootState) => state.apartment);
@@ -62,38 +64,24 @@ const Details = () => {
 	}, []);
 
 	const handleOpenNavigation = () => {
-		if (apartmentDetails) {
-			const coordinates = apartmentDetails.coordinates?.coordinates; // [longitude, latitude]
+		if (!apartmentDetails) return;
+		const coordinates = apartmentDetails.coordinates?.coordinates; // [longitude, latitude]
 
-			if (!coordinates || coordinates.length !== 2) {
-				console.error('Invalid coordinates');
-				return;
-			}
-
-			const [longitude, latitude] = coordinates;
-			const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
-			if (Platform.OS === 'web') {
-				window.open(googleMapsUrl, '_blank');
-			} else {
-				const mapsUrl =
-					Platform.OS === 'ios'
-						? `maps://?q=${latitude},${longitude}` // Apple Maps
-						: `geo:${latitude},${longitude}?q=${latitude},${longitude}`; // Google Maps for Android
-
-				Linking.openURL(mapsUrl).catch(err => {
-					console.error('Error opening navigation:', err);
-					// Fallback to Google Maps URL
-					Linking.openURL(googleMapsUrl);
-				});
-			}
+		if (!coordinates || coordinates.length !== 2) {
+			console.error('Invalid coordinates');
+			return;
 		}
+
+		const [longitude, latitude] = coordinates;
+		openLinkCoordinateModal({
+			latlon: { latitude, longitude },
+		});
 	};
 
 	const renderContent = () => {
 		switch (activeTab) {
 			case 'information':
-				return <Information campusDetails={apartmentDetails} />;
+				return <LocationInformation campusDetails={apartmentDetails} />;
 			case 'description':
 				return <BuildingDescription campusDetails={apartmentDetails} />;
 			case 'washing-machine':

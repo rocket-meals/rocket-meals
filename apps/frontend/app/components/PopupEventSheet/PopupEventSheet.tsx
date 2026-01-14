@@ -14,9 +14,11 @@ import { getTextFromTranslation, getTitleFromTranslation } from '@/helper/resour
 import RedirectButton from '../RedirectButton';
 import ProjectButton from '../ProjectButton';
 import { RootState } from '@/redux/reducer';
+import { useMyScrollViewModal } from '../GlobalModal/useMyScrollViewModal';
 
-const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, eventData }) => {
+const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, dismissSheet, eventData }) => {
 	const { theme } = useTheme();
+	const { close: closeScrollViewModal } = useMyScrollViewModal();
 	const { primaryColor, language, appSettings, serverInfo, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const defaultImage = getImageUrl(serverInfo?.info?.project?.project_logo);
 	const title = eventData?.translations ? getTitleFromTranslation(eventData?.translations, language) : '';
@@ -210,11 +212,17 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, eventData
 			return <View style={{ paddingBottom: 20 }}>{renderContent(hierarchicalContent)}</View>;
 		}
 
-		return null;
+			return null;
+	};
+
+	const handleClose = () => {
+		dismissSheet?.();
+		closeScrollViewModal();
+		closeSheet();
 	};
 
 	return (
-		<BottomSheetScrollView style={{ ...styles.sheetView, backgroundColor: theme.sheet.sheetBg }} contentContainerStyle={styles.contentContainer}>
+		<BottomSheetScrollView style={styles.sheetView} contentContainerStyle={styles.contentContainer}>
 			<View
 				style={{
 					...styles.sheetHeaderClose,
@@ -223,7 +231,7 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, eventData
 					alignItems: 'center',
 				}}
 			>
-				{closeSheet && <ProjectButton text="Schließen und nicht erneut anzeigen" onPress={closeSheet} />}
+				{closeSheet && <ProjectButton text="Schließen und nicht erneut anzeigen" onPress={handleClose} />}
 			</View>
 			<View
 				style={{

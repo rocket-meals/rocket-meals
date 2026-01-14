@@ -7,7 +7,6 @@ import { styles } from './styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';
 import { SET_WIKIS } from '@/redux/Types/types';
-import { performLogout } from '@/helper/logoutHelper';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { useLanguage } from '@/hooks/useLanguage';
 import * as Linking from 'expo-linking';
@@ -21,6 +20,11 @@ import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 import { ServerInfoHelper } from '@/helper/ServerInfoHelper';
 import useChatUnreadStatus from '@/hooks/useChatUnreadStatus';
+import useActiveCollectibleEvent from '@/hooks/useActiveCollectibleEvent';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
+import { CollectibleAt } from 'repo-depkit-common';
+import useConfirmLogoutModal from '@/hooks/useConfirmLogoutModal';
+import useLogoutButtonTranslation from '@/hooks/useLogoutButtonTranslation';
 
 export const iconLibraries: Record<string, any> = {
 	Ionicons,
@@ -55,12 +59,15 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 	const { theme } = useTheme();
 	const dispatch = useDispatch();
 	const router = useRouter();
-	const wikisHelper = new WikisHelper();
-	const activeIndex = state.index;
+        const wikisHelper = new WikisHelper();
+        const activeIndex = state.index;
         const { user, isManagement, isDevMode } = useSelector((state: RootState) => state.authReducer);
         const { chats } = useSelector((state: RootState) => state.chats);
         const { serverInfo, primaryColor: projectColor, language, appSettings, wikis, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
         const { hasUnreadChats } = useChatUnreadStatus();
+        const { hasActiveCollectibleEvent } = useActiveCollectibleEvent();
+        const { openConfirmLogoutModal } = useConfirmLogoutModal();
+        const { buttonLabel: logoutButtonLabel } = useLogoutButtonTranslation();
 
 	const balance_area_color = appSettings?.balance_area_color ? appSettings?.balance_area_color : projectColor;
 	const course_timetable_area_color = appSettings?.course_timetable_area_color ? appSettings?.course_timetable_area_color : projectColor;
@@ -143,15 +150,11 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 		color: isActive(routeName) ? getContrastColor(routeName) : theme.inactiveText,
 	});
 
-	const handleLogout = async () => {
-		await performLogout(dispatch, router);
-	};
-
-	const openInBrowser = async (url: string) => {
-		try {
-			if (Platform.OS === 'web') {
-				window.open(url, '_blank');
-			} else {
+        const openInBrowser = async (url: string) => {
+                try {
+                        if (Platform.OS === 'web') {
+                                window.open(url, '_blank');
+                        } else {
 				const supported = await Linking.canOpenURL(url);
 
 				if (supported) {
@@ -239,22 +242,34 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 			});
 		}
 
-		if (appSettings?.course_timetable_enabled) {
-			menuItems.push({
-				label: translate(TranslationKeys.course_timetable),
-				iconName: 'calendar-clock-outline',
-				iconLibName: MaterialCommunityIcons,
-				activeKey: 'course-timetable/index',
-				route: 'course-timetable/index',
-				position: 7,
-			});
-		}
+                if (appSettings?.course_timetable_enabled) {
+                        menuItems.push({
+                                label: translate(TranslationKeys.course_timetable),
+                                iconName: 'calendar-clock-outline',
+                                iconLibName: MaterialCommunityIcons,
+                                activeKey: 'course-timetable/index',
+                                route: 'course-timetable/index',
+                                position: 7,
+                        });
+                }
 
-		if (isManagement) {
-			menuItems.push({
-				label: translate(TranslationKeys.role_management),
-				iconName: 'bag',
-				iconLibName: Ionicons,
+                if (hasActiveCollectibleEvent) {
+                        menuItems.push({
+                                label: translate(TranslationKeys.collectible_event_active),
+                                iconName: 'trophy-outline',
+                                iconLibName: MaterialCommunityIcons,
+                                activeKey: 'collectible-event/index',
+                                route: 'collectible-event/index',
+                                position: 2.1,
+                                hasUnread: true,
+                        });
+                }
+
+                if (isManagement) {
+                        menuItems.push({
+                                label: translate(TranslationKeys.role_management),
+                                iconName: 'bag',
+                                iconLibName: Ionicons,
 				activeKey: 'management/index',
 				route: 'management/index',
 				position: 9,
@@ -337,7 +352,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 						</View>
 						<Text style={{ ...styles.heading, color: theme.drawerHeading }}>{ServerInfoHelper.getServerName(serverInfo)}</Text>
 					</TouchableOpacity>
-					<View style={styles.menuContainer}>
+                                        <View style={styles.menuContainer}>
                                                 {generateMenuItems().map((item, index) => (
                                                         <TouchableOpacity
                                                                 key={index}
@@ -365,26 +380,25 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
                                                                 <Text style={getMenuLabelStyle(item.activeKey)}>{item.label}</Text>
                                                         </TouchableOpacity>
                                                 ))}
-						<View style={styles.divider} />
+                                                <View style={styles.divider} />
 						<TouchableOpacity style={getMenuItemStyle('settings/index')} onPress={() => navigation.navigate('settings/index')}>
-							<Ionicons name="settings-outline" size={28} color={isActive('settings/index') ? getContrastColor('settings/index') : theme.inactiveIcon} />
+							<View style={styles.menuIconWrapper}>
+								<Ionicons name="settings-outline" size={28} color={isActive('settings/index') ? getContrastColor('settings/index') : theme.inactiveIcon} />
+							</View>
 							<Text style={getMenuLabelStyle('settings/index')}>{translate(TranslationKeys.settings)}</Text>
 						</TouchableOpacity>
-						<TouchableOpacity
-							style={getMenuItemStyle('faq-living/index')}
-							onPress={() => {
-								if (user?.id) {
-									handleLogout();
-								} else {
-									performLogout(dispatch, router, true);
-								}
-							}}
-						>
-							<MaterialCommunityIcons name="logout" size={28} color={theme.inactiveIcon} />
-							<Text style={getMenuLabelStyle('faq-living/index')}>{translate(TranslationKeys.logout)}</Text>
-						</TouchableOpacity>
-					</View>
-				</View>
+                                                <TouchableOpacity
+                                                        style={getMenuItemStyle('faq-living/index')}
+                                                        onPress={openConfirmLogoutModal}
+                                                >
+							<View style={styles.menuIconWrapper}>
+								<MaterialCommunityIcons name="logout" size={28} color={theme.inactiveIcon} />
+							</View>
+							<Text style={getMenuLabelStyle('faq-living/index')}>{logoutButtonLabel}</Text>
+                                                </TouchableOpacity>
+                                                <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_drawer} />
+                                        </View>
+                                </View>
 
 				<View style={styles.footer}>
 					{wikis &&

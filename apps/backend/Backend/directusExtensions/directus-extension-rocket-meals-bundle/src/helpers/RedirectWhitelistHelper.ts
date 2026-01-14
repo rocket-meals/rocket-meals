@@ -76,7 +76,11 @@ export class RedirectWhitelistHelper {
         //console.log("redirectUrl seems to be valid")
         // replace all * with WILDCARD_REPLACEMENT
         //console.log("Replace whitelist entry all wildcards with WILDCARD_REPLACEMENT")
-        let replacedRedirect_whitelist_entry = StringHelper.replaceAll(redirect_whitelist_entry, WILDCARD, WILDCARD_REPLACEMENT);
+        let replacedRedirect_whitelist_entry = StringHelper.replaceAllWithOptions({
+          str: redirect_whitelist_entry,
+          find: WILDCARD,
+          replace: WILDCARD_REPLACEMENT,
+        });
         // create a new URL from the replaced string
         //console.log("replacedRedirect_whitelist_entry: " + replacedRedirect_whitelist_entry)
         let replacedRedirect_whitelist_entry_URL = new URL(replacedRedirect_whitelist_entry);
