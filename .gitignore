@@ -1,6 +1,8 @@
 **/*.DS_Store
 .idea/**
 
+android
+.expo
 apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/coverage/
 apps/backend/Backend/directusExtensions/.registry/
 

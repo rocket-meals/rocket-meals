@@ -38,16 +38,18 @@ import useRatingPermissionModal from '@/hooks/useRatingPermissionModal';
 const selectFoodState = (state: RootState) => state.food;
 
 const selectPreviousFeedback = createSelector(
-        [selectFoodState, (_: RootState, foodId?: string | null) => foodId],
-        (foodState, foodId) => (foodId ? getpreviousFeedback(foodState.ownFoodFeedbacks, foodId.toString()) : undefined)
+	[selectFoodState, (_: RootState, foodId?: string | null) => foodId],
+	(foodState, foodId) => (foodId ? getpreviousFeedback(foodState.ownFoodFeedbacks, foodId.toString()) : undefined)
 );
 
 export default function FoodDetailsScreen() {
-        useSetPageTitle(TranslationKeys.food_details);
+	useSetPageTitle(TranslationKeys.food_details);
 
-        const { id, foodId } = useLocalSearchParams();
-        const offerId = Array.isArray(id) ? id[0] : id;
-        const initialFoodId = Array.isArray(foodId) ? foodId[0] : foodId;
+	const { id, foodId } = useLocalSearchParams();
+	const offerId = Array.isArray(id) ? id[0] : id;
+	const initialFoodId = Array.isArray(foodId) ? foodId[0] : foodId;
+
+	const allowSheetsRef = useRef(true);
 
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
@@ -56,7 +58,7 @@ export default function FoodDetailsScreen() {
 	const { isSmartPhone, isAndroid, isIOS } = usePlatformHelper();
 	const { user, profile } = useSelector((state: RootState) => state.authReducer);
 	const { primaryColor, language: languageCode, appSettings, serverInfo, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
-        const previousFeedback = useSelector(state => selectPreviousFeedback(state, initialFoodId));
+	const previousFeedback = useSelector(state => selectPreviousFeedback(state, initialFoodId));
 	const profileHelper = useMemo(() => new ProfileHelper(), []);
 	const foodfeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
 	const { foodAttributeGroups } = useSelector((state: RootState) => state.foodAttributes);
@@ -69,7 +71,7 @@ export default function FoodDetailsScreen() {
 	const selectedCanteen = useSelectedCanteen();
 	const foodOfferCanteenId = selectedCanteen?.id as string | undefined;
 	const [foodDetails, setFoodDetails] = useState<any>(null);
-        const { openRatingPermissionModal } = useRatingPermissionModal();
+	const { openRatingPermissionModal } = useRatingPermissionModal();
 
 	const [activeTab, setActiveTab] = useState('feedbacks');
 	const [isActive, setIsActive] = useState(false);
@@ -188,39 +190,39 @@ export default function FoodDetailsScreen() {
 	}, [foodAttributes, foodAttributeGroups, foodDetails, foodCategories, foodOfferCategories]);
 
 	const renderContent = useCallback(
-                (foodDetails: DatabaseTypes.Foods) => {
-                        switch (activeTab) {
-                                case 'feedbacks':
-                                        return (
-                                                <Feedbacks
-                                                        foodDetails={foodDetails}
-                                                        offerId={offerId ? offerId.toString() : undefined}
-                                                        canteenId={foodOfferCanteenId}
-                                                />
-                                        );
-			case 'details':
-				return <Details groupedAttributes={groupedAttributes} loading={foodAttributesLoading} />;
-                                case 'labels':
-                                        return (
-                                                <Labels
-                                                        foodDetails={foodDetails}
-                                                        offerId={offerId ? offerId.toString() : undefined}
-                                                        handleMenuSheet={openMenuSheet}
-                                                        color={foods_area_color}
-                                                />
-                                        );
-                                default:
-                                        return null;
-                        }
-                },
-                [activeTab, offerId, foodOfferCanteenId]
-        );
+		(foodDetails: DatabaseTypes.Foods) => {
+			switch (activeTab) {
+				case 'feedbacks':
+					return (
+						<Feedbacks
+							foodDetails={foodDetails}
+							offerId={offerId ? offerId.toString() : undefined}
+							canteenId={foodOfferCanteenId}
+						/>
+					);
+				case 'details':
+					return <Details groupedAttributes={groupedAttributes} loading={foodAttributesLoading} />;
+				case 'labels':
+					return (
+						<Labels
+							foodDetails={foodDetails}
+							offerId={offerId ? offerId.toString() : undefined}
+							handleMenuSheet={openMenuSheet}
+							color={foods_area_color}
+						/>
+					);
+				default:
+					return null;
+			}
+		},
+		[activeTab, offerId, foodOfferCanteenId]
+	);
 
 	const rateFood = (rating: number) => {
-                if (!user?.id) {
-                        openRatingPermissionModal();
-                        return;
-                }
+		if (!user?.id) {
+			openRatingPermissionModal();
+			return;
+		}
 		const newRating = previousFeedback?.rating === rating ? null : rating;
 
 		handleFoodRating({
@@ -258,53 +260,53 @@ export default function FoodDetailsScreen() {
 		}
 	};
 
-        const getFoodDetails = async () => {
-                try {
-                        if (offerId) {
-                                const foodData = await fetchFoodOffersDetailsById(offerId.toString());
-                                if (foodData && foodData.data) {
-                                        const { food, attribute_values, foodoffer_category } = foodData?.data ?? {};
+	const getFoodDetails = async () => {
+		try {
+			if (offerId) {
+				const foodData = await fetchFoodOffersDetailsById(offerId.toString());
+				if (foodData && foodData.data) {
+					const { food, attribute_values, foodoffer_category } = foodData?.data ?? {};
 
-                                        const translation = food?.translations?.find((val: FoodsTranslations) => String(val?.languages_code)?.split('-')[0] === languageCode);
-                                        setFoodDetails({
-                                                ...food,
-                                                foodoffer_category,
-                                                name: translation ? translation.name : null,
-                                        });
-                                        if (attribute_values) {
-                                                setFoodAttributesLoading(true);
-                                                setFoodAttributes(attribute_values);
-                                        }
-                                } else {
-                                        console.log('No food data found');
-                                }
-                        } else if (initialFoodId) {
-                                const foodData = await fetchFoodDetailsById(initialFoodId.toString());
-                                if (foodData && foodData.data) {
-                                        const food = foodData.data;
-                                        const translation = food?.translations?.find((val: FoodsTranslations) => String(val?.languages_code)?.split('-')[0] === languageCode);
-                                        setFoodDetails({
-                                                ...food,
-                                                name: translation ? translation.name : food?.name ?? null,
-                                        });
+					const translation = food?.translations?.find((val: FoodsTranslations) => String(val?.languages_code)?.split('-')[0] === languageCode);
+					setFoodDetails({
+						...food,
+						foodoffer_category,
+						name: translation ? translation.name : null,
+					});
+					if (attribute_values) {
+						setFoodAttributesLoading(true);
+						setFoodAttributes(attribute_values);
+					}
+				} else {
+					console.log('No food data found');
+				}
+			} else if (initialFoodId) {
+				const foodData = await fetchFoodDetailsById(initialFoodId.toString());
+				if (foodData && foodData.data) {
+					const food = foodData.data;
+					const translation = food?.translations?.find((val: FoodsTranslations) => String(val?.languages_code)?.split('-')[0] === languageCode);
+					setFoodDetails({
+						...food,
+						name: translation ? translation.name : food?.name ?? null,
+					});
 
-                                        const attributes = food?.attribute_values || food?.foods_attributes_values;
-                                        if (attributes) {
-                                                setFoodAttributesLoading(true);
-                                                setFoodAttributes(attributes);
-                                        }
-                                } else {
-                                        console.log('No food data found');
-                                }
-                        }
-                } catch (e) {
-                        console.error('Error fetching food details: ', e);
-                }
-        };
+					const attributes = food?.attribute_values || food?.foods_attributes_values;
+					if (attributes) {
+						setFoodAttributesLoading(true);
+						setFoodAttributes(attributes);
+					}
+				} else {
+					console.log('No food data found');
+				}
+			}
+		} catch (e) {
+			console.error('Error fetching food details: ', e);
+		}
+	};
 
-        useEffect(() => {
-                getFoodDetails();
-        }, [offerId, initialFoodId]);
+	useEffect(() => {
+		getFoodDetails();
+	}, [offerId, initialFoodId]);
 
 	const getContainerWidth = () => {
 		let containerWidth = '100%';
@@ -335,8 +337,10 @@ export default function FoodDetailsScreen() {
 	useFocusEffect(
 		useCallback(() => {
 			setIsActive(true);
+			allowSheetsRef.current = true;
 			return () => {
-				setIsActive(false);
+				// setIsActive(false);
+				allowSheetsRef.current = false;
 			};
 		}, [])
 	);
@@ -379,11 +383,22 @@ export default function FoodDetailsScreen() {
 		}
 	};
 
+	// useEffect(() => {
+	// 	if (profile?.id) {
+	// 		updateDeviceInfo();
+	// 	}
+	// }, []);
+
 	useEffect(() => {
-		if (profile?.id) {
+		if (!profile?.id) return;
+
+		const timeout = setTimeout(() => {
 			updateDeviceInfo();
-		}
-	}, []);
+		}, 600);
+
+		return () => clearTimeout(timeout);
+	}, [profile?.id]);
+
 
 	const updateNotification = async () => {
 		if (!user?.id) {
@@ -477,8 +492,8 @@ export default function FoodDetailsScreen() {
 												source={
 													foodDetails?.image_remote_url || foodDetails?.image
 														? {
-																uri: foodDetails?.image_remote_url || getImageUrl(foodDetails?.image),
-															}
+															uri: foodDetails?.image_remote_url || getImageUrl(foodDetails?.image),
+														}
 														: { uri: defaultImage }
 												}
 											/>
@@ -571,8 +586,8 @@ export default function FoodDetailsScreen() {
 									source={
 										foodDetails?.image_remote_url || foodDetails?.image
 											? {
-													uri: foodDetails?.image_remote_url || getImageUrl(foodDetails?.image),
-												}
+												uri: foodDetails?.image_remote_url || getImageUrl(foodDetails?.image),
+											}
 											: { uri: defaultImage }
 									}
 									style={styles.mobileFeaturedImage}
@@ -766,13 +781,13 @@ export default function FoodDetailsScreen() {
 								paddingHorizontal: isWeb ? (screenWidth > 1000 ? 20 : 0) : 10,
 							}}
 						>
-                                        {foodDetails?.id && renderContent(foodDetails)}
-                                </View>
-                        </View>
-                        <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_foodoffers_details} />
-                </View>
-        </ScrollView>
-			{isActive && (
+							{foodDetails?.id && renderContent(foodDetails)}
+						</View>
+					</View>
+					<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_foodoffers_details} />
+				</View>
+			</ScrollView>
+			{allowSheetsRef.current && (
 				<BaseBottomSheet
 					ref={notificationSheetRef}
 					index={-1}
@@ -789,7 +804,7 @@ export default function FoodDetailsScreen() {
 			)}
 			{/* Menu sheet */}
 
-			{isActive && <MarkingBottomSheet ref={menuSheetRef} onClose={closeMenuSheet} />}
+			{allowSheetsRef.current && (<MarkingBottomSheet ref={menuSheetRef} onClose={closeMenuSheet} />)}
 		</SafeAreaView>
 	);
 }

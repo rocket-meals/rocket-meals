@@ -73,6 +73,7 @@ export type FoodState = {
 	foodCollection: Record<string, any>;
 	popupEvents: ExtendedPopUpEvents[];
 	selectedDate: string;
+	hasUserSelectedDate: boolean;
 }
 
 type ExtendedPopUpEvents = {

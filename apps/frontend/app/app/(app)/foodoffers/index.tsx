@@ -90,6 +90,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	const dispatch = useDispatch();
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const allowSheetsRef = useRef(true);
 	const router = useRouter();
 	const drawerNavigation = useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
 	const bottomSheetRef = useRef<BottomSheet>(null);
@@ -289,10 +290,20 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		setAfterElement(after);
 	}, [appElements, appSettings, languageCode]);
 
+	// useFocusEffect(
+	// 	useCallback(() => {
+	// 		setIsActive(true);
+	// 		return () => setIsActive(false);
+	// 	}, [])
+	// );
+
 	useFocusEffect(
 		useCallback(() => {
 			setIsActive(true);
-			return () => setIsActive(false);
+			allowSheetsRef.current = true;
+			return () => {
+				allowSheetsRef.current = false;
+			};
 		}, [])
 	);
 
@@ -351,7 +362,11 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		const currentDate = new Date(selectedDate);
 		if (direction === 'prev') currentDate.setDate(currentDate.getDate() - 1);
 		else currentDate.setDate(currentDate.getDate() + 1);
-		dispatch({ type: SET_SELECTED_DATE, payload: currentDate.toISOString().split('T')[0] });
+
+		dispatch({
+			type: SET_SELECTED_DATE,
+			payload: currentDate.toISOString().split('T')[0],
+		});
 	};
 
 
@@ -848,7 +863,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 					</View>
 				</View>
 
-				{isActive &&
+				{allowSheetsRef.current &&
 					!kioskMode &&
 					(selectedSheet === 'menu' ? (
 						<MarkingBottomSheet ref={bottomSheetRef} onClose={closeSheet} />
@@ -876,6 +891,12 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 							)}
 						</BaseBottomSheet>
 					))}
+
+				{allowSheetsRef.current && currentPopupEvent && (
+					<BaseBottomSheet ref={eventSheetRef} index={-1} backgroundStyle={{ ...styles.sheetBackground, backgroundColor: theme.sheet.sheetBg }} enablePanDownToClose={false} handleComponent={null} onClose={closeEventSheetForSession}>
+						<PopupEventSheet closeSheet={closeEventSheet} eventData={currentPopupEvent} />
+					</BaseBottomSheet>
+				)}
 			</SafeAreaView>
 		</>
 	);
