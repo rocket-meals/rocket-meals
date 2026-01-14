@@ -10,6 +10,8 @@ apps/backend/Backend/directusExtensions/.registry/
 secrets/**
 apps/backend/database_backups/
 
+android
+.expo
 !data/.keep
 !data/database/.keep
 data/database/
