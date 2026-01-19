@@ -127,7 +127,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 	const init = useCallback(async () => {
 		setLoading(true);
 		const baseDate = new Date(startDate);
-		const toLoad = [0, 1, 2];
+		const toLoad = [0, 1];
 		const loaded: DayData[] = [];
 		for (const offset of toLoad) {
 			const d = addDays(baseDate, offset).toISOString().split('T')[0];
