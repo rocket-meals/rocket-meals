@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, RefreshControl, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, Text, View } from 'react-native';
 import { addDays, format } from 'date-fns';
 import { useTheme } from '@/hooks/useTheme';
 import { useSelector } from 'react-redux';
@@ -42,7 +42,6 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 	const [selectedSheet, setSelectedSheet] = useState<'menu' | keyof typeof SHEET_COMPONENTS | null>(null);
 	const [sheetProps, setSheetProps] = useState<Record<string, any>>({});
 	const [listWidth, setListWidth] = useState<number | null>(null);
-	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const bottomSheetRef = useRef<BottomSheet>(null);
 	const { openDirectusImageEditModal } = useMyScrollviewDirectusImageEditModal();
         const openSheet = useCallback(
@@ -83,25 +82,15 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		return Math.max(2, cols);
 	}, [amountColumnsForcard, listWidth]);
 
-	const itemGap = useMemo(() => {
-		if (screenWidth >= 1600) return 28;
-		if (screenWidth >= 1300) return 24;
-		if (screenWidth >= 1000) return 20;
-		if (screenWidth >= 700) return 16;
-		if (screenWidth >= 500) return 12;
-		if (screenWidth >= 300) return 10;
-		return 8;
-	}, [screenWidth]);
-
 	const cardWidth = useMemo(() => {
 		if (!listWidth || !numColumns) return undefined;
 
-		const horizontalMargin = itemGap;
+		const horizontalMargin = 10;
 		const totalMargin = horizontalMargin * 2 * numColumns;
 
 		const availableWidth = listWidth - totalMargin;
 		return availableWidth / numColumns;
-	}, [itemGap, listWidth, numColumns]);
+	}, [listWidth, numColumns]);
 
 	const sortOffers = useCallback(
 		(foodOffers: DatabaseTypes.Foodoffers[]) =>
@@ -165,12 +154,6 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		init();
 	}, [init]);
 
-	useEffect(() => {
-		const handleResize = () => setScreenWidth(Dimensions.get('window').width);
-		const subscription = Dimensions.addEventListener('change', handleResize);
-		return () => subscription?.remove();
-	}, []);
-
 	const loadNext = async () => {
 		const lastDate = days[days.length - 1].date;
 		const nextDate = addDays(new Date(lastDate), 1).toISOString().split('T')[0];
@@ -213,8 +196,8 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 							key={offer.id}
 							style={{
 								width: cardWidth || '100%',
-								marginHorizontal: itemGap,
-								marginVertical: itemGap,
+								marginHorizontal: 10,
+								marginVertical: 10,
 								alignItems: 'center',
 							}}
 						>
