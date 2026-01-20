@@ -66,14 +66,21 @@ const CardWithText: React.FC<Props> = ({
       {...rest}
     >
       {/* square wrapper ensures a stable 1:1 image area */}
-      <View style={[styles.squareWrapper, { borderTopLeftRadius: topRadius, borderTopRightRadius: topRadius }]}>
+      <View
+        style={[
+          styles.squareWrapper,
+          {
+            borderTopLeftRadius: topRadius,
+            borderTopRightRadius: topRadius,
+            borderBottomWidth: borderColor ? 3 : 0,
+            borderBottomColor: borderColor,
+          },
+        ]}
+      >
         <View style={[{ borderTopLeftRadius: topRadius, borderTopRightRadius: topRadius }, ...resolvedImageContainerStyle as any]}>
           {imageSource ? (
             <ExpoImage {...forwardedImageProps} source={imageSource as any} style={[styles.image, imageStyle]} />
           ) : null}
-
-          {/* absolute divider glued to bottom of image area */}
-          {borderColor ? <View style={[styles.topDivider, { backgroundColor: borderColor }]} /> : null}
 
           {imageChildren}
         </View>
@@ -115,18 +122,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  topDivider: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 3,
-    bottom: 0, // glued to bottom of 1:1 image area
-    zIndex: 5,
-  },
   cardContent: {
     // remove a hard fixed minHeight; we compute it dynamically
-    paddingTop: 12,
-    paddingBottom: 14,
+    paddingTop: 8,
+    paddingBottom: 10,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',
