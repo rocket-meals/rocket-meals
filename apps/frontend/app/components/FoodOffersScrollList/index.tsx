@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, Text, View } from 'react-native';
-import { addDays, format } from 'date-fns';
+import { addDays } from 'date-fns';
 import { useTheme } from '@/hooks/useTheme';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/reducer';
@@ -239,35 +239,6 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		setRefreshing(false);
 	};
 
-	const getDayLabel = useCallback(
-		(date: string) => {
-			const currentDate = new Date();
-			const day = new Date(date);
-
-			currentDate.setHours(0, 0, 0, 0);
-			day.setHours(0, 0, 0, 0);
-
-			if (currentDate.toDateString() === day.toDateString()) {
-				return translate(TranslationKeys.today);
-			}
-
-			const yesterday = new Date(currentDate);
-			yesterday.setDate(yesterday.getDate() - 1);
-			if (yesterday.toDateString() === day.toDateString()) {
-				return translate(TranslationKeys.yesterday);
-			}
-
-			const tomorrow = new Date(currentDate);
-			tomorrow.setDate(tomorrow.getDate() + 1);
-			if (tomorrow.toDateString() === day.toDateString()) {
-				return translate(TranslationKeys.tomorrow);
-			}
-
-			return format(day, 'dd.MM.yyyy');
-		},
-		[translate]
-	);
-
 	const parseDateOnly = useCallback((date: string) => {
 		const [year, month, day] = date.split('-').map(Number);
 		if (!year || !month || !day) {
@@ -284,8 +255,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		return (
 			<View style={styles.dayContainer}>
 				<View style={styles.dateHeaderRow}>
-					<Text style={[styles.dateHeader, { color: theme.screen.text }]}>{getDayLabel(item.date)}</Text>
-					<Text style={[styles.dateHeaderRight, { color: theme.screen.text }]}>{smartReadableDate(parseDateOnly(item.date))}</Text>
+					<Text style={[styles.dateHeader, { color: theme.screen.text }]}>{smartReadableDate(parseDateOnly(item.date))}</Text>
 				</View>
 				{beforeElement && (
 					<View style={styles.elementContainer}>
