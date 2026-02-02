@@ -1,6 +1,6 @@
 import { Dimensions, Platform, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DatabaseTypes, DateHelper, FoodSortOption } from 'repo-depkit-common';
+import { DatabaseTypes, FoodSortOption } from 'repo-depkit-common';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { DrawerContentComponentProps, DrawerNavigationProp } from '@react-navigation/drawer';
@@ -26,7 +26,7 @@ import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import * as Notifications from 'expo-notifications';
 import { sortFoodOffers } from '@/helper/foodOfferSortHelper';
 import { useSmartReadableDateMethod } from '@/helper/DateHelper';
-import { addDays, format } from 'date-fns';
+import { addDays, addHours, format } from 'date-fns';
 import { BusinessHoursHelper } from '@/redux/actions/BusinessHours/BusinessHours';
 import noFoodOffersFound from '@/assets/animations/noFoodOffersFound.json';
 import LottieView from 'lottie-react-native';
@@ -204,7 +204,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	}, []);
 
 	const handleDateChange = (direction: 'prev' | 'next') => {
-		const currentDate = parseDateOnly(selectedDate);
+		const currentDate = new Date(selectedDate);
 		if (direction === 'prev') {
 			currentDate.setDate(currentDate.getDate() - 1);
 		} else {
@@ -212,7 +212,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		}
 		dispatch({
 			type: SET_SELECTED_DATE,
-			payload: DateHelper.getDirectusDateOnlyString(currentDate),
+			payload: currentDate.toISOString().split('T')[0],
 		});
 	};
 
@@ -225,7 +225,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	};
 
 	const getDayLabel = (date: string) => {
-		return smartReadableDate(parseDateOnly(date));
+		return smartReadableDate(addHours(parseDateOnly(date), 4));
 	};
 
 	const updateSort = (id: FoodSortOption, foodOffers: DatabaseTypes.Foodoffers[]) => {
@@ -261,7 +261,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	};
 
         const getCacheKey = (canteenId: string, date: string) => {
-                return `${canteenId}_${format(parseDateOnly(date), 'dd.MM.yyyy')}`;
+                return `${canteenId}_${format(new Date(date), 'dd.MM.yyyy')}`;
         };
 
         const getCachedOffers = (canteenId: string, date: string) => {
@@ -286,7 +286,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 
 			// Prefetch next two days
 			for (let i = 1; i <= 2; i++) {
-                                const date = DateHelper.getDirectusDateOnlyString(addDays(parseDateOnly(selectedDate), i));
+                                const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
                                 const cacheKey = getCacheKey(canteenId, date);
                                 if (!prefetchedFoodOffers[cacheKey]) {
                                         fetchFoodOffersByCanteen(canteenId, date)
@@ -327,7 +327,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
         const nextAvailableDate = useMemo(() => {
                 const canteenId = selectedCanteen?.id as string;
                 for (let i = 1; i <= 2; i++) {
-                        const date = DateHelper.getDirectusDateOnlyString(addDays(parseDateOnly(selectedDate), i));
+                        const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
                         const offers = getCachedOffers(canteenId, date);
                         if (offers && offers.length > 0) {
                                 return date;
