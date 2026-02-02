@@ -1,4 +1,11 @@
+import { DateHelper } from 'repo-depkit-common';
 import axios from '@/interceptor';
+
+const toDateOnlyString = (value: string) => {
+	const [year, month, day] = value.split('-').map(Number);
+	const date = year && month && day ? new Date(year, month - 1, day) : new Date(value);
+	return DateHelper.getDirectusDateOnlyString(date);
+};
 
 export const fetchFoodOffers = async () => {
 	try {
@@ -17,8 +24,8 @@ export const fetchFoodOffers = async () => {
 export const fetchFoodOffersByCanteen = async (canteenId: string, selected: string) => {
 	try {
 		// Date format should be YYYY-MM-DD
-		const paramDateStart = new Date(selected).toISOString().split('T')[0];
-		const paramDateEnd = new Date(selected).toISOString().split('T')[0];
+		const paramDateStart = toDateOnlyString(selected);
+		const paramDateEnd = toDateOnlyString(selected);
 
 		const response = await axios.get('/items/foodoffers', {
 			params: {
@@ -67,8 +74,8 @@ export const fetchFoodOffersByCanteen = async (canteenId: string, selected: stri
 export const fetchFoodsByCanteen = async (canteenId: string, selected?: string) => {
 	try {
 		// Initialize date filter variables only if `selected` is provided
-		const paramDateStart = selected ? new Date(selected).toISOString().split('T')[0] : null;
-		const paramDateEnd = selected ? new Date(selected).toISOString().split('T')[0] : null;
+		const paramDateStart = selected ? toDateOnlyString(selected) : null;
+		const paramDateEnd = selected ? toDateOnlyString(selected) : null;
 
 		// Construct the base filter
 		const baseFilter: any[] = [

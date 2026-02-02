@@ -1,6 +1,6 @@
 import { Dimensions, Platform, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DatabaseTypes, FoodSortOption } from 'repo-depkit-common';
+import { DatabaseTypes, DateHelper, FoodSortOption } from 'repo-depkit-common';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { DrawerContentComponentProps, DrawerNavigationProp } from '@react-navigation/drawer';
@@ -204,7 +204,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	}, []);
 
 	const handleDateChange = (direction: 'prev' | 'next') => {
-		const currentDate = new Date(selectedDate);
+		const currentDate = parseDateOnly(selectedDate);
 		if (direction === 'prev') {
 			currentDate.setDate(currentDate.getDate() - 1);
 		} else {
@@ -212,7 +212,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 		}
 		dispatch({
 			type: SET_SELECTED_DATE,
-			payload: currentDate.toISOString().split('T')[0],
+			payload: DateHelper.getDirectusDateOnlyString(currentDate),
 		});
 	};
 
@@ -261,7 +261,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	};
 
         const getCacheKey = (canteenId: string, date: string) => {
-                return `${canteenId}_${format(new Date(date), 'dd.MM.yyyy')}`;
+                return `${canteenId}_${format(parseDateOnly(date), 'dd.MM.yyyy')}`;
         };
 
         const getCachedOffers = (canteenId: string, date: string) => {
@@ -286,7 +286,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 
 			// Prefetch next two days
 			for (let i = 1; i <= 2; i++) {
-                                const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
+                                const date = DateHelper.getDirectusDateOnlyString(addDays(parseDateOnly(selectedDate), i));
                                 const cacheKey = getCacheKey(canteenId, date);
                                 if (!prefetchedFoodOffers[cacheKey]) {
                                         fetchFoodOffersByCanteen(canteenId, date)
@@ -327,7 +327,7 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
         const nextAvailableDate = useMemo(() => {
                 const canteenId = selectedCanteen?.id as string;
                 for (let i = 1; i <= 2; i++) {
-                        const date = addDays(new Date(selectedDate), i).toISOString().split('T')[0];
+                        const date = DateHelper.getDirectusDateOnlyString(addDays(parseDateOnly(selectedDate), i));
                         const offers = getCachedOffers(canteenId, date);
                         if (offers && offers.length > 0) {
                                 return date;

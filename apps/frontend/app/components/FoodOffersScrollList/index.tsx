@@ -5,7 +5,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/reducer';
 import { fetchFoodOffersByCanteen } from '@/redux/actions/FoodOffers/FoodOffers';
-import { CollectibleAt, CollectionNames, DatabaseTypes, FoodSortOption, sortBySortField } from 'repo-depkit-common';
+import { CollectibleAt, CollectionNames, DatabaseTypes, DateHelper, FoodSortOption, sortBySortField } from 'repo-depkit-common';
 import FoodItem from '@/components/FoodItem/FoodItem';
 import CanteenFeedbackLabels from '@/components/CanteenFeedbackLabels/CanteenFeedbackLabels';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -161,11 +161,11 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 
 	const init = useCallback(async () => {
 		setLoading(true);
-		const baseDate = new Date(startDate);
+		const baseDate = parseDateOnly(startDate);
 		const toLoad = [0, 1, 2];
 		const loaded: DayData[] = [];
 		for (const offset of toLoad) {
-			const d = addDays(baseDate, offset).toISOString().split('T')[0];
+			const d = DateHelper.getDirectusDateOnlyString(addDays(baseDate, offset));
 			loaded.push(await loadDay(d));
 		}
 		setDays(loaded);
@@ -232,7 +232,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 
 	const loadNext = async () => {
 		const lastDate = days[days.length - 1].date;
-		const nextDate = addDays(new Date(lastDate), 1).toISOString().split('T')[0];
+		const nextDate = DateHelper.getDirectusDateOnlyString(addDays(parseDateOnly(lastDate), 1));
 		const nextDay = await loadDay(nextDate);
 		setDays(prev => [...prev, nextDay]);
 	};

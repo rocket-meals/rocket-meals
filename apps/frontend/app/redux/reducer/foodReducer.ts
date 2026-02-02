@@ -1,3 +1,4 @@
+import { DateHelper } from 'repo-depkit-common';
 import { CLEAR_FOODS, DELETE_FOOD_FEEDBACK_LOCAL, DELETE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES_LOCAL, SET_FOOD_CATEGORIES, SET_FOOD_COLLECTION, SET_FOOD_OFFERS_CATEGORIES, SET_FOODOFFERS_INFO_ITEMS, SET_MARKING_DETAILS, SET_MOST_DISLIKED_FOODS, SET_MOST_LIKED_FOODS, SET_POPUP_EVENTS, SET_SELECTED_DATE, SET_SELECTED_FOOD_MARKINGS, UPDATE_FOOD_FEEDBACK_LABELS, UPDATE_FOOD_FEEDBACK_LOCAL, UPDATE_MARKINGS, UPDATE_OWN_FOOD_FEEDBACK, UPDATE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES, UPDATE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES_LOCAL } from '@/redux/Types/types';
 
 const initialState = {
@@ -14,7 +15,7 @@ const initialState = {
 	mostDislikedFoods: [],
 	foodCollection: {},
 	popupEvents: [],
-	selectedDate: new Date().toISOString().split('T')[0],
+	selectedDate: DateHelper.getDirectusDateOnlyString(new Date()),
 };
 
 const foodReducer = (state = initialState, actions: any) => {

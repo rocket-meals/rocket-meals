@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { DateHelper } from 'repo-depkit-common';
 import { RootState } from '@/redux/reducer';
 import { SET_SELECTED_DATE } from '@/redux/Types/types';
 
 const DEFAULT_THRESHOLD = '18:00';
 
-const formatDate = (date: Date) => date.toISOString().split('T')[0];
+const formatDate = (date: Date) => DateHelper.getDirectusDateOnlyString(date);
 
 const parseThreshold = (value: string) => {
 	const match = /^(\d{2}):(\d{2})$/.exec(value || '');
