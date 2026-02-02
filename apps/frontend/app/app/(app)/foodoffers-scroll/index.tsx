@@ -26,7 +26,7 @@ import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import * as Notifications from 'expo-notifications';
 import { sortFoodOffers } from '@/helper/foodOfferSortHelper';
 import { useSmartReadableDateMethod } from '@/helper/DateHelper';
-import { addDays, addHours, format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { BusinessHoursHelper } from '@/redux/actions/BusinessHours/BusinessHours';
 import noFoodOffersFound from '@/assets/animations/noFoodOffersFound.json';
 import LottieView from 'lottie-react-native';
@@ -225,7 +225,9 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 	};
 
 	const getDayLabel = (date: string) => {
-		return smartReadableDate(addHours(parseDateOnly(date), 4));
+		const parsedDate = parseDateOnly(date);
+		parsedDate.setHours(12, 0, 0, 0);
+		return smartReadableDate(parsedDate);
 	};
 
 	const updateSort = (id: FoodSortOption, foodOffers: DatabaseTypes.Foodoffers[]) => {

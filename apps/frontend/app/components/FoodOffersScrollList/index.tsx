@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, Text, View, useWindowDimensions } from 'react-native';
-import { addDays, addHours } from 'date-fns';
+import { addDays } from 'date-fns';
 import { useTheme } from '@/hooks/useTheme';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/reducer';
@@ -263,7 +263,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		return (
 			<View style={styles.dayContainer}>
 				<View style={styles.dateHeaderRow}>
-					<Text style={[styles.dateHeader, { color: theme.screen.text }]}>{smartReadableDate(addHours(parseDateOnly(item.date), 4))}</Text>
+					<Text style={[styles.dateHeader, { color: theme.screen.text }]}>{smartReadableDate(new Date(parseDateOnly(item.date).setHours(12, 0, 0, 0)))}</Text>
 				</View>
 				{beforeElement && (
 					<View style={styles.elementContainer}>
