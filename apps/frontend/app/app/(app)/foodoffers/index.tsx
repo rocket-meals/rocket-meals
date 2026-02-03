@@ -1,6 +1,6 @@
 import { Dimensions, Platform, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DatabaseTypes, FoodSortOption } from 'repo-depkit-common';
+import {DatabaseTypes, DateHelper, FoodSortOption} from 'repo-depkit-common';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { DrawerContentComponentProps, DrawerNavigationProp } from '@react-navigation/drawer';
@@ -43,6 +43,7 @@ import useUtilizationModal from '@/hooks/useUtilizationModal';
 import useFoodofferSortingModal from '@/hooks/useFoodofferSortingModal';
 import FoodOffersScrollList from '@/components/FoodOffersScrollList';
 import useAppForegroundUpdateCheckModal from '@/hooks/useAppForegroundUpdateCheckModal';
+import DebugView from "@/components/DebugView";
 
 export const SHEET_COMPONENTS = {
 	canteen: CanteenSelectionSheet,
@@ -628,6 +629,10 @@ const Index: React.FC<DrawerContentComponentProps> = ({ navigation }) => {
 							backgroundColor: theme.screen.background,
 						}}
 					>
+						<DebugView>
+							<Text>{"selectedDate: "+JSON.stringify(selectedDate)}</Text>
+							<Text>{"DateHelper.parseDD_MM_YYYY: "+new Date(selectedDate).toISOString()}</Text>
+						</DebugView>
 						{selectedCanteen && <FoodOffersScrollList canteenId={selectedCanteen.id} startDate={selectedDate} />}
 					</View>
 				</View>
