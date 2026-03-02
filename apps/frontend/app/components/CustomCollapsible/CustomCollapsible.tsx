@@ -5,14 +5,14 @@ import { MaterialIcons } from '@expo/vector-icons';
 import Collapsible from 'react-native-collapsible';
 import { useTheme } from '@/hooks/useTheme';
 import { CustomCollapsibleProps } from './types';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { RootState } from '@/redux/reducer';
 
 const CustomCollapsible: React.FC<CustomCollapsibleProps> = ({ headerText, children, customColor = '', startCollapsed = false }) => {
 	const [collapsed, setCollapsed] = useState(startCollapsed);
 	const { theme } = useTheme();
-	const { primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const resolvedColor = customColor || primaryColor;
 	const contrastColor = myContrastColor(resolvedColor, theme, mode === 'dark');
 

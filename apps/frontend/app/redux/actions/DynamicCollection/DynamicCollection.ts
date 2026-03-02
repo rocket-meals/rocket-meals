@@ -1,18 +1,18 @@
-import { CollectionHelper, Query } from '@/helper/collectionHelper';
+import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 
-export class DynamicCollectionHelper<T extends Record<string, unknown>> extends CollectionHelper<T> {
+export class DynamicCollectionHelper extends CollectionHelper<any> {
 	constructor(collection: string, client?: any) {
-		super(collection, client);
+		super(collection, client || ServerAPI.getClient());
 	}
 
-	async fectAllCollection(queryOverride?: Query<T>) {
+	async fectAllCollection(queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: ['*', 'translations.*'],
 			limit: -1, // Fetch all
 		};
 
-		const query = { ...defaultQuery, ...(queryOverride || {}) };
+		const query = { ...defaultQuery, ...queryOverride };
 		return await this.readItems(query);
 	}
 }

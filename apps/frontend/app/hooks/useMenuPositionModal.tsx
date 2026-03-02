@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
@@ -17,7 +16,7 @@ import { CollectibleAt } from 'repo-depkit-common';
 const MenuPositionSheet: React.FC<{ closeSheet: () => void }> = ({ closeSheet }) => {
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { drawerPosition, primaryColor } = useAppSelector((state) => state.settings);
+	const { drawerPosition, primaryColor } = useSelector((state: RootState) => state.settings);
 	const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
 	const updatePosition = (position: string) => {
@@ -37,7 +36,7 @@ const MenuPositionSheet: React.FC<{ closeSheet: () => void }> = ({ closeSheet })
 					options={drawers.map((drawer) => ({
 						id: drawer.id,
 						label: translate(drawer.name),
-						icon: <MaterialCommunityIcons name={drawer.icon as any} size={24} />,
+						icon: <MaterialCommunityIcons name={drawer.icon} size={24} />,
 					}))}
 					selectedOption={selectedOption}
 					onSelect={(option) => updatePosition(option.id)}

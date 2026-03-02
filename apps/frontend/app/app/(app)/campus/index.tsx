@@ -1,19 +1,24 @@
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import {
+	ActivityIndicator,
+	Dimensions,
 	RefreshControl,
 	SafeAreaView,
+	TextInput,
 	View,
-	useWindowDimensions,
+	Text,
+	StyleSheet,
 } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
-import { CampusSortOption, CollectionNames, DatabaseTypes } from 'repo-depkit-common';
+import { CampusSortOption, CollectibleAt, CollectionNames, DatabaseTypes } from 'repo-depkit-common';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { isWeb } from '@/constants/Constants';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { DrawerContentComponentProps, DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from 'expo-router';
 import BuildingItem from '@/components/BuildingItem/BuildingItem';
-import { useDispatch, shallowEqual } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { CampusHelper } from '@/redux/actions/Campus/Campus';
 import { SET_CAMPUSES, SET_CAMPUSES_DICT, SET_CAMPUSES_LOCAL, SET_UNSORTED_CAMPUSES } from '@/redux/Types/types';
@@ -23,115 +28,91 @@ import DistanceModal from '@/components/DistanceModal';
 import * as Location from 'expo-location';
 import useToast from '@/hooks/useToast';
 import { useLanguage } from '@/hooks/useLanguage';
+import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 import useCampusSortingModal from '@/hooks/useCampusSortingModal';
 import useMyScrollviewDirectusImageEditModal from '@/hooks/useMyScrollviewDirectusImageEditModal';
 
-import { RootDrawerParamList } from './types';
-import CampusHeader from './components/CampusHeader';
-import CampusListHeader from './components/CampusListHeader';
-import CampusEmptyState from './components/CampusEmptyState';
+import IconButton from '@/components/UI/IconButton';
+import Button from '@/components/UI/Button';
+import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 
-// Types
-type BuildingWithDistance = DatabaseTypes.Buildings & { distance?: number };
+const ITEM_HEIGHT = 140;
 
-const Index: React.FC = () => {
+const Index: React.FC<DrawerContentComponentProps> = () => {
 	useSetPageTitle(TranslationKeys.campus);
 	const { theme } = useTheme();
 	const toast = useToast();
 	const dispatch = useDispatch();
 	const { translate } = useLanguage();
-	const { width: windowWidth } = useWindowDimensions();
-
-	// Refs for helpers to avoid recreation
 	const campusHelper = useRef(new CampusHelper()).current;
 	const buildingsHelper = useRef(new BuildingsHelper()).current;
 
-	// Local State
 	const [query, setQuery] = useState<string>('');
 	const [refreshing, setRefreshing] = useState(false);
 	const [hasLoaded, setHasLoaded] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [campusesDispatched, setCampusesDispatched] = useState(false);
 	const [selectedBuilding, setSelectedBuilding] = useState<DatabaseTypes.Buildings | null>(null);
-	const [listWidth, setListWidth] = useState<number>(windowWidth);
-	const [distanceModalVisible, setDistanceModalVisible] = useState(false);
+	const [distanceAdded, setDistanceAdded] = useState(false);
+	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+	const [listWidth, setListWidth] = useState<number | null>(null);
 
-	// Redux Selectors
-	const {
-		drawerPosition,
-		campusesSortBy,
-		amountColumnsForcard,
-		primaryColor,
-		serverInfo,
-		appSettings,
-		selectedTheme
-	} = useAppSelector((state) => ({
-		drawerPosition: state.settings.drawerPosition,
-		campusesSortBy: state.settings.campusesSortBy,
-		amountColumnsForcard: state.settings.amountColumnsForcard,
-		primaryColor: state.settings.primaryColor,
-		serverInfo: state.settings.serverInfo,
-		appSettings: state.settings.appSettings,
-		selectedTheme: state.settings.selectedTheme,
-	}), shallowEqual);
-
-	const campuses = useAppSelector((state) => state.campus.campuses, shallowEqual);
-
-	const { isManagement } = useAppSelector((state) => state.authReducer, shallowEqual);
-
+	const { drawerPosition, campusesSortBy, amountColumnsForcard, primaryColor, serverInfo, appSettings, selectedTheme } =
+		useSelector((state: RootState) => state.settings);
+	const { campuses, campusesLocal, unSortedCampuses } = useSelector((state: RootState) => state.campus);
+	const { isManagement } = useSelector((state: RootState) => state.authReducer);
 	const selectedCanteen = useSelectedCanteen();
 	const drawerNavigation = useNavigation<DrawerNavigationProp<RootDrawerParamList>>();
 
+	const [distanceModalVisible, setDistanceModalVisible] = useState(false);
 	const { openCampusSortingModal } = useCampusSortingModal();
 	const { openDirectusImageEditModal } = useMyScrollviewDirectusImageEditModal();
 
-	// Handlers
 	const openDistanceSheet = useCallback(() => setDistanceModalVisible(true), []);
 	const closeDistanceSheet = useCallback(() => setDistanceModalVisible(false), []);
-	const toggleDrawer = useCallback(() => drawerNavigation.toggleDrawer(), [drawerNavigation]);
 
-	// Grid Layout Logic
 	const MIN_CARD_WIDTH = 280;
 	const numColumns = useMemo(() => {
-		if (amountColumnsForcard && amountColumnsForcard > 0) return amountColumnsForcard;
-		// Use listWidth if available, else fallback to windowWidth
-		const width = listWidth || windowWidth;
-		if (!width) return 2;
-		const cols = Math.floor(width / MIN_CARD_WIDTH);
-		return Math.max(2, cols);
-	}, [amountColumnsForcard, listWidth, windowWidth]);
+		if (amountColumnsForcard && amountColumnsForcard > 0) {
+			return amountColumnsForcard;
+		}
 
-	// Data Processing
+		if (!listWidth) return 2;
+
+		const cols = Math.floor(listWidth / MIN_CARD_WIDTH);
+		return Math.max(2, cols);
+	}, [amountColumnsForcard, listWidth]);
+
+	const itemGap = useMemo(() => {
+		if (screenWidth >= 1600) return 28;
+		if (screenWidth >= 1300) return 24;
+		if (screenWidth >= 1000) return 20;
+		if (screenWidth >= 700) return 16;
+		if (screenWidth >= 500) return 12;
+		if (screenWidth >= 300) return 10;
+		return 8;
+	}, [screenWidth]);
+
 	const ensureStableIds = useCallback((arr: DatabaseTypes.Buildings[] = []) => {
 		return arr.map((c, idx) => {
-			const stableId = c.id ?? `__generated__${idx}_${String(c.alias ?? '').slice(0, 10)}`;
-			if (c.id === stableId) return c;
+			const stableId = c.id ?? c._id ?? `__generated__${idx}_${String(c.alias ?? '').slice(0, 10)}`;
+			if (c.id === stableId || c._id === stableId) return c;
 			return { ...c, id: stableId };
 		});
 	}, []);
 
-	const addDistanceToList = useCallback((list: BuildingWithDistance[] | undefined, base: DatabaseTypes.Buildings | null) => {
-		if (!list) return [];
-		if (!base) return list;
+	const addDistanceToList = useCallback((list: DatabaseTypes.Buildings[] | undefined, base: DatabaseTypes.Buildings | null) => {
+		if (!list) return list;
+		if (!base || !base.coordinates) return list;
 		try {
-			const baseCoords = (base as any)?.coordinates?.coordinates as [number, number] | undefined;
-			if (!Array.isArray(baseCoords) || baseCoords.length !== 2) return list;
-
+			const baseCoords = base.coordinates?.coordinates;
 			return list.map(c => {
-				const coords = (c as any)?.coordinates?.coordinates as [number, number] | undefined;
-				let dist = 0;
-				if (Array.isArray(coords) && coords.length === 2) {
-					dist = calculateDistanceInMeter(baseCoords, coords);
-				} else if (Number.isFinite(Number((c as any)?.distance))) {
-					dist = Number((c as any)?.distance);
-				}
-
-				// Only create new object if distance changed significantly or wasn't set
-				if (c.distance === dist) return c;
+				const dist = calculateDistanceInMeter(baseCoords, c?.coordinates?.coordinates);
 				return { ...c, distance: dist };
-			}) as BuildingWithDistance[];
+			});
 		} catch (e) {
 			console.warn('addDistance error', e);
 			return list;
@@ -154,50 +135,23 @@ const Index: React.FC = () => {
 	}, [buildingsHelper, selectedCanteen, toast]);
 
 	const fetchAllCampuses = useCallback(
-		async (baseBuilding: DatabaseTypes.Buildings | null = null, showLoading = true) => {
+		async (baseBuilding: DatabaseTypes.Buildings | null = null) => {
 			try {
-				if (showLoading) setLoading(true);
+				setLoading(true);
 				const campusDataRaw = (await campusHelper.fetchCampus({})) as DatabaseTypes.Buildings[] | undefined;
 				const campusData = ensureStableIds(campusDataRaw ?? []);
+				// build dict
+				const dict = campusData.reduce((acc: Record<string, DatabaseTypes.Buildings>, campus) => {
+					if (campus?.id) acc[campus.id] = campus;
+					return acc;
+				}, {});
 
-				// Deep merge to preserve object references
-				const currentCampuses = campuses || [];
-				const currentMap = new Map(currentCampuses.map((c: DatabaseTypes.Buildings) => [c.id, c]));
+				const campusDataWithDistance = baseBuilding ? addDistanceToList(campusData, baseBuilding) : campusData.map(c => ({ ...c, distance: Number.isFinite(Number(c?.distance)) ? Number(c.distance) : 0 }));
 
-				const mergedData = campusData.map((newCampus) => {
-					const oldCampus = currentMap.get(newCampus.id);
-					if (oldCampus) {
-						// If date_updated matches, assume equal. 
-						// Fallback to JSON comparison if no date or dates differ (to catch other changes)
-						// Note: JSON.stringify is expensive but safer than missing updates.
-						// Given the severe performance issues, we prioritize stability.
-						const isDateMatch = newCampus.date_updated && oldCampus.date_updated && newCampus.date_updated === oldCampus.date_updated;
-						
-						if (isDateMatch) return oldCampus;
-						
-						// Fallback deep compare
-						if (JSON.stringify(newCampus) === JSON.stringify(oldCampus)) {
-							return oldCampus;
-						}
-					}
-					return newCampus;
-				});
-
-				// Check if the array itself is effectively the same (all items are same references)
-				const isSameArray = mergedData.length === currentCampuses.length &&
-					mergedData.every((c, i) => c === currentCampuses[i]);
-
-				if (!isSameArray) {
-					const dict = mergedData.reduce((acc: Record<string, DatabaseTypes.Buildings>, campus) => {
-						if (campus?.id) acc[campus.id] = campus;
-						return acc;
-					}, {});
-
-					dispatch({ type: SET_CAMPUSES, payload: mergedData });
-					dispatch({ type: SET_CAMPUSES_DICT, payload: dict });
-					dispatch({ type: SET_UNSORTED_CAMPUSES, payload: mergedData });
-					dispatch({ type: SET_CAMPUSES_LOCAL, payload: mergedData });
-				}
+				dispatch({ type: SET_CAMPUSES, payload: campusDataWithDistance });
+				dispatch({ type: SET_CAMPUSES_DICT, payload: dict });
+				dispatch({ type: SET_UNSORTED_CAMPUSES, payload: campusDataWithDistance });
+				dispatch({ type: SET_CAMPUSES_LOCAL, payload: campusDataWithDistance });
 
 				setCampusesDispatched(true);
 				setHasLoaded(true);
@@ -205,53 +159,71 @@ const Index: React.FC = () => {
 				console.error('fetchAllCampuses error', e);
 				toast('Failed to load campuses', 'error');
 			} finally {
-				if (showLoading) setLoading(false);
+				setLoading(false);
 			}
 		},
-		[campusHelper, dispatch, ensureStableIds, toast, campuses]
+		[campusHelper, dispatch, ensureStableIds, addDistanceToList, toast]
 	);
 
-	// Effects
 	useEffect(() => {
-		let mounted = true;
 		(async () => {
-			const hasData = campuses && campuses.length > 0;
-			if (!hasData) setLoading(true);
-
+			setLoading(true);
 			const base = await fetchSelectedBuilding();
-			if (mounted) await fetchAllCampuses(base ?? null, !hasData);
-			if (mounted) setLoading(false);
+			await fetchAllCampuses(base ?? null);
+			setLoading(false);
 		})();
-		return () => { mounted = false; };
-	}, []); // Run once
-
-	// Sorting Logic
-	const sortCampuses = useCallback((list: BuildingWithDistance[], sortBy: CampusSortOption) => {
-		 const newList = [...list];
-		 if (sortBy === CampusSortOption.ALPHABETICAL) {
-			 return newList.sort((a, b) => (a?.alias ?? '').localeCompare(b?.alias ?? ''));
-		 } else if (sortBy === CampusSortOption.DISTANCE || sortBy === CampusSortOption.INTELLIGENT) {
-			 return newList.sort((a, b) => (a?.distance || 0) - (b?.distance || 0));
-		 }
-		 return newList;
 	}, []);
 
-	// Memoized Processing Pipeline
-	const campusesWithDistance = useMemo(() => {
-		if (!campuses) return [];
-		return addDistanceToList(campuses as BuildingWithDistance[], selectedBuilding);
-	}, [campuses, selectedBuilding, addDistanceToList]);
+	useEffect(() => {
+		if (!campusesDispatched || !selectedBuilding) return;
 
-	const sortedCampuses = useMemo(() => {
-		return sortCampuses(campusesWithDistance, campusesSortBy);
-	}, [campusesWithDistance, campusesSortBy, sortCampuses]);
+		const nextList = addDistanceToList(campusesLocal ?? [], selectedBuilding);
+		if (nextList) {
+			const equal = (campuses ?? []).length === nextList.length && (campuses ?? []).every((c, i) => String(c?.id ?? '') === String(nextList[i]?.id ?? ''));
+			if (!equal) {
+				dispatch({ type: SET_CAMPUSES, payload: nextList });
+				dispatch({ type: SET_UNSORTED_CAMPUSES, payload: nextList });
+				setDistanceAdded(true);
+			}
+		}
+	}, [selectedBuilding, campusesDispatched, addDistanceToList, campusesLocal, campuses, dispatch]);
 
-	const visibleCampuses: BuildingWithDistance[] = useMemo(() => {
-		const src = sortedCampuses;
+	const sortCampusesWithDistance = useCallback((list: DatabaseTypes.Buildings[] | undefined) => {
+		if (!list) return list;
+		return [...list].sort((a: any, b: any) => (a?.distance || 0) - (b?.distance || 0));
+	}, []);
+
+	const sortCampusesAlphabetically = useCallback((list: DatabaseTypes.Buildings[] | undefined) => {
+		if (!list) return list;
+		return [...list].sort((a: any, b: any) => (a?.alias ?? '').localeCompare(b?.alias ?? ''));
+	}, []);
+
+	useEffect(() => {
+		if (!campuses || campuses.length === 0) return;
+		let next = campuses;
+		if (campusesSortBy === CampusSortOption.ALPHABETICAL) next = sortCampusesAlphabetically(campuses);
+		else if (campusesSortBy === CampusSortOption.DISTANCE || campusesSortBy === CampusSortOption.INTELLIGENT) next = sortCampusesWithDistance(campuses);
+
+		const same = next.length === campuses.length && next.every((c, i) => String(c?.id ?? '') === String(campuses[i]?.id ?? ''));
+		if (!same) {
+			dispatch({ type: SET_CAMPUSES, payload: next });
+			dispatch({ type: SET_CAMPUSES_LOCAL, payload: next });
+		}
+	}, [campusesSortBy, campuses]);
+
+	useEffect(() => {
+		if (!hasLoaded) return;
+		const t = setTimeout(() => {
+		}, 300);
+		return () => clearTimeout(t);
+	}, [query, hasLoaded]);
+
+	const visibleCampuses = useMemo(() => {
+		const src = campusesLocal ?? campuses ?? [];
 		if (!query || query.trim() === '') return src;
 		const q = query.toLowerCase().trim();
 		return src.filter(campus => (campus?.alias ?? '').toLowerCase().includes(q));
-	}, [sortedCampuses, query]);
+	}, [campusesLocal, campuses, query]);
 
 	const onRefresh = useCallback(() => {
 		setRefreshing(true);
@@ -268,15 +240,37 @@ const Index: React.FC = () => {
 			const loc = await Location.getCurrentPositionAsync({});
 			const fakeBuilding = { coordinates: { coordinates: [loc.coords.longitude, loc.coords.latitude] } } as any;
 			setSelectedBuilding(fakeBuilding);
+
+			const updated = addDistanceToList(campusesLocal ?? campuses ?? [], fakeBuilding);
+			if (updated) {
+				dispatch({ type: SET_CAMPUSES, payload: updated });
+				dispatch({ type: SET_CAMPUSES_LOCAL, payload: updated });
+			}
 			closeDistanceSheet();
 		} catch (error) {
 			console.error('Error getting location:', error);
 		}
-	}, [toast, closeDistanceSheet]);
+	}, [addDistanceToList, campusesLocal, campuses, dispatch, toast, closeDistanceSheet]);
 
-	// Image Management
-	const fetchAllCampusesRef = useRef(fetchAllCampuses);
-	useEffect(() => { fetchAllCampusesRef.current = fetchAllCampuses; }, [fetchAllCampuses]);
+	useEffect(() => {
+		const handleResize = () => {
+			const w = Dimensions.get('window').width;
+			setScreenWidth(Number.isFinite(w) && w > 0 ? w : 360);
+		};
+		handleResize();
+		const subscription = Dimensions.addEventListener('change', handleResize);
+		return () => subscription?.remove();
+	}, []);
+
+	const settingsForItem = useMemo(() => ({
+		amountColumnsForcard,
+		primaryColor,
+		serverInfo,
+		appSettings,
+		selectedTheme,
+		screenWidth,
+		isManagement,
+	}), [amountColumnsForcard, primaryColor, serverInfo, appSettings, selectedTheme, screenWidth, isManagement]);
 
 	const openImageManagementModal = useCallback(
 		(campus: DatabaseTypes.Buildings) => {
@@ -287,79 +281,122 @@ const Index: React.FC = () => {
 				collection: CollectionNames.BUILDINGS,
 				onUpdated: () => {
 					setCampusesDispatched(false);
-					fetchAllCampusesRef.current();
+					fetchAllCampuses();
 				},
 			});
 		},
-		[openDirectusImageEditModal]
+		[fetchAllCampuses, openDirectusImageEditModal]
 	);
 
-	// Memoized Props for Item
-	const projectLogo = serverInfo?.info?.project?.project_logo;
-	const campusAreaColor = appSettings?.campus_area_color;
-
 	const renderItem = useCallback(
-		({ item }: { item: BuildingWithDistance }) => {
+		({ item }: { item: DatabaseTypes.Buildings }) => {
 			return (
-				<View style={styles.campusContainerItem}>
+				<View
+					style={{
+						flex: 1,
+						marginHorizontal: 10,
+						marginVertical: 10,
+						alignItems: 'center'
+					}}
+				>
 					<BuildingItem
 						campus={item}
 						onEditImage={openImageManagementModal}
 						openDistanceSheet={openDistanceSheet}
-						amountColumnsForcard={amountColumnsForcard}
-						primaryColor={primaryColor}
-						projectLogo={projectLogo ?? undefined}
-						campusAreaColor={campusAreaColor ?? undefined}
-						selectedTheme={selectedTheme}
-						screenWidth={windowWidth}
-						isManagement={isManagement}
+						settings={settingsForItem}
 					/>
 				</View>
 			);
 		},
 		[
-			openImageManagementModal, 
-			openDistanceSheet, 
-			amountColumnsForcard, 
-			primaryColor, 
-			projectLogo, 
-			campusAreaColor, 
-			selectedTheme, 
-			windowWidth, 
-			isManagement
+			openImageManagementModal,
+			openDistanceSheet,
+			settingsForItem,
+			itemGap,
 		]
 	);
 
-	const keyExtractor = useCallback((item: BuildingWithDistance, index: number) => (item.id ? String(item.id) : `campus-${index}`), []);
+	const keyExtractor = useCallback((item: DatabaseTypes.Buildings, index: number) => (item.id ? String(item.id) : `campus-${index}`), []);
 
-	const widthStyle = useMemo(() => ({
-		width: windowWidth > 768 ? Math.floor(windowWidth * 0.6) : Math.floor(windowWidth)
-	}), [windowWidth]);
+	const ListHeaderComponent = useMemo(() => {
+		const widthStyle = { width: screenWidth > 768 ? '60%' : '100%' };
+		return (
+			<View style={{ width: '100%', paddingHorizontal: 5, marginBottom: 10, alignItems: 'center' }}>
 
-	const headerComponent = useMemo(() => (
-		<CampusListHeader
-			widthStyle={widthStyle}
-			theme={theme}
-			query={query}
-			setQuery={setQuery}
-			translate={translate}
-		/>
-	), [widthStyle, theme, query, translate, setQuery]); // Added setQuery
+				<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_campus} />
 
-	const emptyComponent = useMemo(() => (
-		<CampusEmptyState loading={loading} theme={theme} translate={translate} />
-	), [loading, theme, translate]);
+				<View style={[styles.searchContainer, widthStyle]}>
+					<TextInput
+						style={[styles.searchInput, { color: theme.screen.text }]}
+						cursorColor={theme.screen.text}
+						placeholderTextColor={theme.screen.placeholder}
+						onChangeText={setQuery}
+						value={query}
+						placeholder={translate(TranslationKeys.search_campus_here)}
+					/>
+				</View>
+			</View>
+		);
+	}, [screenWidth, theme.screen.text, theme.screen.placeholder, query, translate]);
+
+	const ListEmptyComponent = useMemo(() => {
+		if (loading) {
+			return (
+				<View style={emptyStyles.container}>
+					<ActivityIndicator size={30} color={theme.screen.text} />
+				</View>
+			);
+		}
+
+		return (
+			<View style={emptyStyles.container}>
+				<Text style={{ fontSize: 16, fontFamily: 'Poppins_400Regular', color: theme.screen.text }}>{translate(TranslationKeys.no_campus_found)}</Text>
+			</View>
+		);
+	}, [loading, theme.screen.text, translate]);
 
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.background }}>
-			<View style={styles.container}>
-				<CampusHeader
-					theme={theme}
-					translate={translate}
-					onToggleDrawer={toggleDrawer}
-					onSort={openCampusSortingModal}
-					drawerPosition={drawerPosition}
-				/>
+			<View style={{ ...styles.container }}>
+				<View style={{ ...styles.header, backgroundColor: theme.header.background, paddingHorizontal: isWeb ? 20 : 10 }}>
+					<View style={[styles.row, { flexDirection: drawerPosition === 'right' ? 'row-reverse' : 'row' }]}>
+						<View style={[styles.col1, { flexDirection: drawerPosition === 'right' ? 'row-reverse' : 'row' }]}>
+							<Tooltip
+								placement="top"
+								trigger={triggerProps => (
+									<IconButton {...triggerProps} onPress={() => drawerNavigation.toggleDrawer()} style={{ padding: 10 }}>
+										<Ionicons name="menu" size={24} color={theme.header.text} />
+									</IconButton>
+								)}
+							>
+								<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+									<TooltipText fontSize="$sm" color={theme.tooltip.text}>
+										{`${translate(TranslationKeys.open_drawer)}`}
+									</TooltipText>
+								</TooltipContent>
+							</Tooltip>
+
+							<Text style={{ ...styles.heading, color: theme.header.text }}>{translate(TranslationKeys.campus)}</Text>
+						</View>
+
+						<View style={{ ...styles.col2, gap: isWeb ? 30 : 15 }}>
+							<Tooltip
+								placement="top"
+								trigger={triggerProps => (
+									<IconButton {...triggerProps} onPress={openCampusSortingModal} style={{ padding: 10 }}>
+										<MaterialIcons name="sort" size={24} color={theme.header.text} />
+									</IconButton>
+								)}
+							>
+								<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+									<TooltipText fontSize="$sm" color={theme.tooltip.text}>
+										{`${translate(TranslationKeys.sort)}: ${translate(TranslationKeys.buildings)}`}
+									</TooltipText>
+								</TooltipContent>
+							</Tooltip>
+						</View>
+					</View>
+				</View>
 
 				<View style={{ flex: 1, alignItems: 'center' }}>
 					<View
@@ -370,35 +407,25 @@ const Index: React.FC = () => {
 						}}
 						onLayout={e => {
 							const w = e.nativeEvent.layout.width;
-							// Only update if difference is significant to avoid jitter
-							if (w && Math.abs(w - listWidth) > 1) {
+							if (w && w !== listWidth) {
 								setListWidth(w);
 							}
 						}}
 					>
 						<FlashList
-							key={`list-${numColumns}`}
+							key={numColumns}
 							data={visibleCampuses}
-							extraData={[
-								amountColumnsForcard,
-								primaryColor,
-								projectLogo,
-								campusAreaColor,
-								selectedTheme,
-								windowWidth,
-								isManagement
-							]}
 							renderItem={renderItem}
 							keyExtractor={keyExtractor}
 							numColumns={numColumns}
-							contentContainerStyle={{ marginTop: 20 }}
-							ListHeaderComponent={headerComponent}
-							ListEmptyComponent={emptyComponent}
-							refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-							removeClippedSubviews={true}
+                                                        contentContainerStyle={{
+                                                                marginTop: 20,
+                                                        }}
+                                                        ListHeaderComponent={ListHeaderComponent}
+                                                        ListEmptyComponent={ListEmptyComponent}
+                                                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+							removeClippedSubviews={false}
 							showsVerticalScrollIndicator={false}
-							// @ts-ignore: estimatedItemSize is missing in the type definition but required for performance
-							estimatedItemSize={250}
 							onEndReachedThreshold={0.4}
 						/>
 					</View>
@@ -409,5 +436,21 @@ const Index: React.FC = () => {
 		</SafeAreaView>
 	);
 };
+
+const itemWrapperStyle = StyleSheet.create({
+	container: {
+		flex: 1,
+		margin: 8,
+	},
+});
+
+const emptyStyles = StyleSheet.create({
+	container: {
+		height: 200,
+		width: '100%',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+});
 
 export default Index;

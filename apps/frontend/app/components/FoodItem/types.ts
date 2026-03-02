@@ -10,17 +10,5 @@ export interface FoodItemProps {
 	handleEatingHabitsSheet: (sheet: keyof typeof SHEET_COMPONENTS) => void;
 	// setItemMarkings: React.Dispatch<React.SetStateAction<DatabaseTypes.FoodoffersMarkings[]>>;
 	cardWidth?: number;
-	previousFeedback?: any;
-	// Optimization props
-	language?: string;
-	serverInfo?: any;
-	appSettings?: any;
-	primaryColor?: string;
-	user?: any;
-	isManagement?: boolean;
-	profile?: any;
-  markings?: any[];
-  screenWidth?: number;
-  theme?: any;
-  amountColumnsForcard?: number;
+	dividerColor?: string;
 }

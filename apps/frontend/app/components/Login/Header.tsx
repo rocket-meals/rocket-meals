@@ -5,21 +5,21 @@ import { styles } from './styles';
 import { isWeb } from '@/constants/Constants';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useLocales } from 'expo-localization';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { SET_DRAWER_POSITION } from '@/redux/Types/types';
 import { languages } from '../../constants/SettingData';
 import MyImage from '@/components/MyImage';
 import { Entypo } from '@expo/vector-icons';
 import { getImageUrl } from '@/constants/HelperFunctions';
+import { RootState } from '@/redux/reducer';
 import { useLanguageModal } from '@/hooks/useLanguageModal';
-import { useAppSelector } from '@/redux/hooks';
 
 const LoginHeader = () => {
         const { setLanguageMode, language } = useLanguage();
         const locales = useLocales();
         const dispatch = useDispatch();
         const { theme } = useTheme();
-        const { serverInfo } = useAppSelector((state) => state.settings);
+        const { serverInfo } = useSelector((state: RootState) => state.settings);
         const deviceLocale: any = useDeviceLocaleCodesWithoutRegionCode();
         const { openLanguageModal } = useLanguageModal();
 
@@ -73,7 +73,9 @@ const LoginHeader = () => {
 	return (
 		<View style={styles.header}>
 			<MyImage
-				remote_image_url={getImageUrl(serverInfo?.info?.project?.project_logo)}
+				source={{
+					uri: getImageUrl(serverInfo?.info?.project?.project_logo),
+				}}
 				style={{
 					width: 64,
 					height: 64,
@@ -87,6 +89,7 @@ const LoginHeader = () => {
 					...styles.picker,
 					height: isWeb ? 41 : 'auto',
 					backgroundColor: theme.login.pickerBg,
+					color: theme.login.pickerText,
 				}}
 			>
 				<Text

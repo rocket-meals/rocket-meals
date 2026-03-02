@@ -4,7 +4,8 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/reducer';
 import { TranslationKeys } from '@/locales/keys';
 
 const TriStateCheckbox = ({
@@ -24,7 +25,7 @@ const TriStateCheckbox = ({
 }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const { primaryColor } = useAppSelector(state => state.settings);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
 
 	// If onlyTwo === true we normalize any non-1 value to 0 (false).
 	// Otherwise keep tri-state semantics where value can be 1, 0 or null/undefined.

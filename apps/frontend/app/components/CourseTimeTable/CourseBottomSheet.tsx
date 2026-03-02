@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { days } from '../../constants/SettingData';
 import FirstDayOfWeek from '../../components/FirstDay/FirstDayOfWeek';
 import { BaseCourseTimetableEvent, CourseBottomSheetProps } from './types';
@@ -19,7 +19,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
 import { DatabaseTypes } from 'repo-depkit-common';
-import { useAppSelector } from '@/redux/hooks';
+import { RootState } from '@/redux/reducer';
 
 const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, closeSheet, isUpdate, selectedEventId }) => {
 	const { theme } = useTheme();
@@ -27,10 +27,10 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 	const dispatch = useDispatch();
 	const { translate } = useLanguage();
 	const profileHelper = new ProfileHelper();
-	const { profile } = useAppSelector((state) => state.authReducer);
+	const { profile } = useSelector((state: RootState) => state.authReducer);
 	const [loading, setLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
-	const { primaryColor, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { primaryColor, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 
 	const [selectedFirstDay, setSelectedFirstDay] = useState({
 		id: 'Monday',
@@ -136,7 +136,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 			return; // Prevent saving if times are invalid
 		}
 
-		let courseTimetable = (profile?.course_timetable ? { ...profile.course_timetable } : {}) as Record<string, BaseCourseTimetableEvent>;
+		let courseTimetable = profile?.course_timetable ? profile?.course_timetable : {};
 		const id = Object.keys(courseTimetable)?.length > 0 ? (Object.keys(courseTimetable).length + 1).toString() : '1';
 		const newTimetable: BaseCourseTimetableEvent = {
 			id: id,
@@ -176,7 +176,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 
 	const handleDeleteTimeTable = async () => {
 		setIsDeleting(true);
-		let courseTimetable = (profile?.course_timetable ? { ...profile.course_timetable } : {}) as Record<string, BaseCourseTimetableEvent>;
+		let courseTimetable = profile?.course_timetable || {};
 		if (courseTimetable) {
 			delete courseTimetable[Number(selectedEventId)];
 			if (profile?.id) {
@@ -228,7 +228,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 			setLoading(false);
 			return; // Prevent saving if times are invalid
 		}
-		let courseTimetable = (profile?.course_timetable ? { ...profile.course_timetable } : {}) as Record<string, BaseCourseTimetableEvent>;
+		let courseTimetable = profile?.course_timetable || {};
 		if (courseTimetable) {
 			const prevEvent = courseTimetable[Number(selectedEventId)];
 			if (prevEvent) {
@@ -300,8 +300,8 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 								display: 'flex',
 								justifyContent: 'center',
 								alignSelf: 'center',
-							}}				
-							>
+							}}
+						>
 							<View style={styles.weekdayView}>
 								{colorData.map((color, index) => (
 									<TouchableOpacity

@@ -4,7 +4,7 @@ import { ServerAPI } from '@/redux/actions/Auth/Auth';
 
 export class CollectibleEventsHelper extends CollectionHelper<DatabaseTypes.CollectibleEvents> {
         constructor(client?: any) {
-                super('collectible_events', client);
+                super('collectible_events', client || ServerAPI.getClient());
         }
 
         async fetchCollectibleEvents(queryOverride: any = {}) {

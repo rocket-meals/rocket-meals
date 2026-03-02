@@ -7,11 +7,11 @@ import { TranslationKeys } from '@/locales/keys';
 import { DatabaseTypes, sortMarkingsByGroup } from 'repo-depkit-common';
 import { MarkingGroupsHelper } from '@/redux/actions/MarkingGroups/MarkingGroups';
 import { MarkingHelper } from '@/redux/actions/Markings/Markings';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { SET_APP_SETTINGS, UPDATE_MARKINGS } from '@/redux/Types/types';
+import { RootState } from '@/redux/reducer';
 import { ActivityIndicator, View } from 'react-native';
 import { AppSettingsHelper } from '@/redux/actions/AppSettings/AppSettings';
-import { useAppSelector } from '@/redux/hooks';
 
 export default function MonitorLayout() {
 	const { theme } = useTheme();
@@ -21,8 +21,8 @@ export default function MonitorLayout() {
 	const appSettingsHelper = new AppSettingsHelper();
 	const markingGroupsHelper = new MarkingGroupsHelper();
 	const [loading, setLoading] = useState(true);
-	const { markings } = useAppSelector((state) => state.food);
-	const { appSettings } = useAppSelector((state) => state.settings);
+	const { markings } = useSelector((state: RootState) => state.food);
+	const { appSettings } = useSelector((state: RootState) => state.settings);
 
 	const getMarkings = async () => {
 		const markingResult = (await markingHelper.fetchMarkings({})) as DatabaseTypes.Markings[];

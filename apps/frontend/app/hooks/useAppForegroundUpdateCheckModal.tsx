@@ -7,8 +7,8 @@ import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewMo
 import usePlatformHelper from '@/helper/platformHelper';
 import { isInExpoGo } from '@/helper/DeviceRuntimeHelper';
 import { useTheme } from '@/hooks/useTheme';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/redux/reducer';
 import { SET_SIMULATE_EXPO_UPDATE_AVAILABLE } from '@/redux/Types/types';
 
 const useAppForegroundUpdateCheckModal = () => {
@@ -18,7 +18,7 @@ const useAppForegroundUpdateCheckModal = () => {
         const { show, close } = useMyScrollViewModal();
         const { theme } = useTheme();
         const dispatch = useDispatch();
-        const { simulateExpoUpdateAvailable } = useAppSelector((state) => state.settings);
+        const { simulateExpoUpdateAvailable } = useSelector((state: RootState) => state.settings);
 
         const showStatusModal = useCallback(
                 (

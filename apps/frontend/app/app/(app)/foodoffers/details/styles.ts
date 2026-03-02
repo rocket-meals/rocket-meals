@@ -59,11 +59,13 @@ export default StyleSheet.create({
 	featuredImage: {
 		width: '100%',
 		height: '100%',
+		resizeMode: 'cover',
 		borderRadius: 25,
 	},
 	mobileFeaturedImage: {
 		width: '100%',
 		height: 350,
+		resizeMode: 'cover',
 		borderRadius: 25,
 	},
 	detailsContainer: {
@@ -184,7 +186,6 @@ export default StyleSheet.create({
 	},
 	notificationBody: {
 		fontFamily: 'Poppins_400Regular',
-		maxWidth: '80%',
 	},
 	bellIconContainer: {
 		borderRadius: 18,
@@ -236,116 +237,4 @@ export default StyleSheet.create({
 		borderTopRightRadius: 30,
 		borderTopLeftRadius: 30,
 	},
-    safeArea: {
-        flex: 1,
-    },
-    scrollView: {
-        padding: 10,
-    },
-    scrollViewWeb: {
-        padding: 20,
-    },
-    scrollViewContent: {
-        width: '100%',
-    },
-    mainWrapper: {
-        width: '100%',
-        height: '100%',
-        alignItems: 'center',
-    },
-    bellIconPaddingWeb: {
-        padding: 12,
-    },
-    bellIconPaddingMobile: {
-        padding: 8,
-    },
-    notificationTextWeb: {
-        fontSize: 18,
-    },
-    notificationTextMobile: {
-        fontSize: 12,
-    },
-    tabsWeb: {
-        width: '100%',
-        gap: 20,
-    },
-    tabsMobile: {
-        width: '100%',
-        gap: 0,
-    },
-    featuredContainerLarge: {
-        width: '80%',
-        flexDirection: 'row',
-    },
-    featuredContainerSmall: {
-        width: '100%',
-        flexDirection: 'column',
-    },
-    foodDetailLarge: {
-        width: '50%',
-        alignItems: 'flex-start',
-    },
-    foodDetailSmall: {
-        width: '100%',
-        alignItems: 'center',
-    },
-    detailsContainerLarge: {
-        width: '50%',
-        justifyContent: 'space-between',
-        height: 400,
-    },
-    detailsContainerSmall: {
-        width: '100%',
-        justifyContent: 'flex-start',
-        height: 'auto',
-    },
-    paddingHorizontalMedium: {
-        paddingHorizontal: 20,
-    },
-    paddingHorizontalNone: {
-        paddingHorizontal: 0,
-    },
-    fullWidthEnd: {
-        width: '100%',
-        alignItems: 'flex-end',
-    },
-    paddingSmall: {
-        padding: 5,
-    },
-    marginTopMedium: {
-        marginTop: 20,
-    },
-    textLeft: {
-        textAlign: 'left',
-    },
-    textCenter: {
-        textAlign: 'center',
-    },
-    flexColumn: {
-        flexDirection: 'column',
-    },
-    widthFull: {
-        width: '100%',
-    },
-    fontSizeMedium: {
-        fontSize: 20,
-    },
-    fontSizeLarge: {
-        fontSize: 24,
-    },
-    pagerViewWeb: {
-        width: '95%',
-		marginTop: 20
-    },
-    pagerViewMobile: {
-        width: '100%',
-        paddingHorizontal: 10,
-		marginTop: 20
-    },
-    pagerViewWebLarge: {
-        paddingHorizontal: 20,
-    },
-    pagerViewWebSmall: {
-        paddingHorizontal: 0,
-    },
 });

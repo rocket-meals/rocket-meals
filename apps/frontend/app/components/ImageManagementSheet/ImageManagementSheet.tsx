@@ -10,7 +10,7 @@ import { ImageManagementSheetProps } from './types';
 import { ServerAPI } from '@/redux/actions';
 import { uploadFiles } from '@directus/sdk';
 import { CollectionHelper } from '@/helper/collectionHelper';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
@@ -28,9 +28,8 @@ const ImageManagementSheet: React.FC<ImageManagementSheetProps> = ({ closeSheet,
 	const [isDelete, setIsDelete] = useState(false);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const MAX_IMAGE_DIMENSION = 6000;
-	const { foodCollection } = useAppSelector((state) => state.food);
+	const { foodCollection } = useSelector((state: RootState) => state.food);
 	const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-
 
 	const getFolder = () => {
 		if (foodCollection) {

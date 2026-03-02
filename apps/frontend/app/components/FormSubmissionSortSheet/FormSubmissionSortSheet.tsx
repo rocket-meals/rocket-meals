@@ -9,9 +9,10 @@ import Checkbox from 'expo-checkbox';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { FormSubmissionSortOption, FormSubmissionSortSheetProps } from './types';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/reducer';
 
-const SORTING_OPTIONS: { id: FormSubmissionSortOption; label: TranslationKeys; icon: React.ReactElement<{ color?: string }> }[] = [
+const SORTING_OPTIONS: { id: FormSubmissionSortOption; label: TranslationKeys; icon: React.ReactElement }[] = [
 	{
 		id: 'alphabetical',
 		label: TranslationKeys.sort_option_alphabetical,
@@ -22,7 +23,7 @@ const SORTING_OPTIONS: { id: FormSubmissionSortOption; label: TranslationKeys; i
 const FormSubmissionSortSheet: React.FC<FormSubmissionSortSheetProps> = ({ closeSheet, selectedOption, setSelectedOption }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const { primaryColor } = useAppSelector((state) => state.settings);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
 
 	const updateSort = (option: FormSubmissionSortOption) => {
 		setSelectedOption(option);

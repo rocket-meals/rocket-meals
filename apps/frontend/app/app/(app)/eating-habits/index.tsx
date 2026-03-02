@@ -1,11 +1,10 @@
-import { Dimensions, InteractionManager, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
 import FoodLabelingInfo from '@/components/FoodLabelingInfo';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import MarkingLabels from '@/components/MarkingLabels/MarkingLabels';
 import { useLanguage } from '@/hooks/useLanguage';
 import { excerpt } from '@/constants/HelperFunctions';
@@ -33,9 +32,9 @@ const Index = () => {
 	const { theme } = useTheme();
 	const dispatch = useDispatch();
 	const { translate } = useLanguage();
-	const { markings } = useAppSelector((state) => state.food);
-	const { primaryColor, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
-	const { user, profile } = useAppSelector((state) => state.authReducer);
+	const { markings } = useSelector((state: RootState) => state.food);
+	const { primaryColor, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
+	const { user, profile } = useSelector((state: RootState) => state.authReducer);
 	const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
 	const [readMore, setReadMore] = useState(false);
 	const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
@@ -57,14 +56,11 @@ const Index = () => {
 
 	useFocusEffect(
 		useCallback(() => {
-			const task = InteractionManager.runAfterInteractions(() => {
-				setAmimationJson(replaceLottieColors(animation, primaryColor));
-			});
+			setAmimationJson(replaceLottieColors(animation, primaryColor));
 			return () => {
-				task.cancel();
 				setAmimationJson(null);
 			};
-		}, [primaryColor])
+		}, [])
 	);
 
 	useFocusEffect(
@@ -80,11 +76,8 @@ const Index = () => {
 
 	useFocusEffect(
 		useCallback(() => {
-			const timer = setTimeout(() => {
-				setIsActive(true);
-			}, 100);
+			setIsActive(true);
 			return () => {
-				clearTimeout(timer);
 				setIsActive(false);
 			};
 		}, [])

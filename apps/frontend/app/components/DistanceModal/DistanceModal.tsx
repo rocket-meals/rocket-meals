@@ -2,9 +2,10 @@ import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
+import type { RootState } from '@/redux/reducer';
 import BaseBottomModal from '@/components/BaseBottomModal';
 
 export interface DistanceModalProps {
@@ -16,7 +17,7 @@ export interface DistanceModalProps {
 const DistanceModal: React.FC<DistanceModalProps> = ({ visible, onClose, onUseCurrentPosition }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const { appSettings, primaryColor, selectedTheme: mode } = useAppSelector(state => state.settings);
+	const { appSettings, primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const housingAreaColor = appSettings?.housing_area_color ? appSettings.housing_area_color : primaryColor;
 	const contrastColor = myContrastColor(housingAreaColor, theme, mode === 'dark');
 

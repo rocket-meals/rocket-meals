@@ -1,28 +1,28 @@
 import { DatabaseTypes } from 'repo-depkit-common';
-import { CollectionHelper, Query } from '@/helper/collectionHelper';
+import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
 
 export class FoodAttributesHelper extends CollectionHelper<DatabaseTypes.FoodsAttributes> {
 	constructor(client?: any) {
-		super('foods_attributes', client);
+		super('foods_attributes', client || ServerAPI.getClient());
 	}
 
-	async fetchAllFoodAttributes(queryOverride?: Query<DatabaseTypes.FoodsAttributes>) {
+	async fetchAllFoodAttributes(queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: ['*, translations.*'],
 			limit: -1,
 		};
 
-		const query = { ...defaultQuery, ...(queryOverride || {}) };
+		const query = { ...defaultQuery, ...queryOverride };
 		return await this.readItems(query);
 	}
 
-	async fetchFoodAttributeById(id: string, queryOverride?: Query<DatabaseTypes.FoodsAttributes>) {
+	async fetchFoodAttributeById(id: string, queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: ['*, translations.*'],
 		};
 
-		const query = { ...defaultQuery, ...(queryOverride || {}) };
+		const query = { ...defaultQuery, ...queryOverride };
 		return await this.readItem(id, query);
 	}
 }

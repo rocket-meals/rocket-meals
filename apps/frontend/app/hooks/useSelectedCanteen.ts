@@ -1,16 +1,13 @@
 import { useGlobalSearchParams } from 'expo-router';
 import useKioskMode from './useKioskMode';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { useMemo } from 'react';
-import { shallowEqual } from 'react-redux';
+import { RootState } from '@/redux/reducer';
 
 export default function useSelectedCanteen() {
 	const kioskMode = useKioskMode();
 	const { canteens_id } = useGlobalSearchParams<{ canteens_id?: string }>();
-	const { canteens, selectedCanteen } = useAppSelector((state) => ({
-		canteens: state.canteenReducer.canteens,
-		selectedCanteen: state.canteenReducer.selectedCanteen
-	}), shallowEqual);
+	const { canteens, selectedCanteen } = useSelector((state: RootState) => state.canteenReducer);
 
 	return useMemo(() => {
 		if (canteens_id) {

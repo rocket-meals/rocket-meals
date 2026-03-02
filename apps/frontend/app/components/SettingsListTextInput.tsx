@@ -3,7 +3,7 @@ import React, { useCallback, useMemo } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TextInput, View } from 'react-native';
 import type { KeyboardTypeOptions, TextInputProps } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 
 import ProjectButton from '@/components/ProjectButton';
 import SettingsList from '@/components/SettingsList';
@@ -13,7 +13,6 @@ import useMyScrollviewTextInputModal from '@/hooks/useMyScrollviewTextInputModal
 import { RootState } from '@/redux/reducer';
 import type { SettingsListProps } from '@/components/SettingsList/types';
 import { TranslationKeys } from '@/locales/keys';
-
 export type CheckTextInputResult = {
 	isValid: boolean;
 	value: string;
@@ -83,7 +82,7 @@ export const SettingsListTextInputField: React.FC<SettingsListTextInputFieldProp
 	onSubmitEditing,
 }) => {
 	const { theme } = useTheme();
-	const { primaryColor } = useAppSelector((state: RootState) => state.settings);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
 
 	return (
 		<TextInput
@@ -128,7 +127,7 @@ export const SettingsListTextInputSheet: React.FC<SettingsListTextInputSheetProp
 	allowSubmitWhenDisabled = false,
 }) => {
 	const { theme } = useTheme();
-	const { primaryColor } = useAppSelector((state) => state.settings);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
 
 	const handleSubmitEditing = useCallback(() => {
 		if (multiline) return;
@@ -237,6 +236,7 @@ const SettingsListTextInput: React.FC<SettingsListTextInputProps> = ({
 		openTextInputModal({
 			title: resolvedTitle,
 			placeholder,
+			saveLabel,
 			onSave,
 			initialValue: resolvedInitialValue,
 			multiline,

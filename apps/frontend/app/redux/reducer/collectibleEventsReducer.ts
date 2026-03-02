@@ -6,15 +6,13 @@ import {
         SET_COLLECTIBLE_EVENT_DICT_BULK,
         SET_COLLECTIBLE_EVENTS,
 } from '../Types/types';
-import { CollectibleEventsState } from '../Types/stateTypes';
-import { DatabaseTypes } from 'repo-depkit-common';
 
-const initialState: CollectibleEventsState = {
-        collectibleEvents: [] as DatabaseTypes.CollectibleEvents[],
-        collectibleEventsDict: {} as Record<string, Record<string, boolean>>,
+const initialState = {
+        collectibleEvents: [],
+        collectibleEventsDict: {},
 };
 
-const collectibleEventsReducer = (state: CollectibleEventsState = initialState, actions: { type: string; payload?: any }) => {
+const collectibleEventsReducer = (state = initialState, actions: any) => {
         switch (actions.type) {
                 case SET_COLLECTIBLE_EVENTS: {
                         return {

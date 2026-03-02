@@ -1,7 +1,6 @@
 import { ActivityIndicator, Dimensions, Image, Platform, ScrollView, Text, View } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '@/hooks/useTheme';
 import ListWeekHeader from '@/components/ListWeekHeader/ListWeekHeader';
 import styles from './styles';
@@ -20,12 +19,13 @@ import { MarkingHelper } from '@/redux/actions/Markings/Markings';
 import { UPDATE_MARKINGS } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 import { PriceGroupKey } from '@/app/(app)/settings/types';
 
 const fontSize = 10;
 
 const Index = () => {
-	const printRef = useRef<any>(null);
+	const printRef = useRef<HTMLElement | null>(null);
 	const { translate } = useLanguage();
 	const { theme, setThemeMode } = useTheme();
 	const dispatch = useDispatch();
@@ -36,13 +36,13 @@ const Index = () => {
 	const [foods, setFoods] = useState<any>({});
 	const [categories, setCategories] = useState<Record<string, { alias: string; sort: number }>>({});
 	const [foodMarkings, setFoodMarkings] = useState<any>({});
-	const { markings } = useAppSelector((state) => state.food);
+	const { markings } = useSelector((state: RootState) => state.food);
 	const [loading, setLoading] = useState(true);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 
 	useSetPageTitle(canteen_alias + ` - ${translate(TranslationKeys.week)} ${week}`);
 	const isMobile = screenWidth < 800;
-	const { primaryColor: projectColor, language, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { primaryColor: projectColor, language, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
 
 	const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
@@ -147,7 +147,7 @@ const Index = () => {
 			const dailyCounts: Record<string, number> = {}; // Count foods per category for THIS day
 
 			// Count foods per category for the current day
-			dayFoods.forEach((food: any) => {
+			dayFoods.forEach(food => {
 				const categoryId = food?.food?.food_category;
 				// Only count if the category exists in our fetched categories list
 				if (categoryId && categories[categoryId]) {
@@ -246,7 +246,7 @@ const Index = () => {
 					let filteredMarkings = markings?.filter((mark: any) => markingIds.includes(mark.id)) || [];
 
 					// Sort the filtered markings using sortMarkingsByGroup
-					filteredMarkings = sortMarkingsByGroup(filteredMarkings, markingGroups as any);
+					filteredMarkings = sortMarkingsByGroup(filteredMarkings, markingGroups);
 
 					const dummyMarkings = filteredMarkings.map((item: any) => ({
 						image: item?.image_remote_url ? { uri: item.image_remote_url } : { uri: getImageUrl(item.image) },

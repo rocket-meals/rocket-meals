@@ -409,9 +409,11 @@ export class DateHelper {
   // returns "Yesterday", "Today", "Tomorrow", or "Tuesday", "Wednesday" or the date in the format "DD.MM.YYYY"
   static useSmartReadableDate(date: Date, locale?: string, relativeDaysDiffTranslations?: Record<number, string>) {
     const dateCopy = new Date(date); // since the original date may be changed during the process of other functions we need to copy it in order have a reliable date
+    dateCopy.setHours(12, 0, 0, 0); // set to noon to avoid timezone issues
     const dateStart = new Date(dateCopy.getFullYear(), dateCopy.getMonth(), dateCopy.getDate());
+    dateStart.setHours(12, 0, 0, 0);
     const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+    todayStart.setHours(12, 0, 0, 0);
 
     const diffDays = Math.round((dateStart.getTime() - todayStart.getTime()) / (1000 * 60 * 60 * 24));
     if (relativeDaysDiffTranslations && Object.prototype.hasOwnProperty.call(relativeDaysDiffTranslations, diffDays)) {

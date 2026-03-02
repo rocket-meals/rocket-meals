@@ -2,15 +2,16 @@ import { Text, View } from 'react-native';
 import React from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { getBuildingTranslationByLanguageCode } from '@/helper/resourceHelper';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import { RootState } from '@/redux/reducer';
 
 const BuildingDescription: React.FC<any> = ({ campusDetails }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const { language } = useAppSelector((state) => state.settings);
+	const { language } = useSelector((state: RootState) => state.settings);
 
 	return (
 		<View style={styles.container}>

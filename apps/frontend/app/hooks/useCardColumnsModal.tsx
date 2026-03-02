@@ -1,20 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import SettingsListSelectOption from '@/components/SettingsListSelectOption/SettingsListSelectOption';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { AmountColumn } from '@/constants/SettingData';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import { RootState } from '@/redux/reducer';
 import { SET_AMOUNT_COLUMNS_FOR_CARDS } from '@/redux/Types/types';
 import { CollectibleAt } from 'repo-depkit-common';
 
 const CardColumnsSheet: React.FC<{ closeSheet: () => void }> = ({ closeSheet }) => {
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { amountColumnsForcard, primaryColor } = useAppSelector((state) => state.settings);
+	const { amountColumnsForcard, primaryColor } = useSelector((state: RootState) => state.settings);
 	const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
 	const updateColumns = (value: number) => {

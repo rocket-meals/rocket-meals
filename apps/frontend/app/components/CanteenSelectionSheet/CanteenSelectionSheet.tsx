@@ -1,6 +1,6 @@
 import { Dimensions, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -16,7 +16,6 @@ import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 import CanteenSelection from '../CanteenSelection/CanteenSelection';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
-import { useAppSelector } from '@/redux/hooks';
 
 const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({ closeSheet }) => {
 	const { theme } = useTheme();
@@ -24,8 +23,8 @@ const CanteenSelectionSheet: React.FC<CanteenSelectionSheetProps> = ({ closeShee
 	const dispatch = useDispatch();
 	const canteenHelper = new CanteenHelper();
 	const buildingsHelper = new BuildingsHelper();
-	const { serverInfo, appSettings, primaryColor } = useAppSelector((state) => state.settings);
-	const { isManagement } = useAppSelector((state) => state.authReducer);
+	const { serverInfo, appSettings, primaryColor } = useSelector((state: RootState) => state.settings);
+	const { isManagement } = useSelector((state: RootState) => state.authReducer);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const defaultImage = getImageUrl(serverInfo?.info?.project?.project_logo);
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;

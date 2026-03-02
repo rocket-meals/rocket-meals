@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Dimensions, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { router, useFocusEffect } from 'expo-router';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from './styles';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
@@ -18,9 +18,9 @@ import { getFoodAttributesTranslation } from '@/helper/resourceHelper';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { FoodAttributesHelper } from '@/redux/actions/FoodAttributes/FoodAttributes';
-import { useAppSelector } from '@/redux/hooks';
 
 type FoodAttribute = {
 	id: string;
@@ -36,10 +36,10 @@ const Index = () => {
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
 	const foodAttributesHelper = new FoodAttributesHelper();
-	const { foodAttributes: initialFoodAttributes } = useAppSelector((state) => state.foodAttributes);
+	const { foodAttributes: initialFoodAttributes } = useSelector((state: RootState) => state.foodAttributes);
 	const [foodAttributes, setFoodAttributes] = useState<FoodAttribute[]>();
-	const { primaryColor: projectColor, language, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
-	const { foodPlan } = useAppSelector((state) => state.management);
+	const { primaryColor: projectColor, language, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
+	const { foodPlan } = useSelector((state: RootState) => state.management);
 	const [isActive, setIsActive] = useState(false);
 	const [value, setValue] = useState('');
 	const [selectedCanteenOption, setSelectedCanteenOption] = useState('');

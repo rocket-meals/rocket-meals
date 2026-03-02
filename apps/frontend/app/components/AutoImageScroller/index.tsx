@@ -15,7 +15,7 @@ const AutoImageScroller: React.FC<AutoImageScrollerProps> = ({ images, numColumn
 	const flatListRef = useRef<FlatList<string>>(null);
 	const scrollOffset = useRef(0);
 	const screenHeight = Dimensions.get('window').height;
-	const frameRef = useRef<number | null>(null);
+	const frameRef = useRef<number>();
 	const loadingRef = useRef(false);
 
 	useEffect(() => {

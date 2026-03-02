@@ -1,31 +1,31 @@
 import { DatabaseTypes } from 'repo-depkit-common';
-import { CollectionHelper, Query } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
+import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 
 export class WikisHelper extends CollectionHelper<DatabaseTypes.Wikis> {
 	constructor(client?: any) {
 		// Pass the collection name and API client
-		super('wikis', client);
+		super('wikis', client || ServerAPI.getClient());
 	}
 
 	// Fetch all wikis with optional query overrides
-	async fetchWikis(queryOverride?: Query<DatabaseTypes.Wikis>) {
+	async fetchWikis(queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: [' *.* '],
 			limit: -1, // Fetch all
 		};
 
-		const query = { ...defaultQuery, ...(queryOverride || {}) };
+		const query = { ...defaultQuery, ...queryOverride };
 		return await this.readItems(query);
 	}
 
 	// Fetch a specific wikis by ID
-	async fetchWikisById(id: string, queryOverride?: Query<DatabaseTypes.Wikis>) {
+	async fetchWikisById(id: string, queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: ['*'],
 		};
 
-		const query = { ...defaultQuery, ...(queryOverride || {}) };
+		const query = { ...defaultQuery, ...queryOverride };
 		return await this.readItem(id, query);
 	}
 

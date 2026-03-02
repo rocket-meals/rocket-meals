@@ -2,9 +2,10 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { isWeb } from '@/constants/Constants';
 import { useLanguage } from '@/hooks/useLanguage';
+import { RootState } from '@/redux/reducer';
 import { myContrastColor } from '@/helper/ColorHelper';
 
 // Define the type for the theme prop
@@ -24,7 +25,7 @@ type FirstDayOfWeekProps = {
 const FirstDayOfWeek: React.FC<FirstDayOfWeekProps> = ({ position, isSelected, onPress }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const { primaryColor, selectedTheme: mode } = useAppSelector(state => state.settings);
+	const { primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
 	return (
 		<TouchableOpacity

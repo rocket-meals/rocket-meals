@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { ApartmentSortOption } from 'repo-depkit-common';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -15,7 +14,7 @@ import { SET_APARTMENTS_SORTING } from '@/redux/Types/types';
 const HousingSortSheet: React.FC<{ closeSheet: () => void }> = ({ closeSheet }) => {
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { apartmentsSortBy, primaryColor: projectColor, appSettings } = useAppSelector((state) => state.settings);
+	const { apartmentsSortBy, primaryColor: projectColor, appSettings } = useSelector((state: RootState) => state.settings);
 	const [selectedOption, setSelectedOption] = useState<ApartmentSortOption | null>(null);
 	const housing_area_color = appSettings?.housing_area_color ? appSettings?.housing_area_color : projectColor;
 

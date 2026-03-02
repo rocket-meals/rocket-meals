@@ -23,7 +23,7 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 		};
 	}, []);
 
-	const handleToggleChange = (index: number) => {
+	const handleToggleChange = index => {
 		const updatedStates = [...toggleStates];
 		updatedStates[index] = !updatedStates[index];
 		setToggleStates(updatedStates);
@@ -83,7 +83,7 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 										]}
 										editable={false}
 										pointerEvents="none"
-										value={selectedCanteen?.alias || undefined}
+										value={selectedCanteen?.alias}
 									/>
 								)}
 								{item.name === 'Speiseangebot Kategorie (optional)' && (

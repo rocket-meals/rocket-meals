@@ -7,17 +7,18 @@ import styles from './styles';
 import { useNavigation } from 'expo-router';
 import { CustomMenuHeaderProps, DrawerParamList } from './types';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import { RootState } from '@/redux/reducer';
 import useChatUnreadStatus from '@/hooks/useChatUnreadStatus';
 import useActiveCollectibleEvent from '@/hooks/useActiveCollectibleEvent';
 
 const CustomMenuHeader: React.FC<CustomMenuHeaderProps> = ({ label }) => {
 	const { theme } = useTheme();
         const { translate } = useLanguage();
-        const { drawerPosition } = useAppSelector((state) => state.settings);
+        const { drawerPosition } = useSelector((state: RootState) => state.settings);
         const { hasUnreadChats } = useChatUnreadStatus();
         const { hasActiveCollectibleEvent } = useActiveCollectibleEvent();
         const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();

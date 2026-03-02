@@ -1,13 +1,13 @@
 import React from 'react';
 import { Appearance, StyleSheet, Text, TouchableOpacity } from 'react-native';
-
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/reducer';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { darkTheme, lightTheme } from '@/styles/themes';
 import { ProjectButtonProps } from './types';
-import { useAppSelector } from '@/redux/hooks';
 
 const ProjectButton: React.FC<ProjectButtonProps> = ({ text, onPress, iconLeft, iconRight, style }) => {
-	const { primaryColor, selectedTheme } = useAppSelector(state => state.settings);
+	const { primaryColor, selectedTheme } = useSelector((state: RootState) => state.settings);
 
 	const colorScheme = Appearance.getColorScheme();
 	const theme = selectedTheme === 'systematic' ? (colorScheme === 'dark' ? darkTheme : lightTheme) : selectedTheme === 'dark' ? darkTheme : lightTheme;

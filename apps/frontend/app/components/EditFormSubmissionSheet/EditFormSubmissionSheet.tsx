@@ -5,22 +5,22 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
 import { sheetProps } from './types';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { SET_FORM_SUBMISSION } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
-import { useAppSelector } from '@/redux/hooks';
+import { RootState } from '@/redux/reducer';
 
 const EditFormSubmissionSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { formSubmission } = useAppSelector((state) => state.form);
+	const { formSubmission } = useSelector((state: RootState) => state.form);
 	const [alias, setAlias] = useState(formSubmission ? formSubmission?.alias : '');
 	const [loading, setLoading] = useState(false);
-	const { primaryColor } = useAppSelector((state) => state.settings);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
 	const formsSubmissionsHelper = new FormsSubmissionsHelper();
 
 	const handleChangeAlias = async () => {
@@ -66,7 +66,7 @@ const EditFormSubmissionSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
 						...styles.inputContainer,
 					}}
 				>
-					<TextInput style={[styles.input, { color: theme.screen.text }]} cursorColor={theme.screen.text} placeholderTextColor={theme.screen.placeholder} onChangeText={setAlias} value={alias || ''} placeholder="Type here..." />
+					<TextInput style={[styles.input, { color: theme.screen.text }]} cursorColor={theme.screen.text} placeholderTextColor={theme.screen.placeholder} onChangeText={setAlias} value={alias} placeholder="Type here..." />
 				</View>
 				<View style={styles.actionContainer}>
 					<TouchableOpacity

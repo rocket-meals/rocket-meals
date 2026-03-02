@@ -1,6 +1,6 @@
 import { Dimensions, Image, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -14,7 +14,7 @@ import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { SET_BUILDINGS, SET_CANTEENS } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
-import { useAppSelector } from '@/redux/hooks';
+import { RootState } from '@/redux/reducer';
 
 const ManagementCanteensSheet: React.FC<ManagementCanteensSheetProps> = ({ closeSheet, handleSelectCanteen }) => {
 	const { theme } = useTheme();
@@ -22,9 +22,9 @@ const ManagementCanteensSheet: React.FC<ManagementCanteensSheetProps> = ({ close
 	const dispatch = useDispatch();
 	const canteenHelper = new CanteenHelper();
 	const buildingsHelper = new BuildingsHelper();
-	const { serverInfo } = useAppSelector((state) => state.settings);
-	const { isManagement } = useAppSelector((state) => state.authReducer);
-	const { canteens } = useAppSelector((state) => state.canteenReducer);
+	const { serverInfo } = useSelector((state: RootState) => state.settings);
+	const { isManagement } = useSelector((state: RootState) => state.authReducer);
+	const { canteens } = useSelector((state: RootState) => state.canteenReducer);
 	const defaultImage = getImageUrl(serverInfo?.info?.project?.project_logo);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 
@@ -148,9 +148,9 @@ const ManagementCanteensSheet: React.FC<ManagementCanteensSheetProps> = ({ close
 									source={
 										canteen?.image_url || canteensData[index]?.image
 											? {
-													uri: canteen?.image_url || canteensData[index]?.image || undefined,
+													uri: canteen?.image_url || canteensData[index]?.image,
 												}
-											: { uri: defaultImage || undefined }
+											: { uri: defaultImage }
 									}
 								/>
 								{canteen.status === 'archived' && (

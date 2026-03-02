@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import * as StoreReview from 'expo-store-review';
 import styles from './styles';
+import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
 
 const RateApp = () => {
 	useSetPageTitle(TranslationKeys.rate_app);
@@ -14,21 +14,6 @@ const RateApp = () => {
 	const [debugLogs, setDebugLogs] = useState<string[]>([]);
 
 	const addLog = (msg: string) => setDebugLogs(logs => [...logs, msg]);
-
-	const handleRate = async () => {
-		try {
-			addLog('Checking availability');
-			const available = await StoreReview.isAvailableAsync();
-			addLog(`Available: ${available}`);
-			if (available) {
-				await StoreReview.requestReview();
-				addLog('Review requested');
-			}
-		} catch (e: any) {
-			addLog(`Error: ${e?.message || e}`);
-			console.log('Error requesting review', e);
-		}
-	};
 
 	return (
 		<ScrollView
@@ -40,9 +25,7 @@ const RateApp = () => {
 		>
 			<View style={{ ...styles.content }}>
 				<Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.rate_app)}</Text>
-				<TouchableOpacity style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }} onPress={handleRate}>
-					<Text style={{ ...styles.body, color: theme.screen.text }}>{translate(TranslationKeys.rate_app)}</Text>
-				</TouchableOpacity>
+				<RateAppSettingsItem onLog={addLog} />
 				{debugLogs.length > 0 && (
 					<View style={styles.debugLogContainer}>
 						<ScrollView>

@@ -5,8 +5,8 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { router } from 'expo-router';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { TranslationKeys } from '@/locales/keys';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/redux/reducer';
 import SettingsList from '@/components/SettingsList';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { DatabaseTypes } from 'repo-depkit-common';
@@ -23,7 +23,7 @@ const ChatsScreen = () => {
         const dispatch = useDispatch();
 
         const { chats, readStatus, hasUnreadChats, isChatUnread } = useChatUnreadStatus();
-        const { primaryColor, selectedTheme } = useAppSelector((state) => state.settings);
+        const { primaryColor, selectedTheme } = useSelector((state: RootState) => state.settings);
 
         const sortedChats = useMemo(() => {
                 return [...chats].sort((a, b) => {

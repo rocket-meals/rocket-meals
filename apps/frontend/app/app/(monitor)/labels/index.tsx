@@ -1,8 +1,7 @@
 import React, { useRef } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import styles from './styles';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
 import { useMyContrastColor } from '@/helper/ColorHelper';
 import { useTheme } from '@/hooks/useTheme';
@@ -14,10 +13,11 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { useLanguage } from '@/hooks/useLanguage';
 import { SET_MARKING_DETAILS } from '@/redux/Types/types';
+import { RootState } from '@/redux/reducer';
 
 const MarkingItem = ({ marking, index, onPress }: { marking: any; index: number; onPress: () => void }) => {
 	const { theme } = useTheme();
-	const { language, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { language, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const markingText = getTextFromTranslation(marking?.translations, language);
 	const MarkingColor = useMyContrastColor(marking?.background_color, theme, mode === 'dark');
 
@@ -66,7 +66,7 @@ const Index = () => {
 		menuSheetRef.current?.close();
 	};
 
-	const { markings } = useAppSelector((state) => state.food);
+	const { markings } = useSelector((state: RootState) => state.food);
 
 	const chunkedMarkings = [];
 	for (let i = 0; i < markings?.length; i += 7) {

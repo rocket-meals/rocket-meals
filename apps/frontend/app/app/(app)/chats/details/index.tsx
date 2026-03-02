@@ -3,11 +3,11 @@ import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router';
 import SupportFAQ from '../../../../components/SupportFAQ/SupportFAQ';
 import { useTheme } from '@/hooks/useTheme';
-import { useAppSelector } from '@/redux/hooks';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { TranslationKeys } from '@/locales/keys';
 import MyMarkdown from '@/components/MyMarkdown/MyMarkdown';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/redux/reducer';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { ChatMessagesHelper } from '@/redux/actions/Chats/ChatMessages';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -33,11 +33,11 @@ const ChatDetailsScreen = () => {
 	useSetPageTitle(TranslationKeys.chat);
 	const { theme } = useTheme();
         const { chat_id, refreshKey } = useLocalSearchParams<{ chat_id?: string; refreshKey?: string }>();
-        const { primaryColor: projectColor, selectedTheme: mode, appSettings, serverInfo } = useAppSelector((state) => state.settings);
+        const { primaryColor: projectColor, selectedTheme: mode, appSettings, serverInfo } = useSelector((state: RootState) => state.settings);
 
         const dispatch = useDispatch();
-        const { chats, readStatus } = useAppSelector((state) => state.chats);
-        const { profile } = useAppSelector((state) => state.authReducer);
+        const { chats, readStatus } = useSelector((state: RootState) => state.chats);
+	const { profile } = useSelector((state: RootState) => state.authReducer);
 	const [messages, setMessages] = useState<DatabaseTypes.ChatMessages[]>([]);
         const [newMessage, setNewMessage] = useState('');
         const [sending, setSending] = useState(false);
@@ -414,7 +414,7 @@ const ChatDetailsScreen = () => {
                                                                         value={foodName}
                                                                         leftIcon={
                                                                                 imageSource ? (
-                                                                                        <MyImage remote_image_url={imageSource.uri} style={styles.linkedFoodImage} />
+                                                                                        <MyImage source={imageSource} style={styles.linkedFoodImage} />
                                                                                 ) : (
                                                                                         <MaterialCommunityIcons
                                                                                                 name="silverware-fork-knife"

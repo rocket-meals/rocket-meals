@@ -4,8 +4,7 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { isWeb } from '@/constants/Constants';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
 import { UPDATE_PROFILE } from '@/redux/Types/types';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -29,10 +28,10 @@ const Index = () => {
 	const dispatch = useDispatch();
 	const profileHelper = new ProfileHelper();
 	const [loading, setLoading] = useState(false);
-	const { user, profile } = useAppSelector((state) => state.authReducer);
+	const { user, profile } = useSelector((state: RootState) => state.authReducer);
 	const isRegisteredUser = UserHelper.isRegisteredUser(user);
 
-	const { primaryColor, appSettings } = useAppSelector((state) => state.settings);
+	const { primaryColor, appSettings } = useSelector((state: RootState) => state.settings);
 	const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
 	const animationRef = useRef<LottieView>(null);
 	const [animationJson, setAmimationJson] = useState<any>(null);
@@ -108,6 +107,7 @@ const Index = () => {
 	};
 
 	useEffect(() => {
+		console.log('Profile changed, updating selected option:', profile);
 		setSelectedOption(profile?.price_group || PriceGroupKey.student);
 	}, [profile]);
 

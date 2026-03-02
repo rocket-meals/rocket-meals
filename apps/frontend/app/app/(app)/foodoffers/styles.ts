@@ -9,50 +9,13 @@ export default StyleSheet.create({
 		paddingBottom: 10,
 		paddingVertical: 10,
 		gap: 10,
-        paddingHorizontal: 10,
 	},
-    notificationDot: {
-        position: 'absolute',
-        top: -2,
-        right: -2,
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        borderWidth: 2,
-    },
-    rowReverse: {
-        flexDirection: 'row-reverse',
-    },
-    colGapTiny: {
-        gap: 5,
-    },
-    colGapSmall: {
-        gap: 6,
-    },
-    colGapMedium: {
-        gap: 10,
-    },
-    colGapLarge: {
-        gap: 15,
-    },
-    paddingSmall: {
-        padding: 5,
-    },
-    paddingMedium: {
-        padding: 10,
-    },
-    paddingArrowSmall: {
-        padding: 2,
-    },
-    paddingArrowMedium: {
-        padding: 5,
-    },
-    row: {
-            width: '100%',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-    },
+	row: {
+		width: '100%',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+	},
 	col1: {
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -97,14 +60,7 @@ export default StyleSheet.create({
 		width: '100%',
 		marginTop: 20,
 	},
-	safeArea: {
-        flex: 1,
-    },
-    contentWrapper: {
-        flex: 1,
-        // alignItems: 'center',
-    },
-    noFoodContainer: {
+	noFoodContainer: {
 		width: '100%',
 		alignItems: 'center',
 		justifyContent: 'center',
@@ -127,41 +83,8 @@ export default StyleSheet.create({
 		borderRadius: 8,
 		alignItems: 'center',
 	},
-        jumpButtonText: {
-                fontSize: 16,
-                fontFamily: 'Poppins_500Medium',
-        },
-        debugInfoContainer: {
-                width: '100%',
-                marginTop: 20,
-                padding: 12,
-                borderRadius: 12,
-                borderWidth: 1,
-                gap: 6,
-        },
-        debugTitle: {
-                fontSize: 16,
-                fontFamily: 'Poppins_700Bold',
-        },
-        debugText: {
-                fontSize: 14,
-                fontFamily: 'Poppins_400Regular',
-        },
-    loadingContainer: {
-        width: '100%',
-        height: 400,
-        justifyContent: 'center',
-    },
-    footerSpacer: {
-        height: 40,
-    },
-    lottieView: {
-        width: '100%',
-        height: '100%',
-    },
-    listItemContainer: {
-        flex: 1,
-        marginHorizontal: 10,
-        marginVertical: 10,
-    },
+	jumpButtonText: {
+		fontSize: 16,
+		fontFamily: 'Poppins_500Medium',
+	},
 });

@@ -6,7 +6,7 @@ import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 export class CanteenFeedbackLabelHelper extends CollectionHelper<DatabaseTypes.CanteensFeedbacksLabels> {
 	constructor(client?: any) {
 		// Pass the collection name and API client
-		super('canteens_feedbacks_labels', client);
+		super('canteens_feedbacks_labels', client || ServerAPI.getClient());
 	}
 
 	// Fetch all canteens feedback labels with optional query overrides

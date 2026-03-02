@@ -4,7 +4,7 @@ import { DatabaseTypes } from 'repo-depkit-common';
 
 export class FoodFeedbackLabelEntryHelper extends CollectionHelper<DatabaseTypes.FoodsFeedbacksLabelsEntries> {
 	constructor(client?: any) {
-		super('foods_feedbacks_labels_entries', client);
+		super('foods_feedbacks_labels_entries', client || ServerAPI.getClient());
 	}
 
 	// Helper to build default query

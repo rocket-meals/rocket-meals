@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { router, useFocusEffect } from 'expo-router';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from './styles';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
@@ -14,15 +14,15 @@ import { CanteenProps } from '@/components/CanteenSelectionSheet/types';
 import { Switch } from '@gluestack-ui/themed';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { useAppSelector } from '@/redux/hooks';
+import { RootState } from '@/redux/reducer';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.food_plan_week);
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { primaryColor: projectColor, appSettings } = useAppSelector((state) => state.settings);
-	const { weekPlan } = useAppSelector((state) => state.management);
+	const { primaryColor: projectColor, appSettings } = useSelector((state: RootState) => state.settings);
+	const { weekPlan } = useSelector((state: RootState) => state.management);
 	const [isActive, setIsActive] = useState(false);
 	const canteenSheetRef = useRef<BottomSheet>(null);
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);

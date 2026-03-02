@@ -4,13 +4,13 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import Animated, { runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
 import BaseBottomModal from '@/components/BaseBottomModal';
 import SettingsList from '@/components/SettingsList';
-import * as FileSystem from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system';
 import useToast from '@/hooks/useToast';
 import { getHighResImageUrl } from '@/constants/HelperFunctions';
 import { TranslationKeys } from '@/locales/keys';
@@ -22,7 +22,7 @@ export default function ImageFullScreen() {
 		assetId?: string;
 	}>();
 	const { theme } = useTheme();
-	const { drawerPosition } = useAppSelector((state) => state.settings);
+	const { drawerPosition } = useSelector((state: RootState) => state.settings);
 	const toast = useToast();
 	const { translate } = useLanguage();
 	const [showControls, setShowControls] = useState(true);
@@ -157,7 +157,7 @@ export default function ImageFullScreen() {
 				document.body.removeChild(link);
 			} else {
 				const filename = extension ? `${name}.${extension}` : name;
-				const fileUri = (FileSystem as any).documentDirectory + filename;
+				const fileUri = FileSystem.documentDirectory + filename;
 				const { uri } = await FileSystem.downloadAsync(String(highResUri), fileUri);
 				await Share.share({
 					url: uri,
@@ -205,25 +205,23 @@ export default function ImageFullScreen() {
 				<Animated.View style={styles.flex}>
 					<TouchableWithoutFeedback onPress={toggleControls} onLongPress={() => setModalVisible(true)}>
 						<Animated.View style={[styles.imageWrapper, animatedStyle]}>
-							<Image source={{ uri: lowResUri || undefined }} style={styles.image} contentFit="contain" />
-							<Image source={{ uri: highResUri || undefined }} style={[styles.image, StyleSheet.absoluteFill]} contentFit="contain" />
+							<Image source={{ uri: lowResUri }} style={styles.image} contentFit="contain" />
+							<Image source={{ uri: highResUri }} style={[styles.image, StyleSheet.absoluteFill]} contentFit="contain" />
 						</Animated.View>
 					</TouchableWithoutFeedback>
 				</Animated.View>
 			</GestureDetector>
-			{modalVisible && (
-				<BaseBottomModal onClose={() => setModalVisible(false)}>
-					<SettingsList
-						leftIcon={<Ionicons name="cloud-download-outline" size={24} color={theme.screen.icon} />}
-						label="Download Image"
-						handleFunction={() => {
-							setModalVisible(false);
-							downloadImage();
-						}}
-						groupPosition="single"
-					/>
-				</BaseBottomModal>
-			)}
+			<BaseBottomModal visible={modalVisible} onClose={() => setModalVisible(false)}>
+				<SettingsList
+					leftIcon={<Ionicons name="cloud-download-outline" size={24} color={theme.screen.icon} />}
+					label="Download Image"
+					handleFunction={() => {
+						setModalVisible(false);
+						downloadImage();
+					}}
+					groupPosition="single"
+				/>
+			</BaseBottomModal>
 		</Animated.View>
 	);
 }

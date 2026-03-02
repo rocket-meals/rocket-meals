@@ -1,36 +1,6 @@
-import { StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-type FeedbacksStyles = {
-    container: ViewStyle;
-    heading: TextStyle;
-    row: ViewStyle;
-    col: ViewStyle;
-    label: TextStyle;
-    dislikeButton: ViewStyle;
-    searchContainer: ViewStyle;
-    input: TextStyle;
-    commentButton: ViewStyle;
-    commentLabel: TextStyle;
-    commentsContainer: ViewStyle;
-    commentsHeader: ViewStyle;
-    deleteButton: ViewStyle;
-    comment: ViewStyle;
-    commentText: TextStyle;
-    divider: ViewStyle;
-    commentDate: TextStyle;
-    ratingSummaryContainer: ViewStyle;
-    searchContainerRow: ViewStyle;
-    searchContainerColumn: ViewStyle;
-    commentButtonBase: ViewStyle;
-    headingWeb: TextStyle;
-    headingMobile: TextStyle;
-    subHeading: TextStyle;
-    inputWide: TextStyle;
-    inputFull: TextStyle;
-    inputWeb: TextStyle;
-};
-
-export default StyleSheet.create<FeedbacksStyles>({
+export default StyleSheet.create({
 	container: {
 		flex: 1,
 	},
@@ -130,40 +100,5 @@ export default StyleSheet.create<FeedbacksStyles>({
 		fontStyle: 'italic',
 		textAlign: 'right',
 	},
-	ratingSummaryContainer: {
-		width: '100%',
-		marginBottom: 20,
-	},
-	searchContainerRow: {
-		flexDirection: 'row',
-		borderRadius: 50,
-		gap: 20,
-	},
-	searchContainerColumn: {
-		flexDirection: 'column',
-		borderRadius: 8,
-		gap: 20,
-	},
-	commentButtonBase: {
-		borderRadius: 50,
-	},
-	headingWeb: {
-		fontSize: 26,
-	},
-	headingMobile: {
-		fontSize: 24,
-	},
-    subHeading: {
-        fontSize: 24,
-    },
-	inputWide: {
-		width: '70%',
-	},
-	inputFull: {
-		width: '100%',
-	},
-	inputWeb: {
-		// @ts-ignore
-		outlineStyle: 'none',
-	},
+	dummy: {},
 });

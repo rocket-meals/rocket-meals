@@ -5,20 +5,21 @@ import { useTheme } from '@/hooks/useTheme';
 import { Entypo } from '@expo/vector-icons';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { getFromCategoryTranslation } from '@/helper/resourceHelper';
 import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
 import { FormsHelper } from '@/redux/actions/Forms/Forms';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.select_a_form);
 	const { theme } = useTheme();
 	const [loading, setLoading] = useState(false);
-    const { category_id } = useLocalSearchParams();
-    const { language } = useAppSelector((state) => state.settings);
-    const [forms, setForms] = useState<DatabaseTypes.Forms[]>([]);
+	const { category_id } = useLocalSearchParams();
+	const { language } = useSelector((state: RootState) => state.settings);
+	const [forms, setForms] = useState<DatabaseTypes.Forms[]>([]);
 	const formsHelper = new FormsHelper();
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 

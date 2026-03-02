@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, Platform, Text, View } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { uploadFiles } from '@directus/sdk';
 
 import SettingsList from '@/components/SettingsList';
@@ -35,22 +35,10 @@ type DirectusImageEditModalContentProps = {
 	onClose: () => void;
 };
 
-type ActionItem = {
-	key: string;
-	label: string;
-	icon?: any;
-	rightElement?: any;
-	rightIcon?: any;
-	onPress?: () => void;
-	isCancel?: boolean;
-	groupPosition?: 'bottom' | 'top' | 'middle' | 'single';
-	showSeparator?: boolean;
-};
-
 const MAX_IMAGE_DIMENSION = 6000;
 
 const useCollectionFolder = (collection: CollectionNames) => {
-	const { foodCollection } = useAppSelector((state) => state.food);
+	const { foodCollection } = useSelector((state: RootState) => state.food);
 	const [collectionFolder, setCollectionFolder] = useState('');
 
 	useEffect(() => {
@@ -315,7 +303,7 @@ const DirectusImageEditModalContent: React.FC<DirectusImageEditModalContentProps
 	}, [buildUpdatePayload, collection, collectionFields, field, itemId, loading, onClose, onUpdated]);
 
 	const actionItems = useMemo(() => {
-		const withGrouping = (items: Omit<ActionItem, 'groupPosition' | 'showSeparator'>[]): ActionItem[] =>
+		const withGrouping = (items: Array<Record<string, any>>) =>
 			items.map((item, index) => ({
 				...item,
 				groupPosition:
@@ -329,7 +317,7 @@ const DirectusImageEditModalContent: React.FC<DirectusImageEditModalContentProps
 				showSeparator: index !== items.length - 1,
 			}));
 
-		const cancelItem: ActionItem = {
+		const cancelItem = {
 			key: isDelete ? 'delete-cancel' : 'cancel',
 			label: translate(TranslationKeys.cancel),
 			icon: <MaterialCommunityIcons name="close" size={24} />,
@@ -364,7 +352,7 @@ const DirectusImageEditModalContent: React.FC<DirectusImageEditModalContentProps
 			return [...deleteItems, cancelItem];
 		}
 
-		const items: Omit<ActionItem, 'groupPosition' | 'showSeparator'>[] = [];
+		const items = [];
 		if (!isWeb) {
 			items.push({
 				key: 'camera',

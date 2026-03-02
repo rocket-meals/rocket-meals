@@ -1,7 +1,6 @@
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import React, { useCallback, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -13,6 +12,7 @@ import { getImageUrl } from '@/constants/HelperFunctions';
 import { AppScreens, DatabaseTypes } from 'repo-depkit-common';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { RootState } from '@/redux/reducer';
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
 import CanteenSelection from '@/components/CanteenSelection/CanteenSelection';
@@ -25,21 +25,21 @@ const Home = () => {
 	const { translate } = useLanguage();
 	const canteenHelper = new CanteenHelper();
 	const buildingsHelper = new BuildingsHelper();
-	const { serverInfo } = useAppSelector(state => state.settings);
-	const { isManagement } = useAppSelector(state => state.authReducer);
+	const { serverInfo } = useSelector((state: RootState) => state.settings);
+	const { isManagement } = useSelector((state: RootState) => state.authReducer);
 	const [loading, setLoading] = useState(false);
-	const { canteens } = useAppSelector(state => state.canteenReducer);
+	const { canteens } = useSelector((state: RootState) => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
 
 	const checkCanteenSelection = () => {
 		if (selectedCanteen) {
-			router.push(('/(app)/' + AppScreens.FOOD_OFFERS) as any);
+			router.push('/(app)/' + AppScreens.FOOD_OFFERS);
 		}
 	};
 
 	const handleSelectCanteen = (canteen: DatabaseTypes.Canteens) => {
 		dispatch({ type: SET_SELECTED_CANTEEN, payload: canteen });
-		router.push(('/(app)/' + AppScreens.FOOD_OFFERS) as any);
+		router.push('/(app)/' + AppScreens.FOOD_OFFERS);
 	};
 
 	const getCanteensWithBuildings = async () => {

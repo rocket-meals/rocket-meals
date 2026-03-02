@@ -3,7 +3,7 @@ import { ScrollView, Text, View } from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
 import { router } from 'expo-router';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from './styles';
 import { Entypo, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -13,7 +13,7 @@ import { ManagementFoodCategoryContent } from '@/components/ManagementFoodCatego
 import { CanteenProps } from '@/components/CanteenSelectionSheet/types';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { useAppSelector } from '@/redux/hooks';
+import { RootState } from '@/redux/reducer';
 import { bigScreenDefaultValues } from '../bigScreen';
 import SettingsList from '@/components/SettingsList';
 import SettingsListBoolean from '@/components/SettingsListBoolean/SettingsListBoolean';
@@ -26,8 +26,8 @@ const Index = () => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { primaryColor: projectColor, appSettings } = useAppSelector((state) => state.settings);
-	const { dayPlan } = useAppSelector((state) => state.management);
+	const { primaryColor: projectColor, appSettings } = useSelector((state: RootState) => state.settings);
+	const { dayPlan } = useSelector((state: RootState) => state.management);
 	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
 	const canOpenBigScreen = Boolean(dayPlan?.selectedCanteen?.alias);
@@ -215,13 +215,13 @@ const Index = () => {
 											params: {
 												canteens_id: dayPlan?.selectedCanteen?.id || '',
 												foodCategoryIds: dayPlan?.mealOfferCategory?.id || '',
-												showFoodCategoryName: String(dayPlan?.isMenuCategory || false),
+												showFoodCategoryName: dayPlan?.isMenuCategory || false,
 												foodOfferCategoryIds: dayPlan?.foodCategory?.id || '',
-												showFoodofferCategoryName: String(dayPlan?.isMenuCategoryName || false),
+												showFoodofferCategoryName: dayPlan?.isMenuCategoryName || false,
 												nextFoodIntervalInSeconds: dayPlan?.nextFoodInterval || 0,
 												refreshFoodOffersIntervalInSeconds: dayPlan?.refreshInterval || 0,
-												fullscreen: String(dayPlan?.isFullScreen || false),
-												showMarkingsOnCard: String(dayPlan?.showMarkingsOnCard ?? bigScreenDefaultValues.showMarkingsOnCard),
+												fullscreen: dayPlan?.isFullScreen || false,
+												showMarkingsOnCard: dayPlan?.showMarkingsOnCard ?? bigScreenDefaultValues.showMarkingsOnCard,
 											},
 										});
 									}

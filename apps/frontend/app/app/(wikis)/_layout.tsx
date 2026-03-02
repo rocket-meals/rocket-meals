@@ -3,14 +3,15 @@ import { useTheme } from '@/hooks/useTheme';
 import { Stack } from 'expo-router';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { SET_WIKIS } from '@/redux/Types/types';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { WikisHelper } from '@/redux/actions/Wikis/Wikis';
-import { useAppSelector } from '@/redux/hooks';
+import { RootState } from '@/redux/reducer';
+
 export default function FoodOfferLayout() {
 	const dispatch = useDispatch();
 	const { theme } = useTheme();
 	const wikisHelper = new WikisHelper();
-	const { wikis } = useAppSelector((state) => state.settings);
+	const { wikis } = useSelector((state: RootState) => state.settings);
 
 	const getWikis = async () => {
 		try {

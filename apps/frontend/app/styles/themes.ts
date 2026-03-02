@@ -48,7 +48,6 @@ export const lightTheme = {
 		closeIcon: '#ffffff',
 		text: '#000000',
 		inputBg: '#ffffff',
-		inputBorder: '#D1D1D1',
 		placeholder: '#696969',
 		inputBorderValid: '#FCDE31',
 		inputBorderInvalid: '#ff6347',
@@ -70,10 +69,6 @@ export const lightTheme = {
 		background: '#ffffff',
 		text: '#000000',
 		icon: '#000000',
-	},
-	button: {
-		background: '#FCDE31',
-		text: '#000000',
 	},
 };
 
@@ -127,7 +122,6 @@ export const darkTheme = {
 		closeIcon: '#666666',
 		text: '#ffffff',
 		inputBg: '#393939',
-		inputBorder: '#666666',
 		placeholder: '#666666',
 		inputBorderValid: '#FCDE31',
 		inputBorderInvalid: '#ff6347',
@@ -149,9 +143,5 @@ export const darkTheme = {
 		background: '#2E2E2E',
 		text: '#ffffff',
 		icon: '#ffffff',
-	},
-	button: {
-		background: '#FCDE31',
-		text: '#ffffff',
 	},
 };

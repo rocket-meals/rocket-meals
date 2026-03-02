@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { SafeAreaView, ScrollView, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { COLLECTABLE_AT_FIELDS, DateHelper } from 'repo-depkit-common';
 import type { DatabaseTypes } from 'repo-depkit-common';
 
@@ -59,9 +59,9 @@ const CollectibleEventsScreen = () => {
         useSetPageTitle(TranslationKeys.collectible_events);
         const { theme } = useTheme();
         const { translate, language } = useLanguage();
-        const { primaryColor } = useAppSelector((state) => state.settings);
-        const { collectibleEvents, collectibleEventsDict = {} } = useAppSelector(
-                (state) => state.collectibleEvents
+        const { primaryColor } = useSelector((state: RootState) => state.settings);
+        const { collectibleEvents, collectibleEventsDict = {} } = useSelector(
+                (state: RootState) => state.collectibleEvents
         );
 
         const events = useMemo<DatabaseTypes.CollectibleEvents[]>(

@@ -2,7 +2,7 @@ import { Animated, Dimensions, Easing, Image, ScrollView, Text, View } from 'rea
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchFoodsByCanteen } from '@/redux/actions/FoodOffers/FoodOffers';
 import { getImageUrl, showDayPlanPrice, showFormatedPrice } from '@/constants/HelperFunctions';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
@@ -13,13 +13,13 @@ import MarkingIcon from '@/components/MarkingIcon';
 import CompanyImage from '@/components/CompanyImage';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 import { FoodCategoriesHelper } from '@/redux/actions/FoodCategories/FoodCategories';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { SET_FOOD_CATEGORIES, SET_FOOD_OFFERS_CATEGORIES } from '@/redux/Types/types';
 import { FoodOffersCategoriesHelper } from '@/redux/actions/FoodOffersCategories/FoodOffersCategories';
 import { PriceGroupKey } from '@/app/(app)/settings/types';
 import { getAppIconInsideExpoLocalSaved } from '@/config';
-import { useAppSelector } from '@/redux/hooks';
 
 export const bigScreenDefaultValues = {
 	showMarkingsOnCard: true,
@@ -36,9 +36,9 @@ const Index = () => {
 	const { width, height } = Dimensions.get('window');
 	const imageSize = width / 2;
 	const [currentTime, setCurrentTime] = useState('');
-	const { markings, foodCategories, foodOfferCategories } = useAppSelector((state) => state.food);
+	const { markings, foodCategories, foodOfferCategories } = useSelector((state: RootState) => state.food);
 	const [logoStyle, setLogoStyle] = useState(styles.logo);
-	const { language, primaryColor: projectColor, appSettings, serverInfo } = useAppSelector((state) => state.settings);
+	const { language, primaryColor: projectColor, appSettings, serverInfo } = useSelector((state: RootState) => state.settings);
 	const [foods, setFoods] = useState([]);
 	const [currentFoodIndex, setCurrentFoodIndex] = useState(0);
 	const [currentFood, setCurrentFood] = useState<any>(null);
@@ -49,7 +49,7 @@ const Index = () => {
 	const [isConnected, setIsConnected] = useState(true);
 	const progressAnim = useRef(new Animated.Value(0)).current;
 	const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
-	const { canteens } = useAppSelector((state) => state.canteenReducer);
+	const { canteens } = useSelector((state: RootState) => state.canteenReducer);
 	const [selectedCanteen, setSelectedCanteen] = useState<any>(null);
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
 
@@ -78,7 +78,7 @@ const Index = () => {
 
 	useEffect(() => {
 		const unsubscribe = NetInfo.addEventListener(state => {
-			setIsConnected(state?.isConnected ?? false);
+			setIsConnected(state?.isConnected);
 		});
 
 		return () => unsubscribe();

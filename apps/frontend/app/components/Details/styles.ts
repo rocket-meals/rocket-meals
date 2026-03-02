@@ -25,10 +25,4 @@ export default StyleSheet.create({
 		fontFamily: 'Poppins_400Regular',
 		marginTop: 40,
 	},
-	loadingContainer: {
-		height: 200,
-		width: '100%',
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
 });

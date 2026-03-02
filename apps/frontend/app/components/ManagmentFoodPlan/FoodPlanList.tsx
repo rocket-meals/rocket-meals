@@ -36,7 +36,7 @@ const FoodPlanList = ({
 		};
 	}, []);
 
-	const handleToggleChange = (index: number) => {
+	const handleToggleChange = index => {
 		const updatedStates = [...toggleStates];
 		updatedStates[index] = !updatedStates[index];
 		setToggleStates(updatedStates);
@@ -96,7 +96,7 @@ const FoodPlanList = ({
 										]}
 										editable={false}
 										pointerEvents="none"
-										value={selectedCanteen?.alias || undefined}
+										value={selectedCanteen?.alias}
 									/>
 								)}
 

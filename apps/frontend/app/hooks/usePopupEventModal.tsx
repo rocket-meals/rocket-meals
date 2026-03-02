@@ -2,15 +2,15 @@ import React, { useCallback, useRef, useState } from 'react';
 import PopupEventSheet from '@/components/PopupEventSheet/PopupEventSheet';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { PopupEventHelper } from '@/helper/PopupEventHelper';
-import { useDispatch, shallowEqual } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { SET_POPUP_EVENTS } from '@/redux/Types/types';
 import useKioskMode from '@/hooks/useKioskMode';
+import { RootState } from '@/redux/reducer';
 
 const usePopupEventModal = () => {
 	const dispatch = useDispatch();
 	const kioskMode = useKioskMode();
-	const popupEvents = useAppSelector((state) => state.food.popupEvents, shallowEqual);
+	const { popupEvents } = useSelector((state: RootState) => state.food);
 	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
 	const popupEventShownIdRef = useRef<string | null>(null);
 	const [currentPopupEvent, setCurrentPopupEvent] = useState<any | null>(null);

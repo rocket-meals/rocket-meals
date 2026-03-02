@@ -1,5 +1,5 @@
 import { DatabaseTypes } from 'repo-depkit-common';
-import { CollectionHelper, Query } from './collectionHelper';
+import { CollectionHelper } from './collectionHelper';
 
 export async function loadMostLikedOrDislikedFoods(limit: number, offset: number, minRatingAmount: number | undefined, bestFirst: boolean) {
 	const collectionHelper = new CollectionHelper<DatabaseTypes.Foods>('foods');
@@ -8,7 +8,7 @@ export async function loadMostLikedOrDislikedFoods(limit: number, offset: number
 	}
 
 	// Initialize the filters array
-	const andFilters: any[] = [];
+	const andFilters = [];
 
 	// Filter for rating_amount if minRatingAmount is specified
 	if (minRatingAmount !== undefined) {
@@ -52,7 +52,7 @@ export async function loadBestRatedFoodsWithImage(limit: number, offset: number)
 
 export async function loadFoodById(id: string) {
         const collectionHelper = new CollectionHelper<DatabaseTypes.Foods>('foods');
-        const query: Query<DatabaseTypes.Foods> = {
+        const query: any = {
                 fields: ['*'],
                 deep: {
                         translations: {

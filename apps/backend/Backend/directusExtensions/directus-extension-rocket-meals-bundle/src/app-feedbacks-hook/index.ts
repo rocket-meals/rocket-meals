@@ -1,6 +1,6 @@
 import { defineHook } from '@directus/extensions-sdk';
 import { DatabaseInitializedCheck } from '../helpers/DatabaseInitializedCheck';
-import { CollectionNames, DateHelper } from 'repo-depkit-common';
+import { CollectionNames, DateHelper, MailAdresses } from 'repo-depkit-common';
 import { MyDatabaseHelper } from '../helpers/MyDatabaseHelper';
 import { HtmlTemplatesEnum } from '../helpers/html/HtmlGenerator';
 import {MyDefineHook} from "../helpers/MyDefineHook";
@@ -40,7 +40,7 @@ export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async
   // TODO: Create a table for app-feedbacks-settings
   // There we can store to which emails we should send the feedbacks and at which time or on a daily basis
 
-  const toMail = 'info@baumgartner-software.de';
+  const toMail = MailAdresses.SupportMail;
 
   action(CollectionNames.APP_FEEDBACKS + '.items.create', async meta => {
     let app_feedback_id = meta.key;

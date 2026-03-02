@@ -4,7 +4,7 @@ import { ServerAPI } from '@/redux/actions/Auth/Auth'; // Your API client
 
 export class ProfileHelper extends CollectionHelper<DatabaseTypes.Profiles> {
 	constructor(client?: any) {
-		super('profiles', client);
+		super('profiles', client || ServerAPI.getClient());
 	}
 
 	async fetchProfile(queryOverride: any = {}) {

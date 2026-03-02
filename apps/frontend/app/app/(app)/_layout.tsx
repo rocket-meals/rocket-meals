@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 import { Drawer } from 'expo-router/drawer';
 import CustomDrawerContent from '@/components/Drawer/CustomDrawerContent';
 import { useTheme } from '@/hooks/useTheme';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { Redirect, useGlobalSearchParams } from 'expo-router';
 import useKioskMode from '@/hooks/useKioskMode';
@@ -47,6 +46,7 @@ import { CanteenHelper } from '@/redux/actions/Canteens/Canteens';
 // TODO: replace HashHelper with expo-crypto once packages can be installed
 import { HashHelper } from '@/helper/hashHelper';
 import { CollectionKeys } from '@/constants/collectionKeys';
+import { RootState } from '@/redux/reducer';
 import { loadChatReadStatus } from '@/helper/chatReadStatus';
 
 export default function Layout() {
@@ -77,12 +77,12 @@ export default function Layout() {
         const collectionLastUpdateHelper = new CollectionLastUpdateHelper();
         const foodFeedbackLabelEntryHelper = new FoodFeedbackLabelEntryHelper();
 	const canteenFeedbackLabelEntryHelper = new CanteenFeedbackLabelEntryHelper();
-	const { popupEvents } = useAppSelector((state) => state.food);
-	const { hashValue } = useAppSelector((state) => state.popup_events_hash);
-	const { lastUpdatedMap } = useAppSelector((state) => state.lastUpdated);
-	const { drawerPosition } = useAppSelector((state) => state.settings);
-	const { loggedIn, user } = useAppSelector((state) => state.authReducer);
-	const { canteens } = useAppSelector((state) => state.canteenReducer);
+	const { popupEvents } = useSelector((state: RootState) => state.food);
+	const { hashValue } = useSelector((state: RootState) => state.popup_events_hash);
+	const { lastUpdatedMap } = useSelector((state: RootState) => state.lastUpdated);
+	const { drawerPosition } = useSelector((state: RootState) => state.settings);
+	const { loggedIn, user } = useSelector((state: RootState) => state.authReducer);
+	const { canteens } = useSelector((state: RootState) => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
 
 	useEffect(() => {

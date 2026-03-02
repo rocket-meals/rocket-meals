@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Image, Text, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import { CollectibleAt } from 'repo-depkit-common';
 import BaseBottomSheet from '../BaseBottomSheet';
 import CollectibleSpot from '../CollectibleItem/CollectibleSpot';
@@ -12,17 +13,16 @@ import { getImageUrl } from '@/constants/HelperFunctions';
 import { getDescriptionFromTranslation, getTextFromTranslation } from '@/helper/resourceHelper';
 import { useTheme } from '@/hooks/useTheme';
 import { RootState } from '@/redux/reducer';
-import { useAppSelector } from '@/redux/hooks';
 
 export interface MarkingBottomSheetProps {
         onClose: () => void;
 }
 
 const MarkingBottomSheet = forwardRef<BottomSheet, MarkingBottomSheetProps>(({ onClose }, ref) => {
-	const { theme } = useTheme();
-	const { markingDetails } = useAppSelector((state) => state.food);
-	const { language } = useAppSelector((state) => state.settings);
-	const description = getDescriptionFromTranslation(markingDetails?.translations, language);
+        const { theme } = useTheme();
+        const { markingDetails } = useSelector((state: RootState) => state.food);
+        const { language } = useSelector((state: RootState) => state.settings);
+        const description = getDescriptionFromTranslation(markingDetails?.translations, language);
 
         return (
                 <BaseBottomSheet ref={ref} index={-1} backgroundStyle={{ backgroundColor: theme.sheet.sheetBg }} enablePanDownToClose handleComponent={null} onClose={onClose}>
@@ -51,7 +51,7 @@ const MarkingBottomSheet = forwardRef<BottomSheet, MarkingBottomSheetProps>(({ o
                                         <View style={styles.imageContainer}>
                                                 <Image
                                                         source={{
-                                                                uri: markingDetails?.image_remote_url || getImageUrl(String(markingDetails?.image)) || undefined,
+                                                                uri: markingDetails?.image_remote_url || getImageUrl(String(markingDetails?.image)),
                                                         }}
                                                         style={{
                                                                 ...styles.image,

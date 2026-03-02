@@ -7,8 +7,7 @@ import { CanteenFeedbackLabelProps, ModifiedCanteensFeedbacksLabelsEntries } fro
 import { isWeb } from '@/constants/Constants';
 import { getIconComponent, getTextFromTranslation } from '@/helper/resourceHelper';
 import { DatabaseTypes } from 'repo-depkit-common';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { DELETE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES, UPDATE_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES } from '@/redux/Types/types';
 import useRatingPermissionModal from '@/hooks/useRatingPermissionModal';
@@ -28,17 +27,17 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({ label, dat
 	const canteenFeedbackLabelEntryHelper = new CanteenFeedbackLabelEntryHelper();
 	const { openRatingPermissionModal } = useRatingPermissionModal();
 	const [showTooltip, setShowTooltip] = useState(false);
-	const { primaryColor, language, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { primaryColor, language, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const [count, setCount] = useState({ likes: 0, dislikes: 0 });
-	const { user, profile } = useAppSelector((state) => state.authReducer);
-	const { ownCanteenFeedBackLabelEntries } = useAppSelector((state) => state.canteenReducer);
+	const { user, profile } = useSelector((state: RootState) => state.authReducer);
+	const { ownCanteenFeedBackLabelEntries } = useSelector((state: RootState) => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
 	const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
 
 	// Use useMemo to optimize the filtering processs
 	const labelData = useMemo(() => {
-		return ownCanteenFeedBackLabelEntries?.find((entry: DatabaseTypes.CanteensFeedbacksLabelsEntries) => entry.label === label?.id && entry.canteen === selectedCanteen?.id && entry.date && isSameDay(entry.date, date)) || ({} as DatabaseTypes.FoodsFeedbacksLabelsEntries);
+		return ownCanteenFeedBackLabelEntries?.find((entry: DatabaseTypes.CanteensFeedbacksLabelsEntries) => entry.label === label?.id && entry.canteen === selectedCanteen?.id && isSameDay(entry.date, date)) || ({} as DatabaseTypes.FoodsFeedbacksLabelsEntries);
 	}, [ownCanteenFeedBackLabelEntries, date]);
 
 	// Function to handle updating the entry
@@ -47,7 +46,6 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({ label, dat
 			openRatingPermissionModal();
 			return;
 		}
-		if (!selectedCanteen?.id) return;
 		let likeStats = null;
 		if (isLike === true && labelData?.like === true) {
 			likeStats = null;
@@ -74,8 +72,7 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({ label, dat
 	};
 
 	const getLabelEntries = async (labelId: string) => {
-		if (!selectedCanteen?.id) return;
-		const result = (await canteenFeedbackLabelEntryHelper.fetchCanteenFeedbackLabelEntries({}, date, selectedCanteen.id, labelId)) as unknown as ModifiedCanteensFeedbacksLabelsEntries[];
+		const result = (await canteenFeedbackLabelEntryHelper.fetchCanteenFeedbackLabelEntries({}, date, selectedCanteen.id, labelId)) as ModifiedCanteensFeedbacksLabelsEntries[];
 		if (result) {
 			const likes = result?.find(entry => entry.like === true)?.count || 0;
 			const dislikes = result?.find(entry => entry.like === false)?.count || 0;
@@ -90,8 +87,6 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({ label, dat
 		}
 	}, [label?.id, date]);
 
-	const imageId = typeof label?.image === 'string' ? label.image : (label?.image as any)?.id;
-
 	return (
 		<View style={styles.row}>
 			<Tooltip
@@ -102,7 +97,7 @@ const CanteenFeedbackLabels: React.FC<CanteenFeedbackLabelProps> = ({ label, dat
 						{label?.image_remote_url || label?.image ? (
 							<Image
 								source={{
-									uri: label?.image_remote_url || (imageId ? getImageUrl(imageId) : '') || '',
+									uri: label?.image_remote_url || getImageUrl(label?.image),
 								}}
 								style={styles.icon}
 							/>

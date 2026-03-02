@@ -1,18 +1,18 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { SafeAreaView, ScrollView, View, useWindowDimensions, type DimensionValue } from 'react-native';
+import { Dimensions, Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { runAfterInteractions } from '@/helper/interactionHelper';
+import { AntDesign, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { isWeb } from '@/constants/Constants';
 import Feedbacks from '@/components/Feedbacks';
 import Details from '@/components/Details';
 import Labels from '@/components/Labels';
-import { getImageUrl, getpreviousFeedback } from '@/constants/HelperFunctions';
+import { fetchFoodDetailsById, fetchFoodOffersDetailsById } from '@/redux/actions/FoodOffers/FoodOffers';
+import { excerpt, getImageUrl, getpreviousFeedback, numToOneDecimal } from '@/constants/HelperFunctions';
 import { CollectibleAt, DatabaseTypes } from 'repo-depkit-common';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
-import { useDispatch, shallowEqual } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { DELETE_FOOD_FEEDBACK_LOCAL, UPDATE_FOOD_FEEDBACK_LOCAL, UPDATE_PROFILE } from '@/redux/Types/types';
 import MarkingBottomSheet from '@/components/MarkingBottomSheet';
@@ -21,407 +21,790 @@ import type BottomSheet from '@gorhom/bottom-sheet';
 import NotificationSheet from '@/components/NotificationSheet/NotificationSheet';
 import usePlatformHelper from '@/helper/platformHelper';
 import { NotificationHelper } from '@/helper/NotificationHelper';
+import { getFoodCategoryName, getFoodOfferCategoryName } from '@/helper/resourceHelper';
 import { getCurrentDevice, getDeviceIdentifier, getDeviceInformationWithoutPushToken } from '@/helper/DeviceHelper';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
 import { createSelector } from 'reselect';
 import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/ColorHelper';
+import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { handleFoodRating } from '@/helper/feedback';
 import { RootState } from '@/redux/reducer';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import useRatingPermissionModal from '@/hooks/useRatingPermissionModal';
-import FoodHeader from './components/FoodHeader';
-import NotificationSection from './components/NotificationSection';
-import TabController from './components/TabController';
-import { useFoodDetails } from './hooks/useFoodDetails';
-import { useFoodAttributes } from './hooks/useFoodAttributes';
+import { ConfigCustomerEnum } from '@/config';
+import DebugView from '@/components/DebugView';
 
 const selectFoodState = (state: RootState) => state.food;
-const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => foodState.ownFoodFeedbacks);
+
+const selectPreviousFeedback = createSelector(
+        [selectFoodState, (_: RootState, foodId?: string | null) => foodId],
+        (foodState, foodId) => (foodId ? getpreviousFeedback(foodState.ownFoodFeedbacks, foodId.toString()) : undefined)
+);
 
 export default function FoodDetailsScreen() {
-    useSetPageTitle(TranslationKeys.food_details);
+        useSetPageTitle(TranslationKeys.food_details);
 
-    const { id, foodId, initialData } = useLocalSearchParams();
-    const offerId = Array.isArray(id) ? id[0] : id;
-    const initialFoodId = Array.isArray(foodId) ? foodId[0] : foodId;
+        const { id, foodId } = useLocalSearchParams();
+        const offerId = Array.isArray(id) ? id[0] : id;
+        const initialFoodId = Array.isArray(foodId) ? foodId[0] : foodId;
 
-    const initialFoodOffer = useMemo(() => {
-        if (typeof initialData === 'string') {
-            try {
-                const result = JSON.parse(initialData);
-                return result;
-            } catch (e) {
-                return null;
-            }
-        }
-        return null;
-    }, [initialData]);
+	const { theme } = useTheme();
+	const { translate } = useLanguage();
+	const dispatch = useDispatch();
+	const menuSheetRef = useRef<BottomSheet>(null);
+	const { isSmartPhone, isAndroid, isIOS } = usePlatformHelper();
+	const { user, profile, isDevMode } = useSelector((state: RootState) => state.authReducer);
+	const { primaryColor, language: languageCode, appSettings, serverInfo, selectedTheme: mode, selectedCustomer } = useSelector((state: RootState) => state.settings);
+        const previousFeedback = useSelector(state => selectPreviousFeedback(state, initialFoodId));
+	const profileHelper = useMemo(() => new ProfileHelper(), []);
+	const foodfeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
+	const { foodAttributeGroups } = useSelector((state: RootState) => state.foodAttributes);
+	const { foodCategories, foodOfferCategories } = useSelector((state: RootState) => state.food);
+	const [pushTokenObj, requestDeviceNotificationPermission] = NotificationHelper.useNotificationPermission(profile);
+	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
+	const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
+	const defaultImage = getImageUrl(String(appSettings.foods_placeholder_image)) || appSettings.foods_placeholder_image_remote_url || getImageUrl(serverInfo?.info?.project?.project_logo);
 
-    const { theme } = useTheme();
-    const { translate } = useLanguage();
-    const dispatch = useDispatch();
-    const { width: screenWidth } = useWindowDimensions();
+	const selectedCanteen = useSelectedCanteen();
+	const foodOfferCanteenId = selectedCanteen?.id as string | undefined;
+	const [foodDetails, setFoodDetails] = useState<any>(null);
+	const [foodOfferDetails, setFoodOfferDetails] = useState<any>(null);
+        const { openRatingPermissionModal } = useRatingPermissionModal();
 
-    const menuSheetRef = useRef<BottomSheet>(null);
-    const notificationSheetRef = useRef<BottomSheet>(null);
+	const [activeTab, setActiveTab] = useState('feedbacks');
+	const [isActive, setIsActive] = useState(false);
+	const [foodAttributes, setFoodAttributes] = useState<any>([]);
+	const [groupedAttributes, setGroupedAttributes] = useState<any>([]);
+	const [foodAttributesLoading, setFoodAttributesLoading] = useState(false);
+	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+	const notificationSheetRef = useRef<BottomSheet>(null);
 
-    const { isSmartPhone, isAndroid, isIOS } = usePlatformHelper();
-    const user = useAppSelector((state) => state.authReducer.user, shallowEqual);
-    const profile = useAppSelector((state) => state.authReducer.profile, shallowEqual);
+	const openNotificationSheet = () => {
+		notificationSheetRef?.current?.expand();
+	};
 
-    const primaryColor = useAppSelector((state) => state.settings.primaryColor);
-    const appSettings = useAppSelector((state) => state.settings.appSettings, shallowEqual);
-    const serverInfo = useAppSelector((state) => state.settings.serverInfo, shallowEqual);
-    const mode = useAppSelector((state) => state.settings.selectedTheme);
+	const closeNotificationSheet = () => {
+		notificationSheetRef?.current?.close();
+	};
 
-    const ownFoodFeedbacks = useAppSelector(selectOwnFoodFeedbacks);
-    const previousFeedback = useMemo(() => {
-        const result = initialFoodId ? getpreviousFeedback(ownFoodFeedbacks, initialFoodId.toString()) : undefined;
-        return result;
-    }, [ownFoodFeedbacks, initialFoodId]);
+	const openMenuSheet = () => {
+		menuSheetRef?.current?.expand();
+	};
 
-    // Hooks
-    const profileHelper = useMemo(() => new ProfileHelper(), []);
-    const foodfeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
-    const [notificationGranted, pushTokenObj, _, requestDeviceNotificationPermission] = NotificationHelper.useNotificationPermission(profile);
+	const closeMenuSheet = () => {
+		menuSheetRef?.current?.close();
+	};
 
-    const { foodDetails, foodAttributes, loading: foodAttributesLoading } = useFoodDetails({ offerId, initialFoodId, initialFoodOffer });
-    const { groupedAttributes } = useFoodAttributes({ foodAttributes, foodDetails });
+	const openFullScreenImage = () => {
+		if (foodDetails?.image_remote_url) {
+			router.push({
+				pathname: '/(app)/image-full-screen',
+				params: { uri: foodDetails.image_remote_url },
+			});
+		} else if (foodDetails?.image) {
+			router.push({
+				pathname: '/(app)/image-full-screen',
+				params: { assetId: String(foodDetails.image) },
+			});
+		} else {
+			router.push({
+				pathname: '/(app)/image-full-screen',
+				params: { uri: defaultImage },
+			});
+		}
+	};
 
-    const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
-    const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
-    const defaultImage = getImageUrl(String(appSettings.foods_placeholder_image)) || appSettings.foods_placeholder_image_remote_url || getImageUrl(serverInfo?.info?.project?.project_logo);
+	const filterAttributes = () => {
+		const groupedAttributes = foodAttributeGroups?.map((group: any) => {
+			const attributes = foodAttributes
+				?.filter((attr: any) => attr?.food_attribute?.group === group?.id)
+				?.sort((a: any, b: any) => {
+					const sortA = a?.food_attribute?.sort || 0;
+					const sortB = b?.food_attribute?.sort || 0;
+					return sortA - sortB;
+				});
 
-    const selectedCanteen = useSelectedCanteen();
-    const foodOfferCanteenId = selectedCanteen?.id as string | undefined;
-    const { openRatingPermissionModal } = useRatingPermissionModal();
+			return {
+				...group,
+				attributes: attributes || [],
+			};
+		});
 
-    const [activeTab, setActiveTab] = useState('feedbacks');
-    const [isActive, setIsActive] = useState(false);
+		const hideGeneralAttributes = selectedCustomer === ConfigCustomerEnum.STUDI_FUTTER;
 
-    const openNotificationSheet = useCallback(() => {
-        notificationSheetRef?.current?.expand();
-    }, []);
+		if (!hideGeneralAttributes) {
+			const generalAttributes: any[] = [];
+			if (foodDetails && foodCategories.length) {
+				const name = getFoodCategoryName(foodCategories, foodDetails.food_category, languageCode);
+				if (name) {
+					generalAttributes.push({
+						id: 'food_category',
+						string_value: name,
+						food_attribute: {
+							status: 'published',
+							translations: [
+								{
+									languages_code: languageCode,
+									name: translate(TranslationKeys.food_category_label),
+								},
+							],
+						},
+					});
+				}
+			}
 
-    const closeNotificationSheet = useCallback(() => {
-        notificationSheetRef?.current?.close();
-    }, []);
+			if (foodDetails && foodOfferCategories.length && foodDetails.foodoffer_category) {
+				const name = getFoodOfferCategoryName(foodOfferCategories, foodDetails.foodoffer_category, languageCode);
+				if (name) {
+					generalAttributes.push({
+						id: 'foodoffer_category',
+						string_value: name,
+						food_attribute: {
+							status: 'published',
+							translations: [
+								{
+									languages_code: languageCode,
+									name: translate(TranslationKeys.foodoffer_category_label),
+								},
+							],
+						},
+					});
+				}
+			}
 
-    const openMenuSheet = useCallback(() => {
-        menuSheetRef?.current?.expand();
-    }, []);
+			if (generalAttributes.length) {
+				groupedAttributes?.push({
+					id: 'general',
+					translations: [{ languages_code: languageCode, name: translate(TranslationKeys.general) }],
+					attributes: generalAttributes,
+				});
+			}
+		}
 
-    const closeMenuSheet = useCallback(() => {
-        menuSheetRef?.current?.close();
-    }, []);
+		setGroupedAttributes(groupedAttributes);
+		setFoodAttributesLoading(false);
+	};
 
-    const openFullScreenImage = useCallback(() => {
-        if (foodDetails?.image_remote_url) {
-            router.push({
-                pathname: '/(app)/image-full-screen',
-                params: { uri: foodDetails.image_remote_url },
-            });
-        } else if (foodDetails?.image) {
-            router.push({
-                pathname: '/(app)/image-full-screen',
-                params: { assetId: String(foodDetails.image) },
-            });
-        } else {
-            router.push({
-                pathname: '/(app)/image-full-screen',
-                params: { uri: defaultImage },
-            });
-        }
-    }, [foodDetails, defaultImage]);
+	useEffect(() => {
+		if (foodAttributeGroups && foodAttributes) {
+			filterAttributes();
+		}
+	}, [foodAttributes, foodAttributeGroups, foodDetails, foodCategories, foodOfferCategories, selectedCustomer]);
 
-    // Memoized content renderers to prevent unnecessary re-renders of inactive tabs
-    const FeedbacksContent = useMemo(() => (
-        <Feedbacks
-            foodDetails={foodDetails}
-            offerId={offerId ? offerId.toString() : undefined}
-            canteenId={foodOfferCanteenId}
-        />
-    ), [foodDetails, offerId, foodOfferCanteenId]);
+	const renderContent = useCallback(
+                (foodDetails: DatabaseTypes.Foods) => {
+                        switch (activeTab) {
+                                case 'feedbacks':
+                                        return (
+                                                <Feedbacks
+                                                        foodDetails={foodDetails}
+                                                        offerId={offerId ? offerId.toString() : undefined}
+                                                        canteenId={foodOfferCanteenId}
+                                                />
+                                        );
+			case 'details':
+				return <Details groupedAttributes={groupedAttributes} loading={foodAttributesLoading} />;
+                                case 'labels':
+							return (
+								<Labels
+									foodDetails={foodDetails}
+									offerId={offerId ? offerId.toString() : undefined}
+									foodOfferDetails={foodOfferDetails}
+									handleMenuSheet={openMenuSheet}
+									color={foods_area_color}
+								/>
+							);
+                                default:
+                                        return null;
+                        }
+                },
+                [activeTab, offerId, foodOfferCanteenId]
+        );
 
-    const DetailsContent = useMemo(() => (
-        <Details groupedAttributes={groupedAttributes} loading={foodAttributesLoading} />
-    ), [groupedAttributes, foodAttributesLoading]);
-
-    const LabelsContent = useMemo(() => (
-        <Labels
-            foodDetails={foodDetails}
-            offerId={offerId ? offerId.toString() : undefined}
-            handleMenuSheet={openMenuSheet}
-            color={foods_area_color}
-        />
-    ), [foodDetails, offerId, openMenuSheet, foods_area_color]);
-
-    const renderContent = useCallback(
-        () => {
-            let result = null;
-            switch (activeTab) {
-                case 'feedbacks':
-                    result = FeedbacksContent;
-                    break;
-                case 'details':
-                    result = DetailsContent;
-                    break;
-                case 'labels':
-                    result = LabelsContent;
-                    break;
-                default:
-                    result = null;
-            }
-            return result;
-        },
-        [activeTab, FeedbacksContent, DetailsContent, LabelsContent]
-    );
-
-    const rateFood = useCallback((rating: number) => {
-        if (!user?.id) {
-            openRatingPermissionModal();
-            return;
-        }
-        const newRating = previousFeedback?.rating === rating ? null : rating;
-
-        handleFoodRating({
-            foodId: foodDetails?.id,
-            profileId: profile?.id,
-            userId: user?.id || '',
-            rating: newRating,
-            canteenId: foodOfferCanteenId,
-            previousFeedback,
-            dispatch,
-        });
-    }, [user, previousFeedback, foodDetails, profile, foodOfferCanteenId, dispatch, openRatingPermissionModal]);
-
-    const updateFoodFeedbackNotification = useCallback(async () => {
-        try {
-            const payload = {
-                ...previousFeedback,
-                canteen: foodOfferCanteenId,
-                notify: !previousFeedback?.notify,
-            };
-            const updateFeedbackResult = (await foodfeedbackHelper.updateFoodFeedback(foodDetails?.id, profile?.id, payload)) as DatabaseTypes.FoodsFeedbacks;
-            if (updateFeedbackResult?.id) {
-                dispatch({
-                    type: UPDATE_FOOD_FEEDBACK_LOCAL,
-                    payload: updateFeedbackResult,
-                });
-            } else {
-                dispatch({
-                    type: DELETE_FOOD_FEEDBACK_LOCAL,
-                    payload: previousFeedback?.id,
-                });
-            }
-        } catch (e) {
-            console.error('Error creating feedback:', e);
-        }
-    }, [previousFeedback, foodOfferCanteenId, foodDetails, profile, dispatch, foodfeedbackHelper]);
-
-    const getContainerWidth = useMemo(() => {
-        let containerWidth = '100%';
-
-        if (isWeb) {
-            if (screenWidth < 600) {
-                containerWidth = '95%';
-            } else {
-                containerWidth = '80%';
-            }
-        } else {
-            containerWidth = '100%';
-        }
-
-        return containerWidth;
-    }, [screenWidth]);
-
-    useFocusEffect(
-        useCallback(() => {
-            runAfterInteractions(() => {
-                setIsActive(true);
-            });
-            return () => {
-                setIsActive(false);
-            };
-        }, [])
-    );
-
-    const updateDeviceInfo = useCallback(async () => {
-        try {
-            const deviceInformationsWithoutPushToken = getDeviceInformationWithoutPushToken();
-            const deviceInformationsId = getDeviceIdentifier(deviceInformationsWithoutPushToken);
-            const pushTokenObj = await NotificationHelper.loadDeviceNotificationPermission();
-            let deviceInformationsWithPushToken = {
-                ...deviceInformationsWithoutPushToken,
-                pushTokenObj: pushTokenObj,
-                display_group: '',
-            };
-
-            let newDevices = profile?.devices ? [...profile.devices] : [];
-            let foundDevice = getCurrentDevice(deviceInformationsId, newDevices);
-            if (!foundDevice) {
-                newDevices.push(deviceInformationsWithPushToken as any);
-            } else {
-                const deviceInformationsForUpdate = {
-                    ...foundDevice,
-                    ...deviceInformationsWithPushToken,
-                }; // we want to keep id or createdAt
-
-                // Optimization: Check if update is needed
-                if (JSON.stringify(foundDevice) === JSON.stringify(deviceInformationsForUpdate)) {
-                    return;
+	const rateFood = (rating: number) => {
+                if (!user?.id) {
+                        openRatingPermissionModal();
+                        return;
                 }
+		const newRating = previousFeedback?.rating === rating ? null : rating;
 
-                const index = newDevices.indexOf(foundDevice);
-                newDevices[index] = deviceInformationsForUpdate;
-            }
-            const result = (await profileHelper.updateProfile({
-                ...profile,
-                devices: newDevices,
-            })) as DatabaseTypes.Profiles;
-            if (result) {
-                dispatch({
-                    type: UPDATE_PROFILE,
-                    payload: result,
-                });
-            }
-        } catch (e) {
-            console.error('Error updating device information:', e);
-        }
-    }, [profile, dispatch, profileHelper]);
+		handleFoodRating({
+			foodId: foodDetails?.id,
+			profileId: profile?.id,
+			userId: user?.id || '',
+			rating: newRating,
+			canteenId: foodOfferCanteenId,
+			previousFeedback,
+			dispatch,
+		});
+	};
 
-    // Optimize updateDeviceInfo to run less frequently
-    const deviceInfoUpdatedRef = useRef(false);
+	const updateFoodFeedbackNotification = async () => {
+		try {
+			const payload = {
+				...previousFeedback,
+				canteen: foodOfferCanteenId,
+				notify: !previousFeedback?.notify,
+			};
+			const updateFeedbackResult = (await foodfeedbackHelper.updateFoodFeedback(foodDetails?.id, profile?.id, payload)) as DatabaseTypes.FoodsFeedbacks;
+			if (updateFeedbackResult?.id) {
+				dispatch({
+					type: UPDATE_FOOD_FEEDBACK_LOCAL,
+					payload: updateFeedbackResult,
+				});
+			} else {
+				dispatch({
+					type: DELETE_FOOD_FEEDBACK_LOCAL,
+					payload: previousFeedback?.id,
+				});
+			}
+		} catch (e) {
+			console.error('Error creating feedback:', e);
+		}
+	};
 
-    useFocusEffect(
-        useCallback(() => {
-            if (profile?.id && !deviceInfoUpdatedRef.current) {
-                runAfterInteractions(() => {
-                    updateDeviceInfo();
-                    deviceInfoUpdatedRef.current = true;
-                });
-            }
-        }, [profile?.id, updateDeviceInfo])
-    );
+        const getFoodDetails = async () => {
+                try {
+                        if (offerId) {
+                                const foodData = await fetchFoodOffersDetailsById(offerId.toString());
+				if (foodData && foodData.data) {
+					const { food, attribute_values, foodoffer_category } = foodData?.data ?? {};
+					setFoodOfferDetails(foodData.data);
 
-    const updateNotification = useCallback(async () => {
-        if (!user?.id) {
-            openRatingPermissionModal();
-            return;
-        }
-        if (isSmartPhone()) {
-            const result = await NotificationHelper.getDeviceNotificationPermission();
-            if (isAndroid()) {
-                if (result?.granted) {
-                    updateFoodFeedbackNotification();
-                } else {
-                    if (NotificationHelper.isDeviceNotificationPermissionUndetermined(pushTokenObj)) {
-                        requestDeviceNotificationPermission();
-                    }
+                                        const translation = food?.translations?.find((val: FoodsTranslations) => String(val?.languages_code)?.split('-')[0] === languageCode);
+                                        setFoodDetails({
+                                                ...food,
+                                                foodoffer_category,
+                                                name: translation ? translation.name : null,
+                                        });
+                                        if (attribute_values) {
+                                                setFoodAttributesLoading(true);
+                                                setFoodAttributes(attribute_values);
+                                        }
+                                } else {
+                                        console.log('No food data found');
+                                }
+			} else if (initialFoodId) {
+				const foodData = await fetchFoodDetailsById(initialFoodId.toString());
+				if (foodData && foodData.data) {
+					const food = foodData.data;
+					setFoodOfferDetails(null);
+                                        const translation = food?.translations?.find((val: FoodsTranslations) => String(val?.languages_code)?.split('-')[0] === languageCode);
+                                        setFoodDetails({
+                                                ...food,
+                                                name: translation ? translation.name : food?.name ?? null,
+                                        });
+
+                                        const attributes = food?.attribute_values || food?.foods_attributes_values;
+                                        if (attributes) {
+                                                setFoodAttributesLoading(true);
+                                                setFoodAttributes(attributes);
+                                        }
+                                } else {
+                                        console.log('No food data found');
+                                }
+                        }
+                } catch (e) {
+                        console.error('Error fetching food details: ', e);
                 }
-            }
-            if (isIOS()) {
-                const result = await NotificationHelper.requestDeviceNotificationPermission();
-                if (result?.granted) {
-                    updateFoodFeedbackNotification();
-                } else {
-                    if (NotificationHelper.isDeviceNotificationPermissionUndetermined(pushTokenObj)) {
-                        requestDeviceNotificationPermission();
-                    }
-                }
-            }
-        } else {
-            openNotificationSheet();
-        }
-    }, [user, isSmartPhone, isAndroid, isIOS, pushTokenObj, requestDeviceNotificationPermission, updateFoodFeedbackNotification, openNotificationSheet, openRatingPermissionModal]);
+        };
 
+        useEffect(() => {
+                getFoodDetails();
+        }, [offerId, initialFoodId]);
 
-    // Memoize container style to prevent re-calculations on every render
-    const pagerViewStyle = useMemo(() => [
-        styles.pagerView,
-        isWeb ? styles.pagerViewWeb : styles.pagerViewMobile,
-        isWeb && (screenWidth > 1000 ? styles.pagerViewWebLarge : styles.pagerViewWebSmall),
-        { width: getContainerWidth as DimensionValue }
-    ], [isWeb, screenWidth, getContainerWidth]);
+	const getContainerWidth = () => {
+		let containerWidth = '100%';
 
-    return (
-        <SafeAreaView
-            style={[styles.safeArea, { backgroundColor: theme.screen.background }]}
-        >
-            <ScrollView
-                style={[
-                    isWeb ? styles.scrollViewWeb : styles.scrollView,
-                    { backgroundColor: theme.screen.background }
-                ]}
-                contentContainerStyle={[
-                    styles.contentContainer,
-                    styles.scrollViewContent,
-                    { backgroundColor: theme.screen.background }
-                ]}
-                removeClippedSubviews={true} // Optimization for large lists
-                scrollEventThrottle={16}
-            >
-                <View style={styles.mainWrapper}>
-                    <FoodHeader
-                        foodDetails={foodDetails}
-                        screenWidth={screenWidth}
-                        openFullScreenImage={openFullScreenImage}
-                        rateFood={rateFood}
-                        previousFeedback={previousFeedback}
-                        appSettings={appSettings}
-                        foodsAreaColor={foods_area_color}
-                        theme={theme}
-                        translate={translate}
-                        defaultImage={defaultImage}
-                    />
+		if (isWeb) {
+			if (screenWidth < 600) {
+				containerWidth = '95%';
+			} else {
+				containerWidth = '80%';
+			}
+		} else {
+			containerWidth = '100%';
+		}
 
-                    <NotificationSection
-                        theme={theme}
-                        containerWidth={getContainerWidth}
-                        translate={translate}
-                        previousFeedback={previousFeedback}
-                        updateNotification={updateNotification}
-                        foodsAreaColor={foods_area_color}
-                        foodDetails={foodDetails}
-                    />
+		return containerWidth;
+	};
 
-                    <TabController
-                        activeTab={activeTab}
-                        setActiveTab={setActiveTab}
-                        theme={theme}
-                        contrastColor={contrastColor}
-                        translate={translate}
-                        containerWidth={getContainerWidth}
-                        foodsAreaColor={foods_area_color}
-                    />
+	useEffect(() => {
+		const handleResize = () => {
+			setScreenWidth(Dimensions.get('window').width);
+		};
 
-                    <View style={pagerViewStyle}>
-                        {foodDetails?.id && renderContent()}
-                    </View>
+		const subscription = Dimensions.addEventListener('change', handleResize);
+
+		return () => subscription?.remove();
+	}, []);
+
+	useFocusEffect(
+		useCallback(() => {
+			setIsActive(true);
+			return () => {
+				setIsActive(false);
+			};
+		}, [])
+	);
+
+	const updateDeviceInfo = async () => {
+		try {
+			const deviceInformationsWithoutPushToken = getDeviceInformationWithoutPushToken();
+			const deviceInformationsId = getDeviceIdentifier(deviceInformationsWithoutPushToken);
+			const pushTokenObj = await NotificationHelper.loadDeviceNotificationPermission();
+			let deviceInformationsWithPushToken = {
+				...deviceInformationsWithoutPushToken,
+				pushTokenObj: pushTokenObj,
+			};
+
+			let newDevices = profile?.devices || [];
+			let foundDevice = getCurrentDevice(deviceInformationsId, newDevices);
+			if (!foundDevice) {
+				newDevices.push(deviceInformationsWithPushToken);
+			} else {
+				const deviceInformationsForUpdate = {
+					...foundDevice,
+					...deviceInformationsWithPushToken,
+				}; // we want to keep id or createdAt
+				const index = newDevices.indexOf(foundDevice);
+				newDevices = [...newDevices];
+				newDevices[index] = deviceInformationsForUpdate;
+			}
+			const result = (await profileHelper.updateProfile({
+				...profile,
+				devices: newDevices,
+			})) as DatabaseTypes.Profiles;
+			if (result) {
+				dispatch({
+					type: UPDATE_PROFILE,
+					payload: result,
+				});
+			}
+		} catch (e) {
+			console.error('Error updating device information:', e);
+		}
+	};
+
+	useEffect(() => {
+		if (profile?.id) {
+			updateDeviceInfo();
+		}
+	}, []);
+
+	const updateNotification = async () => {
+		if (!user?.id) {
+			openRatingPermissionModal();
+			return;
+		}
+		if (isSmartPhone()) {
+			const result = await NotificationHelper.getDeviceNotificationPermission();
+			if (isAndroid()) {
+				console.log('Result.granted', result?.granted);
+				if (result?.granted) {
+					updateFoodFeedbackNotification();
+				} else {
+					if (NotificationHelper.isDeviceNotificationPermissionUndetermined(pushTokenObj)) {
+						requestDeviceNotificationPermission();
+					}
+				}
+			}
+			if (isIOS()) {
+				const result = await NotificationHelper.requestDeviceNotificationPermission();
+				console.log('Result.grantedios', result);
+				if (result?.granted) {
+					updateFoodFeedbackNotification();
+				} else {
+					if (NotificationHelper.isDeviceNotificationPermissionUndetermined(pushTokenObj)) {
+						requestDeviceNotificationPermission();
+					}
+				}
+			}
+		} else {
+			openNotificationSheet();
+		}
+	};
+
+	const themeStyles = {
+		backgroundColor: foods_area_color,
+		borderColor: foods_area_color,
+	};
+
+	return (
+		<SafeAreaView
+			style={{
+				flex: 1,
+				backgroundColor: theme.screen.background,
+			}}
+		>
+			<ScrollView
+				style={{
+					backgroundColor: theme.screen.background,
+					padding: isWeb ? 20 : 10,
+				}}
+				contentContainerStyle={{
+					...styles.contentContainer,
+					width: '100%',
+					backgroundColor: theme.screen.background,
+				}}
+			>
+				<View
+					style={{
+						width: '100%',
+						height: '100%',
+						alignItems: 'center',
+					}}
+				>
+					{isWeb ? (
+						<>
+							<View
+								style={{
+									...styles.featuredContainer,
+									width: screenWidth > 1000 ? '80%' : '100%',
+									flexDirection: screenWidth > 1000 ? 'row' : 'column',
+								}}
+							>
+								<View
+									style={{
+										...styles.foodDetail,
+										width: screenWidth > 1000 ? '50%' : '100%',
+										alignItems: screenWidth > 1000 ? 'flex-start' : 'center',
+									}}
+								>
+									<View
+										style={{
+											...styles.imageContainer,
+											width: screenWidth > 1000 ? 400 : Dimensions.get('window').width - 40,
+											height: screenWidth > 1000 ? 400 : Dimensions.get('window').width - 40,
+										}}
+									>
+										<TouchableOpacity onPress={openFullScreenImage} activeOpacity={0.9} style={styles.featuredImage}>
+											<Image
+												style={styles.featuredImage}
+												source={
+													foodDetails?.image_remote_url || foodDetails?.image
+														? {
+																uri: foodDetails?.image_remote_url || getImageUrl(foodDetails?.image),
+															}
+														: { uri: defaultImage }
+												}
+											/>
+										</TouchableOpacity>
+									</View>
+								</View>
+								<View
+									style={{
+										...styles.detailsContainer,
+										width: screenWidth > 1000 ? '50%' : '100%',
+										justifyContent: screenWidth > 1000 ? 'space-between' : 'flex-start',
+										height: screenWidth > 1000 ? 400 : 'auto',
+										paddingHorizontal: screenWidth > 800 ? 20 : 0,
+									}}
+								>
+									<View style={{ width: '100%', alignItems: 'flex-end' }}>
+										{appSettings?.foods_ratings_average_display && (
+											<View
+												style={{
+													...styles.ratingView,
+													borderColor: theme.screen.text,
+												}}
+											>
+												<AntDesign name="star" size={22} color={foods_area_color} />
+												<Text
+													style={{
+														...styles.totalRating,
+														color: theme.screen.text,
+													}}
+												>
+													{(foodDetails?.rating_average || foodDetails?.rating_average_legacy) && numToOneDecimal(foodDetails?.rating_average || foodDetails?.rating_average_legacy)}
+												</Text>
+											</View>
+										)}
+									</View>
+									<View
+										style={{
+											...styles.ratingContainer,
+											backgroundColor: theme.screen.iconBg,
+											marginTop: screenWidth > 1000 ? 0 : 20,
+										}}
+									>
+										<Text style={{ ...styles.rateUs, color: theme.screen.text }}>{translate(TranslationKeys.RATE_FOOD)}</Text>
+										<View style={styles.stars}>
+											{Array.from({ length: 5 }).map((_, index) => (
+												<Tooltip
+													placement="top"
+													trigger={triggerProps => (
+														<TouchableOpacity key={index} {...triggerProps} onPress={() => rateFood(index + 1)} style={{ padding: 5 }}>
+															{/* <AntDesign name={previousFeedback?.rating > index ? 'star' : 'staro'} size={22} color={foods_area_color} /> */}
+															<MaterialIcons name={previousFeedback?.rating > index ? 'star' : 'star-border'} size={22} color={foods_area_color} />
+														</TouchableOpacity>
+													)}
+												>
+													<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+														<TooltipText fontSize="$sm" color={theme.tooltip.text}>
+															{`${translate(TranslationKeys.set_rating_to)} ${index + 1}`}
+														</TooltipText>
+													</TooltipContent>
+												</Tooltip>
+											))}
+										</View>
+									</View>
+								</View>
+							</View>
+							<View
+								style={{
+									...styles.featuredContainer,
+									width: screenWidth > 1000 ? '80%' : '100%',
+								}}
+							>
+								<Text
+									style={{
+										...styles.foodHeading,
+										width: '100%',
+										color: theme.screen.text,
+										textAlign: screenWidth > 1000 ? 'left' : 'center',
+										flexDirection: 'column',
+										fontSize: screenWidth > 800 ? 24 : 20,
+									}}
+								>
+									{foodDetails?.name}
+								</Text>
+							</View>
+						</>
+					) : (
+						<View style={styles.mobileImageContainer}>
+							<TouchableOpacity onPress={openFullScreenImage} activeOpacity={0.9} style={styles.mobileFeaturedImage}>
+								<Image
+									source={
+										foodDetails?.image_remote_url || foodDetails?.image
+											? {
+													uri: foodDetails?.image_remote_url || getImageUrl(foodDetails?.image),
+												}
+											: { uri: defaultImage }
+									}
+									style={styles.mobileFeaturedImage}
+								/>
+							</TouchableOpacity>
+							<View style={styles.overlay} pointerEvents="box-none">
+								<View style={styles.mobileDetailsHeader}>
+									<View style={styles.row}>
+										<View />
+										{appSettings?.foods_ratings_average_display && (
+											<View
+												style={{
+													...styles.mobileRatingView,
+													borderColor: theme.screen.text,
+												}}
+											>
+												<AntDesign name="star" size={18} color={foods_area_color} />
+												<Text
+													style={{
+														...styles.mobileTotalRating,
+														color: theme.screen.text,
+													}}
+												>
+													{(foodDetails?.rating_average || foodDetails?.rating_average_legacy) && numToOneDecimal(foodDetails?.rating_average || foodDetails?.rating_average_legacy)}
+												</Text>
+											</View>
+										)}
+									</View>
+								</View>
+								<View style={styles.mobileDetailsFooter}></View>
+							</View>
+							<Text
+								style={{
+									...styles.mobileFoodHeading,
+									color: theme.screen.text,
+								}}
+							>
+								{foodDetails?.name}
+							</Text>
+							<View
+								style={{
+									...styles.mobileRatingContainer,
+									backgroundColor: theme.screen.iconBg,
+								}}
+							>
+								<Text
+									style={{
+										...styles.mobileRateUs,
+										color: theme.screen.text,
+									}}
+								>
+									{translate(TranslationKeys.RATE_FOOD)}
+								</Text>
+								<View style={styles.mobileStars}>
+									{Array.from({ length: 5 }).map((_, index) => (
+										<TouchableOpacity key={index} onPress={() => rateFood(index + 1)}>
+											{/* <AntDesign name={previousFeedback?.rating > index ? 'star' : 'staro'} size={20} color={foods_area_color} /> */}
+											<MaterialIcons name={previousFeedback?.rating > index ? 'star' : 'star-border'} size={20} color={foods_area_color} />
+										</TouchableOpacity>
+									))}
+								</View>
+							</View>
+						</View>
+					)}
+					<View
+						style={{
+							...styles.notificationContainer,
+							backgroundColor: theme.drawerBg,
+							width: getContainerWidth() || '100%',
+						}}
+					>
+						<Text
+							style={{
+								...styles.notificationBody,
+								color: theme.screen.text,
+								maxWidth: '80%',
+								fontSize: isWeb ? 18 : 12,
+							}}
+						>
+							{translate(TranslationKeys.GET_NOTIFICATION_ON_AVAILABILITY)}
+						</Text>
+						{previousFeedback?.notify ? (
+							<Tooltip
+								placement="top"
+								trigger={triggerProps => (
+									<TouchableOpacity
+										{...triggerProps}
+										style={{
+											...styles.bellIconAtiveContainer,
+											backgroundColor: foods_area_color,
+											padding: isWeb ? 12 : 8,
+										}}
+										onPress={updateNotification}
+									>
+										<MaterialIcons name="notifications-active" size={32} color={theme.screen.text} />
+									</TouchableOpacity>
+								)}
+							>
+								<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+									<TooltipText fontSize="$sm" color={theme.tooltip.text}>
+										{`${translate(TranslationKeys.notification)}: ${translate(TranslationKeys.active)}: ${excerpt(foodDetails?.name, 90)}`}
+									</TooltipText>
+								</TooltipContent>
+							</Tooltip>
+						) : (
+							<Tooltip
+								placement="top"
+								trigger={triggerProps => (
+									<TouchableOpacity
+										style={{
+											...styles.bellIconContainer,
+											borderColor: foods_area_color,
+											padding: isWeb ? 12 : 8,
+										}}
+										{...triggerProps}
+										onPress={updateNotification}
+									>
+										<MaterialIcons name="notifications" size={32} color={theme.screen.text} />
+									</TouchableOpacity>
+								)}
+							>
+								<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+									<TooltipText fontSize="$sm" color={theme.tooltip.text}>
+										{`${translate(TranslationKeys.notification)}: ${translate(TranslationKeys.inactive)}: ${excerpt(foodDetails?.name, 90)}`}
+									</TooltipText>
+								</TooltipContent>
+							</Tooltip>
+						)}
+					</View>
+					<View
+						style={{
+							...styles.tabViewContainer,
+							width: getContainerWidth(),
+						}}
+					>
+						<View
+							style={{
+								...styles.tabs,
+								width: isWeb ? '95%' : '100%',
+								gap: isWeb ? 20 : 0,
+							}}
+						>
+							<Tooltip
+								placement="top"
+								trigger={triggerProps => (
+									<TouchableOpacity {...triggerProps} style={[styles.tab, activeTab === 'feedbacks' ? themeStyles : { backgroundColor: theme.screen.iconBg }]} onPress={() => setActiveTab('feedbacks')}>
+										<MaterialCommunityIcons name="chat" size={26} color={activeTab === 'feedbacks' ? contrastColor : theme.screen.icon} />
+									</TouchableOpacity>
+								)}
+							>
+								<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+									<TooltipText fontSize="$sm" color={theme.tooltip.text}>
+										{`${translate(TranslationKeys.food_feedbacks)}`}
+									</TooltipText>
+								</TooltipContent>
+							</Tooltip>
+							<Tooltip
+								placement="top"
+								trigger={triggerProps => (
+									<TouchableOpacity style={[styles.tab, activeTab === 'details' ? themeStyles : { backgroundColor: theme.screen.iconBg }]} {...triggerProps} onPress={() => setActiveTab('details')}>
+										<MaterialCommunityIcons name="nutrition" size={26} color={activeTab === 'details' ? contrastColor : theme.screen.icon} />
+									</TouchableOpacity>
+								)}
+							>
+								<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+									<TooltipText fontSize="$sm" color={theme.tooltip.text}>
+										{`${translate(TranslationKeys.food_data)}`}
+									</TooltipText>
+								</TooltipContent>
+							</Tooltip>
+
+							<Tooltip
+								placement="top"
+								trigger={triggerProps => (
+									<TouchableOpacity style={[styles.tab, activeTab === 'labels' ? themeStyles : { backgroundColor: theme.screen.iconBg }]} {...triggerProps} onPress={() => setActiveTab('labels')}>
+										<MaterialCommunityIcons name="medical-bag" size={26} color={activeTab === 'labels' ? contrastColor : theme.screen.icon} />
+									</TouchableOpacity>
+								)}
+							>
+								<TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
+									<TooltipText fontSize="$sm" color={theme.tooltip.text}>
+										{`${translate(TranslationKeys.markings)}`}
+									</TooltipText>
+								</TooltipContent>
+							</Tooltip>
+						</View>
+						<View
+							style={{
+								...styles.pagerView,
+								width: isWeb ? '95%' : '100%',
+								paddingHorizontal: isWeb ? (screenWidth > 1000 ? 20 : 0) : 10,
+							}}
+						>
+                                        {foodDetails?.id && renderContent(foodDetails)}
+                                </View>
+                        </View>
+                        <DebugView title="Foodoffer Details" isVisible={isDevMode}>
+                                <Text style={{ color: theme.screen.text }}>
+                                        {foodOfferDetails ? JSON.stringify(foodOfferDetails, null, 2) : 'No foodoffer details available.'}
+                                </Text>
+                        </DebugView>
+                        <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_foodoffers_details} />
                 </View>
-                <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_foodoffers_details} />
-            </ScrollView>
+        </ScrollView>
+			{isActive && (
+				<BaseBottomSheet
+					ref={notificationSheetRef}
+					index={-1}
+					backgroundStyle={{
+						...styles.sheetBackground,
+						backgroundColor: theme.sheet.sheetBg,
+					}}
+					enablePanDownToClose
+					handleComponent={null}
+					onClose={closeNotificationSheet}
+				>
+					<NotificationSheet closeSheet={closeNotificationSheet} previousFeedback={previousFeedback} foodDetails={foodDetails} />
+				</BaseBottomSheet>
+			)}
+			{/* Menu sheet */}
 
-            {isActive && (
-                <BaseBottomSheet
-                    ref={notificationSheetRef}
-                    index={-1}
-                    backgroundStyle={{
-                        ...styles.sheetBackground,
-                        backgroundColor: theme.sheet.sheetBg,
-                    }}
-                    enablePanDownToClose
-                    handleComponent={null}
-                    onClose={closeNotificationSheet}
-                >
-                    <NotificationSheet closeSheet={closeNotificationSheet} previousFeedback={previousFeedback} foodDetails={foodDetails} />
-                </BaseBottomSheet>
-            )}
-
-            {isActive && <MarkingBottomSheet ref={menuSheetRef} onClose={closeMenuSheet} />}
-        </SafeAreaView>
-    );
+			{isActive && <MarkingBottomSheet ref={menuSheetRef} onClose={closeMenuSheet} />}
+		</SafeAreaView>
+	);
 }

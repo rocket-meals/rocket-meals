@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, Text, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import { useTheme } from '@/hooks/useTheme';
 import { useMyContrastColor } from '@/helper/ColorHelper';
 import { iconLibraries } from '../Drawer/CustomDrawerContent';
@@ -7,7 +8,6 @@ import { getImageUrl } from '@/constants/HelperFunctions';
 import styles from './styles';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { RootState } from '@/redux/reducer';
-import { useAppSelector } from '@/redux/hooks';
 
 interface MarkingIconProps {
 	marking: DatabaseTypes.Markings;
@@ -18,18 +18,14 @@ interface MarkingIconProps {
 
 const MarkingIcon: React.FC<MarkingIconProps> = ({ marking, size = 24, color, compact = false }) => {
 	const { theme } = useTheme();
-	const { selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 
 	const bgColor = marking?.background_color;
 	const contrast = useMyContrastColor(bgColor, theme, mode === 'dark');
 
 	if (!marking) return null;
 
-	const markingImage = marking.image_remote_url
-		? { uri: marking.image_remote_url }
-		: marking.image
-		? { uri: getImageUrl(String(marking.image)) || undefined }
-		: null;
+	const markingImage = marking.image_remote_url ? { uri: marking.image_remote_url } : marking.image ? { uri: getImageUrl(String(marking.image)) } : null;
 	const textColor = color || contrast;
 
 	const iconParts = marking.icon?.split(':') || [];

@@ -3,11 +3,12 @@ import { Dimensions, Image, ScrollView, Text, View } from 'react-native';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import SettingsList from '@/components/SettingsList';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import { RootState } from '@/redux/reducer';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
@@ -39,12 +40,12 @@ const parseMarkdown = (text: string, theme: any) => {
 const DataAccess = ({ onOpenBottomSheet }: any) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-  const { user, profile } = useAppSelector(state => state.authReducer);
-  const { primaryColor } = useAppSelector(state => state.settings);
-  const { collectibleEvents } = useAppSelector(state => state.collectibleEvents ?? {});
-  const { canteens, buildings, selectedCanteenFoodOffers, canteenFoodOffers, businessHours, canteenFeedbackLabels, ownCanteenFeedBackLabelEntries } = useAppSelector(state => state.canteenReducer);
-  
-  const { foodFeedbackLabels, ownFoodFeedbacks, ownfoodFeedbackLabelEntries, markings, selectedFoodMarkings, foodCategories, foodOfferCategories, markingDetails } = useAppSelector(state => state.food);
+        const { user, profile } = useSelector((state: RootState) => state.authReducer);
+        const { primaryColor } = useSelector((state: RootState) => state.settings);
+        const { collectibleEvents } = useSelector((state: RootState) => state.collectibleEvents ?? {});
+        const { canteens, buildings, selectedCanteenFoodOffers, canteenFoodOffers, businessHours, canteenFeedbackLabels, ownCanteenFeedBackLabelEntries } = useSelector((state: RootState) => state.canteenReducer);
+
+        const { foodFeedbackLabels, ownFoodFeedbacks, ownfoodFeedbackLabelEntries, markings, selectedFoodMarkings, foodCategories, foodOfferCategories, markingDetails } = useSelector((state: RootState) => state.food);
 
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
 

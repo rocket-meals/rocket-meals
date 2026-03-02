@@ -1,6 +1,6 @@
 import { defineHook } from '@directus/extensions-sdk';
 import { DatabaseInitializedCheck } from '../helpers/DatabaseInitializedCheck';
-import { CollectionNames, DatabaseTypes } from 'repo-depkit-common';
+import { CollectionNames, DatabaseTypes, MailAdresses } from 'repo-depkit-common';
 import { EmailOptions, MailService as MailServiceType } from '@directus/api/dist/services/mail';
 import { DEFAULT_HTML_TEMPLATE } from '../helpers/html/HtmlGenerator';
 import { MyDatabaseHelper } from '../helpers/MyDatabaseHelper';
@@ -8,6 +8,7 @@ import { MailHelper } from '../helpers/mail/MailHelper';
 import {MyDefineHook} from "../helpers/MyDefineHook";
 
 const SCHEDULE_NAME = 'food_feedback_report';
+const DAILY_MAIL_LIMIT = 1000;
 
 enum MAIL_SEND_STATUS {
   SUCCESS = 'success',
@@ -37,6 +38,16 @@ export type EmailDownloadLink = {
 
 export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME,async ({ schedule, action, filter }, apiContext) => {
 
+  function getTodayRangeIso(): { startOfDayIso: string; startOfNextDayIso: string } {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfNextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    return {
+      startOfDayIso: startOfDay.toISOString(),
+      startOfNextDayIso: startOfNextDay.toISOString(),
+    };
+  }
+
   async function sendMail(options: EmailOptions) {
     let { MailService } = apiContext.services;
     const getSchema = apiContext.getSchema;
@@ -62,6 +73,37 @@ export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME,async 
   filter<Partial<DatabaseTypes.Mails>>(CollectionNames.MAILS + '.items.create', async (input: Partial<DatabaseTypes.Mails>, meta, eventContext) => {
     // TODO: Maybe outsource this into a workflow instead of a filter
     let myDatabaseHelper = new MyDatabaseHelper(apiContext, eventContext);
+    const mailsHelper = myDatabaseHelper.getMailsHelper();
+
+    const { startOfDayIso, startOfNextDayIso } = getTodayRangeIso();
+    const todayMailCount = await mailsHelper.countItems({
+      filter: {
+        _and: [
+          {
+            date_created: {
+              _gte: startOfDayIso,
+            },
+          },
+          {
+            date_created: {
+              _lt: startOfNextDayIso,
+            },
+          },
+        ],
+      },
+    });
+
+    if (todayMailCount > DAILY_MAIL_LIMIT - 1) {
+      throw new Error(`Daily mail limit reached (${DAILY_MAIL_LIMIT}).`);
+    }
+
+    if (todayMailCount === DAILY_MAIL_LIMIT - 1) {
+      await sendMail({
+        to: MailAdresses.SupportMail,
+        subject: `Mail Tageslimit erreicht (${DAILY_MAIL_LIMIT})`,
+        text: `Das Tageslimit von ${DAILY_MAIL_LIMIT} Mails wurde erreicht. Weitere Mails werden heute blockiert.`,
+      });
+    }
 
     //console.log("Filter: Mails create: ", input);
     input.send_status = MAIL_SEND_STATUS.PENDING;

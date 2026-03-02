@@ -4,8 +4,7 @@ import { AntDesign, Entypo, EvilIcons, Feather, FontAwesome, FontAwesome5, FontA
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useTheme } from '@/hooks/useTheme';
 import { styles } from './styles';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'expo-router';
 import { SET_WIKIS } from '@/redux/Types/types';
 import { getImageUrl } from '@/constants/HelperFunctions';
@@ -62,9 +61,9 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 	const router = useRouter();
         const wikisHelper = new WikisHelper();
         const activeIndex = state.index;
-        const { user, isManagement, isDevMode } = useAppSelector((state) => state.authReducer);
-        const { chats } = useAppSelector((state) => state.chats);
-        const { serverInfo, primaryColor: projectColor, language, appSettings, wikis, selectedTheme: mode } = useAppSelector((state) => state.settings);
+        const { user, isManagement, isDevMode } = useSelector((state: RootState) => state.authReducer);
+        const { chats } = useSelector((state: RootState) => state.chats);
+        const { serverInfo, primaryColor: projectColor, language, appSettings, wikis, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
         const { hasUnreadChats } = useChatUnreadStatus();
         const { hasActiveCollectibleEvent } = useActiveCollectibleEvent();
         const { openConfirmLogoutModal } = useConfirmLogoutModal();
@@ -181,9 +180,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 	};
 
 	useEffect(() => {
-		if (!wikis || wikis.length === 0) {
-			getWikis();
-		}
+		getWikis();
 	}, []);
 
         const generateMenuItems = (): MenuItemProps[] => {
@@ -348,7 +345,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 						<View style={styles.logoContainer}>
 							<Image
 								source={{
-									uri: getImageUrl(serverInfo?.info?.project?.project_logo) ?? undefined,
+									uri: getImageUrl(serverInfo?.info?.project?.project_logo),
 								}}
 								style={styles.logo}
 							/>

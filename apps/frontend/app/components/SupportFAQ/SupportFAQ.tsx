@@ -23,7 +23,7 @@ const SupportFAQ: React.FC<SupportFAQProps> = ({ icon, label, text, onPress, isA
 		} else if (icon === 'email') {
 			return <MaterialCommunityIcons name={icon} size={20} color={theme.screen.icon} />;
 		} else {
-			return <Ionicons name={icon as any} size={20} color={theme.screen.icon} />;
+			return <Ionicons name={icon} size={20} color={theme.screen.icon} />;
 		}
 	};
 

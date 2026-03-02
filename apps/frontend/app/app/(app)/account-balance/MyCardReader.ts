@@ -13,5 +13,3 @@ export default function useMyCardReader(): MyCardReaderInterface {
 
 	return new MyUnsupportedCardReader();
 }
-
-export { MyCardReaderInterface } from "@/app/(app)/account-balance/MyCardReaderInterface";

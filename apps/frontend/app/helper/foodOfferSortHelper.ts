@@ -3,7 +3,7 @@ import { DatabaseTypes, FoodSortOption, intelligentSort, sortByEatingHabits, sor
 interface SortContext {
 	languageCode: string;
 	ownFoodFeedbacks: any[];
-	profile: { price_group?: string | null; markings: any };
+	profile: { price_group?: string; markings: any };
 	foodCategories: any[];
 	foodOfferCategories: any[];
 	useFoodOfferCategoryOnly?: boolean;
@@ -26,16 +26,16 @@ export function sortFoodOffers(id: FoodSortOption, foodOffers: DatabaseTypes.Foo
 			copiedFoodOffers = sortByFoodCategory(copiedFoodOffers, foodCategories, languageCode);
 			break;
 		case FoodSortOption.FOODOFFER_CATEGORY:
-			copiedFoodOffers = useFoodOfferCategoryOnly ? sortByFoodOfferCategoryOnly(copiedFoodOffers, foodOfferCategories) : sortByFoodOfferCategory(copiedFoodOffers, foodOfferCategories, languageCode);
+			copiedFoodOffers = useFoodOfferCategoryOnly ? sortByFoodOfferCategoryOnly(copiedFoodOffers, foodOfferCategories) : sortByFoodOfferCategory(copiedFoodOffers, foodOfferCategories);
 			break;
 		case FoodSortOption.RATING:
 			copiedFoodOffers = sortByPublicFavorite(copiedFoodOffers);
 			break;
 		case FoodSortOption.PRICE_ASCENDING:
-			copiedFoodOffers = sortByPrice(copiedFoodOffers, profile?.price_group || undefined, false);
+			copiedFoodOffers = sortByPrice(copiedFoodOffers, profile?.price_group, false);
 			break;
 		case FoodSortOption.PRICE_DESCENDING:
-			copiedFoodOffers = sortByPrice(copiedFoodOffers, profile?.price_group || undefined, true);
+			copiedFoodOffers = sortByPrice(copiedFoodOffers, profile?.price_group, true);
 			break;
 		case FoodSortOption.INTELLIGENT:
 			copiedFoodOffers = intelligentSort(copiedFoodOffers, ownFoodFeedbacks, profile.markings, languageCode, foodCategories, foodOfferCategories);

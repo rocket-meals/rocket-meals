@@ -1,6 +1,8 @@
 [
   {
     "refresh_interval": null,
+    "filter": null,
+    "layout_options": null,
     "layout_query": {
       "tabular": {
         "fields": [
@@ -12,19 +14,19 @@
         ]
       }
     },
-    "layout_options": null,
-    "filter": null,
-    "collection": "apartments",
-    "bookmark": null,
     "color": null,
     "icon": "bookmark",
     "layout": "tabular",
     "search": null,
+    "collection": "apartments",
+    "bookmark": null,
     "role": "e0d3b51c-8f50-4844-a788-b5152180bf43",
     "_syncId": "79683eff-bf98-4b6b-8d20-504e647165cc"
   },
   {
     "refresh_interval": null,
+    "filter": null,
+    "layout_options": null,
     "layout_query": {
       "tabular": {
         "fields": [
@@ -36,14 +38,12 @@
         ]
       }
     },
-    "layout_options": null,
-    "filter": null,
-    "collection": "apartments",
-    "bookmark": null,
     "color": null,
     "icon": "bookmark",
     "layout": "tabular",
     "search": null,
+    "collection": "apartments",
+    "bookmark": null,
     "role": "e0d3b51c-8f50-4844-a788-b5152180bf43",
     "_syncId": "fcfa20ed-b8de-4d8b-abbc-34fad7845930"
   }

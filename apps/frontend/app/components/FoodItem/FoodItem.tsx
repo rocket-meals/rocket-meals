@@ -1,104 +1,61 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 import { Linking, Text, TouchableOpacity, View, Image } from 'react-native';
 import MyImage from '@/components/MyImage';
 import styles from './styles';
 import { isWeb } from '@/constants/Constants';
 import { useTheme } from '@/hooks/useTheme';
-import { AntDesign, Entypo, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import {AntDesign, Entypo, MaterialCommunityIcons, MaterialIcons} from '@expo/vector-icons';
 import { FoodItemProps } from './types';
 import { excerpt, getImageUrl, getpreviousFeedback, showFormatedPrice, showPrice } from '@/constants/HelperFunctions';
-import { getDescriptionFromTranslation, getTextFromTranslation } from '@/helper/resourceHelper';
+import {getDescriptionFromTranslation, getTextFromTranslation} from '@/helper/resourceHelper';
 import { DatabaseTypes, RatingHelper } from 'repo-depkit-common';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { SET_MARKING_DETAILS, SET_SELECTED_FOOD_MARKINGS } from '@/redux/Types/types';
 import { router } from 'expo-router';
 import { createSelector } from 'reselect';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
-import translations from '@/locales/translations.json';
+import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useToast from '@/hooks/useToast';
 import { handleFoodRating } from '@/helper/feedback';
 import { RootState } from '@/redux/reducer';
 import CardWithText from '../CardWithText/CardWithText';
-import { useFoodCardBase } from '@/hooks/useFoodCard';
+import useFoodCard from '@/hooks/useFoodCard';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import AIGeneratedHintSheet from '../AIGeneratedHintSheet';
 import useRatingPermissionModal from '@/hooks/useRatingPermissionModal';
 import { useMyContrastColor } from '@/helper/ColorHelper';
 import MyMarkdown from '@/components/MyMarkdown/MyMarkdown';
+import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
 
 
 const selectFoodState = (state: RootState) => state.food;
+const selectPreviousFeedback = createSelector([selectFoodState, (_: RootState, foodId: string) => foodId], (foodState, foodId) =>
+  getpreviousFeedback(foodState.ownFoodFeedbacks, foodId)
+);
 const selectMarkings = createSelector([selectFoodState], foodState => foodState.markings);
-const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => foodState.ownFoodFeedbacks);
 
-export const FoodItemBase: React.FC<FoodItemProps> = memo(
-  ({ 
-    item, 
-    canteen, 
-    handleMenuSheet, 
-    handleImageSheet, 
-    handleEatingHabitsSheet, 
-    cardWidth, 
-    previousFeedback,
-    // Opt props
-    language,
-    serverInfo,
-    appSettings,
-    primaryColor,
-    user,
-    isManagement,
-    profile,
-    markings,
-    screenWidth: propScreenWidth,
-    theme,
-    amountColumnsForcard
-  }) => {
+const FoodItem: React.FC<FoodItemProps> = memo(
+  ({ item, canteen, handleMenuSheet, handleImageSheet, handleEatingHabitsSheet, cardWidth, dividerColor }) => {
     const toast = useToast();
     const dispatch = useDispatch();
-
-    // Optimistic state for rating
-    const [currentRating, setCurrentRating] = useState<number | null>(previousFeedback?.rating || null);
-
-    // Sync optimistic state with prop when it changes (server response)
-    useEffect(() => {
-        setCurrentRating(previousFeedback?.rating || null);
-    }, [previousFeedback?.rating]);
-    
-    // Fallback translate function if language prop is provided, to avoid useLanguage hook subscription
-    const translate = useCallback((key: string) => {
-        if (language) {
-            return (translations as any)[key]?.[language] || key;
-        }
-        // Fallback to hook if language not provided (should not happen in optimized path)
-        return key; 
-    }, [language]);
-    
-    // Only call useLanguage if language prop is MISSING (legacy/fallback)
-    // But we can't conditionally call hooks.
-    // So we assume language IS passed in optimized path.
-    // If not passed, we might have issues with translation if we strictly avoid useLanguage.
-    // However, since we are in FoodItemBase, we expect props.
-    
-    // For full safety, if we want to support non-prop usage without hooks, we need to extract useLanguage logic completely.
-    // But since we can't conditionally call hooks, we are stuck with either always calling or never calling.
-    // To strictly avoid subscription, we MUST NOT call useLanguage().
-    // We will assume language is passed. If not, we default to 'en' or similar, or just return key.
-    // NOTE: If language prop is undefined, translations will fail. But FoodItemConnected passes it.
-    
+    const { theme } = useTheme();
+    const { translate } = useLanguage();
     const { show: showScrollViewModal } = useMyScrollViewModal();
 
     const { food } = item;
-    const foodItem = food as DatabaseTypes.Foods & { show_description_icon_on_card?: boolean | null };
-
+    const foodItem = food as DatabaseTypes.Foods;
+    const { language, serverInfo, appSettings, primaryColor } = useSelector((state: RootState) => state.settings);
+    const { user, profile, isManagement } = useSelector((state: RootState) => state.authReducer);
     const { openRatingPermissionModal } = useRatingPermissionModal();
 
-    const foods_area_color = appSettings?.foods_area_color || primaryColor;
-    const contrastColor = useMyContrastColor(foods_area_color, theme, (theme as any)?.mode === 'dark');
+    const previousFeedback = useSelector(state => selectPreviousFeedback(state as RootState, foodItem.id));
+    const markings = useSelector(selectMarkings);
+
+    const foods_area_color = dividerColor || appSettings?.foods_area_color || primaryColor;
     const defaultImage =
-      getImageUrl(String(appSettings?.foods_placeholder_image)) ||
-      appSettings?.foods_placeholder_image_remote_url ||
+      getImageUrl(String(appSettings.foods_placeholder_image)) ||
+      appSettings.foods_placeholder_image_remote_url ||
       getImageUrl(serverInfo?.info?.project?.project_logo);
 
     const dislikedMarkings = useMemo(
@@ -122,35 +79,17 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
         ) ?? [],
       [item?.markings, profile?.markings]
     );
-    
+
     const isLiked = useMemo(
       () =>
-        RatingHelper.isMaxRating(currentRating) ||
+        RatingHelper.isMaxRating(previousFeedback?.rating) ||
         likedMarkings.length > 0,
-      [likedMarkings.length, currentRating]
+      [likedMarkings.length, previousFeedback?.rating]
     );
 
     const borderWidth = dislikedMarkings.length > 0 ? 3 : isLiked ? 3 : 0;
     const borderColor = dislikedMarkings.length > 0 ? '#FF000095' : '#00B050';
-
-    
-    // Use pure useFoodCardBase if optimized props are present
-    // If not, we might be in trouble (layout issues).
-    // We expect propScreenWidth, theme, amountColumnsForcard to be present.
-    // If they are missing, we default to 0/undefined, which is not ideal but prevents crash.
-    // Since FoodItemBase is used in FoodOfferListItem which passes these, we are safe.
-    
-    const { screenWidth, containerStyle, imageContainerStyle, contentStyle } = useFoodCardBase(
-        borderWidth, 
-        borderColor, 
-        propScreenWidth || 0, // Fallback 0, assuming propScreenWidth is passed
-        theme, 
-        amountColumnsForcard || 0 // Fallback 0
-    );
-
-    // If propScreenWidth is missing, useFoodCardBase will return 0 width.
-    // This is why we need FoodItemConnected to handle the fallback case properly if we want to support legacy usage without props.
-    // But for FoodItemBase, we assume props are passed.
+    const { screenWidth, containerStyle, imageContainerStyle, contentStyle } = useFoodCard(borderWidth, borderColor);
 
     const markingsData = useMemo(
       () =>
@@ -159,6 +98,15 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
         ),
       [markings, item?.markings]
     );
+
+    useEffect(() => {
+      try {
+        markingsData.slice(0, 5).forEach(m => {
+          const img = m?.image_remote_url || getImageUrl(m?.image);
+          if (img) Image.prefetch(img).catch(() => { });
+        });
+      } catch (e) { }
+    }, [markingsData]);
 
     const openInBrowser = useCallback(
       async (url: string) => {
@@ -178,28 +126,8 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
     );
 
     const handleNavigation = useCallback((id: string, foodId: string) => {
-      let initialDataStr = '';
-      try {
-        const minimalInitialData = {
-          food: item.food,
-          foodoffer_category: (item as any).foodoffer_category,
-          attribute_values: (item as any).attribute_values,
-          foods_attributes_values: (item as any).foods_attributes_values,
-        };
-        initialDataStr = JSON.stringify(minimalInitialData);
-      } catch (e) {
-        console.warn('Failed to stringify item for navigation', e);
-      }
-
-      router.push({
-        pathname: '/(app)/foodoffers/details',
-        params: {
-          id,
-          foodId,
-          initialData: initialDataStr,
-        },
-      });
-    }, [item]);
+      router.push({ pathname: '/(app)/foodoffers/details', params: { id, foodId } });
+    }, []);
 
     const handleOpenSheet = useCallback(() => {
       dispatch({ type: SET_SELECTED_FOOD_MARKINGS, payload: dislikedMarkings });
@@ -212,11 +140,6 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
           openRatingPermissionModal();
           return;
         }
-
-        // Optimistic update
-        const oldRating = currentRating;
-        setCurrentRating(rating);
-
         try {
           await handleFoodRating({
             foodId: foodItem?.id,
@@ -228,8 +151,6 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
             dispatch,
           });
         } catch (err) {
-          // Revert on error
-          setCurrentRating(oldRating);
           if ((err as any).status === 403) {
             openRatingPermissionModal();
           } else {
@@ -238,39 +159,23 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
           }
         }
       },
-      [foodItem?.id, profile?.id, canteen?.id, previousFeedback, dispatch, user?.id, toast, openRatingPermissionModal, currentRating]
+      [foodItem?.id, profile?.id, canteen?.id, previousFeedback, dispatch, user?.id, toast, openRatingPermissionModal]
     );
 
     const openMarkingLabel = useCallback(
       (marking: DatabaseTypes.Markings) => {
         dispatch({ type: SET_MARKING_DETAILS, payload: marking });
-        handleMenuSheet('menu' as any);
+        handleMenuSheet('menu');
       },
       [dispatch, handleMenuSheet]
     );
 
     const handlePriceChange = useCallback(() => router.navigate('/price-group'), []);
 
-    const foodDescription = useMemo(
-      () => getDescriptionFromTranslation(foodItem?.translations, language || 'de'),
-      [foodItem?.translations, language]
-    );
-
-    const handleDescriptionModal = useCallback(() => {
-      if (!foodDescription) return;
-      showScrollViewModal(
-        {
-          title: translate(TranslationKeys.description),
-          children: <MyMarkdown content={foodDescription} textColor={theme.screen.text} />,
-        },
-        {}
-      );
-    }, [foodDescription, showScrollViewModal, translate, theme.screen.text]);
-
     const foodName = useMemo(
       () =>
         excerpt(
-          getTextFromTranslation(foodItem?.translations, language || 'de'),
+          getTextFromTranslation(foodItem?.translations, language),
           screenWidth > 1000 ? 120 : screenWidth > 700 ? 80 : screenWidth > 460 ? 60 : 40
         ),
       [foodItem?.translations, language, screenWidth]
@@ -279,8 +184,36 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
     const priceLabel = useMemo(() => showFormatedPrice(showPrice(item, profile)), [item, profile]);
 
     const imageUri = useMemo(() => {
-      return foodItem?.image_remote_url || getImageUrl(foodItem?.image as string) || defaultImage;
+      return foodItem?.image_remote_url || getImageUrl(foodItem?.image) || defaultImage;
     }, [foodItem?.image_remote_url, foodItem?.image, defaultImage]);
+
+    // Update to fetch the description from translations, similar to how the food name is fetched
+    const foodDescription = useMemo(
+      () =>
+          getDescriptionFromTranslation(foodItem?.translations, language),
+      [foodItem?.translations, language, screenWidth]
+    );
+
+    // Update the modal content to use the fetched description
+    const handleDescriptionModal = useCallback(() => {
+      if (foodDescription) {
+        showScrollViewModal(
+          {
+            title: translate(TranslationKeys.description),
+            children: (
+              <View style={{ gap: 20 }}>
+                <MyMarkdown content={foodDescription} textColor={theme.screen.text} />
+                <RateAppSettingsItem />
+              </View>
+            ),
+          },
+          {}
+        );
+      }
+    }, [foodDescription, showScrollViewModal, translate, theme.screen.text]);
+
+    // Update to use dynamic contrast color from foods_area_color
+    const contrastColor = useMyContrastColor(foods_area_color, theme, theme?.mode === 'dark');
 
     return (
       <>
@@ -309,7 +242,6 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
                 { flex: 1, justifyContent: 'center' },
               ]}
               borderColor={foods_area_color}
-              knownCardWidth={cardWidth}
               imageChildren={
                 <>
                   {isManagement && (
@@ -325,7 +257,7 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
 
                   <View style={styles.overlayActionsContainer}>
                     <TouchableOpacity style={styles.favContainer}>
-                      {RatingHelper.isMaxRating(currentRating) ? (
+                      {RatingHelper.isMaxRating(previousFeedback?.rating) ? (
                         <TouchableOpacity onPress={() => updateRating(null)}>
                           <AntDesign name="star" size={20} color={foods_area_color} />
                         </TouchableOpacity>
@@ -366,7 +298,7 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
                         style={[styles.favContainer, { backgroundColor: foods_area_color }]}
                         onPress={handleDescriptionModal}
                       >
-                        <Entypo name="megaphone" size={20} color={contrastColor} />
+                        <Entypo name="info" size={18} color={contrastColor} />
                       </TouchableOpacity>
                     )}
                   </View>
@@ -376,15 +308,14 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
                       (mark?.image_remote_url || mark?.image) && mark?.show_on_card ? (
                         <TouchableOpacity key={mark.id} onPress={() => openMarkingLabel(mark)}>
                           <MyImage
-                            remote_image_url={mark?.image_remote_url || getImageUrl(mark?.image as string)}
-                            contentFit="cover"
-                            style={[
-                              styles.categoryLogo,
-                              {
-                                backgroundColor: mark?.background_color || undefined,
-                                borderRadius: mark?.background_color ? 8 : mark.hide_border ? 5 : 0,
-                              }
-                            ]}
+                            source={{
+                              uri: mark?.image_remote_url || getImageUrl(mark?.image),
+                            }}
+                            style={{
+                              ...styles.categoryLogo,
+                              backgroundColor: mark?.background_color,
+                              borderRadius: mark?.background_color ? 8 : mark.hide_border ? 5 : 0,
+                            }}
                           />
                         </TouchableOpacity>
                       ) : null
@@ -397,9 +328,19 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
                 </>
               }
             >
-              <View style={styles.foodNameContainer}>
+              <View
+                  style={{
+                    minHeight: 52,
+                    justifyContent: 'center',
+                    alignSelf: 'stretch',
+                  }}
+                >
                   <Text
-                    style={[styles.foodName, { color: theme.screen.text }]}
+                    style={[
+                      { ...styles.foodName, color: theme.screen.text },
+                      { maxWidth: '100%', flexShrink: 1 } as any,
+                      isWeb ? ({ wordBreak: 'break-word', overflowWrap: 'anywhere' } as any) : null,
+                    ]}
                     numberOfLines={2}
                     ellipsizeMode="tail"
                   >
@@ -411,87 +352,17 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
         >
           <TooltipContent bg={theme.tooltip.background} py="$1" px="$2">
             <TooltipText fontSize="$sm" color={theme.tooltip.text}>
-              {getTextFromTranslation(foodItem?.translations, language || 'de')}
+              {getTextFromTranslation(foodItem?.translations, language)}
             </TooltipText>
           </TooltipContent>
         </Tooltip>
       </>
     );
   },
-  (prev, next) => 
-    prev.item === next.item && 
-    prev.previousFeedback === next.previousFeedback &&
-    prev.canteen === next.canteen &&
-    prev.cardWidth === next.cardWidth &&
-    prev.language === next.language &&
-    prev.serverInfo === next.serverInfo &&
-    prev.appSettings === next.appSettings &&
-    prev.primaryColor === next.primaryColor &&
-    prev.user === next.user &&
-    prev.isManagement === next.isManagement &&
-    prev.profile === next.profile &&
-    prev.markings === next.markings &&
-    prev.screenWidth === next.screenWidth &&
-    prev.theme === next.theme &&
-    prev.amountColumnsForcard === next.amountColumnsForcard
+  (prev, next) =>
+    prev.item === next.item &&
+    prev.dividerColor === next.dividerColor &&
+    prev.cardWidth === next.cardWidth
 );
 
-const FoodItemConnected: React.FC<FoodItemProps> = (props) => {
-    const { item } = props;
-    // Use props if available, otherwise fallback to selectors (for backward compatibility if used elsewhere)
-    const language = props.language ?? useAppSelector((state) => state.settings.language);
-    const serverInfo = props.serverInfo ?? useAppSelector((state) => state.settings.serverInfo);
-    const appSettings = props.appSettings ?? useAppSelector((state) => state.settings.appSettings);
-    const primaryColor = props.primaryColor ?? useAppSelector((state) => state.settings.primaryColor);
-    
-    const { theme } = useTheme();
-    const amountColumnsForcard = props.amountColumnsForcard ?? useAppSelector((state) => state.settings.amountColumnsForcard);
-
-    const user = props.user ?? useAppSelector((state) => state.authReducer.user);
-    const isManagement = props.isManagement ?? useAppSelector((state) => state.authReducer.isManagement);
-    
-    // Optimization: Select only necessary profile fields to avoid re-renders on unrelated profile updates (e.g. device info)
-    const profileId = useAppSelector((state) => state.authReducer.profile?.id);
-    const profileMarkings = useAppSelector((state) => state.authReducer.profile?.markings);
-    const priceGroup = useAppSelector((state) => state.authReducer.profile?.price_group);
-
-    const ownFoodFeedbacks = useAppSelector(selectOwnFoodFeedbacks);
-
-    const previousFeedback = useMemo(() => {
-        if (props.previousFeedback) return props.previousFeedback;
-        const food = item?.food as any;
-        const foodId = food ? (typeof food === 'string' ? food : food.id) : undefined;
-        if (!foodId) return undefined;
-        return getpreviousFeedback(ownFoodFeedbacks as any, foodId);
-    }, [props.previousFeedback, item, ownFoodFeedbacks]);
-    
-    const profile = useMemo(() => {
-        if (props.profile) return props.profile;
-        return {
-            id: profileId,
-            markings: profileMarkings,
-            price_group: priceGroup
-        };
-    }, [props.profile, profileId, profileMarkings, priceGroup]);
-
-    const markings = props.markings ?? useAppSelector(selectMarkings);
-
-    return (
-        <FoodItemBase
-            {...props}
-            previousFeedback={previousFeedback}
-            language={language}
-            serverInfo={serverInfo}
-            appSettings={appSettings}
-            primaryColor={primaryColor}
-            user={user}
-            isManagement={isManagement}
-            profile={profile}
-            markings={markings}
-            theme={theme}
-            amountColumnsForcard={amountColumnsForcard}
-        />
-    );
-};
-
-export default FoodItemConnected;
+export default FoodItem;

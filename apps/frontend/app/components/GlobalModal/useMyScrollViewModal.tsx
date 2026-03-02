@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import MyScrollViewModal, { MyScrollViewModalProps } from '@/components/MyScrollViewModal';
 import { useModal } from './useModal';
 

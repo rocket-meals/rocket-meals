@@ -1,11 +1,10 @@
 import React, { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { useAppSelector } from '@/redux/hooks';
 import SettingsList from '@/components/SettingsList';
 import { MaterialIcons, Octicons } from '@expo/vector-icons';
 import PopupEventSheet from '@/components/PopupEventSheet/PopupEventSheet';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { SET_POPUP_EVENTS } from '@/redux/Types/types';
 import { useFocusEffect } from 'expo-router';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -13,6 +12,7 @@ import { getTitleFromTranslation } from '@/helper/resourceHelper';
 import styles from './styles';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 import useKioskMode from '@/hooks/useKioskMode';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 
@@ -21,9 +21,9 @@ const EventsScreen = () => {
 	const { theme } = useTheme();
 	const { translate, language } = useLanguage();
 	const dispatch = useDispatch();
-    const kioskMode = useKioskMode();
-    const { popupEvents } = useAppSelector((state) => state.food);
-    const { primaryColor } = useAppSelector((state) => state.settings);
+	const kioskMode = useKioskMode();
+	const { popupEvents } = useSelector((state: RootState) => state.food);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
 	const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
 	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
 	const handleClose = useCallback(() => {

@@ -4,7 +4,7 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/reducer';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import SingleLineInput from '@/components/SingleLineInput/SingleLineInput';
@@ -36,7 +36,7 @@ const ensureStringArray = (options: string[]): string[] => {
 const DropdownSheet: React.FC<DropdownSheetProps> = ({ closeSheet, options, allowCustomValues, value, onSelectOption, onSelectCustom, onDeselect, isDisabled, prefix, suffix, error }) => {
   const { theme } = useTheme();
   const { translate } = useLanguage();
-  const { primaryColor } = useAppSelector(state => state.settings);
+  const { primaryColor } = useSelector((state: RootState) => state.settings);
 
   const normalizedOptions = useMemo(() => ensureStringArray(options), [options]);
   const initialIsCustom = allowCustomValues && value.trim().length > 0 && !normalizedOptions.includes(value.trim());

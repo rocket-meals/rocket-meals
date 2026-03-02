@@ -6,8 +6,7 @@ import SupportFAQ from '../../../components/SupportFAQ/SupportFAQ';
 import styles from './styles';
 import { useLanguage } from '@/hooks/useLanguage';
 import useToast from '@/hooks/useToast';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import animation from '@/assets/animations/astronaut-computer.json';
 import LottieView from 'lottie-react-native';
 import { replaceLottieColors } from '@/helper/animationHelper';
@@ -17,16 +16,17 @@ import ModalComponent from '@/components/ModalSetting/ModalComponent';
 import { deleteProfileRemote } from '@/redux/actions/Profile/Profile';
 import { performLogout } from '@/helper/logoutHelper';
 import { TranslationKeys } from '@/locales/keys';
+import { RootState } from '@/redux/reducer';
 
 const Index = () => {
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
 	const toast = useToast();
 	const dispatch = useDispatch();
-	const { profile, user } = useAppSelector((state) => state.authReducer);
+	const { profile, user } = useSelector((state: RootState) => state.authReducer);
 	const [projectName, setProjectName] = useState('');
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
-	const { serverInfo, appSettings, primaryColor } = useAppSelector((state) => state.settings);
+	const { serverInfo, appSettings, primaryColor } = useSelector((state: RootState) => state.settings);
 	const [animationJson, setAmimationJson] = useState<any>(null);
 	const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
 	const animationRef = useRef<LottieView>(null);
@@ -67,7 +67,7 @@ const Index = () => {
 
 	const renderLottie = useMemo(() => {
 		if (animationJson) {
-			return <LottieView ref={animationRef} source={animationJson} resizeMode="contain" style={{ width: '100%', height: '100%' }} autoPlay={autoPlay ?? false} loop={false} />;
+			return <LottieView ref={animationRef} source={animationJson} resizeMode="contain" style={{ width: '100%', height: '100%' }} autoPlay={autoPlay} loop={false} />;
 		}
 	}, [autoPlay, animationJson]);
 
@@ -167,7 +167,7 @@ const Index = () => {
 							disabled={!profile?.id}
 						>
 							<View style={{ ...styles.col }}>
-								<AntDesign name="user-delete" size={24} color={theme.screen.icon} />
+								<AntDesign name="deleteuser" size={24} color={theme.screen.icon} />
 								<Text style={{ ...styles.label, color: theme.screen.text }}>{translate(TranslationKeys.account_delete)}</Text>
 							</View>
 						</TouchableOpacity>

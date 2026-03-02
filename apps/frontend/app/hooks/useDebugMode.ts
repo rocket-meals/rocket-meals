@@ -1,8 +1,9 @@
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 
+import { RootState } from '@/redux/reducer';
 
 const useDebugMode = () => {
-        return useAppSelector((state) => state.settings.debugMode);
+        return useSelector((state: RootState) => state.settings.debugMode);
 };
 
 export default useDebugMode;

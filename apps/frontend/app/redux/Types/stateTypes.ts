@@ -21,17 +21,11 @@ export type ApartmentsState = {
 	apartmentsDict: Record<string, DatabaseTypes.Apartments>;
 }
 
-export type CanteenWithImage = DatabaseTypes.Canteens & {
-	imageAssetId?: string;
-	thumbHash?: string;
-	image_url?: string;
-};
-
 export type CanteensState = {
-	canteens: CanteenWithImage[];
+	canteens: DatabaseTypes.Canteens[];
 	buildings: DatabaseTypes.Buildings[];
-	selectedCanteen: CanteenWithImage | null;
-	selectedCanteenFoodOffers: DatabaseTypes.Foodoffers[];
+	selectedCanteen: DatabaseTypes.Canteens | null;
+	selectedCanteenFoodOffers: any[];
 	canteenFoodOffers: DatabaseTypes.Foodoffers[];
 	businessHours: DatabaseTypes.Businesshours[];
 	businessHoursGroups: DatabaseTypes.BusinesshoursGroups[];
@@ -69,13 +63,13 @@ export type FoodState = {
 	ownFoodFeedbacks: DatabaseTypes.FoodsFeedbacks[];
 	ownfoodFeedbackLabelEntries: DatabaseTypes.FoodsFeedbacksLabelsEntries[];
 	markings: DatabaseTypes.Markings[];
-	selectedFoodMarkings: DatabaseTypes.FoodoffersMarkings[];
+	selectedFoodMarkings: any[];
 	foodCategories: DatabaseTypes.FoodsCategories[];
 	foodOfferCategories: DatabaseTypes.FoodoffersCategories[];
 	foodOffersInfoItems: DatabaseTypes.FoodoffersInfoItems[];
 	markingDetails: DatabaseTypes.Markings;
-	mostLikedFoods: DatabaseTypes.Foods[];
-	mostDislikedFoods: DatabaseTypes.Foods[];
+	mostLikedFoods: any[];
+	mostDislikedFoods: any[];
 	foodCollection: Record<string, any>;
 	popupEvents: ExtendedPopUpEvents[];
 	selectedDate: string;

@@ -4,7 +4,7 @@ import { ServerAPI } from '@/redux/actions/Auth/Auth';
 
 export class FormAnswersHelper extends CollectionHelper<DatabaseTypes.FormAnswers> {
 	constructor(client?: any) {
-		super('form_answers', client);
+		super('form_answers', client || ServerAPI.getClient());
 	}
 
 	async fetchFormAnswers(queryOverride: any = {}) {

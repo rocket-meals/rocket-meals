@@ -15,7 +15,6 @@ const DEFAULT_IMAGE_PROPS: AnyImageProps = {
 type Props = CardWithTextProps & {
   imageProps?: AnyImageProps;
   imageContainerStyle?: ViewStyle | ViewStyle[];
-  aspectRatio?: number | boolean;
 };
 
 const CardWithText: React.FC<Props> = ({
@@ -30,8 +29,6 @@ const CardWithText: React.FC<Props> = ({
   children,
   bottomContent,
   imageProps,
-  knownCardWidth,
-  aspectRatio = 1,
   ...rest
 }) => {
   const forwardedImageProps: AnyImageProps = {
@@ -44,25 +41,22 @@ const CardWithText: React.FC<Props> = ({
     : [styles.imageContainer, imageContainerStyle];
 
   // state to store measured card width, used to dynamically determine caption height
-  const [measuredWidth, setMeasuredWidth] = useState<number | null>(null);
-  
-  const widthToUse = knownCardWidth ?? measuredWidth;
+  const [cardWidth, setCardWidth] = useState<number | null>(null);
 
   // compute min caption height based on measured width
   const captionMinHeight = useMemo(() => {
-    if (!widthToUse) return 84; // fallback
+    if (!cardWidth) return 84; // fallback
     // tune the multiplier to your design — 0.22 (22%) works well in screenshots
-    const computed = Math.round(widthToUse * 0.22);
+    const computed = Math.round(cardWidth * 0.22);
     return Math.max(64, Math.min(130, computed)); // clamp between 64 and 130 px
-  }, [widthToUse]);
+  }, [cardWidth]);
 
   const onLayoutCard = useCallback((e: LayoutChangeEvent) => {
-    if (knownCardWidth) return; // Skip measurement if width is known
     const w = Math.round(e.nativeEvent.layout.width);
-    if (w && w !== measuredWidth) {
-      setMeasuredWidth(w);
+    if (w && w !== cardWidth) {
+      setCardWidth(w);
     }
-  }, [knownCardWidth, measuredWidth]);
+  }, [cardWidth]);
 
   return (
     <TouchableOpacity
@@ -72,13 +66,7 @@ const CardWithText: React.FC<Props> = ({
       {...rest}
     >
       {/* square wrapper ensures a stable 1:1 image area */}
-      <View style={[
-        styles.squareWrapper,
-        { borderTopLeftRadius: topRadius, borderTopRightRadius: topRadius },
-        {
-          aspectRatio: aspectRatio === false ? undefined : (typeof aspectRatio === 'number' ? aspectRatio : 1)
-        }
-      ]}>
+      <View style={[styles.squareWrapper, { borderTopLeftRadius: topRadius, borderTopRightRadius: topRadius }]}>
         <View style={[{ borderTopLeftRadius: topRadius, borderTopRightRadius: topRadius }, ...resolvedImageContainerStyle as any]}>
           {imageSource ? (
             <ExpoImage {...forwardedImageProps} source={imageSource as any} style={[styles.image, imageStyle]} />
@@ -95,7 +83,7 @@ const CardWithText: React.FC<Props> = ({
       <View
         style={[
           styles.cardContent,
-          { minHeight: captionMinHeight, paddingHorizontal: Math.round((widthToUse ?? 360) * 0.05) }, // padding scales with width
+          { minHeight: captionMinHeight, paddingHorizontal: Math.round((cardWidth ?? 360) * 0.05) }, // padding scales with width
           contentStyle,
         ]}
       >
@@ -113,6 +101,7 @@ const styles = StyleSheet.create({
   },
   squareWrapper: {
     width: '100%',
+    aspectRatio: 1,
     overflow: 'hidden',
     position: 'relative',
   },
@@ -131,6 +120,9 @@ const styles = StyleSheet.create({
     height: 3,
   },
   cardContent: {
+    // remove a hard fixed minHeight; we compute it dynamically
+    paddingTop: 12,
+    paddingBottom: 14,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'transparent',

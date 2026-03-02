@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import { DatabaseTypes, COLLECTABLE_AT_FIELDS } from 'repo-depkit-common';
+import { useSelector } from 'react-redux';
 
 import useActiveCollectibleEvent from '@/hooks/useActiveCollectibleEvent';
 import useCollectibleDict from '@/hooks/useCollectibleDict';
 import { CollectibleEventParticipantsHelper } from '@/redux/actions/CollectibleEvents/CollectibleEventParticipants';
+import { RootState } from '@/redux/reducer';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import useToast from '@/hooks/useToast';
@@ -12,7 +14,6 @@ import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
 import MyImage from '../MyImage';
 import useRateAppModal from '@/hooks/useRateAppModal';
-import { useAppSelector } from '@/redux/hooks';
 
 type CollectibleKey = (typeof COLLECTABLE_AT_FIELDS)[number];
 
@@ -33,9 +34,9 @@ const CollectibleItem: React.FC<CollectibleItemProps> = ({
         const toast = useToast();
         const { translate } = useLanguage();
         const { activeCollectibleEvent } = useActiveCollectibleEvent();
-        const { profile, loggedIn } = useAppSelector((state) => state.authReducer);
-        const { primaryColor: projectColor, collectibleItemSize, collectibleRandomPosition } = useAppSelector(
-                (state) => state.settings
+        const { profile, loggedIn } = useSelector((state: RootState) => state.authReducer);
+        const { primaryColor: projectColor, collectibleItemSize, collectibleRandomPosition } = useSelector(
+                (state: RootState) => state.settings
         );
         const [isSaving, setIsSaving] = useState(false);
         const [randomOffset, setRandomOffset] = useState({ x: 0, y: 0 });
@@ -117,7 +118,7 @@ const CollectibleItem: React.FC<CollectibleItemProps> = ({
                 setIsSaving(true);
                 try {
                 const updatePayload: Partial<DatabaseTypes.CollectibleEventParticipants> = {
-                        points: updatedCount,
+                        points: String(updatedCount),
                         data: updatedData,
                 };
 

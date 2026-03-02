@@ -10,15 +10,15 @@ export type TranslationEntry = {
 const getIconComponent = (iconString: string, iconColor: string): JSX.Element | null => {
 	if (!iconString) return null;
 
-	const [library, iconName] = iconString.split(':') as [string, string];
+	const [library, iconName] = iconString.split(':') as [string, any];
 
 	switch (library) {
 		case 'MaterialCommunityIcons':
-			return <MaterialCommunityIcons name={iconName as any} size={24} color={iconColor} />;
+			return <MaterialCommunityIcons name={iconName} size={24} color={iconColor} />;
 		case 'MaterialIcons':
-			return <MaterialIcons name={iconName as any} size={24} color={iconColor} />;
+			return <MaterialIcons name={iconName} size={24} color={iconColor} />;
 		case 'FontAwesome':
-			return <FontAwesome name={iconName as any} size={24} color={iconColor} />;
+			return <FontAwesome name={iconName} size={24} color={iconColor} />;
 		default:
 			console.warn(`Icon library "${library}" is not supported`);
 			return null;
@@ -52,13 +52,13 @@ export const getDetailedDescriptionTranslation = (translations: Array<any>, lang
 	return translation?.detailed_description || '';
 };
 
-export const getFromCategoryTranslation = (translations: Array<DatabaseTypes.FormCategoriesTranslations | DatabaseTypes.FormsTranslations | DatabaseTypes.FormFieldsTranslations>, languageCode: string): string => {
+export const getFromCategoryTranslation = (translations: Array<FormCategoriesTranslations | FormsTranslations | FormFieldsTranslations>, languageCode: string): string => {
 	if (!translations || translations.length === 0) return '';
-	const translation = translations.find(t => (t.languages_code as string)?.split('-')[0] === languageCode);
+	const translation = translations.find(t => t.languages_code?.split('-')[0] === languageCode);
 	return translation?.name || '';
 };
 
-export const getFoodAttributesTranslation = (translations: Array<DatabaseTypes.FoodsAttributesTranslations | Translation | any>, languageCode: string): string => {
+export const getFoodAttributesTranslation = (translations: Array<any>, languageCode: string): string => {
 	if (!translations || translations.length === 0) return '';
 	const translation = translations.find(t => t.languages_code?.split('-')[0] === languageCode);
 	return translation?.name || '';
@@ -68,8 +68,8 @@ const getFoodCategoryName = (categories: DatabaseTypes.FoodsCategories[], catego
 	if (!category) return '';
 	const cat = typeof category === 'object' ? category : categories.find(c => c.id === category);
 	if (!cat) return '';
-	const translations: DatabaseTypes.FoodsCategoriesTranslations[] = (cat.translations as DatabaseTypes.FoodsCategoriesTranslations[]) || [];
-	const translation = translations.find(t => (t.languages_code as string)?.split('-')[0] === languageCode);
+	const translations: any[] = (cat.translations as any[]) || [];
+	const translation = translations.find(t => t.languages_code?.split('-')[0] === languageCode);
 	return translation?.name || '';
 };
 
@@ -77,24 +77,24 @@ const getFoodOfferCategoryName = (categories: DatabaseTypes.FoodoffersCategories
 	if (!category) return '';
 	const cat = typeof category === 'object' ? category : categories.find(c => c.id === category);
 	if (!cat) return '';
-	const translations: DatabaseTypes.FoodoffersCategoriesTranslations[] = (cat.translations as DatabaseTypes.FoodoffersCategoriesTranslations[]) || [];
-	const translation = translations.find(t => (t.languages_code as string)?.split('-')[0] === languageCode);
+	const translations: any[] = (cat.translations as any[]) || [];
+	const translation = translations.find(t => t.languages_code?.split('-')[0] === languageCode);
 	return translation?.name || '';
 };
 
-export const getFromDescriptionTranslation = (translations: Array<DatabaseTypes.FormFieldsTranslations>, languageCode: string): string => {
+export const getFromDescriptionTranslation = (translations: Array<FormFieldsTranslations>, languageCode: string): string => {
 	if (!translations || translations.length === 0) return '';
-	const translation = translations.find(t => (t.languages_code as string)?.split('-')[0] === languageCode);
+	const translation = translations.find(t => t.languages_code?.split('-')[0] === languageCode);
 	return translation?.description || '';
 };
 
-export const getTitleFromTranslation = (translations: Array<Translation | DatabaseTypes.WikisTranslations>, languageCode: string): string => {
+export const getTitleFromTranslation = (translations: Array<Translation | WikisTranslations>, languageCode: string): string => {
 	if (!translations || translations.length === 0) return '';
 	const translation = translations.find(t => t.languages_code?.toString()?.split('-')[0] === languageCode);
 	return translation?.title || '';
 };
 
-const getDescriptionFromTranslation = (translations: Array<Translation | DatabaseTypes.MarkingsTranslations>, languageCode: string): string => {
+const getDescriptionFromTranslation = (translations: Array<Translation | MarkingsTranslations>, languageCode: string): string => {
 	if (!translations || translations.length === 0) return '';
 
 	const prioritizedTranslation = translations.find(t => t.languages_code?.toString()?.split('-')[0] === languageCode && Boolean(t.description));
@@ -104,21 +104,6 @@ const getDescriptionFromTranslation = (translations: Array<Translation | Databas
 
 	const translation = prioritizedTranslation || fallbackTranslation;
 	return translation?.description || '';
-};
-
-const extractFoodDetails = (food: DatabaseTypes.Foods) => {
-	const { fat_g, protein_g, saturated_fat_g, sugar_g, carbohydrate_g, calories_kcal, fiber_g, salt_g } = food as any;
-
-	return {
-		fat_g,
-		protein_g,
-		saturated_fat_g,
-		sugar_g,
-		carbohydrate_g,
-		calories_kcal,
-		fiber_g,
-		salt_g,
-	};
 };
 
 const DEFAULT_LANGUAGE_CODE_GERMAN = 'de';
@@ -204,7 +189,7 @@ export function getFoodName(food: string | DatabaseTypes.Foods | null | undefine
 	return null;
 }
 
-export const getNewsTranslationByLanguageCode = (translations: DatabaseTypes.NewsTranslations[], languageCode: string): any => {
+export const getNewsTranslationByLanguageCode = (translations: NewsTranslations[], languageCode: string): any => {
         if (!translations || translations.length === 0) return '';
 
 	const translation = translations?.find(item => item.languages_code?.toString().split('-')[0] === languageCode);
@@ -235,7 +220,7 @@ export const getCollectibleEventTranslation = (
         return { title, description };
 };
 
-export const getBuildingTranslationByLanguageCode = (translations: DatabaseTypes.BuildingsTranslations[], languageCode: string) => {
+export const getBuildingTranslationByLanguageCode = (translations: BuildingsTranslations[], languageCode: string) => {
 	if (!translations || translations.length === 0) return '';
 
 	const translation = translations?.find(item => item.languages_code?.toString().split('-')[0] === languageCode);
@@ -245,7 +230,7 @@ export const getBuildingTranslationByLanguageCode = (translations: DatabaseTypes
 	}
 };
 
-export const getAppElementTranslation = (translations: DatabaseTypes.AppElementsTranslations[] | any[], languageCode: string): any => {
+export const getAppElementTranslation = (translations: any[], languageCode: string): any => {
 	if (!translations || translations.length === 0) return '';
 
 	const translation = translations?.find(item => item.languages_code?.toString().split('-')[0] === languageCode);
@@ -259,4 +244,12 @@ export const getAppElementTranslation = (translations: DatabaseTypes.AppElements
 	}
 };
 
-export { getIconComponent, getTextFromTranslation, extractFoodDetails, getDescriptionFromTranslation, getFoodCategoryName, getFoodOfferCategoryName };
+export { getIconComponent, getTextFromTranslation, getDescriptionFromTranslation, getFoodCategoryName, getFoodOfferCategoryName };
+
+
+
+
+
+
+
+

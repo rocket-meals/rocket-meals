@@ -3,7 +3,8 @@ import { TouchableOpacity, View } from 'react-native';
 import BottomSheet, { BottomSheetBackdrop, type BottomSheetBackdropProps, type BottomSheetProps } from '@gorhom/bottom-sheet';
 import { AntDesign } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/redux/reducer';
 import styles from './styles';
 
 export interface BaseBottomSheetProps extends Omit<BottomSheetProps, 'backdropComponent'> {
@@ -14,7 +15,7 @@ export interface BaseBottomSheetProps extends Omit<BottomSheetProps, 'backdropCo
 const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(({ onClose, children, backgroundStyle, onChange, headerBackgroundColor, ...props }, ref) => {
         const renderBackdrop = useCallback((backdropProps: BottomSheetBackdropProps) => <BottomSheetBackdrop {...backdropProps} appearsOnIndex={0} disappearsOnIndex={-1} onPress={onClose} />, [onClose]);
         const { theme } = useTheme();
-        useAppSelector((state) => state.settings); // ensure theme subscription
+        useSelector((state: RootState) => state.settings); // ensure theme subscription
         const snapPoints = useMemo(() => ['80%'], []);
 
         //const effectiveBackgroundStyle = useMemo(() => ({ backgroundColor: theme.sheet.sheetBg, ...backgroundStyle }), [backgroundStyle, theme.sheet.sheetBg]);

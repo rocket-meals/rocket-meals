@@ -5,7 +5,7 @@ import { itemStatus } from '@/constants/Constants';
 
 export class CanteenFeedbackLabelEntryHelper extends CollectionHelper<DatabaseTypes.CanteensFeedbacksLabelsEntries> {
 	constructor(client?: any) {
-		super('canteens_feedbacks_labels_entries', client);
+		super('canteens_feedbacks_labels_entries', client || ServerAPI.getClient());
 	}
 
 	// Helper to build default query

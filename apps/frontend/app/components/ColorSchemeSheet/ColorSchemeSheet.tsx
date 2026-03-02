@@ -9,13 +9,14 @@ import SettingsListSelectOption from '@/components/SettingsListSelectOption/Sett
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/reducer';
 import DebugView from '@/components/DebugView';
 
 const ColorSchemeSheet: React.FC<ColorSchemeSheetProps> = ({ closeSheet, selectedTheme, onSelect }) => {
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
-	const { primaryColor, selectedTheme: selectedThemeFromStore } = useAppSelector((state) => state.settings);
+	const { primaryColor, selectedTheme: selectedThemeFromStore } = useSelector((state: RootState) => state.settings);
 	const activeSelectedTheme = selectedThemeFromStore ?? selectedTheme;
 
 	return (

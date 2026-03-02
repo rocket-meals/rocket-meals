@@ -4,11 +4,10 @@ import { ManagementFoodCategorySheetProps } from './types';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { SET_DAY_PLAN } from '@/redux/Types/types';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
-
+import { RootState } from '@/redux/reducer';
 import { DatabaseTypes } from 'repo-depkit-common';
 import SettingsList from '@/components/SettingsList';
 import SettingsListBoolean from '@/components/SettingsListBoolean/SettingsListBoolean';
@@ -18,11 +17,11 @@ export const ManagementFoodCategoryContent: React.FC<ManagementFoodCategorySheet
 	const dispatch = useDispatch();
 	const [isCustom, setIsCustom] = useState(false);
 	const [list, setList] = useState<DatabaseTypes.FoodsCategories[] | DatabaseTypes.FoodoffersCategories[]>([]);
-	const { dayPlan } = useAppSelector(state => state.management);
+	const { dayPlan } = useSelector((state: RootState) => state.management);
 	const [value, setValue] = useState('');
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
-	const { primaryColor, language } = useAppSelector(state => state.settings);
-	const { foodCategories, foodOfferCategories } = useAppSelector(state => state.food);
+	const { primaryColor, language } = useSelector((state: RootState) => state.settings);
+	const { foodCategories, foodOfferCategories } = useSelector((state: RootState) => state.food);
 
 	const currentSelectedId = selectedFoodCategory.key === 'Speiseangebot' ? dayPlan?.mealOfferCategory?.id : dayPlan?.foodCategory?.id;
 

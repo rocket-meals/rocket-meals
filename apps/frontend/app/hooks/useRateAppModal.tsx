@@ -2,13 +2,14 @@ import React, { useCallback, useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import * as StoreReview from 'expo-store-review';
 import { Ionicons } from '@expo/vector-icons';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { myContrastColor } from '@/helper/ColorHelper';
+import { RootState } from '@/redux/reducer';
 import { CommonSystemActionHelper } from '@/helper/SystemActionHelper';
 import styles from '@/app/(app)/collectible-event/styles';
 
@@ -16,7 +17,7 @@ const useRateAppModal = (buttonColorOverride?: string) => {
         const { show, close } = useMyScrollViewModal();
         const { translate } = useLanguage();
         const { theme } = useTheme();
-        const { appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
+        const { appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 
         const rateButtonColor = buttonColorOverride || theme.primary;
         const rateButtonTextColor = useMemo(

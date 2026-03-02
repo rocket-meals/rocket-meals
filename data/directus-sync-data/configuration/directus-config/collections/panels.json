@@ -1344,25 +1344,6 @@
   {
     "show_header": true,
     "height": 7,
-    "width": 21,
-    "position_y": 1,
-    "position_x": 18,
-    "note": null,
-    "options": {
-      "collection": "collectible_event_participants",
-      "field": "points",
-      "function": "sum"
-    },
-    "type": "metric",
-    "color": null,
-    "icon": null,
-    "name": "Gesammelte Items Insgesamt",
-    "dashboard": "c9c0ce22-3267-4371-b45d-150caad14114",
-    "_syncId": "27522b56-a555-4085-b2d1-54674480c68f"
-  },
-  {
-    "show_header": true,
-    "height": 7,
     "width": 60,
     "position_y": 12,
     "position_x": 1,
@@ -1608,28 +1589,6 @@
   },
   {
     "show_header": true,
-    "height": 16,
-    "width": 38,
-    "position_y": 9,
-    "position_x": 1,
-    "note": null,
-    "options": {
-      "collection": "collectible_event_participants",
-      "precision": "day",
-      "dateField": "date_updated",
-      "range": "1 month",
-      "valueField": "id",
-      "function": "count"
-    },
-    "type": "time-series",
-    "color": null,
-    "icon": null,
-    "name": "Zeit Aktualisierte Punkte",
-    "dashboard": "c9c0ce22-3267-4371-b45d-150caad14114",
-    "_syncId": "34ba587d-51ae-467e-992a-aada66b7f1ec"
-  },
-  {
-    "show_header": true,
     "height": 5,
     "width": 25,
     "position_y": 11,
@@ -1689,46 +1648,6 @@
     "name": "Anzahl Geräte: Simulatoren",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
     "_syncId": "3735c850-1661-4307-9d83-f3821b33ba08"
-  },
-  {
-    "show_header": true,
-    "height": 24,
-    "width": 24,
-    "position_y": 1,
-    "position_x": 40,
-    "note": null,
-    "options": {
-      "collection": "collectible_event_participants",
-      "column": "points",
-      "function": "sum",
-      "showLabels": true,
-      "color": "var(--theme--primary)"
-    },
-    "type": "pie-chart",
-    "color": null,
-    "icon": null,
-    "name": "Verteilung Gefundener Collectibles",
-    "dashboard": "c9c0ce22-3267-4371-b45d-150caad14114",
-    "_syncId": "3abf1bcd-0c14-4e25-a7e1-997969577bf1"
-  },
-  {
-    "show_header": true,
-    "height": 7,
-    "width": 16,
-    "position_y": 1,
-    "position_x": 1,
-    "note": null,
-    "options": {
-      "collection": "collectible_event_participants",
-      "field": "id",
-      "function": "countDistinct"
-    },
-    "type": "metric",
-    "color": null,
-    "icon": null,
-    "name": "Teilnahmen Insgesamt",
-    "dashboard": "c9c0ce22-3267-4371-b45d-150caad14114",
-    "_syncId": "3c093160-613d-4050-ad41-7d6889d85fe7"
   },
   {
     "show_header": true,

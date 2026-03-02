@@ -65,25 +65,25 @@ export function Icon({ name, size, family, ...props }: IconProps) {
 
 	let content = null;
 	if (usedFamily === IconFamily.MaterialCommunityIcons) {
-		content = <MaterialCommunityIcons name={name as any} size={useSize} {...props} />;
+		content = <MaterialCommunityIcons name={name} size={useSize} {...props} />;
 	}
 	if (usedFamily === IconFamily.MaterialIcons) {
-		content = <MaterialIcons name={name as any} size={useSize} {...props} />;
+		content = <MaterialIcons name={name} size={useSize} {...props} />;
 	}
 	if (usedFamily === IconFamily.FontAwesome) {
-		content = <FontAwesome name={name as any} size={useSize} {...props} />;
+		content = <FontAwesome name={name} size={useSize} {...props} />;
 	}
 	if (usedFamily === IconFamily.FontAwesome5) {
-		content = <FontAwesome5 name={name as any} size={useSize} {...props} />;
+		content = <FontAwesome5 name={name} size={useSize} {...props} />;
 	}
 	if (usedFamily === IconFamily.FontAwesome6) {
-		content = <FontAwesome6 name={name as any} size={useSize} {...props} />;
+		content = <FontAwesome6 name={name} size={useSize} {...props} />;
 	}
 	if (usedFamily === IconFamily.Ionicons) {
-		content = <Ionicons name={name as any} size={useSize} {...props} />;
+		content = <Ionicons name={name} size={useSize} {...props} />;
 	}
 	if (usedFamily === IconFamily.Entypo) {
-		content = <Entypo name={name as any} size={useSize} {...props} />;
+		content = <Entypo name={name} size={useSize} {...props} />;
 	}
 
 	return <Text>{content}</Text>;

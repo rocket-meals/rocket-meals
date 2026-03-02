@@ -4,14 +4,14 @@ import CardWithText from '../CardWithText/CardWithText';
 import { DownloadItemProps } from './types';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { useAppSelector } from '@/redux/hooks';
-
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/reducer';
 import QrCode from '@/components/QrCode';
 import CardDimensionHelper from '@/helper/CardDimensionHelper';
 
 const DownloadItem: React.FC<DownloadItemProps> = ({ label, imageSource, onPress, containerStyle, qrValue }) => {
 	const { theme } = useTheme();
-	const { primaryColor, amountColumnsForcard } = useAppSelector(state => state.settings);
+	const { primaryColor, amountColumnsForcard } = useSelector((state: RootState) => state.settings);
 	const { width: screenWidth } = useWindowDimensions();
 	const size = amountColumnsForcard === 0 ? CardDimensionHelper.getCardDimension(screenWidth) : CardDimensionHelper.getCardWidth(screenWidth, amountColumnsForcard);
 	return (

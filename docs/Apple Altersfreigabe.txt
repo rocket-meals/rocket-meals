@@ -1,0 +1,10 @@
+Apple Altersfreigabe:
+Schritt 1: Funktionen: Alles "NEIN"
+Schritt 2: Erwachsenenthemen
+	- Gebrauch von Alkohol, Tabak oder Drogen bzw. Verweise hierzu: "SELTEN"
+		- Da Getränke der Mensen angegeben werden können
+Schritt 3: Medizin oder Wellness: Alles "NEIN" bzw. "NIE"
+Schritt 4: Sexualität oder Nacktheit: Alles "NIE"
+Schritt 5: Gewalt: Alles "NIE"
+Schritt 6: Zufallsbasierte Aktivitäten: 
+	- Wettkämpfe: "SELTEN"

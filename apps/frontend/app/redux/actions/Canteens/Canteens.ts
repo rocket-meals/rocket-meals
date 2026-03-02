@@ -5,7 +5,7 @@ import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 export class CanteenHelper extends CollectionHelper<DatabaseTypes.Canteens> {
 	constructor(client?: any) {
 		// Pass the collection name and API client
-		super('canteens', client);
+		super('canteens', client || ServerAPI.getClient());
 	}
 
 	// Fetch all canteens with optional query overrides

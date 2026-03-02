@@ -4,7 +4,7 @@ import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 
 export class BusinessHoursGroupsHelper extends CollectionHelper<DatabaseTypes.BusinesshoursGroups> {
 	constructor(client?: any) {
-		super('businesshours_groups', client);
+		super('businesshours_groups', client || ServerAPI.getClient());
 	}
 
 	async fetchBusinessHoursGroups(queryOverride: any = {}) {

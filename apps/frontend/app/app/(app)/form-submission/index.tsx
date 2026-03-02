@@ -5,8 +5,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { FontAwesome, FontAwesome6, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { isWeb } from '@/constants/Constants';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
@@ -43,6 +42,7 @@ import { Buffer } from 'buffer';
 import FilterFormSheet from '@/components/FilterFormSheet/FilterFormSheet';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 
 const parseDropdownValues = (input: unknown): string[] => {
 	if (!input) return [];
@@ -132,14 +132,14 @@ const Index = () => {
 	const [collectionData, setCollectionData] = useState<any>([]);
 	const [selectedState, setSelectedState] = useState('submitted');
 	const [currentState, setCurrentState] = useState<string | null>(null);
-	const { formSubmission } = useAppSelector((state) => state.form);
-	const { user } = useAppSelector((state) => state.authReducer);
+	const { formSubmission } = useSelector((state: RootState) => state.form);
+	const { user } = useSelector((state: RootState) => state.authReducer);
 	const [submissionLoading, setSubmissionLoading] = useState(false);
 	const [formData, setFormData] = useState<{
 		[key: string]: { value: any; error: string; custom_type?: string };
 	}>({});
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
-	const { language, drawerPosition, primaryColor } = useAppSelector((state) => state.settings);
+	const { language, drawerPosition, primaryColor } = useSelector((state: RootState) => state.settings);
 	const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
 
 	// Set Page Title
@@ -287,8 +287,8 @@ const Index = () => {
 
 		if (result) {
 			const sortedResult = result.sort((a, b) => {
-				const sortA = (a.form_field as DatabaseTypes.FormFields)?.sort ?? Number.MAX_SAFE_INTEGER;
-				const sortB = (b.form_field as DatabaseTypes.FormFields)?.sort ?? Number.MAX_SAFE_INTEGER;
+				const sortA = a.form_field?.sort ?? Number.MAX_SAFE_INTEGER;
+				const sortB = b.form_field?.sort ?? Number.MAX_SAFE_INTEGER;
 				return sortA - sortB;
 			});
 
@@ -300,10 +300,10 @@ const Index = () => {
 
 			const fieldPromises = sortedResult.map(async answer => {
 				const fieldId = String(answer?.id);
-				const fieldType = (answer?.form_field as DatabaseTypes.FormFields)?.field_type || '';
-				const prefix = (answer?.form_field as DatabaseTypes.FormFields)?.value_prefix || '-';
+				const fieldType = answer?.form_field?.field_type || '';
+				const prefix = answer?.form_field?.value_prefix || '-';
 				const [custom_type, ...idParts] = fieldType.split('-');
-				const defaultValue = (answer as any)[custom_type];
+				const defaultValue = answer[custom_type];
 				let value;
 
 				if (custom_type === 'value_custom') {
@@ -520,16 +520,16 @@ const Index = () => {
 		const updatedFormAnswers = await Promise.all(
 			filteredFormAnswers.map(async answer => {
 				const fieldId = answer?.id;
-				const isRequired = (answer?.form_field as DatabaseTypes.FormFields)?.is_required;
+				const isRequired = answer?.form_field?.is_required;
 				const formDataEntry = formData[String(fieldId)];
 				const value = formDataEntry?.value;
-				const fieldType = (answer?.form_field as DatabaseTypes.FormFields)?.field_type || '';
-				const prefix = (answer?.form_field as DatabaseTypes.FormFields)?.value_prefix || '-';
+				const fieldType = answer?.form_field?.field_type || '';
+				const prefix = answer?.form_field?.value_prefix || '-';
 				const custom_id = fieldType?.split('-')[1];
 
 				if (isRequired && (!value || value.trim() === '')) {
 					hasError = true;
-					const fieldName = (answer?.form_field as DatabaseTypes.FormFields)?.translations?.length > 0 ? getFromCategoryTranslation((answer?.form_field as DatabaseTypes.FormFields)?.translations, language) : (answer?.form_field as DatabaseTypes.FormFields)?.alias;
+					const fieldName = answer?.form_field?.translations?.length > 0 ? getFromCategoryTranslation(answer?.form_field?.translations, language) : answer?.form_field?.alias;
 					toast(`Field "${fieldName}" is required`, 'error');
 					return null;
 				}
@@ -612,8 +612,8 @@ const Index = () => {
 	useEffect(() => {
 		if (formAnswers) {
 			formAnswers.forEach(answer => {
-				const fieldType = (answer?.form_field as DatabaseTypes.FormFields)?.field_type || '';
-				const prefix = (answer?.form_field as DatabaseTypes.FormFields)?.value_prefix || '-';
+				const fieldType = answer?.form_field?.field_type || '';
+				const prefix = answer?.form_field?.value_prefix || '-';
 
 				const parts = fieldType.split('-');
 				if (parts) {
@@ -695,7 +695,7 @@ const Index = () => {
 						<TouchableOpacity onPress={() => router.back()} style={{ padding: 10 }}>
 							<Ionicons name="arrow-back" size={26} color={theme.header.text} />
 						</TouchableOpacity>
-						<Text style={{ ...styles.heading, color: theme.header.text }}>{formSubmission ? excerpt(formSubmission?.alias as string, screenWidth > 900 ? 100 : screenWidth > 700 ? 80 : 22) : ''}</Text>
+						<Text style={{ ...styles.heading, color: theme.header.text }}>{formSubmission ? excerpt(formSubmission?.alias, screenWidth > 900 ? 100 : screenWidth > 700 ? 80 : 22) : ''}</Text>
 					</View>
 					<View style={{ ...styles.col2, gap: isWeb ? 30 : 15 }}>
 						<TouchableOpacity onPress={openEditSheet} style={{ padding: 10 }}>
@@ -731,13 +731,13 @@ const Index = () => {
 								formAnswers.map((answer, index) => {
 									const formField = isFormFieldEntity(answer?.form_field) ? answer.form_field : null;
 									const fieldType = formField?.field_type || '';
-									const prefix = (answer?.form_field as DatabaseTypes.FormFields)?.value_prefix;
-									const suffix = (answer?.form_field as DatabaseTypes.FormFields)?.value_suffix;
+									const prefix = answer?.form_field?.value_prefix;
+									const suffix = answer?.form_field?.value_suffix;
 									const [custom_type, ...idParts] = fieldType.split('-');
 									const custom_id = idParts.join('-');
 									const fieldId = String(answer?.id);
-									const dropdownValues = parseDropdownValues((answer?.form_field as DatabaseTypes.FormFields)?.dropdown_values);
-									const description = (answer?.form_field as DatabaseTypes.FormFields)?.translations?.length > 0 ? getFromDescriptionTranslation((answer?.form_field as DatabaseTypes.FormFields)?.translations, language) : '';
+									const dropdownValues = parseDropdownValues(answer?.form_field?.dropdown_values);
+									const description = answer?.form_field?.translations?.length > 0 ? getFromDescriptionTranslation(answer?.form_field?.translations, language) : '';
 									const visibilityDependsOnFieldId = formField ? extractFormFieldId(formField.visibility_depends_on_referenced_field) : undefined;
 									const expectedVisibilityValue = formField?.visibility_depends_on_referenced_value_equals;
 									const normalizedExpectedValue = normalizeExpectedValue(expectedVisibilityValue);
@@ -769,11 +769,11 @@ const Index = () => {
 										return null;
 									}
 
-									const isDisabled = (answer?.form_field as DatabaseTypes.FormFields)?.is_disabled || false;
+									const isDisabled = answer?.form_field?.is_disabled || false;
 									let IconComponent: any = null;
 									let iconName = '';
-									if ((answer?.form_field as DatabaseTypes.FormFields)?.icon_expo) {
-										const [library, name] = (answer?.form_field as DatabaseTypes.FormFields)?.icon_expo?.split(':') ?? [];
+									if (answer?.form_field?.icon_expo) {
+										const [library, name] = answer?.form_field?.icon_expo?.split(':') ?? [];
 										if (iconLibraries[library]) {
 											IconComponent = iconLibraries[library];
 											iconName = name;
@@ -804,9 +804,9 @@ const Index = () => {
 													}}
 												>
 													{`${index + 1}. `}
-													{(answer?.form_field as DatabaseTypes.FormFields)?.translations?.length > 0 ? getFromCategoryTranslation((answer?.form_field as DatabaseTypes.FormFields)?.translations, language) : (answer?.form_field as DatabaseTypes.FormFields)?.alias}
+													{answer?.form_field?.translations?.length > 0 ? getFromCategoryTranslation(answer?.form_field?.translations, language) : answer?.form_field?.alias}
 												</Text>
-												{(answer?.form_field as DatabaseTypes.FormFields)?.is_required && <FontAwesome6 name="star-of-life" size={12} color={'red'} />}
+												{answer?.form_field?.is_required && <FontAwesome6 name="star-of-life" size={12} color={'red'} />}
 											</View>
 											{Boolean(description) && (
 												<View

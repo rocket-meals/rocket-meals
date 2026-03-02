@@ -1,20 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import SettingsListSelectOption from '@/components/SettingsListSelectOption/SettingsListSelectOption';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { days } from '@/constants/SettingData';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import { RootState } from '@/redux/reducer';
 import { SET_FIRST_DAY_OF_THE_WEEK } from '@/redux/Types/types';
 import { CollectibleAt } from 'repo-depkit-common';
 
 const FirstDayOfWeekSheet: React.FC<{ closeSheet: () => void }> = ({ closeSheet }) => {
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { firstDayOfTheWeek, primaryColor } = useAppSelector((state) => state.settings);
+	const { firstDayOfTheWeek, primaryColor } = useSelector((state: RootState) => state.settings);
 	const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
 	const updateFirstDay = (day: { id: string; name: string }) => {

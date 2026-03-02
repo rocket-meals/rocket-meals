@@ -2,8 +2,7 @@ import LabelHeader from '@/components/LabelHeader/LabelHeader';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, DimensionValue, Easing, ScrollView, Text, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { getImageUrl, showDayPlanPrice, showFormatedPrice } from '@/constants/HelperFunctions';
 import { getFoodAttributesTranslation, getTextFromTranslation } from '@/helper/resourceHelper';
 import { myContrastColor } from '@/helper/ColorHelper';
@@ -18,6 +17,7 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { DatabaseTypes, sortByFoodCategoryOnly, sortByFoodName, sortByFoodOfferCategoryOnly, sortMarkingsByGroup } from 'repo-depkit-common';
 import { ColumnPercentages } from './types';
+import { RootState } from '@/redux/reducer';
 import { CanteenHelper } from '@/redux/actions';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
 import { FoodCategoriesHelper } from '@/redux/actions/FoodCategories/FoodCategories';
@@ -33,7 +33,7 @@ const Index = () => {
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
 	const rowHeight = 80;
-	const { markings, foodCategories: localFoodCategories, foodOfferCategories: localFoodOfferCategories } = useAppSelector((state) => state.food);
+	const { markings, foodCategories: localFoodCategories, foodOfferCategories: localFoodOfferCategories } = useSelector((state: RootState) => state.food);
 	const canteenHelper = new CanteenHelper();
 	const buildingsHelper = new BuildingsHelper();
 	const foodAttributesHelper = new FoodAttributesHelper();
@@ -48,10 +48,10 @@ const Index = () => {
 	const [mainFoodCategories, setMainFoodCategories] = useState<any>({});
 	const [optionalFoodCategories, setOptionalFoodCategories] = useState<any>({});
 	const [selectedCanteen, setSelectedCanteen] = useState<any>(null);
-	const { canteens } = useAppSelector((state) => state.canteenReducer);
-	const { isManagement } = useAppSelector((state) => state.authReducer);
-	const { primaryColor: projectColor, language, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
-	const { foodAttributesDict } = useAppSelector((state) => state.foodAttributes);
+	const { canteens } = useSelector((state: RootState) => state.canteenReducer);
+	const { isManagement } = useSelector((state: RootState) => state.authReducer);
+	const { primaryColor: projectColor, language, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
+	const { foodAttributesDict } = useSelector((state: RootState) => state.foodAttributes);
 	const progressAnim = useRef(new Animated.Value(0)).current;
 	const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 	const optionalFoodsScrollRef = useRef<ScrollView>(null);
@@ -289,7 +289,7 @@ const Index = () => {
 		try {
 			// Create a map for quick lookup of sort order by attribute id
 			const attributeSortMap: Record<string, { index: number; alias: string }> = {};
-			foodAttributesDataFull?.forEach((attr: any, index: number) => {
+			foodAttributesDataFull?.forEach((attr, index: number) => {
 				attributeSortMap[attr.id] = { index, alias: attr.alias };
 			});
 
@@ -300,7 +300,7 @@ const Index = () => {
 				if (!offer.id) return;
 
 				// Initialize array with empty values for all possible attributes
-				const sortedValues = foodAttributesDataFull.map((attr: any) => ({
+				const sortedValues = foodAttributesDataFull.map(attr => ({
 					value: null, // or '-' if you prefer
 					alias: attr.alias,
 					exists: false,
@@ -438,13 +438,13 @@ const Index = () => {
 			const markingGroupsHelper = new MarkingGroupsHelper();
 			const markingGroups = await markingGroupsHelper.fetchMarkingGroups({});
 
-			const newMarkings: any = {};
+			const newMarkings = {};
 			foodList.forEach((food: any) => {
 				const markingIds = food?.markings?.map((mark: any) => mark.markings_id) || [];
 				let filteredMarkings = markings?.filter((mark: any) => markingIds.includes(mark.id)) || [];
 
 				// Sort the filtered markings using sortMarkingsByGroup
-				filteredMarkings = sortMarkingsByGroup(filteredMarkings, markingGroups as any);
+				filteredMarkings = sortMarkingsByGroup(filteredMarkings, markingGroups);
 
 				let dummyMarkings = filteredMarkings.map((item: any) => ({
 					image: item?.image_remote_url ? { uri: item.image_remote_url } : { uri: getImageUrl(item.image) },
@@ -574,7 +574,7 @@ const Index = () => {
 	return (
 		<ScrollView style={[styles.outerContainer, { backgroundColor: theme.screen.background }]}>
 			<View ref={headerRef} onLayout={handleHeaderLayout} style={{ width: '100%', height: 100, position: 'relative' }}>
-				<LabelHeader Label={selectedCanteen?.alias ? selectedCanteen?.alias : ''} isConnected={isConnected ?? undefined} />
+				<LabelHeader Label={selectedCanteen?.alias ? selectedCanteen?.alias : ''} isConnected={isConnected} />
 				<Animated.View
 					style={{
 						position: 'absolute',
@@ -766,7 +766,7 @@ const Index = () => {
 														},
 													]}
 												>
-													{`${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.student))} / ${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.employee))} / ${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.guest))}`}
+													{`${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.student))} / ${showFormatedPrice(showDayPlanPrice(item, 'employee'))} / ${showFormatedPrice(showDayPlanPrice(item, 'guest'))}`}
 												</Text>
 											</View>
 										);
@@ -906,7 +906,7 @@ const Index = () => {
 													},
 												]}
 											>
-												{`${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.student))} / ${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.employee))} / ${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.guest))}`}
+												{`${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.student))} / ${showFormatedPrice(showDayPlanPrice(item, 'employee'))} / ${showFormatedPrice(showDayPlanPrice(item, 'guest'))}`}
 											</Text>
 										</View>
 									))}

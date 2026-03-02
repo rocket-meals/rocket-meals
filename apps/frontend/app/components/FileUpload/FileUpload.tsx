@@ -4,7 +4,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
 import { isWeb } from '@/constants/Constants';
 import * as ImagePicker from 'expo-image-picker';
@@ -30,7 +30,7 @@ export enum ImagePickerMediaTypes {
 const FileUpload = ({ id, value, onChange, error, isDisabled, custom_type }: { id: string; value: any; onChange: (id: string, value: any, custom_type: string) => void; error: string; isDisabled: boolean; custom_type: string }) => {
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
-	const { primaryColor } = useAppSelector((state) => state.settings);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
 	const formAnswersHelper = new FormAnswersHelper();
 
 	const pickFiles = async () => {

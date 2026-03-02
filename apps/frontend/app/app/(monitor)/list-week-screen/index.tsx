@@ -3,8 +3,7 @@ import { ScrollView, Text, TouchableOpacity, useWindowDimensions, View } from 'r
 import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import moment from 'moment';
 import { useRouter } from 'expo-router';
 import { SET_WEEK_PLAN } from '@/redux/Types/types';
@@ -21,10 +20,10 @@ const Index = () => {
 	const { width } = useWindowDimensions();
 	const [years, setYears] = useState<number[]>([currentYear - 1, currentYear, currentYear + 1]);
 	const [selectedYear, setSelectedYear] = useState<number>(currentYear);
-	const { weekPlan } = useAppSelector((state) => state.management);
+	const { weekPlan } = useSelector((state: RootState) => state.management);
 	const [weeks, setWeeks] = useState<{ weekNumber: number; dateRange: string }[]>(generateWeeks(currentYear));
 	const [selectedWeek, setSelectedWeek] = useState<number>(moment().isoWeek());
-	const { primaryColor: projectColor, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { primaryColor: projectColor, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
 
 	const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');

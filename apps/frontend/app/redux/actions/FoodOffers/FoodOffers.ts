@@ -1,33 +1,8 @@
 import axios from '@/interceptor';
 
-const TIMEOUT_MS = 15000;
-const MAX_RETRIES = 3;
-
-const fetchWithRetry = async (url: string, config: any) => {
-	let lastError;
-	for (let i = 0; i < MAX_RETRIES; i++) {
-		try {
-			return await axios.get(url, { ...config, timeout: TIMEOUT_MS });
-		} catch (error: any) {
-			lastError = error;
-			const isTimeout = error.code === 'ECONNABORTED' || error.message?.includes('timeout');
-			const isNetworkError = !error.response;
-			const isServerError = error.response?.status >= 500;
-
-			if (i < MAX_RETRIES - 1 && (isTimeout || isNetworkError || isServerError)) {
-				const delay = 1000 * Math.pow(2, i);
-				await new Promise((resolve) => setTimeout(resolve, delay));
-				continue;
-			}
-			break;
-		}
-	}
-	throw lastError;
-};
-
 export const fetchFoodOffers = async () => {
 	try {
-		const response = await fetchWithRetry('/items/foodoffers', {
+		const response = await axios.get('/items/foodoffers', {
 			params: {
 				fields: '*.*',
 				limit: -1,
@@ -35,7 +10,6 @@ export const fetchFoodOffers = async () => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error('fetchFoodOffers error:', error);
 		throw new Error('Error fetching Food Offers');
 	}
 };
@@ -46,7 +20,7 @@ export const fetchFoodOffersByCanteen = async (canteenId: string, selected: stri
 		const paramDateStart = new Date(selected).toISOString().split('T')[0];
 		const paramDateEnd = new Date(selected).toISOString().split('T')[0];
 
-		const response = await fetchWithRetry('/items/foodoffers', {
+		const response = await axios.get('/items/foodoffers', {
 			params: {
 				fields: '*, markings.*,food.*,food.translations.*, attribute_values.*, attribute_values.food_attribute.*,attribute_values.food_attribute.group.*, attribute_values.food_attribute.translations.*, foods_attributes_values.*', // Fetch all fields, including related ones
 				limit: -1, // Remove limit to fetch all results
@@ -86,7 +60,6 @@ export const fetchFoodOffersByCanteen = async (canteenId: string, selected: stri
 		});
 		return response.data;
 	} catch (error) {
-		console.error('fetchFoodOffersByCanteen error:', error);
 		throw new Error('Error fetching Food Offers');
 	}
 };
@@ -133,7 +106,7 @@ export const fetchFoodsByCanteen = async (canteenId: string, selected?: string) 
 			});
 		}
 
-		const response = await fetchWithRetry('/items/foodoffers', {
+		const response = await axios.get('/items/foodoffers', {
 			params: {
 				fields: '*,food.*,!food.feedbacks,food.translations.*,markings.*, attribute_values.*, attribute_values.food_attribute.*,attribute_values.food_attribute.group.*, attribute_values.food_attribute.translations.*, foods_attributes_values.*', // Exclude food.feedbacks field as per the API call
 				limit: -1, // Fetch all results
@@ -149,7 +122,7 @@ export const fetchFoodsByCanteen = async (canteenId: string, selected?: string) 
 
 export const fetchFoodOffersDetailsById = async (id: string) => {
 	try {
-		const response = await fetchWithRetry(`/items/foodoffers/${id}`, {
+		const response = await axios.get(`/items/foodoffers/${id}`, {
 			params: {
 				fields: '*, markings.*,feedbacks.*,food.*,food.translations.*,food.food_category.*,food.food_category.translations.*,foodoffer_category.*,foodoffer_category.translations.*,attribute_values.*, attribute_values.food_attribute.*, attribute_values.food_attribute.translations.*, foods_attributes_values.*',
 				limit: -1,
@@ -171,7 +144,7 @@ export const fetchFoodOffersDetailsById = async (id: string) => {
 
 export const fetchFoodDetailsById = async (id: string) => {
 	try {
-		const response = await fetchWithRetry(`/items/foods/${id}`, {
+		const response = await axios.get(`/items/foods/${id}`, {
 			params: {
 				fields: '*, markings.*,feedbacks.*,food.*,translations.*',
 				limit: -1,
@@ -194,7 +167,7 @@ export const fetchFoodDetailsById = async (id: string) => {
 // Fetch foods feedbacks, labels, and entries with specific filters, aggregation, and grouping
 export const fetchFoodsFeedbacksLabelsEntries = async (foodId: string, labelId: string) => {
 	try {
-		const response = await fetchWithRetry('/items/foods_feedbacks_labels_entries', {
+		const response = await axios.get('/items/foods_feedbacks_labels_entries', {
 			params: {
 				filter: {
 					_and: [
@@ -224,7 +197,7 @@ export const fetchFoodsFeedbacksLabelsEntries = async (foodId: string, labelId: 
 
 export const fetchBuildings = async () => {
 	try {
-		const response = await fetchWithRetry('/items/buildings?fields=*&limit=-1', {});
+		const response = await axios.get('/items/buildings?fields=*&limit=-1');
 		return response.data;
 	} catch (error) {
 		throw new Error(`Error Fetching Buildings`);

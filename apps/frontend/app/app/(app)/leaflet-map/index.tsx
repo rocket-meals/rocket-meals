@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { Platform, ScrollView, Text, View } from 'react-native';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 import MyMap from '@/components/MyMap/MyMap';
 import { getDefaultIconAnchor, MARKER_DEFAULT_SIZE, MyMapMarkerIcons } from '@/components/MyMap/markerUtils';
 import { Asset } from 'expo-asset';
@@ -30,7 +31,7 @@ const EXTERNAL_MARKER_URL = 'https://cdn4.iconfinder.com/data/icons/small-n-flat
 const LeafletMap = () => {
 	useSetPageTitle(TranslationKeys.leaflet_map);
 
-	const { buildings } = useAppSelector((state) => state.canteenReducer);
+	const { buildings } = useSelector((state: RootState) => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
 
 	const [markerIconSrc, setMarkerIconSrc] = useState<string | null>(null);
@@ -50,7 +51,7 @@ const LeafletMap = () => {
 					setMarkerIconSrc(asset.uri);
 				} else if (asset.localUri) {
 					const content = await FileSystem.readAsStringAsync(asset.localUri, {
-						encoding: (FileSystem as any).EncodingType.Base64,
+						encoding: FileSystem.EncodingType.Base64,
 					});
 					setMarkerIconSrc(content);
 				} else {
@@ -90,7 +91,7 @@ const LeafletMap = () => {
 						id: 'example',
 						position: getMarkerPosition(1),
 						icon: MyMapMarkerIcons.getIconForWebByLocalPathUri(markerIconSrc),
-						size: [MARKER_DEFAULT_SIZE, MARKER_DEFAULT_SIZE] as [number, number],
+						size: [MARKER_DEFAULT_SIZE, MARKER_DEFAULT_SIZE],
 						iconAnchor: getDefaultIconAnchor(MARKER_DEFAULT_SIZE, MARKER_DEFAULT_SIZE),
 					},
 				]
@@ -99,14 +100,14 @@ const LeafletMap = () => {
 			id: 'img-marker',
 			position: getMarkerPosition(2),
 			icon: MyMapMarkerIcons.getIconForWebByExternalUri(EXTERNAL_MARKER_URL),
-			size: [MARKER_DEFAULT_SIZE, MARKER_DEFAULT_SIZE] as [number, number],
+			size: [MARKER_DEFAULT_SIZE, MARKER_DEFAULT_SIZE],
 			iconAnchor: getDefaultIconAnchor(MARKER_DEFAULT_SIZE, MARKER_DEFAULT_SIZE),
 		},
 		{
 			id: 'img-marker-base64',
 			position: getMarkerPosition(3),
 			icon: MyMapMarkerIcons.getIconForWebByBase64(LOCAL_BASE64_MARKER),
-			size: [MARKER_DEFAULT_SIZE, MARKER_DEFAULT_SIZE] as [number, number],
+			size: [MARKER_DEFAULT_SIZE, MARKER_DEFAULT_SIZE],
 			iconAnchor: getDefaultIconAnchor(MARKER_DEFAULT_SIZE, MARKER_DEFAULT_SIZE),
 		},
 	];

@@ -40,10 +40,4 @@ export default StyleSheet.create({
 	sheetHeading: {
 		fontFamily: 'Poppins_700Bold',
 	},
-	sheetView: {
-		flex: 1,
-	},
-	contentContainer: {
-		paddingBottom: 50,
-	},
 });

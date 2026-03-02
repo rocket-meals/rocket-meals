@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './styles';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { format, parseISO } from 'date-fns';
 import { getNewsTranslationByLanguageCode } from '@/helper/resourceHelper';
 import useToast from '@/hooks/useToast';
@@ -17,7 +17,7 @@ const NewsItem: React.FC<any> = ({ news }) => {
 	const { theme } = useTheme();
 	const toast = useToast();
 	const { translate } = useLanguage();
-	const { primaryColor, language, appSettings, selectedTheme: mode } = useAppSelector(state => state.settings);
+	const { primaryColor, language, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const { title, content } = getNewsTranslationByLanguageCode(news?.translations, language);
 	const news_area_color = appSettings?.news_area_color ? appSettings?.news_area_color : primaryColor;

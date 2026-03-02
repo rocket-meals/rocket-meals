@@ -7,7 +7,7 @@ import translations from './locales/translations.json';
 // Preprocess translations to create a structure compatible with i18next
 const formattedTranslations: any = {};
 Object.keys(translations).forEach(key => {
-	Object.entries(translations[key as keyof typeof translations]).forEach(([lang, value]) => {
+	Object.entries(translations[key]).forEach(([lang, value]) => {
 		if (!formattedTranslations[lang]) {
 			formattedTranslations[lang] = {};
 		}
@@ -17,14 +17,14 @@ Object.keys(translations).forEach(key => {
 
 // Language detector
 const languageDetector = {
-	type: 'languageDetector' as const,
+	type: 'languageDetector',
 	async: true,
 	detect: (callback: any) => {
 		AsyncStorage.getItem('user-language', (err, language) => {
 			if (language) {
 				callback(language);
 			} else {
-				callback(Localization.getLocales()[0]?.languageCode ?? 'de'); // Use device language
+				callback(Localization.locale); // Use device language
 			}
 		});
 	},

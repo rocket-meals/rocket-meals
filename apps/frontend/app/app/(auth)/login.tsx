@@ -9,8 +9,7 @@ import ManagementSheet from '@/components/Login/ManagementSheet';
 import { isWeb } from '@/constants/Constants';
 import { router, useFocusEffect, useGlobalSearchParams } from 'expo-router';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { SET_APP_SETTINGS, SET_WIKIS, UPDATE_MANAGEMENT, UPDATE_PRIVACY_POLICY_DATE } from '@/redux/Types/types';
 import AttentionSheet from '@/components/Login/AttentionSheet';
 import useToast from '@/hooks/useToast';
@@ -23,6 +22,7 @@ import DeviceMock from '@/components/DeviceMock/DeviceMock';
 import { getDetailedDescriptionTranslation, getIntroDescriptionTranslation } from '@/helper/resourceHelper';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 
 export default function Login() {
@@ -36,7 +36,7 @@ export default function Login() {
 	const [loading, setLoading] = useState(false);
 	const [providers, setProviders] = useState<any>([]);
 	const [isWebVisible, setIsWebVisible] = useState(Dimensions.get('window').width > 500);
-	const { appSettings, language } = useAppSelector((state) => state.settings);
+	const { appSettings, language } = useSelector((state: RootState) => state.settings);
 	const intro_description = appSettings?.login_screen_translations && getIntroDescriptionTranslation(appSettings?.login_screen_translations, language);
 	const detailed_description = appSettings?.login_screen_translations && getDetailedDescriptionTranslation(appSettings?.login_screen_translations, language);
 	const [heading, subHeading] = intro_description?.split('-') || ['', ''];
@@ -104,7 +104,6 @@ export default function Login() {
 				payload: currentDate,
 			});
 			setLoading(false);
-			closeManagementModal();
 			router.replace('/(app)');
 		} catch (error) {
 			console.error('Error during login: ', error);

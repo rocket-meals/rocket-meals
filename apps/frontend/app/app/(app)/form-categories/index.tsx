@@ -6,7 +6,7 @@ import { Entypo } from '@expo/vector-icons';
 import { FormCategoriesHelper } from '@/redux/actions/Forms/FormCategories';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { router, useFocusEffect } from 'expo-router';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { getFromCategoryTranslation } from '@/helper/resourceHelper';
 import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
 import { TranslationKeys } from '@/locales/keys';
@@ -16,9 +16,9 @@ import { RootState } from '@/redux/reducer';
 const Index = () => {
 	useSetPageTitle(TranslationKeys.select_a_form_category);
 	const { theme } = useTheme();
-    const [loading, setLoading] = useState(false);
-    const { language } = useAppSelector((state) => state.settings);
-    const [formCategories, setFormCategories] = useState<DatabaseTypes.FormCategories[]>([]);
+	const [loading, setLoading] = useState(false);
+	const { language } = useSelector((state: RootState) => state.settings);
+	const [formCategories, setFormCategories] = useState<DatabaseTypes.FormCategories[]>([]);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const formCategoriesHelper = new FormCategoriesHelper();
 

@@ -18,7 +18,7 @@ export const useLanguage = () => {
 	};
 
 	const translate = useMemo(() => {
-		return (key: string) => (translations as any)[key]?.[language] || key;
+		return (key: string) => translations[key]?.[language] || key;
 	}, [language]);
 
 	useEffect(() => {

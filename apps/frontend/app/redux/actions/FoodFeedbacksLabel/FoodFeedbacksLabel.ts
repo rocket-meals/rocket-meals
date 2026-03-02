@@ -6,7 +6,7 @@ import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 export class FoodFeedbackLabelHelper extends CollectionHelper<DatabaseTypes.FoodsFeedbacksLabels> {
 	constructor(client?: any) {
 		// Pass the collection name and API client
-		super('foods_feedbacks_labels', client);
+		super('foods_feedbacks_labels', client || ServerAPI.getClient());
 	}
 
 	// Fetch all food feedback labels with optional query overrides

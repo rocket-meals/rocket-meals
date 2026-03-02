@@ -8,7 +8,7 @@ import { differenceInSeconds, format, isAfter, isBefore } from 'date-fns';
 import washingmachine from '@/assets/animations/washingmachine/washingmachine.json';
 import washingmachineEmpty from '@/assets/animations/washingmachine/washingmachineEmpty.json';
 import * as Notifications from 'expo-notifications';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import LottieView from 'lottie-react-native';
 import { useFocusEffect } from 'expo-router';
 import { replaceLottieColors } from '@/helper/animationHelper';
@@ -22,7 +22,7 @@ const WashingMachines: React.FC<any> = ({ campusDetails }) => {
 	const apartmentsHelper = new ApartmentsHelper();
 	const [washingMachines, setWashingMachines] = useState<DatabaseTypes.Washingmachines[] | any[]>();
 	const [loading, setLoading] = useState(false);
-	const { primaryColor, appSettings } = useAppSelector((state) => state.settings);
+	const { primaryColor, appSettings } = useSelector((state: RootState) => state.settings);
 	const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
 	const animationRef = useRef<LottieView>(null);
 	const [animationJson, setAmimationJson] = useState<any>(null);
@@ -174,7 +174,7 @@ const WashingMachines: React.FC<any> = ({ campusDetails }) => {
 											alignItems: 'center',
 										}}
 									>
-										<LottieView source={replaceLottieColors(animationSource, primaryColor)} autoPlay={autoPlay ?? false} loop={!isWashingFinished} resizeMode="contain" style={{ width: '100%', height: '100%' }} />
+										<LottieView source={replaceLottieColors(animationSource, primaryColor)} autoPlay={autoPlay} loop={!isWashingFinished} resizeMode="contain" style={{ width: '100%', height: '100%' }} />
 									</View>
 									<View style={styles.details}>
 										<Text style={{ ...styles.title, color: theme.screen.text }}>{item?.alias}</Text>

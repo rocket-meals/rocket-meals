@@ -5,7 +5,7 @@ import { styles } from './styles';
 import { AntDesign } from '@expo/vector-icons';
 import { SubmissionWarningModalProps } from './types';
 import { useRouter } from 'expo-router';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
@@ -19,8 +19,8 @@ const SubmissionWarningModal: React.FC<SubmissionWarningModalProps> = ({ isVisib
 	const { translate } = useLanguage();
 	const [loading, setLoading] = useState(false);
 	const formsSubmissionsHelper = new FormsSubmissionsHelper();
-	const { primaryColor } = useAppSelector((state) => state.settings);
-	const { user } = useAppSelector((state) => state.authReducer);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
+	const { user } = useSelector((state: RootState) => state.authReducer);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 
 	const handleProceed = async () => {
@@ -49,11 +49,7 @@ const SubmissionWarningModal: React.FC<SubmissionWarningModalProps> = ({ isVisib
 		<Modal
 			isVisible={isVisible}
 			style={[styles.modalContainer, screenWidth > 600 && { alignItems: 'center' }]}
-			onBackdropPress={() => {
-				setIsVisible(false);
-				router.navigate('/form-submissions');
-			}}
-			onBackButtonPress={() => {
+			onClose={() => {
 				setIsVisible(false);
 				router.navigate('/form-submissions');
 			}}

@@ -7,6 +7,7 @@ import { isWeb } from '@/constants/Constants';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { deviceData, feedbackData } from '../../../constants/FeedbackSupportData';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useSelector } from 'react-redux';
 import * as DeviceInfo from 'expo-device';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { AppFeedback } from '@/redux/actions/AppFeedback/AppFeedback';
@@ -15,7 +16,7 @@ import useToast from '@/hooks/useToast';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { DatabaseTypes, EmailHelper } from 'repo-depkit-common';
-import { useAppSelector } from '@/redux/hooks';
+import { RootState } from '@/redux/reducer';
 import { myContrastColor } from '@/helper/ColorHelper';
 import SettingsList from '@/components/SettingsList';
 import SettingsListEditable from '@/components/SettingsListEditable';
@@ -29,8 +30,8 @@ const FeedbackScreen = () => {
 	const toast = useToast();
 	const appFeedback = new AppFeedback();
 	const { app_feedbacks_id } = useLocalSearchParams();
-    const { profile } = useAppSelector((state) => state.authReducer);
-    const { primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { profile } = useSelector((state: RootState) => state.authReducer);
+	const { primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
 	const [loading, setLoading] = useState(false);
 	const [inputValues, setInputValues] = useState<{
@@ -122,7 +123,7 @@ const FeedbackScreen = () => {
 				.map(item => ({
 					...item,
 					multiline: item.key === 'content',
-					keyboardType: (item.key === 'contact_email' ? 'email-address' : undefined) as KeyboardTypeOptions | undefined,
+					keyboardType: item.key === 'contact_email' ? 'email-address' : undefined,
 				})),
 		[]
 	);
@@ -130,7 +131,7 @@ const FeedbackScreen = () => {
 		const numericDeviceKeys = new Set(['display_height', 'display_width', 'display_fontscale', 'display_pixelratio', 'display_scale']);
 		return deviceData.map(item => ({
 			...item,
-			keyboardType: (numericDeviceKeys.has(item.key) ? 'numeric' : undefined) as KeyboardTypeOptions | undefined,
+			keyboardType: numericDeviceKeys.has(item.key) ? 'numeric' : undefined,
 		}));
 	}, []);
 

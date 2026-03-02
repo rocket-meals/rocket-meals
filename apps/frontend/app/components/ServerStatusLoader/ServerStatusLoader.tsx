@@ -1,9 +1,9 @@
 import { SET_COLOR, SET_SERVER_INFO } from '@/redux/Types/types';
 import { ServerAPI, ServerInfo } from '@/redux/actions';
-import { useAppSelector } from '@/redux/hooks';
+import { RootState } from '@/redux/reducer';
 import { darkTheme, lightTheme } from '@/styles/themes';
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export interface ServerStatusFlowLoaderProps {
 	children?: React.ReactNode;
@@ -11,7 +11,7 @@ export interface ServerStatusFlowLoaderProps {
 
 export const ServerStatusLoader: React.FC<ServerStatusFlowLoaderProps> = ({ children }) => {
 	const dispatch = useDispatch();
-	const { primaryColor } = useAppSelector(state => state.settings);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
 
 	async function loadServerInfo(): Promise<ServerInfo | null> {
 		try {

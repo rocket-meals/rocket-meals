@@ -10,13 +10,12 @@ import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import styles from '../styles';
-import { useAppSelector } from '../../../../redux/hooks';
 
 const HapticsScreen = () => {
 	useSetPageTitle(TranslationKeys.haptics_test);
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const { primaryColor } = useAppSelector((state: RootState) => state.settings);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
 	const [lastEvent, setLastEvent] = useState<string | null>(null);
 
 	const handleHaptic = useCallback(async (label: string, action: () => Promise<void>) => {

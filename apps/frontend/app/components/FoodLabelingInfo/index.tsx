@@ -1,6 +1,6 @@
 import React from 'react';
 import { Linking, Text, TextStyle, View, ViewStyle } from 'react-native';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import RedirectButton from '../RedirectButton';
@@ -17,8 +17,7 @@ interface FoodLabelingInfoProps {
 const FoodLabelingInfo: React.FC<FoodLabelingInfoProps> = ({ textStyle, containerStyle, backgroundColor }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const primaryColor = useAppSelector(state => state.settings.primaryColor);
-	const appSettings = useAppSelector(state => state.settings.appSettings);
+	const { primaryColor, appSettings } = useSelector((state: RootState) => state.settings);
 
 	const foods_area_color = backgroundColor ?? appSettings?.foods_area_color ?? primaryColor;
 

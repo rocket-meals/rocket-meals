@@ -1,12 +1,13 @@
 import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
+import { useSelector } from 'react-redux';
 import { useTheme } from '@/hooks/useTheme';
+import { RootState } from '@/redux/reducer';
 import SettingsList from '@/components/SettingsList';
 import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
 import { formatFoodInformationValue, getImageUrl } from '@/constants/HelperFunctions';
 import { getFoodAttributesTranslation } from '@/helper/resourceHelper';
 import { useMyContrastColor } from '@/helper/ColorHelper';
-import { useAppSelector } from '@/redux/hooks';
 
 type GroupPosition = 'top' | 'middle' | 'bottom' | 'single';
 
@@ -17,7 +18,7 @@ interface AttributeItemProps {
 
 const AttributeItem: React.FC<AttributeItemProps> = ({ attr, groupPosition }) => {
 	const { theme } = useTheme();
-	const { language, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { language, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 
 	const prefix = attr?.food_attribute?.prefix || '';
 	const suffix = attr?.food_attribute?.suffix || '';
@@ -27,7 +28,7 @@ const AttributeItem: React.FC<AttributeItemProps> = ({ attr, groupPosition }) =>
 
 	let value: string | undefined;
 	if (attr?.number_value !== null && attr?.number_value !== undefined) {
-		value = formatFoodInformationValue(attr?.number_value, suffix) ?? undefined;
+		value = formatFoodInformationValue(attr?.number_value, suffix);
 	} else if (attr?.string_value) {
 		value = `${attr?.string_value}${suffix}`;
 	}

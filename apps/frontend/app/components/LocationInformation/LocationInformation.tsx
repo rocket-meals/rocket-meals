@@ -8,15 +8,15 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import useToast from '@/hooks/useToast';
 import { TranslationKeys } from '@/locales/keys';
 import SettingsList from '@/components/SettingsList';
-
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/reducer';
 import SettingsListCoordinate from '@/components/SettingsListCoordinate/SettingsListCoordinate';
-import { useAppSelector } from '@/redux/hooks';
 
 const LocationInformation: React.FC<any> = ({ campusDetails }) => {
 	const { theme } = useTheme();
 	const toast = useToast();
 	const { translate } = useLanguage();
-	const { appSettings, primaryColor } = useAppSelector(state => state.settings);
+	const { appSettings, primaryColor } = useSelector((state: RootState) => state.settings);
 	const campusAreaColor = appSettings?.campus_area_color ?? primaryColor;
 
 	const coordinates = campusDetails?.coordinates?.coordinates;

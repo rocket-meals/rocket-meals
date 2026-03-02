@@ -7,12 +7,12 @@ import MyScrollViewModal from '@/components/MyScrollViewModal';
 import { isWeb } from '@/constants/Constants';
 import { Entypo } from '@expo/vector-icons';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { SET_SELECTED_DATE } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
+import { RootState } from '@/redux/reducer';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
 import { format, isValid, parse } from 'date-fns';
@@ -24,8 +24,8 @@ const CalendarSheet: React.FC<CalendarSheetProps> = ({ closeSheet, onSelect, sel
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [manualDate, setManualDate] = useState('');
     const [manualError, setManualError] = useState('');
-    const { primaryColor, appSettings, selectedTheme: mode, firstDayOfTheWeek } = useAppSelector((state) => state.settings);
-    const { selectedDate } = useAppSelector((state) => state.food);
+    const { primaryColor, appSettings, selectedTheme: mode, firstDayOfTheWeek } = useSelector((state: RootState) => state.settings);
+    const { selectedDate } = useSelector((state: RootState) => state.food);
     const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
     const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
 

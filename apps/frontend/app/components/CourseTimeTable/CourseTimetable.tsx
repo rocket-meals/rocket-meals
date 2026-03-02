@@ -5,11 +5,12 @@ import { useTheme } from '@/hooks/useTheme';
 import { days, timeSlots } from './constant';
 import { CourseTimetableProps, EventTypes } from './types';
 import { Feather, FontAwesome5, MaterialCommunityIcons, MaterialIcons, Octicons } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
 import { daysData } from '@/constants/SettingData';
 import { useLanguage } from '@/hooks/useLanguage';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { TranslationKeys } from '@/locales/keys';
-import { useAppSelector } from '@/redux/hooks';
+import { RootState } from '@/redux/reducer';
 
 const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, setIsUpdate, setTimeTableData, setSelectedEventId }) => {
 	const { theme } = useTheme();
@@ -17,7 +18,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const [currentTimeOffset, setCurrentTimeOffset] = useState(0);
 	const [showCurrentTimeOffset, setShowCurrentTimeOffset] = useState(false);
-	const { firstDayOfTheWeek } = useAppSelector((state) => state.settings);
+	const { firstDayOfTheWeek } = useSelector((state: RootState) => state.settings);
 	useEffect(() => {
 		const handleResize = () => {
 			setScreenWidth(Dimensions.get('window').width);
@@ -253,11 +254,11 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 
 											return (
 												<Tooltip
-													key={event.id}
 													placement="top"
 													trigger={triggerProps => (
 														<TouchableOpacity
 															{...triggerProps}
+															key={event.id}
 															style={{
 																...styles.slotEvent,
 																backgroundColor: event.color,

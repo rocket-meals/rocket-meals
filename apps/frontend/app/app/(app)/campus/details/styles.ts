@@ -58,7 +58,19 @@ export default StyleSheet.create({
 		borderWidth: 1,
 		borderColor: '#ffffff',
 	},
+	activeTab: {
+		backgroundColor: '#FCDE31',
+		borderColor: '#FCDE31',
+	},
+	tabLabel: {
+		fontFamily: 'Poppins_400Regular',
+		color: '#ffffff',
+	},
+	activeLabel: {
+		color: '#2E2E2E',
+	},
 	pagerView: {
 		paddingVertical: 10,
 	},
+	dumy: {},
 });

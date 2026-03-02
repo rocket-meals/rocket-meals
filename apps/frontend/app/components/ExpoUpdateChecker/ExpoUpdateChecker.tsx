@@ -6,7 +6,8 @@ import usePlatformHelper from '@/helper/platformHelper';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { useTheme } from '@/hooks/useTheme';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/reducer';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { isInExpoGo } from '@/helper/DeviceRuntimeHelper';
 
@@ -25,7 +26,7 @@ const ExpoUpdateChecker: React.FC<ExpoUpdateCheckerProps> = ({ children }) => {
 	const { isSmartPhone } = usePlatformHelper();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
-	const { primaryColor, selectedTheme: mode } = useAppSelector(state => state.settings);
+	const { primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
 
 	const [modalVisible, setModalVisible] = useState(false);

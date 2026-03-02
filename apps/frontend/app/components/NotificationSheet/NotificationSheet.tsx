@@ -4,7 +4,7 @@ import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
 import { NotificationSheetProps } from './types';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import usePlatformHelper from '@/helper/platformHelper';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
 import { DELETE_FOOD_FEEDBACK_LOCAL, UPDATE_FOOD_FEEDBACK_LOCAL } from '@/redux/Types/types';
@@ -16,15 +16,15 @@ import { replaceLottieColors } from '@/helper/animationHelper';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
 import { DatabaseTypes } from 'repo-depkit-common';
-import { useAppSelector } from '@/redux/hooks';
+import { RootState } from '@/redux/reducer';
 
 const NotificationSheet: React.FC<NotificationSheetProps> = ({ closeSheet, previousFeedback, foodDetails }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
 	const foodfeedbackHelper = new FoodFeedbackHelper();
-	const { primaryColor, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
-	const { profile } = useAppSelector((state) => state.authReducer);
+	const { primaryColor, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
+	const { profile } = useSelector((state: RootState) => state.authReducer);
 	const { isWeb } = usePlatformHelper();
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
@@ -60,7 +60,7 @@ const NotificationSheet: React.FC<NotificationSheetProps> = ({ closeSheet, previ
 
 	const renderLottie = useMemo(() => {
 		if (animationJson) {
-			return <LottieView ref={animationRef} source={animationJson} resizeMode="contain" style={{ width: '100%', height: '100%' }} autoPlay={autoPlay ?? false} loop={false} />;
+			return <LottieView ref={animationRef} source={animationJson} resizeMode="contain" style={{ width: '100%', height: '100%' }} autoPlay={autoPlay} loop={false} />;
 		}
 	}, [autoPlay, animationJson]);
 

@@ -470,13 +470,12 @@ export type ChatsParticipants = {
 
 export type CollectibleEventParticipants = {
   collectible_event?: string | CollectibleEvents | null;
-  data?: unknown | null;
   date_created?: string | null;
   date_updated?: string | null;
   email?: string | null;
   id: string;
   phone_number?: string | null;
-  points?: number | null;
+  points?: string | null;
   profile?: string | Profiles | null;
   sort?: number | null;
   status: string;
@@ -524,7 +523,6 @@ export type CollectibleEvents = {
   date_updated?: string | null;
   id: string;
   monitor_background_image?: string | DirectusFiles | null;
-  monitor_background_image_remote_url?: string | null;
   monitor_display_number_of_collected_items?: boolean | null;
   monitor_display_number_of_participants?: boolean | null;
   monitor_settings: string;
@@ -1115,6 +1113,7 @@ export type Foods = {
   rating_average_legacy?: number | null;
   rating_legacy_settings: string;
   rating_settings: string;
+  show_description_icon_on_card?: boolean | null;
   sort?: number | null;
   status?: string | null;
   translations: any[] | FoodsTranslations[];
@@ -1297,6 +1296,7 @@ export type FoodsMarkings = {
 
 export type FoodsTranslations = {
   be_source_for_translations?: boolean | null;
+  description?: string | null;
   foods_id?: string | Foods | null;
   id: number;
   languages_code?: string | Languages | null;

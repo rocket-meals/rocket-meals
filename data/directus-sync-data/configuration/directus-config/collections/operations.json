@@ -21,9 +21,9 @@
         "foods_parsing_status": "start"
       }
     },
-    "name": "Daten aktualisieren",
     "type": "item-update",
     "key": "item_update_jrrlc",
+    "name": "Daten aktualisieren",
     "resolve": null,
     "reject": null,
     "flow": "c5c0602c-889f-4d4a-8af3-90b4be91a20c",
@@ -45,9 +45,9 @@
         "news_parsing_status": "start"
       }
     },
-    "name": "Daten aktualisieren",
     "type": "item-update",
     "key": "item_update_jrrlc",
+    "name": "Daten aktualisieren",
     "resolve": null,
     "reject": null,
     "flow": "fcd01059-33f0-486e-a407-2eb361848025",
@@ -69,9 +69,9 @@
         "notifications_foods_status": "start"
       }
     },
-    "name": "Daten aktualisieren",
     "type": "item-update",
     "key": "item_update_jrrlc",
+    "name": "Daten aktualisieren",
     "resolve": null,
     "reject": null,
     "flow": "017ffe97-5499-43ce-87fc-f755815d2b62",
@@ -93,9 +93,9 @@
         "washingmachine_parsing_status": "start"
       }
     },
-    "name": "Daten aktualisieren",
     "type": "item-update",
     "key": "item_update_jrrlc",
+    "name": "Daten aktualisieren",
     "resolve": null,
     "reject": null,
     "flow": "3a675c40-2a17-4a25-a3ba-ab8fc9d5e7a0",
@@ -117,9 +117,9 @@
         "cashregisters_parsing_status": "start"
       }
     },
-    "name": "Daten aktualisieren",
     "type": "item-update",
     "key": "item_update_jrrlc",
+    "name": "Daten aktualisieren",
     "resolve": null,
     "reject": null,
     "flow": "16feb8c5-d138-454a-8fd6-e60394661f91",
@@ -141,9 +141,9 @@
         "housing_parsing_status": "start"
       }
     },
-    "name": "Daten aktualisieren",
     "type": "item-update",
     "key": "item_update_jrrlc",
+    "name": "Daten aktualisieren",
     "resolve": null,
     "reject": null,
     "flow": "d1b80b70-debc-442c-89f2-3a0f32731247",
@@ -165,9 +165,9 @@
         "utilization_forecast_calculation_status": "start"
       }
     },
-    "name": "Daten aktualisieren",
     "type": "item-update",
     "key": "item_update_jrrlc",
+    "name": "Daten aktualisieren",
     "resolve": null,
     "reject": null,
     "flow": "4bb7441a-82da-4d3c-b778-dbca944fe4d5",

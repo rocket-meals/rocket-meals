@@ -5,7 +5,7 @@ import { ServerAPI } from '@/redux/actions/Auth/Auth';
 
 export class PopupEventsHelper extends CollectionHelper<DatabaseTypes.PopupEvents> {
 	constructor(client?: any) {
-		super('popup_events', client);
+		super('popup_events', client || ServerAPI.getClient());
 	}
 
 	async fetchAllPopupEvents(queryOverride: any = {}) {

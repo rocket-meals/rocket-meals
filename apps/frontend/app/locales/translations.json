@@ -2593,7 +2593,7 @@
     "tr": "Dün",
     "zh": "昨天"
   },
-  "yes":{
+  "yes": {
     "de": "Ja",
     "en": "Yes",
     "ar": "نعم",
@@ -4872,5 +4872,95 @@
     "ru": "Ошибки отладки",
     "tr": "Hata ayıklama hataları",
     "zh": "调试错误"
+  },
+  "markdown_test": {
+    "de": "Markdown Test",
+    "en": "Markdown test",
+    "ar": "Markdown test",
+    "es": "Prueba de Markdown",
+    "fr": "Test Markdown",
+    "ru": "Тест Markdown",
+    "tr": "Markdown testi",
+    "zh": "Markdown 测试"
+  },
+  "markdown_test_description": {
+    "de": "Teste hier verschiedene Markdown-Inhalte und Zeilenumbrüche.",
+    "en": "Test different markdown snippets and line breaks here.",
+    "ar": "Test different markdown snippets and line breaks here.",
+    "es": "Prueba aquí diferentes fragmentos de markdown y saltos de línea.",
+    "fr": "Testez ici différents extraits markdown et retours à la ligne.",
+    "ru": "Тестируйте здесь разные фрагменты markdown и переносы строк.",
+    "tr": "Burada farklı markdown örneklerini ve satır sonlarını test edin.",
+    "zh": "在这里测试不同的 Markdown 片段和换行。"
+  },
+  "markdown_custom_input": {
+    "de": "Eigenes Markdown",
+    "en": "Custom markdown",
+    "ar": "Custom markdown",
+    "es": "Markdown personalizado",
+    "fr": "Markdown personnalisé",
+    "ru": "Свой markdown",
+    "tr": "Özel markdown",
+    "zh": "自定义 Markdown"
+  },
+  "markdown_custom_input_placeholder": {
+    "de": "Gib dein Markdown ein",
+    "en": "Enter your markdown",
+    "ar": "Enter your markdown",
+    "es": "Introduce tu markdown",
+    "fr": "Saisissez votre markdown",
+    "ru": "Введите ваш markdown",
+    "tr": "Markdown metninizi girin",
+    "zh": "输入你的 Markdown"
+  },
+  "markdown_custom_output": {
+    "de": "Ausgabe",
+    "en": "Output",
+    "ar": "Output",
+    "es": "Salida",
+    "fr": "Sortie",
+    "ru": "Результат",
+    "tr": "Çıktı",
+    "zh": "输出"
+  },
+  "markdown_example_line_breaks": {
+    "de": "Beispiel: Zeilenumbrüche",
+    "en": "Example: line breaks",
+    "ar": "Example: line breaks",
+    "es": "Ejemplo: saltos de línea",
+    "fr": "Exemple : retours à la ligne",
+    "ru": "Пример: переносы строк",
+    "tr": "Örnek: satır sonları",
+    "zh": "示例：换行"
+  },
+  "markdown_example_list": {
+    "de": "Beispiel: Liste",
+    "en": "Example: list",
+    "ar": "Example: list",
+    "es": "Ejemplo: lista",
+    "fr": "Exemple : liste",
+    "ru": "Пример: список",
+    "tr": "Örnek: liste",
+    "zh": "示例：列表"
+  },
+  "markdown_example_links": {
+    "de": "Beispiel: Links",
+    "en": "Example: links",
+    "ar": "Example: links",
+    "es": "Ejemplo: enlaces",
+    "fr": "Exemple : liens",
+    "ru": "Пример: ссылки",
+    "tr": "Örnek: bağlantılar",
+    "zh": "示例：链接"
+  },
+  "tap_to_edit": {
+    "de": "Tippen zum Bearbeiten",
+    "en": "Tap to edit",
+    "ar": "Tap to edit",
+    "es": "Toca para editar",
+    "fr": "Touchez pour modifier",
+    "ru": "Нажмите для редактирования",
+    "tr": "Düzenlemek için dokun",
+    "zh": "点击编辑"
   }
 }

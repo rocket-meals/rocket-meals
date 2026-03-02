@@ -5,20 +5,21 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
 import { sheetProps } from './types';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { useLanguage } from '@/hooks/useLanguage';
 import { router } from 'expo-router';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { TranslationKeys } from '@/locales/keys';
+import { RootState } from '@/redux/reducer';
 
 const SubmissionWarningSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const formsSubmissionsHelper = new FormsSubmissionsHelper();
 	const [loading, setLoading] = useState(false);
-	const { primaryColor } = useAppSelector(state => state.settings);
-	const { user } = useAppSelector(state => state.authReducer);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
+	const { user } = useSelector((state: RootState) => state.authReducer);
 
 	const handleProceed = async () => {
 		setLoading(true);

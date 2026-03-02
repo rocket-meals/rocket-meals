@@ -8,24 +8,23 @@ import { isWeb } from '@/constants/Constants';
 import { getIconComponent, getTextFromTranslation } from '@/helper/resourceHelper';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { FoodFeedbackLabelEntryHelper } from '@/redux/actions/FoodFeeedbackLabelEntries/FoodFeedbackLabelEntries';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { DELETE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES_LOCAL, UPDATE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES_LOCAL } from '@/redux/Types/types';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { Tooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
-
+import { RootState } from '@/redux/reducer';
 import useRatingPermissionModal from '@/hooks/useRatingPermissionModal';
 
 const FeedbackLabel: React.FC<FeedbackLabelProps> = ({ label, icon, imageUrl, labelEntries, foodId, offerId }) => {
 	const { theme } = useTheme();
 	const dispatch = useDispatch();
 	const { translate } = useLanguage();
-	const { primaryColor, language, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { primaryColor, language, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const [showTooltip, setShowTooltip] = useState(false);
-	const { user, profile } = useAppSelector((state) => state.authReducer);
+	const { user, profile } = useSelector((state: RootState) => state.authReducer);
 	const selectedCanteen = useSelectedCanteen();
 	const { openRatingPermissionModal } = useRatingPermissionModal();
 	const foodFeedbackLabelEntryHelper = new FoodFeedbackLabelEntryHelper();

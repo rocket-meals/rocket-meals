@@ -5,17 +5,18 @@ import { AttentionSheetProps } from './types';
 import { styles } from './styles';
 import { isWeb } from '@/constants/Constants';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import LottieView from 'lottie-react-native';
 import { replaceLottieColors } from '@/helper/animationHelper';
 import animationJson from '@/assets/animations/astronaut-computer.json';
 import { TranslationKeys } from '@/locales/keys';
+import { RootState } from '@/redux/reducer';
 import { myContrastColor } from '@/helper/ColorHelper';
 
 const AttentionSheet: React.FC<AttentionSheetProps> = ({ closeSheet, handleLogin }) => {
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
-	const { primaryColor, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { primaryColor, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
 	const updatedAnimationJson = replaceLottieColors(animationJson, primaryColor);
 	const animationRef = useRef<LottieView>(null);

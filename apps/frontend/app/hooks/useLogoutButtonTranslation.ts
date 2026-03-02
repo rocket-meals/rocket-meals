@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 
 import { UserHelper } from '@/helper/UserHelper';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import { RootState } from '@/redux/reducer';
 
 const useLogoutButtonTranslation = () => {
         const { translate } = useLanguage();
-        const { user } = useAppSelector((state) => state.authReducer);
+        const { user } = useSelector((state: RootState) => state.authReducer);
         const isRegisteredUser = UserHelper.isRegisteredUser(user);
 
         const buttonLabel = useMemo(

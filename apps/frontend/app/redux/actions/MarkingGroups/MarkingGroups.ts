@@ -5,7 +5,7 @@ import { DatabaseTypes } from 'repo-depkit-common'; // Assuming DatabaseTypes.Ma
 export class MarkingGroupsHelper extends CollectionHelper<DatabaseTypes.MarkingsGroups> {
 	constructor(client?: any) {
 		// Pass the collection name 'markings' and an optional API client
-		super('markings_groups', client);
+		super('markings_groups', client || ServerAPI.getClient());
 	}
 
 	// Helper to build default query

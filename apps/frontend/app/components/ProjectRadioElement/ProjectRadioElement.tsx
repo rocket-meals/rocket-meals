@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { useTheme } from '@/hooks/useTheme';
-
+import { RootState } from '@/redux/reducer';
 
 type ProjectRadioElementProps = {
         selected?: boolean;
@@ -13,7 +13,7 @@ type ProjectRadioElementProps = {
 
 const ProjectRadioElement: React.FC<ProjectRadioElementProps> = ({ selected = false, onPress, size = 20, style }) => {
         const { theme } = useTheme();
-        const { primaryColor } = useAppSelector(state => state.settings);
+        const { primaryColor } = useSelector((state: RootState) => state.settings);
 
         const Component: any = onPress ? TouchableOpacity : View;
 

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 
+import { RootState } from '@/redux/reducer';
 import { useTheme } from '@/hooks/useTheme';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import SettingsList from '@/components/SettingsList';
@@ -17,7 +18,7 @@ import styles from './styles';
 const SettingsListComponents = () => {
 	useSetPageTitle('SettingsList Komponenten');
 	const { theme } = useTheme();
-	const { primaryColor } = useAppSelector((state) => state.settings);
+	const { primaryColor } = useSelector((state: RootState) => state.settings);
 	const [dateValue, setDateValue] = useState('01.01.2024');
 	const [dateError, setDateError] = useState('');
 	const [inputValue, setInputValue] = useState('Beispieltext');

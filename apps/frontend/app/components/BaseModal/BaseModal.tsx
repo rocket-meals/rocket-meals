@@ -1,5 +1,5 @@
 import React, {PropsWithChildren, useEffect, useState} from 'react';
-import { DimensionValue, Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
 import { AntDesign } from '@expo/vector-icons';
 import { styles } from './styles';
@@ -16,13 +16,13 @@ export type BaseModalProps = PropsWithChildren<BaseModalOwnProps>;
 const BaseModal: React.FC<BaseModalProps> = ({ isVisible, title, onClose, children }) => {
 	const { theme } = useTheme();
 
-	const getModalWidth = (windowWidth: number): DimensionValue => {
+	const getModalWidth = (windowWidth: number) => {
 		if (windowWidth < 800) return '100%';
 		if (windowWidth >= 800 && windowWidth <= 1200) return 700;
 		return 600;
 	};
 
-	const [modalWidth, setModalWidth] = useState<DimensionValue>(() => getModalWidth(Dimensions.get('window').width));
+	const [modalWidth, setModalWidth] = useState(() => getModalWidth(Dimensions.get('window').width));
 
 	useEffect(() => {
 		const handleResize = () => {

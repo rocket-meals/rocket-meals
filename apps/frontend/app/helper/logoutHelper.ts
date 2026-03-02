@@ -24,7 +24,9 @@ import { clearChatReadStatus } from '@/helper/chatReadStatus';
 
 export const performLogout = async (
 	dispatch: Dispatch,
-	router: any
+	router: {
+		replace: (args: { pathname: string; params?: Record<string, string> }) => void;
+	}
 ) => {
 	try {
 		dispatch({ type: ON_LOGOUT });
@@ -33,6 +35,7 @@ export const performLogout = async (
 		dispatch({ type: CLEAR_APARTMENTS });
 		dispatch({ type: UPDATE_MARKINGS, payload: [] });
 		dispatch({ type: SET_SELECTED_FOOD_MARKINGS, payload: [] });
+		dispatch({ type: CLEAR_COLLECTION_DATES_LAST_UPDATED });
 		dispatch({ type: SET_MARKING_DETAILS, payload: {} });
 		dispatch({ type: CLEAR_FOODS });
                 dispatch({ type: CLEAR_MANAGEMENT });

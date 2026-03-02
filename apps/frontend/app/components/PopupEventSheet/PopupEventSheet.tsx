@@ -5,7 +5,7 @@ import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
-import { useAppSelector } from '@/redux/hooks';
+import { useSelector } from 'react-redux';
 import { PopupEventSheetProps } from './types';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import CustomCollapsible from '../CustomCollapsible/CustomCollapsible';
@@ -13,12 +13,13 @@ import { myContrastColor } from '@/helper/ColorHelper';
 import { getTextFromTranslation, getTitleFromTranslation } from '@/helper/resourceHelper';
 import RedirectButton from '../RedirectButton';
 import ProjectButton from '../ProjectButton';
+import { RootState } from '@/redux/reducer';
 import { useMyScrollViewModal } from '../GlobalModal/useMyScrollViewModal';
 
 const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, dismissSheet, eventData }) => {
 	const { theme } = useTheme();
 	const { close: closeScrollViewModal } = useMyScrollViewModal();
-	const { primaryColor, language, appSettings, serverInfo, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { primaryColor, language, appSettings, serverInfo, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const defaultImage = getImageUrl(serverInfo?.info?.project?.project_logo);
 	const title = eventData?.translations ? getTitleFromTranslation(eventData?.translations, language) : '';
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
@@ -142,7 +143,7 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, dismissSh
 					}}
 				>
 					<MyImage
-						remote_image_url={url}
+						source={{ uri: url }}
 						style={{
 							width: '100%',
 							height: 400,
@@ -186,7 +187,7 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, dismissSh
 						);
 
 					case 'image':
-						return <ImageContent key={`image-${level}-${index}`} url={item.url} altText={item.altText} level={level} />;
+						return <MyImageContent key={`image-${level}-${index}`} url={item.url} altText={item.altText} level={level} />;
 
 					case 'collapsible':
 						return (
@@ -230,7 +231,7 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, dismissSh
 					alignItems: 'center',
 				}}
 			>
-				<ProjectButton text="Schließen und nicht erneut anzeigen" onPress={handleClose} />
+				{closeSheet && <ProjectButton text="Schließen und nicht erneut anzeigen" onPress={handleClose} />}
 			</View>
 			<View
 				style={{
@@ -253,7 +254,9 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, dismissSh
 					<View style={styles.imageContainer}>
 						<MyImage
 							style={styles.image}
-							remote_image_url={eventData?.image_remote_url || getImageUrl(String(eventData?.image))}
+							source={{
+								uri: eventData?.image_remote_url || getImageUrl(String(eventData?.image)),
+							}}
 						/>
 					</View>
 				)}

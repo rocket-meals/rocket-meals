@@ -149,7 +149,7 @@ export class ServerAPI {
 	}
 
 	static async readRemotePolicies() {
-		return this.getClient().request<DatabaseTypes.DirectusPolicies[]>(
+		return this.getClient().request<DirectusPolicies[]>(
 			readPolicies({
 				fields: ['*', 'permissions.*', 'roles.*'],
 				deep: {

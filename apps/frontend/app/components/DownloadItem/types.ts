@@ -13,5 +13,5 @@ export interface DownloadItemProps {
 	 * Optional value for rendering a QR code in the image section above
 	 * the label.
 	 */
-	qrValue?: string | null;
+	qrValue?: string;
 }

@@ -4,7 +4,7 @@ import { ServerAPI } from '@/redux/actions/Auth/Auth';
 
 export class ApartmentsHelper extends CollectionHelper<DatabaseTypes.Apartments> {
 	constructor(client?: any) {
-		super('apartments', client);
+		super('apartments', client || ServerAPI.getClient());
 	}
 
 	// Fetch all apartmanets with optional query overrides

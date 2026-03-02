@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Text, View } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { useSelector } from 'react-redux';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -12,9 +13,9 @@ import { BusinessHoursHelper } from '@/redux/actions/BusinessHours/BusinessHours
 import { BusinessHour, HourSheetProps } from './types';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
 import { TranslationKeys } from '@/locales/keys';
+import { RootState } from '@/redux/reducer';
 import SettingsList from '@/components/SettingsList/SettingsList';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
-import { useAppSelector } from '@/redux/hooks';
 
 const getSortedBusinessHoursGroups = (groups: { id: string; sort?: number | null }[]) => {
 	return [...groups].sort((a, b) => {
@@ -52,8 +53,8 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
 
 	const [hours, setHours] = useState<GroupedHours | null>(null);
 	const [loading, setLoading] = useState(false);
-	const { language, firstDayOfTheWeek } = useAppSelector((state) => state.settings);
-	const { businessHoursGroups } = useAppSelector((state) => state.canteenReducer);
+	const { language, firstDayOfTheWeek } = useSelector((state: RootState) => state.settings);
+	const { businessHoursGroups } = useSelector((state: RootState) => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
 	const ScreenWidth = Dimensions.get('window').width;
 	const buildingsHelper = new BuildingsHelper();
@@ -92,7 +93,7 @@ const HourSheet: React.FC<HourSheetProps> = ({ closeSheet }) => {
 			});
 
 			const hoursResults = await Promise.all(hoursPromises);
-			const matchedHours = hoursResults.filter((hour): hour is BusinessHour => hour !== null && Object.values(hour).some(val => val !== null));
+			const matchedHours = hoursResults.filter(hour => Boolean(hour) && Object.values(hour).some(val => val !== null));
 
 			// Filter by valid dates
 			const currentDate = new Date().toISOString().split('T')[0];

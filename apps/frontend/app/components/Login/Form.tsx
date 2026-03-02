@@ -11,12 +11,12 @@ import usePlatformHelper from '@/helper/platformHelper';
 import { fetchAuthorizationUrl, fetchToken } from '@/redux/actions/ApiService/ApiService';
 import { handleNativeLogin, handleWebLogin } from '@/helper/authHelper';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { UPDATE_PRIVACY_POLICY_DATE } from '@/redux/Types/types';
 import { format } from 'date-fns';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
-import { useAppSelector } from '@/redux/hooks';
+import { RootState } from '@/redux/reducer';
 
 const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionSheet, providers }) => {
 	const [isChecked, setChecked] = useState(false);
@@ -24,8 +24,7 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 	const dispatch = useDispatch();
 	const { isWeb } = usePlatformHelper();
 	const { translate } = useLanguage();
-	const state = useAppSelector((state) => state);
-	const { primaryColor, selectedTheme: mode } = state.settings;
+	const { primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const contrastColor = myContrastColor(primaryColor || theme.login.linkButton, theme, mode === 'dark');
 
 	const getToken = async (codeVerifier: string, code: string) => {

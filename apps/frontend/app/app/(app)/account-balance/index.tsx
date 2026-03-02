@@ -6,8 +6,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { formatPrice, showFormatedPrice, filterNullishProperties } from '@/constants/HelperFunctions';
 import { format } from 'date-fns';
 import useMyCardReader, { MyCardReaderInterface } from './MyCardReader';
@@ -25,6 +24,7 @@ import moneyConfident from '@/assets/animations/accountBalance/moneyConfident.js
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
+import { RootState } from '@/redux/reducer';
 import Server from '@/constants/ServerUrl';
 import { ServerAPI } from '@/redux/actions';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
@@ -47,8 +47,8 @@ const AccountBalanceScreen = () => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { profile, isDevMode } = useAppSelector((state) => state.authReducer);
-	const { appSettings, language, primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { profile, isDevMode } = useSelector((state: RootState) => state.authReducer);
+	const { appSettings, language, primaryColor, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
 	const balance_area_color = appSettings?.balance_area_color ? appSettings?.balance_area_color : primaryColor;
 	const [isNfcSupported, setIsNfcSupported] = useState(false);
 	const [isNfcEnabled, setIsNfcEnabled] = useState(false);

@@ -13,11 +13,9 @@ interface CompanyImageProps {
 const CompanyImage: React.FC<CompanyImageProps> = ({ appSettings, style, resizeMode = 'contain' }) => {
 	const imageUri = appSettings?.company_image && getImageUrl(String(appSettings.company_image))?.split('?')[0];
 
-	if (imageUri) {
-		return <MyImage remote_image_url={imageUri} style={style} resizeMode={resizeMode} />;
-	}
+	const source = imageUri ? { uri: imageUri } : require('@/assets/images/company.png');
 
-	return <MyImage defaultImage={require('@/assets/images/company.png')} style={style} resizeMode={resizeMode} />;
+	return <MyImage source={source} style={style} resizeMode={resizeMode} />;
 };
 
 export default CompanyImage;

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Linking, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
-import { useAppSelector } from '@/redux/hooks';
 import { useFocusEffect } from 'expo-router';
 import TimeTableData from '@/constants/TimeTable';
 import CourseTimetable from '../../../components/CourseTimeTable/CourseTimetable';
@@ -10,6 +9,7 @@ import styles from './styles';
 import { FontAwesome } from '@expo/vector-icons';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
+import { useSelector } from 'react-redux';
 import { EventTypes } from './types';
 import { courseTimetableDescriptionEmpty } from '@/constants/translationConstants';
 import RedirectButton from '@/components/RedirectButton';
@@ -18,6 +18,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
 
@@ -42,9 +43,9 @@ const TimetableScreen = () => {
 	useSetPageTitle(TranslationKeys.course_timetable);
 	const { theme } = useTheme();
 	const toast = useToast();
-    const { translate } = useLanguage();
-    const { primaryColor, language, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
-    const { profile } = useAppSelector((state) => state.authReducer);
+	const { translate } = useLanguage();
+	const { primaryColor, language, appSettings, selectedTheme: mode } = useSelector((state: RootState) => state.settings);
+	const { profile } = useSelector((state: RootState) => state.authReducer);
 	const bottomSheetRef = useRef<BottomSheet>(null);
 	const [events, setEvents] = useState<EventTypes[]>([]);
 	const [isActive, setIsActive] = useState(false);

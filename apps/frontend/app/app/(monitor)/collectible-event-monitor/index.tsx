@@ -31,7 +31,7 @@ const CollectibleEventMonitor = () => {
 		}
 
 		if (activeCollectibleEvent?.monitor_background_image) {
-			return getHighResImageUrl(String(activeCollectibleEvent.monitor_background_image), 1920);
+			return getHighResImageUrl(activeCollectibleEvent.monitor_background_image, 1920);
 		}
 
 		return null;

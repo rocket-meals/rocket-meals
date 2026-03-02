@@ -92,9 +92,9 @@ const DebugLogout = () => {
 		const exclude = ['CLEAR_ANONYMOUSLY', 'ON_LOGOUT', 'RESET_STORE'];
 		for (const step of steps) {
 			if (exclude.includes(step.label)) continue;
-			const result = step.action() as any;
-			if (result && typeof result === 'object' && typeof result.then === 'function') {
-				await result;
+			const result = step.action();
+			if (result && typeof result === 'object' && typeof (result as any).then === 'function') {
+				await (result as Promise<any>);
 			}
 		}
 	};

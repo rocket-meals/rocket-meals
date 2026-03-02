@@ -6,8 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { isWeb } from '@/constants/Constants';
 import { useLanguage } from '@/hooks/useLanguage';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/redux/hooks';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchFoodDetailsById } from '@/redux/actions/FoodOffers/FoodOffers';
 import { excerpt } from '@/constants/HelperFunctions';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
@@ -19,6 +18,7 @@ import { useFocusEffect } from 'expo-router';
 import { replaceLottieColors } from '@/helper/animationHelper';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
 
@@ -27,15 +27,15 @@ const NotificationScreen = () => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { language, primaryColor, appSettings } = useAppSelector((state) => state.settings);
-	const { profile } = useAppSelector((state) => state.authReducer);
+	const { language, primaryColor, appSettings } = useSelector((state: RootState) => state.settings);
+	const { profile } = useSelector((state: RootState) => state.authReducer);
 	const foodFeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
 	const [foodWithFeedback, setFoodWithFeedback] = useState<any[]>([]);
 	const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
 	const animationRef = useRef<LottieView>(null);
 	const [animationJson, setAmimationJson] = useState<any>(null);
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
-	const foodFeedbacks = useAppSelector((state) => state.food.ownFoodFeedbacks);
+	const foodFeedbacks = useSelector((state: RootState) => state.food.ownFoodFeedbacks);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -199,7 +199,7 @@ const NotificationScreen = () => {
 							</View>
                                                 ))}
                                 </View>
-                                <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_notification} />
+                                <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_noticiation} />
                         </View>
                 </ScrollView>
         );

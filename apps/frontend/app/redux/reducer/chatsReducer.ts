@@ -1,13 +1,11 @@
 import { CLEAR_CHATS, MARK_ALL_CHATS_AS_READ, MARK_ALL_CHATS_AS_UNREAD, MARK_CHAT_AS_READ, SET_CHATS, SET_CHAT_READ_STATUS } from '../Types/types';
-import { ChatsState } from '../Types/stateTypes';
-import { DatabaseTypes } from 'repo-depkit-common';
 
-const initialState: ChatsState = {
-        chats: [] as DatabaseTypes.Chats[],
-        readStatus: {} as Record<string, string>,
+const initialState = {
+        chats: [],
+        readStatus: {},
 };
 
-const chatsReducer = (state: ChatsState = initialState, actions: { type: string; payload?: any }) => {
+const chatsReducer = (state = initialState, actions: any) => {
         switch (actions.type) {
                 case SET_CHATS:
                         return {

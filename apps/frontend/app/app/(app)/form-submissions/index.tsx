@@ -6,6 +6,7 @@ import { Entypo, FontAwesome, FontAwesome5, Ionicons } from '@expo/vector-icons'
 import { useLanguage } from '@/hooks/useLanguage';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useSelector } from 'react-redux';
 import { isWeb } from '@/constants/Constants';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
@@ -15,9 +16,9 @@ import { excerpt } from '@/constants/HelperFunctions';
 import { filterOptions } from './constants';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 import FormSubmissionSortSheet from '@/components/FormSubmissionSortSheet/FormSubmissionSortSheet';
 import { FormSubmissionSortOption } from '@/components/FormSubmissionSortSheet/types';
-import { useAppSelector } from '@/redux/hooks';
 
 type FormSubmissionListRow =
 	| {
@@ -45,10 +46,10 @@ const Index = () => {
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const formsSubmissionsHelper = new FormsSubmissionsHelper();
 	const [formSubmissions, setFormSubmissions] = useState<DatabaseTypes.FormSubmissions[]>([]);
-    const [selectedOption, setSelectedOption] = useState<string>('draft');
-    const [sortOption, setSortOption] = useState<FormSubmissionSortOption>('alphabetical');
-    const { drawerPosition, language } = useAppSelector((state) => state.settings);
-    const [currentPath, setCurrentPath] = useState<string[]>([]);
+	const [selectedOption, setSelectedOption] = useState<string>('draft');
+	const [sortOption, setSortOption] = useState<FormSubmissionSortOption>('alphabetical');
+	const { drawerPosition, language } = useSelector((state: RootState) => state.settings);
+	const [currentPath, setCurrentPath] = useState<string[]>([]);
 	const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
 
 	const folderPrefixes = useMemo(() => {

@@ -7,21 +7,22 @@ import { Ionicons, MaterialCommunityIcons, MaterialIcons, Octicons } from '@expo
 import styles from './styles';
 import { useLanguage } from '@/hooks/useLanguage';
 import useToast from '@/hooks/useToast';
+import { useSelector } from 'react-redux';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { RootState } from '@/redux/reducer';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
-import { useAppSelector } from '@/redux/hooks';
 
 const SupportFaq = () => {
 	useSetPageTitle(TranslationKeys.feedback_support_faq);
 	const { translate } = useLanguage();
-    const { theme } = useTheme();
-    const toast = useToast();
-    const { profile } = useAppSelector((state) => state.authReducer);
-    const [projectName, setProjectName] = useState('');
-    const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
-    const { serverInfo, appSettings, primaryColor } = useAppSelector((state) => state.settings);
+	const { theme } = useTheme();
+	const toast = useToast();
+	const { profile } = useSelector((state: RootState) => state.authReducer);
+	const [projectName, setProjectName] = useState('');
+	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
+	const { serverInfo, appSettings, primaryColor } = useSelector((state: RootState) => state.settings);
 
 	useEffect(() => {
 		if (serverInfo && serverInfo?.info) {

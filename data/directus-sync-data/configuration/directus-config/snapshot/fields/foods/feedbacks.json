@@ -27,7 +27,7 @@
     },
     "readonly": false,
     "required": false,
-    "sort": 18,
+    "sort": 19,
     "special": [
       "o2m"
     ],
