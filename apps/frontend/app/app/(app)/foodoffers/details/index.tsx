@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { SafeAreaView, ScrollView, View, useWindowDimensions, type DimensionValue } from 'react-native';
+import { SafeAreaView, ScrollView, Text, View, useWindowDimensions, type DimensionValue } from 'react-native';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { runAfterInteractions } from '@/helper/interactionHelper';
@@ -32,6 +32,7 @@ import { handleFoodRating } from '@/helper/feedback';
 import { RootState } from '@/redux/reducer';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import useRatingPermissionModal from '@/hooks/useRatingPermissionModal';
+import DebugView from '@/components/DebugView';
 import FoodHeader from './components/FoodHeader';
 import NotificationSection from './components/NotificationSection';
 import TabController from './components/TabController';
@@ -67,6 +68,7 @@ export default function FoodDetailsScreen() {
     const serverInfo = useAppSelector((state) => state.settings.serverInfo, shallowEqual);
     const mode = useAppSelector((state) => state.settings.selectedTheme);
     const languageCode = useAppSelector((state) => state.settings.language);
+    const isDevMode = useAppSelector((state) => state.authReducer.isDevMode);
 
     const ownFoodFeedbacks = useAppSelector(selectOwnFoodFeedbacks);
     const previousFeedback = useMemo(() => {
@@ -174,7 +176,7 @@ export default function FoodDetailsScreen() {
             handleMenuSheet={openMenuSheet}
             color={foods_area_color}
         />
-    ), [foodDetails, offerId, openMenuSheet, foods_area_color]);
+    ), [foodDetails, offerId, foodOfferDetails, openMenuSheet, foods_area_color]);
 
     useEffect(() => {
         getFoodDetails();
@@ -425,6 +427,11 @@ export default function FoodDetailsScreen() {
                     </View>
                 </View>
                 <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_foodoffers_details} />
+                <DebugView title="Foodoffer Details" isVisible={isDevMode}>
+                    <Text style={[styles.debugText, { color: theme.screen.text }]}>
+                        {JSON.stringify(foodOfferDetails, null, 2)}
+                    </Text>
+                </DebugView>
             </ScrollView>
 
             {isActive && (

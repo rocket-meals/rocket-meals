@@ -348,4 +348,8 @@ export default StyleSheet.create({
     pagerViewWebSmall: {
         paddingHorizontal: 0,
     },
+    debugText: {
+        fontFamily: 'Poppins_400Regular',
+        fontSize: 12,
+    },
 });
