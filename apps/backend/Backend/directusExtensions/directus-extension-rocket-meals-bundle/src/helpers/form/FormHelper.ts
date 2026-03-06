@@ -2,7 +2,7 @@ import { FormExtractFormAnswer, FormExtractFormAnswerValueFileSingle, FormExtrac
 import { BaseGermanMarkdownTemplateHelper, DEFAULT_HTML_TEMPLATE, HtmlGenerator } from '../html/HtmlGenerator';
 import { PdfGeneratorHelper } from '../pdf/PdfGeneratorHelper';
 import { RequestOptions } from '../pdf/PdfGeneratorInterfaces';
-import { DirectusFilesAssetHelper } from '../DirectusFilesAssetHelper';
+import { DirectusFilesAssetHelper, DirectusFileTransformOptions } from '../DirectusFilesAssetHelper';
 import { MarkdownHelper } from '../html/MarkdownHelper';
 import { MyDatabaseTestableHelperInterface } from '../MyDatabaseHelperInterface';
 import { TranslationBackendKeys, TranslationsBackend } from '../TranslationsBackend';
@@ -39,6 +39,7 @@ export type FormGenerationParams = {
 
 export class FormHelper {
   private static readonly FORM_IMAGE_TRANSFORM_OPTIONS = DirectusFilesAssetHelper.PRESET_FILE_TRANSFORMATION_IMAGE_HD;
+  private static readonly FORM_SIGNATURE_TRANSFORM_OPTIONS = undefined; // No transform for signatures - preserve original dimensions
 
   public static getExampleForm(): DatabaseTypes.Forms {
     return {
@@ -155,6 +156,14 @@ export class FormHelper {
         alias: 'Image Field',
         data: { value_image: images[0] },
         form_field_type: FormHelperCommon.FORM_FIELD_TYPE.FILES_IMAGE,
+        form_submission_id: form_submission_id,
+        index: index++
+    }));
+
+    formExtractRelevantInformation.push(this.addFormField({
+        alias: 'Signature Field',
+        data: { value_image: 'https://picsum.photos/800/200' },
+        form_field_type: FormHelperCommon.FORM_FIELD_TYPE.FILES_IMAGE_SIGNATURE,
         form_submission_id: form_submission_id,
         index: index++
     }));
@@ -364,13 +373,13 @@ export class FormHelper {
     return markdownContent;
   }
 
-  private static generateMarkdownForTypeImageValue(fieldName: string, value_image: DatabaseTypes.DirectusFiles | string | null | undefined, myDatabaseHelperInterface: MyDatabaseTestableHelperInterface): string {
+  private static generateMarkdownForTypeImageValue(fieldName: string, value_image: DatabaseTypes.DirectusFiles | string | null | undefined, myDatabaseHelperInterface: MyDatabaseTestableHelperInterface, transformOptions: DirectusFileTransformOptions | undefined = FormHelper.FORM_IMAGE_TRANSFORM_OPTIONS): string {
     let assetUrl: undefined | string = undefined;
     if (value_image) {
       if (typeof value_image === 'string' && value_image.startsWith('http')) {
         assetUrl = value_image;
       } else {
-        assetUrl = DirectusFilesAssetHelper.getDirectAssetUrlByObjectOrId(value_image, myDatabaseHelperInterface, FormHelper.FORM_IMAGE_TRANSFORM_OPTIONS);
+        assetUrl = DirectusFilesAssetHelper.getDirectAssetUrlByObjectOrId(value_image, myDatabaseHelperInterface, transformOptions);
       }
     }
     return this.generateMarkdownForTypeImageUrl(fieldName, assetUrl);
@@ -413,12 +422,18 @@ export class FormHelper {
     // export type FormExtractRelevantInformationSingle = {form_field_id: string, sort: number | null | undefined, form_field: FormFields, form_answer: FormAnswers }
     for (let formExtractRelevantInformationSingle of formExtractRelevantInformation) {
       let fieldName = formExtractRelevantInformationSingle.form_field.alias || formExtractRelevantInformationSingle.form_field.id;
+      let fieldType = formExtractRelevantInformationSingle.form_field.field_type;
 
       markdownContent += this.generateMarkdownForTypeStringValue(fieldName, formExtractRelevantInformationSingle);
       markdownContent += this.generateMarkdownForTypeNumberValue(fieldName, formExtractRelevantInformationSingle);
       markdownContent += this.generateMarkdownForTypeBooleanValue(fieldName, formExtractRelevantInformationSingle.form_answer.value_boolean);
       markdownContent += this.generateMarkdownForTypeDateValue(fieldName, formExtractRelevantInformationSingle);
-      markdownContent += this.generateMarkdownForTypeImageValue(fieldName, formExtractRelevantInformationSingle.form_answer.value_image, myDatabaseHelperInterface);
+      if (fieldType === FormHelperCommon.FORM_FIELD_TYPE.FILES_IMAGE_SIGNATURE) {
+        // Signatures are stored in value_image - export without transform to preserve original dimensions
+        markdownContent += this.generateMarkdownForTypeImageValue(fieldName, formExtractRelevantInformationSingle.form_answer.value_image, myDatabaseHelperInterface, FormHelper.FORM_SIGNATURE_TRANSFORM_OPTIONS);
+      } else {
+        markdownContent += this.generateMarkdownForTypeImageValue(fieldName, formExtractRelevantInformationSingle.form_answer.value_image, myDatabaseHelperInterface);
+      }
       if(formExtractRelevantInformationSingle.form_answer.value_files.length > 0){
         for (let formAnswerValueFile of formExtractRelevantInformationSingle.form_answer.value_files || []) {
           markdownContent += this.generateMarkdownForTypeFilesValue(fieldName, formAnswerValueFile, myDatabaseHelperInterface);
