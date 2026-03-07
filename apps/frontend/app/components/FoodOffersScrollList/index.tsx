@@ -469,6 +469,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 				data={days}
 				keyExtractor={item => item.date}
 				renderItem={renderDay}
+				extraData={canteenFeedbackLabels}
 				onEndReached={onEndReached}
 				onEndReachedThreshold={0.5}
 				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
