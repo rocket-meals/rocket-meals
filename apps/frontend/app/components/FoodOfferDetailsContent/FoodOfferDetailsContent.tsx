@@ -27,7 +27,6 @@ import { TranslationKeys } from '@/locales/keys';
 import { handleFoodRating } from '@/helper/feedback';
 import { RootState } from '@/redux/reducer';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
-import useRatingPermissionModal from '@/hooks/useRatingPermissionModal';
 import FoodHeader from '@/app/(app)/foodoffers/details/components/FoodHeader';
 import NotificationSection from '@/app/(app)/foodoffers/details/components/NotificationSection';
 import TabController from '@/app/(app)/foodoffers/details/components/TabController';
@@ -82,7 +81,6 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
 
     const selectedCanteen = useSelectedCanteen();
     const foodOfferCanteenId = selectedCanteen?.id as string | undefined;
-    const { openRatingPermissionModal } = useRatingPermissionModal();
 
     const [activeTab, setActiveTab] = useState('feedbacks');
 
@@ -181,7 +179,6 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
 
     const rateFood = useCallback((rating: number) => {
         if (!user?.id) {
-            openRatingPermissionModal();
             return;
         }
         const newRating = previousFeedback?.rating === rating ? null : rating;
@@ -194,7 +191,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
             previousFeedback,
             dispatch,
         });
-    }, [user, previousFeedback, foodDetails, profile, foodOfferCanteenId, dispatch, openRatingPermissionModal]);
+    }, [user, previousFeedback, foodDetails, profile, foodOfferCanteenId, dispatch]);
 
     const updateFoodFeedbackNotification = useCallback(async () => {
         try {
@@ -288,7 +285,6 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
 
     const updateNotification = useCallback(async () => {
         if (!user?.id) {
-            openRatingPermissionModal();
             return;
         }
         if (isSmartPhone()) {
@@ -315,7 +311,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
         } else {
             openNotificationSheet();
         }
-    }, [user, isSmartPhone, isAndroid, isIOS, pushTokenObj, requestDeviceNotificationPermission, updateFoodFeedbackNotification, openNotificationSheet, openRatingPermissionModal]);
+    }, [user, isSmartPhone, isAndroid, isIOS, pushTokenObj, requestDeviceNotificationPermission, updateFoodFeedbackNotification, openNotificationSheet]);
 
     const pagerViewStyle = useMemo(() => [
         styles.pagerView,
