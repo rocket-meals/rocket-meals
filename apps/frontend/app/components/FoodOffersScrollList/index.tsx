@@ -12,6 +12,9 @@ import { sortFoodOffers } from '@/helper/foodOfferSortHelper';
 import styles from './styles';
 import BaseBottomSheet from '@/components/BaseBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
+import { useDispatch } from 'react-redux';
+import { CanteenFeedbackLabelHelper } from '@/redux/actions/CanteenFeedbacksLabel/CanteenFeedbacksLabel';
+import { SET_CANTEEN_FEEDBACK_LABELS } from '@/redux/Types/types';
 
 import { SHEET_COMPONENTS } from '@/app/(app)/foodoffers';
 import useMyScrollviewDirectusImageEditModal from '@/hooks/useMyScrollviewDirectusImageEditModal';
@@ -44,6 +47,7 @@ const daysCache: Record<string, DayData[]> = {};
 const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, startDate }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const dispatch = useDispatch();
 	const { canteenFeedbackLabels, canteens } = useAppSelector((state) => state.canteenReducer);
 	const { sortBy, language, amountColumnsForcard, appSettings, primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
 	const { ownFoodFeedbacks, foodCategories, foodOfferCategories, foodOffersInfoItems } = useAppSelector((state) => state.food);
@@ -106,6 +110,18 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 			return after;
 		});
 	}, [appElementsMap, appSettings, languageCode]);
+
+	const canteenFeedbackLabelHelper = useMemo(() => new CanteenFeedbackLabelHelper(), []);
+
+	useEffect(() => {
+		canteenFeedbackLabelHelper.fetchCanteenFeedbackLabels()
+			.then((labels) => {
+				dispatch({ type: SET_CANTEEN_FEEDBACK_LABELS, payload: labels });
+			})
+			.catch((error) => {
+				console.error('Error fetching Canteen Feedback Labels:', error);
+			});
+	}, [canteenFeedbackLabelHelper, dispatch]);
 
 	const parseDateOnly = useCallback((date: string) => {
 		const [year, month, day] = date.split('-').map(Number);
