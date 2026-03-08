@@ -9,10 +9,7 @@ import { useAppSelector } from '@/redux/hooks';
 import SettingsListMarkingLabelsFast from '@/components/SettingsListMarkingLabelsFast';
 import { useLanguage } from '@/hooks/useLanguage';
 import { excerpt } from '@/constants/HelperFunctions';
-import animation from '@/assets/animations/allergist.json';
-import LottieView from 'lottie-react-native';
 import { useFocusEffect } from 'expo-router';
-import { replaceLottieColors } from '@/helper/animationHelper';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
@@ -29,11 +26,6 @@ import { UPDATE_PROFILE } from '@/redux/Types/types';
 import { UserHelper } from '@/helper/UserHelper';
 import DebugView from '@/components/DebugView';
 
-// Module-level cache so the expensive color-replacement deep-copy only runs once
-// per primaryColor value across all navigations, even when the screen is unmounted.
-let _cachedAnimationJson: any = null;
-let _cachedPrimaryColor: string | null = null;
-
 // Tracks whether the heavy markings list has been rendered at least once so that
 // subsequent navigations (even after a full remount) skip the deferred-render delay.
 let _markingContentLoaded = false;
@@ -48,9 +40,6 @@ const Index = () => {
 	const { user, profile } = useAppSelector((state) => state.authReducer);
 	const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
 	const [readMore, setReadMore] = useState(false);
-	const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
-	const animationRef = useRef<LottieView>(null);
-	const [animationJson, setAmimationJson] = useState<any>(null);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const menuSheetRef = useRef<BottomSheet>(null);
 	const [isActive, setIsActive] = useState(false);
@@ -62,7 +51,6 @@ const Index = () => {
 
 	// Performance timing refs
 	const mountTimeRef = useRef<number>(performance.now());
-	const [animationReadyMs, setAnimationReadyMs] = useState<number | null>(null);
 	const [contentVisibleMs, setContentVisibleMs] = useState<number | null>(null);
 
 	const markingsSections = useMemo(() => {
@@ -111,46 +99,6 @@ const Index = () => {
 
 	useFocusEffect(
 		useCallback(() => {
-			// Cache hit: set the processed animation immediately, no need to wait for
-			// interactions to finish, making re-entry essentially instant.
-			if (_cachedAnimationJson && _cachedPrimaryColor === primaryColor) {
-				setAmimationJson(_cachedAnimationJson);
-				setAnimationReadyMs(Math.round(performance.now() - mountTimeRef.current));
-				return;
-			}
-
-			// Cache miss (first visit or primaryColor changed): defer the expensive
-			// deep-copy + color-replacement until after the navigation animation so it
-			// never blocks the transition.
-			const task = InteractionManager.runAfterInteractions(() => {
-				const start = performance.now();
-				_cachedAnimationJson = replaceLottieColors(animation, primaryColor);
-				_cachedPrimaryColor = primaryColor;
-				const lottieProcessMs = Math.round(performance.now() - start);
-				setAmimationJson(_cachedAnimationJson);
-				setAnimationReadyMs(Math.round(performance.now() - mountTimeRef.current));
-				if (lottieProcessMs > 5) {
-					console.log('[EatingHabits] replaceLottieColors took', lottieProcessMs, 'ms');
-				}
-			});
-			return () => {
-				task.cancel();
-			};
-		}, [primaryColor])
-	);
-
-	useFocusEffect(
-		useCallback(() => {
-			setAutoPlay(appSettings?.animations_auto_start); // Enable when entering
-
-			return () => {
-				setAutoPlay(false); // Reset when leaving
-			};
-		}, [appSettings?.animations_auto_start])
-	);
-
-	useFocusEffect(
-		useCallback(() => {
 			const timer = setTimeout(() => {
 				setIsActive(true);
 			}, 100);
@@ -161,8 +109,8 @@ const Index = () => {
 		}, [])
 	);
 
-	// Defer rendering the heavy markings list (many Gluestack UI Tooltip instances)
-	// until after the navigation animation so the transition is never blocked.
+	// Defer rendering the markings list until after the navigation animation
+	// so the transition is never blocked.
 	useFocusEffect(
 		useCallback(() => {
 			if (_markingContentLoaded) {
@@ -181,18 +129,6 @@ const Index = () => {
 			};
 		}, [])
 	);
-
-	useEffect(() => {
-		if (animationJson && autoPlay && animationRef.current) {
-			animationRef?.current?.play(); // Reset animation to ensure it starts fresh
-		}
-	}, [animationJson, autoPlay]);
-
-	const renderLottie = useMemo(() => {
-		if (animationJson) {
-			return <LottieView ref={animationRef} source={animationJson} resizeMode="contain" style={{ width: '100%', height: '100%' }} autoPlay={autoPlay || false} loop={false} />;
-		}
-	}, [autoPlay, animationJson]);
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -237,21 +173,17 @@ const Index = () => {
 
 	const debugLogs = useMemo(() => [
 		`${translate(TranslationKeys.eating_habits_debug_markings_count)}: ${totalMarkingsCount}`,
-		animationReadyMs !== null
-			? `${translate(TranslationKeys.eating_habits_debug_animation_time)}: ${animationReadyMs}ms`
-			: `${translate(TranslationKeys.eating_habits_debug_animation_time)}: …`,
 		contentVisibleMs !== null
 			? `${translate(TranslationKeys.eating_habits_debug_content_time)}: ${contentVisibleMs}ms`
 			: isContentVisible
 				? `${translate(TranslationKeys.eating_habits_debug_content_time)}: cached (instant)`
 				: `${translate(TranslationKeys.eating_habits_debug_content_time)}: …`,
-	], [totalMarkingsCount, animationReadyMs, contentVisibleMs, isContentVisible, translate]);
+	], [totalMarkingsCount, contentVisibleMs, isContentVisible, translate]);
 
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.background }}>
 			<View style={{ flex: 1 }}>
 				<ScrollView style={{ backgroundColor: theme.screen.background }} contentContainerStyle={styles.contentContainer}>
-					<View style={styles.gifContainer}>{renderLottie}</View>
 					<View
 						style={{
 							...styles.eatingHabitsContainer,

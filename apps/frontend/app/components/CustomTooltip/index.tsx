@@ -1,39 +1,18 @@
 import React from 'react';
-import { Tooltip as GluestackTooltip, TooltipContent, TooltipText } from '@gluestack-ui/themed';
-import { isWeb } from '@/constants/Constants';
+import { TooltipContent, TooltipText } from '@gluestack-ui/themed';
 
-type TooltipProps = React.ComponentProps<typeof GluestackTooltip>;
+type TooltipProps = {
+	trigger: (triggerProps: Record<string, unknown>) => React.ReactNode;
+	[key: string]: unknown;
+};
 
 /**
- * Platform-aware Tooltip wrapper.
- *
- * - **Web**: renders the full Gluestack UI Tooltip (hover, keyboard, etc.)
- * - **Native (iOS / Android)**: renders only the trigger element and skips
- *   all Gluestack Tooltip initialization entirely.  Tooltips require hover
- *   which does not exist on touch devices, so the overhead is pure waste.
- *
- * Usage is a drop-in replacement for Gluestack's `Tooltip`:
- *
- * ```tsx
- * import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
- *
- * <CustomTooltip placement="top" trigger={triggerProps => <Pressable {...triggerProps} />}>
- *   <TooltipContent><TooltipText>hint</TooltipText></TooltipContent>
- * </CustomTooltip>
- * ```
+ * Lightweight Tooltip replacement that renders only the trigger element.
+ * The Gluestack Tooltip component is resource-intensive, so it is removed
+ * entirely on all platforms. Only the trigger content is rendered.
  */
-const CustomTooltip: React.FC<TooltipProps> = ({ trigger, children, ...props }) => {
-	if (!isWeb) {
-		// On native there is no hover – skip the entire Gluestack Tooltip tree.
-		// Pass an empty object as triggerProps; no Gluestack event handlers needed.
-		return <>{trigger({})}</>;
-	}
-
-	return (
-		<GluestackTooltip trigger={trigger} {...props}>
-			{children}
-		</GluestackTooltip>
-	);
+const CustomTooltip: React.FC<TooltipProps> = ({ trigger }) => {
+	return <>{trigger({})}</>;
 };
 
 export { CustomTooltip, TooltipContent, TooltipText };
