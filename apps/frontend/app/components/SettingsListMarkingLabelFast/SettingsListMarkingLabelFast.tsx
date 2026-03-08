@@ -24,17 +24,20 @@ export interface SettingsListMarkingLabelFastProps {
 	groupPosition?: SettingsListProps['groupPosition'];
 }
 
-const makeSelectMarking = (markingId: string) =>
-	createSelector(
-		[(state: RootState) => state.food.markings],
-		markings => markings?.find((m: any) => m.id === markingId)
-	);
+// Module-level selectors shared across all component instances.
+// The index is built once per state change (O(n)) instead of once per
+// component instance per state change (O(n²)).
+const selectMarkingsById = createSelector(
+	[(state: RootState) => state.food.markings],
+	(markings): Record<string, DatabaseTypes.Markings> =>
+		Object.fromEntries((markings ?? []).map((m: DatabaseTypes.Markings) => [m.id, m]))
+);
 
-const makeSelectOwnMarking = (markingId: string) =>
-	createSelector(
-		[(state: RootState) => state.authReducer.profile?.markings],
-		profileMarkings => profileMarkings?.find((m: any) => m.markings_id === markingId)
-	);
+const selectProfileMarkingsById = createSelector(
+	[(state: RootState) => state.authReducer.profile?.markings],
+	(profileMarkings): Record<string, any> =>
+		Object.fromEntries((profileMarkings ?? []).map((m: any) => [m.markings_id, m]))
+);
 
 const SettingsListMarkingLabelFast: React.FC<SettingsListMarkingLabelFastProps> = ({
 	markingId,
@@ -49,10 +52,11 @@ const SettingsListMarkingLabelFast: React.FC<SettingsListMarkingLabelFastProps> 
 	const user = useAppSelector(state => state.authReducer.user);
 	const profile = useAppSelector(state => state.authReducer.profile);
 
-	const selectMarking = useMemo(() => makeSelectMarking(markingId), [markingId]);
-	const selectOwnMarking = useMemo(() => makeSelectOwnMarking(markingId), [markingId]);
-	const marking = useAppSelector(selectMarking);
-	const ownMarking = useAppSelector(selectOwnMarking);
+	// O(1) lookups using the shared module-level index selectors.
+	// useAppSelector compares the returned marking by reference, so components
+	// only re-render when their specific marking object changes.
+	const marking = useAppSelector((state) => selectMarkingsById(state)[markingId] ?? null);
+	const ownMarking = useAppSelector((state) => selectProfileMarkingsById(state)[markingId] ?? null);
 
 	const [likeLoading, setLikeLoading] = useState(false);
 	const [dislikeLoading, setDislikeLoading] = useState(false);

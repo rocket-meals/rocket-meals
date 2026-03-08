@@ -103,4 +103,4 @@ const MarkingIcon: React.FC<MarkingIconProps> = ({ marking, size = 24, color, co
 	return null;
 };
 
-export default MarkingIcon;
+export default React.memo(MarkingIcon);

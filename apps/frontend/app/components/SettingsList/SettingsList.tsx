@@ -129,7 +129,7 @@ const SettingsList: React.FC<SettingsListProps> = ({ leftIcon, leftIconComponent
         );
 };
 
-export default SettingsList;
+export default React.memo(SettingsList);
 
 const styles = StyleSheet.create({
 	container: {
