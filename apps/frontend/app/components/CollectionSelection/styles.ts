@@ -9,7 +9,6 @@ export default StyleSheet.create({
 		borderWidth: 1,
 	},
 	scrollViewContent: {
-		flexGrow: 1,
 		alignItems: 'center',
 		padding: 10,
 		borderRadius: 10,

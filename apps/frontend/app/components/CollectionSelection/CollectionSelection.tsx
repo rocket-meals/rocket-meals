@@ -1,16 +1,48 @@
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import React from 'react';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppSelector } from '@/redux/hooks';
 import { isWeb } from '@/constants/Constants';
+import { FlashList } from '@shopify/flash-list';
 
 const CollectionSelection = ({ id, value, onChange, error, isDisabled, loading, data, custom_type }: { id: string; value: any; onChange: (id: string, value: any, custom_type: string) => void; error: string; isDisabled: boolean; loading: boolean; data: any; custom_type: string }) => {
 	const { theme } = useTheme();
 	const { primaryColor } = useAppSelector((state) => state.settings);
 	const parseValue = value ? value : null;
 	const itemId = parseValue?.id;
+
+	const renderItem = useCallback(({ item }: { item: any }) => {
+		const isSelected = itemId === item.id;
+		return (
+			<TouchableOpacity
+				style={{
+					...styles.row,
+					paddingHorizontal: isWeb ? 20 : 10,
+					backgroundColor: isSelected ? primaryColor : theme.screen.iconBg,
+				}}
+				disabled={isDisabled}
+				onPress={() => {
+					if (!isDisabled) {
+						onChange(id, item, custom_type);
+					}
+				}}
+			>
+				<Text
+					style={{
+						...styles.text,
+						color: isSelected ? theme.activeText : theme.header.text,
+					}}
+				>
+					{item?.alias ? item?.alias : '-'}
+				</Text>
+				<MaterialCommunityIcons name={isSelected ? 'checkbox-marked' : 'checkbox-blank'} size={24} color="#ffffff" style={styles.radioButton} />
+			</TouchableOpacity>
+		);
+	}, [itemId, primaryColor, theme, isDisabled, id, onChange, custom_type]);
+
+	const keyExtractor = useCallback((item: any) => item?.id, []);
 
 	return (
 		<View style={{ ...styles.container, borderColor: theme.screen.iconBg }}>
@@ -26,41 +58,18 @@ const CollectionSelection = ({ id, value, onChange, error, isDisabled, loading, 
 					<ActivityIndicator size={30} color={theme.screen.text} />
 				</View>
 			) : (
-				<ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="handled" scrollEventThrottle={16} contentContainerStyle={styles.scrollViewContent}>
-					{data &&
-						data?.length > 0 &&
-						data.map((item: any) => {
-							const isSelected = itemId === item.id;
-							return (
-								<TouchableOpacity
-									key={item?.id}
-									style={{
-										...styles.row,
-										paddingHorizontal: isWeb ? 20 : 10,
-
-										backgroundColor: isSelected ? primaryColor : theme.screen.iconBg,
-									}}
-									disabled={isDisabled}
-									onPress={() => {
-										if (!isDisabled) {
-											onChange(id, item, custom_type);
-										}
-									}}
-								>
-									<Text
-										style={{
-											...styles.text,
-											color: isSelected ? theme.activeText : theme.header.text,
-										}}
-									>
-										{item?.alias ? item?.alias : '-'}
-									</Text>
-
-									<MaterialCommunityIcons name={isSelected ? 'checkbox-marked' : 'checkbox-blank'} size={24} color="#ffffff" style={styles.radioButton} />
-								</TouchableOpacity>
-							);
-						})}
-				</ScrollView>
+				<FlashList
+					data={data || []}
+					renderItem={renderItem}
+					keyExtractor={keyExtractor}
+					nestedScrollEnabled={true}
+					keyboardShouldPersistTaps="handled"
+					scrollEventThrottle={16}
+					contentContainerStyle={styles.scrollViewContent}
+					// @ts-ignore: estimatedItemSize is missing in the type definition but required for performance
+					estimatedItemSize={50}
+					extraData={[itemId, primaryColor, theme.screen.iconBg, isDisabled]}
+				/>
 			)}
 		</View>
 	);
