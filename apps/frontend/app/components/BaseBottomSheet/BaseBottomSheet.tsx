@@ -1,5 +1,5 @@
 import React, { forwardRef, useCallback, useMemo } from 'react';
-import { Pressable, StyleSheet as RNStyleSheet, TouchableOpacity, View } from 'react-native';
+import { Platform, Pressable, StyleSheet as RNStyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { Extrapolation, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 import BottomSheet, { type BottomSheetBackdropProps, type BottomSheetProps } from '@gorhom/bottom-sheet';
 import { AntDesign } from '@expo/vector-icons';
@@ -67,8 +67,14 @@ const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(({ onClose
 		[onClose, onChange]
 	);
 
+        // On web, the Animated.View used by CustomBackdrop applies pointerEvents="box-none",
+        // which is not a valid CSS value — browsers default it to "auto", causing the full-screen
+        // backdrop container to intercept ALL click events. Disabling the backdrop component on web
+        // avoids this; the ModalProvider overlay handles dimming and press-to-close instead.
+        const effectiveBackdropComponent = Platform.OS === 'web' ? null : renderBackdrop;
+
         return (
-                <BottomSheet ref={ref} snapPoints={snapPoints} backdropComponent={renderBackdrop} backgroundStyle={effectiveBackgroundStyle} handleComponent={null} onChange={handleChange} {...props}>
+                <BottomSheet ref={ref} snapPoints={snapPoints} backdropComponent={effectiveBackdropComponent} backgroundStyle={effectiveBackgroundStyle} handleComponent={null} onChange={handleChange} {...props}>
 			<View style={[styles.header]}>
 				<View style={styles.placeholder} />
 				<View style={[styles.handle, { backgroundColor: handleColor }]} />

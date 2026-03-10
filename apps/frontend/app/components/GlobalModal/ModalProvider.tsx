@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useState, ReactNode, useRef, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import BaseBottomSheet from '@/components/BaseBottomSheet/BaseBottomSheet';
 import {useTheme} from "@/hooks/useTheme";
 
@@ -278,11 +278,27 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         {children}
                         {currentItem && (
                                 <View style={styles.modalContainer} pointerEvents="box-none">
-                                       {/* Visual overlay (uses provided overlayStyle or falls back to semi-transparent dim) */}
-                                       <View
-                                               style={[StyleSheet.absoluteFillObject, currentItem.overlayStyle ?? { backgroundColor: 'rgba(0,0,0,0.5)' }]}
-                                               pointerEvents="none"
-                                       />
+                                       {/*
+                                         * On web: rendered as a Pressable so backdrop taps close the modal.
+                                         * The CustomBackdrop inside BaseBottomSheet is disabled on web
+                                         * (see BaseBottomSheet.tsx) because its Animated.View uses
+                                         * pointerEvents="box-none" which is not a valid CSS value — the
+                                         * browser defaults it to "auto", making the full-screen element
+                                         * intercept all click events.
+                                         * On native: rendered as a non-interactive View; the CustomBackdrop
+                                         * Pressable handles tap-to-close with its Reanimated fade animation.
+                                         */}
+                                       {Platform.OS === 'web' ? (
+                                               <Pressable
+                                                       style={[StyleSheet.absoluteFillObject, currentItem.overlayStyle ?? { backgroundColor: 'rgba(0,0,0,0.5)' }]}
+                                                       onPress={close}
+                                               />
+                                       ) : (
+                                               <View
+                                                       style={[StyleSheet.absoluteFillObject, currentItem.overlayStyle ?? { backgroundColor: 'rgba(0,0,0,0.5)' }]}
+                                                       pointerEvents="none"
+                                               />
+                                       )}
                                          <BaseBottomSheet
                                                  ref={sheetRef}
                                                  enablePanDownToClose
