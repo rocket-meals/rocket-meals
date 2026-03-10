@@ -6,7 +6,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
 import styles from './styles';
 
-export interface BaseBottomSheetProps extends Omit<BottomSheetProps, 'backdropComponent'> {
+export interface BaseBottomSheetProps extends BottomSheetProps {
         onClose?: () => void;
         headerBackgroundColor?: string;
         backdropPressBehavior?: 'close' | 'none' | 'collapse' | number;

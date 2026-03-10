@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useState, ReactNode, useRef, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import BaseBottomSheet from '@/components/BaseBottomSheet/BaseBottomSheet';
 import {useTheme} from "@/hooks/useTheme";
 
@@ -23,8 +23,7 @@ type ModalContextType = {
         closeAll: () => void;
         debug: {
                 lastAction: 'open' | 'close' | null;
-                contentSet: boolean;
-                backgroundStyleProvided: boolean;
+                stackDepth: number;
                 sheetRefReady: boolean;
                 openInvocations: number;
                 closeInvocations: number;
@@ -33,44 +32,24 @@ type ModalContextType = {
 
 const ModalContext = createContext<ModalContextType | null>(null);
 
-// Duration to wait after calling sheet.close() before clearing React state, matching the
-// sheet's close animation duration so the sheet has finished animating before unmounting.
-const SHEET_CLOSE_ANIMATION_MS = 300;
-
 export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         const [modalStack, setModalStack] = useState<ModalStackItem[]>([]);
         // Ref mirror of the stack for use inside callbacks (avoids stale closure issues)
         const modalStackRef = useRef<ModalStackItem[]>([]);
 
         const sheetRef = useRef<any>(null);
-        const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-        // Prevents double-close re-entrancy (e.g. backdrop onPress + onChange(-1) both firing).
-        // Reset deterministically via handleSheetChange when the sheet transitions back to expanded.
-        const isClosingRef = useRef(false);
 
         const { theme } = useTheme();
 
         const [debug, setDebug] = useState<ModalContextType['debug']>({
                 lastAction: null,
-                contentSet: false,
-                backgroundStyleProvided: false,
+                stackDepth: 0,
                 sheetRefReady: false,
                 openInvocations: 0,
                 closeInvocations: 0,
         });
 
-        const clearCloseTimeout = () => {
-                if (closeTimeoutRef.current) {
-                        clearTimeout(closeTimeoutRef.current);
-                        closeTimeoutRef.current = null;
-                }
-        };
-
         const open = (c: ReactNode, options?: ModalOptions) => {
-                clearCloseTimeout();
-                // Clear any in-progress close guard so the new open is never blocked
-                isClosingRef.current = false;
-
                 const newItem: ModalStackItem = {
                         content: c,
                         backgroundStyle: options?.backgroundStyle ?? null,
@@ -85,18 +64,13 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 setDebug(prev => ({
                         ...prev,
                         lastAction: 'open',
-                        contentSet: true,
-                        backgroundStyleProvided: Boolean(options?.backgroundStyle),
+                        stackDepth: modalStackRef.current.length,
                         sheetRefReady: Boolean(sheetRef.current),
                         openInvocations: prev.openInvocations + 1,
                 }));
         };
 
         const openAndDiscardOthers = (c: ReactNode, options?: ModalOptions) => {
-                clearCloseTimeout();
-                // Clear any in-progress close guard so the replacement open is never blocked
-                isClosingRef.current = false;
-
                 const newItem: ModalStackItem = {
                         content: c,
                         backgroundStyle: options?.backgroundStyle ?? null,
@@ -112,111 +86,47 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 setDebug(prev => ({
                         ...prev,
                         lastAction: 'open',
-                        contentSet: true,
-                        backgroundStyleProvided: Boolean(options?.backgroundStyle),
+                        stackDepth: 1,
                         sheetRefReady: Boolean(sheetRef.current),
                         openInvocations: prev.openInvocations + 1,
                 }));
         };
 
+        // Pop the top item from the stack.
+        // The sheet is only physically closed when the stack becomes empty,
+        // which is handled by the useEffect below. No re-expand or timing hacks needed.
+        const close = () => {
+                if (modalStackRef.current.length === 0) return;
+
+                const newStack = modalStackRef.current.slice(0, -1);
+                modalStackRef.current = newStack;
+                setModalStack([...newStack]);
+
+                setDebug(prev => ({
+                        ...prev,
+                        lastAction: 'close',
+                        stackDepth: newStack.length,
+                        sheetRefReady: Boolean(sheetRef.current),
+                        closeInvocations: prev.closeInvocations + 1,
+                }));
+        };
+
         const closeAll = () => {
                 if (modalStackRef.current.length === 0) return;
-                if (isClosingRef.current) return;
-                isClosingRef.current = true;
 
                 modalStackRef.current = [];
-                sheetRef.current?.close?.();
-                clearCloseTimeout();
-                closeTimeoutRef.current = setTimeout(() => {
-                        setModalStack([]);
-                        clearCloseTimeout();
-                        isClosingRef.current = false;
-                }, SHEET_CLOSE_ANIMATION_MS);
+                setModalStack([]);
 
                 setDebug(prev => ({
                         ...prev,
                         lastAction: 'close',
-                        contentSet: false,
+                        stackDepth: 0,
                         sheetRefReady: Boolean(sheetRef.current),
                         closeInvocations: prev.closeInvocations + 1,
                 }));
         };
 
-        const close = () => {
-                // Guard: stack already empty or a close is already in progress
-                if (modalStackRef.current.length === 0) return;
-                if (isClosingRef.current) return;
-                isClosingRef.current = true;
-
-                if (modalStackRef.current.length === 1) {
-                        // Last modal — close the sheet entirely
-                        modalStackRef.current = [];
-                        sheetRef.current?.close?.();
-                        clearCloseTimeout();
-                        closeTimeoutRef.current = setTimeout(() => {
-                                setModalStack([]);
-                                clearCloseTimeout();
-                                // Stack is empty so length===0 guard handles future re-entrancy;
-                                // still reset the flag so open() followed immediately by close() works.
-                                isClosingRef.current = false;
-                        }, SHEET_CLOSE_ANIMATION_MS);
-                } else {
-                        // More modals remain — pop the top item and restore the previous one
-                        modalStackRef.current = modalStackRef.current.slice(0, -1);
-                        setModalStack([...modalStackRef.current]);
-                        // Re-expand the sheet in case a swipe-down gesture had already started closing it.
-                        // Keep isClosingRef=true until handleSheetChange resets it when the sheet reaches
-                        // index >= 0. This blocks spurious onChange(-1) events that @gorhom/bottom-sheet
-                        // fires on native during the expand animation from index -1, which would otherwise
-                        // trigger another close() and dismiss the parent modal immediately.
-                        // Safety fallback: if the sheet was already at index 0 (e.g. backdrop-click
-                        // dismissal), handleSheetChange won't fire, so reset the guard via a timeout.
-                        clearCloseTimeout();
-                        closeTimeoutRef.current = setTimeout(() => {
-                                isClosingRef.current = false;
-                                clearCloseTimeout();
-                        }, SHEET_CLOSE_ANIMATION_MS);
-                        if (typeof requestAnimationFrame !== 'undefined') {
-                                requestAnimationFrame(() => {
-                                        sheetRef.current?.expand?.();
-                                });
-                        } else {
-                                setTimeout(() => {
-                                        sheetRef.current?.expand?.();
-                                }, 16);
-                        }
-                }
-
-                setDebug(prev => ({
-                        ...prev,
-                        lastAction: 'close',
-                        contentSet: modalStackRef.current.length > 0,
-                        sheetRefReady: Boolean(sheetRef.current),
-                        closeInvocations: prev.closeInvocations + 1,
-                }));
-        };
-
-        // Reset the re-entrancy guard as soon as the sheet reaches an expanded position.
-        // This is the deterministic counterpart to isClosingRef for the "pop + re-expand" path.
-        // Also clears the safety timeout that was set as a fallback in case this handler
-        // never fires (e.g. sheet was already at 0 on a backdrop-click dismissal).
-        // When the sheet reaches -1 but items remain in the stack (e.g. pressBehavior='close'
-        // closed the sheet while a nested modal was being dismissed), re-expand to show the
-        // remaining item.
-        const handleSheetChange = useCallback((index: number) => {
-                if (index >= 0) {
-                        isClosingRef.current = false;
-                        if (closeTimeoutRef.current) {
-                                clearTimeout(closeTimeoutRef.current);
-                                closeTimeoutRef.current = null;
-                        }
-                } else if (index === -1 && modalStackRef.current.length > 0) {
-                        sheetRef.current?.expand?.();
-                }
-        }, []);
-
-        // When content is set, ensure the sheet expands once the sheet ref is available
-        // helper: keep trying to expand until ref is ready (use rAF for web-friendly timing)
+        // Keep trying to expand until the ref is available (requestAnimationFrame for web-friendly timing)
         const ensureExpand = () => {
                 let tries = 0;
                 let cancelled = false;
@@ -249,6 +159,10 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 };
         };
 
+        // Manage the physical sheet state based on stack changes:
+        // - stack empty → non-empty: expand (open) the sheet
+        // - stack non-empty → empty: close the sheet
+        // - stack changes within non-empty range: just re-render with new content
         const prevStackLengthRef = useRef(0);
         useEffect(() => {
                 const prev = prevStackLengthRef.current;
@@ -256,11 +170,27 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 prevStackLengthRef.current = curr;
 
                 if (curr > 0 && prev === 0) {
-                        // Transitioning from empty to first modal — expand the sheet
                         const cancel = ensureExpand();
                         return () => cancel();
+                } else if (curr === 0 && prev > 0) {
+                        sheetRef.current?.close?.();
                 }
         }, [modalStack.length]);
+
+        // Safety net: if the sheet is physically closed while items remain in the stack
+        // (e.g. some unexpected library behaviour), clear the stack to stay consistent.
+        const handleSheetChange = useCallback((index: number) => {
+                if (index === -1 && modalStackRef.current.length > 0) {
+                        modalStackRef.current = [];
+                        setModalStack([]);
+                        setDebug(prev => ({
+                                ...prev,
+                                lastAction: 'close',
+                                stackDepth: 0,
+                                closeInvocations: prev.closeInvocations + 1,
+                        }));
+                }
+        }, []);
 
         const currentItem = modalStack[modalStack.length - 1] ?? null;
         const screenBackgroundColor = currentItem?.headerBackgroundColor || theme.screen.background;
@@ -270,22 +200,29 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         {children}
                         {currentItem && (
                                 <View style={styles.modalContainer} pointerEvents="box-none">
-                                       {/* Visual overlay (uses provided overlayStyle or falls back to semi-transparent dim) */}
-                                       <View
-                                               style={[StyleSheet.absoluteFillObject, currentItem.overlayStyle ?? { backgroundColor: 'rgba(0,0,0,0.5)' }]}
-                                               pointerEvents="none"
-                                       />
-                                         <BaseBottomSheet
-                                                 ref={sheetRef}
-                                                 enablePanDownToClose
-                                                 onClose={close}
-                                                 onChange={handleSheetChange}
-                                                 headerBackgroundColor={screenBackgroundColor}
-                                                 backgroundStyle={currentItem.backgroundStyle}
-                                         >
-                                                 {currentItem.content}
-                                         </BaseBottomSheet>
-                                 </View>
+                                        {/*
+                                         * Pressable backdrop: covers the full screen behind the sheet.
+                                         * Pressing it pops the current modal (same behaviour as the
+                                         * close button), working through the stack item by item.
+                                         * Because we own this backdrop (backdropComponent={null} on the
+                                         * sheet), there is no double-fire and no timing race.
+                                         */}
+                                        <Pressable
+                                                style={[StyleSheet.absoluteFillObject, currentItem.overlayStyle ?? { backgroundColor: 'rgba(0,0,0,0.5)' }]}
+                                                onPress={close}
+                                        />
+                                        <BaseBottomSheet
+                                                ref={sheetRef}
+                                                enablePanDownToClose={false}
+                                                backdropComponent={null}
+                                                onClose={close}
+                                                onChange={handleSheetChange}
+                                                headerBackgroundColor={screenBackgroundColor}
+                                                backgroundStyle={currentItem.backgroundStyle}
+                                        >
+                                                {currentItem.content}
+                                        </BaseBottomSheet>
+                                </View>
                         )}
                 </ModalContext.Provider>
         );
