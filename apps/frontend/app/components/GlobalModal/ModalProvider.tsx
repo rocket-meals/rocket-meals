@@ -36,6 +36,9 @@ const ModalContext = createContext<ModalContextType | null>(null);
 // Duration to wait after calling sheet.close() before clearing React state, matching the
 // sheet's close animation duration so the sheet has finished animating before unmounting.
 const SHEET_CLOSE_ANIMATION_MS = 300;
+// Extra buffer added on top of SHEET_CLOSE_ANIMATION_MS for the nested-modal fallback timeout,
+// ensuring the guard is always reset after any in-flight animation even if timings vary slightly.
+const ANIMATION_BUFFER_MS = 50;
 
 export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         const [modalStack, setModalStack] = useState<ModalStackItem[]>([]);
@@ -164,22 +167,30 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                         // More modals remain — pop the top item and restore the previous one
                         modalStackRef.current = modalStackRef.current.slice(0, -1);
                         setModalStack([...modalStackRef.current]);
-                        // Re-expand the sheet in case a swipe-down gesture had already started closing it.
-                        // Always reset isClosingRef after expand so that if the sheet was already at index 0
-                        // (e.g. the inner modal was dismissed via backdrop click rather than a swipe-down),
-                        // handleSheetChange never fires and the guard would otherwise remain stuck as true,
-                        // preventing subsequent close() calls from working.
+                        // Re-expand the sheet in case a swipe-down gesture or backdrop press had already
+                        // started a native close animation.  We do NOT reset isClosingRef here; instead we
+                        // let handleSheetChange reset it once the sheet is confirmed back at index 0.
+                        // This prevents a race where the native close animation completes (~300 ms) before
+                        // the rAF expand fires (~16 ms), which would otherwise allow a second close() call
+                        // to pop the parent modal.
                         if (typeof requestAnimationFrame !== 'undefined') {
                                 requestAnimationFrame(() => {
                                         sheetRef.current?.expand?.();
-                                        isClosingRef.current = false;
                                 });
                         } else {
                                 setTimeout(() => {
                                         sheetRef.current?.expand?.();
-                                        isClosingRef.current = false;
                                 }, 16);
                         }
+                        // Fallback: if the sheet was already at index 0 when the inner modal was closed
+                        // (e.g. close-button tap with no ongoing animation), handleSheetChange(0) will
+                        // never fire because the sheet index does not change.  Reset the guard after the
+                        // maximum animation window so that subsequent closes are not blocked indefinitely.
+                        clearCloseTimeout();
+                        closeTimeoutRef.current = setTimeout(() => {
+                                isClosingRef.current = false;
+                                clearCloseTimeout();
+                        }, SHEET_CLOSE_ANIMATION_MS + ANIMATION_BUFFER_MS);
                 }
 
                 setDebug(prev => ({
@@ -192,10 +203,18 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         };
 
         // Reset the re-entrancy guard as soon as the sheet reaches an expanded position.
-        // This is the deterministic counterpart to isClosingRef for the "pop + re-expand" path.
+        // This is the deterministic counterpart to the fallback timeout for the "pop + re-expand" path.
+        // When the sheet natively closes to -1 while we still have stacked modals (e.g. backdrop press
+        // with pressBehavior='close' completing its animation), re-expand it to show the previous modal.
         const handleSheetChange = useCallback((index: number) => {
                 if (index >= 0) {
+                        // Sheet is expanded — clear guard and any pending fallback timeout.
                         isClosingRef.current = false;
+                        clearCloseTimeout();
+                } else if (index === -1 && modalStackRef.current.length > 0) {
+                        // Native close animation completed but we still have modals in the stack.
+                        // Re-expand so the previous modal is visible again.
+                        sheetRef.current?.expand?.();
                 }
         }, []);
 
@@ -264,7 +283,6 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                                                  enablePanDownToClose
                                                  onClose={close}
                                                  onChange={handleSheetChange}
-                                                 backdropPressBehavior="none"
                                                  headerBackgroundColor={screenBackgroundColor}
                                                  backgroundStyle={currentItem.backgroundStyle}
                                          >
