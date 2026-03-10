@@ -196,16 +196,36 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 }));
         };
 
-        // Reset the re-entrancy guard as soon as the sheet reaches an expanded position.
+        // Reset the re-entrancy guard when the sheet reaches an expanded position.
         // This is the deterministic counterpart to isClosingRef for the "pop + re-expand" path.
         // Also clears the safety timeout that was set as a fallback in case this handler
         // never fires (e.g. sheet was already at 0 on a backdrop-click dismissal).
+        //
+        // On native, @gorhom/bottom-sheet can fire onChange(-1) AFTER onChange(0) during an
+        // expand animation (i.e. the sequence can be: -1 → 0 → -1). If we reset isClosingRef
+        // immediately on onChange(0), that trailing -1 would slip past the guard and close the
+        // outer modal. To fix this we keep isClosingRef=true for an extra 150 ms after reaching
+        // index >= 0 whenever a close was in progress, so any trailing spurious -1 events are
+        // still absorbed before we allow the next close.
         const handleSheetChange = useCallback((index: number) => {
                 if (index >= 0) {
-                        isClosingRef.current = false;
-                        if (closeTimeoutRef.current) {
-                                clearTimeout(closeTimeoutRef.current);
-                                closeTimeoutRef.current = null;
+                        if (isClosingRef.current) {
+                                // We are in a "pop and expand" operation — delay the reset so that
+                                // any trailing onChange(-1) events from the animation are blocked.
+                                if (closeTimeoutRef.current) {
+                                        clearTimeout(closeTimeoutRef.current);
+                                        closeTimeoutRef.current = null;
+                                }
+                                closeTimeoutRef.current = setTimeout(() => {
+                                        isClosingRef.current = false;
+                                        closeTimeoutRef.current = null;
+                                }, 150);
+                        } else {
+                                // No active close — just clear any pending safety timeout.
+                                if (closeTimeoutRef.current) {
+                                        clearTimeout(closeTimeoutRef.current);
+                                        closeTimeoutRef.current = null;
+                                }
                         }
                 }
         }, []);
