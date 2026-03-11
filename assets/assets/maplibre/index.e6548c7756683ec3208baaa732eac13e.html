@@ -173,13 +173,15 @@
         }
 
         if (centerLngLat) {
-          var opts = { center: centerLngLat, zoom: targetZoom };
+          var opts = { center: centerLngLat, zoom: targetZoom, pitch: data.pitch != null ? data.pitch : map.getPitch() };
           var shouldAnimate = data.animate !== false && data.useFlyAnimation !== false;
           if (!shouldAnimate) {
             map.jumpTo(opts);
           } else {
             map.flyTo(opts);
           }
+        } else if (data.pitch != null) {
+          map.easeTo({ pitch: data.pitch });
         }
 
         if (data.mapMarkers !== undefined) {
