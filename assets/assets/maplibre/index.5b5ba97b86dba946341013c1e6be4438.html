@@ -84,6 +84,7 @@
       var map = null;
       var mapReady = false;
       var pendingMessage = null;
+      var activeMarkers = {};
 
       function sendToRN(msg) {
         var str = JSON.stringify(msg);
@@ -94,15 +95,95 @@
         }
       }
 
+      function updateMarkers(markersData) {
+        Object.keys(activeMarkers).forEach(function (id) {
+          activeMarkers[id].remove();
+        });
+        activeMarkers = {};
+
+        if (!markersData || !Array.isArray(markersData)) return;
+
+        markersData.forEach(function (markerData) {
+          if (!markerData || !markerData.position) return;
+
+          var el = document.createElement('div');
+          el.style.cursor = 'pointer';
+
+          if (markerData.icon) {
+            el.innerHTML = markerData.icon;
+            if (markerData.size && markerData.size.length === 2) {
+              el.style.width = markerData.size[0] + 'px';
+              el.style.height = markerData.size[1] + 'px';
+            }
+          } else {
+            el.style.width = '24px';
+            el.style.height = '24px';
+            el.style.backgroundColor = '#1565c0';
+            el.style.borderRadius = '50%';
+            el.style.border = '2px solid white';
+          }
+
+          var markerId = markerData.id;
+          el.addEventListener('click', function (e) {
+            e.stopPropagation();
+            sendToRN({ tag: 'onMapMarkerClicked', mapMarkerId: markerId });
+          });
+
+          var offset = [0, 0];
+          if (
+            markerData.iconAnchor &&
+            markerData.iconAnchor.length === 2 &&
+            markerData.size &&
+            markerData.size.length === 2
+          ) {
+            offset = [
+              markerData.size[0] / 2 - markerData.iconAnchor[0],
+              markerData.size[1] / 2 - markerData.iconAnchor[1],
+            ];
+          }
+
+          var marker = new maplibregl.Marker({ element: el, offset: offset })
+            .setLngLat([markerData.position.lng, markerData.position.lat])
+            .addTo(map);
+
+          activeMarkers[markerId] = marker;
+        });
+      }
+
       function applyMessage(data) {
         if (!map) return;
-        if (data.center) {
-          var opts = { center: data.center, zoom: data.zoom != null ? data.zoom : map.getZoom() };
-          if (data.animate === false) {
+
+        if (data.mapStyle) {
+          map.setStyle(data.mapStyle);
+        }
+
+        var centerLngLat = null;
+        var targetZoom = null;
+
+        if (
+          data.mapCenterPosition &&
+          data.mapCenterPosition.lat != null &&
+          data.mapCenterPosition.lng != null
+        ) {
+          centerLngLat = [data.mapCenterPosition.lng, data.mapCenterPosition.lat];
+          targetZoom = data.zoom != null ? data.zoom : map.getZoom();
+        } else if (data.center) {
+          centerLngLat = data.center;
+          targetZoom = data.zoom != null ? data.zoom : map.getZoom();
+        }
+
+        if (centerLngLat) {
+          var opts = { center: centerLngLat, zoom: targetZoom };
+          var shouldAnimate = data.animate !== false && data.useFlyAnimation !== false;
+          if (!shouldAnimate) {
             map.jumpTo(opts);
           } else {
             map.flyTo(opts);
           }
+        }
+
+        if (data.mapMarkers !== undefined) {
+          updateMarkers(data.mapMarkers);
         }
       }
 
@@ -144,7 +225,7 @@
             applyMessage(pendingMessage);
             pendingMessage = null;
           }
-          sendToRN({ tag: 'MapLoaded' });
+          sendToRN({ tag: 'MapComponentMounted', version: '1.0' });
         });
 
         map.on('error', function (e) {
