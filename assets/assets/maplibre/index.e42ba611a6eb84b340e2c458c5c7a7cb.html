@@ -153,6 +153,11 @@
       function applyMessage(data) {
         if (!map) return;
 
+        if (data.resetBearing) {
+          map.resetNorth({ animate: true });
+          return;
+        }
+
         if (data.mapStyle) {
           map.setStyle(data.mapStyle);
         }
