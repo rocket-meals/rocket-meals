@@ -245,7 +245,19 @@
         });
       }
 
-      initMap(null, null);
+      (function () {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var lat = parseFloat(params.get('lat'));
+          var lng = parseFloat(params.get('lng'));
+          var zoom = parseFloat(params.get('zoom'));
+          if (!isNaN(lat) && !isNaN(lng)) {
+            initMap([lng, lat], !isNaN(zoom) ? zoom : null);
+            return;
+          }
+        } catch (e) {}
+        initMap(null, null);
+      })();
     </script>
   </body>
 </html>
