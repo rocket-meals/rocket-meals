@@ -93,6 +93,9 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 			case 'foodoffers':
 				backgroundColor = foods_area_color;
 				break;
+			case 'food-wishlist/index':
+				backgroundColor = foods_area_color;
+				break;
 			case 'housing':
 				backgroundColor = housing_area_color;
 				break;
@@ -126,6 +129,9 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 					activeBackgroundColor = campus_area_color;
 					break;
 				case 'foodoffers':
+					activeBackgroundColor = foods_area_color;
+					break;
+				case 'food-wishlist/index':
 					activeBackgroundColor = foods_area_color;
 					break;
 				case 'housing':
@@ -198,6 +204,17 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 				activeKey: 'foodoffers',
 				route: 'foodoffers',
 				position: 1,
+			});
+		}
+
+		if (appSettings?.foods_enabled) {
+			menuItems.push({
+				label: translate(TranslationKeys.food_wishlist),
+				iconName: 'heart',
+				iconLibName: MaterialCommunityIcons,
+				activeKey: 'food-wishlist/index',
+				route: 'food-wishlist/index',
+				position: 2,
 			});
 		}
 

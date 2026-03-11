@@ -496,6 +496,7 @@ export enum TranslationKeys {
 	food_wishlist = 'food_wishlist',
 	food_wishlist_planned = 'food_wishlist_planned',
 	food_wishlist_not_planned = 'food_wishlist_not_planned',
+	food_wishlist_empty = 'food_wishlist_empty',
 	last_offered_in_canteen = 'last_offered_in_canteen',
 	offered_on = 'offered_on',
 	guess_better_rated_dish = 'guess_better_rated_dish',

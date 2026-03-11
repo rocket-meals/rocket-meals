@@ -834,6 +834,13 @@ export default function Layout() {
 					}}
 				/>
 				<Drawer.Screen
+					name="food-wishlist/index"
+					options={{
+						header: () => <CustomMenuHeader label={translate(TranslationKeys.food_wishlist)} key={'food-wishlist'} />,
+						title: translate(TranslationKeys.food_wishlist),
+					}}
+				/>
+				<Drawer.Screen
 					name="image-full-screen"
 					options={{
 						headerShown: false,

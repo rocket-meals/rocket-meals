@@ -4846,12 +4846,12 @@
     "food_wishlist": {
         "de": "Speisen-Wunschliste",
         "en": "Food Wishlist",
-        "ar": "Food Wishlist",
-        "es": "Food Wishlist",
-        "fr": "Food Wishlist",
-        "ru": "Food Wishlist",
-        "tr": "Food Wishlist",
-        "zh": "Food Wishlist"
+        "ar": "قائمة الأمنيات للطعام",
+        "es": "Lista de deseos de comida",
+        "fr": "Liste de souhaits alimentaires",
+        "ru": "Список избранных блюд",
+        "tr": "Yemek İstek Listesi",
+        "zh": "饮食愿望清单"
     },
     "guess_better_rated_dish": {
         "de": "Rate, welches Gericht besser bewertet ist",
@@ -5036,22 +5036,22 @@
     "food_wishlist_planned": {
         "de": "Geplante Speisen",
         "en": "Planned Foods",
-        "ar": "Planned Foods",
-        "es": "Planned Foods",
-        "fr": "Planned Foods",
-        "ru": "Planned Foods",
-        "tr": "Planned Foods",
-        "zh": "Planned Foods"
+        "ar": "الأطعمة المجدولة",
+        "es": "Comidas planificadas",
+        "fr": "Plats planifiés",
+        "ru": "Запланированные блюда",
+        "tr": "Planlanan Yemekler",
+        "zh": "计划中的餐食"
     },
     "food_wishlist_not_planned": {
         "de": "Aktuell nicht geplante Speisen",
         "en": "Currently Not Planned Foods",
-        "ar": "Currently Not Planned Foods",
-        "es": "Currently Not Planned Foods",
-        "fr": "Currently Not Planned Foods",
-        "ru": "Currently Not Planned Foods",
-        "tr": "Currently Not Planned Foods",
-        "zh": "Currently Not Planned Foods"
+        "ar": "الأطعمة غير المجدولة حالياً",
+        "es": "Comidas actualmente no planificadas",
+        "fr": "Plats actuellement non planifiés",
+        "ru": "Блюда пока не запланированы",
+        "tr": "Şu Anda Planlanmayan Yemekler",
+        "zh": "当前未计划的餐食"
     },
     "food_offer_contains_disliked_markings": {
         "de": "Diese Speise enthält Kennzeichnungen, welche ggf. nicht gewünscht sind.",
@@ -5066,12 +5066,12 @@
     "offered_on": {
         "de": "Angeboten am",
         "en": "Offered on",
-        "ar": "Offered on",
-        "es": "Offered on",
-        "fr": "Offered on",
-        "ru": "Offered on",
-        "tr": "Offered on",
-        "zh": "Offered on"
+        "ar": "معروض في",
+        "es": "Ofrecido el",
+        "fr": "Proposé le",
+        "ru": "Предлагается",
+        "tr": "Sunulan tarih",
+        "zh": "供应日期"
     },
     "optional_device_data_description": {
         "de": "Optionale Gerätedaten – können angepasst werden, helfen aber bei der Lösung der Anfrage.",
@@ -5262,5 +5262,15 @@
         "ru": "Варианты Карты",
         "tr": "Harita Varyantları",
         "zh": "地图变体"
+    },
+    "food_wishlist_empty": {
+        "de": "Noch keine Favoriten. Bewerte Speisen mit der Höchstbewertung, um sie hier zu sehen.",
+        "en": "No favorites yet. Rate foods with the highest rating to see them here.",
+        "ar": "لا توجد مفضلة بعد. قيّم الأطعمة بأعلى تقييم لرؤيتها هنا.",
+        "es": "Aún no hay favoritos. Califica los alimentos con la calificación más alta para verlos aquí.",
+        "fr": "Pas encore de favoris. Notez les plats avec la note maximale pour les voir ici.",
+        "ru": "Пока нет избранных. Оцените блюда наивысшей оценкой, чтобы увидеть их здесь.",
+        "tr": "Henüz favori yok. Burada görmek için yiyecekleri en yüksek puanla değerlendirin.",
+        "zh": "还没有收藏。用最高评分对食物进行评分，即可在此处查看。"
     }
 }

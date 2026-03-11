@@ -38,6 +38,7 @@ export enum AppScreens {
   LIST_WEEK_SCREEN = 'list-week-screen',
   RSS_FEED = 'rss-feed',
   RSS_FEED_CONFIG = 'rss-feed-config',
+  FOOD_WISHLIST = 'food-wishlist',
 }
 
 export interface AppLinkParam {
