@@ -193,6 +193,20 @@
           return;
         }
 
+        if (data.disableInteraction) {
+          map.dragPan.disable();
+          map.scrollZoom.disable();
+          map.doubleClickZoom.disable();
+          map.touchZoomRotate.disable();
+          map.keyboard.disable();
+        } else if (data.enableInteraction) {
+          map.dragPan.enable();
+          map.scrollZoom.enable();
+          map.doubleClickZoom.enable();
+          map.touchZoomRotate.enable();
+          map.keyboard.enable();
+        }
+
         if (data.mapStyle) {
           map.setStyle(data.mapStyle);
         }
