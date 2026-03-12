@@ -213,13 +213,24 @@
         }
 
         if (centerLngLat) {
-          var opts = { center: centerLngLat, zoom: targetZoom, pitch: data.pitch != null ? data.pitch : map.getPitch() };
-          var shouldAnimate = data.animate !== false && data.useFlyAnimation !== false;
-          if (!shouldAnimate) {
-            map.jumpTo(opts);
-          } else {
-            map.flyTo(opts);
+          var opts = {
+            center: centerLngLat,
+            zoom: targetZoom,
+            pitch: data.pitch != null ? data.pitch : map.getPitch(),
+          };
+          if (data.bearing != null) {
+            opts.bearing = data.bearing;
           }
+          if (data.easeAnimation) {
+            opts.duration = data.easeDuration != null ? data.easeDuration : 100;
+            map.easeTo(opts);
+          } else if (data.animate !== false && data.useFlyAnimation !== false) {
+            map.flyTo(opts);
+          } else {
+            map.jumpTo(opts);
+          }
+        } else if (data.zoomTo != null) {
+          map.easeTo({ zoom: data.zoomTo, duration: data.easeDuration != null ? data.easeDuration : 300 });
         } else if (data.pitch != null) {
           map.easeTo({ pitch: data.pitch });
         }
