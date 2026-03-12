@@ -321,6 +321,10 @@
         map.on('zoomend', function () {
           sendToRN({ tag: 'onZoomEnd', zoom: map.getZoom() });
         });
+
+        map.on('pitchend', function () {
+          sendToRN({ tag: 'onPitchEnd', pitch: map.getPitch() });
+        });
       }
 
       (function () {
