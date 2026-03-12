@@ -74,9 +74,9 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 	const course_timetable_area_color = appSettings?.course_timetable_area_color ? appSettings?.course_timetable_area_color : projectColor;
 	const campus_area_color = appSettings?.campus_area_color ? appSettings?.campus_area_color : projectColor;
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
-	const food_wishlist_area_color = appSettings?.food_wishlist_area_color ? appSettings?.food_wishlist_area_color : projectColor;
 	const housing_area_color = appSettings?.housing_area_color ? appSettings?.housing_area_color : projectColor;
 	const news_area_color = appSettings?.news_area_color ? appSettings?.news_area_color : projectColor;
+	const weekly_menu_area_color = appSettings?.weekly_menu_area_color ? appSettings?.weekly_menu_area_color : projectColor;
 
 	const getContrastColor = (routeName: string) => {
 		let backgroundColor = projectColor;
@@ -94,14 +94,14 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 			case 'foodoffers':
 				backgroundColor = foods_area_color;
 				break;
-			case 'food-wishlist/index':
-				backgroundColor = food_wishlist_area_color;
-				break;
 			case 'housing':
 				backgroundColor = housing_area_color;
 				break;
 			case 'news/index':
 				backgroundColor = news_area_color;
+				break;
+			case 'weekly-menu/index':
+				backgroundColor = weekly_menu_area_color;
 				break;
 			default:
 				backgroundColor = projectColor;
@@ -132,14 +132,14 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 				case 'foodoffers':
 					activeBackgroundColor = foods_area_color;
 					break;
-				case 'food-wishlist/index':
-					activeBackgroundColor = food_wishlist_area_color;
-					break;
 				case 'housing':
 					activeBackgroundColor = housing_area_color;
 					break;
 				case 'news/index':
 					activeBackgroundColor = news_area_color;
+					break;
+				case 'weekly-menu/index':
+					activeBackgroundColor = weekly_menu_area_color;
 					break;
 				default:
 					activeBackgroundColor = projectColor;
@@ -263,13 +263,13 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
                         });
                 }
 
-                if (appSettings?.food_wishlist_enabled) {
+                if (appSettings?.weekly_menu_enabled) {
                         menuItems.push({
-                                label: translate(TranslationKeys.food_wishlist),
-                                iconName: 'heart-outline',
+                                label: translate(TranslationKeys.weekly_menu),
+                                iconName: 'calendar-week',
                                 iconLibName: MaterialCommunityIcons,
-                                activeKey: 'food-wishlist/index',
-                                route: 'food-wishlist/index',
+                                activeKey: 'weekly-menu/index',
+                                route: 'weekly-menu/index',
                                 position: 11,
                         });
                 }

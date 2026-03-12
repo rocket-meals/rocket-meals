@@ -840,9 +840,9 @@ export default function Layout() {
 					}}
 				/>
 				<Drawer.Screen
-					name="food-wishlist/index"
+					name="weekly-menu/index"
 					options={{
-						title: translate(TranslationKeys.food_wishlist),
+						title: translate(TranslationKeys.weekly_menu),
 						headerShown: false,
 					}}
 				/>

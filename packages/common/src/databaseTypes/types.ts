@@ -106,8 +106,6 @@ export type AppSettings = {
   foods_ratings_amount_display?: boolean | null;
   foods_ratings_average_display?: boolean | null;
   foods_ratings_type?: string | null;
-  food_wishlist_area_color?: string | null;
-  food_wishlist_enabled?: boolean | null;
   foods_settings: string;
   housing_area_color?: string | null;
   housing_before_element?: string | AppElements | null;
@@ -138,6 +136,8 @@ export type AppSettings = {
   user_updated?: string | DirectusUsers | null;
   utilization_display_enabled?: boolean | null;
   utilization_settings: string;
+  weekly_menu_area_color?: string | null;
+  weekly_menu_enabled?: boolean | null;
 };
 
 export type AppSettingsBalanceTranslations = {

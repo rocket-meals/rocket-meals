@@ -5,7 +5,7 @@ import CustomStackHeader from '@/components/CustomStackHeader/CustomStackHeader'
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 
-export default function FoodWishlistLayout() {
+export default function WeeklyMenuLayout() {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 
@@ -19,7 +19,7 @@ export default function FoodWishlistLayout() {
 			<Stack.Screen
 				name="index"
 				options={{
-					header: () => <CustomStackHeader label={translate(TranslationKeys.food_wishlist)} />,
+					header: () => <CustomStackHeader label={translate(TranslationKeys.weekly_menu)} />,
 				}}
 			/>
 		</Stack>

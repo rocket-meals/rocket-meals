@@ -5203,6 +5203,26 @@
         "tr": "Bu yemek istenmeyen işaretler içerebilir.",
         "zh": "该菜肴包含可能不受欢迎的标记。"
     },
+    "weekly_menu": {
+        "de": "Wochenspeiseplan",
+        "en": "Weekly Menu",
+        "ar": "قائمة الأسبوع",
+        "es": "Menú semanal",
+        "fr": "Menu de la semaine",
+        "ru": "Меню недели",
+        "tr": "Haftalık Menü",
+        "zh": "每周菜单"
+    },
+    "weekly_menu_no_offers": {
+        "de": "Keine Angebote für diesen Tag",
+        "en": "No offers for this day",
+        "ar": "لا توجد عروض لهذا اليوم",
+        "es": "No hay ofertas para este día",
+        "fr": "Aucune offre pour ce jour",
+        "ru": "Нет предложений на этот день",
+        "tr": "Bu gün için teklif yok",
+        "zh": "今天没有供应"
+    },
     "offered_on": {
         "de": "Angeboten am",
         "en": "Offered on",

@@ -536,6 +536,8 @@ export enum TranslationKeys {
 	eating_habits_debug_animation_time = 'eating_habits_debug_animation_time',
 	eating_habits_debug_content_time = 'eating_habits_debug_content_time',
 	eating_habits_debug_markings_count = 'eating_habits_debug_markings_count',
+	weekly_menu = 'weekly_menu',
+	weekly_menu_no_offers = 'weekly_menu_no_offers',
 	// NOT IN TRANSLATION
 	feedback_and_support = 'feedback_and_support',
 	Food_Plan_Week = 'FoodPlan:Week',
