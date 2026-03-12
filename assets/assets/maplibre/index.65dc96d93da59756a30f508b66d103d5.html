@@ -87,6 +87,7 @@
       var activeMarkers = {};
       var vehicleMarkerEl = null;
       var vehicleMarkerInstance = null;
+      var peopleModeActive = false;
 
       function sendToRN(msg) {
         var str = JSON.stringify(msg);
@@ -150,6 +151,57 @@
 
           activeMarkers[markerId] = marker;
         });
+      }
+
+      var PEOPLE_COUNT = 80;
+      var PEOPLE_RADIUS_DEG = 0.004;
+      var PEOPLE_CIRCLE_RADIUS = 2.5;
+      var DEG_TO_RAD = Math.PI / 180;
+
+      function generatePeopleFeatures(center, count, radiusDeg) {
+        var features = [];
+        for (var i = 0; i < count; i++) {
+          var angle = Math.random() * 2 * Math.PI;
+          var r = Math.random() * radiusDeg;
+          var lng = center[0] + r * Math.cos(angle) / Math.cos(center[1] * DEG_TO_RAD);
+          var lat = center[1] + r * Math.sin(angle);
+          features.push({ type: 'Feature', geometry: { type: 'Point', coordinates: [lng, lat] }, properties: {} });
+        }
+        return { type: 'FeatureCollection', features: features };
+      }
+
+      function addPeopleLayer() {
+        if (!map) return;
+        var center = map.getCenter();
+        var geojson = generatePeopleFeatures([center.lng, center.lat], PEOPLE_COUNT, PEOPLE_RADIUS_DEG);
+        if (map.getSource('people-source')) {
+          map.getSource('people-source').setData(geojson);
+        } else {
+          map.addSource('people-source', { type: 'geojson', data: geojson });
+          var firstFillExtrusion = null;
+          var layers = map.getStyle().layers;
+          for (var i = 0; i < layers.length; i++) {
+            if (layers[i].type === 'fill-extrusion') { firstFillExtrusion = layers[i].id; break; }
+          }
+          map.addLayer({
+            id: 'people-layer',
+            type: 'circle',
+            source: 'people-source',
+            paint: {
+              'circle-radius': PEOPLE_CIRCLE_RADIUS,
+              'circle-color': '#e53935',
+              'circle-opacity': 0.85,
+              'circle-stroke-width': 0.5,
+              'circle-stroke-color': '#ffffff',
+            },
+          }, firstFillExtrusion || undefined);
+        }
+      }
+
+      function removePeopleLayer() {
+        if (!map) return;
+        if (map.getLayer('people-layer')) map.removeLayer('people-layer');
+        if (map.getSource('people-source')) map.removeSource('people-source');
       }
 
       function updateVehicleMarker(markerData) {
@@ -265,6 +317,15 @@
         if (data.vehicleMarker !== undefined) {
           updateVehicleMarker(data.vehicleMarker);
         }
+
+        if (data.peopleMode !== undefined) {
+          peopleModeActive = data.peopleMode;
+          if (peopleModeActive) {
+            addPeopleLayer();
+          } else {
+            removePeopleLayer();
+          }
+        }
       }
 
       function handleIncomingData(data) {
@@ -324,6 +385,18 @@
 
         map.on('pitchend', function () {
           sendToRN({ tag: 'onPitchEnd', pitch: map.getPitch() });
+        });
+
+        map.on('click', function () {
+          sendToRN({ tag: 'MapTapped' });
+        });
+
+        map.on('styledata', function () {
+          if (peopleModeActive) {
+            if (!map.getSource('people-source')) {
+              addPeopleLayer();
+            }
+          }
         });
       }
 
