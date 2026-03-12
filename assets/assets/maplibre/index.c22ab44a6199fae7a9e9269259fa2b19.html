@@ -243,6 +243,15 @@
           } else {
             map.jumpTo(opts);
           }
+        } else if (data.bearing != null) {
+          // Bearing-only update: rotate around the current map center
+          var bearingOpts = { bearing: data.bearing };
+          if (data.easeAnimation) {
+            bearingOpts.duration = data.easeDuration != null ? data.easeDuration : 100;
+            map.easeTo(bearingOpts);
+          } else {
+            map.jumpTo(bearingOpts);
+          }
         } else if (data.zoomTo != null) {
           map.easeTo({ zoom: data.zoomTo, duration: data.easeDuration != null ? data.easeDuration : 300 });
         } else if (data.pitch != null) {
