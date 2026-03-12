@@ -85,6 +85,8 @@
       var mapReady = false;
       var pendingMessage = null;
       var activeMarkers = {};
+      var vehicleMarkerEl = null;
+      var vehicleMarkerInstance = null;
 
       function sendToRN(msg) {
         var str = JSON.stringify(msg);
@@ -150,6 +152,39 @@
         });
       }
 
+      function updateVehicleMarker(markerData) {
+        if (!markerData) {
+          if (vehicleMarkerInstance) {
+            vehicleMarkerInstance.remove();
+            vehicleMarkerInstance = null;
+          }
+          if (vehicleMarkerEl) {
+            vehicleMarkerEl.remove();
+            vehicleMarkerEl = null;
+          }
+          return;
+        }
+        if (!vehicleMarkerEl) {
+          vehicleMarkerEl = document.createElement('div');
+          vehicleMarkerEl.style.pointerEvents = 'none';
+        }
+        if (markerData.icon) {
+          vehicleMarkerEl.innerHTML = markerData.icon;
+          if (markerData.size && markerData.size.length === 2) {
+            vehicleMarkerEl.style.width = markerData.size[0] + 'px';
+            vehicleMarkerEl.style.height = markerData.size[1] + 'px';
+          }
+        }
+        var lngLat = [markerData.position.lng, markerData.position.lat];
+        if (vehicleMarkerInstance) {
+          vehicleMarkerInstance.setLngLat(lngLat);
+        } else {
+          vehicleMarkerInstance = new maplibregl.Marker({ element: vehicleMarkerEl, anchor: 'center' })
+            .setLngLat(lngLat)
+            .addTo(map);
+        }
+      }
+
       function applyMessage(data) {
         if (!map) return;
 
@@ -192,6 +227,10 @@
         if (data.mapMarkers !== undefined) {
           updateMarkers(data.mapMarkers);
         }
+
+        if (data.vehicleMarker !== undefined) {
+          updateVehicleMarker(data.vehicleMarker);
+        }
       }
 
       function handleIncomingData(data) {
@@ -216,13 +255,13 @@
         parseAndHandle(e.data);
       });
 
-      function initMap(initialCenter, initialZoom) {
+      function initMap(initialCenter, initialZoom, initialPitch) {
         map = new maplibregl.Map({
           container: 'map',
           style: 'https://tiles.openfreemap.org/styles/liberty',
           center: initialCenter || [10.0, 51.3],
           zoom: initialZoom != null ? initialZoom : 16,
-          pitch: 20,
+          pitch: initialPitch != null ? initialPitch : 20,
           attributionControl: { compact: true },
         });
 
