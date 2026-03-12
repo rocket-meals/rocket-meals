@@ -74,6 +74,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 	const course_timetable_area_color = appSettings?.course_timetable_area_color ? appSettings?.course_timetable_area_color : projectColor;
 	const campus_area_color = appSettings?.campus_area_color ? appSettings?.campus_area_color : projectColor;
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
+	const food_wishlist_area_color = appSettings?.food_wishlist_area_color ? appSettings?.food_wishlist_area_color : projectColor;
 	const housing_area_color = appSettings?.housing_area_color ? appSettings?.housing_area_color : projectColor;
 	const news_area_color = appSettings?.news_area_color ? appSettings?.news_area_color : projectColor;
 
@@ -92,6 +93,9 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 				break;
 			case 'foodoffers':
 				backgroundColor = foods_area_color;
+				break;
+			case 'food-wishlist/index':
+				backgroundColor = food_wishlist_area_color;
 				break;
 			case 'housing':
 				backgroundColor = housing_area_color;
@@ -127,6 +131,9 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 					break;
 				case 'foodoffers':
 					activeBackgroundColor = foods_area_color;
+					break;
+				case 'food-wishlist/index':
+					activeBackgroundColor = food_wishlist_area_color;
 					break;
 				case 'housing':
 					activeBackgroundColor = housing_area_color;
@@ -253,6 +260,17 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
                                 activeKey: 'course-timetable/index',
                                 route: 'course-timetable/index',
                                 position: 8,
+                        });
+                }
+
+                if (appSettings?.food_wishlist_enabled) {
+                        menuItems.push({
+                                label: translate(TranslationKeys.food_wishlist),
+                                iconName: 'heart-outline',
+                                iconLibName: MaterialCommunityIcons,
+                                activeKey: 'food-wishlist/index',
+                                route: 'food-wishlist/index',
+                                position: 11,
                         });
                 }
 

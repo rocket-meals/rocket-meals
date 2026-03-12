@@ -106,6 +106,8 @@ export type AppSettings = {
   foods_ratings_amount_display?: boolean | null;
   foods_ratings_average_display?: boolean | null;
   foods_ratings_type?: string | null;
+  food_wishlist_area_color?: string | null;
+  food_wishlist_enabled?: boolean | null;
   foods_settings: string;
   housing_area_color?: string | null;
   housing_before_element?: string | AppElements | null;

@@ -839,6 +839,13 @@ export default function Layout() {
 						headerShown: false,
 					}}
 				/>
+				<Drawer.Screen
+					name="food-wishlist/index"
+					options={{
+						title: translate(TranslationKeys.food_wishlist),
+						headerShown: false,
+					}}
+				/>
 			</Drawer>
 		</>
 	);
