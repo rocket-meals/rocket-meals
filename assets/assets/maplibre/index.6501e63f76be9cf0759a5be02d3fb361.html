@@ -88,6 +88,8 @@
       var vehicleMarkerEl = null;
       var vehicleMarkerInstance = null;
       var peopleModeActive = false;
+      var intelligentMovementActive = false;
+      var mapMarkerPositions = [];
 
       function sendToRN(msg) {
         var str = JSON.stringify(msg);
@@ -103,11 +105,14 @@
           activeMarkers[id].remove();
         });
         activeMarkers = {};
+        mapMarkerPositions = [];
 
         if (!markersData || !Array.isArray(markersData)) return;
 
         markersData.forEach(function (markerData) {
           if (!markerData || !markerData.position) return;
+
+          mapMarkerPositions.push({ lng: markerData.position.lng, lat: markerData.position.lat });
 
           var el = document.createElement('div');
           el.style.cursor = 'pointer';
@@ -155,6 +160,7 @@
 
       var PEOPLE_COUNT = 80;
       var PEOPLE_RADIUS_DEG = 0.004;
+      var PEOPLE_SCREEN_RADIUS_PX = 200; // target screen radius for zoom-independent distribution
       var PEOPLE_CIRCLE_RADIUS = 5;
       var DEG_TO_RAD = Math.PI / 180;
       var PEOPLE_SPEED = 0.000004;
@@ -163,6 +169,34 @@
       var PEOPLE_BOUNDARY_FORCE = 0.002; // restoring acceleration applied when a particle exceeds the radius
       var peopleParticles = [];
       var peopleAnimationInterval = null;
+      var currentPeopleRadiusDeg = PEOPLE_RADIUS_DEG;
+
+      // Intelligent movement constants
+      var PEOPLE_HUMAN_SPEED = 0.0000015;       // degrees per frame at 50ms tick (~1.5 m/s at lat 51°)
+      var PEOPLE_LOITER_MIN_FRAMES = 80;         // min frames (~4 s) a particle loiters near a marker
+      var PEOPLE_LOITER_MAX_FRAMES = 200;        // max frames (~10 s) a particle loiters near a marker
+      var PEOPLE_TRAVEL_MIN_FRAMES = 60;         // minimum frames allowed for a travel leg
+      var PEOPLE_TRAVEL_TURN_RATE = 0.1;         // fraction of heading-to-target difference applied per frame
+      var PEOPLE_TRAVEL_HEADING_NOISE = 0.08;    // random heading perturbation per frame (simulates street curves)
+      var PEOPLE_TRAVEL_TIME_PADDING = 1.2;      // multiply calculated travel time by this to add buffer
+      var PEOPLE_SPEED_VARIATION_MIN = 0.7;      // minimum speed multiplier relative to PEOPLE_HUMAN_SPEED
+      var PEOPLE_SPEED_VARIATION_RANGE = 0.6;    // range of speed variation (min to min+range)
+      var INITIAL_LOITER_OFFSET_DEG = 0.0002;    // initial scatter radius around a marker (degrees)
+      var MAX_LOITER_RADIUS_DEG = 0.00025;       // boundary radius while loitering; boundary force applied beyond this
+      var MIN_TARGET_DISTANCE_DEG = 0.0003;      // minimum distance to prefer when picking next target marker
+      var ARRIVAL_THRESHOLD_DEG = 0.00008;       // distance at which a particle is considered to have arrived
+      var LOITER_ACCEL_NOISE = 0.000001;         // acceleration noise added each frame while loitering
+      var MAX_LOITER_SPEED = 0.0000008;           // maximum speed while loitering
+      var LOITER_BOUNDARY_FORCE = 0.01;           // restoring acceleration applied when loitering radius exceeded
+
+      function computePeopleRadiusDeg() {
+        if (!map) return PEOPLE_RADIUS_DEG;
+        var zoom = map.getZoom();
+        var center = map.getCenter();
+        var metersPerPx = 40075016.686 * Math.cos(center.lat * DEG_TO_RAD) / (256 * Math.pow(2, zoom));
+        var radiusMeters = PEOPLE_SCREEN_RADIUS_PX * metersPerPx;
+        return radiusMeters / 111320;
+      }
 
       function generatePeopleParticles(center, count, radiusDeg) {
         var particles = [];
@@ -184,6 +218,7 @@
 
       function updatePeopleParticles() {
         var MAX_SPEED = PEOPLE_SPEED * 2;
+        var radius = currentPeopleRadiusDeg;
         for (var i = 0; i < peopleParticles.length; i++) {
           var p = peopleParticles[i];
           p.vx += (Math.random() - 0.5) * PEOPLE_TURN_RATE * PEOPLE_SPEED;
@@ -195,12 +230,111 @@
           var dx = p.lng - p.baseLng;
           var dy = p.lat - p.baseLat;
           var dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > PEOPLE_RADIUS_DEG) {
+          if (dist > radius) {
             p.vx -= dx * PEOPLE_BOUNDARY_FORCE;
             p.vy -= dy * PEOPLE_BOUNDARY_FORCE;
           }
         }
       }
+
+      // ── Intelligent Movement ──────────────────────────────────────────────────
+
+      function initIntelligentParticle(p) {
+        var positions = mapMarkerPositions;
+        if (positions.length > 0) {
+          var idx = Math.floor(Math.random() * positions.length);
+          p.baseLng = positions[idx].lng;
+          p.baseLat = positions[idx].lat;
+          var angle = Math.random() * 2 * Math.PI;
+          var r = Math.random() * INITIAL_LOITER_OFFSET_DEG;
+          p.lng = p.baseLng + r * Math.cos(angle);
+          p.lat = p.baseLat + r * Math.sin(angle);
+        }
+        p.state = 'loitering';
+        p.stateTimer = Math.floor(Math.random() * (PEOPLE_LOITER_MAX_FRAMES - PEOPLE_LOITER_MIN_FRAMES) + PEOPLE_LOITER_MIN_FRAMES);
+        p.heading = Math.random() * 2 * Math.PI;
+        p.vx = 0;
+        p.vy = 0;
+      }
+
+      function pickNewTarget(p) {
+        var positions = mapMarkerPositions;
+        if (positions.length === 0) return null;
+        var candidates = [];
+        for (var i = 0; i < positions.length; i++) {
+          var dx = positions[i].lng - p.baseLng;
+          var dy = positions[i].lat - p.baseLat;
+          if (Math.sqrt(dx * dx + dy * dy) > MIN_TARGET_DISTANCE_DEG) candidates.push(positions[i]);
+        }
+        if (candidates.length === 0) candidates = positions;
+        return candidates[Math.floor(Math.random() * candidates.length)];
+      }
+
+      function updateIntelligentParticles() {
+        for (var i = 0; i < peopleParticles.length; i++) {
+          var p = peopleParticles[i];
+          if (!p.state) { initIntelligentParticle(p); }
+          p.stateTimer--;
+
+          if (p.state === 'loitering') {
+            // Small random movements near base position
+            p.vx += (Math.random() - 0.5) * LOITER_ACCEL_NOISE;
+            p.vy += (Math.random() - 0.5) * LOITER_ACCEL_NOISE;
+            var lSpeed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+            if (lSpeed > MAX_LOITER_SPEED) { p.vx = p.vx / lSpeed * MAX_LOITER_SPEED; p.vy = p.vy / lSpeed * MAX_LOITER_SPEED; }
+            p.lng += p.vx;
+            p.lat += p.vy;
+            var ldx = p.lng - p.baseLng;
+            var ldy = p.lat - p.baseLat;
+            if (Math.sqrt(ldx * ldx + ldy * ldy) > MAX_LOITER_RADIUS_DEG) {
+              p.vx -= ldx * LOITER_BOUNDARY_FORCE;
+              p.vy -= ldy * LOITER_BOUNDARY_FORCE;
+            }
+            if (p.stateTimer <= 0 && mapMarkerPositions.length > 0) {
+              var target = pickNewTarget(p);
+              if (target) {
+                p.targetLng = target.lng;
+                p.targetLat = target.lat;
+                p.state = 'traveling';
+                var tdx = p.targetLng - p.lng;
+                var tdy = p.targetLat - p.lat;
+                var travelDist = Math.sqrt(tdx * tdx + tdy * tdy);
+                p.stateTimer = Math.max(PEOPLE_TRAVEL_MIN_FRAMES, Math.floor(travelDist / PEOPLE_HUMAN_SPEED * PEOPLE_TRAVEL_TIME_PADDING));
+              } else {
+                p.stateTimer = PEOPLE_LOITER_MIN_FRAMES;
+              }
+            }
+          } else if (p.state === 'traveling') {
+            var dtx = p.targetLng - p.lng;
+            var dty = p.targetLat - p.lat;
+            var distToTarget = Math.sqrt(dtx * dtx + dty * dty);
+            if (distToTarget < ARRIVAL_THRESHOLD_DEG || p.stateTimer <= 0) {
+              p.lng = p.targetLng;
+              p.lat = p.targetLat;
+              p.baseLng = p.targetLng;
+              p.baseLat = p.targetLat;
+              p.state = 'loitering';
+              p.stateTimer = Math.floor(Math.random() * (PEOPLE_LOITER_MAX_FRAMES - PEOPLE_LOITER_MIN_FRAMES) + PEOPLE_LOITER_MIN_FRAMES);
+              p.vx = 0;
+              p.vy = 0;
+            } else {
+              // Turn gradually toward target (simulates following curved paths)
+              var targetHeading = Math.atan2(dtx, dty);
+              var headingDiff = targetHeading - p.heading;
+              while (headingDiff > Math.PI) headingDiff -= 2 * Math.PI;
+              while (headingDiff < -Math.PI) headingDiff += 2 * Math.PI;
+              p.heading += headingDiff * PEOPLE_TRAVEL_TURN_RATE + (Math.random() - 0.5) * PEOPLE_TRAVEL_HEADING_NOISE;
+              var humanSpeed = PEOPLE_HUMAN_SPEED * (PEOPLE_SPEED_VARIATION_MIN + Math.random() * PEOPLE_SPEED_VARIATION_RANGE);
+              p.vx = Math.sin(p.heading) * humanSpeed;
+              p.vy = Math.cos(p.heading) * humanSpeed;
+              p.lng += p.vx;
+              p.lat += p.vy;
+            }
+          }
+        }
+      }
+
+      // ─────────────────────────────────────────────────────────────────────────
 
       function particlesToGeoJSON() {
         var features = [];
@@ -214,7 +348,11 @@
         if (peopleAnimationInterval) return;
         peopleAnimationInterval = setInterval(function () {
           if (!map || !peopleModeActive || !map.getSource('people-source')) return;
-          updatePeopleParticles();
+          if (intelligentMovementActive) {
+            updateIntelligentParticles();
+          } else {
+            updatePeopleParticles();
+          }
           map.getSource('people-source').setData(particlesToGeoJSON());
         }, PEOPLE_ANIMATION_MS);
       }
@@ -226,8 +364,9 @@
 
       function addPeopleLayer() {
         if (!map) return;
+        currentPeopleRadiusDeg = computePeopleRadiusDeg();
         var center = map.getCenter();
-        peopleParticles = generatePeopleParticles([center.lng, center.lat], PEOPLE_COUNT, PEOPLE_RADIUS_DEG);
+        peopleParticles = generatePeopleParticles([center.lng, center.lat], PEOPLE_COUNT, currentPeopleRadiusDeg);
         var geojson = particlesToGeoJSON();
         if (map.getSource('people-source')) {
           map.getSource('people-source').setData(geojson);
@@ -375,6 +514,14 @@
           updateVehicleMarker(data.vehicleMarker);
         }
 
+        if (data.intelligentMovement !== undefined) {
+          intelligentMovementActive = data.intelligentMovement;
+          // Reset particle states when toggling mode so they reinitialise properly
+          for (var im = 0; im < peopleParticles.length; im++) {
+            delete peopleParticles[im].state;
+          }
+        }
+
         if (data.peopleMode !== undefined) {
           peopleModeActive = data.peopleMode;
           if (peopleModeActive) {
@@ -438,6 +585,9 @@
 
         map.on('zoomend', function () {
           sendToRN({ tag: 'onZoomEnd', zoom: map.getZoom() });
+          if (peopleModeActive && !intelligentMovementActive) {
+            currentPeopleRadiusDeg = computePeopleRadiusDeg();
+          }
         });
 
         map.on('pitchend', function () {
