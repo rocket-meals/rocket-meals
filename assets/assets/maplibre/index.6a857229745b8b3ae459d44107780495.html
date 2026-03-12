@@ -155,25 +155,80 @@
 
       var PEOPLE_COUNT = 80;
       var PEOPLE_RADIUS_DEG = 0.004;
-      var PEOPLE_CIRCLE_RADIUS = 2.5;
+      var PEOPLE_CIRCLE_RADIUS = 5;
       var DEG_TO_RAD = Math.PI / 180;
+      var PEOPLE_SPEED = 0.000004;
+      var PEOPLE_ANIMATION_MS = 50;
+      var PEOPLE_TURN_RATE = 0.15; // fraction of PEOPLE_SPEED added as random direction change per frame
+      var PEOPLE_BOUNDARY_FORCE = 0.002; // restoring acceleration applied when a particle exceeds the radius
+      var peopleParticles = [];
+      var peopleAnimationInterval = null;
 
-      function generatePeopleFeatures(center, count, radiusDeg) {
-        var features = [];
+      function generatePeopleParticles(center, count, radiusDeg) {
+        var particles = [];
         for (var i = 0; i < count; i++) {
           var angle = Math.random() * 2 * Math.PI;
           var r = Math.random() * radiusDeg;
           var lng = center[0] + r * Math.cos(angle) / Math.cos(center[1] * DEG_TO_RAD);
           var lat = center[1] + r * Math.sin(angle);
-          features.push({ type: 'Feature', geometry: { type: 'Point', coordinates: [lng, lat] }, properties: {} });
+          var vAngle = Math.random() * 2 * Math.PI;
+          var speed = PEOPLE_SPEED * (0.5 + Math.random() * 0.5);
+          particles.push({
+            lng: lng, lat: lat,
+            vx: speed * Math.cos(vAngle), vy: speed * Math.sin(vAngle),
+            baseLng: center[0], baseLat: center[1],
+          });
+        }
+        return particles;
+      }
+
+      function updatePeopleParticles() {
+        var MAX_SPEED = PEOPLE_SPEED * 2;
+        for (var i = 0; i < peopleParticles.length; i++) {
+          var p = peopleParticles[i];
+          p.vx += (Math.random() - 0.5) * PEOPLE_TURN_RATE * PEOPLE_SPEED;
+          p.vy += (Math.random() - 0.5) * PEOPLE_TURN_RATE * PEOPLE_SPEED;
+          var speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+          if (speed > MAX_SPEED) { p.vx = p.vx / speed * MAX_SPEED; p.vy = p.vy / speed * MAX_SPEED; }
+          p.lng += p.vx;
+          p.lat += p.vy;
+          var dx = p.lng - p.baseLng;
+          var dy = p.lat - p.baseLat;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > PEOPLE_RADIUS_DEG) {
+            p.vx -= dx * PEOPLE_BOUNDARY_FORCE;
+            p.vy -= dy * PEOPLE_BOUNDARY_FORCE;
+          }
+        }
+      }
+
+      function particlesToGeoJSON() {
+        var features = [];
+        for (var i = 0; i < peopleParticles.length; i++) {
+          features.push({ type: 'Feature', geometry: { type: 'Point', coordinates: [peopleParticles[i].lng, peopleParticles[i].lat] }, properties: {} });
         }
         return { type: 'FeatureCollection', features: features };
+      }
+
+      function startPeopleAnimation() {
+        if (peopleAnimationInterval) return;
+        peopleAnimationInterval = setInterval(function () {
+          if (!map || !peopleModeActive || !map.getSource('people-source')) return;
+          updatePeopleParticles();
+          map.getSource('people-source').setData(particlesToGeoJSON());
+        }, PEOPLE_ANIMATION_MS);
+      }
+
+      function stopPeopleAnimation() {
+        if (peopleAnimationInterval) { clearInterval(peopleAnimationInterval); peopleAnimationInterval = null; }
+        peopleParticles = [];
       }
 
       function addPeopleLayer() {
         if (!map) return;
         var center = map.getCenter();
-        var geojson = generatePeopleFeatures([center.lng, center.lat], PEOPLE_COUNT, PEOPLE_RADIUS_DEG);
+        peopleParticles = generatePeopleParticles([center.lng, center.lat], PEOPLE_COUNT, PEOPLE_RADIUS_DEG);
+        var geojson = particlesToGeoJSON();
         if (map.getSource('people-source')) {
           map.getSource('people-source').setData(geojson);
         } else {
@@ -196,10 +251,12 @@
             },
           }, firstFillExtrusion || undefined);
         }
+        startPeopleAnimation();
       }
 
       function removePeopleLayer() {
         if (!map) return;
+        stopPeopleAnimation();
         if (map.getLayer('people-layer')) map.removeLayer('people-layer');
         if (map.getSource('people-source')) map.removeSource('people-source');
       }
