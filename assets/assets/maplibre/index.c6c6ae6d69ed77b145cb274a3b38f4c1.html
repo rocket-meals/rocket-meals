@@ -73,7 +73,7 @@
   <body>
     <div id="loading">
       <div class="spinner"></div>
-      <span>Loading vector map…</span>
+      <span id="loading-text">Loading vector map…</span>
     </div>
     <div id="error">
       <span>⚠️ Could not load map.</span>
@@ -827,6 +827,11 @@
       (function () {
         try {
           var params = new URLSearchParams(window.location.search);
+          var loadingTextParam = params.get('loadingText');
+          if (loadingTextParam) {
+            var loadingSpan = document.getElementById('loading-text');
+            if (loadingSpan) loadingSpan.textContent = loadingTextParam;
+          }
           var lat = parseFloat(params.get('lat'));
           var lng = parseFloat(params.get('lng'));
           var zoom = parseFloat(params.get('zoom'));
