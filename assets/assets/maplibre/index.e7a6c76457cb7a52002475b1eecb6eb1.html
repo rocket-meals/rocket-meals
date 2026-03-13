@@ -484,6 +484,17 @@
           }
         }
 
+        if (data.peopleCount !== undefined) {
+          var newCount = Math.max(1, Math.floor(data.peopleCount));
+          if (newCount !== PEOPLE_COUNT) {
+            PEOPLE_COUNT = newCount;
+            if (peopleModeActive) {
+              removePeopleLayer();
+              addPeopleLayer();
+            }
+          }
+        }
+
         if (data.peopleMode !== undefined) {
           peopleModeActive = data.peopleMode;
           if (peopleModeActive) {
@@ -547,9 +558,6 @@
 
         map.on('zoomend', function () {
           sendToRN({ tag: 'onZoomEnd', zoom: map.getZoom() });
-          if (peopleModeActive && !intelligentMovementActive) {
-            currentPeopleRadiusDeg = computePeopleRadiusDeg();
-          }
         });
 
         map.on('pitchend', function () {
