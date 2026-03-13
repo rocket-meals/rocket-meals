@@ -303,7 +303,7 @@
       var CAR_SPEED_DEG_PER_FRAME = 0.0000062; // ~50 km/h at lat 51°, 50ms tick
       var CAR_ANIMATION_MS = 50;
       var CAR_CIRCLE_RADIUS = 5;
-      var OSRM_BASE_URL = 'https://router.project-osrm.org/route/v1/driving/';
+      var VALHALLA_BASE_URL = 'https://valhalla1.openstreetmap.de/route';
       var carParticles = [];
       var carAnimationInterval = null;
 
@@ -316,21 +316,56 @@
         };
       }
 
-      function fetchOsrmRoute(fromLng, fromLat, toLng, toLat, callback) {
-        var url = OSRM_BASE_URL +
-          fromLng.toFixed(6) + ',' + fromLat.toFixed(6) + ';' +
-          toLng.toFixed(6) + ',' + toLat.toFixed(6) +
-          '?overview=full&geometries=geojson';
+      // Decode Valhalla's encoded polyline (precision=6) to [[lng, lat], ...]
+      function decodeValhallaPolyline(encoded) {
+        var coords = [];
+        var index = 0, lat = 0, lng = 0;
+        while (index < encoded.length) {
+          var encodedByte, shift = 0, result = 0;
+          do {
+            encodedByte = encoded.charCodeAt(index++) - 63;
+            result |= (encodedByte & 0x1f) << shift;
+            shift += 5;
+          } while (encodedByte >= 0x20);
+          lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+          shift = 0; result = 0;
+          do {
+            encodedByte = encoded.charCodeAt(index++) - 63;
+            result |= (encodedByte & 0x1f) << shift;
+            shift += 5;
+          } while (encodedByte >= 0x20);
+          lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+          coords.push([lng / 1e6, lat / 1e6]);
+        }
+        return coords;
+      }
+
+      function fetchValhallaRoute(fromLng, fromLat, toLng, toLat, callback) {
+        var params = JSON.stringify({
+          locations: [
+            { lat: fromLat, lon: fromLng },
+            { lat: toLat, lon: toLng },
+          ],
+          costing: 'auto',
+          directions_options: { units: 'kilometers' },
+          directions_type: 'none',
+        });
+        var url = VALHALLA_BASE_URL + '?json=' + encodeURIComponent(params);
         fetch(url)
           .then(function (r) { return r.json(); })
           .then(function (data) {
             if (
-              data.routes && data.routes[0] &&
-              data.routes[0].geometry &&
-              data.routes[0].geometry.coordinates &&
-              data.routes[0].geometry.coordinates.length >= 2
+              data.trip &&
+              data.trip.legs &&
+              data.trip.legs[0] &&
+              data.trip.legs[0].shape
             ) {
-              callback(null, data.routes[0].geometry.coordinates);
+              var coords = decodeValhallaPolyline(data.trip.legs[0].shape);
+              if (coords.length >= 2) {
+                callback(null, coords);
+              } else {
+                callback(new Error('no-route'));
+              }
             } else {
               callback(new Error('no-route'));
             }
@@ -343,7 +378,7 @@
         car.fetching = true;
         var center = map ? map.getCenter() : { lng: 0, lat: 0 };
         var dest = getRandomNearbyPoint(center.lng, center.lat, 0.002, 0.006);
-        fetchOsrmRoute(car.lng, car.lat, dest.lng, dest.lat, function (err, coords) {
+        fetchValhallaRoute(car.lng, car.lat, dest.lng, dest.lat, function (err, coords) {
           car.fetching = false;
           if (!carModeActive) return;
           if (err || !coords || coords.length < 2) {
