@@ -90,6 +90,7 @@
       var peopleModeActive = false;
       var intelligentMovementActive = false;
       var mapMarkerPositions = [];
+      var carModeActive = false;
 
       function sendToRN(msg) {
         var str = JSON.stringify(msg);
@@ -294,6 +295,203 @@
             }
           }
         }
+      }
+
+      // ── Car Mode (Fiktiver Autofahrer Modus) ─────────────────────────────────
+
+      var CAR_COUNT = 15;
+      var CAR_SPEED_DEG_PER_FRAME = 0.0000062; // ~50 km/h at lat 51°, 50ms tick
+      var CAR_ANIMATION_MS = 50;
+      var CAR_CIRCLE_RADIUS = 5;
+      var OSRM_BASE_URL = 'https://router.project-osrm.org/route/v1/driving/';
+      var carParticles = [];
+      var carAnimationInterval = null;
+
+      function getRandomNearbyPoint(baseLng, baseLat, minDeg, maxDeg) {
+        var angle = Math.random() * 2 * Math.PI;
+        var r = minDeg + Math.random() * (maxDeg - minDeg);
+        return {
+          lng: baseLng + r * Math.cos(angle) / Math.cos(baseLat * DEG_TO_RAD),
+          lat: baseLat + r * Math.sin(angle),
+        };
+      }
+
+      function fetchOsrmRoute(fromLng, fromLat, toLng, toLat, callback) {
+        var url = OSRM_BASE_URL +
+          fromLng.toFixed(6) + ',' + fromLat.toFixed(6) + ';' +
+          toLng.toFixed(6) + ',' + toLat.toFixed(6) +
+          '?overview=full&geometries=geojson';
+        fetch(url)
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (
+              data.routes && data.routes[0] &&
+              data.routes[0].geometry &&
+              data.routes[0].geometry.coordinates &&
+              data.routes[0].geometry.coordinates.length >= 2
+            ) {
+              callback(null, data.routes[0].geometry.coordinates);
+            } else {
+              callback(new Error('no-route'));
+            }
+          })
+          .catch(function (e) { callback(e); });
+      }
+
+      function fetchCarRoute(car) {
+        if (car.fetching) return;
+        car.fetching = true;
+        var center = map ? map.getCenter() : { lng: 0, lat: 0 };
+        var dest = getRandomNearbyPoint(center.lng, center.lat, 0.002, 0.006);
+        fetchOsrmRoute(car.lng, car.lat, dest.lng, dest.lat, function (err, coords) {
+          car.fetching = false;
+          if (!carModeActive) return;
+          if (err || !coords || coords.length < 2) {
+            // fallback: pick a new destination next tick
+            car.route = null;
+            car.routeSegIdx = 0;
+            car.routeFrac = 0;
+            return;
+          }
+          car.route = coords; // array of [lng, lat]
+          car.routeSegIdx = 0;
+          car.routeFrac = 0;
+          // Snap car to start of route
+          car.lng = coords[0][0];
+          car.lat = coords[0][1];
+        });
+      }
+
+      function generateCarParticles(center, count) {
+        var particles = [];
+        for (var i = 0; i < count; i++) {
+          var pt = getRandomNearbyPoint(center[0], center[1], 0, 0.004);
+          particles.push({
+            lng: pt.lng,
+            lat: pt.lat,
+            route: null,
+            routeSegIdx: 0,
+            routeFrac: 0,
+            fetching: false,
+          });
+        }
+        return particles;
+      }
+
+      function updateCarParticles() {
+        for (var i = 0; i < carParticles.length; i++) {
+          var c = carParticles[i];
+          if (!c.route || c.route.length < 2) {
+            fetchCarRoute(c);
+            continue;
+          }
+          // Move along current segment
+          var segStart = c.route[c.routeSegIdx];
+          var segEnd = c.route[c.routeSegIdx + 1];
+          if (!segEnd) {
+            // Reached end of route — fetch a new one
+            c.route = null;
+            fetchCarRoute(c);
+            continue;
+          }
+          var dx = segEnd[0] - segStart[0];
+          var dy = segEnd[1] - segStart[1];
+          var segLen = Math.sqrt(dx * dx + dy * dy);
+          if (segLen === 0) {
+            c.routeSegIdx++;
+            if (c.routeSegIdx >= c.route.length - 1) {
+              c.route = null;
+              fetchCarRoute(c);
+            }
+            continue;
+          }
+          c.routeFrac += CAR_SPEED_DEG_PER_FRAME / segLen;
+          if (c.routeFrac >= 1) {
+            // Jump to next segment(s), carrying over the overshoot distance
+            while (c.routeFrac >= 1 && c.routeSegIdx < c.route.length - 2) {
+              var prevLen = segLen;
+              c.routeFrac -= 1; // overshoot fraction relative to prevLen
+              c.routeSegIdx++;
+              segStart = c.route[c.routeSegIdx];
+              segEnd = c.route[c.routeSegIdx + 1];
+              if (!segEnd) break;
+              dx = segEnd[0] - segStart[0];
+              dy = segEnd[1] - segStart[1];
+              segLen = Math.sqrt(dx * dx + dy * dy);
+              if (segLen > 0) c.routeFrac = c.routeFrac * prevLen / segLen;
+            }
+            if (c.routeSegIdx >= c.route.length - 1) {
+              c.route = null;
+              fetchCarRoute(c);
+              continue;
+            }
+          }
+          segStart = c.route[c.routeSegIdx];
+          segEnd = c.route[c.routeSegIdx + 1];
+          if (segEnd) {
+            c.lng = segStart[0] + (segEnd[0] - segStart[0]) * c.routeFrac;
+            c.lat = segStart[1] + (segEnd[1] - segStart[1]) * c.routeFrac;
+          }
+        }
+      }
+
+      function carParticlesToGeoJSON() {
+        var features = [];
+        for (var i = 0; i < carParticles.length; i++) {
+          features.push({ type: 'Feature', geometry: { type: 'Point', coordinates: [carParticles[i].lng, carParticles[i].lat] }, properties: {} });
+        }
+        return { type: 'FeatureCollection', features: features };
+      }
+
+      function startCarAnimation() {
+        if (carAnimationInterval) return;
+        carAnimationInterval = setInterval(function () {
+          if (!map || !carModeActive || !map.getSource('car-source')) return;
+          updateCarParticles();
+          map.getSource('car-source').setData(carParticlesToGeoJSON());
+        }, CAR_ANIMATION_MS);
+      }
+
+      function stopCarAnimation() {
+        if (carAnimationInterval) { clearInterval(carAnimationInterval); carAnimationInterval = null; }
+        carParticles = [];
+      }
+
+      function addCarLayer() {
+        if (!map) return;
+        var center = map.getCenter();
+        carParticles = generateCarParticles([center.lng, center.lat], CAR_COUNT);
+        var geojson = carParticlesToGeoJSON();
+        if (map.getSource('car-source')) {
+          map.getSource('car-source').setData(geojson);
+        } else {
+          map.addSource('car-source', { type: 'geojson', data: geojson });
+          var firstFillExtrusion = null;
+          var layers = map.getStyle().layers;
+          for (var i = 0; i < layers.length; i++) {
+            if (layers[i].type === 'fill-extrusion') { firstFillExtrusion = layers[i].id; break; }
+          }
+          map.addLayer({
+            id: 'car-layer',
+            type: 'circle',
+            source: 'car-source',
+            paint: {
+              'circle-radius': CAR_CIRCLE_RADIUS,
+              'circle-color': '#1565c0',
+              'circle-opacity': 0.9,
+              'circle-stroke-width': 0.5,
+              'circle-stroke-color': '#ffffff',
+            },
+          }, firstFillExtrusion || undefined);
+        }
+        startCarAnimation();
+      }
+
+      function removeCarLayer() {
+        if (!map) return;
+        stopCarAnimation();
+        if (map.getLayer('car-layer')) map.removeLayer('car-layer');
+        if (map.getSource('car-source')) map.removeSource('car-source');
       }
 
       // ─────────────────────────────────────────────────────────────────────────
@@ -503,6 +701,15 @@
             removePeopleLayer();
           }
         }
+
+        if (data.carMode !== undefined) {
+          carModeActive = data.carMode;
+          if (carModeActive) {
+            addCarLayer();
+          } else {
+            removeCarLayer();
+          }
+        }
       }
 
       function handleIncomingData(data) {
@@ -572,6 +779,11 @@
           if (peopleModeActive) {
             if (!map.getSource('people-source')) {
               addPeopleLayer();
+            }
+          }
+          if (carModeActive) {
+            if (!map.getSource('car-source')) {
+              addCarLayer();
             }
           }
         });
