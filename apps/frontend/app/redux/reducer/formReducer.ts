@@ -1,4 +1,4 @@
-import { ADD_FORM_QUEUE_ENTRY, CLEAR_CACHED_FORM_DATA, CLEAR_FORM, CLEAR_FORM_QUEUE, REMOVE_FORM_QUEUE_ENTRY, SET_CACHED_FORM_DATA, SET_CACHED_FORM_CATEGORIES, SET_CACHED_FORMS, SET_FORM_FILTER, SET_FORM_SUBMISSION, UPDATE_FORM_QUEUE_ENTRY } from '@/redux/Types/types';
+import { ADD_FORM_QUEUE_ENTRY, CLEAR_CACHED_FORM_DATA, CLEAR_CACHED_FORMS, CLEAR_FORM, CLEAR_FORM_QUEUE, REMOVE_FORM_QUEUE_ENTRY, SET_CACHED_FORM_DATA, SET_CACHED_FORM_CATEGORIES, SET_CACHED_FORMS, SET_FORM_FILTER, SET_FORM_SUBMISSION, UPDATE_FORM_QUEUE_ENTRY } from '@/redux/Types/types';
 import { CachedFormEntry, FormQueueEntry } from '@/redux/Types/stateTypes';
 import { DatabaseTypes } from 'repo-depkit-common';
 
@@ -77,6 +77,9 @@ const formReducer = (state = initialState, actions: any) => {
 					[category_id]: forms,
 				},
 			};
+		}
+		case CLEAR_CACHED_FORMS: {
+			return { ...state, cachedForms: {} };
 		}
 		case CLEAR_FORM: {
 			return {

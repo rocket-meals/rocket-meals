@@ -5563,6 +5563,46 @@
         "tr": "Hepsini indir",
         "zh": "下载全部"
     },
+    "form_download_stage_counting_categories": {
+        "de": "Zähle Kategorien…",
+        "en": "Counting categories…",
+        "ar": "جارٍ عدّ الفئات…",
+        "es": "Contando categorías…",
+        "fr": "Comptage des catégories…",
+        "ru": "Подсчёт категорий…",
+        "tr": "Kategoriler sayılıyor…",
+        "zh": "正在计算分类…"
+    },
+    "form_download_stage_loading_categories": {
+        "de": "Lade Kategorien…",
+        "en": "Loading categories…",
+        "ar": "جارٍ تحميل الفئات…",
+        "es": "Cargando categorías…",
+        "fr": "Chargement des catégories…",
+        "ru": "Загрузка категорий…",
+        "tr": "Kategoriler yükleniyor…",
+        "zh": "正在加载分类…"
+    },
+    "form_download_stage_counting_submissions": {
+        "de": "Zähle Einreichungen…",
+        "en": "Counting submissions…",
+        "ar": "جارٍ عدّ الإرسالات…",
+        "es": "Contando envíos…",
+        "fr": "Comptage des soumissions…",
+        "ru": "Подсчёт заявок…",
+        "tr": "Gönderimler sayılıyor…",
+        "zh": "正在计算提交数…"
+    },
+    "form_download_stage_loading_submissions": {
+        "de": "Lade Einreichungen…",
+        "en": "Loading submissions…",
+        "ar": "جارٍ تحميل الإرسالات…",
+        "es": "Cargando envíos…",
+        "fr": "Chargement des soumissions…",
+        "ru": "Загрузка заявок…",
+        "tr": "Gönderimler yükleniyor…",
+        "zh": "正在加载提交…"
+    },
     "form_submission_not_found": {
         "de": "Einreichung nicht gefunden. Bitte Seite neu laden.",
         "en": "Submission not found. Please reload the page.",

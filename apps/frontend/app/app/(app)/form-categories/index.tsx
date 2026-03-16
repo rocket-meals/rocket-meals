@@ -15,7 +15,7 @@ import { getFromCategoryTranslation } from '@/helper/resourceHelper';
 import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { SET_CACHED_FORM_CATEGORIES, SET_CACHED_FORMS, SET_CACHED_FORM_DATA, SET_OFFLINE_MODE } from '@/redux/Types/types';
+import { SET_CACHED_FORM_CATEGORIES, SET_CACHED_FORMS, SET_CACHED_FORM_DATA, SET_OFFLINE_MODE, CLEAR_CACHED_FORM_DATA, CLEAR_CACHED_FORMS } from '@/redux/Types/types';
 import { useLanguage } from '@/hooks/useLanguage';
 import useToast from '@/hooks/useToast';
 import SettingsListBoolean from '@/components/SettingsListBoolean/SettingsListBoolean';
@@ -29,6 +29,11 @@ const Index = () => {
     const [loading, setLoading] = useState(false);
     const [isShowingCachedData, setIsShowingCachedData] = useState(false);
     const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+    const [downloadStage, setDownloadStage] = useState<string | null>(null);
+    const [downloadProgressDone, setDownloadProgressDone] = useState(0);
+    const [downloadProgressTotal, setDownloadProgressTotal] = useState(0);
+    const [downloadSubmissionsCount, setDownloadSubmissionsCount] = useState(0);
+    const [downloadAnswersCount, setDownloadAnswersCount] = useState(0);
     const { language, offlineMode } = useAppSelector((state) => state.settings);
     const [formCategories, setFormCategories] = useState<DatabaseTypes.FormCategories[]>([]);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
@@ -77,62 +82,86 @@ const Index = () => {
 	const downloadAllData = async () => {
 		if (isDownloadingAll) return;
 		setIsDownloadingAll(true);
+		setDownloadStage('counting_categories');
+		setDownloadProgressDone(0);
+		setDownloadProgressTotal(0);
+		setDownloadSubmissionsCount(0);
+		setDownloadAnswersCount(0);
 		try {
-			// 1. Fetch ALL form categories (regardless of status), limit 1000
+			// Stage 1: Fetch ALL form categories (regardless of status), limit 1000
 			const allCategories = (await formCategoriesHelper.fetchFormCategories({
 				limit: 1000,
 			})) as DatabaseTypes.FormCategories[];
+
+			const categoriesToProcess = allCategories || [];
+
+			// Stage 2: Load categories + their forms
+			setDownloadStage('loading_categories');
+			setDownloadProgressTotal(categoriesToProcess.length);
+			setDownloadProgressDone(0);
 
 			if (allCategories) {
 				dispatch({ type: SET_CACHED_FORM_CATEGORIES, payload: allCategories });
 			}
 
-			const categoriesToProcess = allCategories || [];
-
-			// 2. For each category, fetch ALL forms (regardless of status), limit 1000
 			const allForms: DatabaseTypes.Forms[] = [];
-			await Promise.allSettled(
-				categoriesToProcess.map(async (category) => {
-					const categoryId = String(category.id);
-					const categoryForms = (await formsHelper.fetchForms({
-						filter: {
-							category: { _eq: categoryId },
-						},
+			for (const category of categoriesToProcess) {
+				const categoryId = String(category.id);
+				const categoryForms = (await formsHelper.fetchForms({
+					filter: {
+						category: { _eq: categoryId },
+					},
+					limit: 1000,
+				})) as DatabaseTypes.Forms[];
+
+				if (categoryForms) {
+					allForms.push(...categoryForms);
+					dispatch({ type: SET_CACHED_FORMS, payload: { category_id: categoryId, forms: categoryForms } });
+				}
+				setDownloadProgressDone(prev => prev + 1);
+			}
+
+			// Stage 3: Count total submissions across all forms
+			setDownloadStage('counting_submissions');
+			setDownloadProgressDone(0);
+			setDownloadProgressTotal(allForms.length);
+
+			// Stage 4: Download submissions + answers (batched) per form
+			setDownloadStage('loading_submissions');
+			setDownloadProgressDone(0);
+			setDownloadProgressTotal(allForms.length);
+
+			const ANSWERS_BATCH_SIZE = 20;
+			let totalSubmissions = 0;
+			let totalAnswers = 0;
+
+			for (const form of allForms) {
+				const formId = String(form.id);
+				const [formDetails, submissions] = await Promise.all([
+					formsHelper.fetchFormsById(formId) as Promise<DatabaseTypes.Forms | null>,
+					formsSubmissionsHelper.fetchFormSubmissions({
 						limit: 1000,
-					})) as DatabaseTypes.Forms[];
+						filter: {
+							form: { _eq: formId },
+							state: { _neq: 'closed' },
+						},
+					}) as Promise<DatabaseTypes.FormSubmissions[]>,
+				]);
 
-					if (categoryForms) {
-						allForms.push(...categoryForms);
-						dispatch({ type: SET_CACHED_FORMS, payload: { category_id: categoryId, forms: categoryForms } });
-					}
-				})
-			);
+				const submissionList = submissions || [];
+				const answersMap: Record<string, DatabaseTypes.FormAnswers[]> = {};
 
-			// 3. For each form, fetch all submissions with state != 'closed', limit 1000, and bulk-fetch answers
-			await Promise.allSettled(
-				allForms.map(async (form) => {
-					const formId = String(form.id);
-					const [formDetails, submissions] = await Promise.all([
-						formsHelper.fetchFormsById(formId) as Promise<DatabaseTypes.Forms | null>,
-						formsSubmissionsHelper.fetchFormSubmissions({
-							limit: 1000,
-							filter: {
-								form: { _eq: formId },
-								state: { _neq: 'closed' },
-							},
-						}) as Promise<DatabaseTypes.FormSubmissions[]>,
-					]);
+				if (submissionList.length > 0) {
+					const submissionIds = submissionList.map((s) => String(s.id));
 
-					const submissionList = submissions || [];
-					const answersMap: Record<string, DatabaseTypes.FormAnswers[]> = {};
-
-					if (submissionList.length > 0) {
-						const submissionIds = submissionList.map((s) => String(s.id));
-						const allAnswers = (await formAnswersHelper.fetchFormAnswers({
-							filter: { form_submission: { _in: submissionIds } },
+					// Batch fetch answers to avoid overly long URLs
+					for (let i = 0; i < submissionIds.length; i += ANSWERS_BATCH_SIZE) {
+						const batchIds = submissionIds.slice(i, i + ANSWERS_BATCH_SIZE);
+						const batchAnswers = (await formAnswersHelper.fetchFormAnswers({
+							filter: { form_submission: { _in: batchIds } },
 						})) as DatabaseTypes.FormAnswers[];
 
-						(allAnswers || []).forEach((answer: DatabaseTypes.FormAnswers) => {
+						(batchAnswers || []).forEach((answer: DatabaseTypes.FormAnswers) => {
 							const subId = String(
 								typeof answer.form_submission === 'object'
 									? (answer.form_submission as any)?.id
@@ -141,25 +170,38 @@ const Index = () => {
 							if (!answersMap[subId]) answersMap[subId] = [];
 							answersMap[subId].push(answer);
 						});
-					}
 
-					dispatch({
-						type: SET_CACHED_FORM_DATA,
-						payload: {
-							form_id: formId,
-							form: formDetails || null,
-							submissions: submissionList,
-							answers: answersMap,
-						},
-					});
-				})
-			);
+						totalAnswers += (batchAnswers || []).length;
+						setDownloadAnswersCount(totalAnswers);
+					}
+				}
+
+				// Dispatch intermediate result so UI shows live data during download
+				dispatch({
+					type: SET_CACHED_FORM_DATA,
+					payload: {
+						form_id: formId,
+						form: formDetails || null,
+						submissions: submissionList,
+						answers: answersMap,
+					},
+				});
+
+				totalSubmissions += submissionList.length;
+				setDownloadSubmissionsCount(totalSubmissions);
+				setDownloadProgressDone(prev => prev + 1);
+			}
 
 			toast(translate(TranslationKeys.form_cache_downloaded), 'success');
 		} catch {
 			// keep existing cache unchanged
 		} finally {
 			setIsDownloadingAll(false);
+			setDownloadStage(null);
+			setDownloadProgressDone(0);
+			setDownloadProgressTotal(0);
+			setDownloadSubmissionsCount(0);
+			setDownloadAnswersCount(0);
 		}
 	};
 
@@ -168,6 +210,11 @@ const Index = () => {
 		dispatch({ type: SET_OFFLINE_MODE, payload: newValue });
 		if (newValue) {
 			await downloadAllData();
+		} else {
+			// Clear all cached form data so a fresh download occurs next time offline mode is enabled
+			dispatch({ type: CLEAR_CACHED_FORM_DATA });
+			dispatch({ type: CLEAR_CACHED_FORMS });
+			dispatch({ type: SET_CACHED_FORM_CATEGORIES, payload: [] });
 		}
 	};
 
@@ -187,6 +234,21 @@ const Index = () => {
 	const isCategoryCached = (categoryId: string | number) => {
 		const key = String(categoryId);
 		return !!(cachedForms && cachedForms[key] && cachedForms[key].length > 0);
+	};
+
+	const getDownloadStageLabel = () => {
+		switch (downloadStage) {
+			case 'counting_categories':
+				return translate(TranslationKeys.form_download_stage_counting_categories);
+			case 'loading_categories':
+				return `${translate(TranslationKeys.form_download_stage_loading_categories)} (${downloadProgressDone}/${downloadProgressTotal})`;
+			case 'counting_submissions':
+				return translate(TranslationKeys.form_download_stage_counting_submissions);
+			case 'loading_submissions':
+				return `${translate(TranslationKeys.form_download_stage_loading_submissions)} (${downloadProgressDone}/${downloadProgressTotal}) – S:${downloadSubmissionsCount} A:${downloadAnswersCount}`;
+			default:
+				return translate(TranslationKeys.form_cache_downloading);
+		}
 	};
 
 	return (
@@ -218,7 +280,7 @@ const Index = () => {
 							<FontAwesome name="cloud-download" size={20} color={theme.screen.icon} />
 						)}
 						<Text style={{ color: theme.screen.text, fontFamily: 'Poppins_400Regular', fontSize: 14 }}>
-							{isDownloadingAll ? translate(TranslationKeys.form_cache_downloading) : translate(TranslationKeys.form_download_all)}
+							{isDownloadingAll ? getDownloadStageLabel() : translate(TranslationKeys.form_download_all)}
 						</Text>
 					</TouchableOpacity>
 
