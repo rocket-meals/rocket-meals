@@ -138,6 +138,10 @@ export class MyDatabaseHelper implements MyDatabaseHelperInterface {
     return new ItemsServiceHelper<DatabaseTypes.AppFeedbacks>(this, CollectionNames.APP_FEEDBACKS);
   }
 
+  getAppScreenVisitsHelper() {
+    return new ItemsServiceHelper<DatabaseTypes.AppScreenVisits>(this, 'app_screen_visits');
+  }
+
   getCashregisterHelper() {
     return new CashregisterHelper(this);
   }

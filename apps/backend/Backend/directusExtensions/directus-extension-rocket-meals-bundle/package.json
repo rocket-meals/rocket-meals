@@ -50,6 +50,11 @@
       },
       {
         "type": "hook",
+        "name": "app-screen-visits-hook",
+        "source": "src/app-screen-visits-hook/index.ts"
+      },
+      {
+        "type": "hook",
         "name": "auto-translation-hook",
         "source": "src/auto-translation-hook/index.ts"
       },

@@ -69,6 +69,13 @@ export type AppFeedbacks = {
   user_updated?: string | DirectusUsers | null;
 };
 
+export type AppScreenVisits = {
+  id: string;
+  screen_name: string;
+  date_created?: string | null;
+  profile?: string | Profiles | null;
+};
+
 export type AppSettings = {
   animations_auto_start?: boolean | null;
   app_stores: string;
@@ -1915,6 +1922,7 @@ export type CustomDirectusTypes = {
   app_elements: AppElements[];
   app_elements_translations: AppElementsTranslations[];
   app_feedbacks: AppFeedbacks[];
+  app_screen_visits: AppScreenVisits[];
   app_settings: AppSettings;
   app_settings_balance_translations: AppSettingsBalanceTranslations[];
   app_settings_housing_translations: AppSettingsHousingTranslations[];
