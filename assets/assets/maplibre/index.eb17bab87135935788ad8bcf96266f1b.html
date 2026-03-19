@@ -6,6 +6,8 @@
     <title>OSM Vector Map</title>
     <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.5.0/dist/maplibre-gl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <style>
       * {
         margin: 0;
@@ -93,6 +95,10 @@
       var carModeActive = false;
       var activeImageOverlayIds = [];
       var active3DBuildingIds = [];
+      var activeGlbModelIds = [];
+      var HIGHLIGHT_BUILDING_SOURCE = 'highlight-building-source';
+      var HIGHLIGHT_BUILDING_LAYER = 'highlight-building-layer';
+      var currentHighlightedFeature = null;
 
       function sendToRN(msg) {
         var str = JSON.stringify(msg);
@@ -705,6 +711,98 @@
         }
       }
 
+      function clearBuildingHighlight() {
+        if (!map) return;
+        if (map.getLayer(HIGHLIGHT_BUILDING_LAYER)) map.removeLayer(HIGHLIGHT_BUILDING_LAYER);
+        if (map.getSource(HIGHLIGHT_BUILDING_SOURCE)) map.removeSource(HIGHLIGHT_BUILDING_SOURCE);
+      }
+
+      function highlightBuilding(feature) {
+        if (!map || !feature || !feature.geometry) return;
+        currentHighlightedFeature = feature;
+        clearBuildingHighlight();
+        map.addSource(HIGHLIGHT_BUILDING_SOURCE, {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: feature.geometry, properties: feature.properties || {} }] },
+        });
+        map.addLayer({
+          id: HIGHLIGHT_BUILDING_LAYER,
+          type: 'fill-extrusion',
+          source: HIGHLIGHT_BUILDING_SOURCE,
+          paint: {
+            'fill-extrusion-color': '#ffdd00',
+            'fill-extrusion-height': ['coalesce', ['get', 'render_height'], ['get', 'height'], 10],
+            'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], ['get', 'base_height'], ['get', 'base'], 0],
+            'fill-extrusion-opacity': 0.92,
+          },
+        });
+      }
+
+      function addGlbModel(modelData) {
+        if (!map || !modelData || !modelData.id || !modelData.url || !modelData.position) return;
+        if (typeof THREE === 'undefined') return;
+        var layerId = 'glb-layer-' + modelData.id;
+        if (map.getLayer(layerId)) map.removeLayer(layerId);
+        var origin = [modelData.position.lng, modelData.position.lat];
+        var altitude = modelData.position.altitude || 0;
+        var merc = maplibregl.MercatorCoordinate.fromLngLat(origin, altitude);
+        var unitScale = merc.meterInMercatorCoordinateUnits() * (modelData.scale || 1);
+        var mt = {
+          x: merc.x, y: merc.y, z: merc.z,
+          rx: modelData.rotateX != null ? modelData.rotateX : Math.PI / 2,
+          ry: modelData.rotateY != null ? modelData.rotateY : 0,
+          rz: modelData.rotateZ != null ? modelData.rotateZ : 0,
+          s: unitScale,
+        };
+        var customLayer = {
+          id: layerId, type: 'custom', renderingMode: '3d',
+          scene: null, camera: null, renderer: null, map: null,
+          onAdd: function (mapInst, gl) {
+            this.camera = new THREE.Camera();
+            this.scene = new THREE.Scene();
+            this.scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+            var dl1 = new THREE.DirectionalLight(0xffffff, 0.8);
+            dl1.position.set(0, -70, 100).normalize();
+            this.scene.add(dl1);
+            var dl2 = new THREE.DirectionalLight(0xffffff, 0.4);
+            dl2.position.set(0, 70, 100).normalize();
+            this.scene.add(dl2);
+            var self = this;
+            var loader = new THREE.GLTFLoader();
+            loader.load(modelData.url, function (gltf) { self.scene.add(gltf.scene); }, undefined, function (err) { console.error('GLB load error for model ' + modelData.id + ':', err); });
+            this.map = mapInst;
+            this.renderer = new THREE.WebGLRenderer({ canvas: mapInst.getCanvas(), context: gl, antialias: true });
+            this.renderer.autoClear = false;
+          },
+          render: function (gl, matrix) {
+            var rx = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), mt.rx);
+            var ry = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), mt.ry);
+            var rz = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 0, 1), mt.rz);
+            var m = new THREE.Matrix4().fromArray(matrix);
+            var l = new THREE.Matrix4()
+              .makeTranslation(mt.x, mt.y, mt.z)
+              .scale(new THREE.Vector3(mt.s, -mt.s, mt.s))
+              .multiply(rx).multiply(ry).multiply(rz);
+            this.camera.projectionMatrix = m.multiply(l);
+            this.renderer.resetState();
+            this.renderer.render(this.scene, this.camera);
+            this.map.triggerRepaint();
+          },
+        };
+        map.addLayer(customLayer);
+        activeGlbModelIds.push(modelData.id);
+      }
+
+      function updateGlbModels(models) {
+        for (var i = 0; i < activeGlbModelIds.length; i++) {
+          var lid = 'glb-layer-' + activeGlbModelIds[i];
+          if (map.getLayer(lid)) map.removeLayer(lid);
+        }
+        activeGlbModelIds = [];
+        if (!models || !Array.isArray(models)) return;
+        for (var j = 0; j < models.length; j++) { addGlbModel(models[j]); }
+      }
+
       function applyMessage(data) {
         if (!map) return;
 
@@ -830,6 +928,18 @@
         if (data.buildings3d !== undefined) {
           update3DBuildings(data.buildings3d);
         }
+
+        if (data.glbModels !== undefined) {
+          updateGlbModels(data.glbModels);
+        }
+
+        if (data.minPitch != null) {
+          map.setMinPitch(data.minPitch);
+        }
+
+        if (data.maxPitch != null) {
+          map.setMaxPitch(data.maxPitch);
+        }
       }
 
       function handleIncomingData(data) {
@@ -891,8 +1001,29 @@
           sendToRN({ tag: 'onPitchEnd', pitch: map.getPitch() });
         });
 
-        map.on('click', function () {
-          sendToRN({ tag: 'MapTapped' });
+        map.on('click', function (e) {
+          try {
+            var allLayers = map.getStyle().layers;
+            var extrusionLayerIds = [];
+            for (var li = 0; li < allLayers.length; li++) {
+              if (allLayers[li].type === 'fill-extrusion' && allLayers[li].id !== HIGHLIGHT_BUILDING_LAYER) {
+                extrusionLayerIds.push(allLayers[li].id);
+              }
+            }
+            var features = extrusionLayerIds.length > 0
+              ? map.queryRenderedFeatures(e.point, { layers: extrusionLayerIds })
+              : [];
+            if (features && features.length > 0) {
+              highlightBuilding(features[0]);
+              sendToRN({ tag: 'BuildingClicked', properties: features[0].properties });
+            } else {
+              currentHighlightedFeature = null;
+              clearBuildingHighlight();
+              sendToRN({ tag: 'MapTapped' });
+            }
+          } catch (err) {
+            sendToRN({ tag: 'MapTapped' });
+          }
         });
 
         map.on('styledata', function () {
@@ -905,6 +1036,9 @@
             if (!map.getSource('car-source')) {
               addCarLayer();
             }
+          }
+          if (currentHighlightedFeature && !map.getSource(HIGHLIGHT_BUILDING_SOURCE)) {
+            highlightBuilding(currentHighlightedFeature);
           }
         });
       }
