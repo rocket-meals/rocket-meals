@@ -91,6 +91,8 @@
       var intelligentMovementActive = false;
       var mapMarkerPositions = [];
       var carModeActive = false;
+      var activeImageOverlayIds = [];
+      var active3DBuildingIds = [];
 
       function sendToRN(msg) {
         var str = JSON.stringify(msg);
@@ -628,6 +630,81 @@
         }
       }
 
+      function updateImageOverlays(overlays) {
+        // Remove previously added overlays
+        for (var ri = 0; ri < activeImageOverlayIds.length; ri++) {
+          var rid = activeImageOverlayIds[ri];
+          if (map.getLayer('img-layer-' + rid)) map.removeLayer('img-layer-' + rid);
+          if (map.getSource('img-src-' + rid)) map.removeSource('img-src-' + rid);
+        }
+        activeImageOverlayIds = [];
+        if (!overlays || !Array.isArray(overlays)) return;
+        for (var i = 0; i < overlays.length; i++) {
+          var ov = overlays[i];
+          if (!ov || !ov.id || !ov.url || !ov.coordinates || ov.coordinates.length < 4) continue;
+          var srcId = 'img-src-' + ov.id;
+          var layId = 'img-layer-' + ov.id;
+          map.addSource(srcId, {
+            type: 'image',
+            url: ov.url,
+            coordinates: ov.coordinates,
+          });
+          map.addLayer({
+            id: layId,
+            type: 'raster',
+            source: srcId,
+            paint: { 'raster-opacity': ov.opacity != null ? ov.opacity : 0.85 },
+          });
+          activeImageOverlayIds.push(ov.id);
+        }
+      }
+
+      function update3DBuildings(buildings) {
+        // Remove previously added 3D buildings
+        for (var ri = 0; ri < active3DBuildingIds.length; ri++) {
+          var rid = active3DBuildingIds[ri];
+          if (map.getLayer('bld-layer-' + rid)) map.removeLayer('bld-layer-' + rid);
+          if (map.getSource('bld-src-' + rid)) map.removeSource('bld-src-' + rid);
+        }
+        active3DBuildingIds = [];
+        if (!buildings || !Array.isArray(buildings)) return;
+        for (var i = 0; i < buildings.length; i++) {
+          var b = buildings[i];
+          if (!b || !b.id || !b.coordinates || b.coordinates.length < 4) continue;
+          var srcId = 'bld-src-' + b.id;
+          var layId = 'bld-layer-' + b.id;
+          var ring = b.coordinates.slice();
+          // Close the ring if necessary
+          var first = ring[0];
+          var last = ring[ring.length - 1];
+          if (first[0] !== last[0] || first[1] !== last[1]) ring.push([first[0], first[1]]);
+          var geojson = {
+            type: 'FeatureCollection',
+            features: [{
+              type: 'Feature',
+              geometry: { type: 'Polygon', coordinates: [ring] },
+              properties: {
+                height: b.height != null ? b.height : 20,
+                base: b.base != null ? b.base : 0,
+              },
+            }],
+          };
+          map.addSource(srcId, { type: 'geojson', data: geojson });
+          map.addLayer({
+            id: layId,
+            type: 'fill-extrusion',
+            source: srcId,
+            paint: {
+              'fill-extrusion-color': b.color || '#ff6600',
+              'fill-extrusion-height': ['get', 'height'],
+              'fill-extrusion-base': ['get', 'base'],
+              'fill-extrusion-opacity': b.opacity != null ? b.opacity : 0.85,
+            },
+          });
+          active3DBuildingIds.push(b.id);
+        }
+      }
+
       function applyMessage(data) {
         if (!map) return;
 
@@ -744,6 +821,14 @@
           } else {
             removeCarLayer();
           }
+        }
+
+        if (data.imageOverlays !== undefined) {
+          updateImageOverlays(data.imageOverlays);
+        }
+
+        if (data.buildings3d !== undefined) {
+          update3DBuildings(data.buildings3d);
         }
       }
 
