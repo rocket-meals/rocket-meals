@@ -99,6 +99,8 @@
       var HIGHLIGHT_BUILDING_SOURCE = 'highlight-building-source';
       var HIGHLIGHT_BUILDING_LAYER = 'highlight-building-layer';
       var currentHighlightedFeature = null;
+      var buildingClickEnabled = false;
+      var glbModelMts = {};
 
       function sendToRN(msg) {
         var str = JSON.stringify(msg);
@@ -746,14 +748,17 @@
         var origin = [modelData.position.lng, modelData.position.lat];
         var altitude = modelData.position.altitude || 0;
         var merc = maplibregl.MercatorCoordinate.fromLngLat(origin, altitude);
-        var unitScale = merc.meterInMercatorCoordinateUnits() * (modelData.scale || 1);
+        var metersPerUnit = merc.meterInMercatorCoordinateUnits();
+        var unitScale = metersPerUnit * (modelData.scale || 1);
         var mt = {
           x: merc.x, y: merc.y, z: merc.z,
           rx: modelData.rotateX != null ? modelData.rotateX : Math.PI / 2,
           ry: modelData.rotateY != null ? modelData.rotateY : 0,
           rz: modelData.rotateZ != null ? modelData.rotateZ : 0,
           s: unitScale,
+          metersPerUnit: metersPerUnit,
         };
+        glbModelMts[modelData.id] = mt;
         var customLayer = {
           id: layerId, type: 'custom', renderingMode: '3d',
           scene: null, camera: null, renderer: null, map: null,
@@ -797,6 +802,7 @@
         for (var i = 0; i < activeGlbModelIds.length; i++) {
           var lid = 'glb-layer-' + activeGlbModelIds[i];
           if (map.getLayer(lid)) map.removeLayer(lid);
+          delete glbModelMts[activeGlbModelIds[i]];
         }
         activeGlbModelIds = [];
         if (!models || !Array.isArray(models)) return;
@@ -933,6 +939,18 @@
           updateGlbModels(data.glbModels);
         }
 
+        if (data.updateGlbModelScale !== undefined) {
+          var scaleUpd = data.updateGlbModelScale;
+          if (scaleUpd && scaleUpd.id && glbModelMts[scaleUpd.id]) {
+            glbModelMts[scaleUpd.id].s = glbModelMts[scaleUpd.id].metersPerUnit * (scaleUpd.scale || 1);
+            map.triggerRepaint();
+          }
+        }
+
+        if (data.enableBuildingClick !== undefined) {
+          buildingClickEnabled = !!data.enableBuildingClick;
+        }
+
         if (data.minPitch != null) {
           map.setMinPitch(data.minPitch);
         }
@@ -1003,6 +1021,10 @@
 
         map.on('click', function (e) {
           try {
+            if (!buildingClickEnabled) {
+              sendToRN({ tag: 'MapTapped' });
+              return;
+            }
             var allLayers = map.getStyle().layers;
             var extrusionLayerIds = [];
             for (var li = 0; li < allLayers.length; li++) {
