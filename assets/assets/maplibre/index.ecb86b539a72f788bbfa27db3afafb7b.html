@@ -779,11 +779,13 @@
             this.renderer = new THREE.WebGLRenderer({ canvas: mapInst.getCanvas(), context: gl, antialias: true });
             this.renderer.autoClear = false;
           },
-          render: function (gl, matrix) {
+          render: function (gl, args) {
+            // MapLibre GL ≥ v4 passes an object { projectionMatrix, ... }; v3 passed the matrix array directly.
+            var rawMatrix = (args && args.projectionMatrix) ? args.projectionMatrix : args;
             var rx = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), mt.rx);
             var ry = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), mt.ry);
             var rz = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 0, 1), mt.rz);
-            var m = new THREE.Matrix4().fromArray(matrix);
+            var m = new THREE.Matrix4().fromArray(rawMatrix);
             var l = new THREE.Matrix4()
               .makeTranslation(mt.x, mt.y, mt.z)
               .scale(new THREE.Vector3(mt.s, -mt.s, mt.s))
@@ -807,6 +809,35 @@
         activeGlbModelIds = [];
         if (!models || !Array.isArray(models)) return;
         for (var j = 0; j < models.length; j++) { addGlbModel(models[j]); }
+      }
+
+      // Layer-group keyword map for setLayerGroupVisibility.
+      // Keys are the group names sent from React Native; values are substring patterns to match layer IDs.
+      var LAYER_GROUP_KEYWORDS = {
+        poi:        ['poi', 'shop', 'amenity'],
+        parking:    ['parking'],
+        transit:    ['bus', 'transit', 'railway', 'aeroway', 'station'],
+        roadLabels: ['road-label', 'road-name', 'road-shield', 'highway-name', 'street-label', 'label-road'],
+      };
+
+      function setLayerGroupVisibility(group, visible) {
+        if (!map) return;
+        var style = map.getStyle();
+        if (!style || !style.layers) return;
+        var keywords = LAYER_GROUP_KEYWORDS[group];
+        if (!keywords) return;
+        var visValue = visible ? 'visible' : 'none';
+        for (var i = 0; i < style.layers.length; i++) {
+          var layerId = style.layers[i].id;
+          for (var k = 0; k < keywords.length; k++) {
+            if (layerId.indexOf(keywords[k]) !== -1) {
+              try { map.setLayoutProperty(layerId, 'visibility', visValue); } catch (e) {
+                // Some layers (e.g. sky, background) do not support layout properties; safely skip them.
+              }
+              break;
+            }
+          }
+        }
       }
 
       function applyMessage(data) {
@@ -949,6 +980,10 @@
 
         if (data.enableBuildingClick !== undefined) {
           buildingClickEnabled = !!data.enableBuildingClick;
+        }
+
+        if (data.setLayerGroupVisibility !== undefined) {
+          setLayerGroupVisibility(data.setLayerGroupVisibility.group, !!data.setLayerGroupVisibility.visible);
         }
 
         if (data.minPitch != null) {
