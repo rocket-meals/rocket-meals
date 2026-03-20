@@ -811,6 +811,48 @@
         for (var j = 0; j < models.length; j++) { addGlbModel(models[j]); }
       }
 
+      // Emoji fallback map for icons referenced by the map style but missing from its sprite sheet.
+      // The styleimagemissing event fires when MapLibre cannot resolve an icon; we render the emoji
+      // onto a canvas and register the result so no warning is emitted and features stay visible.
+      var ICON_EMOJI_MAP = {
+        office:            '🏢',
+        atm:               '🏧',
+        gate:              '🚧',
+        bollard:           '⛔',
+        cycle_barrier:     '🚲',
+        brownfield:        '🏚️',
+        recycling:         '♻️',
+        lift_gate:         '🚧',
+        bicycle_parking:   '🚲',
+        swimming_pool:     '🏊',
+        sports_centre:     '🏟️',
+        canoe:             '🛶',
+        handball:          '🤾',
+        shooting:          '🎯',
+        running:           '🏃',
+        billiards:         '🎱',
+        climbing:          '🧗',
+        athletics:         '🏅',
+        water_park:        '💦',
+        hackerspace:       '💻',
+        yoga:              '🧘',
+        escape_game:       '🎮',
+        ice_rink:          '⛸️',
+        motorcycle_parking:'🏍️',
+      };
+
+      function createEmojiImageData(emoji, size) {
+        var canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        var ctx = canvas.getContext('2d');
+        ctx.font = Math.round(size * 0.75) + 'px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(emoji, size / 2, size / 2);
+        return ctx.getImageData(0, 0, size, size);
+      }
+
       // Layer-group keyword map for setLayerGroupVisibility.
       // Keys are the group names sent from React Native; values are substring patterns to match layer IDs.
       var LAYER_GROUP_KEYWORDS = {
@@ -818,6 +860,8 @@
         parking:    ['parking'],
         transit:    ['bus', 'transit', 'railway', 'aeroway', 'station'],
         roadLabels: ['road-label', 'road-name', 'road-shield', 'highway-name', 'street-label', 'label-road'],
+        leisure:    ['leisure', 'sport', 'pitch', 'stadium', 'swimming'],
+        barriers:   ['barrier'],
       };
 
       function setLayerGroupVisibility(group, visible) {
@@ -1080,6 +1124,16 @@
             }
           } catch (err) {
             sendToRN({ tag: 'MapTapped' });
+          }
+        });
+
+        map.on('styleimagemissing', function (e) {
+          var emoji = ICON_EMOJI_MAP[e.id];
+          if (emoji) {
+            try {
+              var imgData = createEmojiImageData(emoji, 32);
+              map.addImage(e.id, imgData);
+            } catch (err) { /* ignore */ }
           }
         });
 
