@@ -100,6 +100,7 @@
       var HIGHLIGHT_BUILDING_LAYER = 'highlight-building-layer';
       var currentHighlightedFeature = null;
       var buildingClickEnabled = false;
+      var poiClickEnabled = false;
       var glbModelMts = {};
       // Icon overrides sent from React Native: key → emoji string to use, or null to hide that icon type.
       var customIconOverrides = {};
@@ -814,318 +815,10 @@
       }
 
       // Emoji fallback map for icons referenced by the map style but missing from its sprite sheet.
-      // The styleimagemissing event fires when MapLibre cannot resolve an icon; we render the emoji
-      // onto a canvas and register the result so no warning is emitted and features stay visible.
-      var ICON_EMOJI_MAP = {
-        // ── Offices & Finance ─────────────────────────────────────────────────
-        office:            '🏢',
-        atm:               '🏧',
-        bank:              '🏦',
-        bureau_de_change:  '💱',
-        money_transfer:    '💸',
-        // ── Barriers & Access ─────────────────────────────────────────────────
-        gate:              '🚧',
-        bollard:           '⛔',
-        cycle_barrier:     '🚲',
-        lift_gate:         '🚧',
-        sally_port:        '🚪',
-        swing_gate:        '🚧',
-        jersey_barrier:    '🚧',
-        debris:            '🚧',
-        kissing_gate:      '🚪',
-        turnstile:         '🚪',
-        'full-height_turnstile': '🚪',
-        stile:             '🚪',
-        cattle_grid:       '🐄',
-        height_restrictor: '🚧',
-        log:               '🪵',
-        // ── Parking ───────────────────────────────────────────────────────────
-        bicycle_parking:   '🚲',
-        motorcycle_parking:'🏍️',
-        parking:           '🅿️',
-        parking_entrance:  '🅿️',
-        parking_space:     '🅿️',
-        bicycle_rental:    '🚲',
-        // ── Leisure & Outdoor ─────────────────────────────────────────────────
-        swimming_pool:     '🏊',
-        water_park:        '💦',
-        ice_rink:          '⛸️',
-        playground:        '🛝',
-        park:              '🌳',
-        garden:            '🌸',
-        nature_reserve:    '🌿',
-        common:            '🌳',
-        dog_park:          '🐕',
-        bird_hide:         '🦅',
-        marina:            '⚓',
-        slipway:           '⛵',
-        beach:             '🏖️',
-        picnic_table:      '🧺',
-        firepit:           '🔥',
-        outdoor_seating:   '☀️',
-        // ── Sports facilities ─────────────────────────────────────────────────
-        sports_centre:     '🏟️',
-        fitness_centre:    '💪',
-        sports_hall:       '🏟️',
-        stadium:           '🏟️',
-        track:             '🏃',
-        pitch:             '⚽',
-        // ── Sport types ───────────────────────────────────────────────────────
-        canoe:             '🛶',
-        handball:          '🤾',
-        shooting:          '🎯',
-        running:           '🏃',
-        billiards:         '🎱',
-        climbing:          '🧗',
-        athletics:         '🏅',
-        hackerspace:       '💻',
-        yoga:              '🧘',
-        escape_game:       '🎮',
-        rowing:            '🚣',
-        cycling:           '🚴',
-        field_hockey:      '🏑',
-        karting:           '🏎️',
-        sailing:           '⛵',
-        multi:             '🤸',
-        soccer:            '⚽',
-        football:          '⚽',
-        tennis:            '🎾',
-        basketball:        '🏀',
-        volleyball:        '🏐',
-        baseball:          '⚾',
-        cricket:           '🏏',
-        golf:              '⛳',
-        equestrian:        '🐎',
-        horse_racing:      '🐎',
-        rugby:             '🏉',
-        rugby_league:      '🏉',
-        rugby_union:       '🏉',
-        boxing:            '🥊',
-        martial_arts:      '🥋',
-        judo:              '🥋',
-        karate:            '🥋',
-        archery:           '🏹',
-        badminton:         '🏸',
-        table_tennis:      '🏓',
-        bowling:           '🎳',
-        gymnastics:        '🤸',
-        weightlifting:     '🏋️',
-        skateboarding:     '🛹',
-        skiing:            '⛷️',
-        snowboarding:      '🏂',
-        surfing:           '🏄',
-        diving:            '🤿',
-        fishing:           '🎣',
-        american_football: '🏈',
-        disc_golf:         '🥏',
-        squash:            '🏅',
-        swimming:          '🏊',
-        fitness:           '💪',
-        roller_skating:    '🛼',
-        ice_hockey:        '🏒',
-        hockey:            '🏒',
-        fencing:           '🤺',
-        wrestling:         '🤼',
-        volleyball_beach:  '🏐',
-        beach_volleyball:  '🏐',
-        acrobatics:        '🤸',
-        cheerleading:      '📣',
-        dance:             '💃',
-        boxing_gym:        '🥊',
-        darts:             '🎯',
-        paintball:         '🎯',
-        crossfit:          '💪',
-        pilates:           '🧘',
-        tai_chi:           '🧘',
-        paragliding:       '🪂',
-        cycling_mountain:  '🚵',
-        bmx:               '🚵',
-        motorsport:        '🏎️',
-        shooting_range:    '🎯',
-        scuba_diving:      '🤿',
-        mountain_biking:   '🚵',
-        triathlon:         '🏅',
-        orienteering:      '🧭',
-        cricket_nets:      '🏏',
-        bowls:             '🎳',
-        bocce:             '🎳',
-        curling:           '🥌',
-        croquet:           '🏑',
-        polo:              '🐎',
-        lacrosse:          '🥍',
-        softball:          '⚾',
-        inline_hockey:     '🏒',
-        water_polo:        '🏊',
-        speed_skating:     '⛸️',
-        biathlon:          '🏅',
-        ski_jumping:       '⛷️',
-        luge:              '🛷',
-        bobsled:           '🛷',
-        skeleton:          '🛷',
-        climbing_wall:     '🧗',
-        bouldering:        '🧗',
-        korfball:          '🏀',
-        floorball:         '🏒',
-        netball:           '🏀',
-        sepak_takraw:      '🏐',
-        kabaddi:           '🤼',
-        gaelic_games:      '⚽',
-        hurling:           '🏑',
-        shinty:            '🏑',
-        chess:             '♟️',
-        // ── Food & Drink ──────────────────────────────────────────────────────
-        restaurant:        '🍽️',
-        cafe:              '☕',
-        bar:               '🍺',
-        pub:               '🍻',
-        fast_food:         '🍔',
-        food_court:        '🍱',
-        ice_cream:         '🍦',
-        confectionery:     '🍬',
-        bakery:            '🥐',
-        // ── Shops ─────────────────────────────────────────────────────────────
-        supermarket:       '🛒',
-        convenience:       '🏪',
-        marketplace:       '🏪',
-        butcher:           '🥩',
-        florist:           '💐',
-        hairdresser:       '💈',
-        beauty:            '💅',
-        optician:          '👓',
-        jewellery:         '💍',
-        clothes:           '👕',
-        shoes:             '👟',
-        sports:            '🏅',
-        electronics:       '🔌',
-        computer:          '💻',
-        mobile_phone:      '📱',
-        bicycle:           '🚲',
-        second_hand:       '♻️',
-        gift:              '🎁',
-        bookshop:          '📚',
-        books:             '📚',
-        pet:               '🐾',
-        garden_centre:     '🌱',
-        hardware:          '🔧',
-        furniture:         '🛋️',
-        outdoor:           '🏕️',
-        doityourself:      '🔨',
-        car:               '🚗',
-        car_parts:         '🔩',
-        tyres:             '🛞',
-        alcohol:           '🍷',
-        tobacco:           '🚬',
-        kiosk:             '🗞️',
-        newsagent:         '🗞️',
-        // ── Accommodation ─────────────────────────────────────────────────────
-        hotel:             '🏨',
-        hostel:            '🛏️',
-        motel:             '🏩',
-        guest_house:       '🏠',
-        apartment:         '🏢',
-        chalet:            '🏡',
-        camp_site:         '⛺',
-        caravan_site:      '🚐',
-        // ── Healthcare ────────────────────────────────────────────────────────
-        hospital:          '🏥',
-        clinic:            '🏥',
-        pharmacy:          '💊',
-        doctors:           '🩺',
-        dentist:           '🦷',
-        veterinary:        '🐾',
-        // ── Education ─────────────────────────────────────────────────────────
-        school:            '🏫',
-        university:        '🎓',
-        college:           '🎓',
-        library:           '📚',
-        kindergarten:      '🧒',
-        // ── Transport ─────────────────────────────────────────────────────────
-        ferry_terminal:    '⛴️',
-        bus_station:       '🚌',
-        bus_stop:          '🚌',
-        taxi:              '🚕',
-        car_rental:        '🚗',
-        car_sharing:       '🚗',
-        fuel:              '⛽',
-        charging_station:  '🔋',
-        bicycle_repair_station: '🔧',
-        airport:           '✈️',
-        aerodrome:         '✈️',
-        railway_station:   '🚂',
-        tram_stop:         '🚊',
-        subway_entrance:   '🚇',
-        // ── Public Services ───────────────────────────────────────────────────
-        post_office:       '📮',
-        post_box:          '📬',
-        police:            '👮',
-        fire_station:      '🚒',
-        townhall:          '🏛️',
-        courthouse:        '⚖️',
-        prison:            '🔒',
-        embassy:           '🏛️',
-        community_centre:  '🏘️',
-        social_facility:   '🤝',
-        // ── Culture & Entertainment ───────────────────────────────────────────
-        theatre:           '🎭',
-        cinema:            '🎬',
-        museum:            '🏛️',
-        arts_centre:       '🎨',
-        gallery:           '🖼️',
-        nightclub:         '🎵',
-        casino:            '🎰',
-        spa:               '🛁',
-        sauna:             '🧖',
-        brothel:           '🏠',
-        stripclub:         '🎵',
-        // ── Religion ──────────────────────────────────────────────────────────
-        place_of_worship:  '⛪',
-        church:            '⛪',
-        mosque:            '🕌',
-        synagogue:         '🕍',
-        temple:            '🛕',
-        shrine:            '⛩️',
-        chapel:            '⛪',
-        // ── Natural & Water ───────────────────────────────────────────────────
-        basin:             '🪣',
-        reservoir:         '💧',
-        water:             '💧',
-        spring:            '💧',
-        waterfall:         '💧',
-        wetland:           '🌿',
-        wood:              '🌲',
-        forest:            '🌲',
-        tree:              '🌳',
-        cliff:             '⛰️',
-        peak:              '⛰️',
-        volcano:           '🌋',
-        cave_entrance:     '🕳️',
-        beach_resort:      '🏖️',
-        // ── Environment ───────────────────────────────────────────────────────
-        brownfield:        '🏚️',
-        recycling:         '♻️',
-        waste_basket:      '🗑️',
-        waste_disposal:    '🗑️',
-        // ── Miscellaneous ─────────────────────────────────────────────────────
-        toilets:           '🚻',
-        drinking_water:    '🚰',
-        telephone:         '☎️',
-        bench:             '🪑',
-        shelter:           '🏠',
-        viewpoint:         '👁️',
-        information:       'ℹ️',
-        tourism:           '📍',
-        historic:          '🏛️',
-        ruins:             '🏚️',
-        castle:            '🏰',
-        fort:              '🏰',
-        monument:          '🗿',
-        memorial:          '🕊️',
-        artwork:           '🎨',
-        fountain:          '⛲',
-        clock:             '🕰️',
-        vending_machine:   '🎰',
-        atm_pos:           '🏧',
-      };
+      // This map starts empty and is populated by an iconEmojiMap message sent from React on mount.
+      // The styleimagemissing event uses this map to render emoji onto a canvas when MapLibre
+      // cannot resolve an icon, so no warning is emitted and features stay visible.
+      var ICON_EMOJI_MAP = {};
 
       function createEmojiImageData(emoji, size) {
         var canvas = document.createElement('canvas');
@@ -1312,6 +1005,18 @@
           buildingClickEnabled = !!data.enableBuildingClick;
         }
 
+        if (data.iconEmojiMap !== undefined && data.iconEmojiMap !== null) {
+          var incoming = data.iconEmojiMap;
+          var ek = Object.keys(incoming);
+          for (var ei = 0; ei < ek.length; ei++) {
+            ICON_EMOJI_MAP[ek[ei]] = incoming[ek[ei]];
+          }
+        }
+
+        if (data.poiClickEnabled !== undefined) {
+          poiClickEnabled = !!data.poiClickEnabled;
+        }
+
         if (data.setLayerGroupVisibility !== undefined) {
           setLayerGroupVisibility(data.setLayerGroupVisibility.group, !!data.setLayerGroupVisibility.visible);
         }
@@ -1421,28 +1126,45 @@
 
         map.on('click', function (e) {
           try {
-            if (!buildingClickEnabled) {
+            if (!buildingClickEnabled && !poiClickEnabled) {
               sendToRN({ tag: 'MapTapped' });
               return;
             }
             var allLayers = map.getStyle().layers;
             var extrusionLayerIds = [];
+            var symbolLayerIds = [];
             for (var li = 0; li < allLayers.length; li++) {
               if (allLayers[li].type === 'fill-extrusion' && allLayers[li].id !== HIGHLIGHT_BUILDING_LAYER) {
                 extrusionLayerIds.push(allLayers[li].id);
+              } else if (poiClickEnabled && allLayers[li].type === 'symbol') {
+                symbolLayerIds.push(allLayers[li].id);
               }
             }
-            var features = extrusionLayerIds.length > 0
-              ? map.queryRenderedFeatures(e.point, { layers: extrusionLayerIds })
-              : [];
-            if (features && features.length > 0) {
-              highlightBuilding(features[0]);
-              sendToRN({ tag: 'BuildingClicked', properties: features[0].properties });
-            } else {
-              currentHighlightedFeature = null;
-              clearBuildingHighlight();
-              sendToRN({ tag: 'MapTapped' });
+            // Building click takes priority over POI click
+            if (buildingClickEnabled) {
+              var bFeatures = extrusionLayerIds.length > 0
+                ? map.queryRenderedFeatures(e.point, { layers: extrusionLayerIds })
+                : [];
+              if (bFeatures && bFeatures.length > 0) {
+                highlightBuilding(bFeatures[0]);
+                sendToRN({ tag: 'BuildingClicked', properties: bFeatures[0].properties });
+                return;
+              }
             }
+            // POI / symbol click
+            if (poiClickEnabled && symbolLayerIds.length > 0) {
+              var pFeatures = map.queryRenderedFeatures(e.point, { layers: symbolLayerIds });
+              if (pFeatures && pFeatures.length > 0) {
+                var props = pFeatures[0].properties || {};
+                var iconId = props.icon || props.class || props.subclass || props.type || pFeatures[0].layer.id || '';
+                var emoji = ICON_EMOJI_MAP[iconId] || '';
+                sendToRN({ tag: 'PoiClicked', iconId: iconId, emoji: emoji, properties: props });
+                return;
+              }
+            }
+            currentHighlightedFeature = null;
+            clearBuildingHighlight();
+            sendToRN({ tag: 'MapTapped' });
           } catch (err) {
             sendToRN({ tag: 'MapTapped' });
           }
