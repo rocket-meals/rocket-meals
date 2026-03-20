@@ -39,6 +39,12 @@ export type FormGenerationParams = {
   myDatabaseHelperInterface: MyDatabaseTestableHelperInterface;
 };
 
+export type ImageValueParams = {
+  fieldName: string;
+  value_image: DatabaseTypes.DirectusFiles | string | null | undefined;
+  myDatabaseHelperInterface: MyDatabaseTestableHelperInterface;
+};
+
 export class FormHelper {
   private static readonly FORM_IMAGE_TRANSFORM_OPTIONS = DirectusFilesAssetHelper.PRESET_FILE_TRANSFORMATION_IMAGE_HD;
 
@@ -477,11 +483,10 @@ export class FormHelper {
   }
 
   private static generateHtmlForImageValue(
-    fieldName: string,
-    value_image: DatabaseTypes.DirectusFiles | string | null | undefined,
-    myDatabaseHelperInterface: MyDatabaseTestableHelperInterface,
+    params: ImageValueParams,
     isSignature = false,
   ): string {
+    const { fieldName, value_image, myDatabaseHelperInterface } = params;
     let assetUrl: string | undefined;
     if (value_image) {
       if (typeof value_image === 'string' && (value_image.startsWith('http') || value_image.startsWith('data:'))) {
@@ -603,7 +608,8 @@ export class FormHelper {
     return markdownContent;
   }
 
-  private static generateMarkdownForTypeImageValue(fieldName: string, value_image: DatabaseTypes.DirectusFiles | string | null | undefined, myDatabaseHelperInterface: MyDatabaseTestableHelperInterface): string {
+  private static generateMarkdownForTypeImageValue(params: ImageValueParams): string {
+    const { fieldName, value_image, myDatabaseHelperInterface } = params;
     let assetUrl: undefined | string = undefined;
     if (value_image) {
       if (typeof value_image === 'string' && (value_image.startsWith('http') || value_image.startsWith('data:'))) {
@@ -657,7 +663,7 @@ export class FormHelper {
       markdownContent += this.generateMarkdownForTypeNumberValue(fieldName, formExtractRelevantInformationSingle);
       markdownContent += this.generateMarkdownForTypeBooleanValue(fieldName, formExtractRelevantInformationSingle.form_answer.value_boolean);
       markdownContent += this.generateMarkdownForTypeDateValue(fieldName, formExtractRelevantInformationSingle);
-      markdownContent += this.generateMarkdownForTypeImageValue(fieldName, formExtractRelevantInformationSingle.form_answer.value_image, myDatabaseHelperInterface);
+      markdownContent += this.generateMarkdownForTypeImageValue({ fieldName, value_image: formExtractRelevantInformationSingle.form_answer.value_image, myDatabaseHelperInterface });
       if(formExtractRelevantInformationSingle.form_answer.value_files.length > 0){
         for (let formAnswerValueFile of formExtractRelevantInformationSingle.form_answer.value_files || []) {
           markdownContent += this.generateMarkdownForTypeFilesValue(fieldName, formAnswerValueFile, myDatabaseHelperInterface);
@@ -703,7 +709,7 @@ export class FormHelper {
       html += this.generateHtmlForBooleanField(fieldName, formExtract.form_answer.value_boolean);
       html += this.generateHtmlForDateField(fieldName, formExtract);
       const isSignature = formExtract.form_field.field_type === FormHelperCommon.FORM_FIELD_TYPE.FILES_IMAGE_SIGNATURE;
-      html += this.generateHtmlForImageValue(fieldName, formExtract.form_answer.value_image, myDatabaseHelperInterface, isSignature);
+      html += this.generateHtmlForImageValue({ fieldName, value_image: formExtract.form_answer.value_image, myDatabaseHelperInterface }, isSignature);
       if (formExtract.form_answer.value_files && formExtract.form_answer.value_files.length > 0) {
         for (const file of formExtract.form_answer.value_files) {
           html += this.generateHtmlForFileValue(fieldName, file, myDatabaseHelperInterface);

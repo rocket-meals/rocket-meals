@@ -24,9 +24,7 @@ const VALUE_NOT_AVAILABLE = 'N/A';
 
 export type ReportStatusTrafficLightType = string;
 
-export type ReportFoodEntryLabelType = {
-  id: string;
-  alias: string;
+export type ReportEntryStatsType = {
   amount_positive_new: number;
   amount_negative_new: number;
   amount_total_new: number;
@@ -35,6 +33,11 @@ export type ReportFoodEntryLabelType = {
   amount_total: number;
   status_total: ReportStatusTrafficLightType;
   status_new: ReportStatusTrafficLightType;
+};
+
+export type ReportFoodEntryLabelType = ReportEntryStatsType & {
+  id: string;
+  alias: string;
 };
 
 export type ReportFoodEntryType = {
@@ -49,16 +52,8 @@ export type ReportFoodEntryType = {
   status_rating: ReportStatusTrafficLightType;
 };
 
-export type ReportCanteenEntryLabelsType = {
+export type ReportCanteenEntryLabelsType = ReportEntryStatsType & {
   label_alias: string;
-  amount_positive_new: number;
-  amount_negative_new: number;
-  amount_total_new: number;
-  amount_positive: number;
-  amount_negative: number;
-  amount_total: number;
-  status_total: ReportStatusTrafficLightType;
-  status_new: ReportStatusTrafficLightType;
 };
 
 export type ReportCanteenEntryType = {

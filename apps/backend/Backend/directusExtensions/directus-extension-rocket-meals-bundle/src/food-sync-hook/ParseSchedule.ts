@@ -538,7 +538,8 @@ export class ParseSchedule {
   }
 
   async updateFoodTranslations(foundFoodWithTranslations: DatabaseTypes.Foods, foodsInformationForParser: FoodsInformationTypeForParser) {
-    await TranslationHelper.updateItemTranslationsForItemWithTranslationsFetched<DatabaseTypes.Foods, DatabaseTypes.FoodsTranslations>(foundFoodWithTranslations, foodsInformationForParser.translations, 'foods_id', CollectionNames.FOODS, this.context.myDatabaseHelper);
+    const params = { translationsFromParsing: foodsInformationForParser.translations, items_primary_field_in_translation_table: 'foods_id' as const, itemsTablename: CollectionNames.FOODS, myDatabaseHelper: this.context.myDatabaseHelper };
+    await TranslationHelper.updateItemTranslationsForItemWithTranslationsFetched<DatabaseTypes.Foods, DatabaseTypes.FoodsTranslations>(foundFoodWithTranslations, params);
   }
 
   async getOrCreateFoodsOnlyWithTranslations(foodsInformationForParserList: FoodsInformationTypeForParser[]) {
@@ -942,6 +943,7 @@ export class ParseSchedule {
   }
 
   async updateMarkingTranslations(marking: DatabaseTypes.Markings, markingJSON: MarkingsTypeForParser) {
-    await TranslationHelper.updateItemTranslations<DatabaseTypes.Markings, DatabaseTypes.MarkingsTranslations>(marking, markingJSON.translations, 'markings_id', CollectionNames.MARKINGS, this.context.myDatabaseHelper);
+    const params = { translationsFromParsing: markingJSON.translations, items_primary_field_in_translation_table: 'markings_id' as const, itemsTablename: CollectionNames.MARKINGS, myDatabaseHelper: this.context.myDatabaseHelper };
+    await TranslationHelper.updateItemTranslations<DatabaseTypes.Markings, DatabaseTypes.MarkingsTranslations>(marking, params);
   }
 }
