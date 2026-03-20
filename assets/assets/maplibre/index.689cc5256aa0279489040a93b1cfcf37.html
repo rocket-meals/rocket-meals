@@ -101,6 +101,8 @@
       var currentHighlightedFeature = null;
       var buildingClickEnabled = false;
       var glbModelMts = {};
+      // Icon overrides sent from React Native: key → emoji string to use, or null to hide that icon type.
+      var customIconOverrides = {};
 
       function sendToRN(msg) {
         var str = JSON.stringify(msg);
@@ -1314,6 +1316,41 @@
           setLayerGroupVisibility(data.setLayerGroupVisibility.group, !!data.setLayerGroupVisibility.visible);
         }
 
+        if (data.poiIconOverrides !== undefined) {
+          var overrides = data.poiIconOverrides || {};
+          // Remove images for icon keys that are now hidden (null) so MapLibre stops rendering them.
+          // Re-add images for keys that were previously hidden but are now visible again.
+          var keys = Object.keys(overrides);
+          for (var oi = 0; oi < keys.length; oi++) {
+            var iconKey = keys[oi];
+            if (overrides[iconKey] === null) {
+              // Hide: remove existing image if registered.
+              if (map.hasImage(iconKey)) {
+                try { map.removeImage(iconKey); } catch (e2) { /* ignore */ }
+              }
+            } else {
+              // Show: re-register with the provided or fallback emoji if not yet registered.
+              var reEmoji = overrides[iconKey] || ICON_EMOJI_MAP[iconKey];
+              if (reEmoji && !map.hasImage(iconKey)) {
+                try { map.addImage(iconKey, createEmojiImageData(reEmoji, 32)); } catch (e2) { /* ignore */ }
+              }
+            }
+          }
+          // Also re-add any previously-hidden keys that are absent from the new overrides.
+          var prevKeys = Object.keys(customIconOverrides);
+          for (var pi = 0; pi < prevKeys.length; pi++) {
+            var prevKey = prevKeys[pi];
+            if (customIconOverrides[prevKey] === null && !Object.prototype.hasOwnProperty.call(overrides, prevKey)) {
+              // Was hidden, now not listed → restore default emoji if available.
+              var restoreEmoji = ICON_EMOJI_MAP[prevKey];
+              if (restoreEmoji && !map.hasImage(prevKey)) {
+                try { map.addImage(prevKey, createEmojiImageData(restoreEmoji, 32)); } catch (e2) { /* ignore */ }
+              }
+            }
+          }
+          customIconOverrides = overrides;
+        }
+
         if (data.minPitch != null) {
           map.setMinPitch(data.minPitch);
         }
@@ -1412,7 +1449,12 @@
         });
 
         map.on('styleimagemissing', function (e) {
-          var emoji = ICON_EMOJI_MAP[e.id];
+          // If explicitly hidden via customIconOverrides (null value), skip – feature becomes invisible.
+          if (Object.prototype.hasOwnProperty.call(customIconOverrides, e.id) && customIconOverrides[e.id] === null) {
+            return;
+          }
+          // Custom override emoji takes precedence over the built-in fallback map.
+          var emoji = (Object.prototype.hasOwnProperty.call(customIconOverrides, e.id) ? customIconOverrides[e.id] : null) || ICON_EMOJI_MAP[e.id];
           if (emoji) {
             try {
               var imgData = createEmojiImageData(emoji, 32);
