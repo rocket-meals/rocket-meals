@@ -2,44 +2,26 @@ import React, { useCallback, memo } from 'react';
 import { View, RefreshControl, StyleSheet } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { DatabaseTypes } from 'repo-depkit-common';
-import FoodOfferListItem from './FoodOfferListItem';
+import FoodOfferListItem, { FoodOfferItemSharedProps } from './FoodOfferListItem';
 
 interface DayItem {
     foodoffer: DatabaseTypes.Foodoffers | null;
     foodofferInfoItem: DatabaseTypes.FoodoffersInfoItems | null;
 }
 
-interface FoodOffersListProps {
+interface FoodOffersListProps extends FoodOfferItemSharedProps {
     dayItems: DayItem[];
     numColumns: number;
-    cardWidth: number;
     refreshing: boolean;
     onRefresh: () => void;
     ListFooterComponent: React.ReactElement | null;
     ListEmptyComponent: React.ReactElement | null;
     setListWidth: (width: number) => void;
     listWidth: number | null;
-    
-    // Props for rendering items
-    selectedCanteen: DatabaseTypes.Canteens | null;
     handleMenuSheet: (sheet: any, props?: any) => void;
     handleImageSheet: (food: DatabaseTypes.Foods) => void;
     getInfoItemContent: (item: DatabaseTypes.FoodoffersInfoItems) => { content: any; popup_button_text?: any; popup_content?: any; } | null;
     feedbackMap: Map<string, any>;
-    // Optimization props
-    language?: string;
-    pirateLanguage?: boolean;
-    funLanguageMode?: string | null;
-    serverInfo?: any;
-    appSettings?: any;
-    primaryColor?: string;
-    user?: any;
-    isManagement?: boolean;
-    profile?: any;
-    markings?: any[];
-    screenWidth?: number;
-    theme?: any;
-    amountColumnsForcard?: number;
 }
 
 const styles = StyleSheet.create({

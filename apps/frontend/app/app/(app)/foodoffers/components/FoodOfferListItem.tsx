@@ -10,17 +10,9 @@ interface DayItem {
     foodofferInfoItem: DatabaseTypes.FoodoffersInfoItems | null;
 }
 
-interface FoodOfferListItemProps {
-    item: DayItem;
-    index: number;
+export interface FoodOfferItemSharedProps {
     cardWidth: number;
     selectedCanteen: DatabaseTypes.Canteens | null;
-    handleMenuSheet: (sheet: any, props?: any) => void;
-    handleImageSheet: (food: DatabaseTypes.Foods) => void;
-    getInfoItemContent: (item: DatabaseTypes.FoodoffersInfoItems) => { content: any; popup_button_text?: any; popup_content?: any; } | null;
-    itemGap?: number;
-    previousFeedback?: any;
-    // Optimization props
     language?: string;
     pirateLanguage?: boolean;
     funLanguageMode?: string | null;
@@ -34,6 +26,16 @@ interface FoodOfferListItemProps {
     screenWidth?: number;
     theme?: any;
     amountColumnsForcard?: number;
+}
+
+interface FoodOfferListItemProps extends FoodOfferItemSharedProps {
+    item: DayItem;
+    index: number;
+    handleMenuSheet: (sheet: any, props?: any) => void;
+    handleImageSheet: (food: DatabaseTypes.Foods) => void;
+    getInfoItemContent: (item: DatabaseTypes.FoodoffersInfoItems) => { content: any; popup_button_text?: any; popup_content?: any; } | null;
+    itemGap?: number;
+    previousFeedback?: any;
 }
 
 const FoodOfferListItem: React.FC<FoodOfferListItemProps> = ({
