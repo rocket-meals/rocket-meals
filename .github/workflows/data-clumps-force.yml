@@ -8,7 +8,7 @@ on:
         required: false
         default: "."
       amount:
-        description: "Number of top data clumps to list in the issue body"
+        description: "Number of top data clumps to list in the markdown report and issue body"
         required: false
         default: "5"
 
@@ -40,11 +40,62 @@ jobs:
           only-update-if-changes: 'false'
           refactor-amount: ${{ github.event.inputs.amount || '5' }}
           detector-options-paths-ignored-in-detection-comparison: '**/databaseTypes/types.ts'
+      - name: "📝 Generate markdown report"
+        run: |
+          node - <<'EOF'
+          const fs = require('fs');
+          const amount = parseInt(process.env.DC_AMOUNT, 10);
+          const reportPath = 'reports/data-clumps-doctor/data-clumps.json';
+          const outputPath = 'reports/data-clumps-doctor/data-clumps.md';
+
+          let report;
+          try {
+            report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          } catch (e) {
+            console.error(`ERROR: Failed to read or parse ${reportPath}: ${e.message}`);
+            process.exit(1);
+          }
+
+          const allClumps = Object.values(report.data_clumps || {});
+          const total = allClumps.length;
+
+          // Sort by number of shared variables (descending) for best candidates first
+          allClumps.sort((a, b) => {
+            const aCount = Object.keys(a.data_clump_data || {}).length;
+            const bCount = Object.keys(b.data_clump_data || {}).length;
+            return bCount - aCount;
+          });
+
+          const topClumps = allClumps.slice(0, amount);
+
+          let md = `## Data Clump Refactoring Report\n\n`;
+          if (topClumps.length < total) {
+            md += `Detected **${total}** data clump(s) in total. Showing top **${topClumps.length}**.\n\n`;
+          } else {
+            md += `Detected **${total}** data clump(s) in total.\n\n`;
+          }
+
+          topClumps.forEach((clump, i) => {
+            const vars = Object.values(clump.data_clump_data || {})
+              .map(v => `\`${v.name}\``)
+              .join(', ');
+            md += `### ${i + 1}. ${clump.data_clump_type || 'Data Clump'}\n\n`;
+            md += `**From:** \`${clump.from_class_or_interface_name}\` in \`${clump.from_file_path}\`\n\n`;
+            md += `**To:** \`${clump.to_class_or_interface_name}\` in \`${clump.to_file_path}\`\n\n`;
+            md += `**Shared variables (${Object.keys(clump.data_clump_data || {}).length}):** ${vars}\n\n`;
+            md += `---\n\n`;
+          });
+
+          fs.writeFileSync(outputPath, md, 'utf8');
+          console.log(`Written ${topClumps.length} data clumps to ${outputPath}`);
+          EOF
+        env:
+          DC_AMOUNT: ${{ github.event.inputs.amount || '5' }}
       - name: "💾 Commit reports"
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add -f reports/data-clumps-doctor/data-clumps.json reports/data-clumps-doctor/badges/data-clumps.svg
+          git add -f reports/data-clumps-doctor/data-clumps.json reports/data-clumps-doctor/badges/data-clumps.svg reports/data-clumps-doctor/data-clumps.md
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
