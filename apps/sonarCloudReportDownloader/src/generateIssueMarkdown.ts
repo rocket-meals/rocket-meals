@@ -13,6 +13,13 @@ interface PrioritizedIssue extends CsvIssue {
   fileUrl: string;
 }
 
+interface GroupedIssue {
+  message: string;
+  category: string;
+  priority: number;
+  occurrences: { component: string; line: number | undefined; fileUrl: string }[];
+}
+
 // Priority order: SECURITY (highest) > RELIABILITY > MAINTAINABILITY (lowest)
 const CATEGORY_PRIORITY: Record<string, number> = {
   security: 0,
@@ -210,11 +217,53 @@ function getShortPath(component: string): string {
 }
 
 /**
+ * Group a flat list of prioritized issues by (category, message).
+ * Only the first `maxIssues` individual issues are considered.
+ */
+function groupIssues(allIssues: PrioritizedIssue[], maxIssues: number): GroupedIssue[] {
+  const limitedIssues = allIssues.slice(0, maxIssues);
+
+  // Preserve category → message insertion order
+  const categoryMessageMap = new Map<string, Map<string, GroupedIssue>>();
+
+  for (const issue of limitedIssues) {
+    let messageMap = categoryMessageMap.get(issue.category);
+    if (!messageMap) {
+      messageMap = new Map();
+      categoryMessageMap.set(issue.category, messageMap);
+    }
+
+    let group = messageMap.get(issue.message);
+    if (!group) {
+      group = {
+        message: issue.message,
+        category: issue.category,
+        priority: issue.priority,
+        occurrences: [],
+      };
+      messageMap.set(issue.message, group);
+    }
+    group.occurrences.push({
+      component: issue.component,
+      line: issue.line,
+      fileUrl: issue.fileUrl,
+    });
+  }
+
+  const groups: GroupedIssue[] = [];
+  for (const messageMap of categoryMessageMap.values()) {
+    for (const group of messageMap.values()) {
+      groups.push(group);
+    }
+  }
+  return groups;
+}
+
+/**
  * Generate the markdown content for the GitHub issue.
  */
 function generateMarkdown(allIssues: PrioritizedIssue[], maxIssues: number): string {
   const totalIssues = allIssues.length;
-  const limitedIssues = allIssues.slice(0, maxIssues);
 
   // Count issues per category (from all issues)
   const categoryCounts: Record<string, number> = {};
@@ -223,10 +272,13 @@ function generateMarkdown(allIssues: PrioritizedIssue[], maxIssues: number): str
   }
 
   // Count issues per category (from limited issues)
+  const limitedIssues = allIssues.slice(0, maxIssues);
   const limitedCategoryCounts: Record<string, number> = {};
   for (const issue of limitedIssues) {
     limitedCategoryCounts[issue.category] = (limitedCategoryCounts[issue.category] || 0) + 1;
   }
+
+  const groupedIssues = groupIssues(allIssues, maxIssues);
 
   let md = '';
 
@@ -235,14 +287,15 @@ function generateMarkdown(allIssues: PrioritizedIssue[], maxIssues: number): str
 
   // Summary
   md += `## Summary\n\n`;
-  md += `| Category | Total Issues | Shown |\n`;
-  md += `|----------|-------------|-------|\n`;
+  md += `| Category | Total Issues | Shown | Groups |\n`;
+  md += `|----------|-------------|-------|--------|\n`;
 
   for (const category of ['security', 'reliability', 'maintainability']) {
     const emoji = CATEGORY_EMOJI[category];
     const total = categoryCounts[category] || 0;
     const shown = limitedCategoryCounts[category] || 0;
-    md += `| ${emoji} ${category.charAt(0).toUpperCase() + category.slice(1)} | ${total} | ${shown} |\n`;
+    const groups = groupedIssues.filter(g => g.category === category).length;
+    md += `| ${emoji} ${category.charAt(0).toUpperCase() + category.slice(1)} | ${total} | ${shown} | ${groups} |\n`;
   }
 
   md += `\n**Total issues:** ${totalIssues}`;
@@ -253,29 +306,49 @@ function generateMarkdown(allIssues: PrioritizedIssue[], maxIssues: number): str
 
   md += `---\n\n`;
 
-  // Group by category for display
+  // Render grouped issues per category
   let currentCategory = '';
 
-  for (const issue of limitedIssues) {
+  for (const group of groupedIssues) {
     // Category header
-    if (issue.category !== currentCategory) {
-      currentCategory = issue.category;
+    if (group.category !== currentCategory) {
+      currentCategory = group.category;
       const emoji = CATEGORY_EMOJI[currentCategory];
       const categoryTitle = currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
       const categoryTotal = categoryCounts[currentCategory] || 0;
       const categoryShown = limitedCategoryCounts[currentCategory] || 0;
-      md += `## ${emoji} ${categoryTitle} (${categoryShown}/${categoryTotal})\n\n`;
+      const categoryGroups = groupedIssues.filter(g => g.category === currentCategory).length;
+      md += `## ${emoji} ${categoryTitle} (${categoryShown}/${categoryTotal} issues, ${categoryGroups} groups)\n\n`;
     }
 
-    // Issue entry
-    const shortPath = getShortPath(issue.component);
-    md += `- **${issue.message}**\n`;
-    md += `  ${shortPath}`;
-    if (issue.line !== undefined && !Number.isNaN(issue.line)) {
-      md += `:${issue.line}`;
+    const count = group.occurrences.length;
+
+    if (count === 1) {
+      // Single occurrence – keep the original compact display
+      const occ = group.occurrences[0];
+      const shortPath = getShortPath(occ.component);
+      md += `- **${group.message}**\n`;
+      md += `  ${shortPath}`;
+      if (occ.line !== undefined && !Number.isNaN(occ.line)) {
+        md += `:${occ.line}`;
+      }
+      md += `\n`;
+      md += `  ${occ.fileUrl}\n\n`;
+    } else {
+      // Multiple occurrences – group under a collapsible details block
+      md += `- **${group.message}** _(${count} occurrences)_\n\n`;
+      md += `  <details>\n`;
+      md += `  <summary>Show ${count} locations</summary>\n\n`;
+      for (const occ of group.occurrences) {
+        const shortPath = getShortPath(occ.component);
+        md += `  - ${shortPath}`;
+        if (occ.line !== undefined && !Number.isNaN(occ.line)) {
+          md += `:${occ.line}`;
+        }
+        md += ` — ${occ.fileUrl}\n`;
+      }
+      md += `\n  </details>\n\n`;
     }
-    md += `\n`;
-    md += `  ${issue.fileUrl}\n\n`;
   }
 
   return md;
