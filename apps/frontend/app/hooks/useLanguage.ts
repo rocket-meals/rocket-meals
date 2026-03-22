@@ -65,6 +65,7 @@ export const applyAlternatingCaseTransformation = (text: string): string => {
 };
 
 export const applyTypoglycemiaTransformation = (text: string): string => {
+	// Uses native replace() with callback – StringHelper does not support function replacers
 	return text.replace(/\b[a-zA-ZÄäÖöÜüß]{4,}\b/g, (word) => {
 		const first = word[0];
 		const last = word[word.length - 1];
@@ -74,6 +75,7 @@ export const applyTypoglycemiaTransformation = (text: string): string => {
 };
 
 export const applyGlitchTransformation = (text: string): string => {
+	// Uses native replace() with callback – StringHelper does not support function replacers
 	return text.replace(/\b[a-zA-ZÄäÖöÜüß]+\b/g, (word) => {
 		const chars = word.split('');
 		for (let i = chars.length - 1; i > 0; i--) {

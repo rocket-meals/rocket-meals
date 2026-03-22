@@ -16,7 +16,9 @@ export class StringHelper {
     return str.replace(new RegExp(find, flags ?? 'g'), replace);
   }
 
-  // Safe literal string replacement using split/join (no regex interpretation)
+  // Safe literal string replacement using split/join (no regex interpretation).
+  // Use this when `find` is a plain string (not a regex pattern), especially when
+  // it may contain regex special characters like `.`, `+`, `*`, `\`, etc.
   static replaceAllLiteralWithOptions(options: Omit<ReplaceOptions, 'flags'>) {
     const { str, find, replace } = options;
     return str.split(find).join(replace);
