@@ -1,0 +1,1227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>OSM Vector Map</title>
+    <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.5.0/dist/maplibre-gl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body,
+      #map {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      #loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #f4f4f4;
+        z-index: 200;
+        font-family: sans-serif;
+        font-size: 16px;
+        color: #333;
+        gap: 12px;
+      }
+      .spinner {
+        width: 36px;
+        height: 36px;
+        border: 4px solid #ccc;
+        border-top-color: #555;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      #error {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #f4f4f4;
+        z-index: 200;
+        font-family: sans-serif;
+        font-size: 15px;
+        color: #c00;
+        gap: 12px;
+        padding: 24px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading">
+      <div class="spinner"></div>
+      <span id="loading-text">Loading vector map…</span>
+    </div>
+    <div id="error">
+      <span>⚠️ Could not load map.</span>
+      <span style="color:#666;font-size:13px">Please check your internet connection and reload.</span>
+    </div>
+    <div id="map"></div>
+    <script>
+      var map = null;
+      var mapReady = false;
+      var pendingMessage = null;
+      var activeMarkers = {};
+      var vehicleMarkerEl = null;
+      var vehicleMarkerInstance = null;
+      var peopleModeActive = false;
+      var intelligentMovementActive = false;
+      var mapMarkerPositions = [];
+      var carModeActive = false;
+      var activeImageOverlayIds = [];
+      var active3DBuildingIds = [];
+      var activeGlbModelIds = [];
+      var HIGHLIGHT_BUILDING_SOURCE = 'highlight-building-source';
+      var HIGHLIGHT_BUILDING_LAYER = 'highlight-building-layer';
+      var currentHighlightedFeature = null;
+      var buildingClickEnabled = false;
+      var poiClickEnabled = false;
+      var glbModelMts = {};
+      // Icon overrides sent from React Native: key → emoji string to use, or null to hide that icon type.
+      var customIconOverrides = {};
+
+      function sendToRN(msg) {
+        var str = JSON.stringify(msg);
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage(str);
+        } else if (window.parent && window.parent !== window) {
+          window.parent.postMessage(str, '*');
+        }
+      }
+
+      function updateMarkers(markersData) {
+        Object.keys(activeMarkers).forEach(function (id) {
+          activeMarkers[id].remove();
+        });
+        activeMarkers = {};
+        mapMarkerPositions = [];
+
+        if (!markersData || !Array.isArray(markersData)) return;
+
+        markersData.forEach(function (markerData) {
+          if (!markerData || !markerData.position) return;
+
+          mapMarkerPositions.push({ lng: markerData.position.lng, lat: markerData.position.lat });
+
+          var el = document.createElement('div');
+          el.style.cursor = 'pointer';
+
+          if (markerData.icon) {
+            el.innerHTML = markerData.icon;
+            if (markerData.size && markerData.size.length === 2) {
+              el.style.width = markerData.size[0] + 'px';
+              el.style.height = markerData.size[1] + 'px';
+            }
+          } else {
+            el.style.width = '24px';
+            el.style.height = '24px';
+            el.style.backgroundColor = '#1565c0';
+            el.style.borderRadius = '50%';
+            el.style.border = '2px solid white';
+          }
+
+          var markerId = markerData.id;
+          el.addEventListener('click', function (e) {
+            e.stopPropagation();
+            sendToRN({ tag: 'onMapMarkerClicked', mapMarkerId: markerId });
+          });
+
+          var offset = [0, 0];
+          if (
+            markerData.iconAnchor &&
+            markerData.iconAnchor.length === 2 &&
+            markerData.size &&
+            markerData.size.length === 2
+          ) {
+            offset = [
+              markerData.size[0] / 2 - markerData.iconAnchor[0],
+              markerData.size[1] / 2 - markerData.iconAnchor[1],
+            ];
+          }
+
+          var marker = new maplibregl.Marker({ element: el, offset: offset })
+            .setLngLat([markerData.position.lng, markerData.position.lat])
+            .addTo(map);
+
+          activeMarkers[markerId] = marker;
+        });
+      }
+
+      var PEOPLE_COUNT = 80;
+      var PEOPLE_RADIUS_DEG = 0.004;
+      var PEOPLE_SCREEN_RADIUS_PX = 200; // target screen radius for zoom-independent distribution
+      var PEOPLE_CIRCLE_RADIUS = 5;
+      var DEG_TO_RAD = Math.PI / 180;
+      var PEOPLE_SPEED = 0.000004;
+      var PEOPLE_ANIMATION_MS = 50;
+      var PEOPLE_TURN_RATE = 0.15; // fraction of PEOPLE_SPEED added as random direction change per frame
+      var PEOPLE_BOUNDARY_FORCE = 0.002; // restoring acceleration applied when a particle exceeds the radius
+      var peopleParticles = [];
+      var peopleAnimationInterval = null;
+      var currentPeopleRadiusDeg = PEOPLE_RADIUS_DEG;
+
+      // Intelligent movement constants
+      var PEOPLE_HUMAN_SPEED = 0.000000624;      // degrees per frame at 50ms tick (= 5 km/h at lat ~51°)
+      var PEOPLE_TRAVEL_TURN_RATE = 0.1;         // fraction of heading-to-target difference applied per frame
+      var PEOPLE_TRAVEL_HEADING_NOISE = 0.08;    // random heading perturbation per frame (simulates street curves)
+      var PEOPLE_SPEED_VARIATION_MIN = 0.7;      // minimum speed multiplier relative to PEOPLE_HUMAN_SPEED
+      var PEOPLE_SPEED_VARIATION_RANGE = 0.3;    // speed range so max multiplier = 1.0 (capped at 5 km/h)
+      var ARRIVAL_THRESHOLD_DEG = 0.00008;       // distance at which a particle is considered to have arrived
+
+      function computePeopleRadiusDeg() {
+        if (!map) return PEOPLE_RADIUS_DEG;
+        var zoom = map.getZoom();
+        var center = map.getCenter();
+        var metersPerPx = 40075016.686 * Math.cos(center.lat * DEG_TO_RAD) / (256 * Math.pow(2, zoom));
+        var radiusMeters = PEOPLE_SCREEN_RADIUS_PX * metersPerPx;
+        return radiusMeters / 111320;
+      }
+
+      function generatePeopleParticles(center, count, radiusDeg) {
+        var particles = [];
+        for (var i = 0; i < count; i++) {
+          var angle = Math.random() * 2 * Math.PI;
+          var r = Math.random() * radiusDeg;
+          var lng = center[0] + r * Math.cos(angle) / Math.cos(center[1] * DEG_TO_RAD);
+          var lat = center[1] + r * Math.sin(angle);
+          var vAngle = Math.random() * 2 * Math.PI;
+          var speed = PEOPLE_SPEED * (0.5 + Math.random() * 0.5);
+          particles.push({
+            lng: lng, lat: lat,
+            vx: speed * Math.cos(vAngle), vy: speed * Math.sin(vAngle),
+            baseLng: center[0], baseLat: center[1],
+          });
+        }
+        return particles;
+      }
+
+      function updatePeopleParticles() {
+        var MAX_SPEED = PEOPLE_SPEED * 2;
+        var radius = currentPeopleRadiusDeg;
+        for (var i = 0; i < peopleParticles.length; i++) {
+          var p = peopleParticles[i];
+          p.vx += (Math.random() - 0.5) * PEOPLE_TURN_RATE * PEOPLE_SPEED;
+          p.vy += (Math.random() - 0.5) * PEOPLE_TURN_RATE * PEOPLE_SPEED;
+          var speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+          if (speed > MAX_SPEED) { p.vx = p.vx / speed * MAX_SPEED; p.vy = p.vy / speed * MAX_SPEED; }
+          p.lng += p.vx;
+          p.lat += p.vy;
+          var dx = p.lng - p.baseLng;
+          var dy = p.lat - p.baseLat;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > radius) {
+            p.vx -= dx * PEOPLE_BOUNDARY_FORCE;
+            p.vy -= dy * PEOPLE_BOUNDARY_FORCE;
+          }
+        }
+      }
+
+      // ── Intelligent Movement ──────────────────────────────────────────────────
+
+      function pickFromNearest5(p) {
+        var positions = mapMarkerPositions;
+        if (positions.length === 0) return null;
+        var withDist = [];
+        for (var i = 0; i < positions.length; i++) {
+          var dx = positions[i].lng - p.lng;
+          var dy = positions[i].lat - p.lat;
+          withDist.push({ pos: positions[i], dist: Math.sqrt(dx * dx + dy * dy) });
+        }
+        withDist.sort(function(a, b) { return a.dist - b.dist; });
+        var k = Math.min(5, withDist.length);
+        return withDist[Math.floor(Math.random() * k)].pos;
+      }
+
+      function updateIntelligentParticles() {
+        for (var i = 0; i < peopleParticles.length; i++) {
+          var p = peopleParticles[i];
+          if (!p.state) {
+            p.state = 'traveling';
+            p.heading = Math.random() * 2 * Math.PI;
+            p.vx = 0;
+            p.vy = 0;
+            p.speedMultiplier = PEOPLE_SPEED_VARIATION_MIN + Math.random() * PEOPLE_SPEED_VARIATION_RANGE;
+            var init = pickFromNearest5(p);
+            if (init) { p.targetLng = init.lng; p.targetLat = init.lat; }
+          }
+          if (p.state === 'traveling') {
+            if (p.targetLng === undefined || p.targetLat === undefined) {
+              var next = pickFromNearest5(p);
+              if (next) {
+                p.targetLng = next.lng;
+                p.targetLat = next.lat;
+                p.speedMultiplier = PEOPLE_SPEED_VARIATION_MIN + Math.random() * PEOPLE_SPEED_VARIATION_RANGE;
+              }
+            }
+            if (p.targetLng !== undefined && p.targetLat !== undefined) {
+              var dtx = p.targetLng - p.lng;
+              var dty = p.targetLat - p.lat;
+              var distToTarget = Math.sqrt(dtx * dtx + dty * dty);
+              if (distToTarget < ARRIVAL_THRESHOLD_DEG) {
+                p.lng = p.targetLng;
+                p.lat = p.targetLat;
+                p.vx = 0;
+                p.vy = 0;
+                var arrived = pickFromNearest5(p);
+                if (arrived) {
+                  p.targetLng = arrived.lng;
+                  p.targetLat = arrived.lat;
+                  p.speedMultiplier = PEOPLE_SPEED_VARIATION_MIN + Math.random() * PEOPLE_SPEED_VARIATION_RANGE;
+                } else { p.targetLng = undefined; p.targetLat = undefined; }
+              } else {
+                var targetHeading = Math.atan2(dtx, dty);
+                var headingDiff = targetHeading - p.heading;
+                while (headingDiff > Math.PI) headingDiff -= 2 * Math.PI;
+                while (headingDiff < -Math.PI) headingDiff += 2 * Math.PI;
+                p.heading += headingDiff * PEOPLE_TRAVEL_TURN_RATE + (Math.random() - 0.5) * PEOPLE_TRAVEL_HEADING_NOISE;
+                var humanSpeed = PEOPLE_HUMAN_SPEED * p.speedMultiplier;
+                p.vx = Math.sin(p.heading) * humanSpeed;
+                p.vy = Math.cos(p.heading) * humanSpeed;
+                p.lng += p.vx;
+                p.lat += p.vy;
+              }
+            }
+          }
+        }
+      }
+
+      // ── Car Mode (Fiktiver Autofahrer Modus) ─────────────────────────────────
+
+      var CAR_COUNT = 15;
+      var CAR_SPEED_DEG_PER_FRAME = 0.0000062; // ~50 km/h at lat 51°, 50ms tick
+      var CAR_ANIMATION_MS = 50;
+      var CAR_CIRCLE_RADIUS = 5;
+      var VALHALLA_BASE_URL = 'https://valhalla1.openstreetmap.de/route';
+      var carParticles = [];
+      var carAnimationInterval = null;
+
+      function getRandomNearbyPoint(baseLng, baseLat, minDeg, maxDeg) {
+        var angle = Math.random() * 2 * Math.PI;
+        var r = minDeg + Math.random() * (maxDeg - minDeg);
+        return {
+          lng: baseLng + r * Math.cos(angle) / Math.cos(baseLat * DEG_TO_RAD),
+          lat: baseLat + r * Math.sin(angle),
+        };
+      }
+
+      // Decode Valhalla's encoded polyline (precision=6) to [[lng, lat], ...]
+      function decodeValhallaPolyline(encoded) {
+        var coords = [];
+        var index = 0, lat = 0, lng = 0;
+        while (index < encoded.length) {
+          var encodedByte, shift = 0, result = 0;
+          do {
+            encodedByte = encoded.charCodeAt(index++) - 63;
+            result |= (encodedByte & 0x1f) << shift;
+            shift += 5;
+          } while (encodedByte >= 0x20);
+          lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+          shift = 0; result = 0;
+          do {
+            encodedByte = encoded.charCodeAt(index++) - 63;
+            result |= (encodedByte & 0x1f) << shift;
+            shift += 5;
+          } while (encodedByte >= 0x20);
+          lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+          coords.push([lng / 1e6, lat / 1e6]);
+        }
+        return coords;
+      }
+
+      function fetchValhallaRoute(fromLng, fromLat, toLng, toLat, callback) {
+        var params = JSON.stringify({
+          locations: [
+            { lat: fromLat, lon: fromLng },
+            { lat: toLat, lon: toLng },
+          ],
+          costing: 'auto',
+          directions_options: { units: 'kilometers' },
+          directions_type: 'none',
+        });
+        var url = VALHALLA_BASE_URL + '?json=' + encodeURIComponent(params);
+        fetch(url)
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (
+              data.trip &&
+              data.trip.legs &&
+              data.trip.legs[0] &&
+              data.trip.legs[0].shape
+            ) {
+              var coords = decodeValhallaPolyline(data.trip.legs[0].shape);
+              if (coords.length >= 2) {
+                callback(null, coords);
+              } else {
+                callback(new Error('no-route'));
+              }
+            } else {
+              callback(new Error('no-route'));
+            }
+          })
+          .catch(function (e) { callback(e); });
+      }
+
+      function fetchCarRoute(car) {
+        if (car.fetching) return;
+        car.fetching = true;
+        var center = map ? map.getCenter() : { lng: 0, lat: 0 };
+        var dest = getRandomNearbyPoint(center.lng, center.lat, 0.002, 0.006);
+        fetchValhallaRoute(car.lng, car.lat, dest.lng, dest.lat, function (err, coords) {
+          car.fetching = false;
+          if (!carModeActive) return;
+          if (err || !coords || coords.length < 2) {
+            // fallback: pick a new destination next tick
+            car.route = null;
+            car.routeSegIdx = 0;
+            car.routeFrac = 0;
+            return;
+          }
+          car.route = coords; // array of [lng, lat]
+          car.routeSegIdx = 0;
+          car.routeFrac = 0;
+          // Snap car to start of route
+          car.lng = coords[0][0];
+          car.lat = coords[0][1];
+        });
+      }
+
+      function generateCarParticles(center, count) {
+        var particles = [];
+        for (var i = 0; i < count; i++) {
+          var pt = getRandomNearbyPoint(center[0], center[1], 0, 0.004);
+          particles.push({
+            lng: pt.lng,
+            lat: pt.lat,
+            route: null,
+            routeSegIdx: 0,
+            routeFrac: 0,
+            fetching: false,
+          });
+        }
+        return particles;
+      }
+
+      function updateCarParticles() {
+        for (var i = 0; i < carParticles.length; i++) {
+          var c = carParticles[i];
+          if (!c.route || c.route.length < 2) {
+            fetchCarRoute(c);
+            continue;
+          }
+          // Move along current segment
+          var segStart = c.route[c.routeSegIdx];
+          var segEnd = c.route[c.routeSegIdx + 1];
+          if (!segEnd) {
+            // Reached end of route — fetch a new one
+            c.route = null;
+            fetchCarRoute(c);
+            continue;
+          }
+          var dx = segEnd[0] - segStart[0];
+          var dy = segEnd[1] - segStart[1];
+          var segLen = Math.sqrt(dx * dx + dy * dy);
+          if (segLen === 0) {
+            c.routeSegIdx++;
+            if (c.routeSegIdx >= c.route.length - 1) {
+              c.route = null;
+              fetchCarRoute(c);
+            }
+            continue;
+          }
+          c.routeFrac += CAR_SPEED_DEG_PER_FRAME / segLen;
+          if (c.routeFrac >= 1) {
+            // Jump to next segment(s), carrying over the overshoot distance
+            while (c.routeFrac >= 1 && c.routeSegIdx < c.route.length - 2) {
+              var prevLen = segLen;
+              c.routeFrac -= 1; // overshoot fraction relative to prevLen
+              c.routeSegIdx++;
+              segStart = c.route[c.routeSegIdx];
+              segEnd = c.route[c.routeSegIdx + 1];
+              if (!segEnd) break;
+              dx = segEnd[0] - segStart[0];
+              dy = segEnd[1] - segStart[1];
+              segLen = Math.sqrt(dx * dx + dy * dy);
+              if (segLen > 0) c.routeFrac = c.routeFrac * prevLen / segLen;
+            }
+            if (c.routeSegIdx >= c.route.length - 1) {
+              c.route = null;
+              fetchCarRoute(c);
+              continue;
+            }
+          }
+          segStart = c.route[c.routeSegIdx];
+          segEnd = c.route[c.routeSegIdx + 1];
+          if (segEnd) {
+            c.lng = segStart[0] + (segEnd[0] - segStart[0]) * c.routeFrac;
+            c.lat = segStart[1] + (segEnd[1] - segStart[1]) * c.routeFrac;
+          }
+        }
+      }
+
+      function carParticlesToGeoJSON() {
+        var features = [];
+        for (var i = 0; i < carParticles.length; i++) {
+          features.push({ type: 'Feature', geometry: { type: 'Point', coordinates: [carParticles[i].lng, carParticles[i].lat] }, properties: {} });
+        }
+        return { type: 'FeatureCollection', features: features };
+      }
+
+      function startCarAnimation() {
+        if (carAnimationInterval) return;
+        carAnimationInterval = setInterval(function () {
+          if (!map || !carModeActive || !map.getSource('car-source')) return;
+          updateCarParticles();
+          map.getSource('car-source').setData(carParticlesToGeoJSON());
+        }, CAR_ANIMATION_MS);
+      }
+
+      function stopCarAnimation() {
+        if (carAnimationInterval) { clearInterval(carAnimationInterval); carAnimationInterval = null; }
+        carParticles = [];
+      }
+
+      function addCarLayer() {
+        if (!map) return;
+        var center = map.getCenter();
+        carParticles = generateCarParticles([center.lng, center.lat], CAR_COUNT);
+        var geojson = carParticlesToGeoJSON();
+        if (map.getSource('car-source')) {
+          map.getSource('car-source').setData(geojson);
+        } else {
+          map.addSource('car-source', { type: 'geojson', data: geojson });
+          var firstFillExtrusion = null;
+          var layers = map.getStyle().layers;
+          for (var i = 0; i < layers.length; i++) {
+            if (layers[i].type === 'fill-extrusion') { firstFillExtrusion = layers[i].id; break; }
+          }
+          map.addLayer({
+            id: 'car-layer',
+            type: 'circle',
+            source: 'car-source',
+            paint: {
+              'circle-radius': CAR_CIRCLE_RADIUS,
+              'circle-color': '#1565c0',
+              'circle-opacity': 0.9,
+              'circle-stroke-width': 0.5,
+              'circle-stroke-color': '#ffffff',
+            },
+          }, firstFillExtrusion || undefined);
+        }
+        startCarAnimation();
+      }
+
+      function removeCarLayer() {
+        if (!map) return;
+        stopCarAnimation();
+        if (map.getLayer('car-layer')) map.removeLayer('car-layer');
+        if (map.getSource('car-source')) map.removeSource('car-source');
+      }
+
+      // ─────────────────────────────────────────────────────────────────────────
+
+      function particlesToGeoJSON() {
+        var features = [];
+        for (var i = 0; i < peopleParticles.length; i++) {
+          features.push({ type: 'Feature', geometry: { type: 'Point', coordinates: [peopleParticles[i].lng, peopleParticles[i].lat] }, properties: {} });
+        }
+        return { type: 'FeatureCollection', features: features };
+      }
+
+      function startPeopleAnimation() {
+        if (peopleAnimationInterval) return;
+        peopleAnimationInterval = setInterval(function () {
+          if (!map || !peopleModeActive || !map.getSource('people-source')) return;
+          if (intelligentMovementActive) {
+            updateIntelligentParticles();
+          } else {
+            updatePeopleParticles();
+          }
+          map.getSource('people-source').setData(particlesToGeoJSON());
+        }, PEOPLE_ANIMATION_MS);
+      }
+
+      function stopPeopleAnimation() {
+        if (peopleAnimationInterval) { clearInterval(peopleAnimationInterval); peopleAnimationInterval = null; }
+        peopleParticles = [];
+      }
+
+      function addPeopleLayer() {
+        if (!map) return;
+        currentPeopleRadiusDeg = computePeopleRadiusDeg();
+        var center = map.getCenter();
+        peopleParticles = generatePeopleParticles([center.lng, center.lat], PEOPLE_COUNT, currentPeopleRadiusDeg);
+        var geojson = particlesToGeoJSON();
+        if (map.getSource('people-source')) {
+          map.getSource('people-source').setData(geojson);
+        } else {
+          map.addSource('people-source', { type: 'geojson', data: geojson });
+          var firstFillExtrusion = null;
+          var layers = map.getStyle().layers;
+          for (var i = 0; i < layers.length; i++) {
+            if (layers[i].type === 'fill-extrusion') { firstFillExtrusion = layers[i].id; break; }
+          }
+          map.addLayer({
+            id: 'people-layer',
+            type: 'circle',
+            source: 'people-source',
+            paint: {
+              'circle-radius': PEOPLE_CIRCLE_RADIUS,
+              'circle-color': '#e53935',
+              'circle-opacity': 0.85,
+              'circle-stroke-width': 0.5,
+              'circle-stroke-color': '#ffffff',
+            },
+          }, firstFillExtrusion || undefined);
+        }
+        startPeopleAnimation();
+      }
+
+      function removePeopleLayer() {
+        if (!map) return;
+        stopPeopleAnimation();
+        if (map.getLayer('people-layer')) map.removeLayer('people-layer');
+        if (map.getSource('people-source')) map.removeSource('people-source');
+      }
+
+      function updateVehicleMarker(markerData) {
+        if (!markerData) {
+          if (vehicleMarkerInstance) {
+            vehicleMarkerInstance.remove();
+            vehicleMarkerInstance = null;
+          }
+          if (vehicleMarkerEl) {
+            vehicleMarkerEl.remove();
+            vehicleMarkerEl = null;
+          }
+          return;
+        }
+        if (!vehicleMarkerEl) {
+          vehicleMarkerEl = document.createElement('div');
+          vehicleMarkerEl.style.pointerEvents = 'none';
+        }
+        if (markerData.icon) {
+          vehicleMarkerEl.innerHTML = markerData.icon;
+          if (markerData.size && markerData.size.length === 2) {
+            vehicleMarkerEl.style.width = markerData.size[0] + 'px';
+            vehicleMarkerEl.style.height = markerData.size[1] + 'px';
+          }
+        }
+        var lngLat = [markerData.position.lng, markerData.position.lat];
+        if (vehicleMarkerInstance) {
+          vehicleMarkerInstance.setLngLat(lngLat);
+        } else {
+          vehicleMarkerInstance = new maplibregl.Marker({ element: vehicleMarkerEl, anchor: 'center' })
+            .setLngLat(lngLat)
+            .addTo(map);
+        }
+      }
+
+      function updateImageOverlays(overlays) {
+        // Remove previously added overlays
+        for (var ri = 0; ri < activeImageOverlayIds.length; ri++) {
+          var rid = activeImageOverlayIds[ri];
+          if (map.getLayer('img-layer-' + rid)) map.removeLayer('img-layer-' + rid);
+          if (map.getSource('img-src-' + rid)) map.removeSource('img-src-' + rid);
+        }
+        activeImageOverlayIds = [];
+        if (!overlays || !Array.isArray(overlays)) return;
+        for (var i = 0; i < overlays.length; i++) {
+          var ov = overlays[i];
+          if (!ov || !ov.id || !ov.url || !ov.coordinates || ov.coordinates.length < 4) continue;
+          var srcId = 'img-src-' + ov.id;
+          var layId = 'img-layer-' + ov.id;
+          map.addSource(srcId, {
+            type: 'image',
+            url: ov.url,
+            coordinates: ov.coordinates,
+          });
+          map.addLayer({
+            id: layId,
+            type: 'raster',
+            source: srcId,
+            paint: { 'raster-opacity': ov.opacity != null ? ov.opacity : 0.85 },
+          });
+          activeImageOverlayIds.push(ov.id);
+        }
+      }
+
+      function update3DBuildings(buildings) {
+        // Remove previously added 3D buildings
+        for (var ri = 0; ri < active3DBuildingIds.length; ri++) {
+          var rid = active3DBuildingIds[ri];
+          if (map.getLayer('bld-layer-' + rid)) map.removeLayer('bld-layer-' + rid);
+          if (map.getSource('bld-src-' + rid)) map.removeSource('bld-src-' + rid);
+        }
+        active3DBuildingIds = [];
+        if (!buildings || !Array.isArray(buildings)) return;
+        for (var i = 0; i < buildings.length; i++) {
+          var b = buildings[i];
+          if (!b || !b.id || !b.coordinates || b.coordinates.length < 4) continue;
+          var srcId = 'bld-src-' + b.id;
+          var layId = 'bld-layer-' + b.id;
+          var ring = b.coordinates.slice();
+          // Close the ring if necessary
+          var first = ring[0];
+          var last = ring[ring.length - 1];
+          if (first[0] !== last[0] || first[1] !== last[1]) ring.push([first[0], first[1]]);
+          var geojson = {
+            type: 'FeatureCollection',
+            features: [{
+              type: 'Feature',
+              geometry: { type: 'Polygon', coordinates: [ring] },
+              properties: {
+                height: b.height != null ? b.height : 20,
+                base: b.base != null ? b.base : 0,
+              },
+            }],
+          };
+          map.addSource(srcId, { type: 'geojson', data: geojson });
+          map.addLayer({
+            id: layId,
+            type: 'fill-extrusion',
+            source: srcId,
+            paint: {
+              'fill-extrusion-color': b.color || '#ff6600',
+              'fill-extrusion-height': ['get', 'height'],
+              'fill-extrusion-base': ['get', 'base'],
+              'fill-extrusion-opacity': b.opacity != null ? b.opacity : 0.85,
+            },
+          });
+          active3DBuildingIds.push(b.id);
+        }
+      }
+
+      function clearBuildingHighlight() {
+        if (!map) return;
+        if (map.getLayer(HIGHLIGHT_BUILDING_LAYER)) map.removeLayer(HIGHLIGHT_BUILDING_LAYER);
+        if (map.getSource(HIGHLIGHT_BUILDING_SOURCE)) map.removeSource(HIGHLIGHT_BUILDING_SOURCE);
+      }
+
+      function highlightBuilding(feature) {
+        if (!map || !feature || !feature.geometry) return;
+        currentHighlightedFeature = feature;
+        clearBuildingHighlight();
+        map.addSource(HIGHLIGHT_BUILDING_SOURCE, {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [{ type: 'Feature', geometry: feature.geometry, properties: feature.properties || {} }] },
+        });
+        map.addLayer({
+          id: HIGHLIGHT_BUILDING_LAYER,
+          type: 'fill-extrusion',
+          source: HIGHLIGHT_BUILDING_SOURCE,
+          paint: {
+            'fill-extrusion-color': '#ffdd00',
+            'fill-extrusion-height': ['coalesce', ['get', 'render_height'], ['get', 'height'], 10],
+            'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], ['get', 'base_height'], ['get', 'base'], 0],
+            'fill-extrusion-opacity': 0.92,
+          },
+        });
+      }
+
+      function addGlbModel(modelData) {
+        if (!map || !modelData || !modelData.id || !modelData.url || !modelData.position) return;
+        if (typeof THREE === 'undefined') return;
+        var layerId = 'glb-layer-' + modelData.id;
+        if (map.getLayer(layerId)) map.removeLayer(layerId);
+        var origin = [modelData.position.lng, modelData.position.lat];
+        var altitude = modelData.position.altitude || 0;
+        var merc = maplibregl.MercatorCoordinate.fromLngLat(origin, altitude);
+        var metersPerUnit = merc.meterInMercatorCoordinateUnits();
+        var unitScale = metersPerUnit * (modelData.scale || 1);
+        var mt = {
+          x: merc.x, y: merc.y, z: merc.z,
+          rx: modelData.rotateX != null ? modelData.rotateX : Math.PI / 2,
+          ry: modelData.rotateY != null ? modelData.rotateY : 0,
+          rz: modelData.rotateZ != null ? modelData.rotateZ : 0,
+          s: unitScale,
+          metersPerUnit: metersPerUnit,
+        };
+        glbModelMts[modelData.id] = mt;
+        var customLayer = {
+          id: layerId, type: 'custom', renderingMode: '3d',
+          scene: null, camera: null, renderer: null, map: null,
+          onAdd: function (mapInst, gl) {
+            this.camera = new THREE.Camera();
+            this.scene = new THREE.Scene();
+            this.scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+            var dl1 = new THREE.DirectionalLight(0xffffff, 0.8);
+            dl1.position.set(0, -70, 100).normalize();
+            this.scene.add(dl1);
+            var dl2 = new THREE.DirectionalLight(0xffffff, 0.4);
+            dl2.position.set(0, 70, 100).normalize();
+            this.scene.add(dl2);
+            var self = this;
+            var loader = new THREE.GLTFLoader();
+            loader.load(modelData.url, function (gltf) { self.scene.add(gltf.scene); }, undefined, function (err) { console.error('GLB load error for model ' + modelData.id + ':', err); });
+            this.map = mapInst;
+            this.renderer = new THREE.WebGLRenderer({ canvas: mapInst.getCanvas(), context: gl, antialias: true });
+            this.renderer.autoClear = false;
+          },
+          render: function (gl, args) {
+            // MapLibre GL ≥ v4 passes an object { projectionMatrix, ... }; v3 passed the matrix array directly.
+            var rawMatrix = (args && args.projectionMatrix) ? args.projectionMatrix : args;
+            var rx = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), mt.rx);
+            var ry = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), mt.ry);
+            var rz = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 0, 1), mt.rz);
+            var m = new THREE.Matrix4().fromArray(rawMatrix);
+            var l = new THREE.Matrix4()
+              .makeTranslation(mt.x, mt.y, mt.z)
+              .scale(new THREE.Vector3(mt.s, -mt.s, mt.s))
+              .multiply(rx).multiply(ry).multiply(rz);
+            this.camera.projectionMatrix = m.multiply(l);
+            this.renderer.resetState();
+            this.renderer.render(this.scene, this.camera);
+            this.map.triggerRepaint();
+          },
+        };
+        map.addLayer(customLayer);
+        activeGlbModelIds.push(modelData.id);
+      }
+
+      function updateGlbModels(models) {
+        for (var i = 0; i < activeGlbModelIds.length; i++) {
+          var lid = 'glb-layer-' + activeGlbModelIds[i];
+          if (map.getLayer(lid)) map.removeLayer(lid);
+          delete glbModelMts[activeGlbModelIds[i]];
+        }
+        activeGlbModelIds = [];
+        if (!models || !Array.isArray(models)) return;
+        for (var j = 0; j < models.length; j++) { addGlbModel(models[j]); }
+      }
+
+      // Emoji fallback map for icons referenced by the map style but missing from its sprite sheet.
+      // This map starts empty and is populated by an iconEmojiMap message sent from React on mount.
+      // The styleimagemissing event uses this map to render emoji onto a canvas when MapLibre
+      // cannot resolve an icon, so no warning is emitted and features stay visible.
+      var ICON_EMOJI_MAP = {};
+
+      function createEmojiImageData(emoji, size) {
+        var canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        var ctx = canvas.getContext('2d');
+        ctx.font = Math.round(size * 0.75) + 'px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(emoji, size / 2, size / 2);
+        return ctx.getImageData(0, 0, size, size);
+      }
+
+      // Layer-group keyword map for setLayerGroupVisibility.
+      // Keys are the group names sent from React Native; values are substring patterns to match layer IDs.
+      var LAYER_GROUP_KEYWORDS = {
+        poi:        ['poi', 'shop', 'amenity'],
+        parking:    ['parking'],
+        transit:    ['bus', 'transit', 'railway', 'aeroway', 'station'],
+        roadLabels: ['road-label', 'road-name', 'road-shield', 'highway-name', 'street-label', 'label-road'],
+        leisure:    ['leisure', 'sport', 'pitch', 'stadium', 'swimming'],
+        barriers:   ['barrier'],
+      };
+
+      function setLayerGroupVisibility(group, visible) {
+        if (!map) return;
+        var style = map.getStyle();
+        if (!style || !style.layers) return;
+        var keywords = LAYER_GROUP_KEYWORDS[group];
+        if (!keywords) return;
+        var visValue = visible ? 'visible' : 'none';
+        for (var i = 0; i < style.layers.length; i++) {
+          var layerId = style.layers[i].id;
+          for (var k = 0; k < keywords.length; k++) {
+            if (layerId.indexOf(keywords[k]) !== -1) {
+              try { map.setLayoutProperty(layerId, 'visibility', visValue); } catch (e) {
+                // Some layers (e.g. sky, background) do not support layout properties; safely skip them.
+              }
+              break;
+            }
+          }
+        }
+      }
+
+      function applyMessage(data) {
+        if (!map) return;
+
+        if (data.resetBearing) {
+          map.resetNorth({ animate: true });
+          return;
+        }
+
+        if (data.disableInteraction) {
+          map.dragPan.disable();
+          map.scrollZoom.disable();
+          map.doubleClickZoom.disable();
+          map.touchZoomRotate.disable();
+          map.keyboard.disable();
+        } else if (data.enableInteraction) {
+          map.dragPan.enable();
+          map.scrollZoom.enable();
+          map.doubleClickZoom.enable();
+          map.touchZoomRotate.enable();
+          map.keyboard.enable();
+        }
+
+        if (data.mapStyle) {
+          map.setStyle(data.mapStyle);
+        }
+
+        var centerLngLat = null;
+        var targetZoom = null;
+
+        if (
+          data.mapCenterPosition &&
+          data.mapCenterPosition.lat != null &&
+          data.mapCenterPosition.lng != null
+        ) {
+          centerLngLat = [data.mapCenterPosition.lng, data.mapCenterPosition.lat];
+          targetZoom = data.zoom != null ? data.zoom : map.getZoom();
+        } else if (data.center) {
+          centerLngLat = data.center;
+          targetZoom = data.zoom != null ? data.zoom : map.getZoom();
+        }
+
+        if (centerLngLat) {
+          var opts = {
+            center: centerLngLat,
+            zoom: targetZoom,
+            pitch: data.pitch != null ? data.pitch : map.getPitch(),
+          };
+          if (data.bearing != null) {
+            opts.bearing = data.bearing;
+          }
+          if (data.easeAnimation) {
+            opts.duration = data.easeDuration != null ? data.easeDuration : 100;
+            map.easeTo(opts);
+          } else if (data.animate !== false && data.useFlyAnimation !== false) {
+            map.flyTo(opts);
+          } else {
+            map.jumpTo(opts);
+          }
+        } else if (data.bearing != null) {
+          // Bearing-only update: rotate around the current map center
+          var bearingOpts = { bearing: data.bearing };
+          if (data.easeAnimation) {
+            bearingOpts.duration = data.easeDuration != null ? data.easeDuration : 100;
+            map.easeTo(bearingOpts);
+          } else {
+            map.jumpTo(bearingOpts);
+          }
+        } else if (data.zoomTo != null) {
+          map.easeTo({ zoom: data.zoomTo, duration: data.easeDuration != null ? data.easeDuration : 300 });
+        } else if (data.pitch != null) {
+          map.easeTo({ pitch: data.pitch });
+        }
+
+        if (data.mapMarkers !== undefined) {
+          updateMarkers(data.mapMarkers);
+        }
+
+        if (data.vehicleMarker !== undefined) {
+          updateVehicleMarker(data.vehicleMarker);
+        }
+
+        if (data.intelligentMovement !== undefined) {
+          intelligentMovementActive = data.intelligentMovement;
+          // Reset particle states when toggling mode so they reinitialise properly
+          for (var im = 0; im < peopleParticles.length; im++) {
+            delete peopleParticles[im].state;
+          }
+        }
+
+        if (data.peopleCount !== undefined) {
+          var newCount = Math.max(1, Math.floor(data.peopleCount));
+          if (newCount !== PEOPLE_COUNT) {
+            PEOPLE_COUNT = newCount;
+            if (peopleModeActive) {
+              removePeopleLayer();
+              addPeopleLayer();
+            }
+          }
+        }
+
+        if (data.peopleMode !== undefined) {
+          peopleModeActive = data.peopleMode;
+          if (peopleModeActive) {
+            addPeopleLayer();
+          } else {
+            removePeopleLayer();
+          }
+        }
+
+        if (data.carMode !== undefined) {
+          carModeActive = data.carMode;
+          if (carModeActive) {
+            addCarLayer();
+          } else {
+            removeCarLayer();
+          }
+        }
+
+        if (data.imageOverlays !== undefined) {
+          updateImageOverlays(data.imageOverlays);
+        }
+
+        if (data.buildings3d !== undefined) {
+          update3DBuildings(data.buildings3d);
+        }
+
+        if (data.glbModels !== undefined) {
+          updateGlbModels(data.glbModels);
+        }
+
+        if (data.updateGlbModelScale !== undefined) {
+          var scaleUpd = data.updateGlbModelScale;
+          if (scaleUpd && scaleUpd.id && glbModelMts[scaleUpd.id]) {
+            glbModelMts[scaleUpd.id].s = glbModelMts[scaleUpd.id].metersPerUnit * (scaleUpd.scale || 1);
+            map.triggerRepaint();
+          }
+        }
+
+        if (data.enableBuildingClick !== undefined) {
+          buildingClickEnabled = !!data.enableBuildingClick;
+        }
+
+        if (data.iconEmojiMap !== undefined && data.iconEmojiMap !== null) {
+          var incoming = data.iconEmojiMap;
+          var ek = Object.keys(incoming);
+          for (var ei = 0; ei < ek.length; ei++) {
+            ICON_EMOJI_MAP[ek[ei]] = incoming[ek[ei]];
+          }
+        }
+
+        if (data.poiClickEnabled !== undefined) {
+          poiClickEnabled = !!data.poiClickEnabled;
+        }
+
+        if (data.setLayerGroupVisibility !== undefined) {
+          setLayerGroupVisibility(data.setLayerGroupVisibility.group, !!data.setLayerGroupVisibility.visible);
+        }
+
+        if (data.poiIconOverrides !== undefined) {
+          var overrides = data.poiIconOverrides || {};
+          // Remove images for icon keys that are now hidden (null) so MapLibre stops rendering them.
+          // Re-add images for keys that were previously hidden but are now visible again.
+          var keys = Object.keys(overrides);
+          for (var oi = 0; oi < keys.length; oi++) {
+            var iconKey = keys[oi];
+            if (overrides[iconKey] === null) {
+              // Hide: remove existing image if registered.
+              if (map.hasImage(iconKey)) {
+                try { map.removeImage(iconKey); } catch (e2) { /* ignore */ }
+              }
+            } else {
+              // Show: re-register with the provided or fallback emoji if not yet registered.
+              var reEmoji = overrides[iconKey] || ICON_EMOJI_MAP[iconKey];
+              if (reEmoji && !map.hasImage(iconKey)) {
+                try { map.addImage(iconKey, createEmojiImageData(reEmoji, 32)); } catch (e2) { /* ignore */ }
+              }
+            }
+          }
+          // Also re-add any previously-hidden keys that are absent from the new overrides.
+          var prevKeys = Object.keys(customIconOverrides);
+          for (var pi = 0; pi < prevKeys.length; pi++) {
+            var prevKey = prevKeys[pi];
+            if (customIconOverrides[prevKey] === null && !Object.prototype.hasOwnProperty.call(overrides, prevKey)) {
+              // Was hidden, now not listed → restore default emoji if available.
+              var restoreEmoji = ICON_EMOJI_MAP[prevKey];
+              if (restoreEmoji && !map.hasImage(prevKey)) {
+                try { map.addImage(prevKey, createEmojiImageData(restoreEmoji, 32)); } catch (e2) { /* ignore */ }
+              }
+            }
+          }
+          customIconOverrides = overrides;
+        }
+
+        if (data.minPitch != null) {
+          map.setMinPitch(data.minPitch);
+        }
+
+        if (data.maxPitch != null) {
+          map.setMaxPitch(data.maxPitch);
+        }
+      }
+
+      function handleIncomingData(data) {
+        if (!mapReady) {
+          pendingMessage = data;
+        } else {
+          applyMessage(data);
+        }
+      }
+
+      function parseAndHandle(raw) {
+        try {
+          var data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          handleIncomingData(data);
+        } catch (e) {}
+      }
+
+      window.addEventListener('message', function (e) {
+        parseAndHandle(e.data);
+      });
+      document.addEventListener('message', function (e) {
+        parseAndHandle(e.data);
+      });
+
+      function initMap(initialCenter, initialZoom, initialPitch) {
+        map = new maplibregl.Map({
+          container: 'map',
+          style: 'https://tiles.openfreemap.org/styles/liberty',
+          center: initialCenter || [10.0, 51.3],
+          zoom: initialZoom != null ? initialZoom : 16,
+          pitch: initialPitch != null ? initialPitch : 20,
+          attributionControl: { compact: true },
+        });
+
+        map.on('load', function () {
+          document.getElementById('loading').style.display = 'none';
+          mapReady = true;
+          if (pendingMessage) {
+            applyMessage(pendingMessage);
+            pendingMessage = null;
+          }
+          sendToRN({ tag: 'MapComponentMounted', version: '1.0' });
+        });
+
+        map.on('error', function (e) {
+          console.error('MapLibre error:', e.error);
+          if (!mapReady) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'flex';
+            sendToRN({ tag: 'MapError', message: e.error ? e.error.message : 'unknown' });
+          }
+        });
+
+        map.on('zoomend', function () {
+          sendToRN({ tag: 'onZoomEnd', zoom: map.getZoom() });
+        });
+
+        map.on('pitchend', function () {
+          sendToRN({ tag: 'onPitchEnd', pitch: map.getPitch() });
+        });
+
+        map.on('click', function (e) {
+          try {
+            if (!buildingClickEnabled && !poiClickEnabled) {
+              sendToRN({ tag: 'MapTapped' });
+              return;
+            }
+            var allLayers = map.getStyle().layers;
+            var extrusionLayerIds = [];
+            var symbolLayerIds = [];
+            for (var li = 0; li < allLayers.length; li++) {
+              if (allLayers[li].type === 'fill-extrusion' && allLayers[li].id !== HIGHLIGHT_BUILDING_LAYER) {
+                extrusionLayerIds.push(allLayers[li].id);
+              } else if (poiClickEnabled && allLayers[li].type === 'symbol') {
+                symbolLayerIds.push(allLayers[li].id);
+              }
+            }
+            // Building click takes priority over POI click
+            if (buildingClickEnabled) {
+              var bFeatures = extrusionLayerIds.length > 0
+                ? map.queryRenderedFeatures(e.point, { layers: extrusionLayerIds })
+                : [];
+              if (bFeatures && bFeatures.length > 0) {
+                highlightBuilding(bFeatures[0]);
+                sendToRN({ tag: 'BuildingClicked', properties: bFeatures[0].properties });
+                return;
+              }
+            }
+            // POI / symbol click
+            if (poiClickEnabled && symbolLayerIds.length > 0) {
+              var pFeatures = map.queryRenderedFeatures(e.point, { layers: symbolLayerIds });
+              if (pFeatures && pFeatures.length > 0) {
+                var props = pFeatures[0].properties || {};
+                var iconId = props.icon || props.class || props.subclass || props.type || pFeatures[0].layer.id || '';
+                var emoji = ICON_EMOJI_MAP[iconId] || '';
+                sendToRN({ tag: 'PoiClicked', iconId: iconId, emoji: emoji, properties: props });
+                return;
+              }
+            }
+            currentHighlightedFeature = null;
+            clearBuildingHighlight();
+            sendToRN({ tag: 'MapTapped' });
+          } catch (err) {
+            sendToRN({ tag: 'MapTapped' });
+          }
+        });
+
+        map.on('styleimagemissing', function (e) {
+          // If explicitly hidden via customIconOverrides (null value), skip – feature becomes invisible.
+          if (Object.prototype.hasOwnProperty.call(customIconOverrides, e.id) && customIconOverrides[e.id] === null) {
+            return;
+          }
+          // Custom override emoji takes precedence over the built-in fallback map.
+          var emoji = (Object.prototype.hasOwnProperty.call(customIconOverrides, e.id) ? customIconOverrides[e.id] : null) || ICON_EMOJI_MAP[e.id];
+          if (emoji) {
+            try {
+              var imgData = createEmojiImageData(emoji, 32);
+              map.addImage(e.id, imgData);
+            } catch (err) { /* ignore */ }
+          } else {
+            console.warn('[map] Missing icon not in ICON_EMOJI_MAP: "' + e.id + '"');
+          }
+        });
+
+        map.on('styledata', function () {
+          if (peopleModeActive) {
+            if (!map.getSource('people-source')) {
+              addPeopleLayer();
+            }
+          }
+          if (carModeActive) {
+            if (!map.getSource('car-source')) {
+              addCarLayer();
+            }
+          }
+          if (currentHighlightedFeature && !map.getSource(HIGHLIGHT_BUILDING_SOURCE)) {
+            highlightBuilding(currentHighlightedFeature);
+          }
+        });
+      }
+
+      (function () {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var loadingTextParam = params.get('loadingText');
+          if (loadingTextParam) {
+            var loadingSpan = document.getElementById('loading-text');
+            if (loadingSpan) loadingSpan.textContent = loadingTextParam;
+          }
+          var lat = parseFloat(params.get('lat'));
+          var lng = parseFloat(params.get('lng'));
+          var zoom = parseFloat(params.get('zoom'));
+          if (!isNaN(lat) && !isNaN(lng)) {
+            initMap([lng, lat], !isNaN(zoom) ? zoom : null);
+            return;
+          }
+        } catch (e) {}
+        initMap(null, null);
+      })();
+    </script>
+  </body>
+</html>
