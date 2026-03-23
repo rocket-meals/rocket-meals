@@ -878,138 +878,13 @@
         }
       }
 
-      // ─── Hex tile layer (Web Mercator fixed grid, no external library) ───────────
-      // Renders a stable hexagonal grid whose cells are anchored to fixed Web Mercator
-      // (EPSG:3857) coordinates. Because the grid origin is always (0, 0) in Mercator
-      // space, hexagon positions never drift when the user pans or zooms – only the
-      // set of visible cells changes. Hexagons appear visually equal in size across
-      // the map (Mercator preserves local shape), making them suitable for a game grid.
-      var hexTileActive = false;
-      var hexTileColor = 'rgba(37, 99, 235, 0.18)';
-      var hexTileStrokeColor = '#2563eb';
-      // Circumradius of each hexagon in Web Mercator metres (vertex to centre).
-      var hexTileRadiusMeters = 20;
-      var HEX_TILE_SOURCE = 'hex-tile-source';
-      var HEX_TILE_FILL_LAYER = 'hex-tile-fill';
-      var HEX_TILE_STROKE_LAYER = 'hex-tile-stroke';
-      // Maximum hexagon cells rendered at once (safety limit for performance).
-      var HEX_TILE_MAX_CELLS = 5000;
-      // Minimum zoom level below which the grid is hidden.
-      // At zoom 13 a typical viewport covers ~4 km², producing ~15 000 cells at 20 m radius –
-      // far too many. Zoom 14 keeps the count below ~4 000 cells which is comfortably within
-      // the HEX_TILE_MAX_CELLS limit and renders smoothly.
-      var HEX_TILE_MIN_ZOOM = 14;
-      // Earth radius used by EPSG:3857 (Web Mercator).
-      var HEX_WEB_MERCATOR_R = 6378137;
-      // Precomputed degrees-to-radians factor.
-      var HEX_DEG_TO_RAD = Math.PI / 180;
-
-      // Convert geographic coordinates [lng, lat] to Web Mercator [x, y] in metres.
-      function hexLngLatToMercator(lng, lat) {
-        var x = HEX_WEB_MERCATOR_R * lng * HEX_DEG_TO_RAD;
-        var latRad = lat * HEX_DEG_TO_RAD;
-        var y = HEX_WEB_MERCATOR_R * Math.log(Math.tan(Math.PI / 4 + latRad / 2));
-        return [x, y];
-      }
-
-      // Convert Web Mercator [x, y] (metres) back to geographic [lng, lat].
-      function hexMercatorToLngLat(x, y) {
-        var lng = x / (HEX_WEB_MERCATOR_R * HEX_DEG_TO_RAD);
-        var lat = (2 * Math.atan(Math.exp(y / HEX_WEB_MERCATOR_R)) - Math.PI / 2) / HEX_DEG_TO_RAD;
-        return [lng, lat];
-      }
-
-      // Build GeoJSON FeatureCollection of hexagons covering the current viewport.
-      // The grid is anchored to Mercator (0, 0) so cells are geographically stable.
-      function buildHexGeoJSON() {
-        if (!map) return { type: 'FeatureCollection', features: [] };
-
-        if (map.getZoom() < HEX_TILE_MIN_ZOOM) {
-          return { type: 'FeatureCollection', features: [] };
-        }
-
-        var bounds = map.getBounds();
-        var sw = hexLngLatToMercator(bounds.getWest(), bounds.getSouth());
-        var ne = hexLngLatToMercator(bounds.getEast(), bounds.getNorth());
-
-        var r = hexTileRadiusMeters;
-        // Pointy-top hex grid geometry in Mercator space:
-        //   W          = sqrt(3) * r   (horizontal centre-to-centre distance, same row)
-        //   rowSpacing = 1.5 * r       (vertical centre-to-centre distance)
-        //   odd rows are offset W/2 horizontally
-        var W = Math.sqrt(3) * r;
-        var rowSpacing = 1.5 * r;
-        var pad = r * 2; // extra margin to avoid edge clipping
-
-        var rowMin = Math.floor((sw[1] - pad) / rowSpacing);
-        var rowMax = Math.ceil((ne[1]  + pad) / rowSpacing);
-
-        var features = [];
-        outer:
-        for (var row = rowMin; row <= rowMax; row++) {
-          var cy = row * rowSpacing;
-          var xOffset = (row & 1) ? W / 2 : 0;
-          var colMin = Math.floor((sw[0] - pad - xOffset) / W);
-          var colMax = Math.ceil((ne[0]  + pad - xOffset) / W);
-          for (var col = colMin; col <= colMax; col++) {
-            var cx = col * W + xOffset;
-            var coords = [];
-            for (var i = 0; i < 6; i++) {
-              // Pointy-top: first vertex at 90°, then every 60°.
-              var angle = HEX_DEG_TO_RAD * (60 * i + 30);
-              coords.push(hexMercatorToLngLat(cx + r * Math.cos(angle), cy + r * Math.sin(angle)));
-            }
-            coords.push(coords[0]); // close the ring
-            features.push({
-              type: 'Feature',
-              geometry: { type: 'Polygon', coordinates: [coords] },
-              properties: { row: row, col: col },
-            });
-            if (features.length >= HEX_TILE_MAX_CELLS) break outer;
-          }
-        }
-        return { type: 'FeatureCollection', features: features };
-      }
-
-      function addHexTileLayer() {
-        if (!map || map.getSource(HEX_TILE_SOURCE)) return;
-        var geojson = buildHexGeoJSON();
-        map.addSource(HEX_TILE_SOURCE, { type: 'geojson', data: geojson });
-        map.addLayer({
-          id: HEX_TILE_FILL_LAYER,
-          type: 'fill',
-          source: HEX_TILE_SOURCE,
-          paint: {
-            'fill-color': hexTileColor,
-            'fill-opacity': 1,
-          },
-        });
-        map.addLayer({
-          id: HEX_TILE_STROKE_LAYER,
-          type: 'line',
-          source: HEX_TILE_SOURCE,
-          paint: {
-            'line-color': hexTileStrokeColor,
-            'line-width': 1,
-            'line-opacity': 0.6,
-          },
-        });
-      }
-
-      function removeHexTileLayer() {
-        if (!map) return;
-        if (map.getLayer(HEX_TILE_STROKE_LAYER)) map.removeLayer(HEX_TILE_STROKE_LAYER);
-        if (map.getLayer(HEX_TILE_FILL_LAYER))   map.removeLayer(HEX_TILE_FILL_LAYER);
-        if (map.getSource(HEX_TILE_SOURCE))       map.removeSource(HEX_TILE_SOURCE);
-      }
-
-      function updateHexTileGrid() {
-        if (!hexTileActive || !map) return;
-        var src = map.getSource(HEX_TILE_SOURCE);
-        if (!src) return;
-        src.setData(buildHexGeoJSON());
-      }
-      // ─────────────────────────────────────────────────────────────────────────────
+      // ─── Extension hooks ──────────────────────────────────────────────────────────
+      // Consumers can set these hooks to extend map behaviour without modifying this
+      // file. The Geonexia hex-tile layer script uses them.
+      //   onMapReady(map)       – called once after MapLibre finishes loading
+      //   onMessage(data)       – called from applyMessage for every incoming message
+      //   onMapClick(e, map)    – called from the click handler; return true to consume
+      window._mapExtensions = {};
 
       // ─── Route track layer ────────────────────────────────────────────────────────
       var ROUTE_TRACK_SOURCE = 'route-track-source';
@@ -1261,20 +1136,6 @@
           map.setMaxPitch(data.maxPitch);
         }
 
-        if (data.hexTileLayer !== undefined) {
-          if (data.hexTileLayer) {
-            if (data.hexTileLayer.color) hexTileColor = data.hexTileLayer.color;
-            if (data.hexTileLayer.strokeColor) hexTileStrokeColor = data.hexTileLayer.strokeColor;
-            if (data.hexTileLayer.radiusMeters) hexTileRadiusMeters = data.hexTileLayer.radiusMeters;
-            hexTileActive = true;
-            removeHexTileLayer();
-            addHexTileLayer();
-          } else {
-            hexTileActive = false;
-            removeHexTileLayer();
-          }
-        }
-
         if (data.routeCoordinates !== undefined) {
           updateRouteTrackLayer(data.routeCoordinates);
         }
@@ -1286,6 +1147,10 @@
             userLocationMarker.remove();
             userLocationMarker = null;
           }
+        }
+
+        if (window._mapExtensions.onMessage) {
+          window._mapExtensions.onMessage(data);
         }
       }
 
@@ -1328,6 +1193,9 @@
             applyMessage(pendingMessage);
             pendingMessage = null;
           }
+          if (window._mapExtensions.onMapReady) {
+            window._mapExtensions.onMapReady(map);
+          }
           sendToRN({ tag: 'MapComponentMounted', version: '1.0' });
         });
 
@@ -1350,10 +1218,6 @@
 
         map.on('click', function (e) {
           try {
-            if (!buildingClickEnabled && !poiClickEnabled) {
-              sendToRN({ tag: 'MapTapped' });
-              return;
-            }
             var allLayers = map.getStyle().layers;
             var extrusionLayerIds = [];
             var symbolLayerIds = [];
@@ -1386,6 +1250,11 @@
                 return;
               }
             }
+            // Extension click handlers (e.g. hex tile) – run after buildings and POIs
+            // so that named map features take precedence over grid cells.
+            if (window._mapExtensions.onMapClick) {
+              if (window._mapExtensions.onMapClick(e, map)) return;
+            }
             currentHighlightedFeature = null;
             clearBuildingHighlight();
             sendToRN({ tag: 'MapTapped' });
@@ -1411,12 +1280,10 @@
           }
         });
 
-        map.on('moveend', function () {
-          updateHexTileGrid();
-        });
-
-        map.on('zoomend', function () {
-          updateHexTileGrid();
+        map.on('movestart', function (e) {
+          if (e.originalEvent) {
+            sendToRN({ tag: 'MapInteracted' });
+          }
         });
 
         map.on('styledata', function () {
@@ -1433,14 +1300,13 @@
           if (currentHighlightedFeature && !map.getSource(HIGHLIGHT_BUILDING_SOURCE)) {
             highlightBuilding(currentHighlightedFeature);
           }
-          if (hexTileActive && !map.getSource(HEX_TILE_SOURCE)) {
-            addHexTileLayer();
-          }
           if (routeTrackCoords && !map.getSource(ROUTE_TRACK_SOURCE)) {
             updateRouteTrackLayer(routeTrackCoords);
           }
         });
       }
+
+      // INJECT_SCRIPT_HERE
 
       (function () {
         try {
