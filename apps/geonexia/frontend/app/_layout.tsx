@@ -6,7 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider, AppDrawer, DrawerItem } from 'repo-depkit-common-ui';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { View, Text, StyleSheet } from 'react-native';
 
 function CustomDrawerContent(props: DrawerContentComponentProps) {
@@ -24,6 +24,12 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 			label: 'Map',
 			renderIcon: (_, color) => <Ionicons name="map-outline" size={24} color={color} />,
 			onPress: () => props.navigation.navigate('map/index'),
+		},
+		{
+			key: 'lauf-oberland/index',
+			label: 'Lauf Oberland',
+			renderIcon: (_, color) => <MaterialCommunityIcons name="run-fast" size={24} color={color} />,
+			onPress: () => props.navigation.navigate('lauf-oberland/index'),
 		},
 		{
 			key: 'settings/index',
@@ -75,6 +81,15 @@ export default function Layout() {
 								title: 'Map',
 								drawerIcon: ({ color, size }) => (
 									<Ionicons name="map-outline" size={size} color={color} />
+								),
+							}}
+						/>
+						<Drawer.Screen
+							name="lauf-oberland/index"
+							options={{
+								title: 'Lauf Oberland',
+								drawerIcon: ({ color, size }) => (
+									<MaterialCommunityIcons name="run-fast" size={size} color={color} />
 								),
 							}}
 						/>

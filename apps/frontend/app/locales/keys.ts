@@ -303,7 +303,6 @@ export enum TranslationKeys {
 	canteen = 'canteen',
 	please_select_your_canteen = 'please_select_your_canteen',
 	map = 'map',
-	geonexia_lauf_oberland = 'geonexia_lauf_oberland',
 	leaflet_map = 'leaflet_map',
 	leaflet_test = 'leaflet_test',
 	map_variants = 'map_variants',
