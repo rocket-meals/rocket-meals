@@ -3033,6 +3033,16 @@
         "tr": "Harita",
         "zh": "地图"
     },
+    "geonexia_lauf_oberland": {
+        "de": "Lauf Oberland",
+        "en": "Lauf Oberland",
+        "ar": "Lauf Oberland",
+        "es": "Lauf Oberland",
+        "fr": "Lauf Oberland",
+        "ru": "Lauf Oberland",
+        "tr": "Lauf Oberland",
+        "zh": "Lauf Oberland"
+    },
     "leaflet_map": {
         "de": "Leaflet Karte",
         "en": "Leaflet Map",

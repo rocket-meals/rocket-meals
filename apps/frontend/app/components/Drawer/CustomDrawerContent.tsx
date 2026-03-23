@@ -220,6 +220,14 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
                                 route: 'map/index',
                                 position: 4,
                         });
+                        menuItems.push({
+                                label: translate(TranslationKeys.geonexia_lauf_oberland),
+                                iconName: 'run-fast',
+                                iconLibName: MaterialCommunityIcons,
+                                activeKey: 'geonexia/index',
+                                route: 'geonexia/index',
+                                position: 4.5,
+                        });
                 }
 
                 if (isManagement) {
