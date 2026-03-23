@@ -52,6 +52,21 @@
           transform: rotate(360deg);
         }
       }
+      @keyframes pulseUserLocation {
+        0%   { box-shadow: 0 0 0 0 rgba(37,99,235,0.45); }
+        70%  { box-shadow: 0 0 0 14px rgba(37,99,235,0); }
+        100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); }
+      }
+      .user-location-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #2563eb;
+        border: 3px solid #ffffff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        animation: pulseUserLocation 2s ease-out infinite;
+        pointer-events: none;
+      }
       #error {
         display: none;
         position: absolute;
@@ -982,6 +997,55 @@
       }
       // ─────────────────────────────────────────────────────────────────────────────
 
+      // ─── Route track layer ────────────────────────────────────────────────────────
+      var ROUTE_TRACK_SOURCE = 'route-track-source';
+      var ROUTE_TRACK_LAYER  = 'route-track-layer';
+      var routeTrackCoords   = null; // last received [[lng,lat],...] or null
+
+      function updateRouteTrackLayer(coords) {
+        if (!map) return;
+        routeTrackCoords = (coords && coords.length > 0) ? coords : null;
+        var geojson = {
+          type: 'FeatureCollection',
+          features: (coords && coords.length > 1) ? [{
+            type: 'Feature',
+            geometry: { type: 'LineString', coordinates: coords },
+            properties: {},
+          }] : [],
+        };
+        if (map.getSource(ROUTE_TRACK_SOURCE)) {
+          map.getSource(ROUTE_TRACK_SOURCE).setData(geojson);
+        } else {
+          map.addSource(ROUTE_TRACK_SOURCE, { type: 'geojson', data: geojson });
+          map.addLayer({
+            id: ROUTE_TRACK_LAYER,
+            type: 'line',
+            source: ROUTE_TRACK_SOURCE,
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#e53935', 'line-width': 4, 'line-opacity': 0.85 },
+          });
+        }
+      }
+      // ─────────────────────────────────────────────────────────────────────────────
+
+      // ─── User location marker ─────────────────────────────────────────────────────
+      var userLocationMarker = null;
+
+      function updateUserLocationMarker(position) {
+        if (!map || !position || position.lat == null || position.lng == null) return;
+        var lngLat = [position.lng, position.lat];
+        if (userLocationMarker) {
+          userLocationMarker.setLngLat(lngLat);
+        } else {
+          var el = document.createElement('div');
+          el.className = 'user-location-dot';
+          userLocationMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
+            .setLngLat(lngLat)
+            .addTo(map);
+        }
+      }
+      // ─────────────────────────────────────────────────────────────────────────────
+
       function applyMessage(data) {
         if (!map) return;
 
@@ -1194,6 +1258,19 @@
             removeHexTileLayer();
           }
         }
+
+        if (data.routeCoordinates !== undefined) {
+          updateRouteTrackLayer(data.routeCoordinates);
+        }
+
+        if (data.userLocation !== undefined) {
+          if (data.userLocation) {
+            updateUserLocationMarker(data.userLocation);
+          } else if (userLocationMarker) {
+            userLocationMarker.remove();
+            userLocationMarker = null;
+          }
+        }
       }
 
       function handleIncomingData(data) {
@@ -1342,6 +1419,9 @@
           }
           if (hexTileActive && !map.getSource(HEX_TILE_SOURCE)) {
             addHexTileLayer();
+          }
+          if (routeTrackCoords && !map.getSource(ROUTE_TRACK_SOURCE)) {
+            updateRouteTrackLayer(routeTrackCoords);
           }
         });
       }
