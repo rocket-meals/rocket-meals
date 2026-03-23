@@ -878,99 +878,91 @@
         }
       }
 
-      // ─── Hex tile layer (pure-JS, no external library) ──────────────────────────
-      // Renders a regular hexagonal grid over the current viewport.
-      // Hexagon size adapts automatically based on zoom level.
+      // ─── Hex tile layer (Web Mercator fixed grid, no external library) ───────────
+      // Renders a stable hexagonal grid whose cells are anchored to fixed Web Mercator
+      // (EPSG:3857) coordinates. Because the grid origin is always (0, 0) in Mercator
+      // space, hexagon positions never drift when the user pans or zooms – only the
+      // set of visible cells changes. Hexagons appear visually equal in size across
+      // the map (Mercator preserves local shape), making them suitable for a game grid.
       var hexTileActive = false;
       var hexTileColor = 'rgba(37, 99, 235, 0.18)';
       var hexTileStrokeColor = '#2563eb';
+      // Circumradius of each hexagon in Web Mercator metres (vertex to centre).
+      var hexTileRadiusMeters = 20;
       var HEX_TILE_SOURCE = 'hex-tile-source';
       var HEX_TILE_FILL_LAYER = 'hex-tile-fill';
       var HEX_TILE_STROKE_LAYER = 'hex-tile-stroke';
-      // Maximum number of hex cells to render at once to keep performance acceptable.
-      var HEX_TILE_MAX_CELLS = 3000;
-      // Metres per degree of latitude (constant). One degree longitude = METERS_PER_DEG * cos(lat).
-      var HEX_METERS_PER_DEG = 111320;
-      // Precomputed degrees-to-radians conversion factor.
+      // Maximum hexagon cells rendered at once (safety limit for performance).
+      var HEX_TILE_MAX_CELLS = 5000;
+      // Minimum zoom level below which the grid is hidden.
+      // At zoom 13 a typical viewport covers ~4 km², producing ~15 000 cells at 20 m radius –
+      // far too many. Zoom 14 keeps the count below ~4 000 cells which is comfortably within
+      // the HEX_TILE_MAX_CELLS limit and renders smoothly.
+      var HEX_TILE_MIN_ZOOM = 14;
+      // Earth radius used by EPSG:3857 (Web Mercator).
+      var HEX_WEB_MERCATOR_R = 6378137;
+      // Precomputed degrees-to-radians factor.
       var HEX_DEG_TO_RAD = Math.PI / 180;
 
-      // Returns the hex "circumradius" in metres for a given MapLibre zoom level.
-      // Higher zoom → smaller hexagons.
-      function zoomToHexRadiusMeters(zoom) {
-        if (zoom < 3)  return 500000;
-        if (zoom < 5)  return 200000;
-        if (zoom < 7)  return 80000;
-        if (zoom < 9)  return 30000;
-        if (zoom < 11) return 10000;
-        if (zoom < 13) return 3000;
-        if (zoom < 15) return 1000;
-        if (zoom < 17) return 300;
-        return 100;
+      // Convert geographic coordinates [lng, lat] to Web Mercator [x, y] in metres.
+      function hexLngLatToMercator(lng, lat) {
+        var x = HEX_WEB_MERCATOR_R * lng * HEX_DEG_TO_RAD;
+        var latRad = lat * HEX_DEG_TO_RAD;
+        var y = HEX_WEB_MERCATOR_R * Math.log(Math.tan(Math.PI / 4 + latRad / 2));
+        return [x, y];
       }
 
-      // Convert a local-metre offset (dx, dy) from an origin (lat, lng) to [lng, lat].
-      // Uses a flat-earth approximation which is accurate enough for viewport-scale grids.
-      function metersToLngLat(originLat, originLng, metersPerLngDeg, dx, dy) {
-        var lat = originLat + dy / HEX_METERS_PER_DEG;
-        var lng = originLng + dx / metersPerLngDeg;
+      // Convert Web Mercator [x, y] (metres) back to geographic [lng, lat].
+      function hexMercatorToLngLat(x, y) {
+        var lng = x / (HEX_WEB_MERCATOR_R * HEX_DEG_TO_RAD);
+        var lat = (2 * Math.atan(Math.exp(y / HEX_WEB_MERCATOR_R)) - Math.PI / 2) / HEX_DEG_TO_RAD;
         return [lng, lat];
       }
 
-      // Return the 7 GeoJSON ring vertices ([lng,lat]) for a pointy-top hexagon
-      // centred at local-metre position (cx, cy) with circumradius r.
-      function hexRingCoords(cx, cy, r, originLat, originLng, metersPerLngDeg) {
-        var coords = [];
-        for (var i = 0; i < 6; i++) {
-          // Pointy-top: first vertex points straight up (90°), then every 60°.
-          var angle = HEX_DEG_TO_RAD * (60 * i + 30);
-          coords.push(metersToLngLat(originLat, originLng, metersPerLngDeg, cx + r * Math.cos(angle), cy + r * Math.sin(angle)));
-        }
-        coords.push(coords[0]); // close the ring
-        return coords;
-      }
-
       // Build GeoJSON FeatureCollection of hexagons covering the current viewport.
+      // The grid is anchored to Mercator (0, 0) so cells are geographically stable.
       function buildHexGeoJSON() {
         if (!map) return { type: 'FeatureCollection', features: [] };
+
+        if (map.getZoom() < HEX_TILE_MIN_ZOOM) {
+          return { type: 'FeatureCollection', features: [] };
+        }
+
         var bounds = map.getBounds();
-        var zoom   = map.getZoom();
-        var r      = zoomToHexRadiusMeters(zoom);
+        var sw = hexLngLatToMercator(bounds.getWest(), bounds.getSouth());
+        var ne = hexLngLatToMercator(bounds.getEast(), bounds.getNorth());
 
-        // Work in a flat-earth metre coordinate system centred on the viewport centre.
-        var originLat = (bounds.getNorth() + bounds.getSouth()) / 2;
-        var originLng = (bounds.getEast()  + bounds.getWest())  / 2;
-        var metersPerLngDeg = HEX_METERS_PER_DEG * Math.cos(originLat * HEX_DEG_TO_RAD);
-
-        var northM = (bounds.getNorth() - originLat) * HEX_METERS_PER_DEG;
-        var southM = (bounds.getSouth() - originLat) * HEX_METERS_PER_DEG;
-        var eastM  = (bounds.getEast()  - originLng) * metersPerLngDeg;
-        var westM  = (bounds.getWest()  - originLng) * metersPerLngDeg;
-
-        // Pointy-top hex grid geometry:
-        //   width  W = sqrt(3) * r   (distance between two parallel vertical edges)
-        //   height H = 2 * r
-        //   column spacing  = W
-        //   row spacing     = 3/2 * r  (rows overlap vertically by r/2)
-        //   odd rows are offset by W/2 horizontally
-        var W          = Math.sqrt(3) * r;
+        var r = hexTileRadiusMeters;
+        // Pointy-top hex grid geometry in Mercator space:
+        //   W          = sqrt(3) * r   (horizontal centre-to-centre distance, same row)
+        //   rowSpacing = 1.5 * r       (vertical centre-to-centre distance)
+        //   odd rows are offset W/2 horizontally
+        var W = Math.sqrt(3) * r;
         var rowSpacing = 1.5 * r;
-        var pad        = r * 2; // extra padding to avoid edge clipping
+        var pad = r * 2; // extra margin to avoid edge clipping
 
-        var rowMin = Math.floor((southM - pad) / rowSpacing);
-        var rowMax = Math.ceil((northM  + pad) / rowSpacing);
+        var rowMin = Math.floor((sw[1] - pad) / rowSpacing);
+        var rowMax = Math.ceil((ne[1]  + pad) / rowSpacing);
 
         var features = [];
         outer:
         for (var row = rowMin; row <= rowMax; row++) {
-          var cy      = row * rowSpacing;
+          var cy = row * rowSpacing;
           var xOffset = (row & 1) ? W / 2 : 0;
-          var colMin  = Math.floor((westM  - pad - xOffset) / W);
-          var colMax  = Math.ceil((eastM   + pad - xOffset) / W);
+          var colMin = Math.floor((sw[0] - pad - xOffset) / W);
+          var colMax = Math.ceil((ne[0]  + pad - xOffset) / W);
           for (var col = colMin; col <= colMax; col++) {
             var cx = col * W + xOffset;
+            var coords = [];
+            for (var i = 0; i < 6; i++) {
+              // Pointy-top: first vertex at 90°, then every 60°.
+              var angle = HEX_DEG_TO_RAD * (60 * i + 30);
+              coords.push(hexMercatorToLngLat(cx + r * Math.cos(angle), cy + r * Math.sin(angle)));
+            }
+            coords.push(coords[0]); // close the ring
             features.push({
               type: 'Feature',
-              geometry: { type: 'Polygon', coordinates: [hexRingCoords(cx, cy, r, originLat, originLng, metersPerLngDeg)] },
+              geometry: { type: 'Polygon', coordinates: [coords] },
               properties: { row: row, col: col },
             });
             if (features.length >= HEX_TILE_MAX_CELLS) break outer;
@@ -1273,7 +1265,9 @@
           if (data.hexTileLayer) {
             if (data.hexTileLayer.color) hexTileColor = data.hexTileLayer.color;
             if (data.hexTileLayer.strokeColor) hexTileStrokeColor = data.hexTileLayer.strokeColor;
+            if (data.hexTileLayer.radiusMeters) hexTileRadiusMeters = data.hexTileLayer.radiusMeters;
             hexTileActive = true;
+            removeHexTileLayer();
             addHexTileLayer();
           } else {
             hexTileActive = false;
