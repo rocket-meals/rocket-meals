@@ -917,19 +917,21 @@
         var zoom  = map.getZoom();
         var res   = zoomToH3Resolution(zoom);
 
-        // polygonToCells expects a flat array of [lat, lng] pairs for the outer ring
-        // (counter-clockwise winding, consistent with GeoJSON right-hand rule).
-        var polygon = [
-          [north, west],
-          [south, west],
-          [south, east],
-          [north, east],
-          [north, west],
-        ];
+        // h3-js v4: polygonToCells with geoJson=false expects {outer: [[lat, lng], ...]}
+        var polygon = {
+          outer: [
+            [north, west],
+            [south, west],
+            [south, east],
+            [north, east],
+            [north, west],
+          ]
+        };
         var cells;
         try {
-          cells = H3.polygonToCells(polygon, res, true);
+          cells = H3.polygonToCells(polygon, res, false);
         } catch (e) {
+          console.error('H3 polygon conversion failed:', e);
           return { type: 'FeatureCollection', features: [] };
         }
         if (!cells || cells.length === 0) return { type: 'FeatureCollection', features: [] };
