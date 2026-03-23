@@ -863,6 +863,89 @@
         }
       }
 
+      // ─── Hex tile layer ──────────────────────────────────────────────────────────
+      // Evenly-spaced hexagonal tile grid for the territory game.
+      // Points are generated dynamically for the current viewport at each moveend.
+      var hexTileActive = false;
+      var hexTileSpacingMeters = 100;
+      var hexTileColor = 'rgba(37, 99, 235, 0.25)';
+      var hexTileStrokeColor = '#2563eb';
+      var HEX_TILE_SOURCE = 'hex-tile-source';
+      var HEX_TILE_LAYER = 'hex-tile-circles';
+      var HEX_TILE_MAX_POINTS = 4000;
+      var HEX_TILE_MIN_ZOOM = 12;
+      // Approximate meters per degree of latitude (constant; longitude varies by cos(lat)).
+      var METERS_PER_LAT_DEG = 111320;
+
+      // Generate hex-grid center points covering the given bounds.
+      // Row spacing = spacingMeters * sin(60°) ≈ 0.866 * spacingMeters (N-S).
+      // Column spacing = spacingMeters (E-W), with every other row offset by half.
+      function generateHexGridPoints(bounds, spacingMeters) {
+        var features = [];
+        var rowSpacingDeg = (spacingMeters * Math.sqrt(3) / 2) / METERS_PER_LAT_DEG;
+        var startRow = Math.floor(bounds.south / rowSpacingDeg) - 1;
+        var row = startRow;
+        var lat = startRow * rowSpacingDeg;
+        while (lat <= bounds.north + rowSpacingDeg) {
+          var cosLat = Math.max(Math.cos(lat * Math.PI / 180), 0.0001);
+          var colSpacingDeg = spacingMeters / (METERS_PER_LAT_DEG * cosLat);
+          var rowIsOdd = Math.abs(row % 2);
+          var lngOffset = rowIsOdd * colSpacingDeg / 2;
+          var startCol = Math.floor((bounds.west - lngOffset) / colSpacingDeg) - 1;
+          var lng = startCol * colSpacingDeg + lngOffset;
+          while (lng <= bounds.east + colSpacingDeg) {
+            features.push({ type: 'Feature', geometry: { type: 'Point', coordinates: [lng, lat] }, properties: {} });
+            if (features.length >= HEX_TILE_MAX_POINTS) return features;
+            lng += colSpacingDeg;
+          }
+          lat += rowSpacingDeg;
+          row++;
+        }
+        return features;
+      }
+
+      function addHexTileLayer() {
+        if (!map || map.getSource(HEX_TILE_SOURCE)) return;
+        var zoom = map.getZoom();
+        var features = zoom >= HEX_TILE_MIN_ZOOM ? generateHexGridPoints({
+          north: map.getBounds().getNorth(), south: map.getBounds().getSouth(),
+          east: map.getBounds().getEast(), west: map.getBounds().getWest()
+        }, hexTileSpacingMeters) : [];
+        map.addSource(HEX_TILE_SOURCE, { type: 'geojson', data: { type: 'FeatureCollection', features: features } });
+        // circle-radius is in pixels; values below approximate 10 m radius at mid-latitudes.
+        map.addLayer({
+          id: HEX_TILE_LAYER,
+          type: 'circle',
+          source: HEX_TILE_SOURCE,
+          paint: {
+            'circle-radius': ['interpolate', ['exponential', 2], ['zoom'], 10, 0.5, 14, 2, 16, 7, 18, 28, 22, 110],
+            'circle-color': hexTileColor,
+            'circle-stroke-color': hexTileStrokeColor,
+            'circle-stroke-width': 1,
+            'circle-opacity': 0.7,
+          },
+        });
+      }
+
+      function removeHexTileLayer() {
+        if (!map) return;
+        if (map.getLayer(HEX_TILE_LAYER)) map.removeLayer(HEX_TILE_LAYER);
+        if (map.getSource(HEX_TILE_SOURCE)) map.removeSource(HEX_TILE_SOURCE);
+      }
+
+      function updateHexTileGrid() {
+        if (!hexTileActive || !map) return;
+        var src = map.getSource(HEX_TILE_SOURCE);
+        if (!src) return;
+        var zoom = map.getZoom();
+        var features = zoom >= HEX_TILE_MIN_ZOOM ? generateHexGridPoints({
+          north: map.getBounds().getNorth(), south: map.getBounds().getSouth(),
+          east: map.getBounds().getEast(), west: map.getBounds().getWest()
+        }, hexTileSpacingMeters) : [];
+        src.setData({ type: 'FeatureCollection', features: features });
+      }
+      // ─────────────────────────────────────────────────────────────────────────────
+
       function applyMessage(data) {
         if (!map) return;
 
@@ -1063,6 +1146,19 @@
         if (data.maxPitch != null) {
           map.setMaxPitch(data.maxPitch);
         }
+
+        if (data.hexTileLayer !== undefined) {
+          if (data.hexTileLayer) {
+            if (data.hexTileLayer.spacingMeters != null) hexTileSpacingMeters = data.hexTileLayer.spacingMeters;
+            if (data.hexTileLayer.color) hexTileColor = data.hexTileLayer.color;
+            if (data.hexTileLayer.strokeColor) hexTileStrokeColor = data.hexTileLayer.strokeColor;
+            hexTileActive = true;
+            addHexTileLayer();
+          } else {
+            hexTileActive = false;
+            removeHexTileLayer();
+          }
+        }
       }
 
       function handleIncomingData(data) {
@@ -1187,6 +1283,10 @@
           }
         });
 
+        map.on('moveend', function () {
+          updateHexTileGrid();
+        });
+
         map.on('styledata', function () {
           if (peopleModeActive) {
             if (!map.getSource('people-source')) {
@@ -1200,6 +1300,9 @@
           }
           if (currentHighlightedFeature && !map.getSource(HIGHLIGHT_BUILDING_SOURCE)) {
             highlightBuilding(currentHighlightedFeature);
+          }
+          if (hexTileActive && !map.getSource(HEX_TILE_SOURCE)) {
+            addHexTileLayer();
           }
         });
       }
