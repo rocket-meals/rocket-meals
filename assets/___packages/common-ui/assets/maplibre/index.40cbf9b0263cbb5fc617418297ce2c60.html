@@ -6,6 +6,7 @@
     <title>OSM Vector Map</title>
     <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.5.0/dist/maplibre-gl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/h3-js@4.4.0/dist/browser/h3-js.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <style>
@@ -863,86 +864,121 @@
         }
       }
 
-      // ─── Hex tile layer ──────────────────────────────────────────────────────────
-      // Evenly-spaced hexagonal tile grid for the territory game.
-      // Points are generated dynamically for the current viewport at each moveend.
+      // ─── H3 hex tile layer ───────────────────────────────────────────────────────
+      // Renders actual H3 hexagonal polygons for the current viewport.
+      // Resolution adapts automatically based on zoom level.
       var hexTileActive = false;
-      var hexTileSpacingMeters = 100;
-      var hexTileColor = 'rgba(37, 99, 235, 0.25)';
+      var hexTileColor = 'rgba(37, 99, 235, 0.18)';
       var hexTileStrokeColor = '#2563eb';
       var HEX_TILE_SOURCE = 'hex-tile-source';
-      var HEX_TILE_LAYER = 'hex-tile-circles';
-      var HEX_TILE_MAX_POINTS = 4000;
-      var HEX_TILE_MIN_ZOOM = 12;
-      // Approximate meters per degree of latitude (constant; longitude varies by cos(lat)).
-      var METERS_PER_LAT_DEG = 111320;
+      var HEX_TILE_FILL_LAYER = 'hex-tile-fill';
+      var HEX_TILE_STROKE_LAYER = 'hex-tile-stroke';
+      // Maximum number of H3 cells to render at once to keep performance acceptable.
+      var HEX_TILE_MAX_CELLS = 3000;
 
-      // Generate hex-grid center points covering the given bounds.
-      // Row spacing = spacingMeters * sin(60°) ≈ 0.866 * spacingMeters (N-S).
-      // Column spacing = spacingMeters (E-W), with every other row offset by half.
-      function generateHexGridPoints(bounds, spacingMeters) {
-        var features = [];
-        var rowSpacingDeg = (spacingMeters * Math.sqrt(3) / 2) / METERS_PER_LAT_DEG;
-        var startRow = Math.floor(bounds.south / rowSpacingDeg) - 1;
-        var row = startRow;
-        var lat = startRow * rowSpacingDeg;
-        while (lat <= bounds.north + rowSpacingDeg) {
-          var cosLat = Math.max(Math.cos(lat * Math.PI / 180), 0.0001);
-          var colSpacingDeg = spacingMeters / (METERS_PER_LAT_DEG * cosLat);
-          var rowIsOdd = Math.abs(row % 2);
-          var lngOffset = rowIsOdd * colSpacingDeg / 2;
-          var startCol = Math.floor((bounds.west - lngOffset) / colSpacingDeg) - 1;
-          var lng = startCol * colSpacingDeg + lngOffset;
-          while (lng <= bounds.east + colSpacingDeg) {
-            features.push({ type: 'Feature', geometry: { type: 'Point', coordinates: [lng, lat] }, properties: {} });
-            if (features.length >= HEX_TILE_MAX_POINTS) return features;
-            lng += colSpacingDeg;
-          }
-          lat += rowSpacingDeg;
-          row++;
+      // Map MapLibre zoom level to H3 resolution.
+      // Supported range used here: 1 (very coarse, ~continent) to 9 (fine, ~block).
+      // Higher zoom → higher resolution → smaller hexagons.
+      function zoomToH3Resolution(zoom) {
+        if (zoom < 3)  return 1;
+        if (zoom < 5)  return 2;
+        if (zoom < 7)  return 3;
+        if (zoom < 9)  return 4;
+        if (zoom < 11) return 5;
+        if (zoom < 13) return 6;
+        if (zoom < 15) return 7;
+        if (zoom < 17) return 8;
+        return 9;
+      }
+
+      // Build GeoJSON Polygon features from H3 cells covering the current viewport.
+      function buildH3GeoJSON() {
+        if (!window.H3 || !map) return { type: 'FeatureCollection', features: [] };
+        var bounds = map.getBounds();
+        var north = bounds.getNorth();
+        var south = bounds.getSouth();
+        var east  = bounds.getEast();
+        var west  = bounds.getWest();
+        var zoom  = map.getZoom();
+        var res   = zoomToH3Resolution(zoom);
+
+        // polygonToCells expects a flat array of [lat, lng] pairs for the outer ring
+        // (counter-clockwise winding, consistent with GeoJSON right-hand rule).
+        var polygon = [
+          [north, west],
+          [south, west],
+          [south, east],
+          [north, east],
+          [north, west],
+        ];
+        var cells;
+        try {
+          cells = H3.polygonToCells(polygon, res, true);
+        } catch (e) {
+          return { type: 'FeatureCollection', features: [] };
         }
-        return features;
+        if (!cells || cells.length === 0) return { type: 'FeatureCollection', features: [] };
+        // Cap to avoid freezing the browser on very low zoom levels.
+        if (cells.length > HEX_TILE_MAX_CELLS) cells = cells.slice(0, HEX_TILE_MAX_CELLS);
+
+        var features = [];
+        for (var i = 0; i < cells.length; i++) {
+          var boundary;
+          try {
+            boundary = H3.cellToBoundary(cells[i]);
+          } catch (e) {
+            continue;
+          }
+          // Swap from H3's [lat, lng] to GeoJSON's [lng, lat].
+          var coords = boundary.map(function (p) { return [p[1], p[0]]; });
+          // Close the ring.
+          coords.push(coords[0]);
+          features.push({
+            type: 'Feature',
+            geometry: { type: 'Polygon', coordinates: [coords] },
+            properties: { h3: cells[i] },
+          });
+        }
+        return { type: 'FeatureCollection', features: features };
       }
 
       function addHexTileLayer() {
         if (!map || map.getSource(HEX_TILE_SOURCE)) return;
-        var zoom = map.getZoom();
-        var features = zoom >= HEX_TILE_MIN_ZOOM ? generateHexGridPoints({
-          north: map.getBounds().getNorth(), south: map.getBounds().getSouth(),
-          east: map.getBounds().getEast(), west: map.getBounds().getWest()
-        }, hexTileSpacingMeters) : [];
-        map.addSource(HEX_TILE_SOURCE, { type: 'geojson', data: { type: 'FeatureCollection', features: features } });
-        // circle-radius is in pixels; values below approximate 10 m radius at mid-latitudes.
+        var geojson = buildH3GeoJSON();
+        map.addSource(HEX_TILE_SOURCE, { type: 'geojson', data: geojson });
         map.addLayer({
-          id: HEX_TILE_LAYER,
-          type: 'circle',
+          id: HEX_TILE_FILL_LAYER,
+          type: 'fill',
           source: HEX_TILE_SOURCE,
           paint: {
-            'circle-radius': ['interpolate', ['exponential', 2], ['zoom'], 10, 0.5, 14, 2, 16, 7, 18, 28, 22, 110],
-            'circle-color': hexTileColor,
-            'circle-stroke-color': hexTileStrokeColor,
-            'circle-stroke-width': 1,
-            'circle-opacity': 0.7,
+            'fill-color': hexTileColor,
+            'fill-opacity': 1,
+          },
+        });
+        map.addLayer({
+          id: HEX_TILE_STROKE_LAYER,
+          type: 'line',
+          source: HEX_TILE_SOURCE,
+          paint: {
+            'line-color': hexTileStrokeColor,
+            'line-width': 1,
+            'line-opacity': 0.6,
           },
         });
       }
 
       function removeHexTileLayer() {
         if (!map) return;
-        if (map.getLayer(HEX_TILE_LAYER)) map.removeLayer(HEX_TILE_LAYER);
-        if (map.getSource(HEX_TILE_SOURCE)) map.removeSource(HEX_TILE_SOURCE);
+        if (map.getLayer(HEX_TILE_STROKE_LAYER)) map.removeLayer(HEX_TILE_STROKE_LAYER);
+        if (map.getLayer(HEX_TILE_FILL_LAYER))   map.removeLayer(HEX_TILE_FILL_LAYER);
+        if (map.getSource(HEX_TILE_SOURCE))       map.removeSource(HEX_TILE_SOURCE);
       }
 
       function updateHexTileGrid() {
         if (!hexTileActive || !map) return;
         var src = map.getSource(HEX_TILE_SOURCE);
         if (!src) return;
-        var zoom = map.getZoom();
-        var features = zoom >= HEX_TILE_MIN_ZOOM ? generateHexGridPoints({
-          north: map.getBounds().getNorth(), south: map.getBounds().getSouth(),
-          east: map.getBounds().getEast(), west: map.getBounds().getWest()
-        }, hexTileSpacingMeters) : [];
-        src.setData({ type: 'FeatureCollection', features: features });
+        src.setData(buildH3GeoJSON());
       }
       // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1149,7 +1185,6 @@
 
         if (data.hexTileLayer !== undefined) {
           if (data.hexTileLayer) {
-            if (data.hexTileLayer.spacingMeters != null) hexTileSpacingMeters = data.hexTileLayer.spacingMeters;
             if (data.hexTileLayer.color) hexTileColor = data.hexTileLayer.color;
             if (data.hexTileLayer.strokeColor) hexTileStrokeColor = data.hexTileLayer.strokeColor;
             hexTileActive = true;
@@ -1284,6 +1319,10 @@
         });
 
         map.on('moveend', function () {
+          updateHexTileGrid();
+        });
+
+        map.on('zoomend', function () {
           updateHexTileGrid();
         });
 
