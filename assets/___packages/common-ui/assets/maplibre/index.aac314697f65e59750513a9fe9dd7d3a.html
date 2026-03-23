@@ -6,7 +6,6 @@
     <title>OSM Vector Map</title>
     <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.5.0/dist/maplibre-gl.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/h3-js@4.4.0/dist/browser/h3-js.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <style>
@@ -879,89 +878,110 @@
         }
       }
 
-      // ─── H3 hex tile layer ───────────────────────────────────────────────────────
-      // Renders actual H3 hexagonal polygons for the current viewport.
-      // Resolution adapts automatically based on zoom level.
+      // ─── Hex tile layer (pure-JS, no external library) ──────────────────────────
+      // Renders a regular hexagonal grid over the current viewport.
+      // Hexagon size adapts automatically based on zoom level.
       var hexTileActive = false;
       var hexTileColor = 'rgba(37, 99, 235, 0.18)';
       var hexTileStrokeColor = '#2563eb';
       var HEX_TILE_SOURCE = 'hex-tile-source';
       var HEX_TILE_FILL_LAYER = 'hex-tile-fill';
       var HEX_TILE_STROKE_LAYER = 'hex-tile-stroke';
-      // Maximum number of H3 cells to render at once to keep performance acceptable.
+      // Maximum number of hex cells to render at once to keep performance acceptable.
       var HEX_TILE_MAX_CELLS = 3000;
+      // Metres per degree of latitude (constant). One degree longitude = METERS_PER_DEG * cos(lat).
+      var HEX_METERS_PER_DEG = 111320;
+      // Precomputed degrees-to-radians conversion factor.
+      var HEX_DEG_TO_RAD = Math.PI / 180;
 
-      // Map MapLibre zoom level to H3 resolution.
-      // Supported range used here: 1 (very coarse, ~continent) to 9 (fine, ~block).
-      // Higher zoom → higher resolution → smaller hexagons.
-      function zoomToH3Resolution(zoom) {
-        if (zoom < 3)  return 1;
-        if (zoom < 5)  return 2;
-        if (zoom < 7)  return 3;
-        if (zoom < 9)  return 4;
-        if (zoom < 11) return 5;
-        if (zoom < 13) return 6;
-        if (zoom < 15) return 7;
-        if (zoom < 17) return 8;
-        return 9;
+      // Returns the hex "circumradius" in metres for a given MapLibre zoom level.
+      // Higher zoom → smaller hexagons.
+      function zoomToHexRadiusMeters(zoom) {
+        if (zoom < 3)  return 500000;
+        if (zoom < 5)  return 200000;
+        if (zoom < 7)  return 80000;
+        if (zoom < 9)  return 30000;
+        if (zoom < 11) return 10000;
+        if (zoom < 13) return 3000;
+        if (zoom < 15) return 1000;
+        if (zoom < 17) return 300;
+        return 100;
       }
 
-      // Build GeoJSON Polygon features from H3 cells covering the current viewport.
-      function buildH3GeoJSON() {
-        if (!window.H3 || !map) return { type: 'FeatureCollection', features: [] };
-        var bounds = map.getBounds();
-        var north = bounds.getNorth();
-        var south = bounds.getSouth();
-        var east  = bounds.getEast();
-        var west  = bounds.getWest();
-        var zoom  = map.getZoom();
-        var res   = zoomToH3Resolution(zoom);
+      // Convert a local-metre offset (dx, dy) from an origin (lat, lng) to [lng, lat].
+      // Uses a flat-earth approximation which is accurate enough for viewport-scale grids.
+      function metersToLngLat(originLat, originLng, metersPerLngDeg, dx, dy) {
+        var lat = originLat + dy / HEX_METERS_PER_DEG;
+        var lng = originLng + dx / metersPerLngDeg;
+        return [lng, lat];
+      }
 
-        // h3-js v4: polygonToCells with geoJson=false expects {outer: [[lat, lng], ...]}
-        var polygon = {
-          outer: [
-            [north, west],
-            [south, west],
-            [south, east],
-            [north, east],
-            [north, west],
-          ]
-        };
-        var cells;
-        try {
-          cells = H3.polygonToCells(polygon, res, false);
-        } catch (e) {
-          console.error('H3 polygon conversion failed:', e);
-          return { type: 'FeatureCollection', features: [] };
+      // Return the 7 GeoJSON ring vertices ([lng,lat]) for a pointy-top hexagon
+      // centred at local-metre position (cx, cy) with circumradius r.
+      function hexRingCoords(cx, cy, r, originLat, originLng, metersPerLngDeg) {
+        var coords = [];
+        for (var i = 0; i < 6; i++) {
+          // Pointy-top: first vertex points straight up (90°), then every 60°.
+          var angle = HEX_DEG_TO_RAD * (60 * i + 30);
+          coords.push(metersToLngLat(originLat, originLng, metersPerLngDeg, cx + r * Math.cos(angle), cy + r * Math.sin(angle)));
         }
-        if (!cells || cells.length === 0) return { type: 'FeatureCollection', features: [] };
-        // Cap to avoid freezing the browser on very low zoom levels.
-        if (cells.length > HEX_TILE_MAX_CELLS) cells = cells.slice(0, HEX_TILE_MAX_CELLS);
+        coords.push(coords[0]); // close the ring
+        return coords;
+      }
+
+      // Build GeoJSON FeatureCollection of hexagons covering the current viewport.
+      function buildHexGeoJSON() {
+        if (!map) return { type: 'FeatureCollection', features: [] };
+        var bounds = map.getBounds();
+        var zoom   = map.getZoom();
+        var r      = zoomToHexRadiusMeters(zoom);
+
+        // Work in a flat-earth metre coordinate system centred on the viewport centre.
+        var originLat = (bounds.getNorth() + bounds.getSouth()) / 2;
+        var originLng = (bounds.getEast()  + bounds.getWest())  / 2;
+        var metersPerLngDeg = HEX_METERS_PER_DEG * Math.cos(originLat * HEX_DEG_TO_RAD);
+
+        var northM = (bounds.getNorth() - originLat) * HEX_METERS_PER_DEG;
+        var southM = (bounds.getSouth() - originLat) * HEX_METERS_PER_DEG;
+        var eastM  = (bounds.getEast()  - originLng) * metersPerLngDeg;
+        var westM  = (bounds.getWest()  - originLng) * metersPerLngDeg;
+
+        // Pointy-top hex grid geometry:
+        //   width  W = sqrt(3) * r   (distance between two parallel vertical edges)
+        //   height H = 2 * r
+        //   column spacing  = W
+        //   row spacing     = 3/2 * r  (rows overlap vertically by r/2)
+        //   odd rows are offset by W/2 horizontally
+        var W          = Math.sqrt(3) * r;
+        var rowSpacing = 1.5 * r;
+        var pad        = r * 2; // extra padding to avoid edge clipping
+
+        var rowMin = Math.floor((southM - pad) / rowSpacing);
+        var rowMax = Math.ceil((northM  + pad) / rowSpacing);
 
         var features = [];
-        for (var i = 0; i < cells.length; i++) {
-          var boundary;
-          try {
-            boundary = H3.cellToBoundary(cells[i]);
-          } catch (e) {
-            continue;
+        outer:
+        for (var row = rowMin; row <= rowMax; row++) {
+          var cy      = row * rowSpacing;
+          var xOffset = (row & 1) ? W / 2 : 0;
+          var colMin  = Math.floor((westM  - pad - xOffset) / W);
+          var colMax  = Math.ceil((eastM   + pad - xOffset) / W);
+          for (var col = colMin; col <= colMax; col++) {
+            var cx = col * W + xOffset;
+            features.push({
+              type: 'Feature',
+              geometry: { type: 'Polygon', coordinates: [hexRingCoords(cx, cy, r, originLat, originLng, metersPerLngDeg)] },
+              properties: { row: row, col: col },
+            });
+            if (features.length >= HEX_TILE_MAX_CELLS) break outer;
           }
-          // Swap from H3's [lat, lng] to GeoJSON's [lng, lat].
-          var coords = boundary.map(function (p) { return [p[1], p[0]]; });
-          // Close the ring.
-          coords.push(coords[0]);
-          features.push({
-            type: 'Feature',
-            geometry: { type: 'Polygon', coordinates: [coords] },
-            properties: { h3: cells[i] },
-          });
         }
         return { type: 'FeatureCollection', features: features };
       }
 
       function addHexTileLayer() {
         if (!map || map.getSource(HEX_TILE_SOURCE)) return;
-        var geojson = buildH3GeoJSON();
+        var geojson = buildHexGeoJSON();
         map.addSource(HEX_TILE_SOURCE, { type: 'geojson', data: geojson });
         map.addLayer({
           id: HEX_TILE_FILL_LAYER,
@@ -995,7 +1015,7 @@
         if (!hexTileActive || !map) return;
         var src = map.getSource(HEX_TILE_SOURCE);
         if (!src) return;
-        src.setData(buildH3GeoJSON());
+        src.setData(buildHexGeoJSON());
       }
       // ─────────────────────────────────────────────────────────────────────────────
 
