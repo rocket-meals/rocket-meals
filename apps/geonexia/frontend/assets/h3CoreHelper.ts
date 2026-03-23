@@ -3,20 +3,16 @@
  *
  * Constants for the H3-based hex tile overlay used in the Geonexia map.
  *
- * h3-js is loaded dynamically inside the MapLibre WebView context (not in the
- * React Native JavaScript thread running on Hermes). This is intentional:
- * the WebView's JS engine supports WebAssembly, while Hermes does not.
+ * The h3-js library (v4.4.0) is bundled directly in h3coreBundle.ts as a
+ * TypeScript string constant. It is injected into the MapLibre WebView context
+ * (not into the React Native JavaScript thread running on Hermes). This is
+ * intentional: the WebView's JS engine supports the typed-array and
+ * bit-manipulation operations h3-js relies on, while Hermes does not.
  * Importing h3-js as an npm package would fail at runtime on Hermes.
  *
- * The script string exported from hexTileScript.ts injects a <script> tag at
- * runtime that fetches this CDN bundle. Once loaded, `window.h3` exposes the
- * full h3-js API including `latLngToCell`, `cellToBoundary`, and
- * `polygonToCells`.
+ * The bundle is synchronous – `window.h3` is available immediately after the
+ * script runs, with no network requests or WASM initialization required.
  */
-
-/** CDN URL for the h3-js UMD bundle. The bundle embeds the WASM binary as base64. */
-export const H3_JS_CDN_URL =
-    'https://cdn.jsdelivr.net/npm/h3-js@4/dist/h3-js.umd.js';
 
 /**
  * Default H3 resolution for hex tile display.

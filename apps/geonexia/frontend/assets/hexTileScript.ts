@@ -4,22 +4,23 @@
  * This self-contained IIFE is injected into the MapLibre map HTML via the
  * `injectScript` prop on the `MyMap` component. It hooks into the map's
  * `_mapExtensions` API to:
- *   – Load h3-js from a CDN into the WebView context (WebView supports WASM;
- *     the React Native Hermes thread does not, which is why h3-js cannot be
- *     imported as a normal npm package).
  *   – Render H3 hexagonal tile cells (Uber H3 geospatial indexing) over the
  *     map viewport using `h3.polygonToCells` and `h3.cellToBoundary`.
  *   – Handle `hexTileLayer` messages to activate/configure/deactivate the grid.
  *   – Fire `{ tag: 'HexTileClicked', id }` to React Native when the user taps
  *     a hex cell, where `id` is the canonical H3 cell index string.
  *
+ * The h3-js library (h3coreBundle.ts) is prepended to the injected script so
+ * that `window.h3` is available synchronously – no CDN or network request needed.
  * The algorithm lives only here (Geonexia), not in the shared common-ui HTML.
- * CDN URL and resolution constants are defined in h3CoreHelper.ts.
+ * Resolution constants are defined in h3CoreHelper.ts.
  */
 
-import { H3_JS_CDN_URL, H3_DEFAULT_RESOLUTION, H3_MIN_ZOOM, H3_MAX_CELLS } from './h3CoreHelper';
+import { H3_DEFAULT_RESOLUTION, H3_MIN_ZOOM, H3_MAX_CELLS } from './h3CoreHelper';
+import { H3_CORE_BUNDLE } from './h3coreBundle';
 
 export const HEX_TILE_SCRIPT = `
+${H3_CORE_BUNDLE}
 (function () {
   // ── Configuration (can be overridden via hexTileLayer message) ─────────────
   // hexTileActive starts as true because injecting this script means the caller
@@ -39,35 +40,9 @@ export const HEX_TILE_SCRIPT = `
   var HEX_TILE_MAX_CELLS = ${H3_MAX_CELLS};
   var HEX_TILE_MIN_ZOOM = ${H3_MIN_ZOOM};
 
-  // ── Internal state ────────────────────────────────────────────────────────
-  var h3Ready = false;
-
-  // ── Load h3-js from CDN into the WebView ─────────────────────────────────
-  // h3-js uses WebAssembly (emscripten). Loading it here (inside the WebView's
-  // JS engine) works fine because WebViews support WASM. Importing it as an
-  // npm package in the React Native bundle would fail on Hermes which does not
-  // support WASM.
-  function loadH3(callback) {
-    if (typeof h3 !== 'undefined' && typeof h3.latLngToCell === 'function') {
-      h3Ready = true;
-      callback();
-      return;
-    }
-    var script = document.createElement('script');
-    script.src = '${H3_JS_CDN_URL}';
-    script.onload = function () {
-      h3Ready = true;
-      callback();
-    };
-    script.onerror = function () {
-      console.error('[HexTile] Failed to load h3-js from CDN.');
-    };
-    document.head.appendChild(script);
-  }
-
   // ── GeoJSON builder using h3-js ───────────────────────────────────────────
   function buildH3GeoJSON() {
-    if (!map || map.getZoom() < HEX_TILE_MIN_ZOOM || !h3Ready) {
+    if (!map || map.getZoom() < HEX_TILE_MIN_ZOOM) {
       return { type: 'FeatureCollection', features: [] };
     }
 
@@ -147,7 +122,7 @@ export const HEX_TILE_SCRIPT = `
   }
 
   function updateHexTileGrid() {
-    if (!hexTileActive || !map || !h3Ready) return;
+    if (!hexTileActive || !map) return;
     var src = map.getSource(HEX_TILE_SOURCE);
     if (src) src.setData(buildH3GeoJSON());
   }
@@ -156,13 +131,11 @@ export const HEX_TILE_SCRIPT = `
   window._mapExtensions = window._mapExtensions || {};
 
   window._mapExtensions.onMapReady = function (m) {
-    loadH3(function () {
-      addHexTileLayer();
-      m.on('moveend', updateHexTileGrid);
-      m.on('zoomend', updateHexTileGrid);
-      m.on('styledata', function () {
-        if (hexTileActive && !m.getSource(HEX_TILE_SOURCE)) addHexTileLayer();
-      });
+    addHexTileLayer();
+    m.on('moveend', updateHexTileGrid);
+    m.on('zoomend', updateHexTileGrid);
+    m.on('styledata', function () {
+      if (hexTileActive && !m.getSource(HEX_TILE_SOURCE)) addHexTileLayer();
     });
   };
 
@@ -183,7 +156,7 @@ export const HEX_TILE_SCRIPT = `
   };
 
   window._mapExtensions.onMapClick = function (e, m) {
-    if (!hexTileActive || !h3Ready || !m.getSource(HEX_TILE_SOURCE)) return false;
+    if (!hexTileActive || !m.getSource(HEX_TILE_SOURCE)) return false;
     var features = m.queryRenderedFeatures(e.point, { layers: [HEX_TILE_FILL_LAYER] });
     if (features && features.length > 0) {
       var props = features[0].properties || {};
