@@ -4,23 +4,31 @@
  * This self-contained IIFE is injected into the MapLibre map HTML via the
  * `injectScript` prop on the `MyMap` component. It hooks into the map's
  * `_mapExtensions` API to:
- *   – Render a stable Web-Mercator hexagonal grid over the map viewport.
+ *   – Load h3-js from a CDN into the WebView context (WebView supports WASM;
+ *     the React Native Hermes thread does not, which is why h3-js cannot be
+ *     imported as a normal npm package).
+ *   – Render H3 hexagonal tile cells (Uber H3 geospatial indexing) over the
+ *     map viewport using `h3.polygonToCells` and `h3.cellToBoundary`.
  *   – Handle `hexTileLayer` messages to activate/configure/deactivate the grid.
- *   – Fire `{ tag: 'HexTileClicked', id, row, col }` to React Native when the
- *     user taps a hex cell.
+ *   – Fire `{ tag: 'HexTileClicked', id }` to React Native when the user taps
+ *     a hex cell, where `id` is the canonical H3 cell index string.
  *
  * The algorithm lives only here (Geonexia), not in the shared common-ui HTML.
+ * CDN URL and resolution constants are defined in h3CoreHelper.ts.
  */
+
+import { H3_JS_CDN_URL, H3_DEFAULT_RESOLUTION, H3_MIN_ZOOM, H3_MAX_CELLS } from './h3CoreHelper';
+
 export const HEX_TILE_SCRIPT = `
 (function () {
   // ── Configuration (can be overridden via hexTileLayer message) ─────────────
   // hexTileActive starts as true because injecting this script means the caller
   // wants the hex-tile grid shown immediately. Send { hexTileLayer: null } to
-  // hide it or { hexTileLayer: { radiusMeters, color, strokeColor } } to reconfigure.
+  // hide it or { hexTileLayer: { resolution, color, strokeColor } } to reconfigure.
   var hexTileActive = true;
   var hexTileColor = 'rgba(0, 0, 0, 0)';
   var hexTileStrokeColor = '#2563eb';
-  var hexTileRadiusMeters = 20;
+  var hexTileResolution = ${H3_DEFAULT_RESOLUTION};
 
   // ── MapLibre source / layer IDs ───────────────────────────────────────────
   var HEX_TILE_SOURCE = 'hex-tile-source';
@@ -28,71 +36,95 @@ export const HEX_TILE_SCRIPT = `
   var HEX_TILE_STROKE_LAYER = 'hex-tile-stroke';
 
   // ── Safety limits ─────────────────────────────────────────────────────────
-  var HEX_TILE_MAX_CELLS = 5000;
-  var HEX_TILE_MIN_ZOOM = 14;
+  var HEX_TILE_MAX_CELLS = ${H3_MAX_CELLS};
+  var HEX_TILE_MIN_ZOOM = ${H3_MIN_ZOOM};
 
-  // ── Web Mercator constants ─────────────────────────────────────────────────
-  var HEX_WEB_MERCATOR_R = 6378137;
-  var HEX_DEG_TO_RAD = Math.PI / 180;
+  // ── Internal state ────────────────────────────────────────────────────────
+  var h3Ready = false;
 
-  // ── Coordinate helpers ────────────────────────────────────────────────────
-  function lngLatToMercator(lng, lat) {
-    var x = HEX_WEB_MERCATOR_R * lng * HEX_DEG_TO_RAD;
-    var latRad = lat * HEX_DEG_TO_RAD;
-    var y = HEX_WEB_MERCATOR_R * Math.log(Math.tan(Math.PI / 4 + latRad / 2));
-    return [x, y];
+  // ── Load h3-js from CDN into the WebView ─────────────────────────────────
+  // h3-js uses WebAssembly (emscripten). Loading it here (inside the WebView's
+  // JS engine) works fine because WebViews support WASM. Importing it as an
+  // npm package in the React Native bundle would fail on Hermes which does not
+  // support WASM.
+  function loadH3(callback) {
+    if (typeof h3 !== 'undefined' && typeof h3.latLngToCell === 'function') {
+      h3Ready = true;
+      callback();
+      return;
+    }
+    var script = document.createElement('script');
+    script.src = '${H3_JS_CDN_URL}';
+    script.onload = function () {
+      h3Ready = true;
+      callback();
+    };
+    script.onerror = function () {
+      console.error('[HexTile] Failed to load h3-js from CDN.');
+    };
+    document.head.appendChild(script);
   }
 
-  function mercatorToLngLat(x, y) {
-    var lng = x / (HEX_WEB_MERCATOR_R * HEX_DEG_TO_RAD);
-    var lat = (2 * Math.atan(Math.exp(y / HEX_WEB_MERCATOR_R)) - Math.PI / 2) / HEX_DEG_TO_RAD;
-    return [lng, lat];
-  }
-
-  // ── GeoJSON builder ───────────────────────────────────────────────────────
-  function buildHexGeoJSON() {
-    if (!map || map.getZoom() < HEX_TILE_MIN_ZOOM) {
+  // ── GeoJSON builder using h3-js ───────────────────────────────────────────
+  function buildH3GeoJSON() {
+    if (!map || map.getZoom() < HEX_TILE_MIN_ZOOM || !h3Ready) {
       return { type: 'FeatureCollection', features: [] };
     }
+
     var bounds = map.getBounds();
-    var sw = lngLatToMercator(bounds.getWest(), bounds.getSouth());
-    var ne = lngLatToMercator(bounds.getEast(), bounds.getNorth());
-    var r = hexTileRadiusMeters;
-    var W = Math.sqrt(3) * r;
-    var rowSpacing = 1.5 * r;
-    var pad = r * 2;
-    var rowMin = Math.floor((sw[1] - pad) / rowSpacing);
-    var rowMax = Math.ceil((ne[1] + pad) / rowSpacing);
-    var features = [];
-    outer:
-    for (var row = rowMin; row <= rowMax; row++) {
-      var cy = row * rowSpacing;
-      var xOffset = (row & 1) ? W / 2 : 0;
-      var colMin = Math.floor((sw[0] - pad - xOffset) / W);
-      var colMax = Math.ceil((ne[0] + pad - xOffset) / W);
-      for (var col = colMin; col <= colMax; col++) {
-        var cx = col * W + xOffset;
-        var coords = [];
-        for (var i = 0; i < 6; i++) {
-          var angle = HEX_DEG_TO_RAD * (60 * i + 30);
-          coords.push(mercatorToLngLat(cx + r * Math.cos(angle), cy + r * Math.sin(angle)));
-        }
-        coords.push(coords[0]);
-        features.push({
-          type: 'Feature',
-          geometry: { type: 'Polygon', coordinates: [coords] },
-          properties: { row: row, col: col, id: row + '_' + col },
-        });
-        if (features.length >= HEX_TILE_MAX_CELLS) break outer;
-      }
+    var sw = bounds.getSouthWest();
+    var ne = bounds.getNorthEast();
+
+    // Viewport bounding polygon – h3-js expects [lat, lng] pairs in CCW order.
+    var outerRing = [
+      [sw.lat, sw.lng],
+      [sw.lat, ne.lng],
+      [ne.lat, ne.lng],
+      [ne.lat, sw.lng],
+      [sw.lat, sw.lng],
+    ];
+
+    var cells;
+    try {
+      cells = h3.polygonToCells({ outer: outerRing, holes: [] }, hexTileResolution);
+    } catch (e) {
+      console.error('[HexTile] polygonToCells error:', e);
+      return { type: 'FeatureCollection', features: [] };
     }
+
+    if (!cells || cells.length > HEX_TILE_MAX_CELLS) {
+      return { type: 'FeatureCollection', features: [] };
+    }
+
+    var features = [];
+    for (var i = 0; i < cells.length; i++) {
+      var cellId = cells[i];
+      var boundary;
+      try {
+        // cellToBoundary returns [[lat, lng], ...] – convert to GeoJSON [lng, lat].
+        boundary = h3.cellToBoundary(cellId);
+      } catch (e) {
+        continue;
+      }
+      var coords = [];
+      for (var j = 0; j < boundary.length; j++) {
+        coords.push([boundary[j][1], boundary[j][0]]);
+      }
+      coords.push(coords[0]); // close the ring
+      features.push({
+        type: 'Feature',
+        geometry: { type: 'Polygon', coordinates: [coords] },
+        properties: { id: cellId },
+      });
+    }
+
     return { type: 'FeatureCollection', features: features };
   }
 
   // ── Layer management ──────────────────────────────────────────────────────
   function addHexTileLayer() {
     if (!map || map.getSource(HEX_TILE_SOURCE)) return;
-    map.addSource(HEX_TILE_SOURCE, { type: 'geojson', data: buildHexGeoJSON() });
+    map.addSource(HEX_TILE_SOURCE, { type: 'geojson', data: buildH3GeoJSON() });
     map.addLayer({
       id: HEX_TILE_FILL_LAYER,
       type: 'fill',
@@ -115,20 +147,22 @@ export const HEX_TILE_SCRIPT = `
   }
 
   function updateHexTileGrid() {
-    if (!hexTileActive || !map) return;
+    if (!hexTileActive || !map || !h3Ready) return;
     var src = map.getSource(HEX_TILE_SOURCE);
-    if (src) src.setData(buildHexGeoJSON());
+    if (src) src.setData(buildH3GeoJSON());
   }
 
   // ── Extension hooks ───────────────────────────────────────────────────────
   window._mapExtensions = window._mapExtensions || {};
 
   window._mapExtensions.onMapReady = function (m) {
-    addHexTileLayer();
-    m.on('moveend', updateHexTileGrid);
-    m.on('zoomend', updateHexTileGrid);
-    m.on('styledata', function () {
-      if (hexTileActive && !m.getSource(HEX_TILE_SOURCE)) addHexTileLayer();
+    loadH3(function () {
+      addHexTileLayer();
+      m.on('moveend', updateHexTileGrid);
+      m.on('zoomend', updateHexTileGrid);
+      m.on('styledata', function () {
+        if (hexTileActive && !m.getSource(HEX_TILE_SOURCE)) addHexTileLayer();
+      });
     });
   };
 
@@ -137,7 +171,7 @@ export const HEX_TILE_SCRIPT = `
       if (data.hexTileLayer) {
         if (data.hexTileLayer.color) hexTileColor = data.hexTileLayer.color;
         if (data.hexTileLayer.strokeColor) hexTileStrokeColor = data.hexTileLayer.strokeColor;
-        if (data.hexTileLayer.radiusMeters) hexTileRadiusMeters = data.hexTileLayer.radiusMeters;
+        if (data.hexTileLayer.resolution) hexTileResolution = data.hexTileLayer.resolution;
         hexTileActive = true;
         removeHexTileLayer();
         addHexTileLayer();
@@ -149,12 +183,11 @@ export const HEX_TILE_SCRIPT = `
   };
 
   window._mapExtensions.onMapClick = function (e, m) {
-    if (!hexTileActive || !m.getSource(HEX_TILE_SOURCE)) return false;
+    if (!hexTileActive || !h3Ready || !m.getSource(HEX_TILE_SOURCE)) return false;
     var features = m.queryRenderedFeatures(e.point, { layers: [HEX_TILE_FILL_LAYER] });
     if (features && features.length > 0) {
       var props = features[0].properties || {};
-      var id = String(props.row) + '_' + String(props.col);
-      sendToRN({ tag: 'HexTileClicked', id: id, row: props.row, col: props.col });
+      sendToRN({ tag: 'HexTileClicked', id: props.id });
       return true;
     }
     return false;
