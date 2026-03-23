@@ -1063,6 +1063,34 @@
         if (data.maxPitch != null) {
           map.setMaxPitch(data.maxPitch);
         }
+
+        if (data.routeCoordinates !== undefined) {
+          updateRouteTrackLayer(data.routeCoordinates);
+        }
+      }
+
+      function updateRouteTrackLayer(coords) {
+        if (!map) return;
+        var geojson = {
+          type: 'FeatureCollection',
+          features: (coords && coords.length > 1) ? [{
+            type: 'Feature',
+            geometry: { type: 'LineString', coordinates: coords },
+            properties: {}
+          }] : []
+        };
+        if (map.getSource('route-track-source')) {
+          map.getSource('route-track-source').setData(geojson);
+        } else {
+          map.addSource('route-track-source', { type: 'geojson', data: geojson });
+          map.addLayer({
+            id: 'route-track-layer',
+            type: 'line',
+            source: 'route-track-source',
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#e53935', 'line-width': 4, 'line-opacity': 0.85 }
+          });
+        }
       }
 
       function handleIncomingData(data) {
