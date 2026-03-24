@@ -924,6 +924,12 @@
         if (!map || !position || position.lat == null || position.lng == null) return;
         var lngLat = [position.lng, position.lat];
         if (userLocationMarker) {
+          var markerEl = userLocationMarker.getElement();
+          if (position.transitionDuration > 0) {
+            markerEl.style.transition = 'transform ' + position.transitionDuration + 'ms linear';
+          } else {
+            markerEl.style.transition = '';
+          }
           userLocationMarker.setLngLat(lngLat);
         } else {
           var el = document.createElement('div');
