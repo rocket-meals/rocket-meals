@@ -887,6 +887,12 @@
       window._mapExtensions = {};
 
       // ─── Route track layer ────────────────────────────────────────────────────────
+      // Zoom-based line width expression: thicker at higher zoom levels so the
+      // route remains visible regardless of zoom. Values are 2× the original
+      // width (was 4) to match the "2× thicker" requirement.
+      var ROUTE_LINE_WIDTH_EXPR = ['interpolate', ['linear'], ['zoom'], 8, 4, 13, 8, 18, 14];
+      var ROUTE_LINE_BORDER_WIDTH_EXPR = ['interpolate', ['linear'], ['zoom'], 8, 7, 13, 12, 18, 19];
+
       var ROUTE_TRACK_SOURCE = 'route-track-source';
       var ROUTE_TRACK_LAYER  = 'route-track-layer';
       var routeTrackCoords   = null; // last received [[lng,lat],...] or null
@@ -906,12 +912,82 @@
           map.getSource(ROUTE_TRACK_SOURCE).setData(geojson);
         } else {
           map.addSource(ROUTE_TRACK_SOURCE, { type: 'geojson', data: geojson });
+          // Gray border layer drawn first (wider), then the colored line on top
+          map.addLayer({
+            id: ROUTE_TRACK_LAYER + '-border',
+            type: 'line',
+            source: ROUTE_TRACK_SOURCE,
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#9ca3af', 'line-width': ROUTE_LINE_BORDER_WIDTH_EXPR, 'line-opacity': 0.7 },
+          });
           map.addLayer({
             id: ROUTE_TRACK_LAYER,
             type: 'line',
             source: ROUTE_TRACK_SOURCE,
             layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#e53935', 'line-width': 4, 'line-opacity': 0.85 },
+            paint: { 'line-color': '#e53935', 'line-width': ROUTE_LINE_WIDTH_EXPR, 'line-opacity': 0.9 },
+          });
+        }
+      }
+
+      // ─── Speed-colored route segments (activity detail view) ──────────────────
+      // Each segment is { coords: [[lng,lat],[lng,lat]], speedKmh: number }.
+      // Slow segments (≤ 4 km/h) are red, fast segments (≥ 15 km/h) are green.
+      var ROUTE_SEG_SOURCE  = 'route-seg-source';
+      var ROUTE_SEG_BORDER  = 'route-seg-border-layer';
+      var ROUTE_SEG_COLOR   = 'route-seg-color-layer';
+      var routeSegmentsData = null;
+
+      // Speed color: ≤ 4 km/h (slow walk) → red, ≥ 15 km/h (brisk run) → green
+      function speedToColor(speedKmh) {
+        var slow = 4, fast = 15;
+        var t = Math.max(0, Math.min(1, (speedKmh - slow) / (fast - slow)));
+        var r = Math.round(229 * (1 - t) + 67 * t);
+        var g = Math.round(57  * (1 - t) + 160 * t);
+        var b = Math.round(53  * (1 - t) + 71  * t);
+        return 'rgb(' + r + ',' + g + ',' + b + ')';
+      }
+
+      function updateRouteSegmentsLayer(segments) {
+        if (!map) return;
+        routeSegmentsData = (segments && segments.length > 0) ? segments : null;
+
+        var features = [];
+        if (segments && segments.length > 0) {
+          for (var i = 0; i < segments.length; i++) {
+            var seg = segments[i];
+            if (!seg.coords || seg.coords.length < 2) continue;
+            features.push({
+              type: 'Feature',
+              geometry: { type: 'LineString', coordinates: seg.coords },
+              properties: { color: speedToColor(seg.speedKmh || 0) },
+            });
+          }
+        }
+        var geojson = { type: 'FeatureCollection', features: features };
+
+        if (map.getSource(ROUTE_SEG_SOURCE)) {
+          map.getSource(ROUTE_SEG_SOURCE).setData(geojson);
+        } else {
+          map.addSource(ROUTE_SEG_SOURCE, { type: 'geojson', data: geojson });
+          // Gray border first, then speed-colored line on top
+          map.addLayer({
+            id: ROUTE_SEG_BORDER,
+            type: 'line',
+            source: ROUTE_SEG_SOURCE,
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#9ca3af', 'line-width': ROUTE_LINE_BORDER_WIDTH_EXPR, 'line-opacity': 0.7 },
+          });
+          map.addLayer({
+            id: ROUTE_SEG_COLOR,
+            type: 'line',
+            source: ROUTE_SEG_SOURCE,
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: {
+              'line-color': ['get', 'color'],
+              'line-width': ROUTE_LINE_WIDTH_EXPR,
+              'line-opacity': 0.9,
+            },
           });
         }
       }
@@ -1146,6 +1222,10 @@
           updateRouteTrackLayer(data.routeCoordinates);
         }
 
+        if (data.routeSegments !== undefined) {
+          updateRouteSegmentsLayer(data.routeSegments);
+        }
+
         if (data.userLocation !== undefined) {
           if (data.userLocation) {
             updateUserLocationMarker(data.userLocation);
@@ -1308,6 +1388,9 @@
           }
           if (routeTrackCoords && !map.getSource(ROUTE_TRACK_SOURCE)) {
             updateRouteTrackLayer(routeTrackCoords);
+          }
+          if (routeSegmentsData && !map.getSource(ROUTE_SEG_SOURCE)) {
+            updateRouteSegmentsLayer(routeSegmentsData);
           }
         });
       }
