@@ -15,12 +15,14 @@ export type SportTypeDefinition = {
 	color: string;
 };
 
+const SPORT_TYPE_COLOR = '#2563eb';
+
 export const SPORT_TYPES: SportTypeDefinition[] = [
-	{ type: 'run', label: 'Run', iconLibrary: 'MaterialIcons', iconName: 'directions-run', color: '#2563eb' },
-	{ type: 'walk', label: 'Walk', iconLibrary: 'MaterialIcons', iconName: 'directions-walk', color: '#16a34a' },
-	{ type: 'bicycle', label: 'Bicycle', iconLibrary: 'MaterialIcons', iconName: 'directions-bike', color: '#d97706' },
-	{ type: 'motorcycle', label: 'Motorcycle', iconLibrary: 'MaterialCommunityIcons', iconName: 'motorbike', color: '#dc2626' },
-	{ type: 'swim', label: 'Swim', iconLibrary: 'MaterialIcons', iconName: 'pool', color: '#0891b2' },
+	{ type: 'run', label: 'Run', iconLibrary: 'MaterialIcons', iconName: 'directions-run', color: SPORT_TYPE_COLOR },
+	{ type: 'walk', label: 'Walk', iconLibrary: 'MaterialIcons', iconName: 'directions-walk', color: SPORT_TYPE_COLOR },
+	{ type: 'bicycle', label: 'Bicycle', iconLibrary: 'MaterialIcons', iconName: 'directions-bike', color: SPORT_TYPE_COLOR },
+	{ type: 'motorcycle', label: 'Motorcycle', iconLibrary: 'MaterialCommunityIcons', iconName: 'motorbike', color: SPORT_TYPE_COLOR },
+	{ type: 'swim', label: 'Swim', iconLibrary: 'MaterialIcons', iconName: 'pool', color: SPORT_TYPE_COLOR },
 ];
 
 // ─── State type ───────────────────────────────────────────────────────────────

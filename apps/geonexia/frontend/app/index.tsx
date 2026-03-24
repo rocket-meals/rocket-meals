@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	Alert,
 	Animated,
@@ -17,7 +17,7 @@ import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import { isRunningInExpoGo } from 'expo';
 import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter, useNavigation } from 'expo-router';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { MapLocationButton, MyMap, MyMapHandle, QrCode, useTheme, useMyScrollViewModal, SettingsListSelectOptionSingle, SettingsListGroupTitle } from 'repo-depkit-common-ui';
 
@@ -129,6 +129,7 @@ function getJoystickDelta(
 	lat: number,
 	maxDisplacement: number,
 	speedKmh: number,
+	headingDeg: number = 0,
 ): { dLat: number; dLng: number } {
 	const dist = Math.sqrt(dx * dx + dy * dy);
 	if (dist < 2) return { dLat: 0, dLng: 0 };
@@ -140,19 +141,28 @@ function getJoystickDelta(
 	const LNG_DEG_PER_METER = cosLat > 0.001 ? 1 / (111320 * cosLat) : 1 / 111320;
 	const nx = dx / dist;
 	const ny = dy / dist;
+	// In heading mode the movement vector is rotated so that "forward" on the
+	// joystick (up = -dy) moves in the heading direction rather than true north.
+	const h = (headingDeg * Math.PI) / 180;
+	const north = -ny * Math.cos(h) - nx * Math.sin(h);
+	const east = -ny * Math.sin(h) + nx * Math.cos(h);
 	return {
-		dLat: -ny * metersPerTick * LAT_DEG_PER_METER,
-		dLng: nx * metersPerTick * LNG_DEG_PER_METER,
+		dLat: north * metersPerTick * LAT_DEG_PER_METER,
+		dLng: east * metersPerTick * LNG_DEG_PER_METER,
 	};
 }
 
 type JoystickControllerProps = {
 	positionRef: React.MutableRefObject<{ lat: number; lng: number } | null>;
 	speedKmhRef: React.MutableRefObject<number>;
+	headingModeRef: React.MutableRefObject<boolean>;
+	currentHeadingRef: React.MutableRefObject<number>;
+	joystickActiveRef: React.MutableRefObject<boolean>;
 	onMove: (lat: number, lng: number) => void;
+	onHeadingChange: (headingDeg: number) => void;
 };
 
-function JoystickController({ positionRef, speedKmhRef, onMove }: JoystickControllerProps) {
+function JoystickController({ positionRef, speedKmhRef, headingModeRef, currentHeadingRef, joystickActiveRef, onMove, onHeadingChange }: JoystickControllerProps) {
 	const knobX = useRef(new Animated.Value(0)).current;
 	const knobY = useRef(new Animated.Value(0)).current;
 	const knobOffsetRef = useRef({ x: 0, y: 0 });
@@ -163,22 +173,31 @@ function JoystickController({ positionRef, speedKmhRef, onMove }: JoystickContro
 			clearInterval(intervalRef.current);
 			intervalRef.current = null;
 		}
+		joystickActiveRef.current = false;
 		knobOffsetRef.current = { x: 0, y: 0 };
 		Animated.spring(knobX, { toValue: 0, useNativeDriver: true }).start();
 		Animated.spring(knobY, { toValue: 0, useNativeDriver: true }).start();
-	}, [knobX, knobY]);
+	}, [knobX, knobY, joystickActiveRef]);
 
 	const panResponder = useRef(
 		PanResponder.create({
 			onStartShouldSetPanResponder: () => true,
 			onMoveShouldSetPanResponder: () => true,
 			onPanResponderGrant: () => {
+				joystickActiveRef.current = true;
 				if (intervalRef.current) clearInterval(intervalRef.current);
 				intervalRef.current = setInterval(() => {
 					const pos = positionRef.current;
 					if (!pos) return;
 					const { x, y } = knobOffsetRef.current;
-					const { dLat, dLng } = getJoystickDelta(x, y, pos.lat, JOYSTICK_MAX_DISPLACEMENT, speedKmhRef.current);
+					// Compute joystick bearing from displacement and notify parent
+					const dist = Math.sqrt(x * x + y * y);
+					if (dist >= 2) {
+						const joystickHeading = (Math.atan2(x, -y) * 180 / Math.PI + 360) % 360;
+						onHeadingChange(joystickHeading);
+					}
+					const heading = headingModeRef.current ? currentHeadingRef.current : 0;
+					const { dLat, dLng } = getJoystickDelta(x, y, pos.lat, JOYSTICK_MAX_DISPLACEMENT, speedKmhRef.current, heading);
 					const newLat = pos.lat + dLat;
 					const newLng = pos.lng + dLng;
 					positionRef.current = { lat: newLat, lng: newLng };
@@ -875,8 +894,6 @@ function HexTileInfoContent({
 export default function RecordScreen() {
 	const { theme } = useTheme();
 	const { show: showModal, close: closeModal } = useMyScrollViewModal();
-	const router = useRouter();
-	const navigation = useNavigation();
 	const [osmConsent, setOsmConsent] = useState(false);
 	const mapRef = useRef<MyMapHandle>(null);
 
@@ -920,22 +937,16 @@ export default function RecordScreen() {
 	const isHeadingModeRef = useRef(false);
 	const [isHeadingMode, setIsHeadingMode] = useState(false);
 
-	const dispatch = useDispatch();
+	// Current heading (degrees clockwise from north) – updated from device compass or joystick.
+	const currentHeadingRef = useRef(0);
+	// True while a heading subscription from Location.watchHeadingAsync is active.
+	const compassActiveRef = useRef(false);
+	// Ref for the heading subscription so it can be cleaned up.
+	const headingSubRef = useRef<Location.LocationSubscription | null>(null);
+	// True while the debug joystick is being touched – suppresses compass updates.
+	const joystickActiveRef = useRef(false);
 
-	// Header: activities navigation button (coloured so it's clearly visible)
-	useLayoutEffect(() => {
-		navigation.setOptions({
-			headerRight: () => (
-				<TouchableOpacity
-					onPress={() => router.push('/activities')}
-					style={styles.headerActivitiesButton}
-					activeOpacity={0.7}
-				>
-					<MaterialIcons name="directions-run" size={24} color={PRIMARY_COLOR} />
-				</TouchableOpacity>
-			),
-		});
-	}, [navigation, router]);
+	const dispatch = useDispatch();
 
 	// When the hex tile data is reset, reload the map with an empty GeoJSON so
 	// the old (now deleted) tiles are cleared immediately without an app restart.
@@ -997,8 +1008,40 @@ export default function RecordScreen() {
 			fgSubRef.current?.remove();
 			if (timerRef.current) clearInterval(timerRef.current);
 			Location.stopLocationUpdatesAsync(ACTIVITY_LOCATION_TASK).catch(() => {});
+			headingSubRef.current?.remove();
 		};
 	}, []);
+
+	// Subscribe to device compass once the map is loaded (osmConsent given).
+	// Updates the heading cone continuously and the map bearing when in heading mode.
+	useEffect(() => {
+		if (!osmConsent) return;
+		let cancelled = false;
+
+		Location.watchHeadingAsync((headingData) => {
+			if (cancelled || joystickActiveRef.current) return;
+			const h = headingData.trueHeading >= 0 ? headingData.trueHeading : headingData.magHeading;
+			if (h < 0) return;
+			currentHeadingRef.current = h;
+			mapRef.current?.sendToMap({ userHeadingCone: { headingDeg: h } } as object);
+			if (isHeadingModeRef.current) {
+				mapRef.current?.sendToMap({ bearing: h, easeAnimation: true, easeDuration: 200 });
+			}
+		}).then((sub) => {
+			if (cancelled) { sub.remove(); return; }
+			headingSubRef.current = sub;
+			compassActiveRef.current = true;
+		}).catch((err) => {
+			console.warn('[RecordScreen] watchHeadingAsync failed:', err);
+		});
+
+		return () => {
+			cancelled = true;
+			headingSubRef.current?.remove();
+			headingSubRef.current = null;
+			compassActiveRef.current = false;
+		};
+	}, [osmConsent]);
 
 	// Pre-populate debug player position from last known location once consent is given
 	useEffect(() => {
@@ -1023,6 +1066,16 @@ export default function RecordScreen() {
 		if (!mapRef.current) return;
 		const coords = points.map((p) => [p.lng, p.lat]);
 		mapRef.current.sendToMap({ routeCoordinates: coords });
+	}, []);
+
+	// Called by JoystickController when movement direction changes.
+	// Updates the heading cone and – in heading mode – the map bearing.
+	const handleHeadingChange = useCallback((headingDeg: number) => {
+		currentHeadingRef.current = headingDeg;
+		mapRef.current?.sendToMap({ userHeadingCone: { headingDeg } } as object);
+		if (isHeadingModeRef.current) {
+			mapRef.current?.sendToMap({ bearing: headingDeg, easeAnimation: true, easeDuration: 150 });
+		}
 	}, []);
 
 	const recomputeH3 = useCallback(() => {
@@ -1084,6 +1137,8 @@ export default function RecordScreen() {
 			if (pos) {
 				centerMapOnPosition(pos);
 			}
+			// Show heading cone immediately with the last known heading
+			mapRef.current?.sendToMap({ userHeadingCone: { headingDeg: currentHeadingRef.current } } as object);
 		} else if (msg.tag === 'MapInteracted') {
 			setFollowMode(false);
 		} else if (msg.tag === 'MapViewportChanged') {
@@ -1198,8 +1253,9 @@ export default function RecordScreen() {
 			}
 		}
 
-		// If heading mode is active, rotate the map smoothly to face movement direction.
-		if (isHeadingModeRef.current && next.length >= 2) {
+		// If heading mode is active and device compass is not available, fall back to
+		// GPS movement direction for map rotation.
+		if (isHeadingModeRef.current && !compassActiveRef.current && next.length >= 2) {
 			const prev = next[next.length - 2];
 			const bearing = computeBearing(prev.lat, prev.lng, point.lat, point.lng);
 			mapRef.current?.sendToMap({ bearing, easeAnimation: true, easeDuration: 500 });
@@ -1593,7 +1649,11 @@ export default function RecordScreen() {
 					<JoystickController
 						positionRef={debugPlayerPositionRef}
 						speedKmhRef={debugMoveSpeedKmhRef}
+						headingModeRef={isHeadingModeRef}
+						currentHeadingRef={currentHeadingRef}
+						joystickActiveRef={joystickActiveRef}
 						onMove={handleDebugMove}
+						onHeadingChange={handleHeadingChange}
 					/>
 				</View>
 
@@ -2109,11 +2169,6 @@ const styles = StyleSheet.create({
 		height: JOYSTICK_KNOB_RADIUS * 2,
 		borderRadius: JOYSTICK_KNOB_RADIUS,
 		backgroundColor: 'rgba(255, 255, 255, 0.85)',
-	},
-	// Header button
-	headerActivitiesButton: {
-		marginRight: 12,
-		padding: 4,
 	},
 	// Activity type picker button
 	activityTypeButton: {

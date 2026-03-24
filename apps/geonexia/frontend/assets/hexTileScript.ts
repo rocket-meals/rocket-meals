@@ -89,6 +89,38 @@ export const HEX_TILE_SCRIPT = `
     if (map.getSource(HEX_TILE_SOURCE)) map.removeSource(HEX_TILE_SOURCE);
   }
 
+  // ── Heading cone marker ───────────────────────────────────────────────────
+  var headingConeMarker = null;
+  var headingConeActive = false;
+  var headingConeDeg = 0;
+  var lastUserLngLat = null;
+
+  function updateHeadingConeMarker() {
+    if (!map || !lastUserLngLat || !headingConeActive) return;
+    if (headingConeMarker) {
+      headingConeMarker.setLngLat(lastUserLngLat);
+      var svg = headingConeMarker.getElement().querySelector('svg');
+      if (svg) svg.style.transform = 'rotate(' + headingConeDeg + 'deg)';
+    } else {
+      var el = document.createElement('div');
+      el.style.cssText = 'width:52px;height:52px;display:flex;align-items:center;justify-content:center;pointer-events:none;';
+      el.innerHTML = '<svg width="52" height="52" viewBox="0 0 52 52" style="transform:rotate(' + headingConeDeg + 'deg);transform-origin:50% 50%;" xmlns="http://www.w3.org/2000/svg">' +
+        '<path d="M26 26 L15 6 L26 13 L37 6 Z" fill="rgba(37,99,235,0.65)" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '</svg>';
+      headingConeMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat(lastUserLngLat)
+        .addTo(map);
+    }
+  }
+
+  function removeHeadingCone() {
+    if (headingConeMarker) {
+      headingConeMarker.remove();
+      headingConeMarker = null;
+    }
+    headingConeActive = false;
+  }
+
   // ── Extension hooks ───────────────────────────────────────────────────────
   window._mapExtensions = window._mapExtensions || {};
 
@@ -102,6 +134,27 @@ export const HEX_TILE_SCRIPT = `
   };
 
   window._mapExtensions.onMessage = function (data) {
+    // Track user location to keep the cone positioned at the user's position
+    if (data.userLocation && data.userLocation.lat != null && data.userLocation.lng != null) {
+      lastUserLngLat = [data.userLocation.lng, data.userLocation.lat];
+      if (headingConeActive && headingConeMarker) {
+        headingConeMarker.setLngLat(lastUserLngLat);
+      }
+    }
+
+    // Handle heading cone visibility and direction
+    if (data.userHeadingCone !== undefined) {
+      if (data.userHeadingCone === null) {
+        removeHeadingCone();
+      } else {
+        headingConeActive = true;
+        if (data.userHeadingCone.headingDeg != null) {
+          headingConeDeg = data.userHeadingCone.headingDeg;
+        }
+        updateHeadingConeMarker();
+      }
+    }
+
     if (data.hexTileLayer !== undefined) {
       if (data.hexTileLayer) {
         if (data.hexTileLayer.color) hexTileColor = data.hexTileLayer.color;
