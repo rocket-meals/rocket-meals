@@ -143,6 +143,8 @@ function getJoystickDelta(
 	const ny = dy / dist;
 	// In heading mode the movement vector is rotated so that "forward" on the
 	// joystick (up = -dy) moves in the heading direction rather than true north.
+	// The rotation formula converts screen-relative input (nx, ny) to map-relative
+	// north/east components by applying a 2D rotation of the heading angle h.
 	const h = (headingDeg * Math.PI) / 180;
 	const north = -ny * Math.cos(h) - nx * Math.sin(h);
 	const east = -ny * Math.sin(h) + nx * Math.cos(h);
@@ -1020,12 +1022,12 @@ export default function RecordScreen() {
 
 		Location.watchHeadingAsync((headingData) => {
 			if (cancelled || joystickActiveRef.current) return;
-			const h = headingData.trueHeading >= 0 ? headingData.trueHeading : headingData.magHeading;
-			if (h < 0) return;
-			currentHeadingRef.current = h;
-			mapRef.current?.sendToMap({ userHeadingCone: { headingDeg: h } } as object);
+			const heading = headingData.trueHeading >= 0 ? headingData.trueHeading : headingData.magHeading;
+			if (heading < 0) return;
+			currentHeadingRef.current = heading;
+			mapRef.current?.sendToMap({ userHeadingCone: { headingDeg: heading } } as object);
 			if (isHeadingModeRef.current) {
-				mapRef.current?.sendToMap({ bearing: h, easeAnimation: true, easeDuration: 200 });
+				mapRef.current?.sendToMap({ bearing: heading, easeAnimation: true, easeDuration: 200 });
 			}
 		}).then((sub) => {
 			if (cancelled) { sub.remove(); return; }
