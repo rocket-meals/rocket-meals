@@ -65,6 +65,28 @@
         box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         animation: pulseUserLocation 2s ease-out infinite;
         pointer-events: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      .user-location-cone {
+        position: absolute;
+        /* Triangle pointing upward; tip sits at the dot centre (9px from wrapper bottom) */
+        width: 22px;
+        height: 32px;
+        bottom: 9px;            /* tip at vertical center of the 18-px wrapper */
+        left: -2px;             /* center horizontally: (18 - 22) / 2 */
+        clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
+        background: rgba(37, 99, 235, 0.40);
+        transform-origin: 50% 100%; /* rotate around the tip */
+        pointer-events: none;
+        transform: rotate(0deg);
+        transition: transform 0.2s ease;
+      }
+      .user-location-wrapper {
+        position: relative;
+        width: 18px;
+        height: 18px;
       }
       #error {
         display: none;
@@ -995,6 +1017,17 @@
 
       // ─── User location marker ─────────────────────────────────────────────────────
       var userLocationMarker = null;
+      var userHeadingDeg = 0;
+
+      function updateConeRotation() {
+        if (!userLocationMarker) return;
+        var wrapper = userLocationMarker.getElement();
+        var cone = wrapper.querySelector('.user-location-cone');
+        if (!cone) return;
+        var mapBearing = map ? map.getBearing() : 0;
+        // Cone rotates so it always points in the heading direction on screen
+        cone.style.transform = 'rotate(' + (userHeadingDeg - mapBearing) + 'deg)';
+      }
 
       function updateUserLocationMarker(position) {
         if (!map || !position || position.lat == null || position.lng == null) return;
@@ -1008,9 +1041,18 @@
           }
           userLocationMarker.setLngLat(lngLat);
         } else {
-          var el = document.createElement('div');
-          el.className = 'user-location-dot';
-          userLocationMarker = new maplibregl.Marker({ element: el, anchor: 'center' })
+          var wrapper = document.createElement('div');
+          wrapper.className = 'user-location-wrapper';
+
+          var cone = document.createElement('div');
+          cone.className = 'user-location-cone';
+          wrapper.appendChild(cone);
+
+          var dot = document.createElement('div');
+          dot.className = 'user-location-dot';
+          wrapper.appendChild(dot);
+
+          userLocationMarker = new maplibregl.Marker({ element: wrapper, anchor: 'center' })
             .setLngLat(lngLat)
             .addTo(map);
         }
@@ -1235,6 +1277,11 @@
           }
         }
 
+        if (data.userHeading != null) {
+          userHeadingDeg = data.userHeading;
+          updateConeRotation();
+        }
+
         if (window._mapExtensions.onMessage) {
           window._mapExtensions.onMessage(data);
         }
@@ -1371,6 +1418,9 @@
             sendToRN({ tag: 'MapInteracted' });
           }
         });
+
+        // Keep the view-direction cone oriented correctly as the map rotates
+        map.on('rotate', updateConeRotation);
 
         map.on('styledata', function () {
           if (peopleModeActive) {
