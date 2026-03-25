@@ -1085,6 +1085,19 @@
           map.setStyle(data.mapStyle);
         }
 
+        if (data.fitBounds) {
+          var fbOpts = {
+            padding: data.fitBoundsPadding != null ? data.fitBoundsPadding : 50,
+            pitch: data.pitch != null ? data.pitch : map.getPitch(),
+            bearing: data.bearing != null ? data.bearing : map.getBearing(),
+          };
+          if (data.animate === false) {
+            fbOpts.animate = false;
+          }
+          map.fitBounds(data.fitBounds, fbOpts);
+          return;
+        }
+
         var centerLngLat = null;
         var targetZoom = null;
 
