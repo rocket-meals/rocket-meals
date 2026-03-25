@@ -130,18 +130,18 @@ type WalkPathFeatureCollection = {
  * Build a GeoJSON FeatureCollection of LineString features representing the
  * walk paths across all visited tiles. For each pair of adjacent cells that
  * share an edge crossing, a line is drawn from one cell's centre to the other.
- * Lines are deduplicated (each crossing drawn once) by comparing H3 indices.
+ * Lines are deduplicated (each crossing drawn once) using a canonical pair key.
  *
- * Only considers cells that appear in `viewportCells` so that the output stays
- * bounded to the visible map area; edges that leave the viewport are clipped at
- * the viewport-cell centre (i.e. the line ends at the visible cell's centre).
+ * Only tiles in `viewportCells` are iterated, but lines are drawn even when the
+ * neighbouring cell falls outside the viewport – this prevents crossings at
+ * viewport boundaries from going missing.
  */
 function buildWalkPathGeoJson(
 	viewportCells: string[],
 	hexTileRecords: Record<string, HexTileRecord>,
 ): WalkPathFeatureCollection {
-	const viewportSet = new Set(viewportCells);
 	const features: WalkPathFeature[] = [];
+	const drawnPairs = new Set<string>();
 
 	for (const cell of viewportCells) {
 		const record = hexTileRecords[cell];
@@ -150,11 +150,10 @@ function buildWalkPathGeoJson(
 		const [centerLat, centerLng] = cellToLatLng(cell);
 
 		for (const [neighborH3, count] of Object.entries(record.edgeCrossings)) {
-			// Deduplicate edges: each pair (cell, neighbor) is drawn exactly once by
-			// the tile whose H3 index is lexicographically smaller.
-			if (cell >= neighborH3) continue;
-			// Only draw if at least one endpoint is in the viewport.
-			if (!viewportSet.has(neighborH3)) continue;
+			// Canonical key for deduplication: always small|large so each pair is drawn once.
+			const pairKey = cell < neighborH3 ? `${cell}|${neighborH3}` : `${neighborH3}|${cell}`;
+			if (drawnPairs.has(pairKey)) continue;
+			drawnPairs.add(pairKey);
 
 			const [nLat, nLng] = cellToLatLng(neighborH3);
 			features.push({
@@ -231,10 +230,11 @@ type JoystickControllerProps = {
 	isHeadingModeRef: React.MutableRefObject<boolean>;
 	currentHeadingRef: React.MutableRefObject<number>;
 	joystickActiveRef: React.MutableRefObject<boolean>;
+	joystickUsedInRunRef: React.MutableRefObject<boolean>;
 	onHeadingChange: (bearing: number) => void;
 };
 
-function JoystickController({ positionRef, speedKmhRef, onMove, isHeadingModeRef, currentHeadingRef, joystickActiveRef, onHeadingChange }: JoystickControllerProps) {
+function JoystickController({ positionRef, speedKmhRef, onMove, isHeadingModeRef, currentHeadingRef, joystickActiveRef, joystickUsedInRunRef, onHeadingChange }: JoystickControllerProps) {
 	const knobX = useRef(new Animated.Value(0)).current;
 	const knobY = useRef(new Animated.Value(0)).current;
 	const knobOffsetRef = useRef({ x: 0, y: 0 });
@@ -261,6 +261,7 @@ function JoystickController({ positionRef, speedKmhRef, onMove, isHeadingModeRef
 			onMoveShouldSetPanResponder: () => true,
 			onPanResponderGrant: () => {
 				joystickActiveRef.current = true;
+				joystickUsedInRunRef.current = true;
 				if (intervalRef.current) clearInterval(intervalRef.current);
 				intervalRef.current = setInterval(() => {
 					const pos = positionRef.current;
@@ -1046,6 +1047,10 @@ export default function RecordScreen() {
 	const currentHeadingRef = useRef(0);
 	// True while the joystick is being actively used; suppresses compass updates.
 	const joystickActiveRef = useRef(false);
+	// Set to true the first time the joystick is moved during a run.
+	// Once set, GPS position updates no longer override the player position so
+	// that the joystick keeps full control for the remainder of the run.
+	const joystickUsedInRunRef = useRef(false);
 
 	const dispatch = useDispatch();
 
@@ -1335,8 +1340,12 @@ export default function RecordScreen() {
 		const next = [...routePointsRef.current, point];
 		routePointsRef.current = next;
 
-		// Update debug player position so the gamepad continues from the real GPS location
-		debugPlayerPositionRef.current = { lat: point.lat, lng: point.lng };
+		// Update debug player position from GPS only when the joystick hasn't taken over.
+		// Once the joystick has been moved during a run, it retains control for the rest
+		// of the run so that GPS doesn't keep snapping the player back to the real location.
+		if (!joystickUsedInRunRef.current) {
+			debugPlayerPositionRef.current = { lat: point.lat, lng: point.lng };
+		}
 
 		// Track the visited H3 cell and dispatch to Redux for persistent storage
 		if (isH3Available()) {
@@ -1385,7 +1394,10 @@ export default function RecordScreen() {
 		}
 
 		sendRouteToMap(next);
-		centerMapOnPosition({ lat: point.lat, lng: point.lng });
+		// Only center the map on GPS position when the joystick hasn't taken over.
+		if (!joystickUsedInRunRef.current) {
+			centerMapOnPosition({ lat: point.lat, lng: point.lng });
+		}
 
 		// Refresh hex GeoJSON to show updated tile levels (includes the just-dispatched visit)
 		const vp = debugViewportRef.current;
@@ -1410,6 +1422,16 @@ export default function RecordScreen() {
 	const handleDebugMove = useCallback((lat: number, lng: number) => {
 		debugPlayerPositionRef.current = { lat, lng };
 		if (isRecordingRef.current) {
+			// During recording, send the map updates here directly.
+			// Once the joystick has been used, handleLocationUpdate skips
+			// centerMapOnPosition for GPS points, so joystick movements must
+			// keep the map centred themselves.
+			mapRef.current?.sendToMap({ userLocation: { lat, lng } });
+			mapRef.current?.sendToMap({
+				mapCenterPosition: { lat, lng },
+				easeAnimation: true,
+				easeDuration: DEBUG_MOVE_INTERVAL_MS,
+			});
 			handleLocationUpdate({
 				lat,
 				lng,
@@ -1454,6 +1476,7 @@ export default function RecordScreen() {
 			visitedHexIdsRef.current = new Set();
 			cellSequenceRef.current = [];
 			lastCellRef.current = null;
+			joystickUsedInRunRef.current = false;
 			dispatch(startRun());
 			startTimeRef.current = Date.now();
 			accumulatedSecondsRef.current = 0;
@@ -1791,6 +1814,7 @@ export default function RecordScreen() {
 						isHeadingModeRef={isHeadingModeRef}
 						currentHeadingRef={currentHeadingRef}
 						joystickActiveRef={joystickActiveRef}
+						joystickUsedInRunRef={joystickUsedInRunRef}
 						onHeadingChange={handleHeadingChange}
 					/>
 				</View>

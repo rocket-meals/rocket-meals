@@ -133,8 +133,10 @@ const hexTileSlice = createSlice({
 		) {
 			const records = action.payload;
 			// Ensure edgeCrossings exists for records loaded from older persisted data.
+			// Also recompute levels so that any formula change is applied on next launch.
 			for (const rec of Object.values(records)) {
 				if (!rec.edgeCrossings) rec.edgeCrossings = {};
+				rec.level = computeHexTileLevel(rec);
 			}
 			state.records = records;
 			state.resetToken += 1;

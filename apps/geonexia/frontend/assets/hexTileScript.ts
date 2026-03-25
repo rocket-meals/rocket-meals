@@ -26,10 +26,10 @@ export const HEX_TILE_SCRIPT = `
   var hexTileColor = 'rgba(0, 0, 0, 0)';
   // Hex border: subtle gray, low opacity
   var hexTileStrokeColor = '#9ca3af';
-  // Level-based fill colours (level 0 = transparent, 1–3 = light→strong green)
-  var HEX_COLOR_LEVEL_1 = 'rgba(187, 247, 208, 0.45)';
-  var HEX_COLOR_LEVEL_2 = 'rgba(74, 222, 128, 0.55)';
-  var HEX_COLOR_LEVEL_3 = 'rgba(21, 128, 61, 0.65)';
+  // Level-based fill colours: transparent at level 0, interpolated light→dark green for levels 1–10+
+  var HEX_FILL_LEVEL_0 = 'rgba(0, 0, 0, 0)';
+  var HEX_FILL_LEVEL_1 = 'rgba(187, 247, 208, 0.45)';
+  var HEX_FILL_LEVEL_10 = 'rgba(21, 128, 61, 0.70)';
   // Territory border: thick, dark line between level-0 and level>0 tiles
   var HEX_BORDER_COLOR = '#1e3a1e';
   var HEX_BORDER_WIDTH = 2.5;
@@ -126,10 +126,11 @@ export const HEX_TILE_SCRIPT = `
       source: HEX_TILE_SOURCE,
       paint: {
         'fill-color': ['case',
-          ['>=', ['get', 'level'], 3], HEX_COLOR_LEVEL_3,
-          ['>=', ['get', 'level'], 2], HEX_COLOR_LEVEL_2,
-          ['>=', ['get', 'level'], 1], HEX_COLOR_LEVEL_1,
-          hexTileColor
+          ['<=', ['get', 'level'], 0], HEX_FILL_LEVEL_0,
+          ['interpolate', ['linear'], ['get', 'level'],
+            1, HEX_FILL_LEVEL_1,
+            10, HEX_FILL_LEVEL_10
+          ]
         ],
         'fill-opacity': 1,
       },
@@ -158,12 +159,14 @@ export const HEX_TILE_SCRIPT = `
       id: HEX_WALK_PATH_LAYER,
       type: 'line',
       source: HEX_WALK_PATH_SOURCE,
+      layout: {
+        'line-cap': 'round',
+        'line-join': 'round',
+      },
       paint: {
         'line-color': WALK_PATH_COLOR,
         'line-width': WALK_PATH_WIDTH,
         'line-opacity': 1,
-        'line-cap': 'round',
-        'line-join': 'round',
       },
     });
     notifyViewport();

@@ -22,7 +22,7 @@ export type HexTileRecord = {
 	visitCount: number;
 	/** Total number of times this tile was enclosed by a completed run loop */
 	enclosedCount: number;
-	/** Colour level 0–3, recomputed after each update */
+	/** Colour level 0–10+, recomputed after each update (= visitCount * 2 + enclosedCount) */
 	level: number;
 	/**
 	 * Whether the user has physically walked on this tile (i.e. GPS tracked).
@@ -41,24 +41,23 @@ export type HexTileRecord = {
 // ─── Level computation ────────────────────────────────────────────────────────
 
 /**
- * Compute the colour level (0–3) for a hex tile based on its visit and
- * enclosure counts. The level is determined by whichever count is higher,
- * so that both visiting and enclosing a tile independently progress its colour.
+ * Compute the colour level for a hex tile based on its visit and enclosure
+ * counts. Visiting a tile counts double (visits are the primary progression),
+ * enclosures add a smaller bonus.
  *
- * score = max(visitCount, enclosedCount)
+ * level = visitCount * 2 + enclosedCount
  *
- * Thresholds:
- *   score 0          → level 0 (transparent)
- *   score 1–3        → level 1 (light green)
- *   score 4–9        → level 2 (medium green)
- *   score 10+        → level 3 (strong green)
+ * Range:
+ *   level 0   → transparent (never visited)
+ *   level 1   → lightest green (first enclosure only)
+ *   level 10  → darkest green (well-explored territory)
+ *   level 10+ → clamped to darkest green on the map
+ *
+ * The per-run cap of +1 (enforced in the Redux slice) means reaching level 10
+ * requires exactly 5 visits (5 × 2 = 10), or fewer if enclosures contribute.
  */
 export function computeHexTileLevel(record: Pick<HexTileRecord, 'visitCount' | 'enclosedCount'>): number {
-	const score = Math.max(record.visitCount, record.enclosedCount);
-	if (score >= 10) return 3;
-	if (score >= 4) return 2;
-	if (score >= 1) return 1;
-	return 0;
+	return record.visitCount * 2 + record.enclosedCount;
 }
 
 // ─── Persistence ─────────────────────────────────────────────────────────────
