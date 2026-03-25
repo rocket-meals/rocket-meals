@@ -131,6 +131,7 @@
       var mapMarkerPositions = [];
       var carModeActive = false;
       var activeImageOverlayIds = [];
+      var imageOverlayVersion = 0;
       var active3DBuildingIds = [];
       var activeGlbModelIds = [];
       var HIGHLIGHT_BUILDING_SOURCE = 'highlight-building-source';
@@ -687,23 +688,109 @@
         }
         activeImageOverlayIds = [];
         if (!overlays || !Array.isArray(overlays)) return;
-        for (var i = 0; i < overlays.length; i++) {
-          var ov = overlays[i];
-          if (!ov || !ov.id || !ov.url || !ov.coordinates || ov.coordinates.length < 4) continue;
-          var srcId = 'img-src-' + ov.id;
-          var layId = 'img-layer-' + ov.id;
-          map.addSource(srcId, {
-            type: 'image',
-            url: ov.url,
-            coordinates: ov.coordinates,
-          });
-          map.addLayer({
-            id: layId,
-            type: 'raster',
-            source: srcId,
-            paint: { 'raster-opacity': ov.opacity != null ? ov.opacity : 0.85 },
-          });
-          activeImageOverlayIds.push(ov.id);
+
+        // Bump version so any in-flight async callbacks from a previous call become no-ops.
+        imageOverlayVersion++;
+        var myVersion = imageOverlayVersion;
+
+        // Pre-register all overlay IDs so that the next updateImageOverlays call can clean them
+        // up even if their async canvas render hasn't completed yet.
+        var validOverlays = overlays.filter(function (ov) {
+          return ov && ov.id && ov.url && ov.coordinates && ov.coordinates.length >= 4;
+        });
+        for (var pi = 0; pi < validOverlays.length; pi++) {
+          activeImageOverlayIds.push(validOverlays[pi].id);
+        }
+
+        for (var i = 0; i < validOverlays.length; i++) {
+          (function (ov) {
+            var srcId = 'img-src-' + ov.id;
+            var layId = 'img-layer-' + ov.id;
+
+            if (ov.polygonCoords && ov.polygonCoords.length === 6) {
+              // Canvas-based rendering: clip the texture to the exact hex polygon shape
+              // and rotate it to match the H3 hex orientation.
+              var img = new Image();
+              img.onload = function () {
+                if (imageOverlayVersion !== myVersion) return; // stale – a newer call replaced us
+                try {
+                  var size = 512;
+                  var canvas = document.createElement('canvas');
+                  canvas.width = size;
+                  canvas.height = size;
+                  var ctx = canvas.getContext('2d');
+
+                  var coords = ov.polygonCoords; // [[lng, lat], ...]
+                  var bbox = ov.coordinates; // [[minLng,maxLat],[maxLng,maxLat],[maxLng,minLat],[minLng,minLat]]
+                  var minLng = bbox[0][0], maxLat = bbox[0][1];
+                  var maxLng = bbox[1][0], minLat = bbox[2][1];
+                  var lngRange = maxLng - minLng || 1e-9;
+                  var latRange = maxLat - minLat || 1e-9;
+
+                  // Convert [lng, lat] → canvas [x, y] via the bounding-box linear mapping.
+                  // MapLibre will stretch this canvas back to the bounding-box area on the map,
+                  // undoing the distortion, so simple linear mapping is correct here.
+                  function toCanvas(lng, lat) {
+                    return [
+                      (lng - minLng) / lngRange * size,
+                      (maxLat - lat) / latRange * size,
+                    ];
+                  }
+
+                  // Build the hex clip path.
+                  ctx.beginPath();
+                  for (var vi = 0; vi < coords.length; vi++) {
+                    var pt = toCanvas(coords[vi][0], coords[vi][1]);
+                    if (vi === 0) ctx.moveTo(pt[0], pt[1]); else ctx.lineTo(pt[0], pt[1]);
+                  }
+                  ctx.closePath();
+                  ctx.clip();
+
+                  // Rotate the texture to align with the H3 hex orientation.
+                  // ov.rotation is the geographic bearing (radians from North, CW) from the
+                  // hex centre to its first vertex – this is the "phase" of the H3 cell.
+                  // We rotate the canvas by the same angle so the texture top aligns with
+                  // the direction of vertex 0 of the H3 cell.
+                  var rot = ov.rotation || 0;
+                  var cx = size / 2, cy = size / 2;
+                  ctx.translate(cx, cy);
+                  ctx.rotate(rot);
+                  ctx.translate(-cx, -cy);
+
+                  // Scale the image up to ensure full coverage after rotation.
+                  // A rotation of up to 45° (π/4) requires a scale of 1/cos(45°) ≈ 1.414.
+                  // We use the bounding half-angle of each 60° hex sector (max offset = π/6)
+                  // so 1/cos(π/6) ≈ 1.155, but we add a small margin → clamp at 1.5 max.
+                  var absRot = Math.abs(rot % (Math.PI / 2));
+                  if (absRot > Math.PI / 4) absRot = Math.PI / 2 - absRot;
+                  var scaleFactor = rot !== 0 ? Math.min(1 / (Math.cos(absRot) || 1) * 1.05, 1.5) : 1.0;
+                  var offset = (scaleFactor - 1) * size / 2;
+                  ctx.drawImage(img, -offset, -offset, size * scaleFactor, size * scaleFactor);
+
+                  var clippedUrl = canvas.toDataURL('image/png');
+                  if (map.getSource(srcId) || map.getLayer(layId)) {
+                    console.warn('Image overlay already exists for ' + ov.id + ' – skipping duplicate.');
+                    return;
+                  }
+                  map.addSource(srcId, { type: 'image', url: clippedUrl, coordinates: ov.coordinates });
+                  map.addLayer({
+                    id: layId, type: 'raster', source: srcId,
+                    paint: { 'raster-opacity': ov.opacity != null ? ov.opacity : 0.9 },
+                  });
+                } catch (e) {
+                  console.error('Image overlay canvas error for ' + ov.id + ':', e);
+                }
+              };
+              img.src = ov.url;
+            } else {
+              // Fallback path (no polygon coords): render directly at bounding-box coords.
+              map.addSource(srcId, { type: 'image', url: ov.url, coordinates: ov.coordinates });
+              map.addLayer({
+                id: layId, type: 'raster', source: srcId,
+                paint: { 'raster-opacity': ov.opacity != null ? ov.opacity : 0.85 },
+              });
+            }
+          })(validOverlays[i]);
         }
       }
 
@@ -814,7 +901,25 @@
             this.scene.add(dl2);
             var self = this;
             var loader = new THREE.GLTFLoader();
-            loader.load(modelData.url, function (gltf) { self.scene.add(gltf.scene); }, undefined, function (err) { console.error('GLB load error for model ' + modelData.id + ':', err); });
+            var url = modelData.url;
+            function onGltfLoad(gltf) { self.scene.add(gltf.scene); }
+            function onGltfError(err) { console.error('GLB load error for model ' + modelData.id + ':', err); }
+            if (url && url.indexOf('data:') === 0) {
+              // Data URIs cannot be reliably loaded via XHR in some WebView environments.
+              // Decode the base64 payload and hand the raw ArrayBuffer to loader.parse().
+              try {
+                var comma = url.indexOf(',');
+                var base64 = url.substring(comma + 1);
+                var binary = atob(base64);
+                var bytes = new Uint8Array(binary.length);
+                for (var bi = 0; bi < binary.length; bi++) { bytes[bi] = binary.charCodeAt(bi); }
+                loader.parse(bytes.buffer, '', onGltfLoad, onGltfError);
+              } catch (e) {
+                console.error('GLB data-URI decode error for model ' + modelData.id + ':', e);
+              }
+            } else {
+              loader.load(url, onGltfLoad, undefined, onGltfError);
+            }
             this.map = mapInst;
             this.renderer = new THREE.WebGLRenderer({ canvas: mapInst.getCanvas(), context: gl, antialias: true });
             this.renderer.autoClear = false;
