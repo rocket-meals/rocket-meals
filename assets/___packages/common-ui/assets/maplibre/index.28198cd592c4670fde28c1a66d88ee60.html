@@ -4596,18 +4596,43 @@
       }
 
 
-      // ── Billboard markers (upright PNG/SVG sprites on map) ────────────────────
+      // ── Billboard markers (upright SVG sprites on map, zoom-scaled) ──────────────
       var activeBillboardMarkers = {};
+      // Stores sizing data for each active billboard to allow zoom-driven resize.
+      var activeBillboardData = [];
 
       // SVG templates for built-in billboard types.
+      // No width/height attributes – sizes are set dynamically based on zoom.
+      // Each entry has: svg (string) and ratio (height/width).
       var BILLBOARD_SVG = {
-        tree: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 60" width="40" height="60">' +
-              '<polygon points="20,2 38,22 2,22" fill="#2e7d32"/>' +
-              '<polygon points="20,12 36,32 4,32" fill="#388e3c"/>' +
-              '<polygon points="20,22 35,42 5,42" fill="#43a047"/>' +
-              '<rect x="17" y="42" width="6" height="14" fill="#5d4037"/>' +
-              '</svg>',
+        tree: {
+          svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 60">' +
+               '<polygon points="20,2 38,22 2,22" fill="#2e7d32"/>' +
+               '<polygon points="20,12 36,32 4,32" fill="#388e3c"/>' +
+               '<polygon points="20,22 35,42 5,42" fill="#43a047"/>' +
+               '<rect x="17" y="42" width="6" height="14" fill="#5d4037"/>' +
+               '</svg>',
+          ratio: 1.5,
+        },
       };
+
+      // Compute metres represented by one CSS pixel at a given zoom and latitude.
+      function billboardMetersPerPixel(zoom, lat) {
+        return 40075016.686 * Math.cos(lat * Math.PI / 180) / (256 * Math.pow(2, zoom));
+      }
+
+      // Resize all active billboard SVG elements to match the current map zoom.
+      function refreshBillboardSizes() {
+        if (!map || activeBillboardData.length === 0) return;
+        var zoom = map.getZoom();
+        for (var i = 0; i < activeBillboardData.length; i++) {
+          var d = activeBillboardData[i];
+          var mpp = billboardMetersPerPixel(zoom, d.lat);
+          var px = d.sizem / mpp;
+          d.svgEl.setAttribute('width', px + 'px');
+          d.svgEl.setAttribute('height', (px * d.ratio) + 'px');
+        }
+      }
 
       function updateBillboards(billboards) {
         // Remove existing billboard markers.
@@ -4616,17 +4641,29 @@
           activeBillboardMarkers[ids[i]].remove();
         }
         activeBillboardMarkers = {};
+        activeBillboardData = [];
+        if (!billboards || !Array.isArray(billboards)) return;
         for (var j = 0; j < billboards.length; j++) {
           var bb = billboards[j];
-          var svgStr = BILLBOARD_SVG[bb.type] !== undefined ? BILLBOARD_SVG[bb.type] : BILLBOARD_SVG.tree;
+          var def = BILLBOARD_SVG[bb.type] !== undefined ? BILLBOARD_SVG[bb.type] : BILLBOARD_SVG.tree;
           var el = document.createElement('div');
           el.style.pointerEvents = 'none';
-          el.innerHTML = svgStr;
+          el.innerHTML = def.svg;
+          var svgEl = el.querySelector('svg');
           var marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
             .setLngLat([bb.position.lng, bb.position.lat])
             .addTo(map);
           activeBillboardMarkers[bb.id] = marker;
+          activeBillboardData.push({
+            id: bb.id,
+            svgEl: svgEl,
+            lat: bb.position.lat,
+            sizem: bb.sizem || 72,
+            ratio: def.ratio,
+          });
         }
+        // Apply correct size at the current zoom immediately after placing markers.
+        refreshBillboardSizes();
       }
 
       // Emoji fallback map for icons referenced by the map style but missing from its sprite sheet.
@@ -5134,6 +5171,10 @@
             document.getElementById('error').style.display = 'flex';
             sendToRN({ tag: 'MapError', message: e.error ? e.error.message : 'unknown' });
           }
+        });
+
+        map.on('zoom', function () {
+          refreshBillboardSizes();
         });
 
         map.on('zoomend', function () {
