@@ -4600,6 +4600,8 @@
       var activeBillboardMarkers = {};
       // Stores sizing data for each active billboard to allow zoom-driven resize.
       var activeBillboardData = [];
+      // Debug: when true, shows a pink dot at the anchor point (bottom-center) of each billboard.
+      var debugShowBillboardAnchors = false;
 
       // SVG templates for built-in billboard types.
       // No width/height attributes – sizes are set dynamically based on zoom.
@@ -4711,6 +4713,23 @@
             sizeEl = el.querySelector('svg');
             ratio = fallback.ratio;
           }
+          el.style.position = 'relative';
+          el.style.display = 'inline-block';
+          // Debug anchor dot: pink circle at the bottom-center (the anchor point).
+          var anchorDot = document.createElement('div');
+          anchorDot.style.position = 'absolute';
+          anchorDot.style.bottom = '0';
+          anchorDot.style.left = '50%';
+          anchorDot.style.transform = 'translateX(-50%)';
+          anchorDot.style.width = '10px';
+          anchorDot.style.height = '10px';
+          anchorDot.style.borderRadius = '50%';
+          anchorDot.style.background = '#ff69b4';
+          anchorDot.style.pointerEvents = 'none';
+          anchorDot.style.zIndex = '9999';
+          anchorDot.style.marginBottom = '-5px';
+          anchorDot.style.display = debugShowBillboardAnchors ? 'block' : 'none';
+          el.appendChild(anchorDot);
           var marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
             .setLngLat([bb.position.lng, bb.position.lat])
             .addTo(map);
@@ -4718,6 +4737,7 @@
           activeBillboardData.push({
             id: bb.id,
             sizeEl: sizeEl,
+            anchorDot: anchorDot,
             lat: bb.position.lat,
             sizem: bb.sizem || 72,
             ratio: ratio,
@@ -5091,6 +5111,13 @@
 
         if (data.billboards !== undefined) {
           updateBillboards(data.billboards);
+        }
+
+        if (data.billboardDebugAnchors !== undefined) {
+          debugShowBillboardAnchors = !!data.billboardDebugAnchors;
+          for (var bda = 0; bda < activeBillboardData.length; bda++) {
+            activeBillboardData[bda].anchorDot.style.display = debugShowBillboardAnchors ? 'block' : 'none';
+          }
         }
 
         if (data.updateGlbModelScale !== undefined) {
