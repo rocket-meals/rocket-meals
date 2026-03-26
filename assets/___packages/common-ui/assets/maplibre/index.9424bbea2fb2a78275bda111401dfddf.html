@@ -4617,7 +4617,10 @@
       };
 
       // Image-based billboard types registered at runtime via the billboardImages message.
-      // Each entry has: url (data URI string) and ratio (height/width).
+      // Simple image entry: { url, ratio }  (ratio = height/width)
+      // Sprite-sheet entry: { url, sprites, sheetW, sheetH }
+      //   sprites = array of { x, y, w, h } bounding boxes in SVG coordinate space.
+      //   Individual sprite N is rendered via CSS background-image clipping.
       var BILLBOARD_IMAGES = {};
 
       // Compute metres represented by one CSS pixel at a given zoom and latitude.
@@ -4635,6 +4638,13 @@
           var px = d.sizem / mpp;
           d.sizeEl.style.width = px + 'px';
           d.sizeEl.style.height = (px * d.ratio) + 'px';
+          // For sprite-sheet billboards: update CSS background-position and background-size
+          // so only the selected sprite region is visible at the correct zoom scale.
+          if (d.sprite) {
+            var scale = px / d.sprite.w;
+            d.sizeEl.style.backgroundSize = (d.sheetW * scale) + 'px ' + (d.sheetH * scale) + 'px';
+            d.sizeEl.style.backgroundPosition = (-d.sprite.x * scale) + 'px ' + (-d.sprite.y * scale) + 'px';
+          }
         }
       }
 
@@ -4653,11 +4663,40 @@
           el.style.pointerEvents = 'none';
           var sizeEl;
           var ratio;
+          var sprite = null;
+          var sheetW = 0;
+          var sheetH = 0;
+
+          // Resolve base type and optional sprite index (format: 'baseType:index')
+          var colonIdx = bb.type.indexOf(':');
+          var baseType = colonIdx >= 0 ? bb.type.slice(0, colonIdx) : bb.type;
+          var spriteIdxStr = colonIdx >= 0 ? bb.type.slice(colonIdx + 1) : null;
+
           if (BILLBOARD_SVG[bb.type] !== undefined) {
             var def = BILLBOARD_SVG[bb.type];
             el.innerHTML = def.svg;
             sizeEl = el.querySelector('svg');
             ratio = def.ratio;
+          } else if (spriteIdxStr !== null && BILLBOARD_IMAGES[baseType] !== undefined && BILLBOARD_IMAGES[baseType].sprites) {
+            // Sprite-sheet billboard: render only the selected sprite using CSS background clipping.
+            var imgDef = BILLBOARD_IMAGES[baseType];
+            var spriteIdx = parseInt(spriteIdxStr, 10);
+            sprite = (!isNaN(spriteIdx) && spriteIdx >= 0) ? imgDef.sprites[spriteIdx] : undefined;
+            if (sprite) {
+              sheetW = imgDef.sheetW;
+              sheetH = imgDef.sheetH;
+              el.style.overflow = 'hidden';
+              el.style.backgroundImage = 'url(' + imgDef.url + ')';
+              el.style.backgroundRepeat = 'no-repeat';
+              sizeEl = el;
+              ratio = sprite.h / sprite.w;
+            } else {
+              sprite = null;
+              var fallbackSpr = BILLBOARD_SVG.tree;
+              el.innerHTML = fallbackSpr.svg;
+              sizeEl = el.querySelector('svg');
+              ratio = fallbackSpr.ratio;
+            }
           } else if (BILLBOARD_IMAGES[bb.type] !== undefined) {
             var imgDef = BILLBOARD_IMAGES[bb.type];
             var img = document.createElement('img');
@@ -4682,6 +4721,9 @@
             lat: bb.position.lat,
             sizem: bb.sizem || 72,
             ratio: ratio,
+            sprite: sprite,
+            sheetW: sheetW,
+            sheetH: sheetH,
           });
         }
         // Apply correct size at the current zoom immediately after placing markers.
