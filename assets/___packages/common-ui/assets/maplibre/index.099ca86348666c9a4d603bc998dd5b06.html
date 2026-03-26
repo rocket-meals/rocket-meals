@@ -4616,12 +4616,16 @@
         },
       };
 
+      // Image-based billboard types registered at runtime via the billboardImages message.
+      // Each entry has: url (data URI string) and ratio (height/width).
+      var BILLBOARD_IMAGES = {};
+
       // Compute metres represented by one CSS pixel at a given zoom and latitude.
       function billboardMetersPerPixel(zoom, lat) {
         return 40075016.686 * Math.cos(lat * Math.PI / 180) / (256 * Math.pow(2, zoom));
       }
 
-      // Resize all active billboard SVG elements to match the current map zoom.
+      // Resize all active billboard elements to match the current map zoom.
       function refreshBillboardSizes() {
         if (!map || activeBillboardData.length === 0) return;
         var zoom = map.getZoom();
@@ -4629,8 +4633,8 @@
           var d = activeBillboardData[i];
           var mpp = billboardMetersPerPixel(zoom, d.lat);
           var px = d.sizem / mpp;
-          d.svgEl.setAttribute('width', px + 'px');
-          d.svgEl.setAttribute('height', (px * d.ratio) + 'px');
+          d.sizeEl.style.width = px + 'px';
+          d.sizeEl.style.height = (px * d.ratio) + 'px';
         }
       }
 
@@ -4645,21 +4649,39 @@
         if (!billboards || !Array.isArray(billboards)) return;
         for (var j = 0; j < billboards.length; j++) {
           var bb = billboards[j];
-          var def = BILLBOARD_SVG[bb.type] !== undefined ? BILLBOARD_SVG[bb.type] : BILLBOARD_SVG.tree;
           var el = document.createElement('div');
           el.style.pointerEvents = 'none';
-          el.innerHTML = def.svg;
-          var svgEl = el.querySelector('svg');
+          var sizeEl;
+          var ratio;
+          if (BILLBOARD_SVG[bb.type] !== undefined) {
+            var def = BILLBOARD_SVG[bb.type];
+            el.innerHTML = def.svg;
+            sizeEl = el.querySelector('svg');
+            ratio = def.ratio;
+          } else if (BILLBOARD_IMAGES[bb.type] !== undefined) {
+            var imgDef = BILLBOARD_IMAGES[bb.type];
+            var img = document.createElement('img');
+            img.src = imgDef.url;
+            img.style.display = 'block';
+            el.appendChild(img);
+            sizeEl = img;
+            ratio = imgDef.ratio;
+          } else {
+            var fallback = BILLBOARD_SVG.tree;
+            el.innerHTML = fallback.svg;
+            sizeEl = el.querySelector('svg');
+            ratio = fallback.ratio;
+          }
           var marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
             .setLngLat([bb.position.lng, bb.position.lat])
             .addTo(map);
           activeBillboardMarkers[bb.id] = marker;
           activeBillboardData.push({
             id: bb.id,
-            svgEl: svgEl,
+            sizeEl: sizeEl,
             lat: bb.position.lat,
             sizem: bb.sizem || 72,
-            ratio: def.ratio,
+            ratio: ratio,
           });
         }
         // Apply correct size at the current zoom immediately after placing markers.
@@ -5015,6 +5037,14 @@
 
         if (data.glbModels !== undefined) {
           updateGlbModels(data.glbModels);
+        }
+
+        if (data.billboardImages !== undefined && data.billboardImages !== null) {
+          var imgs = data.billboardImages;
+          var imgKeys = Object.keys(imgs);
+          for (var bi = 0; bi < imgKeys.length; bi++) {
+            BILLBOARD_IMAGES[imgKeys[bi]] = imgs[imgKeys[bi]];
+          }
         }
 
         if (data.billboards !== undefined) {
