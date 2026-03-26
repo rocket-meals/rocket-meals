@@ -308,7 +308,7 @@ describe('H3Helper – viewport GeoJSON integration', () => {
 
 // ─── Half-resolution (fractional) subdivision tests ───────────────────────────
 
-import { cellToChildren, cellToParent } from '../helpers/H3Helper';
+import { cellToChildren, cellToParent, cellToCenterChild, getHalfStepChildren } from '../helpers/H3Helper';
 
 describe('H3 half-resolution subdivision', () => {
     const BASE_RES = 9;
@@ -447,5 +447,103 @@ describe('H3 half-resolution subdivision', () => {
     it('produces 0 features when zoom is below H3_MIN_ZOOM regardless of fractional resolution', () => {
         const result = buildH3GeoJsonHalf(BOUNDS, 13, BASE_RES + 0.5);
         expect(result.features).toHaveLength(0);
+    });
+});
+
+// ─── Half-step subdivision unit tests (getHalfStepChildren) ──────────────────
+
+describe('H3 half-step – getHalfStepChildren', () => {
+    const BASE_RES = 9;
+
+    it('returns exactly 1 center child and 6 outer children for a regular cell', () => {
+        const parent = latLngToCell(LAT, LNG, BASE_RES);
+        const { center, outer } = getHalfStepChildren(parent);
+
+        expect(isValidCell(center)).toBe(true);
+        expect(outer).toHaveLength(6);
+        for (const c of outer) {
+            expect(isValidCell(c)).toBe(true);
+        }
+    });
+
+    it('center child matches cellToCenterChild at parent resolution + 1', () => {
+        const parent = latLngToCell(LAT, LNG, BASE_RES);
+        const { center } = getHalfStepChildren(parent);
+        const expectedCenter = cellToCenterChild(parent, BASE_RES + 1);
+
+        expect(center).toBe(expectedCenter);
+    });
+
+    it('center child and all outer children are at parent resolution + 1', () => {
+        const parent = latLngToCell(LAT, LNG, BASE_RES);
+        const { center, outer } = getHalfStepChildren(parent);
+
+        expect(getResolution(center)).toBe(BASE_RES + 1);
+        for (const c of outer) {
+            expect(getResolution(c)).toBe(BASE_RES + 1);
+        }
+    });
+
+    it('center child is not contained in the outer children list', () => {
+        const parent = latLngToCell(LAT, LNG, BASE_RES);
+        const { center, outer } = getHalfStepChildren(parent);
+
+        expect(outer).not.toContain(center);
+    });
+
+    it('center child together with outer children yields all 7 children of the parent', () => {
+        const parent = latLngToCell(LAT, LNG, BASE_RES);
+        const { center, outer } = getHalfStepChildren(parent);
+        const all = [center, ...outer];
+
+        const expected = cellToChildren(parent, BASE_RES + 1);
+        expect(all).toHaveLength(7);
+        expect(all.sort()).toEqual(expected.sort());
+    });
+
+    it('every outer child belongs to the same parent via cellToParent', () => {
+        const parent = latLngToCell(LAT, LNG, BASE_RES);
+        const { center, outer } = getHalfStepChildren(parent);
+
+        expect(cellToParent(center, BASE_RES)).toBe(parent);
+        for (const c of outer) {
+            expect(cellToParent(c, BASE_RES)).toBe(parent);
+        }
+    });
+
+    it('returns empty center and no outer children for an invalid cell', () => {
+        const { center, outer } = getHalfStepChildren('not-a-cell');
+
+        expect(center).toBe('');
+        expect(outer).toHaveLength(0);
+    });
+
+    it('returns empty center and no outer children for an empty string', () => {
+        const { center, outer } = getHalfStepChildren('');
+
+        expect(center).toBe('');
+        expect(outer).toHaveLength(0);
+    });
+
+    it('returns empty center and no outer children when parent is already at resolution 15', () => {
+        // At the finest H3 resolution there are no children to subdivide into.
+        const parentRes15 = latLngToCell(LAT, LNG, 15);
+        const { center, outer } = getHalfStepChildren(parentRes15);
+
+        expect(center).toBe('');
+        expect(outer).toHaveLength(0);
+    });
+
+    it('works correctly across multiple different parent cells in a disk', () => {
+        const origin = latLngToCell(LAT, LNG, BASE_RES);
+        const neighbors = gridDisk(origin, 1);
+
+        for (const parent of neighbors) {
+            const { center, outer } = getHalfStepChildren(parent);
+            expect(isValidCell(center)).toBe(true);
+            expect(outer).toHaveLength(6);
+            expect(outer).not.toContain(center);
+            expect(getResolution(center)).toBe(BASE_RES + 1);
+        }
     });
 });

@@ -173,6 +173,41 @@ export const cellToChildrenSize = (h3Index: H3Index, childRes: number): number =
 export const cellToCenterChild = (h3Index: H3Index, childRes: number): H3Index =>
     _cellToCenterChild?.(h3Index, childRes) ?? '';
 
+/**
+ * Returns the subdivision of a parent cell for a half-resolution step.
+ *
+ * In a half step the parent hex is visually split into 7 children at the next
+ * finer H3 resolution: one small centre child and six outer ("half") children.
+ * This mirrors the image shown in the design – a black-outlined parent with
+ * seven red-outlined sub-hexagons (1 centre + 6 surrounding).
+ *
+ * The function is intentionally limited to a single resolution step (+1) so
+ * that callers never accidentally use it for full integer-resolution traversal.
+ *
+ * @param h3Index  Parent cell at some resolution N.
+ * @returns        `center` – the single centre child at resolution N+1.
+ *                 `outer`  – the six surrounding children at resolution N+1.
+ */
+export const getHalfStepChildren = (
+    h3Index: H3Index,
+): { center: H3Index; outer: H3Index[] } => {
+    const empty = { center: '', outer: [] as H3Index[] };
+    if (!h3Index || !(_isValidCell?.(h3Index) ?? false)) return empty;
+
+    const parentRes = _getResolution?.(h3Index) ?? 0;
+    // Half-step is not meaningful at the finest H3 resolution (15) because
+    // there are no children to subdivide into.
+    if (parentRes >= 15) return empty;
+
+    const childRes = parentRes + 1;
+
+    const center = _cellToCenterChild?.(h3Index, childRes) ?? '';
+    const allChildren = (_cellToChildren?.(h3Index, childRes) as H3Index[]) ?? [];
+    const outer = allChildren.filter((c) => c !== center);
+
+    return { center, outer };
+};
+
 // ─── Grid traversal ───────────────────────────────────────────────────────────
 
 /**
