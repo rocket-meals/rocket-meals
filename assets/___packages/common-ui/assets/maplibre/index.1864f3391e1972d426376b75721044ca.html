@@ -4640,6 +4640,13 @@
           var px = d.sizem / mpp;
           d.sizeEl.style.width = px + 'px';
           d.sizeEl.style.height = (px * d.ratio) + 'px';
+          // Update transparent bottom spacer so the logical anchor point aligns with
+          // the MapLibre marker bottom (anchorY fraction from top of visual).
+          if (d.spacerEl) {
+            var spacerH = (1 - d.anchorY) * px * d.ratio;
+            d.spacerEl.style.height = spacerH + 'px';
+            d.spacerEl.style.width = px + 'px';
+          }
           // For sprite-sheet billboards: update CSS background-position and background-size
           // so only the selected sprite region is visible at the correct zoom scale.
           if (d.sprite) {
@@ -4713,9 +4720,22 @@
             sizeEl = el.querySelector('svg');
             ratio = fallback.ratio;
           }
-          el.style.position = 'relative';
-          el.style.display = 'inline-block';
-          // Debug anchor dot: pink circle at the bottom-center (the anchor point).
+          el.style.display = 'block';
+          // Per-sprite anchor: wrap the visual element in a container with a transparent spacer
+          // below it so the bottom of the wrapper (= MapLibre anchor) aligns with the logical
+          // ground position of the sprite (anchorY fraction from top of visual).
+          var anchorY = (typeof bb.anchorY === 'number') ? bb.anchorY : 1.0;
+          var spacerEl = document.createElement('div');
+          spacerEl.style.pointerEvents = 'none';
+          spacerEl.style.display = 'block';
+          spacerEl.style.height = '0px';
+          var wrapperEl = document.createElement('div');
+          wrapperEl.style.pointerEvents = 'none';
+          wrapperEl.style.position = 'relative';
+          wrapperEl.style.display = 'inline-block';
+          wrapperEl.appendChild(el);
+          wrapperEl.appendChild(spacerEl);
+          // Debug anchor dot: pink circle at the bottom-center of the wrapper (the anchor point).
           var anchorDot = document.createElement('div');
           anchorDot.style.position = 'absolute';
           anchorDot.style.bottom = '0';
@@ -4729,14 +4749,16 @@
           anchorDot.style.zIndex = '9999';
           anchorDot.style.marginBottom = '-5px';
           anchorDot.style.display = debugShowBillboardAnchors ? 'block' : 'none';
-          el.appendChild(anchorDot);
-          var marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+          wrapperEl.appendChild(anchorDot);
+          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'bottom' })
             .setLngLat([bb.position.lng, bb.position.lat])
             .addTo(map);
           activeBillboardMarkers[bb.id] = marker;
           activeBillboardData.push({
             id: bb.id,
             sizeEl: sizeEl,
+            spacerEl: spacerEl,
+            anchorY: anchorY,
             anchorDot: anchorDot,
             lat: bb.position.lat,
             sizem: bb.sizem || 72,
