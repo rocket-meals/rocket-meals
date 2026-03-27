@@ -4629,114 +4629,6 @@
         }
       }
 
-      // ── Billboard symbols (world-space icons that scale with map zoom level) ─────
-      // Each billboard: { id, position: {lat, lng}, imageId, imageUrl, baseIconSize }
-      // baseIconSize = desired_px_at_zoom15 / BILLBOARD_ATLAS_SIZE
-      var BILLBOARD_ATLAS_SIZE = 128;
-      var BILLBOARD_SYMBOLS_SOURCE = 'billboard-symbols-source';
-      var BILLBOARD_SYMBOLS_LAYER  = 'billboard-symbols-layer';
-      var activeBillboardImageIds = [];
-      var lastBillboardClickTime = 0;
-
-      function removeBillboardSymbols() {
-        try { if (map.getLayer(BILLBOARD_SYMBOLS_LAYER)) map.removeLayer(BILLBOARD_SYMBOLS_LAYER); } catch (e) { console.warn('[billboard-symbols] removeLayer:', e); }
-        try { if (map.getSource(BILLBOARD_SYMBOLS_SOURCE)) map.removeSource(BILLBOARD_SYMBOLS_SOURCE); } catch (e) { console.warn('[billboard-symbols] removeSource:', e); }
-        for (var i = 0; i < activeBillboardImageIds.length; i++) {
-          try { if (map.hasImage(activeBillboardImageIds[i])) map.removeImage(activeBillboardImageIds[i]); } catch (e) { console.warn('[billboard-symbols] removeImage:', activeBillboardImageIds[i], e); }
-        }
-        activeBillboardImageIds = [];
-      }
-
-      function updateBillboardSymbols(billboards) {
-        removeBillboardSymbols();
-        if (!billboards || !Array.isArray(billboards) || billboards.length === 0) return;
-
-        var imageMap = {};
-        for (var i = 0; i < billboards.length; i++) {
-          var b = billboards[i];
-          if (b && b.imageId && b.imageUrl && !imageMap[b.imageId]) {
-            imageMap[b.imageId] = b.imageUrl;
-          }
-        }
-        var imageIds = Object.keys(imageMap);
-        if (imageIds.length === 0) return;
-
-        var pending = imageIds.length;
-        var billboardsCopy = billboards;
-
-        function onAllImagesLoaded() {
-          var features = [];
-          for (var j = 0; j < billboardsCopy.length; j++) {
-            var bd = billboardsCopy[j];
-            if (!bd || !bd.position) continue;
-            features.push({
-              type: 'Feature',
-              geometry: { type: 'Point', coordinates: [bd.position.lng, bd.position.lat] },
-              properties: { markerId: bd.id, imageId: bd.imageId, baseIconSize: bd.baseIconSize || 0.375 }
-            });
-          }
-          try {
-            map.addSource(BILLBOARD_SYMBOLS_SOURCE, {
-              type: 'geojson',
-              data: { type: 'FeatureCollection', features: features }
-            });
-            // World-space icon size: baseIconSize * 2^(zoom − 15).
-            // At zoom 15 the icon appears baseIconSize × BILLBOARD_ATLAS_SIZE pixels wide.
-            // The size doubles/halves every zoom level, matching the visual scale of the map
-            // so billboards behave like real 3-D objects lying in the world.
-            // Expression values at the two control points equal 2^(zoom−15):
-            //   zoom 0  → 2^(0−15)  ≈ 3.0518e-5
-            //   zoom 22 → 2^(22−15) = 128
-            map.addLayer({
-              id: BILLBOARD_SYMBOLS_LAYER,
-              type: 'symbol',
-              source: BILLBOARD_SYMBOLS_SOURCE,
-              layout: {
-                'icon-image': ['get', 'imageId'],
-                'icon-size': [
-                  '*',
-                  ['get', 'baseIconSize'],
-                  ['interpolate', ['exponential', 2], ['zoom'], 0, 3.0518e-5, 22, 128]
-                ],
-                'icon-allow-overlap': true,
-                'icon-ignore-placement': true,
-                'icon-anchor': 'center',
-              },
-            });
-            map.on('click', BILLBOARD_SYMBOLS_LAYER, function (e) {
-              if (!e.features || e.features.length === 0) return;
-              var props = e.features[0].properties;
-              if (props && props.markerId) {
-                lastBillboardClickTime = Date.now();
-                sendToRN({ tag: 'onMapMarkerClicked', mapMarkerId: props.markerId });
-              }
-            });
-          } catch (err) {
-            console.warn('[billboard-symbols] Failed to add layer:', err);
-          }
-        }
-
-        function loadBillboardImage(imageId, url) {
-          var img = new Image(BILLBOARD_ATLAS_SIZE, BILLBOARD_ATLAS_SIZE);
-          img.onload = function () {
-            var canvas = document.createElement('canvas');
-            canvas.width = BILLBOARD_ATLAS_SIZE;
-            canvas.height = BILLBOARD_ATLAS_SIZE;
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, BILLBOARD_ATLAS_SIZE, BILLBOARD_ATLAS_SIZE);
-            try { map.addImage(imageId, canvas, { pixelRatio: 1 }); activeBillboardImageIds.push(imageId); } catch (err) { console.warn('[billboard-symbols] Failed to add image:', imageId, err); }
-            pending--;
-            if (pending === 0) onAllImagesLoaded();
-          };
-          img.onerror = function () { pending--; if (pending === 0) onAllImagesLoaded(); };
-          img.src = url;
-        }
-
-        for (var k = 0; k < imageIds.length; k++) {
-          loadBillboardImage(imageIds[k], imageMap[imageIds[k]]);
-        }
-      }
-
       // Emoji fallback map for icons referenced by the map style but missing from its sprite sheet.
       // This map starts empty and is populated by an iconEmojiMap message sent from React on mount.
       // The styleimagemissing event uses this map to render emoji onto a canvas when MapLibre
@@ -5092,10 +4984,6 @@
           updateStaticMarkers(data.staticMarkers);
         }
 
-        if (data.billboardSymbols !== undefined) {
-          updateBillboardSymbols(data.billboardSymbols);
-        }
-
         if (data.updateGlbModelScale !== undefined) {
           var scaleUpd = data.updateGlbModelScale;
           if (scaleUpd && scaleUpd.id && glbModelMts[scaleUpd.id]) {
@@ -5258,16 +5146,13 @@
 
         map.on('click', function (e) {
           try {
-            // Suppress general click handling when a billboard symbol was just clicked
-            // (the layer-specific handler already fired and sent onMapMarkerClicked).
-            if (Date.now() - lastBillboardClickTime < 100) return;
             var allLayers = map.getStyle().layers;
             var extrusionLayerIds = [];
             var symbolLayerIds = [];
             for (var li = 0; li < allLayers.length; li++) {
               if (allLayers[li].type === 'fill-extrusion' && allLayers[li].id !== HIGHLIGHT_BUILDING_LAYER) {
                 extrusionLayerIds.push(allLayers[li].id);
-              } else if (poiClickEnabled && allLayers[li].type === 'symbol' && allLayers[li].id !== BILLBOARD_SYMBOLS_LAYER) {
+              } else if (poiClickEnabled && allLayers[li].type === 'symbol') {
                 symbolLayerIds.push(allLayers[li].id);
               }
             }
