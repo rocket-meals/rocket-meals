@@ -4596,206 +4596,37 @@
       }
 
 
-      // ── Billboard markers (upright SVG sprites on map, zoom-scaled) ──────────────
-      var activeBillboardMarkers = {};
-      // Stores sizing data for each active billboard to allow zoom-driven resize.
-      var activeBillboardData = [];
-      // Debug: kept for backwards compatibility; anchor dots are always visible.
-      var debugShowBillboardAnchors = false;
+      // ── Static dot markers (fixed colored circles at lat/lng positions) ──────────
+      // Each marker: { id, lat, lng, color, sizePx }
+      var activeStaticMarkers = {};
 
-      // SVG templates for built-in billboard types.
-      // No width/height attributes – sizes are set dynamically based on zoom.
-      // Each entry has: svg (string) and ratio (height/width).
-      var BILLBOARD_SVG = {
-        tree: {
-          svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 60">' +
-               '<polygon points="20,2 38,22 2,22" fill="#2e7d32"/>' +
-               '<polygon points="20,12 36,32 4,32" fill="#388e3c"/>' +
-               '<polygon points="20,22 35,42 5,42" fill="#43a047"/>' +
-               '<rect x="17" y="42" width="6" height="14" fill="#5d4037"/>' +
-               '</svg>',
-          ratio: 1.5,
-        },
-      };
-
-      // Image-based billboard types registered at runtime via the billboardImages message.
-      // Simple image entry: { url, ratio }  (ratio = height/width)
-      // Sprite-sheet entry: { url, sprites, sheetW, sheetH }
-      //   sprites = array of { x, y, w, h } bounding boxes in SVG coordinate space.
-      //   Individual sprite N is rendered via CSS background-image clipping.
-      var BILLBOARD_IMAGES = {};
-
-      // Compute metres represented by one CSS pixel at a given zoom and latitude.
-      function billboardMetersPerPixel(zoom, lat) {
-        return 40075016.686 * Math.cos(lat * Math.PI / 180) / (256 * Math.pow(2, zoom));
-      }
-
-      // Resize all active billboard elements to match the current map zoom.
-      // Also recomputes the visual-centroid offset to keep each billboard centred on the
-      // projected hex tile regardless of map pitch or bearing.
-      function refreshBillboardSizes() {
-        if (!map || activeBillboardData.length === 0) return;
-        var zoom = map.getZoom();
-        for (var i = 0; i < activeBillboardData.length; i++) {
-          var d = activeBillboardData[i];
-          var mpp = billboardMetersPerPixel(zoom, d.lat);
-          var px = d.sizem / mpp;
-          d.sizeEl.style.width = px + 'px';
-          d.sizeEl.style.height = (px * d.ratio) + 'px';
-          // Spacer height: shifts image up so the anchorY point on the image sits at the
-          // geographic coordinate. Formula derived from: anchorY*H = (H+spacer)/2
-          //   => spacer = (2*anchorY - 1) * H
-          var spacerH = Math.max(0, (2 * d.anchorY - 1) * px * d.ratio);
-          if (d.spacerEl) {
-            d.spacerEl.style.height = spacerH + 'px';
-            d.spacerEl.style.width = px + 'px';
-          }
-          // Set explicit wrapper dimensions so MapLibre always sees the correct element size,
-          // then update the pixel offset so the wrapper center (= geographic point) is exact.
-          var totalH = px * d.ratio + spacerH;
-          if (d.wrapperEl) {
-            d.wrapperEl.style.width = px + 'px';
-            d.wrapperEl.style.height = totalH + 'px';
-          }
-          if (d.marker) {
-            d.marker.setOffset([0, 0]);
-          }
-          // For sprite-sheet billboards: update CSS background-position and background-size
-          // so only the selected sprite region is visible at the correct zoom scale.
-          if (d.sprite) {
-            var scale = px / d.sprite.w;
-            d.sizeEl.style.backgroundSize = (d.sheetW * scale) + 'px ' + (d.sheetH * scale) + 'px';
-            d.sizeEl.style.backgroundPosition = (-d.sprite.x * scale) + 'px ' + (-d.sprite.y * scale) + 'px';
-          }
+      function updateStaticMarkers(markers) {
+        var keys = Object.keys(activeStaticMarkers);
+        for (var i = 0; i < keys.length; i++) {
+          activeStaticMarkers[keys[i]].remove();
         }
-      }
+        activeStaticMarkers = {};
 
-      function updateBillboards(billboards) {
-        // Remove existing billboard markers.
-        var ids = Object.keys(activeBillboardMarkers);
-        for (var i = 0; i < ids.length; i++) {
-          activeBillboardMarkers[ids[i]].remove();
-        }
-        activeBillboardMarkers = {};
-        activeBillboardData = [];
-        if (!billboards || !Array.isArray(billboards)) return;
-        for (var j = 0; j < billboards.length; j++) {
-          var bb = billboards[j];
+        if (!markers || !Array.isArray(markers)) return;
+
+        for (var j = 0; j < markers.length; j++) {
+          var m = markers[j];
+          var size = m.sizePx || 14;
           var el = document.createElement('div');
+          el.style.width = size + 'px';
+          el.style.height = size + 'px';
+          el.style.borderRadius = '50%';
+          el.style.background = m.color || '#facc15';
+          el.style.border = '2px solid rgba(0,0,0,0.45)';
           el.style.pointerEvents = 'none';
-          var sizeEl;
-          var ratio;
-          var sprite = null;
-          var sheetW = 0;
-          var sheetH = 0;
+          el.style.boxSizing = 'border-box';
 
-          // Resolve base type and optional sprite index (format: 'baseType:index')
-          var colonIdx = bb.type.indexOf(':');
-          var baseType = colonIdx >= 0 ? bb.type.slice(0, colonIdx) : bb.type;
-          var spriteIdxStr = colonIdx >= 0 ? bb.type.slice(colonIdx + 1) : null;
-
-          if (BILLBOARD_SVG[bb.type] !== undefined) {
-            var def = BILLBOARD_SVG[bb.type];
-            el.innerHTML = def.svg;
-            sizeEl = el.querySelector('svg');
-            ratio = def.ratio;
-          } else if (spriteIdxStr !== null && BILLBOARD_IMAGES[baseType] !== undefined && BILLBOARD_IMAGES[baseType].sprites) {
-            // Sprite-sheet billboard: render only the selected sprite using CSS background clipping.
-            var imgDef = BILLBOARD_IMAGES[baseType];
-            var spriteIdx = parseInt(spriteIdxStr, 10);
-            sprite = (!isNaN(spriteIdx) && spriteIdx >= 0) ? imgDef.sprites[spriteIdx] : undefined;
-            if (sprite) {
-              sheetW = imgDef.sheetW;
-              sheetH = imgDef.sheetH;
-              el.style.overflow = 'hidden';
-              el.style.backgroundImage = 'url(' + imgDef.url + ')';
-              el.style.backgroundRepeat = 'no-repeat';
-              sizeEl = el;
-              ratio = sprite.h / sprite.w;
-            } else {
-              sprite = null;
-              var fallbackSpr = BILLBOARD_SVG.tree;
-              el.innerHTML = fallbackSpr.svg;
-              sizeEl = el.querySelector('svg');
-              ratio = fallbackSpr.ratio;
-            }
-          } else if (BILLBOARD_IMAGES[bb.type] !== undefined) {
-            var imgDef = BILLBOARD_IMAGES[bb.type];
-            var img = document.createElement('img');
-            img.src = imgDef.url;
-            img.style.display = 'block';
-            el.appendChild(img);
-            sizeEl = img;
-            ratio = imgDef.ratio;
-          } else {
-            var fallback = BILLBOARD_SVG.tree;
-            el.innerHTML = fallback.svg;
-            sizeEl = el.querySelector('svg');
-            ratio = fallback.ratio;
-          }
-          el.style.display = 'block';
-          // Pink outline shows the visual boundaries of the billboard (does not affect layout).
-          sizeEl.style.outline = '3px solid hotpink';
-          // Per-sprite anchor: wrap the visual element in a container with a transparent spacer
-          // below it so the anchor point (anchorY fraction from top of visual) aligns with the
-          // geographic coordinate. With anchor:'top-left' and explicit setOffset we control the
-          // exact pixel offset ourselves so it stays correct across all zoom levels.
-          var anchorY = (typeof bb.anchorY === 'number') ? bb.anchorY : 0.5;
-          var spacerEl = document.createElement('div');
-          spacerEl.style.pointerEvents = 'none';
-          spacerEl.style.display = 'block';
-          spacerEl.style.height = '0px';
-          var wrapperEl = document.createElement('div');
-          wrapperEl.style.pointerEvents = 'none';
-          wrapperEl.style.position = 'relative';
-          wrapperEl.style.display = 'inline-block';
-          wrapperEl.style.lineHeight = '0';
-          wrapperEl.appendChild(el);
-          wrapperEl.appendChild(spacerEl);
-          // Anchor dot: thick red circle always visible at the geographic anchor point
-          // (center of wrapper = hex midpoint where the billboard was placed).
-          var anchorDot = document.createElement('div');
-          anchorDot.style.position = 'absolute';
-          anchorDot.style.top = '50%';
-          anchorDot.style.left = '50%';
-          anchorDot.style.transform = 'translate(-50%, -50%)';
-          anchorDot.style.width = '14px';
-          anchorDot.style.height = '14px';
-          anchorDot.style.borderRadius = '50%';
-          anchorDot.style.background = 'red';
-          anchorDot.style.border = '2px solid darkred';
-          anchorDot.style.pointerEvents = 'none';
-          anchorDot.style.zIndex = '9999';
-          anchorDot.style.display = 'block';
-          wrapperEl.appendChild(anchorDot);
-          // Use anchor:'center' so the center of the wrapper sits exactly at the
-          // hex tile's geographic center coordinate. The spacer formula
-          // spacerH = (2*anchorY - 1) * H was derived for this anchor mode:
-          // it ensures the anchorY fraction of the image aligns with the wrapper center.
-          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'center' })
-            .setLngLat([bb.position.lng, bb.position.lat])
+          var marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+            .setLngLat([m.lng, m.lat])
             .addTo(map);
-          activeBillboardMarkers[bb.id] = marker;
-          activeBillboardData.push({
-            id: bb.id,
-            sizeEl: sizeEl,
-            spacerEl: spacerEl,
-            wrapperEl: wrapperEl,
-            marker: marker,
-            anchorY: anchorY,
-            anchorDot: anchorDot,
-            lat: bb.position.lat,
-            lng: bb.position.lng,
-            sizem: bb.sizem || 72,
-            ratio: ratio,
-            sprite: sprite,
-            sheetW: sheetW,
-            sheetH: sheetH,
-            hexBoundary: (bb.hexBoundary && Array.isArray(bb.hexBoundary)) ? bb.hexBoundary : null,
-          });
+
+          activeStaticMarkers[m.id] = marker;
         }
-        // Apply correct size at the current zoom immediately after placing markers.
-        refreshBillboardSizes();
       }
 
       // Emoji fallback map for icons referenced by the map style but missing from its sprite sheet.
@@ -5149,22 +4980,8 @@
           updateGlbModels(data.glbModels);
         }
 
-        if (data.billboardImages !== undefined && data.billboardImages !== null) {
-          var imgs = data.billboardImages;
-          var imgKeys = Object.keys(imgs);
-          for (var bi = 0; bi < imgKeys.length; bi++) {
-            BILLBOARD_IMAGES[imgKeys[bi]] = imgs[imgKeys[bi]];
-          }
-        }
-
-        if (data.billboards !== undefined) {
-          updateBillboards(data.billboards);
-        }
-
-        if (data.billboardDebugAnchors !== undefined) {
-          // Anchor dots are now always visible; the variable is kept for backwards
-          // compatibility with callers that may still send this message.
-          debugShowBillboardAnchors = !!data.billboardDebugAnchors;
+        if (data.staticMarkers !== undefined) {
+          updateStaticMarkers(data.staticMarkers);
         }
 
         if (data.updateGlbModelScale !== undefined) {
@@ -5317,18 +5134,6 @@
             document.getElementById('error').style.display = 'flex';
             sendToRN({ tag: 'MapError', message: e.error ? e.error.message : 'unknown' });
           }
-        });
-
-        map.on('zoom', function () {
-          refreshBillboardSizes();
-        });
-
-        map.on('rotate', function () {
-          refreshBillboardSizes();
-        });
-
-        map.on('pitch', function () {
-          refreshBillboardSizes();
         });
 
         map.on('zoomend', function () {
