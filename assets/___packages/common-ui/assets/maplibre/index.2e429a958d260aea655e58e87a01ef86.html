@@ -4753,12 +4753,12 @@
           wrapperEl.appendChild(el);
           wrapperEl.appendChild(spacerEl);
           // Anchor dot: thick red circle always visible at the geographic anchor point
-          // (bottom-left corner of billboard = hex midpoint where the billboard was placed).
+          // (center of wrapper = hex midpoint where the billboard was placed).
           var anchorDot = document.createElement('div');
           anchorDot.style.position = 'absolute';
-          anchorDot.style.bottom = '0';
-          anchorDot.style.left = '0';
-          anchorDot.style.transform = 'translate(-50%, 50%)';
+          anchorDot.style.top = '50%';
+          anchorDot.style.left = '50%';
+          anchorDot.style.transform = 'translate(-50%, -50%)';
           anchorDot.style.width = '14px';
           anchorDot.style.height = '14px';
           anchorDot.style.borderRadius = '50%';
@@ -4768,9 +4768,11 @@
           anchorDot.style.zIndex = '9999';
           anchorDot.style.display = 'block';
           wrapperEl.appendChild(anchorDot);
-          // Use anchor:'bottom-left' so the bottom-left corner of the billboard
-          // sits exactly at the hex tile's geographic center coordinate.
-          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'bottom-left' })
+          // Use anchor:'center' so the center of the wrapper sits exactly at the
+          // hex tile's geographic center coordinate. The spacer formula
+          // spacerH = (2*anchorY - 1) * H was derived for this anchor mode:
+          // it ensures the anchorY fraction of the image aligns with the wrapper center.
+          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'center' })
             .setLngLat([bb.position.lng, bb.position.lat])
             .addTo(map);
           activeBillboardMarkers[bb.id] = marker;
