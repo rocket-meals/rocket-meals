@@ -4658,7 +4658,7 @@
             d.wrapperEl.style.height = totalH + 'px';
           }
           if (d.marker) {
-            d.marker.setOffset([-px / 2, -totalH / 2]);
+            d.marker.setOffset([0, 0]);
           }
           // For sprite-sheet billboards: update CSS background-position and background-size
           // so only the selected sprite region is visible at the correct zoom scale.
@@ -4753,12 +4753,12 @@
           wrapperEl.appendChild(el);
           wrapperEl.appendChild(spacerEl);
           // Anchor dot: thick red circle always visible at the geographic anchor point
-          // (center of wrapper = hex midpoint where the billboard was placed).
+          // (bottom-left corner of billboard = hex midpoint where the billboard was placed).
           var anchorDot = document.createElement('div');
           anchorDot.style.position = 'absolute';
-          anchorDot.style.top = '50%';
-          anchorDot.style.left = '50%';
-          anchorDot.style.transform = 'translate(-50%, -50%)';
+          anchorDot.style.bottom = '0';
+          anchorDot.style.left = '0';
+          anchorDot.style.transform = 'translate(-50%, 50%)';
           anchorDot.style.width = '14px';
           anchorDot.style.height = '14px';
           anchorDot.style.borderRadius = '50%';
@@ -4768,10 +4768,9 @@
           anchorDot.style.zIndex = '9999';
           anchorDot.style.display = 'block';
           wrapperEl.appendChild(anchorDot);
-          // Use anchor:'top-left' so MapLibre does not apply its own centering transform.
-          // refreshBillboardSizes() calls marker.setOffset([-px/2, -totalH/2]) on every zoom
-          // to keep the geographic point exactly at the center of the wrapper.
-          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'top-left' })
+          // Use anchor:'bottom-left' so the bottom-left corner of the billboard
+          // sits exactly at the hex tile's geographic center coordinate.
+          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'bottom-left' })
             .setLngLat([bb.position.lng, bb.position.lat])
             .addTo(map);
           activeBillboardMarkers[bb.id] = marker;
