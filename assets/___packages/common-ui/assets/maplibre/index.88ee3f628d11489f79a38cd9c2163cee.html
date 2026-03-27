@@ -3771,9 +3771,6 @@
       var carModeActive = false;
       var activeImageOverlayIds = [];
       var imageOverlayVersion = 0;
-      var loadedBillboardImageIds = [];
-      var BILLBOARD_SYMBOL_LAYER = 'billboard-symbols';
-      var BILLBOARD_SOURCE = 'billboard-source';
       var active3DBuildingIds = [];
       var activeGlbModelIds = [];
       var HIGHLIGHT_BUILDING_SOURCE = 'highlight-building-source';
@@ -3849,101 +3846,6 @@
             .addTo(map);
 
           activeMarkers[markerId] = marker;
-        });
-      }
-
-      // Render billboard sprites as MapLibre symbol layers so they are positioned in
-      // world space and scale naturally with map zoom (smaller when zoomed out).
-      // Each billboard entry must have: { id, position: {lat, lng}, iconUrl, iconId, iconSizeRef }
-      // iconSizeRef is the desired icon-size at zoom 16 relative to a 128 px image.
-      // Default iconSizeRef: townhall at zoom 16 → 48 px / 128 px image = 0.375.
-      var DEFAULT_BILLBOARD_ICON_SIZE_REF = 0.375;
-        // Clean up previous layer, source and registered images.
-        if (map.getLayer(BILLBOARD_SYMBOL_LAYER)) map.removeLayer(BILLBOARD_SYMBOL_LAYER);
-        if (map.getSource(BILLBOARD_SOURCE)) map.removeSource(BILLBOARD_SOURCE);
-        for (var ri = 0; ri < loadedBillboardImageIds.length; ri++) {
-          if (map.hasImage(loadedBillboardImageIds[ri])) {
-            try { map.removeImage(loadedBillboardImageIds[ri]); } catch (e) {
-              // removeImage may throw if the image is still referenced by a style layer;
-              // this is benign – the old layer has already been removed above.
-            }
-          }
-        }
-        loadedBillboardImageIds = [];
-
-        if (!billboardsData || !Array.isArray(billboardsData) || billboardsData.length === 0) return;
-
-        var features = billboardsData.map(function (b) {
-          return {
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [b.position.lng, b.position.lat] },
-            properties: { iconId: b.iconId, markerId: b.id, iconSizeRef: b.iconSizeRef || DEFAULT_BILLBOARD_ICON_SIZE_REF }
-          };
-        });
-
-        // Collect unique icon IDs → URL mappings.
-        var uniqueIcons = {};
-        billboardsData.forEach(function (b) {
-          if (!uniqueIcons[b.iconId]) uniqueIcons[b.iconId] = b.iconUrl;
-        });
-        var iconIds = Object.keys(uniqueIcons);
-        var pendingCount = iconIds.length;
-
-        function finalizeLayer() {
-          if (map.getSource(BILLBOARD_SOURCE)) return; // already added
-          map.addSource(BILLBOARD_SOURCE, {
-            type: 'geojson',
-            data: { type: 'FeatureCollection', features: features }
-          });
-          // icon-size scales exponentially with zoom so the billboard occupies a
-          // constant angular size in the world (halves/doubles every zoom level).
-          map.addLayer({
-            id: BILLBOARD_SYMBOL_LAYER,
-            type: 'symbol',
-            source: BILLBOARD_SOURCE,
-            layout: {
-              'icon-image': ['get', 'iconId'],
-              'icon-allow-overlap': true,
-              'icon-anchor': 'center',
-              'icon-size': [
-                '*',
-                ['get', 'iconSizeRef'],
-                ['interpolate', ['exponential', 2], ['zoom'],
-                  10, 0.015625,
-                  22, 64
-                ]
-              ]
-            }
-          });
-        }
-
-        if (pendingCount === 0) {
-          finalizeLayer();
-          return;
-        }
-
-        iconIds.forEach(function (iconId) {
-          var imgUrl = uniqueIcons[iconId];
-          var img = new Image(128, 128);
-          img.onload = function () {
-            // Draw to a fixed-size canvas to normalise SVG intrinsic dimensions.
-            var canvas = document.createElement('canvas');
-            canvas.width = 128;
-            canvas.height = 128;
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, 128, 128);
-            if (!map.hasImage(iconId)) {
-              map.addImage(iconId, ctx.getImageData(0, 0, 128, 128));
-              loadedBillboardImageIds.push(iconId);
-            }
-            pendingCount--;
-            if (pendingCount === 0) finalizeLayer();
-          };
-          img.onerror = function () {
-            pendingCount--;
-            if (pendingCount === 0) finalizeLayer();
-          };
-          img.src = imgUrl;
         });
       }
 
@@ -5025,10 +4927,6 @@
           updateMarkers(data.mapMarkers);
         }
 
-        if (data.billboards !== undefined) {
-          updateBillboards(data.billboards);
-        }
-
         if (data.vehicleMarker !== undefined) {
           updateVehicleMarker(data.vehicleMarker);
         }
@@ -5227,15 +5125,6 @@
             window._mapExtensions.onMapReady(map);
           }
           sendToRN({ tag: 'MapComponentMounted', version: '1.0' });
-
-          // Billboard symbol layer click – report back to React Native.
-          map.on('click', BILLBOARD_SYMBOL_LAYER, function (e) {
-            e.stopPropagation();
-            var features = map.queryRenderedFeatures(e.point, { layers: [BILLBOARD_SYMBOL_LAYER] });
-            if (features && features.length > 0) {
-              sendToRN({ tag: 'onMapMarkerClicked', mapMarkerId: features[0].properties.markerId });
-            }
-          });
         });
 
         map.on('error', function (e) {
