@@ -4600,7 +4600,7 @@
       var activeBillboardMarkers = {};
       // Stores sizing data for each active billboard to allow zoom-driven resize.
       var activeBillboardData = [];
-      // Debug: when true, shows a pink dot at the anchor point (bottom-center) of each billboard.
+      // Debug: when true, shows a pink dot at the anchor point (center) of each billboard.
       var debugShowBillboardAnchors = false;
 
       // SVG templates for built-in billboard types.
@@ -4640,10 +4640,12 @@
           var px = d.sizem / mpp;
           d.sizeEl.style.width = px + 'px';
           d.sizeEl.style.height = (px * d.ratio) + 'px';
-          // Update transparent bottom spacer so the logical anchor point aligns with
-          // the MapLibre marker bottom (anchorY fraction from top of visual).
+          // Update transparent spacer so the logical anchor point aligns with
+          // the MapLibre marker center (anchorY fraction from top of visual).
+          // With anchor:'center', spacerH = (2*anchorY-1)*visual_height ensures the
+          // anchorY point sits exactly at the wrapper's center (= geographic coordinate).
           if (d.spacerEl) {
-            var spacerH = (1 - d.anchorY) * px * d.ratio;
+            var spacerH = Math.max(0, (2 * d.anchorY - 1) * px * d.ratio);
             d.spacerEl.style.height = spacerH + 'px';
             d.spacerEl.style.width = px + 'px';
           }
@@ -4735,22 +4737,21 @@
           wrapperEl.style.display = 'inline-block';
           wrapperEl.appendChild(el);
           wrapperEl.appendChild(spacerEl);
-          // Debug anchor dot: pink circle at the bottom-center of the wrapper (the anchor point).
+          // Debug anchor dot: pink circle at the center of the wrapper (the geographic anchor point).
           var anchorDot = document.createElement('div');
           anchorDot.style.position = 'absolute';
-          anchorDot.style.bottom = '0';
+          anchorDot.style.top = '50%';
           anchorDot.style.left = '50%';
-          anchorDot.style.transform = 'translateX(-50%)';
+          anchorDot.style.transform = 'translate(-50%, -50%)';
           anchorDot.style.width = '10px';
           anchorDot.style.height = '10px';
           anchorDot.style.borderRadius = '50%';
           anchorDot.style.background = '#ff69b4';
           anchorDot.style.pointerEvents = 'none';
           anchorDot.style.zIndex = '9999';
-          anchorDot.style.marginBottom = '-5px';
           anchorDot.style.display = debugShowBillboardAnchors ? 'block' : 'none';
           wrapperEl.appendChild(anchorDot);
-          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'bottom' })
+          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'center' })
             .setLngLat([bb.position.lng, bb.position.lat])
             .addTo(map);
           activeBillboardMarkers[bb.id] = marker;
