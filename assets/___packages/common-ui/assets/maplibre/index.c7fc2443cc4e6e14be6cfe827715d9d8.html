@@ -4631,6 +4631,8 @@
       }
 
       // Resize all active billboard elements to match the current map zoom.
+      // Also recomputes the visual-centroid offset to keep each billboard centred on the
+      // projected hex tile regardless of map pitch or bearing.
       function refreshBillboardSizes() {
         if (!map || activeBillboardData.length === 0) return;
         var zoom = map.getZoom();
@@ -4648,15 +4650,30 @@
             d.spacerEl.style.height = spacerH + 'px';
             d.spacerEl.style.width = px + 'px';
           }
-          // Set explicit wrapper dimensions so MapLibre always sees the correct element size,
-          // then update the pixel offset so the wrapper center (= geographic point) is exact.
+          // Set explicit wrapper dimensions so MapLibre always sees the correct element size.
           var totalH = px * d.ratio + spacerH;
           if (d.wrapperEl) {
             d.wrapperEl.style.width = px + 'px';
             d.wrapperEl.style.height = totalH + 'px';
           }
+          // Visual-centroid correction: with a pitched map, the perspective projection places
+          // the geographic centre higher than the visual centroid of the hex tile shape. Shift
+          // the billboard so the element centre lands on the mean of the projected hex vertices
+          // (the true visual centroid), which stays correct for any pitch and bearing.
           if (d.marker) {
-            d.marker.setOffset([-px / 2, -totalH / 2]);
+            var vcOffsetX = 0, vcOffsetY = 0;
+            if (d.hexBoundary && d.hexBoundary.length > 0) {
+              var gc = map.project([d.lng, d.lat]);
+              var sumX = 0, sumY = 0;
+              for (var j = 0; j < d.hexBoundary.length; j++) {
+                var vp = map.project(d.hexBoundary[j]);
+                sumX += vp.x;
+                sumY += vp.y;
+              }
+              vcOffsetX = sumX / d.hexBoundary.length - gc.x;
+              vcOffsetY = sumY / d.hexBoundary.length - gc.y;
+            }
+            d.marker.setOffset([vcOffsetX, vcOffsetY]);
           }
           // For sprite-sheet billboards: update CSS background-position and background-size
           // so only the selected sprite region is visible at the correct zoom scale.
@@ -4732,12 +4749,11 @@
             ratio = fallback.ratio;
           }
           el.style.display = 'block';
-          // Pink outline shows the visual boundaries of the billboard (does not affect layout).
-          sizeEl.style.outline = '3px solid hotpink';
           // Per-sprite anchor: wrap the visual element in a container with a transparent spacer
           // below it so the anchor point (anchorY fraction from top of visual) aligns with the
-          // geographic coordinate. With anchor:'top-left' and explicit setOffset we control the
-          // exact pixel offset ourselves so it stays correct across all zoom levels.
+          // geographic coordinate. With anchor:'center', MapLibre reads the wrapper dimensions
+          // and centres the element on the geographic coordinate; refreshBillboardSizes() then
+          // applies a visual-centroid correction offset to account for map pitch.
           var anchorY = (typeof bb.anchorY === 'number') ? bb.anchorY : 0.5;
           var spacerEl = document.createElement('div');
           spacerEl.style.pointerEvents = 'none';
@@ -4750,26 +4766,25 @@
           wrapperEl.style.lineHeight = '0';
           wrapperEl.appendChild(el);
           wrapperEl.appendChild(spacerEl);
-          // Anchor dot: thick red circle always visible at the geographic anchor point
-          // (center of wrapper = hex midpoint where the billboard was placed).
+          // Debug anchor dot: pink circle shown only when debugShowBillboardAnchors is true.
+          // Marks the visual centroid of the hex tile (= element centre after perspective correction).
           var anchorDot = document.createElement('div');
           anchorDot.style.position = 'absolute';
           anchorDot.style.top = '50%';
           anchorDot.style.left = '50%';
           anchorDot.style.transform = 'translate(-50%, -50%)';
-          anchorDot.style.width = '14px';
-          anchorDot.style.height = '14px';
+          anchorDot.style.width = '10px';
+          anchorDot.style.height = '10px';
           anchorDot.style.borderRadius = '50%';
-          anchorDot.style.background = 'red';
-          anchorDot.style.border = '2px solid darkred';
+          anchorDot.style.background = '#ff69b4';
           anchorDot.style.pointerEvents = 'none';
           anchorDot.style.zIndex = '9999';
-          anchorDot.style.display = 'block';
+          anchorDot.style.display = debugShowBillboardAnchors ? 'block' : 'none';
           wrapperEl.appendChild(anchorDot);
-          // Use anchor:'top-left' so MapLibre does not apply its own centering transform.
-          // refreshBillboardSizes() calls marker.setOffset([-px/2, -totalH/2]) on every zoom
-          // to keep the geographic point exactly at the center of the wrapper.
-          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'top-left' })
+          // anchor:'center' lets MapLibre automatically centre the wrapper element on the
+          // geographic coordinate. refreshBillboardSizes() adds a perspective-correction
+          // setOffset so the element centre lands on the visual centroid of the hex tile.
+          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'center' })
             .setLngLat([bb.position.lng, bb.position.lat])
             .addTo(map);
           activeBillboardMarkers[bb.id] = marker;
@@ -4782,11 +4797,13 @@
             anchorY: anchorY,
             anchorDot: anchorDot,
             lat: bb.position.lat,
+            lng: bb.position.lng,
             sizem: bb.sizem || 72,
             ratio: ratio,
             sprite: sprite,
             sheetW: sheetW,
             sheetH: sheetH,
+            hexBoundary: (bb.hexBoundary && Array.isArray(bb.hexBoundary)) ? bb.hexBoundary : null,
           });
         }
         // Apply correct size at the current zoom immediately after placing markers.
@@ -5157,9 +5174,10 @@
         }
 
         if (data.billboardDebugAnchors !== undefined) {
-          // Anchor dots are now always visible; the variable is kept for backwards
-          // compatibility with callers that may still send this message.
           debugShowBillboardAnchors = !!data.billboardDebugAnchors;
+          for (var bda = 0; bda < activeBillboardData.length; bda++) {
+            activeBillboardData[bda].anchorDot.style.display = debugShowBillboardAnchors ? 'block' : 'none';
+          }
         }
 
         if (data.updateGlbModelScale !== undefined) {
@@ -5315,6 +5333,14 @@
         });
 
         map.on('zoom', function () {
+          refreshBillboardSizes();
+        });
+
+        map.on('rotate', function () {
+          refreshBillboardSizes();
+        });
+
+        map.on('pitch', function () {
           refreshBillboardSizes();
         });
 
