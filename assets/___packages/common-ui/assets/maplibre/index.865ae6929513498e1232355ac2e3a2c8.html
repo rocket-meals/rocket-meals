@@ -3816,7 +3816,7 @@
           mapMarkerPositions.push({ lng: markerData.position.lng, lat: markerData.position.lat });
 
           var el = document.createElement('div');
-          el.style.cursor = 'pointer';
+          el.style.pointerEvents = 'none';
 
           var baseWidth = 24;
           var baseHeight = 24;
@@ -3838,10 +3838,6 @@
           }
 
           var markerId = markerData.id;
-          el.addEventListener('click', function (e) {
-            e.stopPropagation();
-            sendToRN({ tag: 'onMapMarkerClicked', mapMarkerId: markerId });
-          });
 
           var baseOffsetX = 0;
           var baseOffsetY = 0;
