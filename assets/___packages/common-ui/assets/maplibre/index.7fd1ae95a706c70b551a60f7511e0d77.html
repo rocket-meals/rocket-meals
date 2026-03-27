@@ -3763,6 +3763,11 @@
       var mapReady = false;
       var pendingMessage = null;
       var activeMarkers = {};
+      var DEFAULT_REFERENCE_ZOOM = 14;
+      var MIN_MARKER_SCALE = 0.05;
+      var MAX_MARKER_SCALE = 50;
+      var markerReferenceZoom = null; // zoom level at which marker sizes are "correct"
+      var markerMetaMap = {};         // markerId → { el, baseWidth, baseHeight, baseOffsetX, baseOffsetY }
       var vehicleMarkerEl = null;
       var vehicleMarkerInstance = null;
       var peopleModeActive = false;
@@ -3791,12 +3796,17 @@
         }
       }
 
-      function updateMarkers(markersData) {
+      function updateMarkers(markersData, referenceZoom) {
         Object.keys(activeMarkers).forEach(function (id) {
           activeMarkers[id].remove();
         });
         activeMarkers = {};
+        markerMetaMap = {};
         mapMarkerPositions = [];
+
+        // Store the reference zoom – the zoom at which the supplied sizes are "correct".
+        // If not provided, fall back to the current map zoom.
+        markerReferenceZoom = (referenceZoom != null) ? referenceZoom : (map ? map.getZoom() : DEFAULT_REFERENCE_ZOOM);
 
         if (!markersData || !Array.isArray(markersData)) return;
 
@@ -3808,15 +3818,20 @@
           var el = document.createElement('div');
           el.style.cursor = 'pointer';
 
+          var baseWidth = 24;
+          var baseHeight = 24;
+
           if (markerData.icon) {
             el.innerHTML = markerData.icon;
             if (markerData.size && markerData.size.length === 2) {
-              el.style.width = markerData.size[0] + 'px';
-              el.style.height = markerData.size[1] + 'px';
+              baseWidth = markerData.size[0];
+              baseHeight = markerData.size[1];
+              el.style.width = baseWidth + 'px';
+              el.style.height = baseHeight + 'px';
             }
           } else {
-            el.style.width = '24px';
-            el.style.height = '24px';
+            el.style.width = baseWidth + 'px';
+            el.style.height = baseHeight + 'px';
             el.style.backgroundColor = '#1565c0';
             el.style.borderRadius = '50%';
             el.style.border = '2px solid white';
@@ -3828,25 +3843,59 @@
             sendToRN({ tag: 'onMapMarkerClicked', mapMarkerId: markerId });
           });
 
-          var offset = [0, 0];
+          var baseOffsetX = 0;
+          var baseOffsetY = 0;
           if (
             markerData.iconAnchor &&
             markerData.iconAnchor.length === 2 &&
             markerData.size &&
             markerData.size.length === 2
           ) {
-            offset = [
-              markerData.size[0] / 2 - markerData.iconAnchor[0],
-              markerData.size[1] / 2 - markerData.iconAnchor[1],
-            ];
+            baseOffsetX = markerData.size[0] / 2 - markerData.iconAnchor[0];
+            baseOffsetY = markerData.size[1] / 2 - markerData.iconAnchor[1];
           }
 
-          var marker = new maplibregl.Marker({ element: el, offset: offset })
+          var marker = new maplibregl.Marker({ element: el, offset: [baseOffsetX, baseOffsetY] })
             .setLngLat([markerData.position.lng, markerData.position.lat])
             .addTo(map);
 
           activeMarkers[markerId] = marker;
+          markerMetaMap[markerId] = {
+            el: el,
+            marker: marker,
+            baseWidth: baseWidth,
+            baseHeight: baseHeight,
+            baseOffsetX: baseOffsetX,
+            baseOffsetY: baseOffsetY,
+          };
         });
+
+        // Apply initial zoom-based scaling immediately
+        rescaleMarkers();
+      }
+
+      /**
+       * Rescale all active markers based on the current zoom relative to the
+       * reference zoom at which their base sizes were defined. This makes
+       * billboards grow when zooming in and shrink when zooming out, behaving
+       * like objects anchored in the 3-D world.
+       */
+      function rescaleMarkers() {
+        if (markerReferenceZoom == null || !map) return;
+        var currentZoom = map.getZoom();
+        var scale = Math.pow(2, currentZoom - markerReferenceZoom);
+        // Clamp scale to avoid absurdly large or tiny markers
+        scale = Math.max(MIN_MARKER_SCALE, Math.min(scale, MAX_MARKER_SCALE));
+        var ids = Object.keys(markerMetaMap);
+        for (var i = 0; i < ids.length; i++) {
+          var meta = markerMetaMap[ids[i]];
+          var w = meta.baseWidth * scale;
+          var h = meta.baseHeight * scale;
+          meta.el.style.width = w + 'px';
+          meta.el.style.height = h + 'px';
+          // Scale the marker offset proportionally so the anchor stays correct
+          meta.marker.setOffset([meta.baseOffsetX * scale, meta.baseOffsetY * scale]);
+        }
       }
 
       var PEOPLE_COUNT = 80;
@@ -4924,7 +4973,7 @@
         }
 
         if (data.mapMarkers !== undefined) {
-          updateMarkers(data.mapMarkers);
+          updateMarkers(data.mapMarkers, data.mapMarkersReferenceZoom);
         }
 
         if (data.vehicleMarker !== undefined) {
@@ -5138,6 +5187,12 @@
 
         map.on('zoomend', function () {
           sendToRN({ tag: 'onZoomEnd', zoom: map.getZoom() });
+        });
+
+        // Continuously rescale billboard markers during zoom so they behave
+        // like world-anchored objects (grow on zoom-in, shrink on zoom-out).
+        map.on('zoom', function () {
+          rescaleMarkers();
         });
 
         map.on('pitchend', function () {
