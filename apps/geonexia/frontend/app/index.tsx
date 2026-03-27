@@ -1619,7 +1619,13 @@ export default function RecordScreen() {
 		mapRef.current.sendToMap({
 			imageOverlays,
 			mapMarkers: billboardMarkers,
-			mapMarkersReferenceZoom: debugViewportRef.current?.zoom ?? DEFAULT_REFERENCE_ZOOM,
+			// Always use the fixed DEFAULT_REFERENCE_ZOOM so that billboard pixel
+			// sizes stay consistent relative to the current zoom level regardless
+			// of when loadAndSendCustomizations was last called.  Using the live
+			// map zoom here would shift the reference anchor on every h3-level
+			// change, causing billboards to appear at the wrong scale after
+			// toggling the level back to its original value.
+			mapMarkersReferenceZoom: DEFAULT_REFERENCE_ZOOM,
 		});
 	}, [loadAssetUrl]);
 
