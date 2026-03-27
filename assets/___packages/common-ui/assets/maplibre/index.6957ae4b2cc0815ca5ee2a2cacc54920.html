@@ -4640,14 +4640,23 @@
           var px = d.sizem / mpp;
           d.sizeEl.style.width = px + 'px';
           d.sizeEl.style.height = (px * d.ratio) + 'px';
-          // Update transparent spacer so the logical anchor point aligns with
-          // the MapLibre marker center (anchorY fraction from top of visual).
-          // With anchor:'center', spacerH = (2*anchorY-1)*visual_height ensures the
-          // anchorY point sits exactly at the wrapper's center (= geographic coordinate).
+          // Spacer height: shifts image up so the anchorY point on the image sits at the
+          // geographic coordinate. Formula derived from: anchorY*H = (H+spacer)/2
+          //   => spacer = (2*anchorY - 1) * H
+          var spacerH = Math.max(0, (2 * d.anchorY - 1) * px * d.ratio);
           if (d.spacerEl) {
-            var spacerH = Math.max(0, (2 * d.anchorY - 1) * px * d.ratio);
             d.spacerEl.style.height = spacerH + 'px';
             d.spacerEl.style.width = px + 'px';
+          }
+          // Set explicit wrapper dimensions so MapLibre always sees the correct element size,
+          // then update the pixel offset so the wrapper center (= geographic point) is exact.
+          var totalH = px * d.ratio + spacerH;
+          if (d.wrapperEl) {
+            d.wrapperEl.style.width = px + 'px';
+            d.wrapperEl.style.height = totalH + 'px';
+          }
+          if (d.marker) {
+            d.marker.setOffset([-px / 2, -totalH / 2]);
           }
           // For sprite-sheet billboards: update CSS background-position and background-size
           // so only the selected sprite region is visible at the correct zoom scale.
@@ -4723,10 +4732,13 @@
             ratio = fallback.ratio;
           }
           el.style.display = 'block';
+          // Pink outline shows the visual boundaries of the billboard (does not affect layout).
+          sizeEl.style.outline = '3px solid hotpink';
           // Per-sprite anchor: wrap the visual element in a container with a transparent spacer
-          // below it so the bottom of the wrapper (= MapLibre anchor) aligns with the logical
-          // ground position of the sprite (anchorY fraction from top of visual).
-          var anchorY = (typeof bb.anchorY === 'number') ? bb.anchorY : 1.0;
+          // below it so the anchor point (anchorY fraction from top of visual) aligns with the
+          // geographic coordinate. With anchor:'top-left' and explicit setOffset we control the
+          // exact pixel offset ourselves so it stays correct across all zoom levels.
+          var anchorY = (typeof bb.anchorY === 'number') ? bb.anchorY : 0.5;
           var spacerEl = document.createElement('div');
           spacerEl.style.pointerEvents = 'none';
           spacerEl.style.display = 'block';
@@ -4735,23 +4747,29 @@
           wrapperEl.style.pointerEvents = 'none';
           wrapperEl.style.position = 'relative';
           wrapperEl.style.display = 'inline-block';
+          wrapperEl.style.lineHeight = '0';
           wrapperEl.appendChild(el);
           wrapperEl.appendChild(spacerEl);
-          // Debug anchor dot: pink circle at the center of the wrapper (the geographic anchor point).
+          // Anchor dot: thick red circle always visible at the geographic anchor point
+          // (center of wrapper = hex midpoint where the billboard was placed).
           var anchorDot = document.createElement('div');
           anchorDot.style.position = 'absolute';
           anchorDot.style.top = '50%';
           anchorDot.style.left = '50%';
           anchorDot.style.transform = 'translate(-50%, -50%)';
-          anchorDot.style.width = '10px';
-          anchorDot.style.height = '10px';
+          anchorDot.style.width = '14px';
+          anchorDot.style.height = '14px';
           anchorDot.style.borderRadius = '50%';
-          anchorDot.style.background = '#ff69b4';
+          anchorDot.style.background = 'red';
+          anchorDot.style.border = '2px solid darkred';
           anchorDot.style.pointerEvents = 'none';
           anchorDot.style.zIndex = '9999';
-          anchorDot.style.display = debugShowBillboardAnchors ? 'block' : 'none';
+          anchorDot.style.display = 'block';
           wrapperEl.appendChild(anchorDot);
-          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'center' })
+          // Use anchor:'top-left' so MapLibre does not apply its own centering transform.
+          // refreshBillboardSizes() calls marker.setOffset([-px/2, -totalH/2]) on every zoom
+          // to keep the geographic point exactly at the center of the wrapper.
+          var marker = new maplibregl.Marker({ element: wrapperEl, anchor: 'top-left' })
             .setLngLat([bb.position.lng, bb.position.lat])
             .addTo(map);
           activeBillboardMarkers[bb.id] = marker;
@@ -4759,6 +4777,8 @@
             id: bb.id,
             sizeEl: sizeEl,
             spacerEl: spacerEl,
+            wrapperEl: wrapperEl,
+            marker: marker,
             anchorY: anchorY,
             anchorDot: anchorDot,
             lat: bb.position.lat,
@@ -5137,10 +5157,9 @@
         }
 
         if (data.billboardDebugAnchors !== undefined) {
+          // Anchor dots are now always visible; the variable is kept for backwards
+          // compatibility with callers that may still send this message.
           debugShowBillboardAnchors = !!data.billboardDebugAnchors;
-          for (var bda = 0; bda < activeBillboardData.length; bda++) {
-            activeBillboardData[bda].anchorDot.style.display = debugShowBillboardAnchors ? 'block' : 'none';
-          }
         }
 
         if (data.updateGlbModelScale !== undefined) {
