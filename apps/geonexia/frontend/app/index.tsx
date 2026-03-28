@@ -150,6 +150,8 @@ const BILLBOARD_UNIT_PX = 48 / 7; // townhall ≈ 48 px at res 10
 // Native raster size (px) used when adding billboard SVGs to the MapLibre image atlas.
 // Must match the BILLBOARD_IMAGE_NATIVE_SIZE constant in index.html.
 const BILLBOARD_IMAGE_NATIVE_SIZE = 64;
+// Minimum rendered size (px at the reference zoom) to keep very small sprites visible.
+const BILLBOARD_MIN_SIZE_PX = 8;
 // Default billboard scale multiplier (adjustable in the debug modal).
 const BILLBOARD_SCALE_DEFAULT = 1;
 // Precision factor for rounding billboard scale values (1 decimal place).
@@ -1678,7 +1680,7 @@ export default function RecordScreen() {
 			const lat = sumLat / n;
 			// Desired pixel width at the reference zoom (14).  Minimum 8 px to keep
 			// tiny sprites visible.
-			const billboardSizePx = Math.max(8, BILLBOARD_UNIT_PX * sprite.scaleFactor * hexScaleRatio * billboardScaleRef.current);
+			const billboardSizePx = Math.max(BILLBOARD_MIN_SIZE_PX, BILLBOARD_UNIT_PX * sprite.scaleFactor * hexScaleRatio * billboardScaleRef.current);
 			billboardGeoPoints.push({
 				id: `billboard-${h3Index}`,
 				lat,

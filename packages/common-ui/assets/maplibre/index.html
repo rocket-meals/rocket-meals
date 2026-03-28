@@ -3929,7 +3929,7 @@
 
         if (!billboardsData || billboardsData.length === 0) return;
 
-        if (refZoom == null) refZoom = DEFAULT_REFERENCE_ZOOM;
+        if (refZoom === null || refZoom === undefined) refZoom = DEFAULT_REFERENCE_ZOOM;
 
         // Collect unique images that still need to be loaded.
         var toLoad = [];
@@ -3965,7 +3965,12 @@
                 map.addImage(item.imageKey, imageData);
               }
               billboardLoadedImages[item.imageKey] = true;
-            } catch (e) { /* ignore duplicate */ }
+            } catch (e) {
+              // addImage can throw if the image was concurrently added; log unexpected errors.
+              if (e && e.message && e.message.indexOf('already') === -1) {
+                console.warn('[billboard] addImage failed for', item.imageKey, e);
+              }
+            }
             loadNextImage(index + 1, done);
           };
           img.onerror = function() { loadNextImage(index + 1, done); };
