@@ -4674,81 +4674,151 @@
         }
       }
 
-      // ── Billboard symbol layer (fixed world-space size) ──────────────────────
-      // Billboards are rendered as a MapLibre symbol layer. The icon-size expression
-      // scales icons proportionally with zoom so they occupy a fixed geographic area.
-      // icon-pitch-alignment can be toggled between 'map' (flat on ground) and
-      // 'viewport' (always facing the camera) via billboardPitchAlignment messages.
-      var BILLBOARD_SOURCE_ID = 'billboard-symbol-source';
-      var BILLBOARD_LAYER_ID = 'billboard-symbol-layer';
-      // Logical icon size used for icon-size calculations (must match BILLBOARD_STANDARD_ICON_SIZE in index.tsx).
+      // ── Billboard THREE.js custom layer (fixed world-space size with 3D perspective) ──
+      // Billboards are rendered as THREE.js plane meshes inside a MapLibre custom
+      // layer with renderingMode:'3d'. This gives proper perspective scaling: distant
+      // billboards appear smaller just like GeoJSON fill-extrusion buildings.
+      // Pitch alignment can be toggled between 'map' (flat on ground) and
+      // 'viewport' (vertical, always facing the camera) via billboardPitchAlignment.
+      var BILLBOARD_LAYER_ID = 'billboard-3d-layer';
+      // Logical icon size used for pixel-to-meter conversion (must match BILLBOARD_STANDARD_ICON_SIZE in index.tsx).
       var BILLBOARD_ICON_SIZE = 128;
-      // SVGs are rasterized at BILLBOARD_ICON_SIZE × BILLBOARD_PIXEL_RATIO actual pixels
-      // so they stay crisp when zoomed in or on high-DPI screens.  MapLibre's pixelRatio
-      // option tells the renderer the image is N× oversampled, keeping icon-size math correct.
-      var BILLBOARD_PIXEL_RATIO = 4;
-      var BILLBOARD_RENDER_SIZE = BILLBOARD_ICON_SIZE * BILLBOARD_PIXEL_RATIO; // 512
-      var billboardImageCache = {}; // iconKey → true once image added to map sprite
-      var billboardUpdateGeneration = 0; // increments on each updateBillboards call to cancel stale callbacks
+      // SVGs are rasterized at high resolution for crisp textures when viewed up close.
+      var BILLBOARD_RENDER_SIZE = 512;
+      // Earth circumference at equator / 256 tile-pixels.
+      // Used to convert pixel sizes at a given zoom to meters.
+      var BILLBOARD_METERS_PER_PIXEL_Z0 = 156543.03392;
+      var billboardTextureCache = {}; // iconKey → THREE.CanvasTexture
+      var billboardUpdateGeneration = 0;
       // Current pitch alignment: 'map' = flat on ground, 'viewport' = face camera
       var billboardPitchAlignment = 'map';
+      // THREE.js state for the billboard custom layer
+      var billboardScene = null;
+      var billboardCamera = null;
+      var billboardRenderer = null;
+      var billboardLayerAdded = false;
+      // Center point in mercator coordinates for floating-point precision
+      var billboardCenter = { x: 0, y: 0, z: 0 };
+      // metersPerUnit at the center for coordinate conversion
+      var billboardMPU = 1;
+      // Pending meshes to add when the layer's onAdd fires
+      var billboardPendingMeshes = null;
+
+      function removeBillboardLayer() {
+        if (map && map.getLayer(BILLBOARD_LAYER_ID)) {
+          map.removeLayer(BILLBOARD_LAYER_ID);
+        }
+        billboardScene = null;
+        billboardCamera = null;
+        billboardRenderer = null;
+        billboardLayerAdded = false;
+        billboardPendingMeshes = null;
+      }
 
       function updateBillboards(data) {
         if (!map) return;
+        if (typeof THREE === 'undefined') return;
         var images = data.images || {};
         var features = data.features || [];
         var imageKeys = Object.keys(images);
         var pending = imageKeys.length;
-        // Capture a generation token so that callbacks from a superseded call do
-        // not invoke applyGeoJson once a newer updateBillboards has started.
         var generation = ++billboardUpdateGeneration;
 
-        function applyGeoJson() {
+        function buildScene() {
           if (generation !== billboardUpdateGeneration) return;
-          var fc = { type: 'FeatureCollection', features: features };
-          if (map.getSource(BILLBOARD_SOURCE_ID)) {
-            map.getSource(BILLBOARD_SOURCE_ID).setData(fc);
-          } else {
-            map.addSource(BILLBOARD_SOURCE_ID, { type: 'geojson', data: fc });
-            // icon-size is a zoom-and-data expression: scales 2× per zoom level
-            // (matching geographic feature scaling) and also varies per feature
-            // via the iconSizeAtRefZoom property (sized at reference zoom 14).
-            map.addLayer({
-              id: BILLBOARD_LAYER_ID,
-              type: 'symbol',
-              source: BILLBOARD_SOURCE_ID,
-              layout: {
-                'icon-image': ['get', 'iconKey'],
-                'icon-size': [
-                  'interpolate', ['exponential', 2], ['zoom'],
-                  10, ['*', ['get', 'iconSizeAtRefZoom'], 0.0625],
-                  14, ['get', 'iconSizeAtRefZoom'],
-                  18, ['*', ['get', 'iconSizeAtRefZoom'], 16],
-                ],
-                'icon-pitch-alignment': billboardPitchAlignment,
-                'icon-rotation-alignment': billboardPitchAlignment,
-                'icon-allow-overlap': true,
-                'icon-ignore-placement': true,
-              },
-            });
+
+          // Dispose old meshes from existing scene
+          if (billboardScene) {
+            while (billboardScene.children.length > 0) {
+              var child = billboardScene.children[0];
+              billboardScene.remove(child);
+              if (child.geometry) child.geometry.dispose();
+              if (child.material) child.material.dispose();
+            }
           }
-          // Always ensure billboards render above hex tile layers.
-          if (map.getLayer(BILLBOARD_LAYER_ID)) {
-            map.moveLayer(BILLBOARD_LAYER_ID);
+
+          if (features.length === 0) {
+            if (map) map.triggerRepaint();
+            return;
+          }
+
+          // Compute mercator positions for all features
+          var mercPositions = [];
+          var sumX = 0, sumY = 0;
+          for (var i = 0; i < features.length; i++) {
+            var coords = features[i].geometry.coordinates;
+            var merc = maplibregl.MercatorCoordinate.fromLngLat(coords, 0);
+            mercPositions.push(merc);
+            sumX += merc.x;
+            sumY += merc.y;
+          }
+          billboardCenter.x = sumX / features.length;
+          billboardCenter.y = sumY / features.length;
+          billboardCenter.z = 0;
+          // meterInMercatorCoordinateUnits at the first feature's position.
+          // For a local cluster of billboards, the variation is negligible.
+          billboardMPU = mercPositions[0].meterInMercatorCoordinateUnits();
+
+          // Create plane meshes for each billboard
+          var meshes = [];
+          // Compute meters-per-pixel at zoom 14 once from the first feature's latitude.
+          // For a local cluster of billboards the variation is negligible.
+          var refLat = features[0].geometry.coordinates[1];
+          var metersPerPixelZ14 = BILLBOARD_METERS_PER_PIXEL_Z0 * Math.cos(refLat * Math.PI / 180) / Math.pow(2, 14);
+          for (var fi = 0; fi < features.length; fi++) {
+            var feature = features[fi];
+            var merc = mercPositions[fi];
+            var iconKey = feature.properties.iconKey;
+            var iconSizeAtRefZoom = feature.properties.iconSizeAtRefZoom;
+
+            var texture = billboardTextureCache[iconKey];
+            if (!texture) continue;
+
+            // Convert pixel size at zoom 14 to meters.
+            var sizeMeters = iconSizeAtRefZoom * BILLBOARD_ICON_SIZE * metersPerPixelZ14;
+
+            var geometry = new THREE.PlaneGeometry(1, 1);
+            var material = new THREE.MeshBasicMaterial({
+              map: texture,
+              transparent: true,
+              side: THREE.DoubleSide,
+              depthTest: true,
+              depthWrite: false,
+            });
+            var mesh = new THREE.Mesh(geometry, material);
+
+            // Position relative to center, in meters (reuse cached billboardMPU)
+            var dx = (merc.x - billboardCenter.x) / billboardMPU;
+            var dy = (merc.y - billboardCenter.y) / billboardMPU;
+            mesh.position.set(dx, dy, 0);
+            mesh.scale.set(sizeMeters, sizeMeters, sizeMeters);
+
+            meshes.push(mesh);
+          }
+
+          // If the layer is already added and the scene exists, add meshes directly
+          if (billboardLayerAdded && billboardScene) {
+            for (var mi = 0; mi < meshes.length; mi++) {
+              billboardScene.add(meshes[mi]);
+            }
+            map.triggerRepaint();
+          } else {
+            // Store meshes for when the layer's onAdd fires
+            billboardPendingMeshes = meshes;
+            addBillboardLayer();
           }
         }
 
+        // Load images and create textures
         if (pending === 0) {
-          applyGeoJson();
+          buildScene();
           return;
         }
 
         imageKeys.forEach(function (key) {
-          // Use the cache only if the image is also confirmed present in the map sprite.
-          // Without the map.hasImage() check the cache would be stale after a map recreation.
-          if (billboardImageCache[key] && map.hasImage(key)) {
+          if (billboardTextureCache[key]) {
             pending--;
-            if (pending === 0) applyGeoJson();
+            if (pending === 0) buildScene();
             return;
           }
           var imgData = images[key];
@@ -4758,27 +4828,90 @@
           var ctx = canvas.getContext('2d');
           var img = new Image();
           img.onload = function () {
-            // Discard if a newer updateBillboards() has already superseded this call.
             if (generation !== billboardUpdateGeneration) return;
             ctx.drawImage(img, 0, 0, BILLBOARD_RENDER_SIZE, BILLBOARD_RENDER_SIZE);
-            if (!map.hasImage(key)) {
-              map.addImage(
-                key,
-                ctx.getImageData(0, 0, BILLBOARD_RENDER_SIZE, BILLBOARD_RENDER_SIZE),
-                { pixelRatio: BILLBOARD_PIXEL_RATIO }
-              );
-            }
-            billboardImageCache[key] = true;
+            var texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+            billboardTextureCache[key] = texture;
             pending--;
-            if (pending === 0) applyGeoJson();
+            if (pending === 0) buildScene();
           };
           img.onerror = function () {
             if (generation !== billboardUpdateGeneration) return;
             pending--;
-            if (pending === 0) applyGeoJson();
+            if (pending === 0) buildScene();
           };
           img.src = imgData.url;
         });
+      }
+
+      function addBillboardLayer() {
+        if (billboardLayerAdded) return;
+        if (!map || typeof THREE === 'undefined') return;
+
+        var customLayer = {
+          id: BILLBOARD_LAYER_ID,
+          type: 'custom',
+          renderingMode: '3d',
+          onAdd: function (mapInst, gl) {
+            billboardCamera = new THREE.Camera();
+            billboardScene = new THREE.Scene();
+            billboardRenderer = new THREE.WebGLRenderer({
+              canvas: mapInst.getCanvas(),
+              context: gl,
+              antialias: true,
+            });
+            billboardRenderer.autoClear = false;
+
+            // Add any meshes that were created before onAdd fired
+            if (billboardPendingMeshes) {
+              for (var i = 0; i < billboardPendingMeshes.length; i++) {
+                billboardScene.add(billboardPendingMeshes[i]);
+              }
+              billboardPendingMeshes = null;
+            }
+          },
+          render: function (gl, args) {
+            if (!billboardScene || !billboardCamera || !billboardRenderer) return;
+            if (billboardScene.children.length === 0) return;
+
+            var rawMatrix = (args && args.projectionMatrix) ? args.projectionMatrix : args;
+            var m = new THREE.Matrix4().fromArray(rawMatrix);
+
+            // Local transform: translate to center, then scale from meters to
+            // mercator units with Y-flip for coordinate system conversion.
+            var l = new THREE.Matrix4()
+              .makeTranslation(billboardCenter.x, billboardCenter.y, billboardCenter.z)
+              .scale(new THREE.Vector3(billboardMPU, -billboardMPU, billboardMPU));
+
+            // For 'viewport' mode, rotate each billboard to stand upright
+            // and face the camera. For 'map' mode, leave flat on the ground.
+            if (billboardPitchAlignment === 'viewport') {
+              var bearing = -map.getBearing() * Math.PI / 180;
+              for (var vi = 0; vi < billboardScene.children.length; vi++) {
+                var child = billboardScene.children[vi];
+                // Stand upright (rotate -90° around X) then face camera bearing
+                child.rotation.set(-Math.PI / 2, 0, bearing, 'XYZ');
+              }
+            } else {
+              for (var fi = 0; fi < billboardScene.children.length; fi++) {
+                billboardScene.children[fi].rotation.set(0, 0, 0);
+              }
+            }
+
+            billboardCamera.projectionMatrix = m.multiply(l);
+            billboardRenderer.resetState();
+            billboardRenderer.render(billboardScene, billboardCamera);
+            // In viewport mode, billboard rotations change with camera bearing,
+            // so request continuous repaints. In map mode the scene is static.
+            if (billboardPitchAlignment === 'viewport') {
+              map.triggerRepaint();
+            }
+          },
+        };
+
+        map.addLayer(customLayer);
+        billboardLayerAdded = true;
       }
 
       // Emoji fallback map for icons referenced by the map style but missing from its sprite sheet.
@@ -5143,10 +5276,9 @@
         if (data.billboardPitchAlignment !== undefined) {
           var align = data.billboardPitchAlignment === 'viewport' ? 'viewport' : 'map';
           billboardPitchAlignment = align;
-          if (map.getLayer(BILLBOARD_LAYER_ID)) {
-            map.setLayoutProperty(BILLBOARD_LAYER_ID, 'icon-pitch-alignment', align);
-            map.setLayoutProperty(BILLBOARD_LAYER_ID, 'icon-rotation-alignment', align);
-          }
+          // The THREE.js billboard layer handles alignment in its render loop,
+          // so just trigger a repaint to apply the change immediately.
+          if (map) map.triggerRepaint();
         }
 
         if (data.updateGlbModelScale !== undefined) {
