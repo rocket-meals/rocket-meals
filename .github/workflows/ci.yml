@@ -23,6 +23,57 @@ jobs:
         id: check
         uses: ./.github/actions/check-repository
 
+  detect-changes:
+    name: "🔍 Detect Changes"
+    runs-on: ubuntu-latest
+    outputs:
+      frontend-changed: ${{ steps.changes.outputs.frontend-changed }}
+      geonexia-changed: ${{ steps.changes.outputs.geonexia-changed }}
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: "🔍 Check for path changes"
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch: running all jobs"
+            echo "frontend-changed=true" >> $GITHUB_OUTPUT
+            echo "geonexia-changed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          BEFORE="${{ github.event.before }}"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "No previous commit available, running all jobs"
+            echo "frontend-changed=true" >> $GITHUB_OUTPUT
+            echo "geonexia-changed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          CHANGED_FILES=$(git diff --name-only "$BEFORE" "${{ github.sha }}")
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Check frontend changes
+          if echo "$CHANGED_FILES" | grep -qE '^(apps/frontend/|packages/common/|packages/common-ui/|package\.json$|yarn\.lock$)'; then
+            echo "frontend-changed=true" >> $GITHUB_OUTPUT
+            echo "Frontend changes detected"
+          else
+            echo "frontend-changed=false" >> $GITHUB_OUTPUT
+            echo "No frontend changes detected"
+          fi
+
+          # Check geonexia changes
+          if echo "$CHANGED_FILES" | grep -qE '^(apps/geonexia/|packages/common/|packages/common-ui/|package\.json$|yarn\.lock$)'; then
+            echo "geonexia-changed=true" >> $GITHUB_OUTPUT
+            echo "Geonexia changes detected"
+          else
+            echo "geonexia-changed=false" >> $GITHUB_OUTPUT
+            echo "No geonexia changes detected"
+          fi
+
   check-build:
     name: "🔍 Check Build Number"
     runs-on: ubuntu-latest
@@ -255,7 +306,8 @@ jobs:
     name: "🏗 EAS Update Production"
     runs-on: ubuntu-latest
     #    needs: sonarcloud-report
-    needs: [check-build, check-repository]
+    needs: [check-build, check-repository, detect-changes]
+    if: needs.detect-changes.outputs.frontend-changed == 'true'
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
@@ -338,8 +390,8 @@ jobs:
   geonexia-expo-update:
     name: "🌍 Geonexia EAS Update (OTA)"
     runs-on: ubuntu-latest
-    needs: [check-repository]
-    if: ${{ needs.check-repository.outputs.is-upstream == 'true' }}
+    needs: [check-repository, detect-changes]
+    if: ${{ needs.check-repository.outputs.is-upstream == 'true' && needs.detect-changes.outputs.geonexia-changed == 'true' }}
     permissions:
       contents: write
     steps:
@@ -358,8 +410,8 @@ jobs:
     name: "🌍 Deploy to GitHub Pages"
     runs-on: ubuntu-latest
 #    needs: sonarcloud-report
-    needs: [check-build, check-repository]
-    if: github.ref_name == 'master'
+    needs: [check-build, check-repository, detect-changes]
+    if: github.ref_name == 'master' && needs.detect-changes.outputs.frontend-changed == 'true'
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
