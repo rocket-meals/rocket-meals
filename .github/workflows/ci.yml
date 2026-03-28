@@ -26,6 +26,8 @@ jobs:
   detect-changes:
     name: "🔍 Detect Changes"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       frontend-changed: ${{ steps.changes.outputs.frontend-changed }}
       geonexia-changed: ${{ steps.changes.outputs.geonexia-changed }}
