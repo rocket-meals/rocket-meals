@@ -4697,6 +4697,8 @@
       var billboardUpdateGeneration = 0;
       // Current pitch alignment: 'map' = flat on ground, 'viewport' = face camera
       var billboardPitchAlignment = 'viewport';
+      // Whether to show anchor point indicators at the base of each billboard
+      var billboardShowAnchors = false;
       // THREE.js state for the billboard custom layer
       var billboardScene = null;
       var billboardCamera = null;
@@ -4775,6 +4777,7 @@
             var merc = mercPositions[fi];
             var iconKey = feature.properties.iconKey;
             var iconSizeAtRefZoom = feature.properties.iconSizeAtRefZoom;
+            var anchorY = feature.properties.anchorY !== undefined ? feature.properties.anchorY : 1.0;
 
             var texture = billboardTextureCache[iconKey];
             if (!texture) continue;
@@ -4783,6 +4786,9 @@
             var sizeMeters = iconSizeAtRefZoom * BILLBOARD_ICON_SIZE * metersPerPixelZ14;
 
             var geometry = new THREE.PlaneGeometry(1, 1);
+            // Shift geometry so the anchor point (anchorY fraction) aligns with the mesh origin.
+            // anchorY=1.0 → bottom-anchored (shift up by 0.5), anchorY=0.5 → centered (no shift).
+            geometry.translate(0, anchorY - 0.5, 0);
             var material = new THREE.MeshBasicMaterial({
               map: texture,
               transparent: true,
@@ -4802,6 +4808,22 @@
             mesh.scale.set(sizeMeters, sizeMeters, sizeMeters);
 
             meshes.push(mesh);
+
+            // Anchor point indicator: small diamond at the anchor position
+            if (billboardShowAnchors) {
+              var anchorGeo = new THREE.CircleGeometry(0.12, 6);
+              var anchorMat = new THREE.MeshBasicMaterial({
+                color: 0xff4444,
+                depthTest: false,
+                depthWrite: false,
+              });
+              var anchorMesh = new THREE.Mesh(anchorGeo, anchorMat);
+              anchorMesh.position.set(dx, dy, 0);
+              anchorMesh.scale.set(sizeMeters, sizeMeters, sizeMeters);
+              // Tag so we can identify anchor meshes later
+              anchorMesh.userData.isAnchorPoint = true;
+              meshes.push(anchorMesh);
+            }
           }
 
           // If the layer is already added and the scene exists, add meshes directly
@@ -5292,6 +5314,20 @@
           // The THREE.js billboard layer handles alignment in its render loop,
           // so just trigger a repaint to apply the change immediately.
           if (map) map.triggerRepaint();
+        }
+
+        if (data.billboardShowAnchors !== undefined) {
+          billboardShowAnchors = !!data.billboardShowAnchors;
+          // Toggle visibility of existing anchor point meshes in the scene
+          if (billboardScene) {
+            for (var ai = 0; ai < billboardScene.children.length; ai++) {
+              var child = billboardScene.children[ai];
+              if (child.userData && child.userData.isAnchorPoint) {
+                child.visible = billboardShowAnchors;
+              }
+            }
+            if (map) map.triggerRepaint();
+          }
         }
 
         if (data.updateGlbModelScale !== undefined) {
