@@ -4674,6 +4674,106 @@
         }
       }
 
+      // ── Billboard symbol layer (flat-on-ground, perspective-correct) ─────────────
+      // Billboards are rendered as MapLibre symbol layers with icon-pitch-alignment:'map'
+      // so they lie flat on the map plane and shrink naturally with perspective when
+      // the map is pitched, just like hex tile polygons.
+      var BILLBOARD_SOURCE_ID = 'billboard-symbol-source';
+      var BILLBOARD_LAYER_ID = 'billboard-symbol-layer';
+      // Logical icon size used for icon-size calculations (must match BILLBOARD_STANDARD_ICON_SIZE in index.tsx).
+      var BILLBOARD_ICON_SIZE = 128;
+      // SVGs are rasterized at BILLBOARD_ICON_SIZE × BILLBOARD_PIXEL_RATIO actual pixels
+      // so they stay crisp when zoomed in or on high-DPI screens.  MapLibre's pixelRatio
+      // option tells the renderer the image is N× oversampled, keeping icon-size math correct.
+      var BILLBOARD_PIXEL_RATIO = 4;
+      var BILLBOARD_RENDER_SIZE = BILLBOARD_ICON_SIZE * BILLBOARD_PIXEL_RATIO; // 512
+      var billboardImageCache = {}; // iconKey → true once image added to map sprite
+      var billboardUpdateGeneration = 0; // increments on each updateBillboards call to cancel stale callbacks
+
+      function updateBillboards(data) {
+        if (!map) return;
+        var images = data.images || {};
+        var features = data.features || [];
+        var imageKeys = Object.keys(images);
+        var pending = imageKeys.length;
+        // Capture a generation token so that callbacks from a superseded call do
+        // not invoke applyGeoJson once a newer updateBillboards has started.
+        var generation = ++billboardUpdateGeneration;
+
+        function applyGeoJson() {
+          if (generation !== billboardUpdateGeneration) return;
+          var fc = { type: 'FeatureCollection', features: features };
+          if (map.getSource(BILLBOARD_SOURCE_ID)) {
+            map.getSource(BILLBOARD_SOURCE_ID).setData(fc);
+          } else {
+            map.addSource(BILLBOARD_SOURCE_ID, { type: 'geojson', data: fc });
+            // icon-size is a zoom-and-data expression: scales 2× per zoom level
+            // (matching geographic feature scaling) and also varies per feature
+            // via the iconSizeAtRefZoom property (sized at reference zoom 14).
+            map.addLayer({
+              id: BILLBOARD_LAYER_ID,
+              type: 'symbol',
+              source: BILLBOARD_SOURCE_ID,
+              layout: {
+                'icon-image': ['get', 'iconKey'],
+                'icon-size': [
+                  'interpolate', ['exponential', 2], ['zoom'],
+                  10, ['*', ['get', 'iconSizeAtRefZoom'], 0.0625],
+                  14, ['get', 'iconSizeAtRefZoom'],
+                  18, ['*', ['get', 'iconSizeAtRefZoom'], 16],
+                ],
+                'icon-pitch-alignment': 'map',
+                'icon-rotation-alignment': 'map',
+                'icon-allow-overlap': true,
+                'icon-ignore-placement': true,
+              },
+            });
+          }
+        }
+
+        if (pending === 0) {
+          applyGeoJson();
+          return;
+        }
+
+        imageKeys.forEach(function (key) {
+          // Use the cache only if the image is also confirmed present in the map sprite.
+          // Without the map.hasImage() check the cache would be stale after a map recreation.
+          if (billboardImageCache[key] && map.hasImage(key)) {
+            pending--;
+            if (pending === 0) applyGeoJson();
+            return;
+          }
+          var imgData = images[key];
+          var canvas = document.createElement('canvas');
+          canvas.width = BILLBOARD_RENDER_SIZE;
+          canvas.height = BILLBOARD_RENDER_SIZE;
+          var ctx = canvas.getContext('2d');
+          var img = new Image();
+          img.onload = function () {
+            // Discard if a newer updateBillboards() has already superseded this call.
+            if (generation !== billboardUpdateGeneration) return;
+            ctx.drawImage(img, 0, 0, BILLBOARD_RENDER_SIZE, BILLBOARD_RENDER_SIZE);
+            if (!map.hasImage(key)) {
+              map.addImage(
+                key,
+                ctx.getImageData(0, 0, BILLBOARD_RENDER_SIZE, BILLBOARD_RENDER_SIZE),
+                { pixelRatio: BILLBOARD_PIXEL_RATIO }
+              );
+            }
+            billboardImageCache[key] = true;
+            pending--;
+            if (pending === 0) applyGeoJson();
+          };
+          img.onerror = function () {
+            if (generation !== billboardUpdateGeneration) return;
+            pending--;
+            if (pending === 0) applyGeoJson();
+          };
+          img.src = imgData.url;
+        });
+      }
+
       // Emoji fallback map for icons referenced by the map style but missing from its sprite sheet.
       // This map starts empty and is populated by an iconEmojiMap message sent from React on mount.
       // The styleimagemissing event uses this map to render emoji onto a canvas when MapLibre
@@ -5027,6 +5127,10 @@
 
         if (data.staticMarkers !== undefined) {
           updateStaticMarkers(data.staticMarkers);
+        }
+
+        if (data.billboards !== undefined) {
+          updateBillboards(data.billboards);
         }
 
         if (data.updateGlbModelScale !== undefined) {
