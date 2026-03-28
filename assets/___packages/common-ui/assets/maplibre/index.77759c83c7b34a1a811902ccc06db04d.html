@@ -4792,9 +4792,12 @@
             });
             var mesh = new THREE.Mesh(geometry, material);
 
-            // Position relative to center, in meters (reuse cached billboardMPU)
+            // Position relative to center, in meters (reuse cached billboardMPU).
+            // dy is negated because the local→mercator scale matrix uses
+            // -billboardMPU on Y (Y-flip). Without the negation, multiple
+            // billboards would be reflected around the group center.
             var dx = (merc.x - billboardCenter.x) / billboardMPU;
-            var dy = (merc.y - billboardCenter.y) / billboardMPU;
+            var dy = (billboardCenter.y - merc.y) / billboardMPU;
             mesh.position.set(dx, dy, 0);
             mesh.scale.set(sizeMeters, sizeMeters, sizeMeters);
 
