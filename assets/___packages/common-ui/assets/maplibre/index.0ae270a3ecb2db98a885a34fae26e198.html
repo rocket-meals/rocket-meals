@@ -4811,9 +4811,9 @@
 
             meshes.push(mesh);
 
-            // Anchor point indicator: small diamond at the anchor position
+            // Anchor point indicator: round circle overlaid on the billboard
             if (billboardShowAnchors) {
-              var anchorGeo = new THREE.CircleGeometry(0.12, 6);
+              var anchorGeo = new THREE.CircleGeometry(0.12, 32);
               var anchorMat = new THREE.MeshBasicMaterial({
                 color: 0xff4444,
                 depthTest: false,
