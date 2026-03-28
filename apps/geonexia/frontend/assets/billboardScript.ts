@@ -243,14 +243,17 @@ export const BILLBOARD_SCRIPT = `
             map: texture,
             transparent: true,
             alphaTest: 0.05,
-            side: THREE.DoubleSide,
+            side: THREE.FrontSide,
             depthTest: true,
             depthWrite: true,
           });
           var mesh = new THREE.Mesh(geometry, material);
 
           // Position in Mercator space.
-          // Bottom of the billboard sits at ground level (z ≈ 0).
+          // Bottom of the billboard sits at ground level (z = 0) regardless of
+          // anchorY.  In the 2-D marker world anchorY shifts the icon relative
+          // to the geographic pin; in 3-D every sprite should visually stand ON
+          // the ground, so we deliberately ignore anchorY for the Z offset.
           mesh.position.set(merc.x, merc.y, 0);
 
           bbScene.add(mesh);

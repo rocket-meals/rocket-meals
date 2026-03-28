@@ -2481,7 +2481,7 @@ export default function RecordScreen() {
 			{/* Map fills remaining space above the panel */}
 			<View style={styles.mapWrapper}>
 				{mapCanRender && (
-					<MyMap ref={mapRef} initialZoom={17} initialCenter={mapInitialCenter} onMessage={handleMapMessage} injectScript={HEX_TILE_SCRIPT + '\n' + BILLBOARD_SCRIPT} />
+					<MyMap ref={mapRef} initialZoom={17} initialCenter={mapInitialCenter} onMessage={handleMapMessage} injectScript={[HEX_TILE_SCRIPT, BILLBOARD_SCRIPT].join('\n')} />
 				)}
 
 				{/* Map overlay buttons – top-right */}
