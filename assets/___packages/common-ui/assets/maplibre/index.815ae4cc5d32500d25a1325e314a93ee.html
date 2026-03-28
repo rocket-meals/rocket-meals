@@ -4674,10 +4674,11 @@
         }
       }
 
-      // ── Billboard symbol layer (flat-on-ground, perspective-correct) ─────────────
-      // Billboards are rendered as MapLibre symbol layers with icon-pitch-alignment:'map'
-      // so they lie flat on the map plane and shrink naturally with perspective when
-      // the map is pitched, just like hex tile polygons.
+      // ── Billboard symbol layer (fixed world-space size) ──────────────────────
+      // Billboards are rendered as a MapLibre symbol layer. The icon-size expression
+      // scales icons proportionally with zoom so they occupy a fixed geographic area.
+      // icon-pitch-alignment can be toggled between 'map' (flat on ground) and
+      // 'viewport' (always facing the camera) via billboardPitchAlignment messages.
       var BILLBOARD_SOURCE_ID = 'billboard-symbol-source';
       var BILLBOARD_LAYER_ID = 'billboard-symbol-layer';
       // Logical icon size used for icon-size calculations (must match BILLBOARD_STANDARD_ICON_SIZE in index.tsx).
@@ -4689,6 +4690,8 @@
       var BILLBOARD_RENDER_SIZE = BILLBOARD_ICON_SIZE * BILLBOARD_PIXEL_RATIO; // 512
       var billboardImageCache = {}; // iconKey → true once image added to map sprite
       var billboardUpdateGeneration = 0; // increments on each updateBillboards call to cancel stale callbacks
+      // Current pitch alignment: 'map' = flat on ground, 'viewport' = face camera
+      var billboardPitchAlignment = 'map';
 
       function updateBillboards(data) {
         if (!map) return;
@@ -4722,12 +4725,16 @@
                   14, ['get', 'iconSizeAtRefZoom'],
                   18, ['*', ['get', 'iconSizeAtRefZoom'], 16],
                 ],
-                'icon-pitch-alignment': 'map',
-                'icon-rotation-alignment': 'map',
+                'icon-pitch-alignment': billboardPitchAlignment,
+                'icon-rotation-alignment': billboardPitchAlignment,
                 'icon-allow-overlap': true,
                 'icon-ignore-placement': true,
               },
             });
+          }
+          // Always ensure billboards render above hex tile layers.
+          if (map.getLayer(BILLBOARD_LAYER_ID)) {
+            map.moveLayer(BILLBOARD_LAYER_ID);
           }
         }
 
@@ -5131,6 +5138,15 @@
 
         if (data.billboards !== undefined) {
           updateBillboards(data.billboards);
+        }
+
+        if (data.billboardPitchAlignment !== undefined) {
+          var align = data.billboardPitchAlignment === 'viewport' ? 'viewport' : 'map';
+          billboardPitchAlignment = align;
+          if (map.getLayer(BILLBOARD_LAYER_ID)) {
+            map.setLayoutProperty(BILLBOARD_LAYER_ID, 'icon-pitch-alignment', align);
+            map.setLayoutProperty(BILLBOARD_LAYER_ID, 'icon-rotation-alignment', align);
+          }
         }
 
         if (data.updateGlbModelScale !== undefined) {
