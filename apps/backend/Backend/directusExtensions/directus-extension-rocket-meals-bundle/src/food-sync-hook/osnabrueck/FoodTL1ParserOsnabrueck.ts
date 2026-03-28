@@ -12,6 +12,12 @@ export class FoodTL1ParserOsnabrueck extends FoodTL1Parser {
     super(rawFoodofferReader);
   }
 
+  override shouldCreateNewMarkingsWhenTheyDoNotExistYet(): boolean {
+    // Osnabrück adds custom markings (menu line, CO2 rating, Niedersachsen menu) that are not
+    // provided by the MarkingTL1Parser, so they must be auto-created when missing.
+    return true;
+  }
+
   override getFoodCategoryFromRawFoodoffer(rawFoodoffer: RawFoodofferInformationType): string | null {
     let parsedReportItem = FoodTL1Parser.getParsedReportItemFromrawFoodoffer(rawFoodoffer);
     return parsedReportItem?.['SPEISE_BEZEICHNUNG'] || null;
