@@ -4676,10 +4676,11 @@
 
       // ── Billboard THREE.js custom layer (fixed world-space size with 3D perspective) ──
       // Billboards are rendered as THREE.js plane meshes inside a MapLibre custom
-      // layer with renderingMode:'3d'. This gives proper perspective scaling: distant
-      // billboards appear smaller just like GeoJSON fill-extrusion buildings.
+      // layer. The layer uses the default (2D) renderingMode so that billboards
+      // are drawn AFTER 3D buildings and hex tiles. Perspective scaling is handled
+      // by the projection matrix provided by MapLibre.
       // Pitch alignment can be toggled between 'map' (flat on ground) and
-      // 'viewport' (vertical, always facing the camera) via billboardPitchAlignment.
+      // 'viewport' (face camera, following both bearing and pitch) via billboardPitchAlignment.
       var BILLBOARD_LAYER_ID = 'billboard-3d-layer';
       // Logical icon size used for pixel-to-meter conversion (must match BILLBOARD_STANDARD_ICON_SIZE in index.tsx).
       var BILLBOARD_ICON_SIZE = 128;
@@ -4782,7 +4783,7 @@
               map: texture,
               transparent: true,
               side: THREE.DoubleSide,
-              depthTest: true,
+              depthTest: false,
               depthWrite: false,
             });
             var mesh = new THREE.Mesh(geometry, material);
@@ -4852,7 +4853,6 @@
         var customLayer = {
           id: BILLBOARD_LAYER_ID,
           type: 'custom',
-          renderingMode: '3d',
           onAdd: function (mapInst, gl) {
             billboardCamera = new THREE.Camera();
             billboardScene = new THREE.Scene();
@@ -4884,14 +4884,20 @@
               .makeTranslation(billboardCenter.x, billboardCenter.y, billboardCenter.z)
               .scale(new THREE.Vector3(billboardMPU, -billboardMPU, billboardMPU));
 
-            // For 'viewport' mode, rotate each billboard to stand upright
-            // and face the camera. For 'map' mode, leave flat on the ground.
+            // For 'viewport' mode, tilt each billboard to face the camera
+            // (follows both bearing and pitch). For 'map' mode, leave flat on
+            // the ground.
             if (billboardPitchAlignment === 'viewport') {
-              var bearing = -map.getBearing() * Math.PI / 180;
+              var pitchRad = map.getPitch() * Math.PI / 180;
+              var bearingRad = map.getBearing() * Math.PI / 180;
               for (var vi = 0; vi < billboardScene.children.length; vi++) {
                 var child = billboardScene.children[vi];
-                // Stand upright (rotate -90° around X) then face camera bearing
-                child.rotation.set(-Math.PI / 2, 0, bearing, 'XYZ');
+                // pitchRad tilts the billboard up from the ground by the camera
+                // pitch angle; -bearingRad rotates it around Z to face the
+                // camera direction. The negative sign on bearingRad compensates
+                // for the Y-flip (-billboardMPU) in the local→mercator scale
+                // matrix, which mirrors the Z-rotation direction.
+                child.rotation.set(pitchRad, 0, -bearingRad, 'XYZ');
               }
             } else {
               for (var fi = 0; fi < billboardScene.children.length; fi++) {
