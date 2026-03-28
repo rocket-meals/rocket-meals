@@ -147,11 +147,15 @@ const H3_EDGE_LENGTH_KM: readonly number[] = [
 // townhall (scaleFactor 7.0) renders at exactly 7 × BILLBOARD_UNIT_PX pixels wide.
 // All other sprites are scaled by their own scaleFactor relative to this unit.
 const BILLBOARD_UNIT_PX = 48 / 7; // townhall ≈ 48 px at res 10
+// Native raster size (px) used when adding billboard SVGs to the MapLibre image atlas.
+// Must match the BILLBOARD_IMAGE_NATIVE_SIZE constant in index.html.
+const BILLBOARD_IMAGE_NATIVE_SIZE = 64;
 // Default billboard scale multiplier (adjustable in the debug modal).
 const BILLBOARD_SCALE_DEFAULT = 1;
 // Precision factor for rounding billboard scale values (1 decimal place).
 const BILLBOARD_SCALE_DECIMAL_PRECISION = 10;
-// Default billboard pitch alignment mode ('viewport' = always face camera, 'map' = lie flat on map).
+// Default billboard pitch alignment mode kept for the debug-modal UI toggle
+// (no longer affects rendering, which is now handled by MapLibre's symbol layer).
 const BILLBOARD_PITCH_ALIGNMENT_DEFAULT: 'viewport' | 'map' = 'viewport';
 // Default MapLibre zoom assumed when no viewport data is available yet.
 const DEFAULT_REFERENCE_ZOOM = 14;
@@ -1628,14 +1632,18 @@ export default function RecordScreen() {
 		}
 
 		// ── Billboard markers ────────────────────────────────────────────────────
-		type BillboardMarker = {
+		// Billboards are rendered as a MapLibre symbol layer (GeoJSON points) with
+		// icon-pitch-alignment:'map' so they lie flat on the ground and shrink with
+		// perspective exactly like the hex-tile fill polygons.
+		type BillboardGeoPoint = {
 			id: string;
-			position: { lat: number; lng: number };
-			icon: string;
-			size: [number, number];
-			iconAnchor: [number, number];
+			lat: number;
+			lng: number;
+			imageKey: string;  // used as the MapLibre image name in the sprite atlas
+			imageUrl: string;  // base64 SVG data URI
+			iconScale: number; // (desired px at refZoom) / BILLBOARD_IMAGE_NATIVE_SIZE
 		};
-		const billboardMarkers: BillboardMarker[] = [];
+		const billboardGeoPoints: BillboardGeoPoint[] = [];
 
 		// Scale billboard pixel size by the current H3 resolution so that billboards
 		// stay proportional to the hexagon visual size at resolution 10 (default).
@@ -1668,29 +1676,28 @@ export default function RecordScreen() {
 			}
 			const lng = sumLng / n;
 			const lat = sumLat / n;
-			// Compute the pixel size for this sprite, applying its scaleFactor, the
-			// current H3 resolution scale, and the debug scale multiplier.  Minimum 8 px to keep tiny sprites visible.
-			const billboardSizePx = Math.max(8, Math.round(BILLBOARD_UNIT_PX * sprite.scaleFactor * hexScaleRatio * billboardScaleRef.current));
-			// anchorY is a fraction of height (0=top, 1=bottom, 0.5=center).
-			// The X anchor is always the horizontal center of the square icon.
-			const anchorYPx = Math.round(sprite.anchorY * billboardSizePx);
-			billboardMarkers.push({
+			// Desired pixel width at the reference zoom (14).  Minimum 8 px to keep
+			// tiny sprites visible.
+			const billboardSizePx = Math.max(8, BILLBOARD_UNIT_PX * sprite.scaleFactor * hexScaleRatio * billboardScaleRef.current);
+			billboardGeoPoints.push({
 				id: `billboard-${h3Index}`,
-				position: { lat, lng },
-				icon: `<img src="${url}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;">`,
-				size: [billboardSizePx, billboardSizePx],
-				iconAnchor: [billboardSizePx / 2, anchorYPx],
+				lat,
+				lng,
+				imageKey: record.billboard,
+				imageUrl: url,
+				iconScale: billboardSizePx / BILLBOARD_IMAGE_NATIVE_SIZE,
 			});
 		}
 
 		mapRef.current.sendToMap({
 			imageOverlays,
-			mapMarkers: billboardMarkers,
+			// Clear any legacy HTML markers that might have been set previously.
+			mapMarkers: [],
+			mapBillboards: billboardGeoPoints,
 			// Always use the fixed reference zoom so that billboard sizes remain
 			// consistent regardless of what zoom the user is at when markers are
 			// sent (e.g. after changing h3 resolution and reverting).
-			mapMarkersReferenceZoom: DEFAULT_REFERENCE_ZOOM,
-			mapMarkersPitchAlignment: billboardPitchAlignmentRef.current,
+			mapBillboardsRefZoom: DEFAULT_REFERENCE_ZOOM,
 		});
 	}, [loadAssetUrl]);
 
@@ -1719,6 +1726,8 @@ export default function RecordScreen() {
 		prevResetTokenRef.current = resetToken;
 		mapRef.current?.sendToMap({
 			hexTileGeoJson: { type: 'FeatureCollection', features: [] },
+			// Also clear the billboard GeoJSON layer.
+			mapBillboards: [],
 		});
 	}, [resetToken]);
 

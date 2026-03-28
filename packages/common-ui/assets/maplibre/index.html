@@ -3787,6 +3787,11 @@
       var glbModelMts = {};
       // Icon overrides sent from React Native: key → emoji string to use, or null to hide that icon type.
       var customIconOverrides = {};
+      // Billboard GeoJSON layer (renders sprites flat on the map surface like hex tiles)
+      var BILLBOARD_GEO_SOURCE = 'billboard-geo-source';
+      var BILLBOARD_GEO_LAYER = 'billboard-geo-layer';
+      var BILLBOARD_IMAGE_NATIVE_SIZE = 64; // px at which each SVG sprite is rasterised into MapLibre's image atlas
+      var billboardLoadedImages = {};       // imageKey → true once added to the map
 
       function sendToRN(msg) {
         var str = JSON.stringify(msg);
@@ -3905,6 +3910,113 @@
             meta.marker.setOffset([meta.baseOffsetX * scale, meta.baseOffsetY * scale]);
           }
         }
+      }
+
+      /**
+       * Render billboards as a MapLibre symbol layer so they lie flat on the
+       * map surface and shrink naturally with distance when the map is pitched,
+       * exactly like the hex-tile GeoJSON fill layers.
+       *
+       * Each entry in billboardsData must have:
+       *   { id, lat, lng, imageKey, imageUrl, iconScale }
+       * where iconScale = (desired px size at refZoom) / BILLBOARD_IMAGE_NATIVE_SIZE.
+       */
+      function updateMapBillboards(billboardsData, refZoom) {
+        if (!map) return;
+        // Remove existing layer/source so we can rebuild from scratch.
+        if (map.getLayer(BILLBOARD_GEO_LAYER)) map.removeLayer(BILLBOARD_GEO_LAYER);
+        if (map.getSource(BILLBOARD_GEO_SOURCE)) map.removeSource(BILLBOARD_GEO_SOURCE);
+
+        if (!billboardsData || billboardsData.length === 0) return;
+
+        if (refZoom == null) refZoom = DEFAULT_REFERENCE_ZOOM;
+
+        // Collect unique images that still need to be loaded.
+        var toLoad = [];
+        var seen = {};
+        for (var i = 0; i < billboardsData.length; i++) {
+          var b = billboardsData[i];
+          if (!b.imageKey || !b.imageUrl) continue;
+          if (!seen[b.imageKey] && !billboardLoadedImages[b.imageKey]) {
+            seen[b.imageKey] = true;
+            toLoad.push({ imageKey: b.imageKey, imageUrl: b.imageUrl });
+          }
+        }
+
+        // Rasterise each SVG into a canvas bitmap and register it with MapLibre.
+        function loadNextImage(index, done) {
+          if (index >= toLoad.length) { done(); return; }
+          var item = toLoad[index];
+          if (map.hasImage(item.imageKey)) {
+            billboardLoadedImages[item.imageKey] = true;
+            loadNextImage(index + 1, done);
+            return;
+          }
+          var img = new Image();
+          img.onload = function() {
+            var canvas = document.createElement('canvas');
+            canvas.width = BILLBOARD_IMAGE_NATIVE_SIZE;
+            canvas.height = BILLBOARD_IMAGE_NATIVE_SIZE;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, BILLBOARD_IMAGE_NATIVE_SIZE, BILLBOARD_IMAGE_NATIVE_SIZE);
+            var imageData = ctx.getImageData(0, 0, BILLBOARD_IMAGE_NATIVE_SIZE, BILLBOARD_IMAGE_NATIVE_SIZE);
+            try {
+              if (!map.hasImage(item.imageKey)) {
+                map.addImage(item.imageKey, imageData);
+              }
+              billboardLoadedImages[item.imageKey] = true;
+            } catch (e) { /* ignore duplicate */ }
+            loadNextImage(index + 1, done);
+          };
+          img.onerror = function() { loadNextImage(index + 1, done); };
+          img.src = item.imageUrl;
+        }
+
+        loadNextImage(0, function() {
+          if (map.getLayer(BILLBOARD_GEO_LAYER)) map.removeLayer(BILLBOARD_GEO_LAYER);
+          if (map.getSource(BILLBOARD_GEO_SOURCE)) map.removeSource(BILLBOARD_GEO_SOURCE);
+
+          // Build GeoJSON point features, one per billboard.
+          var features = [];
+          for (var fi = 0; fi < billboardsData.length; fi++) {
+            var bd = billboardsData[fi];
+            if (!bd.imageKey || !billboardLoadedImages[bd.imageKey]) continue;
+            features.push({
+              type: 'Feature',
+              geometry: { type: 'Point', coordinates: [bd.lng, bd.lat] },
+              properties: { imageKey: bd.imageKey, iconScale: bd.iconScale || 1 },
+            });
+          }
+
+          map.addSource(BILLBOARD_GEO_SOURCE, {
+            type: 'geojson',
+            data: { type: 'FeatureCollection', features: features },
+          });
+
+          // icon-size expression: scales by 2× per zoom level so the billboard
+          // grows/shrinks at the same rate as the underlying hex-tile polygons.
+          // At refZoom the multiplier is 1, so icon-size === iconScale.
+          map.addLayer({
+            id: BILLBOARD_GEO_LAYER,
+            type: 'symbol',
+            source: BILLBOARD_GEO_SOURCE,
+            layout: {
+              'icon-image': ['get', 'imageKey'],
+              'icon-size': [
+                '*',
+                ['interpolate', ['exponential', 2], ['zoom'],
+                  0,  Math.pow(2, 0  - refZoom),
+                  24, Math.pow(2, 24 - refZoom),
+                ],
+                ['get', 'iconScale'],
+              ],
+              'icon-pitch-alignment':    'map',
+              'icon-rotation-alignment': 'map',
+              'icon-allow-overlap':      true,
+              'icon-ignore-placement':   true,
+            },
+          });
+        });
       }
 
       var PEOPLE_COUNT = 80;
@@ -4988,6 +5100,10 @@
 
         if (data.mapMarkers !== undefined) {
           updateMarkers(data.mapMarkers, data.mapMarkersReferenceZoom);
+        }
+
+        if (data.mapBillboards !== undefined) {
+          updateMapBillboards(data.mapBillboards, data.mapBillboardsRefZoom);
         }
 
         if (data.vehicleMarker !== undefined) {
