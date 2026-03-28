@@ -4777,6 +4777,7 @@
             var merc = mercPositions[fi];
             var iconKey = feature.properties.iconKey;
             var iconSizeAtRefZoom = feature.properties.iconSizeAtRefZoom;
+            var anchorX = feature.properties.anchorX !== undefined ? feature.properties.anchorX : 0.5;
             var anchorY = feature.properties.anchorY !== undefined ? feature.properties.anchorY : 1.0;
 
             var texture = billboardTextureCache[iconKey];
@@ -4786,9 +4787,10 @@
             var sizeMeters = iconSizeAtRefZoom * BILLBOARD_ICON_SIZE * metersPerPixelZ14;
 
             var geometry = new THREE.PlaneGeometry(1, 1);
-            // Shift geometry so the anchor point (anchorY fraction) aligns with the mesh origin.
-            // anchorY=1.0 → bottom-anchored (shift up by 0.5), anchorY=0.5 → centered (no shift).
-            geometry.translate(0, anchorY - 0.5, 0);
+            // Shift geometry so the anchor point (anchorX/anchorY fraction) aligns with the mesh origin.
+            // anchorX=0.5 → horizontally centered (no shift), anchorX=0 → left-anchored.
+            // anchorY=1.0 → bottom-anchored (shift up by 0.5), anchorY=0.5 → vertically centered (no shift).
+            geometry.translate(anchorX - 0.5, anchorY - 0.5, 0);
             var material = new THREE.MeshBasicMaterial({
               map: texture,
               transparent: true,
