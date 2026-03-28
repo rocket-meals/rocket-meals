@@ -26,6 +26,7 @@ import { WebView } from 'react-native-webview';
 import { MapLocationButton, MyMap, MyMapHandle, QrCode, useTheme, useMyScrollViewModal, SettingsListSelectOptionSingle, SettingsListGroupTitle } from 'repo-depkit-common-ui';
 
 import { HEX_TILE_SCRIPT } from '../assets/hexTileScript';
+import { BILLBOARD_SCRIPT } from '../assets/billboardScript';
 import { TERRAIN_ASSETS, TERRAIN_CATEGORIES, TerrainCategory } from '../assets/terrainAssets';
 import { isAvailable as isH3Available, latLngToCell, cellToLatLng, gridDisk, gridDistance, cellToBoundary, gridPathCells, cellToChildren, cellToCenterChild, cellToParent, gridRingUnsafe } from '../helpers/H3Helper';
 import { RoutePoint, RunStats, saveActivity, saveOsmConsent, loadOsmConsent } from '../helpers/ActivityStorage';
@@ -143,16 +144,10 @@ const H3_EDGE_LENGTH_KM: readonly number[] = [
 	0.000509,    // 15
 ];
 
-// Base billboard size unit in pixels at H3 resolution 10.
-// townhall (scaleFactor 7.0) renders at exactly 7 × BILLBOARD_UNIT_PX pixels wide.
-// All other sprites are scaled by their own scaleFactor relative to this unit.
-const BILLBOARD_UNIT_PX = 48 / 7; // townhall ≈ 48 px at res 10
 // Default billboard scale multiplier (adjustable in the debug modal).
 const BILLBOARD_SCALE_DEFAULT = 1;
 // Precision factor for rounding billboard scale values (1 decimal place).
 const BILLBOARD_SCALE_DECIMAL_PRECISION = 10;
-// Default MapLibre zoom assumed when no viewport data is available yet.
-const DEFAULT_REFERENCE_ZOOM = 14;
 // cellToBoundary flag: true returns vertices in [lng, lat] GeoJSON coordinate order
 // AND automatically closes the ring (appends the first vertex at the end).
 const H3_GEOJSON_ORDER = true;
@@ -1599,24 +1594,22 @@ export default function RecordScreen() {
 			}
 		}
 
-		// ── Billboard markers ────────────────────────────────────────────────────
-		type BillboardMarker = {
+		// ── 3-D Billboard data ───────────────────────────────────────────────────
+		// Billboards are rendered as vertical THREE.js plane meshes inside a custom
+		// MapLibre layer (billboardScript.ts) with proper depth-testing.
+		type Billboard3D = {
 			id: string;
 			position: { lat: number; lng: number };
-			icon: string;
-			size: [number, number];
-			iconAnchor: [number, number];
+			svgDataUri: string;
+			scaleFactor: number;
+			anchorY: number;
+			billboardScale: number;
 		};
-		const billboardMarkers: BillboardMarker[] = [];
+		const billboards: Billboard3D[] = [];
 
-		// Scale billboard pixel size by the current H3 resolution so that billboards
-		// stay proportional to the hexagon visual size at resolution 10 (default).
-		// townhall (scaleFactor 7.0) renders at 7 × BILLBOARD_UNIT_PX ≈ 48 px.
-		// Higher resolutions (smaller hexagons) shrink billboards proportionally.
+		// Hex edge length in metres at the current H3 resolution.
 		const h3Res = Math.max(H3_RESOLUTION_MIN, Math.min(H3_RESOLUTION_MAX, Math.floor(h3ResolutionRef.current)));
-		const hexEdgeRef = H3_EDGE_LENGTH_KM[10]!;
-		const hexEdgeCur = H3_EDGE_LENGTH_KM[h3Res]!;
-		const hexScaleRatio = hexEdgeCur / hexEdgeRef;
+		const hexEdgeMeters = H3_EDGE_LENGTH_KM[h3Res]! * 1000;
 
 		for (const [h3Index, record] of Object.entries(records)) {
 			if (!record.billboard) continue;
@@ -1638,30 +1631,24 @@ export default function RecordScreen() {
 				sumLng += bLng;
 				sumLat += bLat;
 			}
-			const lng = sumLng / n;
-			const lat = sumLat / n;
-			// Compute the pixel size for this sprite, applying its scaleFactor, the
-			// current H3 resolution scale, and the debug scale multiplier.  Minimum 8 px to keep tiny sprites visible.
-			const billboardSizePx = Math.max(8, Math.round(BILLBOARD_UNIT_PX * sprite.scaleFactor * hexScaleRatio * billboardScaleRef.current));
-			// anchorY is a fraction of height (0=top, 1=bottom, 0.5=center).
-			// The X anchor is always the horizontal center of the square icon.
-			const anchorYPx = Math.round(sprite.anchorY * billboardSizePx);
-			billboardMarkers.push({
+			billboards.push({
 				id: `billboard-${h3Index}`,
-				position: { lat, lng },
-				icon: `<img src="${url}" style="width:100%;height:100%;object-fit:contain;pointer-events:none;">`,
-				size: [billboardSizePx, billboardSizePx],
-				iconAnchor: [billboardSizePx / 2, anchorYPx],
+				position: { lat: sumLat / n, lng: sumLng / n },
+				svgDataUri: url,
+				scaleFactor: sprite.scaleFactor,
+				anchorY: sprite.anchorY,
+				billboardScale: billboardScaleRef.current,
 			});
 		}
 
 		mapRef.current.sendToMap({
 			imageOverlays,
-			mapMarkers: billboardMarkers,
-			// Always use the fixed reference zoom so that billboard sizes remain
-			// consistent regardless of what zoom the user is at when markers are
-			// sent (e.g. after changing h3 resolution and reverting).
-			mapMarkersReferenceZoom: DEFAULT_REFERENCE_ZOOM,
+			// Clear any lingering DOM-based markers from the old rendering path.
+			mapMarkers: [],
+			billboardData: {
+				hexEdgeMeters,
+				billboards,
+			},
 		});
 	}, [loadAssetUrl]);
 
@@ -2494,7 +2481,7 @@ export default function RecordScreen() {
 			{/* Map fills remaining space above the panel */}
 			<View style={styles.mapWrapper}>
 				{mapCanRender && (
-					<MyMap ref={mapRef} initialZoom={17} initialCenter={mapInitialCenter} onMessage={handleMapMessage} injectScript={HEX_TILE_SCRIPT} />
+					<MyMap ref={mapRef} initialZoom={17} initialCenter={mapInitialCenter} onMessage={handleMapMessage} injectScript={HEX_TILE_SCRIPT + '\n' + BILLBOARD_SCRIPT} />
 				)}
 
 				{/* Map overlay buttons – top-right */}
