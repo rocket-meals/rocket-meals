@@ -3768,6 +3768,7 @@
       var MAX_MARKER_SCALE = 50;
       var markerReferenceZoom = null; // zoom level at which marker sizes are "correct"
       var markerMetaMap = {};         // markerId → { el, baseWidth, baseHeight, baseOffsetX, baseOffsetY }
+      var markerPitchAlignment = 'viewport'; // 'viewport' = face camera, 'map' = lie flat on map
       var vehicleMarkerEl = null;
       var vehicleMarkerInstance = null;
       var peopleModeActive = false;
@@ -3882,6 +3883,10 @@
         var scale = Math.pow(2, currentZoom - markerReferenceZoom);
         // Clamp scale to avoid absurdly large or tiny markers
         scale = Math.max(MIN_MARKER_SCALE, Math.min(scale, MAX_MARKER_SCALE));
+        // When pitch alignment is 'map', compress the marker vertically to simulate
+        // the foreshortening effect of the billboard lying flat on the map surface.
+        var isMapAlignment = markerPitchAlignment === 'map';
+        var pitchScaleY = isMapAlignment ? Math.cos(map.getPitch() * Math.PI / 180) : 1;
         var ids = Object.keys(markerMetaMap);
         for (var i = 0; i < ids.length; i++) {
           var meta = markerMetaMap[ids[i]];
@@ -3889,8 +3894,16 @@
           var h = meta.baseHeight * scale;
           meta.el.style.width = w + 'px';
           meta.el.style.height = h + 'px';
-          // Scale the marker offset proportionally so the anchor stays correct
-          meta.marker.setOffset([meta.baseOffsetX * scale, meta.baseOffsetY * scale]);
+          // Apply pitch-based vertical compression only in 'map' alignment mode
+          if (isMapAlignment) {
+            meta.el.style.transform = 'scaleY(' + pitchScaleY + ')';
+            meta.el.style.transformOrigin = 'bottom center';
+            meta.marker.setOffset([meta.baseOffsetX * scale, meta.baseOffsetY * scale * pitchScaleY]);
+          } else {
+            meta.el.style.transform = '';
+            meta.el.style.transformOrigin = '';
+            meta.marker.setOffset([meta.baseOffsetX * scale, meta.baseOffsetY * scale]);
+          }
         }
       }
 
@@ -4968,6 +4981,11 @@
           map.easeTo({ pitch: data.pitch });
         }
 
+        if (data.mapMarkersPitchAlignment !== undefined) {
+          markerPitchAlignment = data.mapMarkersPitchAlignment;
+          rescaleMarkers();
+        }
+
         if (data.mapMarkers !== undefined) {
           updateMarkers(data.mapMarkers, data.mapMarkersReferenceZoom);
         }
@@ -5188,6 +5206,11 @@
         // Continuously rescale billboard markers during zoom so they behave
         // like world-anchored objects (grow on zoom-in, shrink on zoom-out).
         map.on('zoom', function () {
+          rescaleMarkers();
+        });
+
+        // Also rescale during pitch changes so 'map' pitch alignment stays accurate.
+        map.on('pitch', function () {
           rescaleMarkers();
         });
 
