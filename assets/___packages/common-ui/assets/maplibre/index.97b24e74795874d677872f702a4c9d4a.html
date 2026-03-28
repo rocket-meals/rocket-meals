@@ -4461,6 +4461,8 @@
                     id: layId, type: 'raster', source: srcId,
                     paint: { 'raster-opacity': ov.opacity != null ? ov.opacity : 0.9 },
                   });
+                  // Keep billboard layer above newly added image overlay layers
+                  if (map.getLayer(BILLBOARD_LAYER_ID)) map.moveLayer(BILLBOARD_LAYER_ID);
                 } catch (e) {
                   console.error('Image overlay canvas error for ' + ov.id + ':', e);
                 }
@@ -4473,6 +4475,8 @@
                 id: layId, type: 'raster', source: srcId,
                 paint: { 'raster-opacity': ov.opacity != null ? ov.opacity : 0.85 },
               });
+              // Keep billboard layer above newly added image overlay layers
+              if (map.getLayer(BILLBOARD_LAYER_ID)) map.moveLayer(BILLBOARD_LAYER_ID);
             }
           })(validOverlays[i]);
         }
@@ -4692,7 +4696,7 @@
       var billboardTextureCache = {}; // iconKey → THREE.CanvasTexture
       var billboardUpdateGeneration = 0;
       // Current pitch alignment: 'map' = flat on ground, 'viewport' = face camera
-      var billboardPitchAlignment = 'map';
+      var billboardPitchAlignment = 'viewport';
       // THREE.js state for the billboard custom layer
       var billboardScene = null;
       var billboardCamera = null;
@@ -4897,7 +4901,7 @@
                 // camera direction. The negative sign on bearingRad compensates
                 // for the Y-flip (-billboardMPU) in the local→mercator scale
                 // matrix, which mirrors the Z-rotation direction.
-                child.rotation.set(pitchRad, 0, -bearingRad, 'XYZ');
+                child.rotation.set(pitchRad, 0, -bearingRad, 'ZXY');
               }
             } else {
               for (var fi = 0; fi < billboardScene.children.length; fi++) {
