@@ -4814,22 +4814,23 @@
             // Anchor point indicator: round circle overlaid on the billboard.
             // renderOrder > 0 ensures it renders after the transparent billboard mesh.
             // transparent: true places it in the same render pass so renderOrder is respected.
-            if (billboardShowAnchors) {
-              var anchorGeo = new THREE.CircleGeometry(0.05, 16);
-              var anchorMat = new THREE.MeshBasicMaterial({
-                color: 0xff4444,
-                depthTest: false,
-                depthWrite: false,
-                transparent: true,
-              });
-              var anchorMesh = new THREE.Mesh(anchorGeo, anchorMat);
-              anchorMesh.position.set(dx, dy, 0);
-              anchorMesh.scale.set(sizeMeters, sizeMeters, sizeMeters);
-              anchorMesh.renderOrder = 1;
-              // Tag so we can identify anchor meshes later
-              anchorMesh.userData.isAnchorPoint = true;
-              meshes.push(anchorMesh);
-            }
+            // Always create anchor meshes so toggling billboardShowAnchors later works
+            // without requiring a map reload.
+            var anchorGeo = new THREE.CircleGeometry(0.05, 16);
+            var anchorMat = new THREE.MeshBasicMaterial({
+              color: 0xff4444,
+              depthTest: false,
+              depthWrite: false,
+              transparent: true,
+            });
+            var anchorMesh = new THREE.Mesh(anchorGeo, anchorMat);
+            anchorMesh.position.set(dx, dy, 0);
+            anchorMesh.scale.set(sizeMeters, sizeMeters, sizeMeters);
+            anchorMesh.renderOrder = 1;
+            // Tag so we can identify anchor meshes later
+            anchorMesh.userData.isAnchorPoint = true;
+            anchorMesh.visible = billboardShowAnchors;
+            meshes.push(anchorMesh);
           }
 
           // If the layer is already added and the scene exists, add meshes directly
