@@ -4768,10 +4768,15 @@
 
           // Create plane meshes for each billboard
           var meshes = [];
-          // Compute meters-per-pixel at zoom 14 once from the first feature's latitude.
-          // For a local cluster of billboards the variation is negligible.
-          var refLat = features[0].geometry.coordinates[1];
-          var metersPerPixelZ14 = BILLBOARD_METERS_PER_PIXEL_Z0 * Math.cos(refLat * Math.PI / 180) / Math.pow(2, 14);
+          // Equatorial meters-per-pixel at zoom 14 (no cos(lat) factor).
+          // Using the equatorial value ensures the billboard width in Mercator units
+          // scales by the same 1/cos(lat) factor as the surrounding H3 hex tiles
+          // (Mercator stretch), so the billboard maintains a constant visual ratio to
+          // its hex regardless of the user's latitude.
+          // With cos(lat) included, the billboard would have a fixed screen-pixel size
+          // while hexes grow toward the poles, making the billboard appear progressively
+          // smaller relative to its hex at higher latitudes.
+          var metersPerPixelZ14Equator = BILLBOARD_METERS_PER_PIXEL_Z0 / Math.pow(2, 14);
           for (var fi = 0; fi < features.length; fi++) {
             var feature = features[fi];
             var merc = mercPositions[fi];
@@ -4783,8 +4788,8 @@
             var texture = billboardTextureCache[iconKey];
             if (!texture) continue;
 
-            // Convert pixel size at zoom 14 to meters.
-            var sizeMeters = iconSizeAtRefZoom * BILLBOARD_ICON_SIZE * metersPerPixelZ14;
+            // Convert pixel size at zoom 14 (equator-relative) to geographic meters.
+            var sizeMeters = iconSizeAtRefZoom * BILLBOARD_ICON_SIZE * metersPerPixelZ14Equator;
 
             var geometry = new THREE.PlaneGeometry(1, 1);
             // Shift geometry so the anchor point (anchorX/anchorY fraction) aligns with the mesh origin.
