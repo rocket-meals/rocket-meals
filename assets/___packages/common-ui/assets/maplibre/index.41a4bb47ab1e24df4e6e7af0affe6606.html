@@ -5059,19 +5059,36 @@
 
       // ─── Speed-colored route segments (activity detail view) ──────────────────
       // Each segment is { coords: [[lng,lat],[lng,lat]], speedKmh: number }.
-      // Slow segments (≤ 4 km/h) are red, fast segments (≥ 15 km/h) are green.
+      // Colors: min speed → red, avg speed → green, max speed → blue.
       var ROUTE_SEG_SOURCE  = 'route-seg-source';
       var ROUTE_SEG_BORDER  = 'route-seg-border-layer';
       var ROUTE_SEG_COLOR   = 'route-seg-color-layer';
       var routeSegmentsData = null;
+      // Speed range from the last routeSpeedRange message (min/avg/max in km/h).
+      var routeSpeedMin = 0, routeSpeedAvg = 0, routeSpeedMax = 0;
 
-      // Speed color: ≤ 4 km/h (slow walk) → red, ≥ 15 km/h (brisk run) → green
+      // Speed color: min → red (#ef4444), avg → green (#22c55e), max → blue (#3b82f6).
+      // Two-stage linear interpolation through the three color stops.
       function speedToColor(speedKmh) {
-        var slow = 4, fast = 15;
-        var t = Math.max(0, Math.min(1, (speedKmh - slow) / (fast - slow)));
-        var r = Math.round(229 * (1 - t) + 67 * t);
-        var g = Math.round(57  * (1 - t) + 160 * t);
-        var b = Math.round(53  * (1 - t) + 71  * t);
+        var minS = routeSpeedMin, avgS = routeSpeedAvg, maxS = routeSpeedMax;
+        var r, g, b;
+        if (maxS <= minS) {
+          // No useful range – use green for everything
+          r = 0x22; g = 0xc5; b = 0x5e;
+        } else if (speedKmh <= avgS || avgS <= minS) {
+          // Lower half: red → green
+          var lo = minS, hi = (avgS > minS) ? avgS : maxS;
+          var t = (hi > lo) ? Math.max(0, Math.min(1, (speedKmh - lo) / (hi - lo))) : 1;
+          r = Math.round(0xef + (0x22 - 0xef) * t);
+          g = Math.round(0x44 + (0xc5 - 0x44) * t);
+          b = Math.round(0x44 + (0x5e - 0x44) * t);
+        } else {
+          // Upper half: green → blue
+          var t2 = (maxS > avgS) ? Math.max(0, Math.min(1, (speedKmh - avgS) / (maxS - avgS))) : 1;
+          r = Math.round(0x22 + (0x3b - 0x22) * t2);
+          g = Math.round(0xc5 + (0x82 - 0xc5) * t2);
+          b = Math.round(0x5e + (0xf6 - 0x5e) * t2);
+        }
         return 'rgb(' + r + ',' + g + ',' + b + ')';
       }
 
@@ -5412,6 +5429,12 @@
           updateRouteTrackLayer(data.routeCoordinates);
         }
 
+        if (data.routeSpeedRange !== undefined) {
+          var sr = data.routeSpeedRange;
+          routeSpeedMin = (sr && sr.min != null) ? sr.min : 0;
+          routeSpeedAvg = (sr && sr.avg != null) ? sr.avg : 0;
+          routeSpeedMax = (sr && sr.max != null) ? sr.max : 0;
+        }
         if (data.routeSegments !== undefined) {
           updateRouteSegmentsLayer(data.routeSegments);
         }
