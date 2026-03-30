@@ -5666,9 +5666,21 @@
           }
         });
 
+        // Stop auto-rotate as early as possible when the user touches/clicks the map,
+        // before MapLibre's gesture handler or movestart fires.
+        var mapCanvas = map.getCanvasContainer();
+        function onUserGestureStart() {
+          if (autoRotateState.active) {
+            stopAutoRotate(true);
+          }
+        }
+        mapCanvas.addEventListener('touchstart', onUserGestureStart, { passive: true, capture: true });
+        mapCanvas.addEventListener('mousedown', onUserGestureStart, { capture: true });
+
         map.on('movestart', function (e) {
           if (e.originalEvent) {
-            // Stop auto-rotate on user interaction
+            // Stop auto-rotate on user interaction (fallback for programmatic gestures
+            // that still carry an originalEvent, e.g. scroll-zoom).
             if (autoRotateState.active) {
               stopAutoRotate(true);
             }
