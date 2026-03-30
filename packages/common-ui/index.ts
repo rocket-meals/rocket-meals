@@ -85,3 +85,6 @@ export type { FeatureWishesScreenProps, FeatureWishesScreenTexts, FeatureWishIte
 
 export { default as ScreenHeader } from './src/components/ScreenHeader';
 export type { ScreenHeaderProps } from './src/components/ScreenHeader';
+
+export { default as ExpoUpdateLoader } from './src/components/ExpoUpdateLoader';
+export type { ExpoUpdateLoaderProps, ExpoUpdateLoaderLabels } from './src/components/ExpoUpdateLoader';

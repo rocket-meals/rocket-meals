@@ -4,7 +4,7 @@ import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { ThemeProvider, AppDrawer, DrawerItem, ModalProvider, SettingsProvider, useTheme } from 'repo-depkit-common-ui';
+import { ThemeProvider, AppDrawer, DrawerItem, ModalProvider, SettingsProvider, useTheme, ExpoUpdateLoader } from 'repo-depkit-common-ui';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import { Modal, ScrollView, TouchableOpacity, View, Text, StyleSheet } from 'react-native';
@@ -366,7 +366,16 @@ export default function Layout() {
 					<ThemeSyncBridge />
 					<SettingsProvider primaryColor="#2563eb">
 						<ModalProvider>
-						<ThemedDrawerNavigator />
+						<ExpoUpdateLoader
+							logoSource={require('../assets/icon.png')}
+							labels={{
+								checkForUpdate: 'Checking for app updates…',
+								downloadUpdate: 'Downloading new app update…',
+								cancel: 'Cancel',
+							}}
+						>
+							<ThemedDrawerNavigator />
+						</ExpoUpdateLoader>
 						</ModalProvider>
 					</SettingsProvider>
 				</ThemeProvider>

@@ -26152,6 +26152,7 @@ __metadata:
     expo-asset: "*"
     expo-file-system: "*"
     expo-location: "*"
+    expo-updates: "*"
     react: "*"
     react-native: "*"
     react-native-gesture-handler: "*"
