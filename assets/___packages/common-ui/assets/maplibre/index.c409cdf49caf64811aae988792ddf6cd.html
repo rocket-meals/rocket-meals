@@ -5186,10 +5186,71 @@
       }
       // ─────────────────────────────────────────────────────────────────────────────
 
+      // ─── Auto-Rotate (requestAnimationFrame-based) ─────────────────────────────
+      var AUTO_ROTATE_DEFAULT_SPEED = 5;     // degrees per second
+      var AUTO_ROTATE_MAX_DELTA_SEC = 0.1;   // clamp frame delta to avoid jumps after tab-switch
+      var autoRotateState = { active: false, speed: 0, lastTime: null, rafId: null };
+
+      function autoRotateFrame(time) {
+        if (!autoRotateState.active || !map) {
+          autoRotateState.rafId = null;
+          return;
+        }
+        if (autoRotateState.lastTime !== null) {
+          var deltaSec = (time - autoRotateState.lastTime) / 1000;
+          // Clamp delta to avoid large jumps after tab-switch / background
+          if (deltaSec > AUTO_ROTATE_MAX_DELTA_SEC) deltaSec = AUTO_ROTATE_MAX_DELTA_SEC;
+          var newBearing = map.getBearing() + autoRotateState.speed * deltaSec;
+          map.setBearing(newBearing);
+        }
+        autoRotateState.lastTime = time;
+        autoRotateState.rafId = requestAnimationFrame(autoRotateFrame);
+      }
+
+      function startAutoRotate(speed) {
+        autoRotateState.speed = speed;
+        if (!autoRotateState.active) {
+          autoRotateState.active = true;
+          autoRotateState.lastTime = null;
+          autoRotateState.rafId = requestAnimationFrame(autoRotateFrame);
+        }
+      }
+
+      function stopAutoRotate(notify) {
+        autoRotateState.active = false;
+        autoRotateState.speed = 0;
+        autoRotateState.lastTime = null;
+        if (autoRotateState.rafId !== null) {
+          cancelAnimationFrame(autoRotateState.rafId);
+          autoRotateState.rafId = null;
+        }
+        if (notify) {
+          sendToRN({ tag: 'AutoRotateStopped' });
+        }
+      }
+      // ───────────────────────────────────────────────────────────────────────────
+
       function applyMessage(data) {
         if (!map) return;
 
+        // Auto-rotate control messages
+        if (data.autoRotate !== undefined) {
+          if (data.autoRotate) {
+            var speed = data.autoRotateSpeed != null ? data.autoRotateSpeed : AUTO_ROTATE_DEFAULT_SPEED;
+            startAutoRotate(speed);
+          } else {
+            stopAutoRotate(false);
+          }
+        }
+        if (data.autoRotateSpeed !== undefined && autoRotateState.active) {
+          autoRotateState.speed = data.autoRotateSpeed;
+          if (data.autoRotateSpeed === 0) {
+            stopAutoRotate(false);
+          }
+        }
+
         if (data.resetBearing) {
+          stopAutoRotate(true);
           map.resetNorth({ animate: true });
           return;
         }
@@ -5265,6 +5326,16 @@
             map.easeTo(bearingOpts);
           } else {
             map.jumpTo(bearingOpts);
+          }
+        } else if (data.bearingDelta != null) {
+          // Relative bearing change
+          var newBearing = map.getBearing() + data.bearingDelta;
+          var bdOpts = { bearing: newBearing };
+          if (data.easeAnimation) {
+            bdOpts.duration = data.easeDuration != null ? data.easeDuration : 100;
+            map.easeTo(bdOpts);
+          } else {
+            map.jumpTo(bdOpts);
           }
         } else if (data.zoomTo != null) {
           map.easeTo({ zoom: data.zoomTo, duration: data.easeDuration != null ? data.easeDuration : 300 });
@@ -5597,6 +5668,10 @@
 
         map.on('movestart', function (e) {
           if (e.originalEvent) {
+            // Stop auto-rotate on user interaction
+            if (autoRotateState.active) {
+              stopAutoRotate(true);
+            }
             sendToRN({ tag: 'MapInteracted' });
           }
         });
