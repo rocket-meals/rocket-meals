@@ -5142,6 +5142,43 @@
       }
       // ─────────────────────────────────────────────────────────────────────────────
 
+      // ─── Route start point circle ─────────────────────────────────────────────────
+      var ROUTE_START_SOURCE = 'route-start-source';
+      var ROUTE_START_LAYER  = 'route-start-layer';
+      var routeStartCoord    = null; // [lng, lat] or null
+      var ROUTE_POINT_RADIUS_EXPR = ['interpolate', ['linear'], ['zoom'], 8, 6, 13, 9, 18, 14];
+
+      function updateRoutePointLayer(sourceId, layerId, color, coord) {
+        if (!map) return;
+        var geojson = {
+          type: 'FeatureCollection',
+          features: coord ? [{ type: 'Feature', geometry: { type: 'Point', coordinates: coord }, properties: {} }] : [],
+        };
+        if (map.getSource(sourceId)) {
+          map.getSource(sourceId).setData(geojson);
+        } else {
+          map.addSource(sourceId, { type: 'geojson', data: geojson });
+          map.addLayer({
+            id: layerId,
+            type: 'circle',
+            source: sourceId,
+            paint: {
+              'circle-radius': ROUTE_POINT_RADIUS_EXPR,
+              'circle-color': color,
+              'circle-stroke-width': 2,
+              'circle-stroke-color': '#ffffff',
+              'circle-opacity': 1,
+            },
+          });
+        }
+      }
+
+      function updateRouteStartPoint(coord) {
+        routeStartCoord = coord || null;
+        updateRoutePointLayer(ROUTE_START_SOURCE, ROUTE_START_LAYER, '#22c55e', routeStartCoord);
+      }
+      // ─────────────────────────────────────────────────────────────────────────────
+
       // ─── User location marker ─────────────────────────────────────────────────────
       var userLocationMarker = null;
       var userHeadingDeg = 0;
@@ -5515,6 +5552,10 @@
           updateRouteSegmentsLayer(data.routeSegments);
         }
 
+        if (data.routeStartPoint !== undefined) {
+          updateRouteStartPoint(data.routeStartPoint);
+        }
+
         if (data.userLocation !== undefined) {
           if (data.userLocation) {
             updateUserLocationMarker(data.userLocation);
@@ -5710,6 +5751,9 @@
           }
           if (routeSegmentsData && !map.getSource(ROUTE_SEG_SOURCE)) {
             updateRouteSegmentsLayer(routeSegmentsData);
+          }
+          if (routeStartCoord && !map.getSource(ROUTE_START_SOURCE)) {
+            updateRouteStartPoint(routeStartCoord);
           }
         });
       }
