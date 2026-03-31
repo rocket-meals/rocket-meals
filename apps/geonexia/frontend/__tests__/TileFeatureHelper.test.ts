@@ -15,6 +15,7 @@
 
 import {
 	getTilesForBounds,
+	queryTileFeaturesForHexCell,
 } from '../helpers/TileFeatureHelper';
 
 import {
@@ -41,6 +42,30 @@ const EXPECTED_FEATURES: MapFeatureInfo[] = [
 		layerId: 'highway-shield-non-us',
 		name: 'Lohner Straße',
 		class: 'secondary',
+		subclass: null,
+		highway: null,
+		waterway: null,
+		building: null,
+		natural: null,
+		landuse: null,
+		amenity: null,
+	},
+	{
+		layerId: 'highway-name-major',
+		name: 'Lohner Straße',
+		class: 'secondary',
+		subclass: null,
+		highway: null,
+		waterway: null,
+		building: null,
+		natural: null,
+		landuse: null,
+		amenity: null,
+	},
+	{
+		layerId: 'highway-name-minor',
+		name: 'Am Burgwald',
+		class: 'minor',
 		subclass: null,
 		highway: null,
 		waterway: null,
@@ -234,13 +259,15 @@ describe('TileFeatureHelper – hex cell feature query', () => {
 		expect(tiles[0]).toEqual({ z: 14, x: 8562, y: 5362 });
 	});
 
-	it('expected features have exactly 12 entries', () => {
-		expect(EXPECTED_FEATURES).toHaveLength(12);
+	it('expected features have exactly 14 entries', () => {
+		expect(EXPECTED_FEATURES).toHaveLength(14);
 	});
 
 	it('expected features contain the correct layer IDs in order', () => {
 		const expectedLayerIds = [
 			'highway-shield-non-us',
+			'highway-name-major',
+			'highway-name-minor',
 			'building-3d',
 			'road_secondary_tertiary',
 			'road_minor',
@@ -256,11 +283,13 @@ describe('TileFeatureHelper – hex cell feature query', () => {
 		expect(EXPECTED_FEATURES.map((f) => f.layerId)).toEqual(expectedLayerIds);
 	});
 
-	it('expected features contain named features for Lohner Straße and Burgwald Dinklage', () => {
+	it('expected features contain named features for Lohner Straße, Am Burgwald and Burgwald Dinklage', () => {
 		const namedFeatures = EXPECTED_FEATURES.filter((f) => f.name !== null);
-		expect(namedFeatures).toHaveLength(3);
+		expect(namedFeatures).toHaveLength(5);
 		expect(namedFeatures.map((f) => f.name)).toEqual([
 			'Lohner Straße',
+			'Lohner Straße',
+			'Am Burgwald',
 			'Burgwald Dinklage',
 			'Burgwald Dinklage',
 		]);
@@ -285,12 +314,14 @@ describe('TileFeatureHelper – hex cell feature query', () => {
 		const roadFeatures = EXPECTED_FEATURES.filter((f) =>
 			f.layerId !== null && (
 				f.layerId.startsWith('road_') ||
-				f.layerId === 'highway-shield-non-us'
+				f.layerId.startsWith('highway-')
 			),
 		);
 		const classes = roadFeatures.map((f) => f.class);
 		expect(classes).toEqual([
 			'secondary',    // highway-shield-non-us
+			'secondary',    // highway-name-major
+			'minor',        // highway-name-minor
 			'secondary',    // road_secondary_tertiary
 			'minor',        // road_minor
 			'service',      // road_service_track
@@ -325,4 +356,24 @@ describe('TileFeatureHelper – hex cell feature query', () => {
 		expect(pedestrian!.class).toBe('path');
 		expect(pedestrian!.subclass).toBe('path');
 	});
+
+	it(
+		'queryTileFeaturesForHexCell returns exactly the expected features',
+		async () => {
+			let result: MapFeatureInfo[];
+			try {
+				result = await queryTileFeaturesForHexCell(HEX_ID, FEATURE_QUERY_ZOOM);
+			} catch (err: unknown) {
+				// Skip when the tile server is unreachable (e.g. offline CI runner).
+				const msg = err instanceof Error ? err.message : String(err);
+				if (msg.includes('fetch failed') || msg.includes('ENOTFOUND') || msg.includes('network')) {
+					console.warn('Skipping live tile fetch – network unavailable:', msg);
+					return;
+				}
+				throw err;
+			}
+			expect(result).toEqual(EXPECTED_FEATURES);
+		},
+		30_000,
+	);
 });
