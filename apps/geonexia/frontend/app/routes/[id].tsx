@@ -20,18 +20,20 @@ import { HEX_TILE_SCRIPT } from '../../assets/hexTileScript';
 import { isAvailable as isH3Available, computeRouteLengthKm, formatDistanceKm, gridDisk, gridDistance, cellToLatLng, cellToBoundary, latLngToCell } from '../../helpers/H3Helper';
 import { buildRouteDisplayData, computeHexBounds, computeEdgesFromHexTiles } from '../../helpers/RouteDisplayHelper';
 import {
+	type MapFeatureInfo,
 	type AreaInfoDict,
 	buildAreaInfoDict,
 	suggestRouteNames,
 	filterUsedNames,
 } from '../../helpers/RouteNameSuggestionHelper';
-import { queryTileFeaturesGrouped } from '../../helpers/TileFeatureHelper';
 import { useDebugMode } from '../../hooks/useDebugMode';
 import type { RootState } from '../../store/store';
 
 const AUTO_ROTATE_SPEED_DEG_PER_S = 5;
 const PRIMARY_COLOR = '#2563eb';
 
+/** Delay after fitBounds animation before querying tile features (ms). */
+const TILE_FEATURE_QUERY_DELAY_MS = 2000;
 /** Rough conversion factor from degrees to kilometres. */
 const KM_PER_DEGREE = 111;
 /** Maximum distance (km) between first and last hex centers to consider the route a closed loop. */
@@ -243,40 +245,33 @@ export default function RouteDetailScreen() {
 			.catch(() => setExistingRouteNames([]));
 	}, []);
 
-	// ── Fetch tile features directly via HTTP (no map instance needed) ───
-	// Uses TileFeatureHelper to download PBF vector tiles for the route's
-	// bounding box and for the enclosed area (if the route forms a loop).
+	// ── Request tile features from the map once the route is displayed ────
+	// We wait for the fitBounds animation to settle (2 s) before querying so
+	// that all OSM features are loaded at the appropriate zoom level.
 	useEffect(() => {
-		if (!route) return;
+		if (!mapMounted || !route || !mapRef.current) return;
 		if (!isH3Available() || route.hexTiles.length === 0) return;
 		if (featureQuerySentRef.current) return;
 
-		let cancelled = false;
-		featureQuerySentRef.current = true;
+		const timer = setTimeout(() => {
+			if (!mapRef.current || featureQuerySentRef.current) return;
+			featureQuerySentRef.current = true;
 
-		const FEATURE_QUERY_ZOOM = 14;
-
-		(async () => {
-			// ── Route area info ──────────────────────────────────────────
-			try {
-				const bounds = computeHexBounds(route.hexTiles);
-				if (bounds && !cancelled) {
-					const grouped = await queryTileFeaturesGrouped({
-						minLat: bounds.minLat,
-						minLng: bounds.minLng,
-						maxLat: bounds.maxLat,
-						maxLng: bounds.maxLng,
-						zoom: FEATURE_QUERY_ZOOM,
-					});
-					if (!cancelled) {
-						setRouteAreaInfo(buildAreaInfoDict(grouped));
-					}
+			// Build tile polygon descriptors for the route tiles
+			const routeTiles = route.hexTiles.map((cell) => {
+				try {
+					const boundary = cellToBoundary(cell, true); // GeoJSON order [lng, lat]
+					return { id: cell, polygon: boundary };
+				} catch {
+					return { id: cell, polygon: [] as Array<[number, number]> };
 				}
-			} catch (err) {
-				console.warn('[RouteDetailScreen] Route area feature query failed:', err);
-			}
+			});
 
-			// ── Enclosed area info (only for loop routes) ────────────────
+			mapRef.current.sendToMap({
+				queryTileFeatures: { requestId: 'route', tiles: routeTiles },
+			});
+
+			// Compute enclosed tiles (route must form a loop)
 			try {
 				const centers = route.hexTiles.map((cell) => {
 					const [lat, lng] = cellToLatLng(cell);
@@ -289,6 +284,7 @@ export default function RouteDetailScreen() {
 					const dLng = first.lng - last.lng;
 					const roughDistKm = Math.sqrt(dLat * dLat + dLng * dLng) * KM_PER_DEGREE;
 					if (roughDistKm < LOOP_CLOSURE_THRESHOLD_KM) {
+						// Route forms a loop – find enclosed cells
 						const polygon: Array<[number, number]> = centers.map((c) => [c.lng, c.lat]);
 						const lats = centers.map((c) => c.lat);
 						const lngs = centers.map((c) => c.lng);
@@ -324,31 +320,28 @@ export default function RouteDetailScreen() {
 								}
 							} catch { /* ignore */ }
 						}
-
-						if (enclosedCells.length > 0 && !cancelled) {
-							const enclosedBounds = computeHexBounds(enclosedCells);
-							if (enclosedBounds) {
-								const grouped = await queryTileFeaturesGrouped({
-									minLat: enclosedBounds.minLat,
-									minLng: enclosedBounds.minLng,
-									maxLat: enclosedBounds.maxLat,
-									maxLng: enclosedBounds.maxLng,
-									zoom: FEATURE_QUERY_ZOOM,
-								});
-								if (!cancelled) {
-									setEnclosedAreaInfo(buildAreaInfoDict(grouped));
+						if (enclosedCells.length > 0) {
+							const enclosedTiles = enclosedCells.map((cell) => {
+								try {
+									const boundary = cellToBoundary(cell, true);
+									return { id: cell, polygon: boundary };
+								} catch {
+									return { id: cell, polygon: [] as Array<[number, number]> };
 								}
-							}
+							});
+							mapRef.current!.sendToMap({
+								queryTileFeatures: { requestId: 'enclosed', tiles: enclosedTiles },
+							});
 						}
 					}
 				}
 			} catch (err) {
 				console.warn('[RouteDetailScreen] Enclosed tile computation failed:', err);
 			}
-		})();
+		}, TILE_FEATURE_QUERY_DELAY_MS);
 
-		return () => { cancelled = true; };
-	}, [route]);
+		return () => clearTimeout(timer);
+	}, [mapMounted, route]);
 
 	// ── Recompute name suggestions when dicts or existing names change ────
 	useEffect(() => {
@@ -405,9 +398,20 @@ export default function RouteDetailScreen() {
 	}, []);
 
 	const handleMapMessage = useCallback((data: object) => {
-		const msg = data as { tag?: string; h3Index?: string };
+		const msg = data as { tag?: string; h3Index?: string; requestId?: string; features?: Record<string, MapFeatureInfo[]> };
 		if (msg.tag === 'MapComponentMounted') {
 			setMapMounted(true);
+			return;
+		}
+
+		// ── Handle batch tile-feature query results ───────────────────────
+		if (msg.tag === 'TileFeaturesResult' && msg.features) {
+			const dict = buildAreaInfoDict(msg.features);
+			if (msg.requestId === 'route') {
+				setRouteAreaInfo(dict);
+			} else if (msg.requestId === 'enclosed') {
+				setEnclosedAreaInfo(dict);
+			}
 			return;
 		}
 
