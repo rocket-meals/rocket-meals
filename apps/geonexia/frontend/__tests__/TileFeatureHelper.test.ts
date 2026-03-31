@@ -11,6 +11,8 @@
  * At zoom 14 the bounding box falls into a single tile (14/8562/5362).
  */
 
+import type { MapFeatureInfo } from '../helpers/RouteNameSuggestionHelper';
+
 import {
 	getTilesForBounds,
 	calculateOptimalZoom,
@@ -155,8 +157,6 @@ describe('TileFeatureHelper – batch API', () => {
 //
 // The categorisation logic mirrors what the experimental hex-tile-info screen
 // uses (see `apps/geonexia/frontend/app/experimental/hex-tile-info/index.tsx`).
-
-import type { MapFeatureInfo } from '../helpers/RouteNameSuggestionHelper';
 
 /** Mock features representing the Burg Dinklage area extracted from the map screenshot. */
 const DINKLAGE_AREA_FEATURES: MapFeatureInfo[] = [
