@@ -3582,28 +3582,22 @@ export default function RecordScreen() {
 					}
 
 					if (paceHintStateRef.current === null && cooldownOk) {
+						const announcePaceHint = (direction: PaceHintDirection) => {
+							paceHintStateRef.current = direction;
+							lastPaceHintTimeRef.current = nowSec;
+							const locale = getLocales()[0]?.languageTag ?? 'en-US';
+							const langCode = locale.split('-')[0].toLowerCase();
+							const text = buildPaceHintAnnouncement(direction, currentPace, targetPace, locale);
+							speakAnnouncement(text, langCode, {
+								volume: curSs.volume,
+								rate: speechRateToNumber(curSs.speechRate),
+								useApplicationAudioSession: curSs.duckMusicDuringTTS,
+							});
+						};
 						if (tooFast) {
-							paceHintStateRef.current = 'too_fast';
-							lastPaceHintTimeRef.current = nowSec;
-							const locale = getLocales()[0]?.languageTag ?? 'en-US';
-							const langCode = locale.split('-')[0].toLowerCase();
-							const text = buildPaceHintAnnouncement('too_fast', currentPace, targetPace, locale);
-							speakAnnouncement(text, langCode, {
-								volume: curSs.volume,
-								rate: speechRateToNumber(curSs.speechRate),
-								useApplicationAudioSession: curSs.duckMusicDuringTTS,
-							});
+							announcePaceHint('too_fast');
 						} else if (tooSlow) {
-							paceHintStateRef.current = 'too_slow';
-							lastPaceHintTimeRef.current = nowSec;
-							const locale = getLocales()[0]?.languageTag ?? 'en-US';
-							const langCode = locale.split('-')[0].toLowerCase();
-							const text = buildPaceHintAnnouncement('too_slow', currentPace, targetPace, locale);
-							speakAnnouncement(text, langCode, {
-								volume: curSs.volume,
-								rate: speechRateToNumber(curSs.speechRate),
-								useApplicationAudioSession: curSs.duckMusicDuringTTS,
-							});
+							announcePaceHint('too_slow');
 						}
 					}
 				}
