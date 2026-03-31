@@ -1,5 +1,22 @@
 import * as Speech from 'expo-speech';
 import { setAudioModeAsync } from 'expo-audio';
+import type { SpeechRatePreset } from '../store/speechSettingsSlice';
+
+// ─── Speech rate helpers ────────────────────────────────────────────────────
+
+const SPEECH_RATE_MAP: Record<SpeechRatePreset, number> = {
+	slow: 0.8,
+	normal: 1.0,
+	fast: 1.3,
+};
+
+/**
+ * Convert a {@link SpeechRatePreset} to the numeric `rate` value accepted by
+ * `expo-speech`.
+ */
+export function speechRateToNumber(preset: SpeechRatePreset): number {
+	return SPEECH_RATE_MAP[preset] ?? 1.0;
+}
 
 // ─── TTS announcement helpers ─────────────────────────────────────────────────
 
@@ -273,4 +290,58 @@ export function buildBackgroundAnnouncement(locale: string): string {
 		default:
 			return 'The app is running in the background';
 	}
+}
+
+// ─── Pace hint announcements ────────────────────────────────────────────────
+
+export type PaceHintDirection = 'too_fast' | 'too_slow';
+
+/**
+ * Build a localised TTS announcement for when the user is running too fast or
+ * too slow relative to their target pace.
+ *
+ * @param direction      Whether the user is too fast or too slow
+ * @param currentPaceMinPerKm  Current average pace in minutes/km
+ * @param targetPaceMinPerKm   Target pace in minutes/km
+ * @param locale               Full BCP-47 locale tag (e.g. "de-DE")
+ */
+export function buildPaceHintAnnouncement(
+	direction: PaceHintDirection,
+	currentPaceMinPerKm: number,
+	targetPaceMinPerKm: number,
+	locale: string,
+): string {
+	const langCode = locale.split('-')[0].toLowerCase();
+	const curMin = Math.floor(currentPaceMinPerKm);
+	const curSec = Math.round((currentPaceMinPerKm - curMin) * 60);
+	const tgtMin = Math.floor(targetPaceMinPerKm);
+	const tgtSec = Math.round((targetPaceMinPerKm - tgtMin) * 60);
+
+	if (langCode === 'de') {
+		const label = direction === 'too_fast' ? 'Zu schnell' : 'Zu langsam';
+		return `${label}. Aktuelle Pace ${curMin} Minuten ${curSec} Sekunden. Ziel Pace ${tgtMin} Minuten ${tgtSec} Sekunden.`;
+	}
+	if (langCode === 'fr') {
+		const label = direction === 'too_fast' ? 'Trop rapide' : 'Trop lent';
+		return `${label}. Allure actuelle ${curMin} minutes ${curSec} secondes. Allure cible ${tgtMin} minutes ${tgtSec} secondes.`;
+	}
+	if (langCode === 'es') {
+		const label = direction === 'too_fast' ? 'Demasiado rápido' : 'Demasiado lento';
+		return `${label}. Ritmo actual ${curMin} minutos ${curSec} segundos. Ritmo objetivo ${tgtMin} minutos ${tgtSec} segundos.`;
+	}
+	if (langCode === 'it') {
+		const label = direction === 'too_fast' ? 'Troppo veloce' : 'Troppo lento';
+		return `${label}. Passo attuale ${curMin} minuti ${curSec} secondi. Passo obiettivo ${tgtMin} minuti ${tgtSec} secondi.`;
+	}
+	if (langCode === 'pt') {
+		const label = direction === 'too_fast' ? 'Muito rápido' : 'Muito lento';
+		return `${label}. Ritmo atual ${curMin} minutos ${curSec} segundos. Ritmo alvo ${tgtMin} minutos ${tgtSec} segundos.`;
+	}
+	if (langCode === 'nl') {
+		const label = direction === 'too_fast' ? 'Te snel' : 'Te langzaam';
+		return `${label}. Huidig tempo ${curMin} minuten ${curSec} seconden. Doeltempo ${tgtMin} minuten ${tgtSec} seconden.`;
+	}
+	// English fallback
+	const label = direction === 'too_fast' ? 'Too fast' : 'Too slow';
+	return `${label}. Current pace ${curMin} minutes ${curSec} seconds. Target pace ${tgtMin} minutes ${tgtSec} seconds.`;
 }

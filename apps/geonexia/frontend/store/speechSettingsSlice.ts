@@ -2,6 +2,9 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 // ─── State type ───────────────────────────────────────────────────────────────
 
+/** Speech rate preset: controls how fast the TTS engine speaks. */
+export type SpeechRatePreset = 'slow' | 'normal' | 'fast';
+
 export type SpeechSettingsState = {
 	/** Master toggle for speech announcements */
 	enabled: boolean;
@@ -9,6 +12,8 @@ export type SpeechSettingsState = {
 	volume: number;
 	/** Duck background music during TTS announcements (iOS) */
 	duckMusicDuringTTS: boolean;
+	/** Speech rate preset (slow / normal / fast) */
+	speechRate: SpeechRatePreset;
 
 	// ─── Pace target helper ────────────────────────────────────────────────────
 	/** Master toggle: help maintaining target pace */
@@ -51,6 +56,7 @@ export const SPEECH_SETTINGS_DEFAULTS: SpeechSettingsState = {
 	enabled: true,
 	volume: 0.8,
 	duckMusicDuringTTS: true,
+	speechRate: 'normal',
 	paceTargetEnabled: false,
 	paceTargetMinutes: 5,
 	paceTargetSeconds: 30,

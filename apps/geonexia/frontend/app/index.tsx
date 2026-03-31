@@ -40,7 +40,8 @@ import { store, RootState } from '../store/store';
 import { GPS_INTERVAL_MS } from '../helpers/GpsIntervalStorage';
 import * as Speech from 'expo-speech';
 import { getLocales } from 'expo-localization';
-import { buildKmAnnouncement, speakAnnouncement, buildBackgroundAnnouncement, buildPeriodicAnnouncement, enableBackgroundAudio, disableBackgroundAudio } from '../helpers/TTSHelper';
+import { buildKmAnnouncement, speakAnnouncement, buildBackgroundAnnouncement, buildPeriodicAnnouncement, buildPaceHintAnnouncement, speechRateToNumber, enableBackgroundAudio, disableBackgroundAudio } from '../helpers/TTSHelper';
+import type { PaceHintDirection } from '../helpers/TTSHelper';
 import { OBJECT_SPRITES } from '../assets/objects/objectSprites';
 import SettingsListBillboard from '../components/SettingsListBillboard';
 import SettingsListHexTile from '../components/SettingsListHexTile';
@@ -2344,6 +2345,16 @@ export default function RecordScreen() {
 	// Timer for periodic (time-based) speech announcements during recording
 	const periodicAnnouncementTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+	// Pace hint hysteresis: tracks whether the user is currently in an
+	// out-of-range state so that announcements are only triggered once per
+	// transition and not on every GPS update.  Resets to null when the user
+	// returns to the acceptable range or when recording starts.
+	const paceHintStateRef = useRef<PaceHintDirection | null>(null);
+	// Cooldown: timestamp of the last pace hint announcement.
+	const lastPaceHintTimeRef = useRef(0);
+	/** Minimum seconds between pace hint announcements. */
+	const PACE_HINT_COOLDOWN_SEC = 15;
+
 	// Follow mode: when active the map stays centred on the user's location.
 	// Starts as true so the map tracks the user by default.
 	const isFollowingRef = useRef(true);
@@ -2794,7 +2805,12 @@ export default function RecordScreen() {
 				const locale = getLocales()[0]?.languageTag ?? 'en-US';
 				const langCode = locale.split('-')[0].toLowerCase();
 				const text = buildBackgroundAnnouncement(locale);
-				speakAnnouncement(text, langCode);
+				const curSs = speechSettingsRef.current;
+				speakAnnouncement(text, langCode, {
+					volume: curSs.volume,
+					rate: speechRateToNumber(curSs.speechRate),
+					useApplicationAudioSession: curSs.duckMusicDuringTTS,
+				});
 			}
 		});
 		return () => subscription.remove();
@@ -3524,7 +3540,73 @@ export default function RecordScreen() {
 					announcePace: curSs.announcePace,
 					announceSpeedKmh: curSs.announceSpeed,
 				});
-				speakAnnouncement(text, langCode);
+				speakAnnouncement(text, langCode, {
+					volume: curSs.volume,
+					rate: speechRateToNumber(curSs.speechRate),
+					useApplicationAudioSession: curSs.duckMusicDuringTTS,
+				});
+			}
+		}
+
+		// ── Pace hint with hysteresis ───────────────────────────────────────────
+		// Only triggers once per transition into out-of-range and waits for the
+		// user to return to the target pace before announcing again.
+		if (isTTSEnabledRef.current && d > 0) {
+			const curSs = speechSettingsRef.current;
+			if (curSs.enabled && curSs.paceTargetEnabled) {
+				const elapsedSec = startTimeRef.current > 0
+					? (Date.now() - startTimeRef.current) / 1000 + accumulatedSecondsRef.current
+					: accumulatedSecondsRef.current;
+				const currentPace = elapsedSec > 0 ? elapsedSec / 60 / d : null;
+				if (currentPace != null) {
+					const targetPace = curSs.paceTargetMinutes + curSs.paceTargetSeconds / 60;
+					const fasterThreshold = curSs.paceHintFasterMinutes + curSs.paceHintFasterSeconds / 60;
+					const slowerThreshold = curSs.paceHintSlowerMinutes + curSs.paceHintSlowerSeconds / 60;
+					const nowSec = Date.now() / 1000;
+					const cooldownOk = nowSec - lastPaceHintTimeRef.current >= PACE_HINT_COOLDOWN_SEC;
+
+					// Lower pace number = faster running.
+					const tooFast = curSs.paceHintFasterEnabled && currentPace < targetPace - fasterThreshold;
+					const tooSlow = curSs.paceHintSlowerEnabled && currentPace > targetPace + slowerThreshold;
+
+					if (paceHintStateRef.current === 'too_fast') {
+						// Return to normal when pace is back at or above target.
+						if (currentPace >= targetPace) {
+							paceHintStateRef.current = null;
+						}
+					} else if (paceHintStateRef.current === 'too_slow') {
+						// Return to normal when pace is back at or below target.
+						if (currentPace <= targetPace) {
+							paceHintStateRef.current = null;
+						}
+					}
+
+					if (paceHintStateRef.current === null && cooldownOk) {
+						if (tooFast) {
+							paceHintStateRef.current = 'too_fast';
+							lastPaceHintTimeRef.current = nowSec;
+							const locale = getLocales()[0]?.languageTag ?? 'en-US';
+							const langCode = locale.split('-')[0].toLowerCase();
+							const text = buildPaceHintAnnouncement('too_fast', currentPace, targetPace, locale);
+							speakAnnouncement(text, langCode, {
+								volume: curSs.volume,
+								rate: speechRateToNumber(curSs.speechRate),
+								useApplicationAudioSession: curSs.duckMusicDuringTTS,
+							});
+						} else if (tooSlow) {
+							paceHintStateRef.current = 'too_slow';
+							lastPaceHintTimeRef.current = nowSec;
+							const locale = getLocales()[0]?.languageTag ?? 'en-US';
+							const langCode = locale.split('-')[0].toLowerCase();
+							const text = buildPaceHintAnnouncement('too_slow', currentPace, targetPace, locale);
+							speakAnnouncement(text, langCode, {
+								volume: curSs.volume,
+								rate: speechRateToNumber(curSs.speechRate),
+								useApplicationAudioSession: curSs.duckMusicDuringTTS,
+							});
+						}
+					}
+				}
 			}
 		}
 
@@ -3652,6 +3734,7 @@ export default function RecordScreen() {
 			if (text.length > 0) {
 				speakAnnouncement(text, langCode, {
 					volume: curSs.volume,
+					rate: speechRateToNumber(curSs.speechRate),
 					useApplicationAudioSession: curSs.duckMusicDuringTTS,
 				});
 			}
@@ -3698,6 +3781,8 @@ export default function RecordScreen() {
 			setLiveDistanceKm(0);
 			setLiveSpeedKmh(null);
 			lastAnnouncedKmRef.current = 0;
+			paceHintStateRef.current = null;
+			lastPaceHintTimeRef.current = 0;
 			isRecordingRef.current = true;
 			setIsRecording(true);
 			setFollowMode(true);

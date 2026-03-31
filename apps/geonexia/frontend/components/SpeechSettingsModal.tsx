@@ -24,7 +24,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getLocales } from 'expo-localization';
 
 import { updateSpeechSettings, SpeechSettingsState, SPEECH_SETTINGS_DEFAULTS } from '../store/speechSettingsSlice';
-import { speakAnnouncement, buildPeriodicAnnouncement } from '../helpers/TTSHelper';
+import type { SpeechRatePreset } from '../store/speechSettingsSlice';
+import { speakAnnouncement, buildPeriodicAnnouncement, speechRateToNumber } from '../helpers/TTSHelper';
 import type { AppDispatch, RootState } from '../store/store';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -38,6 +39,12 @@ const VOLUME_STEP = 0.1;
 const VOLUME_MIN = 0.0;
 const VOLUME_MAX = 1.0;
 const PREVIEW_VIBRATION_DURATION_MS = 400;
+
+const SPEECH_RATE_OPTIONS: { key: SpeechRatePreset; label: string; labelEn: string }[] = [
+	{ key: 'slow', label: 'Langsam', labelEn: 'Slow' },
+	{ key: 'normal', label: 'Normal', labelEn: 'Normal' },
+	{ key: 'fast', label: 'Schnell', labelEn: 'Fast' },
+];
 
 // Sample stats used for preview announcements in settings
 const SAMPLE_STATS = {
@@ -277,9 +284,10 @@ export default function SpeechSettingsContent() {
 				: '2 kilometers. Pace: 5 minutes and 30 seconds.';
 		speakAnnouncement(text, langCode, {
 			volume: settings.volume,
+			rate: speechRateToNumber(settings.speechRate),
 			useApplicationAudioSession: settings.duckMusicDuringTTS,
 		});
-	}, [langCode, settings.volume, settings.duckMusicDuringTTS]);
+	}, [langCode, settings.volume, settings.duckMusicDuringTTS, settings.speechRate]);
 
 	// ─── Play content example (based on enabled toggles) ─────────────────────
 	const handlePlayContentSample = useCallback(() => {
@@ -298,6 +306,7 @@ export default function SpeechSettingsContent() {
 		if (!text) return;
 		speakAnnouncement(text, langCode, {
 			volume: settings.volume,
+			rate: speechRateToNumber(settings.speechRate),
 			useApplicationAudioSession: settings.duckMusicDuringTTS,
 		});
 	}, [langCode, settings]);
@@ -310,9 +319,10 @@ export default function SpeechSettingsContent() {
 				: 'Too fast. Current pace 4 minutes 30 seconds. Target pace 5 minutes 30 seconds.';
 		speakAnnouncement(text, langCode, {
 			volume: settings.volume,
+			rate: speechRateToNumber(settings.speechRate),
 			useApplicationAudioSession: settings.duckMusicDuringTTS,
 		});
-	}, [langCode, settings.volume, settings.duckMusicDuringTTS]);
+	}, [langCode, settings.volume, settings.duckMusicDuringTTS, settings.speechRate]);
 
 	// ─── Play slower hint example ─────────────────────────────────────────────
 	const handlePlaySlowerSample = useCallback(() => {
@@ -322,9 +332,10 @@ export default function SpeechSettingsContent() {
 				: 'Too slow. Current pace 6 minutes 30 seconds. Target pace 5 minutes 30 seconds.';
 		speakAnnouncement(text, langCode, {
 			volume: settings.volume,
+			rate: speechRateToNumber(settings.speechRate),
 			useApplicationAudioSession: settings.duckMusicDuringTTS,
 		});
-	}, [langCode, settings.volume, settings.duckMusicDuringTTS]);
+	}, [langCode, settings.volume, settings.duckMusicDuringTTS, settings.speechRate]);
 
 	// ─── Volume stepper ───────────────────────────────────────────────────────
 	const handleVolumeDown = useCallback(() => {
@@ -400,6 +411,38 @@ export default function SpeechSettingsContent() {
 						<TouchableOpacity style={styles.stepBtn} onPress={handleVolumeUp}>
 							<Ionicons name="volume-high" size={18} color={VOLUME_COLOR} />
 						</TouchableOpacity>
+					</View>
+				}
+				groupPosition="middle"
+			/>
+			<SettingsList
+				iconBgColor={TTS_COLOR}
+				leftIcon={<MaterialCommunityIcons name="speedometer" size={22} color="#ffffff" />}
+				label={langCode === 'de' ? 'Sprechgeschwindigkeit' : 'Speech speed'}
+				value={
+					SPEECH_RATE_OPTIONS.find((o) => o.key === settings.speechRate)?.[langCode === 'de' ? 'label' : 'labelEn'] ?? 'Normal'
+				}
+				rightElement={
+					<View style={styles.stepper}>
+						{SPEECH_RATE_OPTIONS.map((opt) => (
+							<TouchableOpacity
+								key={opt.key}
+								style={[
+									styles.rateBtn,
+									settings.speechRate === opt.key && { backgroundColor: TTS_COLOR },
+								]}
+								onPress={() => update({ speechRate: opt.key })}
+							>
+								<Text
+									style={[
+										styles.rateBtnText,
+										settings.speechRate === opt.key && styles.rateBtnTextActive,
+									]}
+								>
+									{langCode === 'de' ? opt.label : opt.labelEn}
+								</Text>
+							</TouchableOpacity>
+						))}
 					</View>
 				}
 				groupPosition="bottom"
@@ -514,7 +557,7 @@ export default function SpeechSettingsContent() {
 						speakAnnouncement(
 							langCode === 'de' ? 'Hinweiston' : 'Hint tone',
 							langCode,
-							{ volume: settings.volume, useApplicationAudioSession: settings.duckMusicDuringTTS },
+							{ volume: settings.volume, rate: speechRateToNumber(settings.speechRate), useApplicationAudioSession: settings.duckMusicDuringTTS },
 						);
 					}
 				}}
@@ -668,6 +711,20 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		backgroundColor: 'rgba(37,99,235,0.12)',
+	},
+	rateBtn: {
+		paddingHorizontal: 10,
+		paddingVertical: 6,
+		borderRadius: 8,
+		backgroundColor: 'rgba(3,105,161,0.12)',
+	},
+	rateBtnText: {
+		fontSize: 13,
+		fontWeight: '500',
+		color: '#0369a1',
+	},
+	rateBtnTextActive: {
+		color: '#ffffff',
 	},
 	sectionDisabled: {
 		opacity: 0.4,
