@@ -152,7 +152,7 @@ export default function HexTileInfoScreen() {
 
 	// Categorize features (same logic as MagnifyModalContent)
 	const streets = features?.filter((f) =>
-		f.highway || (f.layerId && (f.layerId.includes('road') || f.layerId.includes('highway')))
+		f.highway || (f.layerId && (f.layerId.includes('road') || f.layerId.includes('highway') || f.layerId.includes('transportation')))
 	) ?? [];
 	const waterways = features?.filter((f) =>
 		f.waterway || (f.layerId && f.layerId.includes('water'))

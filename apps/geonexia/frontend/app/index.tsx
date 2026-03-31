@@ -880,7 +880,6 @@ type DebugInfoContentProps = {
 	theme: ReturnType<typeof useTheme>['theme'];
 	initialShowGridAlways: boolean;
 	initialH3Resolution: number;
-	initialMinZoom: number;
 	initialSpeed: number;
 	initialBillboardScale: number;
 	initialBillboardFaceCamera: boolean;
@@ -888,7 +887,6 @@ type DebugInfoContentProps = {
 	initialShowDebugPoints: boolean;
 	onShowGridAlwaysChange: (val: boolean) => void;
 	onH3ResolutionChange: (val: number) => void;
-	onMinZoomChange: (val: number) => void;
 	onZoomAdjust: (delta: number) => void;
 	onSpeedChange: (speed: number) => void;
 	onBillboardScaleChange: (scale: number) => void;
@@ -907,7 +905,6 @@ function DebugInfoContent({
 	theme,
 	initialShowGridAlways,
 	initialH3Resolution,
-	initialMinZoom,
 	initialSpeed,
 	initialBillboardScale,
 	initialBillboardFaceCamera,
@@ -915,7 +912,6 @@ function DebugInfoContent({
 	initialShowDebugPoints,
 	onShowGridAlwaysChange,
 	onH3ResolutionChange,
-	onMinZoomChange,
 	onZoomAdjust,
 	onSpeedChange,
 	onBillboardScaleChange,
@@ -928,7 +924,6 @@ function DebugInfoContent({
 	const h3Available = isH3Available();
 	const [showGridAlways, setShowGridAlways] = useState(initialShowGridAlways);
 	const [h3Resolution, setH3Resolution] = useState(initialH3Resolution);
-	const [minZoom, setMinZoom] = useState(initialMinZoom);
 	const [speedText, setSpeedText] = useState(String(initialSpeed));
 	const [billboardScale, setBillboardScale] = useState(initialBillboardScale);
 	const [billboardFaceCamera, setBillboardFaceCamera] = useState(initialBillboardFaceCamera);
@@ -950,14 +945,6 @@ function DebugInfoContent({
 			return clamped;
 		});
 	}, [onH3ResolutionChange]);
-
-	const adjustMinZoom = useCallback((delta: number) => {
-		setMinZoom((prev) => {
-			const next = Math.max(0, Math.min(22, prev + delta));
-			onMinZoomChange(next);
-			return next;
-		});
-	}, [onMinZoomChange]);
 
 	const handleSpeedTextChange = useCallback((text: string) => {
 		setSpeedText(text);
@@ -990,7 +977,7 @@ function DebugInfoContent({
 		onShowDebugPointsChange(val);
 	}, [onShowDebugPointsChange]);
 
-	const tilesExpected = info != null && (showGridAlways || info.zoom >= minZoom);
+	const tilesExpected = info != null && (showGridAlways || info.zoom >= H3_MIN_ZOOM_DEFAULT);
 
 	const statusColor = !h3Available
 		? STATUS_ERROR_COLOR
@@ -1007,14 +994,14 @@ function DebugInfoContent({
 		: info == null
 		? '⚠️ No viewport data yet. Move or zoom the map.'
 		: !tilesExpected
-		? `⚠️ Zoom in to ≥${minZoom} to see tiles`
+		? `⚠️ Zoom in to ≥${H3_MIN_ZOOM_DEFAULT} to see tiles`
 		: info.tileCount > 0
 		? `✅ ${info.tileCount} H3 tiles computed`
 		: '❌ 0 tiles – H3 library may not be working';
 
 	const viewportRows: { label: string; value: string }[] = info
 		? [
-			{ label: 'Tiles Visible', value: tilesExpected ? `${info.tileCount} cells` : `0 (zoom < ${minZoom})` },
+			{ label: 'Tiles Visible', value: tilesExpected ? `${info.tileCount} cells` : `0 (zoom < ${H3_MIN_ZOOM_DEFAULT})` },
 			{ label: 'North', value: info.bounds.north.toFixed(5) },
 			{ label: 'South', value: info.bounds.south.toFixed(5) },
 			{ label: 'East', value: info.bounds.east.toFixed(5) },
@@ -1209,34 +1196,6 @@ function DebugInfoContent({
 					trackColor={{ true: PRIMARY_COLOR }}
 					thumbColor="#ffffff"
 				/>
-			</View>
-
-			{/* Min Zoom for Tiles row with ±1 buttons */}
-			<View style={[styles.debugRow, { borderBottomColor: theme.screen.text + '22' }]}>
-				<Text selectable style={[styles.debugRowLabel, { color: theme.screen.text }]}>Min Zoom for Tiles</Text>
-				{showGridAlways ? (
-					<Text selectable style={[styles.debugRowValue, { color: theme.screen.text }]}>disabled (always on)</Text>
-				) : (
-					<View style={styles.resolutionPicker}>
-						<TouchableOpacity
-							style={[styles.resolutionButton, { opacity: minZoom <= 0 ? 0.4 : 1 }]}
-							onPress={() => adjustMinZoom(-1)}
-							disabled={minZoom <= 0}
-						>
-							<Text style={styles.resolutionButtonText}>−</Text>
-						</TouchableOpacity>
-						<Text selectable style={[styles.resolutionValue, { color: theme.screen.text }]}>
-							{minZoom}
-						</Text>
-						<TouchableOpacity
-							style={[styles.resolutionButton, { opacity: minZoom >= 22 ? 0.4 : 1 }]}
-							onPress={() => adjustMinZoom(1)}
-							disabled={minZoom >= 22}
-						>
-							<Text style={styles.resolutionButtonText}>+</Text>
-						</TouchableOpacity>
-					</View>
-				)}
 			</View>
 
 			{/* Viewport rows */}
@@ -2023,7 +1982,7 @@ function MagnifyModalContent({ h3Index }: { h3Index: string }) {
 	const maxLng = lngs.length > 0 ? Math.max(...lngs) : null;
 
 	const streets = features?.filter((f) =>
-		f.highway || (f.layerId && (f.layerId.includes('road') || f.layerId.includes('highway')))
+		f.highway || (f.layerId && (f.layerId.includes('road') || f.layerId.includes('highway') || f.layerId.includes('transportation')))
 	) ?? [];
 	const waterways = features?.filter((f) =>
 		f.waterway || (f.layerId && f.layerId.includes('water'))
@@ -2327,7 +2286,6 @@ export default function RecordScreen() {
 	const [showGridAlways, setShowGridAlways] = useState(false);
 	const h3ResolutionRef = useRef(H3_DEFAULT_RESOLUTION);
 	const [h3Resolution, setH3Resolution] = useState(H3_DEFAULT_RESOLUTION);
-	const h3MinZoomRef = useRef(H3_MIN_ZOOM_DEFAULT);
 
 	// Heading mode: when active during recording, the map rotates to face the
 	// direction of travel. Toggled by the compass button.
@@ -2700,7 +2658,7 @@ export default function RecordScreen() {
 		if (!mapRef.current) return;
 		let geoJson: H3FeatureCollection = { type: 'FeatureCollection', features: [] };
 		try {
-			geoJson = buildH3GeoJson(vp.bounds, vp.zoom, h3ResolutionRef.current, showGridAlwaysRef.current, store.getState().hexTiles.records, h3MinZoomRef.current);
+			geoJson = buildH3GeoJson(vp.bounds, vp.zoom, h3ResolutionRef.current, showGridAlwaysRef.current, store.getState().hexTiles.records);
 		} catch {
 			// ignore
 		}
@@ -2880,7 +2838,7 @@ export default function RecordScreen() {
 		if (!vp || !mapRef.current) return;
 		let geoJson: H3FeatureCollection = { type: 'FeatureCollection', features: [] };
 		try {
-			geoJson = buildH3GeoJson(vp.bounds, vp.zoom, h3ResolutionRef.current, showGridAlwaysRef.current, store.getState().hexTiles.records, h3MinZoomRef.current);
+			geoJson = buildH3GeoJson(vp.bounds, vp.zoom, h3ResolutionRef.current, showGridAlwaysRef.current, store.getState().hexTiles.records);
 		} catch (err) {
 			console.warn('[RecordScreen] buildH3GeoJson failed:', err);
 		}
@@ -2897,11 +2855,6 @@ export default function RecordScreen() {
 	const handleH3ResolutionChange = useCallback((val: number) => {
 		h3ResolutionRef.current = val;
 		setH3Resolution(val);
-		recomputeH3();
-	}, [recomputeH3]);
-
-	const handleH3MinZoomChange = useCallback((val: number) => {
-		h3MinZoomRef.current = val;
 		recomputeH3();
 	}, [recomputeH3]);
 
@@ -3245,7 +3198,6 @@ export default function RecordScreen() {
 					theme={theme}
 					initialShowGridAlways={showGridAlwaysRef.current}
 					initialH3Resolution={h3ResolutionRef.current}
-					initialMinZoom={h3MinZoomRef.current}
 					initialSpeed={debugMoveSpeedKmhRef.current}
 					initialBillboardScale={billboardScaleRef.current}
 					initialBillboardFaceCamera={billboardFaceCameraRef.current}
@@ -3253,7 +3205,6 @@ export default function RecordScreen() {
 					initialShowDebugPoints={showDebugPointsRef.current}
 					onShowGridAlwaysChange={handleShowGridAlwaysChange}
 					onH3ResolutionChange={handleH3ResolutionChange}
-					onMinZoomChange={handleH3MinZoomChange}
 					onZoomAdjust={handleZoomAdjust}
 					onSpeedChange={handleSpeedChange}
 					onBillboardScaleChange={handleBillboardScaleChange}
@@ -3265,7 +3216,7 @@ export default function RecordScreen() {
 				/>
 			),
 		});
-	}, [showModal, closeModal, theme, handleShowGridAlwaysChange, handleH3ResolutionChange, handleH3MinZoomChange, handleZoomAdjust, handleSpeedChange, handleBillboardScaleChange, handleBillboardFaceCameraChange, handleShowBillboardAnchorsChange, handleShowDebugPointsChange, handleExportMapSettings, handleImportMapSettings]);
+	}, [showModal, closeModal, theme, handleShowGridAlwaysChange, handleH3ResolutionChange, handleZoomAdjust, handleSpeedChange, handleBillboardScaleChange, handleBillboardFaceCameraChange, handleShowBillboardAnchorsChange, handleShowDebugPointsChange, handleExportMapSettings, handleImportMapSettings]);
 
 	const showActivityTypeModal = useCallback(() => {
 		showModal({
@@ -3551,7 +3502,7 @@ export default function RecordScreen() {
 		if (vp && mapRef.current) {
 			let geoJson: H3FeatureCollection = { type: 'FeatureCollection', features: [] };
 			try {
-				geoJson = buildH3GeoJson(vp.bounds, vp.zoom, h3ResolutionRef.current, showGridAlwaysRef.current, store.getState().hexTiles.records, h3MinZoomRef.current);
+				geoJson = buildH3GeoJson(vp.bounds, vp.zoom, h3ResolutionRef.current, showGridAlwaysRef.current, store.getState().hexTiles.records);
 			} catch (err) {
 				console.warn('[RecordScreen] buildH3GeoJson failed during location update:', err);
 			}
@@ -3942,7 +3893,7 @@ export default function RecordScreen() {
 		if (vp && mapRef.current) {
 			let geoJson: H3FeatureCollection = { type: 'FeatureCollection', features: [] };
 			try {
-				geoJson = buildH3GeoJson(vp.bounds, vp.zoom, h3ResolutionRef.current, showGridAlwaysRef.current, store.getState().hexTiles.records, h3MinZoomRef.current);
+				geoJson = buildH3GeoJson(vp.bounds, vp.zoom, h3ResolutionRef.current, showGridAlwaysRef.current, store.getState().hexTiles.records);
 			} catch {
 				// ignore
 			}

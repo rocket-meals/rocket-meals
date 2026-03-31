@@ -141,3 +141,295 @@ describe('TileFeatureHelper – batch API', () => {
 		expect(results).toHaveLength(0);
 	});
 });
+
+// ─── Dinklage area feature categorisation ───────────────────────────────────
+//
+// The features below were extracted from a screenshot of the Burg Dinklage area
+// (Dinklage, north-west Germany).  They represent real-world map data that the
+// OpenMapTiles vector tiles return for this area:
+//
+//   • Streets: Burgallee, Am Burgwald, Lohner Straße (L 845)
+//   • Bus stop: Burg Dinklage
+//   • Buildings: residential buildings
+//   • Land use: residential area, grass
+//
+// The categorisation logic mirrors what the experimental hex-tile-info screen
+// uses (see `apps/geonexia/frontend/app/experimental/hex-tile-info/index.tsx`).
+
+import type { MapFeatureInfo } from '../helpers/RouteNameSuggestionHelper';
+
+/** Mock features representing the Burg Dinklage area extracted from the map screenshot. */
+const DINKLAGE_AREA_FEATURES: MapFeatureInfo[] = [
+	// ── Streets ────────────────────────────────────────────────────────
+	{
+		layerId: 'transportation_name',
+		name: 'Burgallee',
+		class: 'minor',
+		subclass: null,
+		highway: null,
+		waterway: null,
+		building: null,
+		natural: null,
+		landuse: null,
+		amenity: null,
+	},
+	{
+		layerId: 'transportation_name',
+		name: 'Am Burgwald',
+		class: 'minor',
+		subclass: null,
+		highway: null,
+		waterway: null,
+		building: null,
+		natural: null,
+		landuse: null,
+		amenity: null,
+	},
+	{
+		layerId: 'transportation_name',
+		name: 'Lohner Straße',
+		class: 'secondary',
+		subclass: null,
+		highway: null,
+		waterway: null,
+		building: null,
+		natural: null,
+		landuse: null,
+		amenity: null,
+	},
+	{
+		layerId: 'road',
+		name: null,
+		class: 'secondary',
+		subclass: null,
+		highway: 'secondary',
+		waterway: null,
+		building: null,
+		natural: null,
+		landuse: null,
+		amenity: null,
+	},
+	{
+		layerId: 'road',
+		name: null,
+		class: 'residential',
+		subclass: null,
+		highway: 'residential',
+		waterway: null,
+		building: null,
+		natural: null,
+		landuse: null,
+		amenity: null,
+	},
+
+	// ── Bus stop / POI ─────────────────────────────────────────────────
+	{
+		layerId: 'poi',
+		name: 'Burg Dinklage',
+		class: 'bus_stop',
+		subclass: 'bus_stop',
+		highway: null,
+		waterway: null,
+		building: null,
+		natural: null,
+		landuse: null,
+		amenity: null,
+	},
+	{
+		layerId: 'poi',
+		name: null,
+		class: 'parking',
+		subclass: 'parking',
+		highway: null,
+		waterway: null,
+		building: null,
+		natural: null,
+		landuse: null,
+		amenity: 'parking',
+	},
+
+	// ── Buildings ──────────────────────────────────────────────────────
+	{
+		layerId: 'building',
+		name: null,
+		class: null,
+		subclass: null,
+		highway: null,
+		waterway: null,
+		building: 'residential',
+		natural: null,
+		landuse: null,
+		amenity: null,
+	},
+	{
+		layerId: 'building',
+		name: null,
+		class: null,
+		subclass: null,
+		highway: null,
+		waterway: null,
+		building: 'yes',
+		natural: null,
+		landuse: null,
+		amenity: null,
+	},
+
+	// ── Land use ───────────────────────────────────────────────────────
+	{
+		layerId: 'landuse',
+		name: null,
+		class: 'residential',
+		subclass: null,
+		highway: null,
+		waterway: null,
+		building: null,
+		natural: null,
+		landuse: 'residential',
+		amenity: null,
+	},
+	{
+		layerId: 'landcover',
+		name: null,
+		class: 'grass',
+		subclass: null,
+		highway: null,
+		waterway: null,
+		building: null,
+		natural: null,
+		landuse: null,
+		amenity: null,
+	},
+];
+
+/**
+ * Feature categorisation helpers – same logic used in the hex-tile-info
+ * experimental screen and the recording screen's HexTileInfoContent.
+ */
+function categoriseFeatures(features: MapFeatureInfo[]) {
+	const streets = features.filter((f) =>
+		f.highway || (f.layerId && (f.layerId.includes('road') || f.layerId.includes('highway') || f.layerId.includes('transportation'))),
+	);
+	const waterways = features.filter((f) =>
+		f.waterway || (f.layerId && f.layerId.includes('water')),
+	);
+	const buildings = features.filter((f) =>
+		f.building || (f.layerId && f.layerId.includes('building')),
+	);
+	const pois = features.filter((f) =>
+		f.amenity || f.natural || f.landuse ||
+		(f.layerId && (f.layerId.includes('poi') || f.layerId.includes('park') || f.layerId.includes('landuse') || f.layerId.includes('landcover'))),
+	);
+	return { streets, waterways, buildings, pois };
+}
+
+describe('TileFeatureHelper – Dinklage area feature categorisation', () => {
+	it('categorises Burgallee, Am Burgwald and Lohner Straße as streets', () => {
+		const { streets } = categoriseFeatures(DINKLAGE_AREA_FEATURES);
+
+		const streetNames = streets
+			.map((f) => f.name)
+			.filter(Boolean);
+
+		expect(streetNames).toContain('Burgallee');
+		expect(streetNames).toContain('Am Burgwald');
+		expect(streetNames).toContain('Lohner Straße');
+	});
+
+	it('categorises road features (highway property) as streets', () => {
+		const { streets } = categoriseFeatures(DINKLAGE_AREA_FEATURES);
+
+		const highwayValues = streets
+			.map((f) => f.highway)
+			.filter(Boolean);
+
+		expect(highwayValues).toContain('secondary');
+		expect(highwayValues).toContain('residential');
+	});
+
+	it('categorises transportation_name features as streets', () => {
+		const { streets } = categoriseFeatures(DINKLAGE_AREA_FEATURES);
+
+		// transportation_name contains 'transportation', so named streets from
+		// this layer are now correctly categorised as streets.
+		const namedFromTransportation = streets.filter(
+			(f) => f.name && f.layerId === 'transportation_name',
+		);
+		expect(namedFromTransportation.length).toBe(3);
+
+		const names = namedFromTransportation.map((f) => f.name);
+		expect(names).toContain('Burgallee');
+		expect(names).toContain('Am Burgwald');
+		expect(names).toContain('Lohner Straße');
+	});
+
+	it('categorises Burg Dinklage bus stop and parking as POIs', () => {
+		const { pois } = categoriseFeatures(DINKLAGE_AREA_FEATURES);
+
+		const poiNames = pois.map((f) => f.name).filter(Boolean);
+		// Burg Dinklage bus stop should be a POI (layerId includes 'poi')
+		expect(poiNames).toContain('Burg Dinklage');
+
+		// Parking has amenity='parking', so it should be categorised as POI
+		const parkingPoi = pois.find((f) => f.amenity === 'parking');
+		expect(parkingPoi).toBeDefined();
+	});
+
+	it('categorises residential buildings correctly', () => {
+		const { buildings } = categoriseFeatures(DINKLAGE_AREA_FEATURES);
+
+		expect(buildings.length).toBeGreaterThanOrEqual(2);
+
+		const buildingTypes = buildings.map((f) => f.building).filter(Boolean);
+		expect(buildingTypes).toContain('residential');
+		expect(buildingTypes).toContain('yes');
+	});
+
+	it('categorises land use and land cover as POIs', () => {
+		const { pois } = categoriseFeatures(DINKLAGE_AREA_FEATURES);
+
+		// Residential landuse
+		const residentialLanduse = pois.find((f) => f.landuse === 'residential');
+		expect(residentialLanduse).toBeDefined();
+
+		// Grass landcover (matched via layerId containing 'landcover')
+		const grassLandcover = pois.find((f) => f.layerId === 'landcover' && f.class === 'grass');
+		expect(grassLandcover).toBeDefined();
+	});
+
+	it('returns no waterways for the Dinklage screenshot area', () => {
+		const { waterways } = categoriseFeatures(DINKLAGE_AREA_FEATURES);
+		expect(waterways).toHaveLength(0);
+	});
+
+	it('all features are accounted for in at least one category', () => {
+		const { streets, waterways, buildings, pois } = categoriseFeatures(DINKLAGE_AREA_FEATURES);
+
+		// Some features may appear in multiple categories (e.g. amenity + poi layerId).
+		// With the transportation_name fix, all features should now be categorised.
+		const totalCategorised = new Set([
+			...streets,
+			...waterways,
+			...buildings,
+			...pois,
+		]);
+
+		// All features should be categorised now that transportation_name is included
+		// in the streets filter.
+		expect(totalCategorised.size).toBe(DINKLAGE_AREA_FEATURES.length);
+	});
+
+	it('Burg Dinklage area covers tile 14/8562/5362 for the test hex cell', () => {
+		const bounds = getHexBounds(HEX_ID);
+		const tiles = getTilesForBounds(
+			bounds.minLat,
+			bounds.minLng,
+			bounds.maxLat,
+			bounds.maxLng,
+			14,
+		);
+
+		// The Burg Dinklage / Burgallee area is within the same tile
+		expect(tiles.length).toBeGreaterThanOrEqual(1);
+		expect(tiles[0]).toEqual({ z: 14, x: 8562, y: 5362 });
+	});
+});
