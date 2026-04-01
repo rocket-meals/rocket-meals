@@ -105,6 +105,9 @@ const Labels: React.FC<LabelsProps> = ({ foodDetails, offerId, foodOfferDetails,
 			<Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.markings)}</Text>
 			<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_foodoffers_details_markings} />
 			<SettingsListMarkingLabels markingIds={foodMarkings.map((m: DatabaseTypes.Markings) => m.id)} handleMenuSheet={handleMenuSheet} />
+			{foodMarkings.length === 0 && (
+				<SettingsList title={translate(TranslationKeys.no_allergens_and_additives)} italic noIconIndent groupPosition="single" showSeparator={false} />
+			)}
 
 			<DebugView title="Foodoffer Components">
 			{foodofferComponents.map((component: any) => {

@@ -919,6 +919,16 @@
     "tr": "Genel İşaretlemeler",
     "zh": "总体标记"
   },
+  "no_allergens_and_additives": {
+    "de": "Keine Allergene und kennzeichnungspflichtigen Zusatzstoffe enthalten",
+    "en": "No allergens and labeling-required additives contained",
+    "ar": "لا تحتوي على مسببات الحساسية والمواد الإضافية الإلزامية",
+    "es": "No contiene alérgenos ni aditivos sujetos a declaración obligatoria",
+    "fr": "Ne contient pas d'allergènes ni d'additifs soumis à déclaration obligatoire",
+    "ru": "Не содержит аллергенов и обязательных к маркировке добавок",
+    "tr": "Alerjen ve etiketleme zorunluluğu olan katkı maddesi içermez",
+    "zh": "不含过敏原及需强制标注的添加剂"
+  },
   "free_rooms": {
     "de": "Freie Zimmer",
     "en": "Free Rooms",

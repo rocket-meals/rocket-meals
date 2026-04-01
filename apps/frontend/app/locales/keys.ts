@@ -92,6 +92,7 @@ export enum TranslationKeys {
 	foodoffer_category_label = 'foodoffer_category_label',
 	foodoffer_components_label = 'foodoffer_components_label',
 	global_markings = 'global_markings',
+	no_allergens_and_additives = 'no_allergens_and_additives',
 	free_rooms = 'free_rooms',
 	free_from = 'free_from',
 	foodweekplan = 'foodweekplan',
