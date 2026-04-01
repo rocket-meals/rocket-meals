@@ -180,8 +180,17 @@ generate_images() {
     # Generate notification-icon.png
     convert "$icon_path" -resize $NOTIFICATION_ICON_SIZE "$OUTPUT_FOLDER/notification-icon.png"
 
-    # Copy the logo_path image to the output folder
-    cp "$logo_path" "$OUTPUT_FOLDER/company.png"
+    # Generate company.png with transparent background.
+    # Apply the same white-background removal as for splash-icon.png so that the
+    # logo renders cleanly in React Native Image components (ExpoUpdateLoader,
+    # font-loading screen) regardless of the container background color.
+    # Without this, a white-background PNG shown with resizeMode="contain" in a
+    # container whose own background is white still shows a grey/dark fringe on
+    # certain Android devices because the bilinear filter bleeds the opaque white
+    # rectangle edge into the adjacent transparent region.
+    convert "$logo_path" -colorspace sRGB \
+        -fuzz 5% -transparent white \
+        PNG32:"$OUTPUT_FOLDER/company.png"
 
     generate_adaptive_icon "$icon_path"
     generate_adaptive_icon_background
