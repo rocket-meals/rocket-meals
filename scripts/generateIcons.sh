@@ -75,11 +75,15 @@ generate_splash_icon() {
     local splash_icon_path="$OUTPUT_FOLDER/splash-icon.png"
 
     # Resize company.png to fit within 90% of splash icon size (921px max)
-    # -fuzz 5% -trim +repage removes any uniform-colored border (e.g. gray) from
-    # the edges of the logo image before resizing.
+    # -fuzz 5% -trim +repage removes any uniform-colored border (e.g. gray/white padding)
+    # from the edges of the logo image before resizing.
+    # -background white (instead of none) fills the canvas with opaque white so there is
+    # no transparent-to-opaque boundary. A hard transparent edge causes a gray fringe
+    # when the image is scaled on iOS (pre-multiplied alpha interpolation between
+    # transparent black and opaque white produces gray pixels).
     local icon_max_size=921
     convert "$OUTPUT_FOLDER/company.png" -fuzz 5% -trim +repage -resize ${icon_max_size}x${icon_max_size} \
-        -gravity center -background none -extent $splash_icon_size "$splash_icon_path"
+        -gravity center -background white -extent $splash_icon_size "$splash_icon_path"
 
     # Also generate splash.png (used by expo-splash-screen)
     cp "$splash_icon_path" "$OUTPUT_FOLDER/splash.png"
