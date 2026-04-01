@@ -75,10 +75,10 @@ generate_splash_icon() {
     local splash_icon_path="$OUTPUT_FOLDER/splash-icon.png"
 
     # Resize company.png to fit within 90% of splash icon size (921px max)
-    # -shave 1x1 removes 1 pixel from each edge before resize to avoid black border
-    # artifacts caused by ImageMagick anti-aliasing edge pixels against a black virtual border.
+    # -fuzz 5% -trim +repage removes any uniform-colored border (e.g. gray) from
+    # the edges of the logo image before resizing.
     local icon_max_size=921
-    convert "$OUTPUT_FOLDER/company.png" -shave 1x1 -resize ${icon_max_size}x${icon_max_size} \
+    convert "$OUTPUT_FOLDER/company.png" -fuzz 5% -trim +repage -resize ${icon_max_size}x${icon_max_size} \
         -gravity center -background none -extent $splash_icon_size "$splash_icon_path"
 
     # Also generate splash.png (used by expo-splash-screen)
