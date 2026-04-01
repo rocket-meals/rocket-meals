@@ -82,6 +82,13 @@ generate_splash_icon() {
     # which prevents rendering issues on some native platforms that don't properly
     # handle Grayscale+Alpha PNGs.
     #
+    # -fuzz 5% -transparent white removes near-white background pixels from the source
+    # image. This handles logos that were exported with a white background (e.g. from
+    # design tools like Illustrator or Figma). Without this step, a solid white rectangle
+    # behind the logo would produce a visible grey border on the splash screen: when the
+    # native renderer scales/anti-aliases the image the edges of the opaque white rectangle
+    # bleed into adjacent transparent pixels and appear grey over the white splash background.
+    #
     # -background "rgba(255,255,255,0)" uses white-transparent instead of
     # -background none (which is rgba(0,0,0,0) = black-transparent). This prevents
     # black fringe artifacts: when the native splash screen renderer scales/anti-aliases
@@ -91,6 +98,7 @@ generate_splash_icon() {
     # PNG32: prefix forces RGBA output format regardless of input color type.
     local icon_max_size=921
     convert "$OUTPUT_FOLDER/company.png" -colorspace sRGB \
+        -fuzz 5% -transparent white \
         -shave 1x1 -resize ${icon_max_size}x${icon_max_size} \
         -gravity center -background "rgba(255,255,255,0)" -extent $splash_icon_size \
         PNG32:"$splash_icon_path"
