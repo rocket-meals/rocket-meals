@@ -119,6 +119,16 @@
     "tr": "Sunucu çevrimdışı",
     "zh": "服务器离线"
   },
+  "no_connection": {
+    "de": "Keine Verbindung",
+    "en": "No connection",
+    "ar": "لا يوجد اتصال",
+    "es": "Sin conexión",
+    "fr": "Pas de connexion",
+    "ru": "Нет соединения",
+    "tr": "Bağlantı yok",
+    "zh": "无连接"
+  },
   "CONTINUE_WITH_CACHE": {
     "de": "Mit Cache fortfahren",
     "en": "Continue with Cache",

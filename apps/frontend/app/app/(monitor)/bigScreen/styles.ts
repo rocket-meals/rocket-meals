@@ -135,5 +135,23 @@ export default StyleSheet.create({
 		alignItems: 'center',
 		marginVertical: 20,
 	},
+	screenWrapper: {
+		flex: 1,
+		position: 'relative',
+	},
+	noConnectionOverlay: {
+		position: 'absolute',
+		bottom: 16,
+		left: 16,
+		backgroundColor: 'rgba(180, 0, 0, 0.85)',
+		paddingHorizontal: 16,
+		paddingVertical: 8,
+		borderRadius: 8,
+	},
+	noConnectionText: {
+		color: '#ffffff',
+		fontSize: 16,
+		fontFamily: 'Poppins_700Bold',
+	},
 	dummy: {},
 });

@@ -312,10 +312,11 @@ export class ParseSchedule {
           await this.deleteAllFoodoffersForCanteenWithoutDates(canteen);
         }
 
-        // now delete all food offers that are in the future and newer than the latest date in the list
+        // delete food offers for each specific date in the incoming list (day-by-day),
+        // so other days remain visible while the sync is in progress.
         let foodoffersForParserForCanteen = foodoffersForParserGroupedByCanteen[canteenExternalIdentifier] || [];
         let foodofferDatesToDelete = this.getFoodofferDatesFromRawFoodofferJSONList(foodoffersForParserForCanteen);
-        await this.deleteFoodOffersNewerOrEqualThanDate(foodofferDatesToDelete, canteen);
+        await this.deleteFoodOffersForSpecificDates(foodofferDatesToDelete, canteen);
       }
     }
   }
@@ -335,6 +336,39 @@ export class ParseSchedule {
       limit: -1,
     });
     await this.deleteFoodOffers(itemsToDelete, `Delete all food offers for canteen without dates: ${canteen.id} - amount: ${itemsToDelete.length}`);
+  }
+
+  /**
+   * Deletes food offers for each specific date present in the incoming list, one day at a time.
+   * This avoids the window where ALL future offers are absent simultaneously.
+   */
+  async deleteFoodOffersForSpecificDates(foodofferDates: FoodofferDateType[], canteen: DatabaseTypes.Canteens) {
+    for (let foodofferDate of foodofferDates) {
+      const directusDateOnlyString = DateHelper.foodofferDateTypeToString(foodofferDate);
+      await this.context.logger.appendLog('Delete food offers for specific date: ' + directusDateOnlyString + ' for canteen: ' + canteen.id);
+
+      let itemService = await this.context.myDatabaseHelper.getFoodoffersHelper();
+      let itemsToDelete = await itemService.readByQuery({
+        filter: {
+          _and: [
+            {
+              date: {
+                _eq: directusDateOnlyString,
+              },
+            },
+            {
+              canteen: {
+                _eq: canteen.id,
+              },
+            },
+          ],
+        },
+        fields: ['id'],
+        limit: -1,
+      });
+
+      await this.deleteFoodOffers(itemsToDelete, `Delete food offers for date: ${directusDateOnlyString} for canteen: ${canteen.id}`);
+    }
   }
 
   async deleteFoodOffersNewerOrEqualThanDate(foodofferDatesToDelete: FoodofferDateType[], canteen: DatabaseTypes.Canteens) {
