@@ -11,7 +11,6 @@ export enum TranslationKeys {
 	CHECK_USER_AUTHENTICATION = 'CHECK_USER_AUTHENTICATION',
 	CHECK_SERVER_STATUS = 'CHECK_SERVER_STATUS',
 	SERVER_IS_OFFLINE = 'SERVER_IS_OFFLINE',
-	no_connection = 'no_connection',
 	CONTINUE_WITH_CACHE = 'CONTINUE_WITH_CACHE',
 	automatic = 'automatic',
 	amount_columns_for_cards = 'amount_columns_for_cards',

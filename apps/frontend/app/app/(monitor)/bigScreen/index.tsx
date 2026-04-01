@@ -150,10 +150,8 @@ const Index = () => {
 				filteredData = offerFiltered.length > 0 ? offerFiltered : [];
 			}
 
-			// Only replace the current food list when new data is non-empty, so the screen
-			// keeps showing the last known offers during temporary gaps (e.g. sync windows).
-			if (filteredData.length > 0) {
-				setFoods(filteredData);
+			setFoods(filteredData);
+			if (filteredData?.length > 0) {
 				setCurrentFood(filteredData[0]);
 				setCurrentFoodIndex(0);
 				startProgressAnimation();
@@ -330,7 +328,6 @@ const Index = () => {
 	);
 
 	return (
-		<View style={styles.screenWrapper}>
 		<ScrollView
 			style={{
 				...styles.container,
@@ -541,14 +538,6 @@ const Index = () => {
 				</View>
 			)}
 		</ScrollView>
-		{!isConnected && (
-			<View style={styles.noConnectionOverlay}>
-				<Text style={styles.noConnectionText}>
-					{translate(TranslationKeys.no_connection)}
-				</Text>
-			</View>
-		)}
-		</View>
 	);
 };
 
