@@ -1,4 +1,5 @@
 import LabelHeader from '@/components/LabelHeader/LabelHeader';
+import CompanyImage from '@/components/CompanyImage';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, DimensionValue, Easing, ScrollView, Text, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
@@ -68,6 +69,10 @@ const Index = () => {
 	
 	const [foodAttributesDataFull, setFoodAttributesDataFull] = useState<any>(null);
 	const [optionalFoodAttributes, setOptionalFoodAttributes] = useState<any>(null);
+
+	const EMPTY_LIST_LOGO_TIMEOUT_MS = 30 * 60 * 1000;
+	const emptyFoodsListSinceRef = useRef<number | null>(null);
+	const [showLogo, setShowLogo] = useState(false);
 
 	const foodsScrollRef = useRef<ScrollView>(null);
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
@@ -363,9 +368,18 @@ const Index = () => {
 			const foodData = await fetchFoodsByCanteen(String(canteens_id), todayDate);
 			let foodOffers = foodData?.data || [];
 			foodOffers = sortFoodOffers(foodOffers);
-			setFoods(foodOffers);
 
-			if (foodOffers?.length > 0) {
+			if (foodOffers.length === 0) {
+				if (emptyFoodsListSinceRef.current === null) {
+					emptyFoodsListSinceRef.current = Date.now();
+				}
+				if (Date.now() - emptyFoodsListSinceRef.current >= EMPTY_LIST_LOGO_TIMEOUT_MS) {
+					setShowLogo(true);
+				}
+			} else {
+				emptyFoodsListSinceRef.current = null;
+				setShowLogo(false);
+				setFoods(foodOffers);
 				startProgressAnimation();
 			}
 		} catch (error) {
@@ -379,7 +393,9 @@ const Index = () => {
 			const foodData = await fetchFoodsByCanteen(String(monitor_additional_canteens_id), todayDate);
 			let foodOffers = foodData?.data || [];
 			foodOffers = sortFoodOffers(foodOffers);
-			setOptionalFoods(foodOffers);
+			if (foodOffers.length > 0) {
+				setOptionalFoods(foodOffers);
+			}
 		} catch (error) {
 			console.error('Error fetching Food Offers:', error);
 		}
@@ -586,6 +602,12 @@ const Index = () => {
 				}}
 			>
 				<View style={{ flex: 1 }}>
+					{showLogo ? (
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.screen.background }}>
+							<CompanyImage appSettings={appSettings} style={{ width: 400, height: 200 }} />
+						</View>
+					) : (
+					<>
 					<View style={{ ...styles.headerRow, backgroundColor: foods_area_color }}>
 						<Text
 							style={[
@@ -903,6 +925,8 @@ const Index = () => {
 							</View>
 						</ScrollView>
 					</View>
+					</>
+					)}
 				</View>
 				<View
 					ref={footerRef}
