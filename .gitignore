@@ -25,6 +25,10 @@ apps/frontend/app/eas.json
 # Ignore all android generated files
 apps/frontend/app/android
 
+# Generated customer file (created by scripts/generateCustomer.sh)
+# This file is regenerated during CI and must not be committed to avoid merge conflicts.
+apps/frontend/app/getCustomer.ts
+
 # Ignore generated icon/splash files (created by scripts/generateIcons.sh)
 # These are regenerated during CI setup (setup-and-install action) before build/submit.
 # Source images live in apps/frontend/app/assets/images/customers/

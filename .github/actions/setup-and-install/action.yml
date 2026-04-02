@@ -89,6 +89,10 @@ runs:
       shell: bash
       run: bash scripts/customer-config.sh >> "$GITHUB_ENV"
 
+    - name: 📝 Generate getCustomer.ts
+      shell: bash
+      run: bash scripts/generateCustomer.sh
+
     - name: 🛠️ Generate EAS config
       run: yarn workspace rocket-meals-scripts generate:eas
       shell: bash
