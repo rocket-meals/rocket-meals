@@ -4784,6 +4784,7 @@
             var iconSizeAtRefZoom = feature.properties.iconSizeAtRefZoom;
             var anchorX = feature.properties.anchorX !== undefined ? feature.properties.anchorX : 0.5;
             var anchorY = feature.properties.anchorY !== undefined ? feature.properties.anchorY : 1.0;
+            var featureFlat = feature.properties.flat === true;
 
             var texture = billboardTextureCache[iconKey];
             if (!texture) continue;
@@ -4813,6 +4814,8 @@
             var dy = (billboardCenter.y - merc.y) / billboardMPU;
             mesh.position.set(dx, dy, 0);
             mesh.scale.set(sizeMeters, sizeMeters, sizeMeters);
+            // Store per-billboard flat flag so the render loop can apply per-mesh rotation.
+            mesh.userData.flat = featureFlat;
 
             meshes.push(mesh);
 
@@ -4925,33 +4928,37 @@
               .makeTranslation(billboardCenter.x, billboardCenter.y, billboardCenter.z)
               .scale(new THREE.Vector3(billboardMPU, -billboardMPU, billboardMPU));
 
-            // For 'viewport' mode, tilt each billboard to face the camera
-            // (follows both bearing and pitch). For 'map' mode, leave flat on
-            // the ground.
-            if (billboardPitchAlignment === 'viewport') {
-              var pitchRad = map.getPitch() * Math.PI / 180;
-              var bearingRad = map.getBearing() * Math.PI / 180;
-              for (var vi = 0; vi < billboardScene.children.length; vi++) {
-                var child = billboardScene.children[vi];
+            // Apply per-mesh rotation based on global billboardPitchAlignment and
+            // per-mesh flat flag.  A mesh with userData.flat === true is always
+            // rendered flat on the ground regardless of the global setting; all
+            // other meshes follow the global billboardPitchAlignment.
+            var pitchRad = map.getPitch() * Math.PI / 180;
+            var bearingRad = map.getBearing() * Math.PI / 180;
+            var viewportMode = billboardPitchAlignment === 'viewport';
+            for (var vi = 0; vi < billboardScene.children.length; vi++) {
+              var child = billboardScene.children[vi];
+              var isFlat = child.userData && child.userData.flat === true;
+              if (!isFlat && viewportMode) {
+                // 'viewport' mode: tilt to face the camera (follows bearing + pitch).
                 // pitchRad tilts the billboard up from the ground by the camera
                 // pitch angle; -bearingRad rotates it around Z to face the
                 // camera direction. The negative sign on bearingRad compensates
                 // for the Y-flip (-billboardMPU) in the local→mercator scale
                 // matrix, which mirrors the Z-rotation direction.
                 child.rotation.set(pitchRad, 0, -bearingRad, 'ZXY');
-              }
-            } else {
-              for (var fi = 0; fi < billboardScene.children.length; fi++) {
-                billboardScene.children[fi].rotation.set(0, 0, 0);
+              } else {
+                // 'map' mode or per-mesh flat: lie flat on the map surface.
+                child.rotation.set(0, 0, 0);
               }
             }
 
             billboardCamera.projectionMatrix = m.multiply(l);
             billboardRenderer.resetState();
             billboardRenderer.render(billboardScene, billboardCamera);
-            // In viewport mode, billboard rotations change with camera bearing,
-            // so request continuous repaints. In map mode the scene is static.
-            if (billboardPitchAlignment === 'viewport') {
+            // In viewport mode (for any non-flat billboard), rotations change
+            // with camera bearing/pitch, so request continuous repaints.
+            // In map mode all billboards are static; skip the repaint request.
+            if (viewportMode) {
               map.triggerRepaint();
             }
           },
