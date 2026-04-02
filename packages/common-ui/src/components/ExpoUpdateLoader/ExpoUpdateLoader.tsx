@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Image, ImageSourcePropType, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Updates from 'expo-updates';
 
@@ -24,7 +24,7 @@ export interface ExpoUpdateLoaderProps {
 const TIMEOUT_MS = 10000;
 
 const ExpoUpdateLoader: React.FC<ExpoUpdateLoaderProps> = ({ children, logoSource, texts, isExpoGo = false }) => {
-	const t = { ...DEFAULT_TEXTS, ...texts };
+	const t = useMemo(() => ({ ...DEFAULT_TEXTS, ...texts }), [texts]);
 	const isSmartPhone = Platform.OS !== 'web';
 	const [loading, setLoading] = useState<boolean>(isSmartPhone);
 	const [status, setStatus] = useState<string>(t.checkingForUpdates);
@@ -73,7 +73,7 @@ const ExpoUpdateLoader: React.FC<ExpoUpdateLoaderProps> = ({ children, logoSourc
 		}
 
 		loadUpdates();
-	}, []);
+	}, [isSmartPhone, isExpoGo, t]);
 
 	useEffect(() => {
 		const timer = setTimeout(() => setShowCancel(true), 3000);

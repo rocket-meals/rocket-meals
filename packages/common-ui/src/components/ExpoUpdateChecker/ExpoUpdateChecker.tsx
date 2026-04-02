@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, AppStateStatus, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Updates from 'expo-updates';
 import { useTheme } from '../../context/ThemeContext';
@@ -38,7 +38,7 @@ interface UpdateCheckerContextType {
 const UpdateCheckerContext = createContext<UpdateCheckerContextType | null>(null);
 
 const ExpoUpdateChecker: React.FC<ExpoUpdateCheckerProps> = ({ children, texts, isExpoGo = false }) => {
-	const t = { ...DEFAULT_TEXTS, ...texts };
+	const t = useMemo(() => ({ ...DEFAULT_TEXTS, ...texts }), [texts]);
 	const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 	const { theme } = useTheme();
 	const settingsCtx = useSettingsContext();
@@ -53,7 +53,7 @@ const ExpoUpdateChecker: React.FC<ExpoUpdateCheckerProps> = ({ children, texts, 
 
 	const isSmartPhone = Platform.OS !== 'web';
 
-	const checkForUpdates = async (showUpToDate = false) => {
+	const checkForUpdates = useCallback(async (showUpToDate = false) => {
 		if (!isSmartPhone) return;
 		if (isExpoGo) return;
 		try {
@@ -72,7 +72,7 @@ const ExpoUpdateChecker: React.FC<ExpoUpdateCheckerProps> = ({ children, texts, 
 		} catch (e) {
 			console.error('Error while checking updates', e);
 		}
-	};
+	}, [isSmartPhone, isExpoGo, t]);
 
 	useEffect(() => {
 		if (!isSmartPhone) return;
@@ -85,7 +85,7 @@ const ExpoUpdateChecker: React.FC<ExpoUpdateCheckerProps> = ({ children, texts, 
 		return () => {
 			subscription.remove();
 		};
-	}, [isSmartPhone, isExpoGo]);
+	}, [isSmartPhone, isExpoGo, checkForUpdates]);
 
 	const applyUpdate = async () => {
 		try {
