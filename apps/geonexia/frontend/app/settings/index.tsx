@@ -33,6 +33,7 @@ import {
 	loadWalkedEdges,
 	loadDevWalkedEdges,
 } from '../../helpers/HexTileStorage';
+import { loadHexTileFeatureCache } from '../../helpers/HexTileFeatureStorage';
 
 const PRIMARY_COLOR = '#2563eb';
 const NOTIFICATION_COLOR = '#16a34a';
@@ -115,10 +116,14 @@ export default function SettingsScreen() {
 	const speechEnabled = useSelector((state: RootState) => state.speechSettings.enabled);
 	const isDebugMode = useSelector((state: RootState) => state.hexTiles.isDebugMode);
 	const isDevMode = useSelector((state: RootState) => state.hexTiles.isDevMode);
+	const hexTileRecords = useSelector((state: RootState) => state.hexTiles.records);
+	const walkedEdges = useSelector((state: RootState) => state.hexTiles.walkedEdges);
 	const { show: showModal, close: closeModal } = useMyScrollViewModal();
 	const { show: showResetModal, close: closeResetModal } = useMyScrollViewModal();
 	const { show: showGpsModal, close: closeGpsModal } = useMyScrollViewModal();
 	const { show: showSpeechModal } = useMyScrollViewModal();
+	const { show: showWorldStoreModal } = useMyScrollViewModal();
+	const { show: showFeatureCacheModal } = useMyScrollViewModal();
 
 	const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
@@ -208,6 +213,42 @@ export default function SettingsScreen() {
 			dispatch(setDevMode({ isDevMode: true, records: devRecords, walkedEdges: devEdges }));
 		}
 	}, [dispatch]);
+
+	const handleShowWorldStore = useCallback(() => {
+		const worldStoreData = {
+			totalTiles: Object.keys(hexTileRecords).length,
+			walkedEdges: walkedEdges.length,
+			records: hexTileRecords,
+		};
+		showWorldStoreModal({
+			title: '🌍 World Store',
+			children: (
+				<View style={{ paddingBottom: 24, paddingHorizontal: 12 }}>
+					<Text style={{ color: theme.screen.text, fontSize: 11, fontFamily: 'monospace' }} selectable>
+						{JSON.stringify(worldStoreData, null, 2)}
+					</Text>
+				</View>
+			),
+		});
+	}, [showWorldStoreModal, hexTileRecords, walkedEdges, theme]);
+
+	const handleShowFeatureCache = useCallback(async () => {
+		const cache = await loadHexTileFeatureCache();
+		const cacheInfo = {
+			totalEntries: Object.keys(cache).length,
+			cache,
+		};
+		showFeatureCacheModal({
+			title: '🗺️ Hex Tile Feature Cache',
+			children: (
+				<View style={{ paddingBottom: 24, paddingHorizontal: 12 }}>
+					<Text style={{ color: theme.screen.text, fontSize: 11, fontFamily: 'monospace' }} selectable>
+						{JSON.stringify(cacheInfo, null, 2)}
+					</Text>
+				</View>
+			),
+		});
+	}, [showFeatureCacheModal, theme]);
 
 	return (
 		<View style={[styles.container, { backgroundColor: theme.screen.background }]}>
@@ -322,6 +363,23 @@ export default function SettingsScreen() {
 							onToggle={handleToggleDevMode}
 							valueActive="Dev tiles active"
 							valueInactive="Production tiles"
+							groupPosition="middle"
+						/>
+						<SettingsList
+							iconBgColor={DEBUG_COLOR}
+							leftIcon={<MaterialIcons name="hexagon" size={22} color="#ffffff" />}
+							label="World Store (Hex Tiles)"
+							value={Object.keys(hexTileRecords).length + ' tiles'}
+							rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
+							handleFunction={handleShowWorldStore}
+							groupPosition="middle"
+						/>
+						<SettingsList
+							iconBgColor={DEBUG_COLOR}
+							leftIcon={<MaterialIcons name="map" size={22} color="#ffffff" />}
+							label="Hex Tile Feature Cache"
+							rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
+							handleFunction={handleShowFeatureCache}
 							groupPosition="bottom"
 						/>
 					</>

@@ -20,9 +20,11 @@ import { useDispatch } from 'react-redux';
 import { loadActivities, saveActivity, SavedActivity } from '../../helpers/ActivityStorage';
 import { loadRoutes, SavedRoute } from '../../helpers/RouteStorage';
 import { isAvailable as isH3Available, latLngToCell } from '../../helpers/H3Helper';
-import { rebuildMapFromActivities, computeActivityData, findEnclosedCellsFromHexTiles, H3_RESOLUTION_FALLBACK } from '../../helpers/ActivityMapRebuildHelper';
-import { loadHexTileFeatureCache } from '../../helpers/HexTileFeatureStorage';
-import { startRun, markVisited, loadPersistedState, loadWalkedEdgesState } from '../../store/hexTileSlice';
+import { rebuildMapFromActivities, computeActivityData, findEnclosedCellsFromHexTiles, H3_RESOLUTION_FALLBACK, hasForestFeature, BILLBOARD_PINE_TREE_LARGE } from '../../helpers/ActivityMapRebuildHelper';
+import { loadHexTileFeatureCache, mergeHexTileFeatureCache, type HexTileFeatureCache } from '../../helpers/HexTileFeatureStorage';
+import { queryTileFeaturesForHexCell } from '../../helpers/TileFeatureHelper';
+import { BillboardAnchorColor } from '../../helpers/HexTileStorage';
+import { startRun, markVisited, loadPersistedState, loadWalkedEdgesState, setBillboardAtAnchor } from '../../store/hexTileSlice';
 import { AppDispatch } from '../../store/store';
 
 const PRIMARY_COLOR = '#2563eb';
@@ -234,6 +236,38 @@ export default function ActivitiesScreen() {
 						const { records, walkedEdges } = rebuildMapFromActivities(sorted, hexTileFeatureCache);
 						dispatch(loadPersistedState(records));
 						dispatch(loadWalkedEdgesState(walkedEdges));
+
+						// For enclosed tiles without cached features, fetch features and apply
+						// pine tree billboard on forest tiles asynchronously (fire-and-forget).
+						const uncachedEnclosedTiles = Object.entries(records)
+							.filter(([hexId, rec]) => rec.enclosedCount > 0 && rec.visitCount === 0 && !hexTileFeatureCache[hexId])
+							.map(([hexId]) => hexId);
+
+						if (uncachedEnclosedTiles.length > 0) {
+							void (async () => {
+								try {
+									const newEntries: HexTileFeatureCache = {};
+									for (const hexId of uncachedEnclosedTiles) {
+										try {
+											const features = await queryTileFeaturesForHexCell(hexId);
+											newEntries[hexId] = features;
+											if (hasForestFeature(features)) {
+												dispatch(setBillboardAtAnchor({
+													h3Index: hexId,
+													anchorColor: BillboardAnchorColor.Purple,
+													billboard: BILLBOARD_PINE_TREE_LARGE,
+												}));
+											}
+										} catch {
+											// ignore per-cell errors
+										}
+									}
+									await mergeHexTileFeatureCache(newEntries);
+								} catch (err) {
+									console.warn('[Rebuild] Feature cache update failed:', err);
+								}
+							})();
+						}
 
 						const count = allActivities.length;
 						Alert.alert('Map Rebuilt', `Map rebuilt from ${count} ${count === 1 ? 'activity' : 'activities'}.`);
