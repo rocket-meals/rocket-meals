@@ -4,7 +4,7 @@ import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { ThemeProvider, AppDrawer, DrawerItem, ModalProvider, SettingsProvider, useTheme } from 'repo-depkit-common-ui';
+import { ThemeProvider, AppDrawer, DrawerItem, ModalProvider, SettingsProvider, useTheme, ExpoUpdateChecker, ExpoUpdateLoader } from 'repo-depkit-common-ui';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import { Modal, ScrollView, TouchableOpacity, View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
@@ -32,7 +32,7 @@ import { loadActivities } from '../helpers/ActivityStorage';
 import { loadHexTileFeatureCache } from '../helpers/HexTileFeatureStorage';
 import { isAvailable as isH3Available } from '../helpers/H3Helper';
 import type { RootState } from '../store/store';
-import { getAppIconInsideExpoLocalSaved } from '../config';
+import { getAppIconInsideExpoLocalSaved, getCompanyLogoLocalSaved } from '../config';
 
 // ─── Error Boundary ───────────────────────────────────────────────────────────
 
@@ -439,20 +439,24 @@ export default function Layout() {
 	return (
 		<Provider store={store}>
 		<AppErrorBoundary>
+		<ExpoUpdateLoader logoSource={getCompanyLogoLocalSaved()}>
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<SafeAreaProvider>
 				<ThemeProvider>
 					<ThemeSyncBridge />
 					<SettingsProvider primaryColor="#2563eb">
 						<ModalProvider>
+						<ExpoUpdateChecker>
 						<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.keyboardAvoidingView}>
 						<ThemedDrawerNavigator />
 						</KeyboardAvoidingView>
+						</ExpoUpdateChecker>
 						</ModalProvider>
 					</SettingsProvider>
 				</ThemeProvider>
 			</SafeAreaProvider>
 		</GestureHandlerRootView>
+		</ExpoUpdateLoader>
 		</AppErrorBoundary>
 		</Provider>
 	);
