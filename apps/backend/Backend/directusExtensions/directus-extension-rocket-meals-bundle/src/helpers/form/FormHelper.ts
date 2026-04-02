@@ -478,7 +478,7 @@ export class FormHelper {
       return (
         `<div style="margin:8px 0 0 0;">${this.generateFieldNameHtml(fieldName)}</div>\n` +
         `<div style="display:inline-block; border-bottom:1px solid #000; min-width:200px; vertical-align:bottom; margin:2px 0 14px 0;">` +
-        `<img src="${imageUrl}" alt="${fieldName}" style="max-height:40px; width:auto; display:block;"/>` +
+        `<img src="${imageUrl}" alt="${fieldName}" style="max-height:150px; max-width:400px; width:auto; display:block;"/>` +
         `</div>\n`
       );
     }
@@ -498,10 +498,13 @@ export class FormHelper {
       if (typeof value_image === 'string' && (value_image.startsWith('http') || value_image.startsWith('data:'))) {
         assetUrl = value_image;
       } else {
+        // For signatures, do not apply any image transform to preserve the original aspect ratio.
+        // For other images, use the standard HD transform.
+        const transformOptions = isSignature ? undefined : FormHelper.FORM_IMAGE_TRANSFORM_OPTIONS;
         assetUrl = DirectusFilesAssetHelper.getDirectAssetUrlByObjectOrId(
           value_image,
           myDatabaseHelperInterface,
-          FormHelper.FORM_IMAGE_TRANSFORM_OPTIONS,
+          transformOptions,
         );
       }
     }

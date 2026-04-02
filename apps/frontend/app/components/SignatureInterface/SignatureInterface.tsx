@@ -119,7 +119,7 @@ const SignatureInterface = ({ id, value, onChange, error, isDisabled, custom_typ
 
 	return (
 		<View style={{ ...styles.container, backgroundColor: theme.screen.iconBg }}>
-			{value && typeof value === 'string' && value?.startsWith('https') ? (
+			{value && typeof value === 'string' && (value.startsWith('https') || value.startsWith('http')) ? (
 				<View style={styles.fileContainer}>
 					{authToken !== undefined && (
 						<Image

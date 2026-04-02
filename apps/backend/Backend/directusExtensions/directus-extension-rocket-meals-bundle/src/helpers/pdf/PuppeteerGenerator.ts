@@ -80,7 +80,9 @@ export class PuppeteerGenerator implements HtmlPdfGeneratorInterface {
         }
       });
 
-      //console.log("Bearer token: " + requestOptions.bearerToken);
+      if (!requestOptions.bearerToken && !requestOptions.mockImageResolution) {
+        console.warn('PuppeteerGenerator: No bearer token set. Images in protected folders may fail to load in the PDF.');
+      }
 
       if (requestOptions.bearerToken || requestOptions.mockImageResolution) {
         await page.setRequestInterception(true);

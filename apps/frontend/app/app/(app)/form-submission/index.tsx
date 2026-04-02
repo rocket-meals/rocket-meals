@@ -547,17 +547,17 @@ const Index = () => {
 	);
 
 	const getDirectusUploadId = async (value: any, folderId?: string | null) => {
-		const response = await fetch(value.image);
-		const arrayBuffer = await response.arrayBuffer();
-		const buffer = Buffer.from(arrayBuffer);
 		const fileData = {
 			name: value.name,
 			type: value.type,
-			buffer: isWeb ? buffer : value.image,
+			buffer: value.image,
 			edit: true,
 		};
 		let fileId;
 		if (isWeb) {
+			const response = await fetch(value.image);
+			const arrayBuffer = await response.arrayBuffer();
+			fileData.buffer = Buffer.from(arrayBuffer);
 			fileId = await uploadToDirectus(fileData, folderId);
 		} else {
 			fileId = await uploadToDirectusFromMobile(fileData, folderId);
