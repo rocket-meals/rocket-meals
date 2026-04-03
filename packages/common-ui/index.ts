@@ -9,6 +9,14 @@ export { ThemeProvider, useTheme } from './src/context/ThemeContext';
 export { SettingsProvider, useSettingsContext } from './src/context/SettingsContext';
 export type { SettingsContextType } from './src/context/SettingsContext';
 
+// Language context
+export { LanguageProvider, useLanguageContext } from './src/context/LanguageContext';
+export type { LanguageContextType } from './src/context/LanguageContext';
+
+// Common-UI translations
+export { useCommonTranslation } from './src/hooks/useCommonTranslation';
+export { CommonUITranslationKeys } from './src/locales/keys';
+
 // Helpers
 export { myContrastColor, getContrastRatio, getColorAsHex } from './src/helpers/ColorHelper';
 export { accountRequiredStyles } from './src/helpers/accountRequiredStyles';

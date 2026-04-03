@@ -1,0 +1,10 @@
+{
+  "ok":      { "de": "OK",          "en": "OK" },
+  "cancel":  { "de": "Abbrechen",   "en": "Cancel" },
+  "confirm": { "de": "Bestätigen",  "en": "Confirm" },
+  "close":   { "de": "Schließen",   "en": "Close" },
+  "loading": { "de": "Laden…",      "en": "Loading…" },
+  "error":   { "de": "Fehler",      "en": "Error" },
+  "save":    { "de": "Speichern",   "en": "Save" },
+  "delete":  { "de": "Löschen",     "en": "Delete" }
+}

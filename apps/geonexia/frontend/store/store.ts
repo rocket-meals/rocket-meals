@@ -7,6 +7,7 @@ import gpsIntervalReducer from './gpsIntervalSlice';
 import ttsReducer from './ttsSlice';
 import speechSettingsReducer from './speechSettingsSlice';
 import displaySettingsReducer from './displaySettingsSlice';
+import languageReducer from './languageSlice';
 import { HexTileRecord, saveHexTileState, saveDevHexTileState, saveWalkedEdges, saveDevWalkedEdges } from '../helpers/HexTileStorage';
 import { saveSportType } from '../helpers/SportTypeStorage';
 import { saveThemeMode } from '../helpers/ThemeStorage';
@@ -15,11 +16,14 @@ import { saveGpsIntervalMode } from '../helpers/GpsIntervalStorage';
 import { saveTTSEnabled } from '../helpers/TTSStorage';
 import { saveSpeechSettings } from '../helpers/SpeechSettingsStorage';
 import { saveDisplaySettings } from '../helpers/DisplaySettingsStorage';
+import { saveLanguage } from '../helpers/LanguageStorage';
+import { setCurrentLanguage } from '../hooks/useTranslation';
 import type { SpeechSettingsState } from './speechSettingsSlice';
 import type { DisplaySettingsState } from './displaySettingsSlice';
 import type { SportType } from './sportTypeSlice';
 import type { ThemeMode } from './themeSlice';
 import type { GpsIntervalMode } from './gpsIntervalSlice';
+import type { SupportedLanguage } from '../helpers/LanguageStorage';
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
@@ -33,6 +37,7 @@ export const store = configureStore({
 		tts: ttsReducer,
 		speechSettings: speechSettingsReducer,
 		displaySettings: displaySettingsReducer,
+		language: languageReducer,
 	},
 });
 
@@ -66,6 +71,9 @@ let _lastSavedSpeechSettings: SpeechSettingsState | null = null;
 // Auto-persist display settings to disk whenever they change.
 let _displaySettingsTimer: ReturnType<typeof setTimeout> | null = null;
 let _lastSavedDisplaySettings: DisplaySettingsState | null = null;
+
+// Auto-persist language to disk whenever it changes.
+let _lastSavedLanguage: SupportedLanguage | null = null;
 
 store.subscribe(() => {
 	const state = store.getState();
@@ -153,6 +161,13 @@ store.subscribe(() => {
 			saveDisplaySettings(displaySettings);
 			_displaySettingsTimer = null;
 		}, 500);
+	}
+
+	const { selectedLanguage } = state.language;
+	if (selectedLanguage !== _lastSavedLanguage) {
+		_lastSavedLanguage = selectedLanguage;
+		saveLanguage(selectedLanguage);
+		setCurrentLanguage(selectedLanguage);
 	}
 });
 

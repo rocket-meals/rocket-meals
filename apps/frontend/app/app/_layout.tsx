@@ -42,9 +42,10 @@ import ExpoUpdateChecker from '@/components/ExpoUpdateChecker/ExpoUpdateChecker'
 import {ModalProvider} from '@/components/GlobalModal/ModalProvider';
 import { ConfigCustomerEnum, getCompanyLogoLocalSaved, getCustomerConfigsDict } from '@/config';
 import { SET_SELECTED_CUSTOMER } from '@/redux/Types/types';
-import { SettingsProvider } from 'repo-depkit-common-ui';
+import { LanguageProvider, SettingsProvider } from 'repo-depkit-common-ui';
 import { useAppSelector } from '@/redux/hooks';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
+import { CHANGE_LANGUAGE } from '@/redux/Types/types';
 
 ServerAPI.createAuthentificationStorage(
 	async () => {
@@ -67,6 +68,18 @@ function AppSettingsProvider({ children }: { children: React.ReactNode }) {
 		<SettingsProvider primaryColor={primaryColor} onAccountRequired={openAccountRequiredModal}>
 			{children}
 		</SettingsProvider>
+	);
+}
+
+function LanguageBridge({ children }: { children: React.ReactNode }) {
+	const language = useAppSelector((state) => state.settings.language);
+	return (
+		<LanguageProvider
+			language={language}
+			onLanguageChange={(lang) => configureStore.dispatch({ type: CHANGE_LANGUAGE, payload: lang })}
+		>
+			{children}
+		</LanguageProvider>
 	);
 }
 
@@ -142,6 +155,7 @@ export default function Layout() {
 						<PersistGate loading={null} persistor={persistor}>
 							<RootSiblingParent>
 								<ThemeProvider>
+									<LanguageBridge>
 									<ModalProvider>
 										<AppSettingsProvider>
 											<ServerStatusLoader>
@@ -155,6 +169,7 @@ export default function Layout() {
 											</ServerStatusLoader>
 										</AppSettingsProvider>
 									</ModalProvider>
+									</LanguageBridge>
 								</ThemeProvider>
 							</RootSiblingParent>
 						</PersistGate>

@@ -4,7 +4,7 @@ import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { ThemeProvider, AppDrawer, DrawerItem, ModalProvider, SettingsProvider, useTheme } from 'repo-depkit-common-ui';
+import { ThemeProvider, AppDrawer, DrawerItem, ModalProvider, SettingsProvider, LanguageProvider, useTheme } from 'repo-depkit-common-ui';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import { Modal, ScrollView, TouchableOpacity, View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
@@ -19,6 +19,7 @@ import { loadGpsIntervalMode as loadGpsIntervalModeAction } from '../store/gpsIn
 import { loadTTSEnabled as loadTTSEnabledAction } from '../store/ttsSlice';
 import { loadSpeechSettings as loadSpeechSettingsAction } from '../store/speechSettingsSlice';
 import { loadDisplaySettings as loadDisplaySettingsAction } from '../store/displaySettingsSlice';
+import { loadLanguage as loadLanguageAction, setLanguage } from '../store/languageSlice';
 import { loadHexTileState, loadDevHexTileState, loadDevModeFlag, loadDebugModeFlag, loadWalkedEdges, loadDevWalkedEdges, loadWorldBuildingId, loadDevWorldBuildingId, saveWorldBuildingId, saveDevWorldBuildingId, saveHexTileState, saveDevHexTileState, saveWalkedEdges, saveDevWalkedEdges } from '../helpers/HexTileStorage';
 import { loadSportType } from '../helpers/SportTypeStorage';
 import { loadThemeMode } from '../helpers/ThemeStorage';
@@ -27,6 +28,7 @@ import { loadGpsIntervalMode } from '../helpers/GpsIntervalStorage';
 import { loadTTSEnabled } from '../helpers/TTSStorage';
 import { loadSpeechSettings } from '../helpers/SpeechSettingsStorage';
 import { loadDisplaySettings } from '../helpers/DisplaySettingsStorage';
+import { loadLanguage } from '../helpers/LanguageStorage';
 import { WORLD_BUILDING_ID, rebuildMapFromActivities } from '../helpers/ActivityMapRebuildHelper';
 import { loadActivities } from '../helpers/ActivityStorage';
 import { loadHexTileFeatureCache } from '../helpers/HexTileFeatureStorage';
@@ -114,6 +116,19 @@ function ThemeSyncBridge() {
 	}, [selectedMode, setThemeMode]);
 
 	return null;
+}
+
+// Wraps children with a controlled LanguageProvider driven by the Redux language slice.
+function LanguageBridge({ children }: { children: React.ReactNode }) {
+	const selectedLanguage = useSelector((state: RootState) => state.language.selectedLanguage);
+	return (
+		<LanguageProvider
+			language={selectedLanguage}
+			onLanguageChange={(lang) => store.dispatch(setLanguage(lang as 'de' | 'en'))}
+		>
+			{children}
+		</LanguageProvider>
+	);
 }
 
 function ThemedDrawerNavigator() {
@@ -434,6 +449,13 @@ export default function Layout() {
 			.catch((err) => {
 				console.warn('[Layout] Failed to load persisted display settings:', err);
 			});
+		loadLanguage()
+			.then((lang) => {
+				store.dispatch(loadLanguageAction(lang));
+			})
+			.catch((err) => {
+				console.warn('[Layout] Failed to load persisted language:', err);
+			});
 	}, []);
 
 	return (
@@ -443,6 +465,7 @@ export default function Layout() {
 			<SafeAreaProvider>
 				<ThemeProvider>
 					<ThemeSyncBridge />
+					<LanguageBridge>
 					<SettingsProvider primaryColor="#2563eb">
 						<ModalProvider>
 						<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.keyboardAvoidingView}>
@@ -450,6 +473,7 @@ export default function Layout() {
 						</KeyboardAvoidingView>
 						</ModalProvider>
 					</SettingsProvider>
+					</LanguageBridge>
 				</ThemeProvider>
 			</SafeAreaProvider>
 		</GestureHandlerRootView>
