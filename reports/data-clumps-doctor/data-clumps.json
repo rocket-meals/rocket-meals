@@ -1,6 +1,6 @@
 {
   "report_version": "^0.1.103",
-  "report_timestamp": "2026-04-02T14:33:49.666Z",
+  "report_timestamp": "2026-04-03T10:32:01.846Z",
   "target_language": "typescript",
   "report_summary": {
     "additional": {
@@ -8,8 +8,8 @@
         "invertedFieldToClasses": {
           "median": 1,
           "maximum": 94,
-          "average": 1.60703933747412,
-          "amountSavedValuesForKeys": 3881,
+          "average": 1.6105828854898718,
+          "amountSavedValuesForKeys": 3896,
           "amountKeys": 25
         },
         "invertedParameterToMethods": {
@@ -22,50 +22,50 @@
         "invertedParameterToClasses": {
           "median": 1,
           "maximum": 94,
-          "average": 1.6218136230672795,
-          "amountSavedValuesForKeys": 3881,
+          "average": 1.6253650396328745,
+          "amountSavedValuesForKeys": 3896,
           "amountKeys": 25
         }
       },
       "timer_information": {
-        "ast_generation_time_ms": 4195,
-        "detection_time_ms": 82,
+        "ast_generation_time_ms": 4082,
+        "detection_time_ms": 78,
         "machine_information": {
           "os": "Linux",
           "os_release": "6.17.0-1008-azure",
           "os_platform": "linux",
           "os_arch": "x64",
-          "os_uptime": 116.97,
-          "os_memory_free": 14924009472,
-          "os_memory_total": 16766443520,
+          "os_uptime": 118.49,
+          "os_memory_free": 14974947328,
+          "os_memory_total": 16770777088,
           "os_cpu_cores": 4,
           "os_cpu_model": "AMD EPYC 7763 64-Core Processor",
           "os_cpu_speed": 0
         }
       }
     },
-    "amount_classes_or_interfaces_with_data_clumps": 43,
-    "amount_files_with_data_clumps": 33,
+    "amount_classes_or_interfaces_with_data_clumps": 44,
+    "amount_files_with_data_clumps": 34,
     "amount_methods_with_data_clumps": 5,
-    "fields_to_fields_data_clump": 60,
+    "fields_to_fields_data_clump": 62,
     "parameters_to_fields_data_clump": 0,
     "parameters_to_parameters_data_clump": 8,
-    "amount_data_clumps": 68
+    "amount_data_clumps": 70
   },
   "project_info": {
     "project_url": "https://github.com/rocket-meals/rocket-meals",
     "project_name": "rocket-meals",
-    "project_version": "6ef618d0c4f780f817f5078ef583404aa47bdfb9",
-    "project_commit_hash": "6ef618d0c4f780f817f5078ef583404aa47bdfb9",
+    "project_version": "db275711849f37041302117f2c03d3f72a516eaf",
+    "project_commit_hash": "db275711849f37041302117f2c03d3f72a516eaf",
     "project_tag": null,
-    "project_commit_date": "1775140325",
+    "project_commit_date": "1775212219",
     "additional": {
       "relative_path_to_source_folder_in_project": ""
     },
-    "number_of_files": 482,
-    "number_of_classes_or_interfaces": 985,
+    "number_of_files": 484,
+    "number_of_classes_or_interfaces": 987,
     "number_of_methods": 1327,
-    "number_of_data_fields": 3881,
+    "number_of_data_fields": 3896,
     "number_of_method_parameters": 1467
   },
   "detector": {
@@ -2497,9 +2497,9 @@
             }
           },
           "position": {
-            "startLine": 1838,
+            "startLine": 1840,
             "startColumn": 2,
-            "endLine": 1838,
+            "endLine": 1840,
             "endColumn": 25
           }
         },
@@ -2522,9 +2522,9 @@
             }
           },
           "position": {
-            "startLine": 1839,
+            "startLine": 1841,
             "startColumn": 2,
-            "endLine": 1839,
+            "endLine": 1841,
             "endColumn": 22
           }
         },
@@ -2547,9 +2547,9 @@
             }
           },
           "position": {
-            "startLine": 1840,
+            "startLine": 1842,
             "startColumn": 2,
-            "endLine": 1840,
+            "endLine": 1842,
             "endColumn": 23
           }
         },
@@ -2572,9 +2572,9 @@
             }
           },
           "position": {
-            "startLine": 1841,
+            "startLine": 1843,
             "startColumn": 2,
-            "endLine": 1841,
+            "endLine": 1843,
             "endColumn": 26
           }
         },
@@ -2597,9 +2597,9 @@
             }
           },
           "position": {
-            "startLine": 1842,
+            "startLine": 1844,
             "startColumn": 2,
-            "endLine": 1842,
+            "endLine": 1844,
             "endColumn": 25
           }
         },
@@ -2622,9 +2622,9 @@
             }
           },
           "position": {
-            "startLine": 1843,
+            "startLine": 1845,
             "startColumn": 2,
-            "endLine": 1843,
+            "endLine": 1845,
             "endColumn": 26
           }
         },
@@ -2647,9 +2647,9 @@
             }
           },
           "position": {
-            "startLine": 1844,
+            "startLine": 1846,
             "startColumn": 2,
-            "endLine": 1844,
+            "endLine": 1846,
             "endColumn": 26
           }
         },
@@ -2672,9 +2672,9 @@
             }
           },
           "position": {
-            "startLine": 1845,
+            "startLine": 1847,
             "startColumn": 2,
-            "endLine": 1845,
+            "endLine": 1847,
             "endColumn": 25
           }
         },
@@ -2697,9 +2697,9 @@
             }
           },
           "position": {
-            "startLine": 1846,
+            "startLine": 1848,
             "startColumn": 2,
-            "endLine": 1846,
+            "endLine": 1848,
             "endColumn": 25
           }
         },
@@ -2722,9 +2722,9 @@
             }
           },
           "position": {
-            "startLine": 1847,
+            "startLine": 1849,
             "startColumn": 2,
-            "endLine": 1847,
+            "endLine": 1849,
             "endColumn": 25
           }
         }
@@ -2769,9 +2769,9 @@
             }
           },
           "position": {
-            "startLine": 1839,
+            "startLine": 1841,
             "startColumn": 2,
-            "endLine": 1839,
+            "endLine": 1841,
             "endColumn": 22
           }
         },
@@ -2794,9 +2794,9 @@
             }
           },
           "position": {
-            "startLine": 1840,
+            "startLine": 1842,
             "startColumn": 2,
-            "endLine": 1840,
+            "endLine": 1842,
             "endColumn": 23
           }
         },
@@ -2819,9 +2819,9 @@
             }
           },
           "position": {
-            "startLine": 1841,
+            "startLine": 1843,
             "startColumn": 2,
-            "endLine": 1841,
+            "endLine": 1843,
             "endColumn": 26
           }
         },
@@ -2844,9 +2844,9 @@
             }
           },
           "position": {
-            "startLine": 1842,
+            "startLine": 1844,
             "startColumn": 2,
-            "endLine": 1842,
+            "endLine": 1844,
             "endColumn": 25
           }
         },
@@ -2869,9 +2869,9 @@
             }
           },
           "position": {
-            "startLine": 1843,
+            "startLine": 1845,
             "startColumn": 2,
-            "endLine": 1843,
+            "endLine": 1845,
             "endColumn": 26
           }
         },
@@ -2894,9 +2894,9 @@
             }
           },
           "position": {
-            "startLine": 1844,
+            "startLine": 1846,
             "startColumn": 2,
-            "endLine": 1844,
+            "endLine": 1846,
             "endColumn": 26
           }
         },
@@ -2919,9 +2919,9 @@
             }
           },
           "position": {
-            "startLine": 1845,
+            "startLine": 1847,
             "startColumn": 2,
-            "endLine": 1845,
+            "endLine": 1847,
             "endColumn": 25
           }
         },
@@ -2944,9 +2944,9 @@
             }
           },
           "position": {
-            "startLine": 1846,
+            "startLine": 1848,
             "startColumn": 2,
-            "endLine": 1846,
+            "endLine": 1848,
             "endColumn": 25
           }
         },
@@ -2969,9 +2969,9 @@
             }
           },
           "position": {
-            "startLine": 1847,
+            "startLine": 1849,
             "startColumn": 2,
-            "endLine": 1847,
+            "endLine": 1849,
             "endColumn": 25
           }
         }
@@ -4977,7 +4977,351 @@
       },
       "data_clump_type_additional": {
         "cluster_id": 14,
-        "cluster_type": 2
+        "cluster_type": 3
+      }
+    },
+    "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/ActivityStorage.ts-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot-startedAtroutePointssportTypeh3ResolutionhexTilesOrderedrouteId": {
+      "type": "data_clump",
+      "key": "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/ActivityStorage.ts-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot-startedAtroutePointssportTypeh3ResolutionhexTilesOrderedrouteId",
+      "probability": 1,
+      "from_file_path": "apps/geonexia/frontend/helpers/ActivityStorage.ts",
+      "from_class_or_interface_key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity",
+      "from_class_or_interface_name": "SavedActivity",
+      "from_method_name": null,
+      "from_method_key": null,
+      "to_file_path": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts",
+      "to_class_or_interface_key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot",
+      "to_class_or_interface_name": "InterruptedRecordingSnapshot",
+      "to_method_key": null,
+      "to_method_name": null,
+      "data_clump_type": "fields_to_fields_data_clump",
+      "data_clump_data": {
+        "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/startedAt": {
+          "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/startedAt",
+          "name": "startedAt",
+          "type": "number",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/startedAt",
+            "name": "startedAt",
+            "type": "number",
+            "modifiers": [],
+            "position": {
+              "startLine": 13,
+              "startColumn": 2,
+              "endLine": 13,
+              "endColumn": 20
+            }
+          },
+          "position": {
+            "startLine": 70,
+            "startColumn": 2,
+            "endLine": 70,
+            "endColumn": 20
+          }
+        },
+        "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/routePoints": {
+          "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/routePoints",
+          "name": "routePoints",
+          "type": "RoutePoint[]",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/routePoints",
+            "name": "routePoints",
+            "type": "RoutePoint[]",
+            "modifiers": [],
+            "position": {
+              "startLine": 19,
+              "startColumn": 2,
+              "endLine": 19,
+              "endColumn": 28
+            }
+          },
+          "position": {
+            "startLine": 72,
+            "startColumn": 2,
+            "endLine": 72,
+            "endColumn": 28
+          }
+        },
+        "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/sportType": {
+          "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/sportType",
+          "name": "sportType",
+          "type": "SportType",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/sportType",
+            "name": "sportType",
+            "type": "SportType",
+            "modifiers": [],
+            "position": {
+              "startLine": 25,
+              "startColumn": 2,
+              "endLine": 25,
+              "endColumn": 23
+            }
+          },
+          "position": {
+            "startLine": 75,
+            "startColumn": 2,
+            "endLine": 75,
+            "endColumn": 24
+          }
+        },
+        "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/h3Resolution": {
+          "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/h3Resolution",
+          "name": "h3Resolution",
+          "type": "number",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/h3Resolution",
+            "name": "h3Resolution",
+            "type": "number",
+            "modifiers": [],
+            "position": {
+              "startLine": 23,
+              "startColumn": 2,
+              "endLine": 23,
+              "endColumn": 23
+            }
+          },
+          "position": {
+            "startLine": 77,
+            "startColumn": 2,
+            "endLine": 77,
+            "endColumn": 24
+          }
+        },
+        "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/hexTilesOrdered": {
+          "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/hexTilesOrdered",
+          "name": "hexTilesOrdered",
+          "type": "string[]",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/hexTilesOrdered",
+            "name": "hexTilesOrdered",
+            "type": "string[]",
+            "modifiers": [],
+            "position": {
+              "startLine": 21,
+              "startColumn": 2,
+              "endLine": 21,
+              "endColumn": 28
+            }
+          },
+          "position": {
+            "startLine": 88,
+            "startColumn": 2,
+            "endLine": 88,
+            "endColumn": 29
+          }
+        },
+        "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/routeId": {
+          "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/routeId",
+          "name": "routeId",
+          "type": "string | null",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/routeId",
+            "name": "routeId",
+            "type": "string | null",
+            "modifiers": [],
+            "position": {
+              "startLine": 27,
+              "startColumn": 2,
+              "endLine": 27,
+              "endColumn": 26
+            }
+          },
+          "position": {
+            "startLine": 106,
+            "startColumn": 2,
+            "endLine": 106,
+            "endColumn": 26
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 14,
+        "cluster_type": 3
+      }
+    },
+    "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts-apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-startedAtroutePointshexTilesOrderedh3ResolutionsportTyperouteId": {
+      "type": "data_clump",
+      "key": "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts-apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-startedAtroutePointshexTilesOrderedh3ResolutionsportTyperouteId",
+      "probability": 1,
+      "from_file_path": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts",
+      "from_class_or_interface_key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot",
+      "from_class_or_interface_name": "InterruptedRecordingSnapshot",
+      "from_method_name": null,
+      "from_method_key": null,
+      "to_file_path": "apps/geonexia/frontend/helpers/ActivityStorage.ts",
+      "to_class_or_interface_key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity",
+      "to_class_or_interface_name": "SavedActivity",
+      "to_method_key": null,
+      "to_method_name": null,
+      "data_clump_type": "fields_to_fields_data_clump",
+      "data_clump_data": {
+        "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/startedAt": {
+          "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/startedAt",
+          "name": "startedAt",
+          "type": "number",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/startedAt",
+            "name": "startedAt",
+            "type": "number",
+            "modifiers": [],
+            "position": {
+              "startLine": 70,
+              "startColumn": 2,
+              "endLine": 70,
+              "endColumn": 20
+            }
+          },
+          "position": {
+            "startLine": 13,
+            "startColumn": 2,
+            "endLine": 13,
+            "endColumn": 20
+          }
+        },
+        "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/routePoints": {
+          "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/routePoints",
+          "name": "routePoints",
+          "type": "RoutePoint[]",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/routePoints",
+            "name": "routePoints",
+            "type": "RoutePoint[]",
+            "modifiers": [],
+            "position": {
+              "startLine": 72,
+              "startColumn": 2,
+              "endLine": 72,
+              "endColumn": 28
+            }
+          },
+          "position": {
+            "startLine": 19,
+            "startColumn": 2,
+            "endLine": 19,
+            "endColumn": 28
+          }
+        },
+        "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/hexTilesOrdered": {
+          "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/hexTilesOrdered",
+          "name": "hexTilesOrdered",
+          "type": "string[]",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/hexTilesOrdered",
+            "name": "hexTilesOrdered",
+            "type": "string[]",
+            "modifiers": [],
+            "position": {
+              "startLine": 88,
+              "startColumn": 2,
+              "endLine": 88,
+              "endColumn": 29
+            }
+          },
+          "position": {
+            "startLine": 21,
+            "startColumn": 2,
+            "endLine": 21,
+            "endColumn": 28
+          }
+        },
+        "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/h3Resolution": {
+          "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/h3Resolution",
+          "name": "h3Resolution",
+          "type": "number",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/h3Resolution",
+            "name": "h3Resolution",
+            "type": "number",
+            "modifiers": [],
+            "position": {
+              "startLine": 77,
+              "startColumn": 2,
+              "endLine": 77,
+              "endColumn": 24
+            }
+          },
+          "position": {
+            "startLine": 23,
+            "startColumn": 2,
+            "endLine": 23,
+            "endColumn": 23
+          }
+        },
+        "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/sportType": {
+          "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/sportType",
+          "name": "sportType",
+          "type": "SportType",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/sportType",
+            "name": "sportType",
+            "type": "SportType",
+            "modifiers": [],
+            "position": {
+              "startLine": 75,
+              "startColumn": 2,
+              "endLine": 75,
+              "endColumn": 24
+            }
+          },
+          "position": {
+            "startLine": 25,
+            "startColumn": 2,
+            "endLine": 25,
+            "endColumn": 23
+          }
+        },
+        "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/routeId": {
+          "key": "apps/geonexia/frontend/helpers/InterruptedRecordingStorage.ts/interface/InterruptedRecordingSnapshot/memberField/routeId",
+          "name": "routeId",
+          "type": "string | null",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/routeId",
+            "name": "routeId",
+            "type": "string | null",
+            "modifiers": [],
+            "position": {
+              "startLine": 106,
+              "startColumn": 2,
+              "endLine": 106,
+              "endColumn": 26
+            }
+          },
+          "position": {
+            "startLine": 27,
+            "startColumn": 2,
+            "endLine": 27,
+            "endColumn": 26
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 14,
+        "cluster_type": 3
       }
     },
     "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/RouteNameSuggestionHelper.ts-apps/geonexia/frontend/helpers/RouteNameSuggestionHelper.ts/interface/AreaInfoEntry-apps/geonexia/frontend/app/index.tsx/interface/MapFeatureInfo-nameclasssubclasshighwaywaterwaybuildingnaturallanduseamenity": {
@@ -5008,9 +5352,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1839,
+              "startLine": 1841,
               "startColumn": 2,
-              "endLine": 1839,
+              "endLine": 1841,
               "endColumn": 22
             }
           },
@@ -5033,9 +5377,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1840,
+              "startLine": 1842,
               "startColumn": 2,
-              "endLine": 1840,
+              "endLine": 1842,
               "endColumn": 23
             }
           },
@@ -5058,9 +5402,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1841,
+              "startLine": 1843,
               "startColumn": 2,
-              "endLine": 1841,
+              "endLine": 1843,
               "endColumn": 26
             }
           },
@@ -5083,9 +5427,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1842,
+              "startLine": 1844,
               "startColumn": 2,
-              "endLine": 1842,
+              "endLine": 1844,
               "endColumn": 25
             }
           },
@@ -5108,9 +5452,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1843,
+              "startLine": 1845,
               "startColumn": 2,
-              "endLine": 1843,
+              "endLine": 1845,
               "endColumn": 26
             }
           },
@@ -5133,9 +5477,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1844,
+              "startLine": 1846,
               "startColumn": 2,
-              "endLine": 1844,
+              "endLine": 1846,
               "endColumn": 26
             }
           },
@@ -5158,9 +5502,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1845,
+              "startLine": 1847,
               "startColumn": 2,
-              "endLine": 1845,
+              "endLine": 1847,
               "endColumn": 25
             }
           },
@@ -5183,9 +5527,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1846,
+              "startLine": 1848,
               "startColumn": 2,
-              "endLine": 1846,
+              "endLine": 1848,
               "endColumn": 25
             }
           },
@@ -5208,9 +5552,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1847,
+              "startLine": 1849,
               "startColumn": 2,
-              "endLine": 1847,
+              "endLine": 1849,
               "endColumn": 25
             }
           },
@@ -5502,9 +5846,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1838,
+              "startLine": 1840,
               "startColumn": 2,
-              "endLine": 1838,
+              "endLine": 1840,
               "endColumn": 25
             }
           },
@@ -5527,9 +5871,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1839,
+              "startLine": 1841,
               "startColumn": 2,
-              "endLine": 1839,
+              "endLine": 1841,
               "endColumn": 22
             }
           },
@@ -5552,9 +5896,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1840,
+              "startLine": 1842,
               "startColumn": 2,
-              "endLine": 1840,
+              "endLine": 1842,
               "endColumn": 23
             }
           },
@@ -5577,9 +5921,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1841,
+              "startLine": 1843,
               "startColumn": 2,
-              "endLine": 1841,
+              "endLine": 1843,
               "endColumn": 26
             }
           },
@@ -5602,9 +5946,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1842,
+              "startLine": 1844,
               "startColumn": 2,
-              "endLine": 1842,
+              "endLine": 1844,
               "endColumn": 25
             }
           },
@@ -5627,9 +5971,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1843,
+              "startLine": 1845,
               "startColumn": 2,
-              "endLine": 1843,
+              "endLine": 1845,
               "endColumn": 26
             }
           },
@@ -5652,9 +5996,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1844,
+              "startLine": 1846,
               "startColumn": 2,
-              "endLine": 1844,
+              "endLine": 1846,
               "endColumn": 26
             }
           },
@@ -5677,9 +6021,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1845,
+              "startLine": 1847,
               "startColumn": 2,
-              "endLine": 1845,
+              "endLine": 1847,
               "endColumn": 25
             }
           },
@@ -5702,9 +6046,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1846,
+              "startLine": 1848,
               "startColumn": 2,
-              "endLine": 1846,
+              "endLine": 1848,
               "endColumn": 25
             }
           },
@@ -5727,9 +6071,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1847,
+              "startLine": 1849,
               "startColumn": 2,
-              "endLine": 1847,
+              "endLine": 1849,
               "endColumn": 25
             }
           },
@@ -6087,7 +6431,7 @@
       },
       "data_clump_type_additional": {
         "cluster_id": 14,
-        "cluster_type": 2
+        "cluster_type": 3
       }
     },
     "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/TTSHelper.ts-apps/geonexia/frontend/helpers/TTSHelper.ts/interface/PeriodicAnnouncementContent-apps/geonexia/frontend/store/speechSettingsSlice.ts/interface/SpeechSettingsState-announceDistanceannouncePaceannounceDurationannounceSpeedannounceCaloriesannounceHeartRate": {
@@ -6125,9 +6469,9 @@
             }
           },
           "position": {
-            "startLine": 186,
+            "startLine": 217,
             "startColumn": 2,
-            "endLine": 186,
+            "endLine": 217,
             "endColumn": 28
           }
         },
@@ -6150,9 +6494,9 @@
             }
           },
           "position": {
-            "startLine": 187,
+            "startLine": 218,
             "startColumn": 2,
-            "endLine": 187,
+            "endLine": 218,
             "endColumn": 24
           }
         },
@@ -6175,9 +6519,9 @@
             }
           },
           "position": {
-            "startLine": 188,
+            "startLine": 219,
             "startColumn": 2,
-            "endLine": 188,
+            "endLine": 219,
             "endColumn": 28
           }
         },
@@ -6200,9 +6544,9 @@
             }
           },
           "position": {
-            "startLine": 189,
+            "startLine": 220,
             "startColumn": 2,
-            "endLine": 189,
+            "endLine": 220,
             "endColumn": 25
           }
         },
@@ -6225,9 +6569,9 @@
             }
           },
           "position": {
-            "startLine": 190,
+            "startLine": 221,
             "startColumn": 2,
-            "endLine": 190,
+            "endLine": 221,
             "endColumn": 28
           }
         },
@@ -6250,9 +6594,9 @@
             }
           },
           "position": {
-            "startLine": 191,
+            "startLine": 222,
             "startColumn": 2,
-            "endLine": 191,
+            "endLine": 222,
             "endColumn": 29
           }
         }
@@ -7122,9 +7466,9 @@
             "type": "boolean",
             "modifiers": [],
             "position": {
-              "startLine": 186,
+              "startLine": 217,
               "startColumn": 2,
-              "endLine": 186,
+              "endLine": 217,
               "endColumn": 28
             }
           },
@@ -7147,9 +7491,9 @@
             "type": "boolean",
             "modifiers": [],
             "position": {
-              "startLine": 187,
+              "startLine": 218,
               "startColumn": 2,
-              "endLine": 187,
+              "endLine": 218,
               "endColumn": 24
             }
           },
@@ -7172,9 +7516,9 @@
             "type": "boolean",
             "modifiers": [],
             "position": {
-              "startLine": 188,
+              "startLine": 219,
               "startColumn": 2,
-              "endLine": 188,
+              "endLine": 219,
               "endColumn": 28
             }
           },
@@ -7197,9 +7541,9 @@
             "type": "boolean",
             "modifiers": [],
             "position": {
-              "startLine": 189,
+              "startLine": 220,
               "startColumn": 2,
-              "endLine": 189,
+              "endLine": 220,
               "endColumn": 25
             }
           },
@@ -7222,9 +7566,9 @@
             "type": "boolean",
             "modifiers": [],
             "position": {
-              "startLine": 190,
+              "startLine": 221,
               "startColumn": 2,
-              "endLine": 190,
+              "endLine": 221,
               "endColumn": 28
             }
           },
@@ -7247,9 +7591,9 @@
             "type": "boolean",
             "modifiers": [],
             "position": {
-              "startLine": 191,
+              "startLine": 222,
               "startColumn": 2,
-              "endLine": 191,
+              "endLine": 222,
               "endColumn": 29
             }
           },

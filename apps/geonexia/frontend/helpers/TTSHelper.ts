@@ -1,6 +1,7 @@
 import * as Speech from 'expo-speech';
 import { setAudioModeAsync } from 'expo-audio';
 import type { SpeechRate } from '../store/speechSettingsSlice';
+import { appendTTSLogEntry } from './TTSLogStorage';
 
 // ─── Speech rate mapping ──────────────────────────────────────────────────────
 
@@ -122,18 +123,48 @@ export function buildKmAnnouncement(
  * Speak a TTS announcement, stopping any currently playing speech first.
  * `useApplicationAudioSession` defaults to `true` so background music is not
  * interrupted on iOS.  All other options can be overridden via the third arg.
+ *
+ * Every call is logged to the TTS log storage (text + outcome) so that crash
+ * causes can be diagnosed later from the Settings screen.
+ *
+ * @param source  Label identifying the announcement origin (e.g.
+ *                `"km_milestone"`, `"periodic"`, `"pace_hint"`,
+ *                `"background"`).  Used in the log for filtering.
  */
 export function speakAnnouncement(
 	text: string,
 	languageCode: string,
 	options?: Omit<Speech.SpeechOptions, 'language'>,
+	source: string = 'unknown',
 ): void {
-	Speech.stop();
-	Speech.speak(text, {
-		useApplicationAudioSession: true,
-		...options,
-		language: languageCode,
+	// Log intent *before* the speech call.
+	void appendTTSLogEntry({
+		timestamp: Date.now(),
+		text,
+		languageCode,
+		success: true,
+		source,
 	});
+
+	try {
+		Speech.stop();
+		Speech.speak(text, {
+			useApplicationAudioSession: true,
+			...options,
+			language: languageCode,
+		});
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		console.warn('[TTSHelper] speakAnnouncement failed:', message);
+		void appendTTSLogEntry({
+			timestamp: Date.now(),
+			text,
+			languageCode,
+			success: false,
+			error: message,
+			source,
+		});
+	}
 }
 
 // ─── Distance / speed formatting helpers ─────────────────────────────────────

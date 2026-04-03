@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, Feather, MaterialIcons } from '@expo/vector-icons';
 import {
@@ -37,6 +37,7 @@ import {
 import { getCompanyLogoLocalSaved } from '../../config';
 import { useTranslation } from '../../hooks/useTranslation';
 import { GeonexiaTranslationKeys } from '../../locales/keys';
+import { loadTTSLog, clearTTSLog, type TTSLogEntry } from '../../helpers/TTSLogStorage';
 
 const PRIMARY_COLOR = '#2563eb';
 const NOTIFICATION_COLOR = '#16a34a';
@@ -85,6 +86,84 @@ function ResetConfirmContent({
 	);
 }
 
+// ─── TTS Log Content ──────────────────────────────────────────────────────────
+
+function TTSLogContent({
+	theme,
+	onClear,
+}: {
+	theme: ReturnType<typeof useTheme>['theme'];
+	onClear: () => void;
+}) {
+	const [entries, setEntries] = useState<TTSLogEntry[]>([]);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		loadTTSLog().then((log) => {
+			setEntries(log.slice().reverse()); // newest first
+			setLoading(false);
+		});
+	}, []);
+
+	const handleClear = useCallback(() => {
+		clearTTSLog();
+		setEntries([]);
+		onClear();
+	}, [onClear]);
+
+	if (loading) {
+		return <Text style={{ color: theme.screen.text, padding: 16 }}>Loading…</Text>;
+	}
+
+	return (
+		<View style={styles.ttsLogContainer}>
+			<TouchableOpacity
+				style={[styles.resetConfirmButton, { backgroundColor: DANGER_COLOR }]}
+				onPress={handleClear}
+				activeOpacity={0.8}
+			>
+				<MaterialIcons name="delete-sweep" size={18} color="#ffffff" />
+				<Text style={styles.resetConfirmButtonText}>Clear Log ({entries.length})</Text>
+			</TouchableOpacity>
+
+			{entries.length === 0 ? (
+				<Text style={[styles.ttsLogEmpty, { color: theme.screen.text }]}>
+					No TTS log entries yet.
+				</Text>
+			) : (
+				entries.map((entry, idx) => {
+					const date = new Date(entry.timestamp);
+					const timeStr = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+					return (
+						<View
+							key={`${entry.timestamp}-${idx}`}
+							style={[
+								styles.ttsLogEntry,
+								{ borderColor: entry.success ? '#16a34a40' : '#dc262640' },
+							]}
+						>
+							<View style={styles.ttsLogHeader}>
+								<Text style={[styles.ttsLogSource, { color: entry.success ? '#16a34a' : DANGER_COLOR }]}>
+									{entry.success ? '✓' : '✗'} {entry.source}
+								</Text>
+								<Text style={[styles.ttsLogTime, { color: theme.screen.text }]}>{timeStr}</Text>
+							</View>
+							<Text style={[styles.ttsLogText, { color: theme.screen.text }]} numberOfLines={3}>
+								{entry.text}
+							</Text>
+							{entry.error ? (
+								<Text style={[styles.ttsLogError, { color: DANGER_COLOR }]} numberOfLines={2}>
+									Error: {entry.error}
+								</Text>
+							) : null}
+						</View>
+					);
+				})
+			)}
+		</View>
+	);
+}
+
 // ─── Settings Screen ──────────────────────────────────────────────────────────
 
 export default function SettingsScreen() {
@@ -105,6 +184,7 @@ export default function SettingsScreen() {
 	const { show: showResetModal, close: closeResetModal } = useMyScrollViewModal();
 	const { show: showGpsModal, close: closeGpsModal } = useMyScrollViewModal();
 	const { show: showSpeechModal } = useMyScrollViewModal();
+	const { show: showTTSLogModal, close: closeTTSLogModal } = useMyScrollViewModal();
 
 	const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
@@ -207,6 +287,13 @@ export default function SettingsScreen() {
 		});
 	}, [showSpeechModal, translate]);
 
+	const handleOpenTTSLog = useCallback(() => {
+		showTTSLogModal({
+			title: '📋 TTS Log',
+			children: <TTSLogContent theme={theme} onClear={closeTTSLogModal} />,
+		});
+	}, [showTTSLogModal, closeTTSLogModal, theme]);
+
 	const handleToggleDevMode = useCallback(async () => {
 		const { records: currentRecords, isDevMode: currentIsDevMode, walkedEdges: currentEdges } = store.getState().hexTiles;
 		if (currentIsDevMode) {
@@ -279,7 +366,16 @@ export default function SettingsScreen() {
 				value={speechEnabled ? translate(GeonexiaTranslationKeys.enabled) : translate(GeonexiaTranslationKeys.disabled)}
 				rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
 				handleFunction={handleOpenSpeechSettings}
-				groupPosition="single"
+				groupPosition="top"
+			/>
+			<SettingsList
+				iconBgColor={TTS_COLOR}
+				leftIcon={<MaterialIcons name="article" size={22} color="#ffffff" />}
+				label="TTS Log"
+				value="View speech logs"
+				rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
+				handleFunction={handleOpenTTSLog}
+				groupPosition="bottom"
 			/>
 
 				<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.settings_group_notifications)} />
@@ -459,5 +555,42 @@ const styles = StyleSheet.create({
 	},
 	stepBtn: {
 		padding: 6,
+	},
+	ttsLogContainer: {
+		paddingTop: 8,
+		gap: 8,
+	},
+	ttsLogEmpty: {
+		fontSize: 14,
+		textAlign: 'center',
+		paddingVertical: 24,
+		opacity: 0.5,
+	},
+	ttsLogEntry: {
+		borderWidth: 1,
+		borderRadius: 8,
+		padding: 10,
+		gap: 4,
+	},
+	ttsLogHeader: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+	},
+	ttsLogSource: {
+		fontSize: 13,
+		fontWeight: '600',
+	},
+	ttsLogTime: {
+		fontSize: 11,
+		opacity: 0.6,
+	},
+	ttsLogText: {
+		fontSize: 13,
+		lineHeight: 18,
+	},
+	ttsLogError: {
+		fontSize: 12,
+		fontStyle: 'italic',
 	},
 });
