@@ -45,7 +45,7 @@ import { SET_SELECTED_CUSTOMER } from '@/redux/Types/types';
 import { LanguageProvider, SettingsProvider } from 'repo-depkit-common-ui';
 import { useAppSelector } from '@/redux/hooks';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
-import { CHANGE_LANGUAGE } from '@/redux/Types/types';
+import { changeLanguage } from '@/hooks/useLanguage';
 
 ServerAPI.createAuthentificationStorage(
 	async () => {
@@ -76,7 +76,7 @@ function LanguageBridge({ children }: { children: React.ReactNode }) {
 	return (
 		<LanguageProvider
 			language={language}
-			onLanguageChange={(lang) => configureStore.dispatch({ type: CHANGE_LANGUAGE, payload: lang })}
+			onLanguageChange={(lang) => configureStore.dispatch(changeLanguage(lang as Parameters<typeof changeLanguage>[0]))}
 		>
 			{children}
 		</LanguageProvider>

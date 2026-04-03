@@ -1,5 +1,16 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 
+// expo-localization is an optional peer dependency – import it safely so that
+// apps which don't install it still work fine (they just won't get device-locale
+// auto-detection in uncontrolled mode).
+let _getLocales: (() => Array<{ languageCode?: string | null }>) | undefined;
+try {
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
+	_getLocales = (require('expo-localization') as { getLocales: () => Array<{ languageCode?: string | null }> }).getLocales;
+} catch {
+	// expo-localization not installed – uncontrolled mode falls back to 'de'.
+}
+
 export type LanguageContextType = {
 	language: string;
 	setLanguage: (lang: string) => void;
@@ -25,14 +36,12 @@ type LanguageProviderProps = {
 
 function detectDeviceLanguage(): string {
 	try {
-		// expo-localization is an optional peer dependency – wrap in try/catch so
-		// that apps without it (e.g. apps/frontend) still work in uncontrolled mode.
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		const { getLocales } = require('expo-localization') as { getLocales: () => Array<{ languageCode?: string | null }> };
-		const locales = getLocales();
-		for (const locale of locales) {
-			const lang = locale.languageCode ?? '';
-			if (lang) return lang;
+		if (_getLocales) {
+			const locales = _getLocales();
+			for (const locale of locales) {
+				const lang = locale.languageCode ?? '';
+				if (lang) return lang;
+			}
 		}
 	} catch {
 		// Locale detection unavailable – use default.

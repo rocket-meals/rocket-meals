@@ -3,8 +3,7 @@ import { useCallback } from 'react';
 import { useLanguageContext } from 'repo-depkit-common-ui';
 import translations from '../locales/translations.json';
 import type { GeonexiaTranslationKeys } from '../locales/keys';
-
-export type SupportedLanguage = 'de' | 'en';
+import type { SupportedLanguage } from '../helpers/LanguageStorage';
 
 /** Returns the best-matching supported language based on the device locale. */
 function detectLanguage(): SupportedLanguage {

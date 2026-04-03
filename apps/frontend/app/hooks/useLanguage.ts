@@ -9,6 +9,8 @@ const changeLanguage = (language: 'en' | 'de' | 'fr' | 'ar' | 'es' | 'ru' | 'tr'
 	payload: language,
 });
 
+export { changeLanguage };
+
 const setPirateLanguage = (enabled: boolean) => ({
 	type: SET_PIRATE_LANGUAGE,
 	payload: enabled,

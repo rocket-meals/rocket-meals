@@ -9,6 +9,7 @@
     "@gorhom/bottom-sheet": "*",
     "expo-asset": "*",
     "expo-file-system": "*",
+    "expo-localization": "*",
     "expo-location": "*",
     "react": "*",
     "react-native": "*",
@@ -17,6 +18,11 @@
     "react-native-reanimated": "*",
     "react-native-safe-area-context": "*",
     "react-native-webview": "*"
+  },
+  "peerDependenciesMeta": {
+    "expo-localization": {
+      "optional": true
+    }
   },
   "dependencies": {
     "repo-depkit-common": "workspace:*",

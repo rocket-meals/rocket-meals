@@ -20,6 +20,7 @@ import { loadTTSEnabled as loadTTSEnabledAction } from '../store/ttsSlice';
 import { loadSpeechSettings as loadSpeechSettingsAction } from '../store/speechSettingsSlice';
 import { loadDisplaySettings as loadDisplaySettingsAction } from '../store/displaySettingsSlice';
 import { loadLanguage as loadLanguageAction, setLanguage } from '../store/languageSlice';
+import type { SupportedLanguage } from '../helpers/LanguageStorage';
 import { loadHexTileState, loadDevHexTileState, loadDevModeFlag, loadDebugModeFlag, loadWalkedEdges, loadDevWalkedEdges, loadWorldBuildingId, loadDevWorldBuildingId, saveWorldBuildingId, saveDevWorldBuildingId, saveHexTileState, saveDevHexTileState, saveWalkedEdges, saveDevWalkedEdges } from '../helpers/HexTileStorage';
 import { loadSportType } from '../helpers/SportTypeStorage';
 import { loadThemeMode } from '../helpers/ThemeStorage';
@@ -124,7 +125,7 @@ function LanguageBridge({ children }: { children: React.ReactNode }) {
 	return (
 		<LanguageProvider
 			language={selectedLanguage}
-			onLanguageChange={(lang) => store.dispatch(setLanguage(lang as 'de' | 'en'))}
+			onLanguageChange={(lang) => store.dispatch(setLanguage(lang as SupportedLanguage))}
 		>
 			{children}
 		</LanguageProvider>
