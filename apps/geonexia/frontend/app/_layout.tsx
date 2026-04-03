@@ -33,6 +33,8 @@ import { loadHexTileFeatureCache } from '../helpers/HexTileFeatureStorage';
 import { isAvailable as isH3Available } from '../helpers/H3Helper';
 import type { RootState } from '../store/store';
 import { getAppIconInsideExpoLocalSaved, getCompanyLogoLocalSaved } from '../config';
+import { useTranslation } from '../hooks/useTranslation';
+import { GeonexiaTranslationKeys } from '../locales/keys';
 
 // ─── Error Boundary ───────────────────────────────────────────────────────────
 
@@ -118,6 +120,7 @@ function ThemeSyncBridge() {
 
 function ThemedDrawerNavigator() {
 	const { theme } = useTheme();
+	const { translate } = useTranslation();
 
 	return (
 		<>
@@ -133,7 +136,7 @@ function ThemedDrawerNavigator() {
 			<Drawer.Screen
 				name="index"
 				options={{
-					title: 'Record',
+					title: translate(GeonexiaTranslationKeys.nav_record),
 					drawerIcon: ({ color, size }) => (
 						<Ionicons name="radio-button-on-outline" size={size} color={color} />
 					),
@@ -142,7 +145,7 @@ function ThemedDrawerNavigator() {
 			<Drawer.Screen
 				name="activities/index"
 				options={{
-					title: 'Activities',
+					title: translate(GeonexiaTranslationKeys.nav_activities),
 					drawerIcon: ({ color, size }) => (
 						<Ionicons name="list-outline" size={size} color={color} />
 					),
@@ -151,14 +154,14 @@ function ThemedDrawerNavigator() {
 			<Drawer.Screen
 				name="activities/[id]"
 				options={{
-					title: 'Activity',
+					title: translate(GeonexiaTranslationKeys.nav_activity),
 					drawerItemStyle: { display: 'none' },
 				}}
 			/>
 			<Drawer.Screen
 				name="statistics/index"
 				options={{
-					title: 'Statistics',
+					title: translate(GeonexiaTranslationKeys.nav_statistics),
 					drawerIcon: ({ color, size }) => (
 						<Ionicons name="bar-chart-outline" size={size} color={color} />
 					),
@@ -167,7 +170,7 @@ function ThemedDrawerNavigator() {
 			<Drawer.Screen
 				name="achievements/index"
 				options={{
-					title: 'Achievements',
+					title: translate(GeonexiaTranslationKeys.nav_achievements),
 					drawerIcon: ({ color, size }) => (
 						<Ionicons name="trophy-outline" size={size} color={color} />
 					),
@@ -176,7 +179,7 @@ function ThemedDrawerNavigator() {
 			<Drawer.Screen
 				name="feature-wishes/index"
 				options={{
-					title: 'Feature Wishes',
+					title: translate(GeonexiaTranslationKeys.nav_feature_wishes),
 					drawerIcon: ({ color, size }) => (
 						<Ionicons name="bulb-outline" size={size} color={color} />
 					),
@@ -185,7 +188,7 @@ function ThemedDrawerNavigator() {
 			<Drawer.Screen
 				name="routes/index"
 				options={{
-					title: 'Routes',
+					title: translate(GeonexiaTranslationKeys.nav_routes),
 					drawerIcon: ({ color, size }) => (
 						<Ionicons name="map-outline" size={size} color={color} />
 					),
@@ -194,14 +197,14 @@ function ThemedDrawerNavigator() {
 			<Drawer.Screen
 				name="routes/[id]"
 				options={{
-					title: 'Route',
+					title: translate(GeonexiaTranslationKeys.nav_route),
 					drawerItemStyle: { display: 'none' },
 				}}
 			/>
 			<Drawer.Screen
 				name="billboard-config/index"
 				options={{
-					title: 'Billboard Config',
+					title: translate(GeonexiaTranslationKeys.nav_billboard_config),
 					drawerIcon: ({ color, size }) => (
 						<Ionicons name="build-outline" size={size} color={color} />
 					),
@@ -210,7 +213,7 @@ function ThemedDrawerNavigator() {
 			<Drawer.Screen
 				name="experimental/index"
 				options={{
-					title: 'Experimental',
+					title: translate(GeonexiaTranslationKeys.nav_experimental),
 					drawerIcon: ({ color, size }) => (
 						<Ionicons name="flask-outline" size={size} color={color} />
 					),
@@ -219,35 +222,35 @@ function ThemedDrawerNavigator() {
 			<Drawer.Screen
 				name="experimental/tts-test/index"
 				options={{
-					title: 'Text to Speech Test',
+					title: translate(GeonexiaTranslationKeys.nav_tts_test),
 					drawerItemStyle: { display: 'none' },
 				}}
 			/>
 			<Drawer.Screen
 				name="experimental/hex-tile-info/index"
 				options={{
-					title: 'Hex Tile Info',
+					title: translate(GeonexiaTranslationKeys.nav_hex_tile_info),
 					drawerItemStyle: { display: 'none' },
 				}}
 			/>
 			<Drawer.Screen
 				name="experimental/keyboard-avoid-test/index"
 				options={{
-					title: 'Keyboard Avoid Test',
+					title: translate(GeonexiaTranslationKeys.nav_keyboard_avoid_test),
 					drawerItemStyle: { display: 'none' },
 				}}
 			/>
 			<Drawer.Screen
 				name="experimental/route-switcher/index"
 				options={{
-					title: 'Route Switcher',
+					title: translate(GeonexiaTranslationKeys.nav_route_switcher),
 					drawerItemStyle: { display: 'none' },
 				}}
 			/>
 			<Drawer.Screen
 				name="settings/index"
 				options={{
-					title: 'Settings',
+					title: translate(GeonexiaTranslationKeys.nav_settings),
 					drawerIcon: ({ color, size }) => (
 						<Ionicons name="settings-outline" size={size} color={color} />
 					),
@@ -261,61 +264,62 @@ function ThemedDrawerNavigator() {
 function CustomDrawerContent(props: DrawerContentComponentProps) {
 	const activeKey = props.state.routes[props.state.index].name;
 	const isDevMode = useSelector((state: RootState) => state.hexTiles.isDevMode);
+	const { translate } = useTranslation();
 
 	const items: DrawerItem[] = [
 		{
 			key: 'index',
-			label: 'Record',
+			label: translate(GeonexiaTranslationKeys.nav_record),
 			renderIcon: (_, color) => <Ionicons name="radio-button-on-outline" size={24} color={color} />,
 			onPress: () => props.navigation.navigate('index'),
 		},
 		{
 			key: 'activities/index',
-			label: 'Activities',
+			label: translate(GeonexiaTranslationKeys.nav_activities),
 			renderIcon: (_, color) => <Ionicons name="list-outline" size={24} color={color} />,
 			onPress: () => props.navigation.navigate('activities/index'),
 		},
 		{
 			key: 'routes/index',
-			label: 'Routes',
+			label: translate(GeonexiaTranslationKeys.nav_routes),
 			renderIcon: (_, color) => <Ionicons name="map-outline" size={24} color={color} />,
 			onPress: () => props.navigation.navigate('routes/index'),
 		},
 		{
 			key: 'statistics/index',
-			label: 'Statistics',
+			label: translate(GeonexiaTranslationKeys.nav_statistics),
 			renderIcon: (_, color) => <Ionicons name="bar-chart-outline" size={24} color={color} />,
 			onPress: () => props.navigation.navigate('statistics/index'),
 		},
 		{
 			key: 'achievements/index',
-			label: 'Achievements',
+			label: translate(GeonexiaTranslationKeys.nav_achievements),
 			renderIcon: (_, color) => <Ionicons name="trophy-outline" size={24} color={color} />,
 			onPress: () => props.navigation.navigate('achievements/index'),
 		},
 		{
 			key: 'feature-wishes/index',
-			label: 'Feature Wishes',
+			label: translate(GeonexiaTranslationKeys.nav_feature_wishes),
 			renderIcon: (_, color) => <Ionicons name="bulb-outline" size={24} color={color} />,
 			onPress: () => props.navigation.navigate('feature-wishes/index'),
 		},
 		...(isDevMode ? [
 			{
 				key: 'billboard-config/index',
-				label: 'Billboard Config',
+				label: translate(GeonexiaTranslationKeys.nav_billboard_config),
 				renderIcon: (_, color) => <Ionicons name="build-outline" size={24} color={color} />,
 				onPress: () => props.navigation.navigate('billboard-config/index'),
 			},
 			{
 				key: 'experimental/index',
-				label: 'Experimental',
+				label: translate(GeonexiaTranslationKeys.nav_experimental),
 				renderIcon: (_, color) => <Ionicons name="flask-outline" size={24} color={color} />,
 				onPress: () => props.navigation.navigate('experimental/index'),
 			},
 		] : []),
 		{
 			key: 'settings/index',
-			label: 'Settings',
+			label: translate(GeonexiaTranslationKeys.nav_settings),
 			renderIcon: (_, color) => <Ionicons name="settings-outline" size={24} color={color} />,
 			onPress: () => props.navigation.navigate('settings/index'),
 		},

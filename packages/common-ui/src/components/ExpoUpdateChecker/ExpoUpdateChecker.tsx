@@ -4,6 +4,8 @@ import * as Updates from 'expo-updates';
 import { useTheme } from '../../context/ThemeContext';
 import { useSettingsContext } from '../../context/SettingsContext';
 import { myContrastColor } from '../../helpers/ColorHelper';
+import { useCommonTranslation } from '../../hooks/useCommonTranslation';
+import { CommonUITranslationKeys } from '../../locales/keys';
 
 export interface ExpoUpdateCheckerTexts {
 	updateAvailableTitle?: string;
@@ -14,16 +16,6 @@ export interface ExpoUpdateCheckerTexts {
 	okayLabel?: string;
 	updateLabel?: string;
 }
-
-const DEFAULT_TEXTS: Required<ExpoUpdateCheckerTexts> = {
-	updateAvailableTitle: 'Update available',
-	updateAvailableMessage: 'A new version is available. Update now?',
-	noUpdatesTitle: 'Updates',
-	noUpdatesMessage: 'App is up to date',
-	cancelLabel: 'Cancel',
-	okayLabel: 'Okay',
-	updateLabel: 'Update',
-};
 
 export interface ExpoUpdateCheckerProps {
 	children?: ReactNode;
@@ -38,7 +30,17 @@ interface UpdateCheckerContextType {
 const UpdateCheckerContext = createContext<UpdateCheckerContextType | null>(null);
 
 const ExpoUpdateChecker: React.FC<ExpoUpdateCheckerProps> = ({ children, texts, isExpoGo = false }) => {
-	const t = useMemo(() => ({ ...DEFAULT_TEXTS, ...texts }), [texts]);
+	const { translate } = useCommonTranslation();
+	const t = useMemo(() => ({
+		updateAvailableTitle: translate(CommonUITranslationKeys.update_available),
+		updateAvailableMessage: translate(CommonUITranslationKeys.update_available_message),
+		noUpdatesTitle: translate(CommonUITranslationKeys.no_updates),
+		noUpdatesMessage: translate(CommonUITranslationKeys.no_updates_message),
+		cancelLabel: translate(CommonUITranslationKeys.cancel),
+		okayLabel: translate(CommonUITranslationKeys.ok),
+		updateLabel: translate(CommonUITranslationKeys.update),
+		...texts,
+	}), [texts, translate]);
 	const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 	const { theme } = useTheme();
 	const settingsCtx = useSettingsContext();

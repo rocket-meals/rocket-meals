@@ -26201,6 +26201,7 @@ __metadata:
     "@gorhom/bottom-sheet": "*"
     expo-asset: "*"
     expo-file-system: "*"
+    expo-localization: "*"
     expo-location: "*"
     expo-updates: "*"
     react: "*"

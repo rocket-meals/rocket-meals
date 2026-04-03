@@ -1,18 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Image, ImageSourcePropType, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Updates from 'expo-updates';
+import { useCommonTranslation } from '../../hooks/useCommonTranslation';
+import { CommonUITranslationKeys } from '../../locales/keys';
 
 export interface ExpoUpdateLoaderTexts {
 	checkingForUpdates?: string;
 	downloadingUpdate?: string;
 	cancelLabel?: string;
 }
-
-const DEFAULT_TEXTS: Required<ExpoUpdateLoaderTexts> = {
-	checkingForUpdates: 'Check for App Updates',
-	downloadingUpdate: 'Download New App Update',
-	cancelLabel: 'Cancel',
-};
 
 export interface ExpoUpdateLoaderProps {
 	children?: React.ReactNode;
@@ -24,7 +20,13 @@ export interface ExpoUpdateLoaderProps {
 const TIMEOUT_MS = 10000;
 
 const ExpoUpdateLoader: React.FC<ExpoUpdateLoaderProps> = ({ children, logoSource, texts, isExpoGo = false }) => {
-	const t = useMemo(() => ({ ...DEFAULT_TEXTS, ...texts }), [texts]);
+	const { translate } = useCommonTranslation();
+	const t = useMemo(() => ({
+		checkingForUpdates: translate(CommonUITranslationKeys.checking_for_updates),
+		downloadingUpdate: translate(CommonUITranslationKeys.downloading_update),
+		cancelLabel: translate(CommonUITranslationKeys.cancel),
+		...texts,
+	}), [texts, translate]);
 	const isSmartPhone = Platform.OS !== 'web';
 	const [loading, setLoading] = useState<boolean>(isSmartPhone);
 	const [status, setStatus] = useState<string>(t.checkingForUpdates);

@@ -170,4 +170,73 @@ export enum GeonexiaTranslationKeys {
 	subclass_scrub = 'subclass_scrub',
 	subclass_swamp = 'subclass_swamp',
 	subclass_vineyard = 'subclass_vineyard',
+
+	// Navigation / Drawer labels
+	nav_record = 'nav_record',
+	nav_activities = 'nav_activities',
+	nav_routes = 'nav_routes',
+	nav_statistics = 'nav_statistics',
+	nav_achievements = 'nav_achievements',
+	nav_feature_wishes = 'nav_feature_wishes',
+	nav_billboard_config = 'nav_billboard_config',
+	nav_experimental = 'nav_experimental',
+	nav_settings = 'nav_settings',
+	nav_tts_test = 'nav_tts_test',
+	nav_hex_tile_info = 'nav_hex_tile_info',
+	nav_keyboard_avoid_test = 'nav_keyboard_avoid_test',
+	nav_route_switcher = 'nav_route_switcher',
+	nav_activity = 'nav_activity',
+	nav_route = 'nav_route',
+
+	// Settings screen – Groups
+	settings_group_appearance = 'settings_group_appearance',
+	settings_group_gps = 'settings_group_gps',
+	settings_group_audio = 'settings_group_audio',
+	settings_group_notifications = 'settings_group_notifications',
+	settings_group_map_display = 'settings_group_map_display',
+	settings_group_data_management = 'settings_group_data_management',
+	settings_group_about = 'settings_group_about',
+	settings_group_developer = 'settings_group_developer',
+
+	// Settings screen – Items
+	settings_theme = 'settings_theme',
+	settings_gps_frequency = 'settings_gps_frequency',
+	settings_speech_announcements = 'settings_speech_announcements',
+	settings_push_notifications = 'settings_push_notifications',
+	settings_hex_tile_opacity = 'settings_hex_tile_opacity',
+	settings_object_opacity = 'settings_object_opacity',
+	settings_reset_all_data = 'settings_reset_all_data',
+	settings_app_version = 'settings_app_version',
+	settings_open_source = 'settings_open_source',
+	settings_view_licenses = 'settings_view_licenses',
+	settings_debug_mode = 'settings_debug_mode',
+	settings_dev_mode = 'settings_dev_mode',
+
+	// Settings screen – Modal titles
+	settings_theme_modal_title = 'settings_theme_modal_title',
+	settings_gps_modal_title = 'settings_gps_modal_title',
+	settings_speech_modal_title = 'settings_speech_modal_title',
+	settings_reset_modal_title = 'settings_reset_modal_title',
+
+	// Settings screen – Reset confirm
+	settings_reset_confirm_message = 'settings_reset_confirm_message',
+	settings_reset_all_data_confirm = 'settings_reset_all_data_confirm',
+
+	// Common values
+	enabled = 'enabled',
+	disabled = 'disabled',
+
+	// Theme options
+	theme_light = 'theme_light',
+	theme_dark = 'theme_dark',
+	theme_system = 'theme_system',
+
+	// GPS interval options
+	gps_interval_default = 'gps_interval_default',
+	gps_interval_energy_saving = 'gps_interval_energy_saving',
+	gps_interval_high_precision = 'gps_interval_high_precision',
+
+	// Dev mode values
+	dev_tiles_active = 'dev_tiles_active',
+	production_tiles = 'production_tiles',
 }

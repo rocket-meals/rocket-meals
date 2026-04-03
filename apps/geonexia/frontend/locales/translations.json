@@ -582,5 +582,211 @@
   "subclass_vineyard": {
     "de": "Weinberg",
     "en": "Vineyard"
+  },
+
+  "nav_record": {
+    "de": "Aufnehmen",
+    "en": "Record"
+  },
+  "nav_activities": {
+    "de": "Aktivitäten",
+    "en": "Activities"
+  },
+  "nav_routes": {
+    "de": "Routen",
+    "en": "Routes"
+  },
+  "nav_statistics": {
+    "de": "Statistiken",
+    "en": "Statistics"
+  },
+  "nav_achievements": {
+    "de": "Erfolge",
+    "en": "Achievements"
+  },
+  "nav_feature_wishes": {
+    "de": "Feature-Wünsche",
+    "en": "Feature Wishes"
+  },
+  "nav_billboard_config": {
+    "de": "Billboard Konfiguration",
+    "en": "Billboard Config"
+  },
+  "nav_experimental": {
+    "de": "Experimentell",
+    "en": "Experimental"
+  },
+  "nav_settings": {
+    "de": "Einstellungen",
+    "en": "Settings"
+  },
+  "nav_tts_test": {
+    "de": "Text-zu-Sprache Test",
+    "en": "Text to Speech Test"
+  },
+  "nav_hex_tile_info": {
+    "de": "Hex-Feld Info",
+    "en": "Hex Tile Info"
+  },
+  "nav_keyboard_avoid_test": {
+    "de": "Tastatur-Ausweich-Test",
+    "en": "Keyboard Avoid Test"
+  },
+  "nav_route_switcher": {
+    "de": "Routen-Wechsler",
+    "en": "Route Switcher"
+  },
+  "nav_activity": {
+    "de": "Aktivität",
+    "en": "Activity"
+  },
+  "nav_route": {
+    "de": "Route",
+    "en": "Route"
+  },
+
+  "settings_group_appearance": {
+    "de": "Darstellung",
+    "en": "Appearance"
+  },
+  "settings_group_gps": {
+    "de": "GPS",
+    "en": "GPS"
+  },
+  "settings_group_audio": {
+    "de": "Audio",
+    "en": "Audio"
+  },
+  "settings_group_notifications": {
+    "de": "Benachrichtigungen",
+    "en": "Notifications"
+  },
+  "settings_group_map_display": {
+    "de": "Karten-Darstellung",
+    "en": "Map Display"
+  },
+  "settings_group_data_management": {
+    "de": "Daten Verwaltung",
+    "en": "Data Management"
+  },
+  "settings_group_about": {
+    "de": "Über die App",
+    "en": "About"
+  },
+  "settings_group_developer": {
+    "de": "Entwickler",
+    "en": "Developer"
+  },
+  "settings_theme": {
+    "de": "Theme",
+    "en": "Theme"
+  },
+  "settings_gps_frequency": {
+    "de": "GPS-Frequenz",
+    "en": "GPS Frequency"
+  },
+  "settings_speech_announcements": {
+    "de": "Sprachansagen",
+    "en": "Speech Announcements"
+  },
+  "settings_push_notifications": {
+    "de": "Push-Benachrichtigungen",
+    "en": "Push Notifications"
+  },
+  "settings_hex_tile_opacity": {
+    "de": "Hex-Feld Deckkraft",
+    "en": "Hex Tile Opacity"
+  },
+  "settings_object_opacity": {
+    "de": "Objekte Deckkraft",
+    "en": "Object Opacity"
+  },
+  "settings_reset_all_data": {
+    "de": "Alle Daten zurücksetzen",
+    "en": "Reset All Data"
+  },
+  "settings_app_version": {
+    "de": "App Version",
+    "en": "App Version"
+  },
+  "settings_open_source": {
+    "de": "Open Source",
+    "en": "Open Source"
+  },
+  "settings_view_licenses": {
+    "de": "Lizenzen anzeigen",
+    "en": "View licenses"
+  },
+  "settings_debug_mode": {
+    "de": "Debug Modus",
+    "en": "Debug Mode"
+  },
+  "settings_dev_mode": {
+    "de": "Entwickler Modus",
+    "en": "Dev Mode"
+  },
+  "settings_theme_modal_title": {
+    "de": "🎨 Theme",
+    "en": "🎨 Theme"
+  },
+  "settings_gps_modal_title": {
+    "de": "📡 GPS-Frequenz",
+    "en": "📡 GPS Frequency"
+  },
+  "settings_speech_modal_title": {
+    "de": "🔊 Sprachansagen",
+    "en": "🔊 Speech Announcements"
+  },
+  "settings_reset_modal_title": {
+    "de": "⚠️ Alle Daten zurücksetzen",
+    "en": "⚠️ Reset All Data"
+  },
+  "settings_reset_confirm_message": {
+    "de": "Alle Aktivitäten und der Hex-Feld Fortschritt werden dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "en": "All activities and hex tile progress will be permanently deleted. This action cannot be undone."
+  },
+  "settings_reset_all_data_confirm": {
+    "de": "Alle Daten löschen",
+    "en": "Reset All Data"
+  },
+  "enabled": {
+    "de": "Aktiviert",
+    "en": "Enabled"
+  },
+  "disabled": {
+    "de": "Deaktiviert",
+    "en": "Disabled"
+  },
+  "theme_light": {
+    "de": "Hell",
+    "en": "Light"
+  },
+  "theme_dark": {
+    "de": "Dunkel",
+    "en": "Dark"
+  },
+  "theme_system": {
+    "de": "System",
+    "en": "System"
+  },
+  "gps_interval_default": {
+    "de": "Standard (1s)",
+    "en": "Default (1s)"
+  },
+  "gps_interval_energy_saving": {
+    "de": "Energie sparen (4s)",
+    "en": "Energy Saving (4s)"
+  },
+  "gps_interval_high_precision": {
+    "de": "Hohe Präzision (0,5s)",
+    "en": "High Precision (0.5s)"
+  },
+  "dev_tiles_active": {
+    "de": "Dev-Kacheln aktiv",
+    "en": "Dev tiles active"
+  },
+  "production_tiles": {
+    "de": "Produktions-Kacheln",
+    "en": "Production tiles"
   }
 }

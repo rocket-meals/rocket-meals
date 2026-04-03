@@ -35,6 +35,8 @@ import {
 	loadDevWalkedEdges,
 } from '../../helpers/HexTileStorage';
 import { getCompanyLogoLocalSaved } from '../../config';
+import { useTranslation } from '../../hooks/useTranslation';
+import { GeonexiaTranslationKeys } from '../../locales/keys';
 
 const PRIMARY_COLOR = '#2563eb';
 const NOTIFICATION_COLOR = '#16a34a';
@@ -50,49 +52,23 @@ const OPACITY_STEP = 0.05;
 const OPACITY_MIN = 0.05;
 const OPACITY_MAX = 1.0;
 
-const THEME_OPTIONS: { id: ThemeMode; label: string; icon: React.ReactNode }[] = [
-	{ id: 'light', label: 'Light', icon: <MaterialCommunityIcons name="white-balance-sunny" size={22} color="#ffffff" /> },
-	{ id: 'dark', label: 'Dark', icon: <MaterialCommunityIcons name="moon-waning-crescent" size={22} color="#ffffff" /> },
-	{ id: 'systematic', label: 'System', icon: <MaterialCommunityIcons name="theme-light-dark" size={22} color="#ffffff" /> },
-];
-
-const GPS_INTERVAL_OPTIONS: { id: GpsIntervalMode; label: string; icon: React.ReactNode }[] = [
-	{ id: 'default', label: 'Standard (1s)', icon: <MaterialCommunityIcons name="crosshairs-gps" size={22} color="#ffffff" /> },
-	{ id: 'energy_saving', label: 'Energie sparen (4s)', icon: <MaterialCommunityIcons name="battery-heart-outline" size={22} color="#ffffff" /> },
-	{ id: 'high_precision', label: 'Hohe Präzision (0.5s)', icon: <MaterialCommunityIcons name="radar" size={22} color="#ffffff" /> },
-];
-
-function gpsIntervalModeLabel(mode: GpsIntervalMode): string {
-	switch (mode) {
-		case 'default': return 'Standard (1s)';
-		case 'energy_saving': return 'Energie sparen (4s)';
-		case 'high_precision': return 'Hohe Präzision (0.5s)';
-	}
-}
-
-function themeModeLabel(mode: ThemeMode): string {
-	switch (mode) {
-		case 'light': return 'Light';
-		case 'dark': return 'Dark';
-		case 'systematic': return 'System';
-	}
-}
-
 // ─── Reset Confirm Content ────────────────────────────────────────────────────
 
 function ResetConfirmContent({
 	onConfirm,
 	onCancel,
 	theme,
+	translate,
 }: {
 	onConfirm: () => void;
 	onCancel: () => void;
 	theme: ReturnType<typeof useTheme>['theme'];
+	translate: (key: GeonexiaTranslationKeys) => string;
 }) {
 	return (
 		<View style={styles.resetConfirmContainer}>
 			<Text style={[styles.resetConfirmText, { color: theme.screen.text }]}>
-				All activities and hex tile progress will be permanently deleted. This action cannot be undone.
+				{translate(GeonexiaTranslationKeys.settings_reset_confirm_message)}
 			</Text>
 			<TouchableOpacity
 				style={[styles.resetConfirmButton, { backgroundColor: DANGER_COLOR }]}
@@ -100,10 +76,10 @@ function ResetConfirmContent({
 				activeOpacity={0.8}
 			>
 				<MaterialIcons name="delete-forever" size={18} color="#ffffff" />
-				<Text style={styles.resetConfirmButtonText}>Reset All Data</Text>
+				<Text style={styles.resetConfirmButtonText}>{translate(GeonexiaTranslationKeys.settings_reset_all_data_confirm)}</Text>
 			</TouchableOpacity>
 			<TouchableOpacity style={styles.resetCancelButton} onPress={onCancel} activeOpacity={0.8}>
-				<Text style={[styles.resetCancelButtonText, { color: theme.screen.text }]}>Cancel</Text>
+				<Text style={[styles.resetCancelButtonText, { color: theme.screen.text }]}>{translate(GeonexiaTranslationKeys.cancel)}</Text>
 			</TouchableOpacity>
 		</View>
 	);
@@ -115,6 +91,7 @@ export default function SettingsScreen() {
 	const [notifications, setNotifications] = useState(true);
 	const [showDeveloper, setShowDeveloper] = useState(false);
 	const { theme } = useTheme();
+	const { translate } = useTranslation();
 	const dispatch = useDispatch<AppDispatch>();
 	const selectedTheme = useSelector((state: RootState) => state.theme.selectedMode);
 	const selectedGpsInterval = useSelector((state: RootState) => state.gpsInterval.selectedMode);
@@ -131,12 +108,40 @@ export default function SettingsScreen() {
 
 	const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
+	const themeOptions: { id: ThemeMode; label: string; icon: React.ReactNode }[] = [
+		{ id: 'light', label: translate(GeonexiaTranslationKeys.theme_light), icon: <MaterialCommunityIcons name="white-balance-sunny" size={22} color="#ffffff" /> },
+		{ id: 'dark', label: translate(GeonexiaTranslationKeys.theme_dark), icon: <MaterialCommunityIcons name="moon-waning-crescent" size={22} color="#ffffff" /> },
+		{ id: 'systematic', label: translate(GeonexiaTranslationKeys.theme_system), icon: <MaterialCommunityIcons name="theme-light-dark" size={22} color="#ffffff" /> },
+	];
+
+	const gpsIntervalOptions: { id: GpsIntervalMode; label: string; icon: React.ReactNode }[] = [
+		{ id: 'default', label: translate(GeonexiaTranslationKeys.gps_interval_default), icon: <MaterialCommunityIcons name="crosshairs-gps" size={22} color="#ffffff" /> },
+		{ id: 'energy_saving', label: translate(GeonexiaTranslationKeys.gps_interval_energy_saving), icon: <MaterialCommunityIcons name="battery-heart-outline" size={22} color="#ffffff" /> },
+		{ id: 'high_precision', label: translate(GeonexiaTranslationKeys.gps_interval_high_precision), icon: <MaterialCommunityIcons name="radar" size={22} color="#ffffff" /> },
+	];
+
+	function gpsIntervalModeLabel(mode: GpsIntervalMode): string {
+		switch (mode) {
+			case 'default': return translate(GeonexiaTranslationKeys.gps_interval_default);
+			case 'energy_saving': return translate(GeonexiaTranslationKeys.gps_interval_energy_saving);
+			case 'high_precision': return translate(GeonexiaTranslationKeys.gps_interval_high_precision);
+		}
+	}
+
+	function themeModeLabel(mode: ThemeMode): string {
+		switch (mode) {
+			case 'light': return translate(GeonexiaTranslationKeys.theme_light);
+			case 'dark': return translate(GeonexiaTranslationKeys.theme_dark);
+			case 'systematic': return translate(GeonexiaTranslationKeys.theme_system);
+		}
+	}
+
 	const handleOpenThemeSelection = useCallback(() => {
 		showModal({
-			title: '🎨 Theme',
+			title: translate(GeonexiaTranslationKeys.settings_theme_modal_title),
 			children: (
 				<SettingsListSelectOption
-					options={THEME_OPTIONS}
+					options={themeOptions}
 					selectedOption={selectedTheme}
 					onSelect={(option) => {
 						dispatch(setThemeMode(option.id));
@@ -146,14 +151,14 @@ export default function SettingsScreen() {
 				/>
 			),
 		});
-	}, [showModal, closeModal, dispatch, selectedTheme]);
+	}, [showModal, closeModal, dispatch, selectedTheme, translate, themeOptions]);
 
 	const handleOpenGpsIntervalSelection = useCallback(() => {
 		showGpsModal({
-			title: '📡 GPS Frequency',
+			title: translate(GeonexiaTranslationKeys.settings_gps_modal_title),
 			children: (
 				<SettingsListSelectOption
-					options={GPS_INTERVAL_OPTIONS}
+					options={gpsIntervalOptions}
 					selectedOption={selectedGpsInterval}
 					onSelect={(option) => {
 						dispatch(setGpsIntervalMode(option.id));
@@ -163,11 +168,11 @@ export default function SettingsScreen() {
 				/>
 			),
 		});
-	}, [showGpsModal, closeGpsModal, dispatch, selectedGpsInterval]);
+	}, [showGpsModal, closeGpsModal, dispatch, selectedGpsInterval, translate, gpsIntervalOptions]);
 
 	const handleResetAllData = useCallback(() => {
 		showResetModal({
-			title: '⚠️ Reset All Data',
+			title: translate(GeonexiaTranslationKeys.settings_reset_modal_title),
 			children: (
 				<ResetConfirmContent
 					onConfirm={() => {
@@ -179,10 +184,11 @@ export default function SettingsScreen() {
 					}}
 					onCancel={closeResetModal}
 					theme={theme}
+					translate={translate}
 				/>
 			),
 		});
-	}, [showResetModal, closeResetModal, dispatch, theme]);
+	}, [showResetModal, closeResetModal, dispatch, theme, translate]);
 
 	const handleToggleDebugMode = useCallback(() => {
 		const next = !isDebugMode;
@@ -196,10 +202,10 @@ export default function SettingsScreen() {
 
 	const handleOpenSpeechSettings = useCallback(() => {
 		showSpeechModal({
-			title: '🔊 Sprachansagen',
+			title: translate(GeonexiaTranslationKeys.settings_speech_modal_title),
 			children: <SpeechSettingsContent />,
 		});
-	}, [showSpeechModal]);
+	}, [showSpeechModal, translate]);
 
 	const handleToggleDevMode = useCallback(async () => {
 		const { records: currentRecords, isDevMode: currentIsDevMode, walkedEdges: currentEdges } = store.getState().hexTiles;
@@ -241,58 +247,58 @@ export default function SettingsScreen() {
 	return (
 		<View style={[styles.container, { backgroundColor: theme.screen.background }]}>
 			<ScrollView contentContainerStyle={styles.listContent}>
-				<SettingsListGroupTitle title="Appearance" />
+				<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.settings_group_appearance)} />
 			<SettingsList
 				iconBgColor={PRIMARY_COLOR}
 				leftIcon={
 					<MaterialCommunityIcons name="theme-light-dark" size={22} color="#ffffff" />
 				}
-				label="Theme"
+				label={translate(GeonexiaTranslationKeys.settings_theme)}
 				value={themeModeLabel(selectedTheme)}
 				rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
 				handleFunction={handleOpenThemeSelection}
 				groupPosition="single"
 			/>
 
-			<SettingsListGroupTitle title="GPS" />
+			<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.settings_group_gps)} />
 			<SettingsList
 				iconBgColor={PRIMARY_COLOR}
 				leftIcon={<MaterialCommunityIcons name="crosshairs-gps" size={22} color="#ffffff" />}
-				label="GPS Frequency"
+				label={translate(GeonexiaTranslationKeys.settings_gps_frequency)}
 				value={gpsIntervalModeLabel(selectedGpsInterval)}
 				rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
 				handleFunction={handleOpenGpsIntervalSelection}
 				groupPosition="single"
 			/>
 
-			<SettingsListGroupTitle title="Audio" />
+			<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.settings_group_audio)} />
 			<SettingsList
 				iconBgColor={PRIMARY_COLOR}
 				leftIcon={<MaterialCommunityIcons name="account-voice" size={22} color="#ffffff" />}
-				label="Sprachansagen"
-				value={speechEnabled ? 'Aktiviert' : 'Deaktiviert'}
+				label={translate(GeonexiaTranslationKeys.settings_speech_announcements)}
+				value={speechEnabled ? translate(GeonexiaTranslationKeys.enabled) : translate(GeonexiaTranslationKeys.disabled)}
 				rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
 				handleFunction={handleOpenSpeechSettings}
 				groupPosition="single"
 			/>
 
-				<SettingsListGroupTitle title="Notifications" />
+				<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.settings_group_notifications)} />
 				<SettingsListBoolean
 					iconBgColor={PRIMARY_COLOR}
 					leftIcon={<Ionicons name="notifications-outline" size={22} color="#ffffff" />}
-					label="Push Notifications"
+					label={translate(GeonexiaTranslationKeys.settings_push_notifications)}
 					isEnabled={notifications}
 					onToggle={() => setNotifications((prev) => !prev)}
-					valueActive="Enabled"
-					valueInactive="Disabled"
+					valueActive={translate(GeonexiaTranslationKeys.enabled)}
+					valueInactive={translate(GeonexiaTranslationKeys.disabled)}
 					groupPosition="single"
 				/>
 
-				<SettingsListGroupTitle title="Karten-Darstellung" />
+				<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.settings_group_map_display)} />
 				<SettingsList
 					iconBgColor={MAP_COLOR}
 					leftIcon={<MaterialCommunityIcons name="hexagon-outline" size={22} color="#ffffff" />}
-					label="Hex-Feld Deckkraft"
+					label={translate(GeonexiaTranslationKeys.settings_hex_tile_opacity)}
 					value={`${Math.round(hexTileOpacity * 100)}%`}
 					rightElement={
 						<View style={styles.stepper}>
@@ -309,7 +315,7 @@ export default function SettingsScreen() {
 				<SettingsList
 					iconBgColor={MAP_COLOR}
 					leftIcon={<MaterialCommunityIcons name="image-outline" size={22} color="#ffffff" />}
-					label="Objekte Deckkraft"
+					label={translate(GeonexiaTranslationKeys.settings_object_opacity)}
 					value={`${Math.round(objectOpacity * 100)}%`}
 					rightElement={
 						<View style={styles.stepper}>
@@ -324,29 +330,29 @@ export default function SettingsScreen() {
 					groupPosition="bottom"
 				/>
 
-				<SettingsListGroupTitle title="Daten Verwaltung" />
+				<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.settings_group_data_management)} />
 				<SettingsList
 					iconBgColor={DANGER_COLOR}
 					leftIcon={<MaterialIcons name="delete-forever" size={22} color="#ffffff" />}
-					label="Alle Daten zurücksetzen"
+					label={translate(GeonexiaTranslationKeys.settings_reset_all_data)}
 					rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
 					handleFunction={handleResetAllData}
 					groupPosition="single"
 				/>
 
-				<SettingsListGroupTitle title="About" />
+				<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.settings_group_about)} />
 				<SettingsList
 					iconBgColor={PRIMARY_COLOR}
 					leftIcon={<Feather name="info" size={22} color="#ffffff" />}
-					label="App Version"
+					label={translate(GeonexiaTranslationKeys.settings_app_version)}
 					value={appVersion}
 					groupPosition="top"
 				/>
 				<SettingsList
 					iconBgColor={PRIMARY_COLOR}
 					leftIcon={<Feather name="code" size={22} color="#ffffff" />}
-					label="Open Source"
-					value="View licenses"
+					label={translate(GeonexiaTranslationKeys.settings_open_source)}
+					value={translate(GeonexiaTranslationKeys.settings_view_licenses)}
 					rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
 					handleFunction={() => {}}
 					groupPosition="bottom"
@@ -368,25 +374,25 @@ export default function SettingsScreen() {
 				{/* ── Developer (hidden by default, revealed by logo tap) ── */}
 				{showDeveloper && (
 					<>
-						<SettingsListGroupTitle title="Developer" />
+						<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.settings_group_developer)} />
 						<SettingsListBoolean
 							iconBgColor={DEBUG_COLOR}
 							leftIcon={<MaterialIcons name="bug-report" size={22} color="#ffffff" />}
-							label="Debug Mode"
+							label={translate(GeonexiaTranslationKeys.settings_debug_mode)}
 							isEnabled={isDebugMode}
 							onToggle={handleToggleDebugMode}
-							valueActive="Enabled"
-							valueInactive="Disabled"
+							valueActive={translate(GeonexiaTranslationKeys.enabled)}
+							valueInactive={translate(GeonexiaTranslationKeys.disabled)}
 							groupPosition="top"
 						/>
 						<SettingsListBoolean
 							iconBgColor={DEV_COLOR}
 							leftIcon={<Ionicons name="flask-outline" size={22} color="#ffffff" />}
-							label="Dev Mode"
+							label={translate(GeonexiaTranslationKeys.settings_dev_mode)}
 							isEnabled={isDevMode}
 							onToggle={handleToggleDevMode}
-							valueActive="Dev tiles active"
-							valueInactive="Production tiles"
+							valueActive={translate(GeonexiaTranslationKeys.dev_tiles_active)}
+							valueInactive={translate(GeonexiaTranslationKeys.production_tiles)}
 							groupPosition="bottom"
 						/>
 					</>

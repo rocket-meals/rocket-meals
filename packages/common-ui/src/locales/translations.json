@@ -1,0 +1,54 @@
+{
+  "update_available": {
+    "de": "Update verfügbar",
+    "en": "Update available"
+  },
+  "update_available_message": {
+    "de": "Eine neue Version ist verfügbar. Jetzt aktualisieren?",
+    "en": "A new version is available. Update now?"
+  },
+  "no_updates": {
+    "de": "Updates",
+    "en": "Updates"
+  },
+  "no_updates_message": {
+    "de": "App ist aktuell",
+    "en": "App is up to date"
+  },
+  "cancel": {
+    "de": "Abbrechen",
+    "en": "Cancel"
+  },
+  "ok": {
+    "de": "OK",
+    "en": "OK"
+  },
+  "update": {
+    "de": "Aktualisieren",
+    "en": "Update"
+  },
+  "checking_for_updates": {
+    "de": "Auf Updates prüfen",
+    "en": "Check for App Updates"
+  },
+  "downloading_update": {
+    "de": "Update herunterladen",
+    "en": "Download New App Update"
+  },
+  "loading": {
+    "de": "Laden…",
+    "en": "Loading…"
+  },
+  "error": {
+    "de": "Fehler",
+    "en": "Error"
+  },
+  "retry": {
+    "de": "Erneut versuchen",
+    "en": "Retry"
+  },
+  "close": {
+    "de": "Schließen",
+    "en": "Close"
+  }
+}

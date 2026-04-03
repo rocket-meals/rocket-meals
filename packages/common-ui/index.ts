@@ -91,3 +91,7 @@ export type { ExpoUpdateCheckerProps, ExpoUpdateCheckerTexts } from './src/compo
 
 export { default as ExpoUpdateLoader } from './src/components/ExpoUpdateLoader';
 export type { ExpoUpdateLoaderProps, ExpoUpdateLoaderTexts } from './src/components/ExpoUpdateLoader';
+
+// Translations
+export { useCommonTranslation } from './src/hooks/useCommonTranslation';
+export { CommonUITranslationKeys } from './src/locales/keys';
