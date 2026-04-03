@@ -338,6 +338,10 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 }
 
 export default function Layout() {
+	// Detect the device language once at startup using Geonexia's own hook (which
+	// reads expo-localization at module load time). This value is stable for the
+	// lifetime of the session and is independent of LanguageProvider — it is
+	// passed *into* LanguageProvider so common-ui components share the same locale.
 	const { language } = useTranslation();
 
 	useEffect(() => {

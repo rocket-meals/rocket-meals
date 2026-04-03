@@ -152,9 +152,16 @@ export default function Layout() {
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
+			{/* LanguageProvider auto-detects the device locale as a safe initial value.
+			    Once the Redux store is available, LanguageBridge (inside Provider) will
+			    immediately sync the user's chosen language into this context. */}
 			<LanguageProvider>
 				<ExpoUpdateLoader>
 					<Provider store={configureStore}>
+						{/* LanguageBridge must be inside the Redux Provider so it can access
+						    store state via useAppSelector, and inside LanguageProvider so it
+						    can call setLanguage. It intentionally sits outside ThemeProvider
+						    and other UI providers — it has no rendering output. */}
 						<LanguageBridge />
 						<GluestackUIProvider config={config}>
 							<PersistGate loading={null} persistor={persistor}>
