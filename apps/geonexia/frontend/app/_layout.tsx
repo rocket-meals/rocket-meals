@@ -4,7 +4,7 @@ import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { ThemeProvider, AppDrawer, DrawerItem, ModalProvider, SettingsProvider, useTheme, ExpoUpdateChecker, ExpoUpdateLoader } from 'repo-depkit-common-ui';
+import { ThemeProvider, AppDrawer, DrawerItem, ModalProvider, SettingsProvider, useTheme, ExpoUpdateChecker, ExpoUpdateLoader, LanguageProvider } from 'repo-depkit-common-ui';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import { Modal, ScrollView, TouchableOpacity, View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
@@ -338,6 +338,8 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 }
 
 export default function Layout() {
+	const { language } = useTranslation();
+
 	useEffect(() => {
 		(async () => {
 			const isDevMode = await loadDevModeFlag();
@@ -441,6 +443,7 @@ export default function Layout() {
 	}, []);
 
 	return (
+		<LanguageProvider language={language}>
 		<Provider store={store}>
 		<AppErrorBoundary>
 		<ExpoUpdateLoader logoSource={getCompanyLogoLocalSaved()}>
@@ -463,6 +466,7 @@ export default function Layout() {
 		</ExpoUpdateLoader>
 		</AppErrorBoundary>
 		</Provider>
+		</LanguageProvider>
 	);
 }
 

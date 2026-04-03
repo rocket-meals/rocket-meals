@@ -42,7 +42,7 @@ import ExpoUpdateChecker from '@/components/ExpoUpdateChecker/ExpoUpdateChecker'
 import {ModalProvider} from '@/components/GlobalModal/ModalProvider';
 import { ConfigCustomerEnum, getCompanyLogoLocalSaved, getCustomerConfigsDict } from '@/config';
 import { SET_SELECTED_CUSTOMER } from '@/redux/Types/types';
-import { SettingsProvider } from 'repo-depkit-common-ui';
+import { SettingsProvider, LanguageProvider, useLanguageContext } from 'repo-depkit-common-ui';
 import { useAppSelector } from '@/redux/hooks';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
 
@@ -59,6 +59,22 @@ ServerAPI.createAuthentificationStorage(
 		}
 	}
 );
+
+/**
+ * Reads the currently selected language from Redux and propagates it into the
+ * shared common-ui {@link LanguageProvider} context so all common-ui components
+ * automatically reflect the user's language choice.
+ */
+function LanguageBridge() {
+	const language = useAppSelector((state) => state.settings.language);
+	const { setLanguage } = useLanguageContext();
+
+	useEffect(() => {
+		setLanguage(language);
+	}, [language, setLanguage]);
+
+	return null;
+}
 
 function AppSettingsProvider({ children }: { children: React.ReactNode }) {
 	const primaryColor = useAppSelector((state) => state.settings.primaryColor);
@@ -136,31 +152,34 @@ export default function Layout() {
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
-			<ExpoUpdateLoader>
-				<Provider store={configureStore}>
-					<GluestackUIProvider config={config}>
-						<PersistGate loading={null} persistor={persistor}>
-							<RootSiblingParent>
-								<ThemeProvider>
-									<ModalProvider>
-										<AppSettingsProvider>
-											<ServerStatusLoader>
-												<ExpoUpdateChecker>
-													<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: theme.screen.iconBg }}>
-														<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.iconBg }} edges={pathname?.includes('image-full-screen') ? ['bottom'] : ['top', 'bottom']}>
-															<Slot />
-														</SafeAreaView>
-													</KeyboardAvoidingView>
-												</ExpoUpdateChecker>
-											</ServerStatusLoader>
-										</AppSettingsProvider>
-									</ModalProvider>
-								</ThemeProvider>
-							</RootSiblingParent>
-						</PersistGate>
-					</GluestackUIProvider>
-				</Provider>
-			</ExpoUpdateLoader>
+			<LanguageProvider>
+				<ExpoUpdateLoader>
+					<Provider store={configureStore}>
+						<LanguageBridge />
+						<GluestackUIProvider config={config}>
+							<PersistGate loading={null} persistor={persistor}>
+								<RootSiblingParent>
+									<ThemeProvider>
+										<ModalProvider>
+											<AppSettingsProvider>
+												<ServerStatusLoader>
+													<ExpoUpdateChecker>
+														<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: theme.screen.iconBg }}>
+															<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.iconBg }} edges={pathname?.includes('image-full-screen') ? ['bottom'] : ['top', 'bottom']}>
+																<Slot />
+															</SafeAreaView>
+														</KeyboardAvoidingView>
+													</ExpoUpdateChecker>
+												</ServerStatusLoader>
+											</AppSettingsProvider>
+										</ModalProvider>
+									</ThemeProvider>
+								</RootSiblingParent>
+							</PersistGate>
+						</GluestackUIProvider>
+					</Provider>
+				</ExpoUpdateLoader>
+			</LanguageProvider>
 		</GestureHandlerRootView>
 	);
 }

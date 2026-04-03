@@ -1,42 +1,27 @@
-import { getLocales } from 'expo-localization';
 import { useMemo } from 'react';
 import translations from '../locales/translations.json';
 import type { CommonUITranslationKeys } from '../locales/keys';
-
-type SupportedLanguage = 'de' | 'en';
-
-/** Returns the best-matching supported language based on the device locale. */
-function detectLanguage(): SupportedLanguage {
-	try {
-		const locales = getLocales();
-		for (const locale of locales) {
-			const lang = locale.languageCode ?? '';
-			if (lang === 'de') return 'de';
-			if (lang === 'en') return 'en';
-		}
-	} catch {
-		// Fallback to English when locale detection fails
-	}
-	return 'en';
-}
-
-const language: SupportedLanguage = detectLanguage();
+import { useLanguageContext } from '../context/LanguageContext';
 
 /**
  * Returns a `translate` function that resolves a {@link CommonUITranslationKeys}
- * key to the localised string for the detected device language.
+ * key to the localised string for the currently active language.
  *
- * The language is resolved once at module load time (device locale does not
- * change while the app is running).
+ * The active language is read from the nearest {@link LanguageProvider}. When
+ * no provider is present the context default (`'en'`) is used. The translate
+ * function updates whenever the language changes, so the hook is fully reactive
+ * to runtime language switches.
  */
 export function useCommonTranslation() {
+	const { language } = useLanguageContext();
+
 	const translate = useMemo(() => {
 		return (key: CommonUITranslationKeys): string => {
 			const entry = (translations as Record<string, Record<string, string>>)[key];
 			if (!entry) return key;
 			return entry[language] ?? entry['en'] ?? key;
 		};
-	}, []);
+	}, [language]);
 
 	return { translate, language };
 }

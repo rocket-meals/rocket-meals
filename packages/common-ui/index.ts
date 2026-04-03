@@ -5,6 +5,10 @@ export type { Theme } from './src/themes';
 // Theme context
 export { ThemeProvider, useTheme } from './src/context/ThemeContext';
 
+// Language context
+export { LanguageProvider, useLanguageContext } from './src/context/LanguageContext';
+export type { LanguageProviderProps } from './src/context/LanguageContext';
+
 // Settings context
 export { SettingsProvider, useSettingsContext } from './src/context/SettingsContext';
 export type { SettingsContextType } from './src/context/SettingsContext';
