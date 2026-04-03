@@ -1,15 +1,15 @@
 {
   "report_version": "^0.1.103",
-  "report_timestamp": "2026-04-03T10:32:01.846Z",
+  "report_timestamp": "2026-04-03T13:10:07.243Z",
   "target_language": "typescript",
   "report_summary": {
     "additional": {
       "invertedIndexSoftwareProjectStatistics": {
         "invertedFieldToClasses": {
-          "median": 1,
+          "median": 1.5,
           "maximum": 94,
-          "average": 1.6105828854898718,
-          "amountSavedValuesForKeys": 3896,
+          "average": 1.6107438016528925,
+          "amountSavedValuesForKeys": 3898,
           "amountKeys": 25
         },
         "invertedParameterToMethods": {
@@ -20,24 +20,24 @@
           "amountKeys": 20
         },
         "invertedParameterToClasses": {
-          "median": 1,
+          "median": 1.5,
           "maximum": 94,
-          "average": 1.6253650396328745,
-          "amountSavedValuesForKeys": 3896,
+          "average": 1.6255212677231026,
+          "amountSavedValuesForKeys": 3898,
           "amountKeys": 25
         }
       },
       "timer_information": {
-        "ast_generation_time_ms": 4082,
-        "detection_time_ms": 78,
+        "ast_generation_time_ms": 4129,
+        "detection_time_ms": 81,
         "machine_information": {
           "os": "Linux",
           "os_release": "6.17.0-1008-azure",
           "os_platform": "linux",
           "os_arch": "x64",
-          "os_uptime": 118.49,
-          "os_memory_free": 14974947328,
-          "os_memory_total": 16770777088,
+          "os_uptime": 129.57,
+          "os_memory_free": 14973247488,
+          "os_memory_total": 16766435328,
           "os_cpu_cores": 4,
           "os_cpu_model": "AMD EPYC 7763 64-Core Processor",
           "os_cpu_speed": 0
@@ -55,17 +55,17 @@
   "project_info": {
     "project_url": "https://github.com/rocket-meals/rocket-meals",
     "project_name": "rocket-meals",
-    "project_version": "db275711849f37041302117f2c03d3f72a516eaf",
-    "project_commit_hash": "db275711849f37041302117f2c03d3f72a516eaf",
+    "project_version": "c98dd5b062067dd064c3decd2d4ef5449e88fa34",
+    "project_commit_hash": "c98dd5b062067dd064c3decd2d4ef5449e88fa34",
     "project_tag": null,
-    "project_commit_date": "1775212219",
+    "project_commit_date": "1775221698",
     "additional": {
       "relative_path_to_source_folder_in_project": ""
     },
-    "number_of_files": 484,
-    "number_of_classes_or_interfaces": 987,
+    "number_of_files": 487,
+    "number_of_classes_or_interfaces": 991,
     "number_of_methods": 1327,
-    "number_of_data_fields": 3896,
+    "number_of_data_fields": 3898,
     "number_of_method_parameters": 1467
   },
   "detector": {
@@ -2497,9 +2497,9 @@
             }
           },
           "position": {
-            "startLine": 1840,
+            "startLine": 1844,
             "startColumn": 2,
-            "endLine": 1840,
+            "endLine": 1844,
             "endColumn": 25
           }
         },
@@ -2522,9 +2522,9 @@
             }
           },
           "position": {
-            "startLine": 1841,
+            "startLine": 1845,
             "startColumn": 2,
-            "endLine": 1841,
+            "endLine": 1845,
             "endColumn": 22
           }
         },
@@ -2547,9 +2547,9 @@
             }
           },
           "position": {
-            "startLine": 1842,
+            "startLine": 1846,
             "startColumn": 2,
-            "endLine": 1842,
+            "endLine": 1846,
             "endColumn": 23
           }
         },
@@ -2572,9 +2572,9 @@
             }
           },
           "position": {
-            "startLine": 1843,
+            "startLine": 1847,
             "startColumn": 2,
-            "endLine": 1843,
+            "endLine": 1847,
             "endColumn": 26
           }
         },
@@ -2597,9 +2597,9 @@
             }
           },
           "position": {
-            "startLine": 1844,
+            "startLine": 1848,
             "startColumn": 2,
-            "endLine": 1844,
+            "endLine": 1848,
             "endColumn": 25
           }
         },
@@ -2622,9 +2622,9 @@
             }
           },
           "position": {
-            "startLine": 1845,
+            "startLine": 1849,
             "startColumn": 2,
-            "endLine": 1845,
+            "endLine": 1849,
             "endColumn": 26
           }
         },
@@ -2647,9 +2647,9 @@
             }
           },
           "position": {
-            "startLine": 1846,
+            "startLine": 1850,
             "startColumn": 2,
-            "endLine": 1846,
+            "endLine": 1850,
             "endColumn": 26
           }
         },
@@ -2672,9 +2672,9 @@
             }
           },
           "position": {
-            "startLine": 1847,
+            "startLine": 1851,
             "startColumn": 2,
-            "endLine": 1847,
+            "endLine": 1851,
             "endColumn": 25
           }
         },
@@ -2697,9 +2697,9 @@
             }
           },
           "position": {
-            "startLine": 1848,
+            "startLine": 1852,
             "startColumn": 2,
-            "endLine": 1848,
+            "endLine": 1852,
             "endColumn": 25
           }
         },
@@ -2722,9 +2722,9 @@
             }
           },
           "position": {
-            "startLine": 1849,
+            "startLine": 1853,
             "startColumn": 2,
-            "endLine": 1849,
+            "endLine": 1853,
             "endColumn": 25
           }
         }
@@ -2769,9 +2769,9 @@
             }
           },
           "position": {
-            "startLine": 1841,
+            "startLine": 1845,
             "startColumn": 2,
-            "endLine": 1841,
+            "endLine": 1845,
             "endColumn": 22
           }
         },
@@ -2794,9 +2794,9 @@
             }
           },
           "position": {
-            "startLine": 1842,
+            "startLine": 1846,
             "startColumn": 2,
-            "endLine": 1842,
+            "endLine": 1846,
             "endColumn": 23
           }
         },
@@ -2819,9 +2819,9 @@
             }
           },
           "position": {
-            "startLine": 1843,
+            "startLine": 1847,
             "startColumn": 2,
-            "endLine": 1843,
+            "endLine": 1847,
             "endColumn": 26
           }
         },
@@ -2844,9 +2844,9 @@
             }
           },
           "position": {
-            "startLine": 1844,
+            "startLine": 1848,
             "startColumn": 2,
-            "endLine": 1844,
+            "endLine": 1848,
             "endColumn": 25
           }
         },
@@ -2869,9 +2869,9 @@
             }
           },
           "position": {
-            "startLine": 1845,
+            "startLine": 1849,
             "startColumn": 2,
-            "endLine": 1845,
+            "endLine": 1849,
             "endColumn": 26
           }
         },
@@ -2894,9 +2894,9 @@
             }
           },
           "position": {
-            "startLine": 1846,
+            "startLine": 1850,
             "startColumn": 2,
-            "endLine": 1846,
+            "endLine": 1850,
             "endColumn": 26
           }
         },
@@ -2919,9 +2919,9 @@
             }
           },
           "position": {
-            "startLine": 1847,
+            "startLine": 1851,
             "startColumn": 2,
-            "endLine": 1847,
+            "endLine": 1851,
             "endColumn": 25
           }
         },
@@ -2944,9 +2944,9 @@
             }
           },
           "position": {
-            "startLine": 1848,
+            "startLine": 1852,
             "startColumn": 2,
-            "endLine": 1848,
+            "endLine": 1852,
             "endColumn": 25
           }
         },
@@ -2969,9 +2969,9 @@
             }
           },
           "position": {
-            "startLine": 1849,
+            "startLine": 1853,
             "startColumn": 2,
-            "endLine": 1849,
+            "endLine": 1853,
             "endColumn": 25
           }
         }
@@ -5352,9 +5352,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1841,
+              "startLine": 1845,
               "startColumn": 2,
-              "endLine": 1841,
+              "endLine": 1845,
               "endColumn": 22
             }
           },
@@ -5377,9 +5377,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1842,
+              "startLine": 1846,
               "startColumn": 2,
-              "endLine": 1842,
+              "endLine": 1846,
               "endColumn": 23
             }
           },
@@ -5402,9 +5402,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1843,
+              "startLine": 1847,
               "startColumn": 2,
-              "endLine": 1843,
+              "endLine": 1847,
               "endColumn": 26
             }
           },
@@ -5427,9 +5427,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1844,
+              "startLine": 1848,
               "startColumn": 2,
-              "endLine": 1844,
+              "endLine": 1848,
               "endColumn": 25
             }
           },
@@ -5452,9 +5452,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1845,
+              "startLine": 1849,
               "startColumn": 2,
-              "endLine": 1845,
+              "endLine": 1849,
               "endColumn": 26
             }
           },
@@ -5477,9 +5477,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1846,
+              "startLine": 1850,
               "startColumn": 2,
-              "endLine": 1846,
+              "endLine": 1850,
               "endColumn": 26
             }
           },
@@ -5502,9 +5502,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1847,
+              "startLine": 1851,
               "startColumn": 2,
-              "endLine": 1847,
+              "endLine": 1851,
               "endColumn": 25
             }
           },
@@ -5527,9 +5527,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1848,
+              "startLine": 1852,
               "startColumn": 2,
-              "endLine": 1848,
+              "endLine": 1852,
               "endColumn": 25
             }
           },
@@ -5552,9 +5552,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1849,
+              "startLine": 1853,
               "startColumn": 2,
-              "endLine": 1849,
+              "endLine": 1853,
               "endColumn": 25
             }
           },
@@ -5846,9 +5846,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1840,
+              "startLine": 1844,
               "startColumn": 2,
-              "endLine": 1840,
+              "endLine": 1844,
               "endColumn": 25
             }
           },
@@ -5871,9 +5871,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1841,
+              "startLine": 1845,
               "startColumn": 2,
-              "endLine": 1841,
+              "endLine": 1845,
               "endColumn": 22
             }
           },
@@ -5896,9 +5896,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1842,
+              "startLine": 1846,
               "startColumn": 2,
-              "endLine": 1842,
+              "endLine": 1846,
               "endColumn": 23
             }
           },
@@ -5921,9 +5921,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1843,
+              "startLine": 1847,
               "startColumn": 2,
-              "endLine": 1843,
+              "endLine": 1847,
               "endColumn": 26
             }
           },
@@ -5946,9 +5946,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1844,
+              "startLine": 1848,
               "startColumn": 2,
-              "endLine": 1844,
+              "endLine": 1848,
               "endColumn": 25
             }
           },
@@ -5971,9 +5971,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1845,
+              "startLine": 1849,
               "startColumn": 2,
-              "endLine": 1845,
+              "endLine": 1849,
               "endColumn": 26
             }
           },
@@ -5996,9 +5996,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1846,
+              "startLine": 1850,
               "startColumn": 2,
-              "endLine": 1846,
+              "endLine": 1850,
               "endColumn": 26
             }
           },
@@ -6021,9 +6021,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1847,
+              "startLine": 1851,
               "startColumn": 2,
-              "endLine": 1847,
+              "endLine": 1851,
               "endColumn": 25
             }
           },
@@ -6046,9 +6046,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1848,
+              "startLine": 1852,
               "startColumn": 2,
-              "endLine": 1848,
+              "endLine": 1852,
               "endColumn": 25
             }
           },
@@ -6071,9 +6071,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1849,
+              "startLine": 1853,
               "startColumn": 2,
-              "endLine": 1849,
+              "endLine": 1853,
               "endColumn": 25
             }
           },

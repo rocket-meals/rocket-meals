@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
@@ -7,6 +7,7 @@ import {
 	useTheme,
 } from 'repo-depkit-common-ui';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { SavedRoute, loadRoutes, deleteAllRoutes } from '../../helpers/RouteStorage';
 import SettingsListRoute from '../../components/SettingsListRoute';
 
@@ -24,9 +25,14 @@ export default function RoutesScreen() {
 		}
 	}, []);
 
-	useEffect(() => {
-		refreshRoutes();
-	}, [refreshRoutes]);
+	// Reload routes from disk every time this screen comes into focus so that
+	// activityIds (updated when activities are assigned in the activity screen)
+	// are always up to date.
+	useFocusEffect(
+		useCallback(() => {
+			refreshRoutes();
+		}, [refreshRoutes]),
+	);
 
 	const handleDeleteAll = useCallback(() => {
 		Alert.alert('Delete All Routes', 'Are you sure you want to delete all saved routes? This cannot be undone.', [

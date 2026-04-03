@@ -8,6 +8,7 @@ import ttsReducer from './ttsSlice';
 import speechSettingsReducer from './speechSettingsSlice';
 import displaySettingsReducer from './displaySettingsSlice';
 import languageReducer from './languageSlice';
+import playerInformationReducer from './playerInformationSlice';
 import { HexTileRecord, saveHexTileState, saveDevHexTileState, saveWalkedEdges, saveDevWalkedEdges } from '../helpers/HexTileStorage';
 import { saveSportType } from '../helpers/SportTypeStorage';
 import { saveThemeMode } from '../helpers/ThemeStorage';
@@ -18,6 +19,7 @@ import { saveSpeechSettings } from '../helpers/SpeechSettingsStorage';
 import { saveDisplaySettings } from '../helpers/DisplaySettingsStorage';
 import { saveLanguage } from '../helpers/LanguageStorage';
 import { setCurrentLanguage } from '../hooks/useTranslation';
+import { PlayerInformation, savePlayerInformation } from '../helpers/PlayerInformationStorage';
 import type { SpeechSettingsState } from './speechSettingsSlice';
 import type { DisplaySettingsState } from './displaySettingsSlice';
 import type { SportType } from './sportTypeSlice';
@@ -38,6 +40,7 @@ export const store = configureStore({
 		speechSettings: speechSettingsReducer,
 		displaySettings: displaySettingsReducer,
 		language: languageReducer,
+		playerInformation: playerInformationReducer,
 	},
 });
 
@@ -74,6 +77,9 @@ let _lastSavedDisplaySettings: DisplaySettingsState | null = null;
 
 // Auto-persist language to disk whenever it changes.
 let _lastSavedLanguage: SupportedLanguage | null = null;
+
+// Auto-persist player information to disk whenever it changes.
+let _lastSavedPlayerInformation: PlayerInformation | null = null;
 
 store.subscribe(() => {
 	const state = store.getState();
@@ -168,6 +174,12 @@ store.subscribe(() => {
 		_lastSavedLanguage = selectedLanguage;
 		saveLanguage(selectedLanguage);
 		setCurrentLanguage(selectedLanguage);
+	}
+
+	const { homeHexTile } = state.playerInformation;
+	if (state.playerInformation !== _lastSavedPlayerInformation) {
+		_lastSavedPlayerInformation = state.playerInformation;
+		savePlayerInformation({ homeHexTile });
 	}
 });
 

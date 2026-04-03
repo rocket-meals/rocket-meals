@@ -25,7 +25,7 @@ import { loadHexTileFeatureCache, mergeHexTileFeatureCache, HexTileFeatureCache 
 import { startRun, markVisited, loadPersistedState, loadWalkedEdgesState, setBillboardAtAnchor } from '../../store/hexTileSlice';
 import { BillboardAnchorPosition } from '../../helpers/HexTileStorage';
 import { queryTileFeaturesForHexCell } from '../../helpers/TileFeatureHelper';
-import { AppDispatch } from '../../store/store';
+import { AppDispatch, store } from '../../store/store';
 
 const PRIMARY_COLOR = '#2563eb';
 
@@ -233,7 +233,8 @@ export default function ActivitiesScreen() {
 						// All existing tile state (including manual customizations) is discarded.
 						const sorted = [...allActivities].sort((a, b) => a.startedAt - b.startedAt);
 						const hexTileFeatureCache = await loadHexTileFeatureCache();
-						const { records, walkedEdges } = rebuildMapFromActivities(sorted, hexTileFeatureCache);
+						const homeHexTile = store.getState().playerInformation.homeHexTile;
+						const { records, walkedEdges } = rebuildMapFromActivities(sorted, hexTileFeatureCache, homeHexTile);
 						dispatch(loadPersistedState(records));
 						dispatch(loadWalkedEdgesState(walkedEdges));
 

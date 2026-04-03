@@ -41,6 +41,7 @@ import { HexTileRecord, BillboardAnchorPosition } from '../helpers/HexTileStorag
 import { startRun, markVisited, markEnclosed, setHexTileCustomization, setBillboardAtAnchor, setBillboardFlatAtAnchor, applyMapCustomizations, addWalkedEdges } from '../store/hexTileSlice';
 import { setSportType, SPORT_TYPES, SportType } from '../store/sportTypeSlice';
 import { store, RootState } from '../store/store';
+import { setHomeHexTile } from '../store/playerInformationSlice';
 import { GPS_INTERVAL_MS } from '../helpers/GpsIntervalStorage';
 import * as Speech from 'expo-speech';
 import { getLocales } from 'expo-localization';
@@ -88,6 +89,9 @@ function getEffectiveBillboardsFlat(record: { billboardsFlat?: Record<string, bo
 }
 
 const PRIMARY_COLOR = '#2563eb';
+
+/** Billboard key for the castle2 sprite. Used to mark the player's home tile. */
+const BILLBOARD_CASTLE2_KEY = 'objects:12';
 
 // Debug status indicator colours
 const STATUS_SUCCESS_COLOR = '#22c55e';
@@ -2559,6 +2563,7 @@ export default function RecordScreen() {
 	const activeTileCount = useSelector((state: RootState) =>
 		Object.values(state.hexTiles.records).filter((r) => r.level > 0).length,
 	);
+	const homeHexTile = useSelector((state: RootState) => state.playerInformation.homeHexTile);
 	const prevResetTokenRef = useRef<number | null>(null);
 
 	const activeSport = useMemo(
@@ -2624,6 +2629,11 @@ export default function RecordScreen() {
 	const coloringTileImageRef = useRef<string | null>(null);
 	const coloringSelectionMadeRef = useRef(false);
 	coloringTileImageRef.current = coloringTileImage;
+
+	// Set-home mode: when active, the next hex tile tap sets that tile as the player's home.
+	const [isSettingHome, setIsSettingHome] = useState(false);
+	const isSettingHomeRef = useRef(false);
+	isSettingHomeRef.current = isSettingHome;
 
 	// Debug: last viewport info for the debug modal (ref avoids stale closure issues).
 	const debugViewportRef = useRef<DebugViewportInfo | null>(null);
@@ -2980,7 +2990,9 @@ export default function RecordScreen() {
 			mapMarkers: [],
 			billboards: {
 				images: billboardImages,
-				features: billboardFeatures,
+				// Sort features so flat objects are rendered first (under normal objects).
+				// Render order: hex tiles → flat objects → normal objects.
+				features: billboardFeatures.slice().sort((a, b) => (a.properties.flat ? 0 : 1) - (b.properties.flat ? 0 : 1)),
 			},
 		});
 	}, [loadAssetUrl]);
@@ -3654,7 +3666,19 @@ export default function RecordScreen() {
 		} else if (msg.tag === 'HexTileClicked') {
 			const clickedMsg = msg as { h3Index?: string; mapFeatures?: MapFeatureInfo[] };
 			if (clickedMsg.h3Index) {
-				if (coloringTileImageRef.current !== null) {
+				if (isSettingHomeRef.current) {
+					// Set-home mode: place castle2 at the center of the selected tile
+					// and store it as the player's home.
+					const newHomeHex = clickedMsg.h3Index;
+					dispatch(setBillboardAtAnchor({
+						h3Index: newHomeHex,
+						anchorColor: BillboardAnchorPosition.CENTER,
+						billboard: BILLBOARD_CASTLE2_KEY,
+					}));
+					dispatch(setHomeHexTile(newHomeHex));
+					isSettingHomeRef.current = false;
+					setIsSettingHome(false);
+				} else if (coloringTileImageRef.current !== null) {
 					// Coloring mode active: directly apply the selected tile image.
 					dispatch(setHexTileCustomization({ h3Index: clickedMsg.h3Index, tileImage: coloringTileImageRef.current }));
 				} else if (isMagnifyModeRef.current) {
@@ -4615,6 +4639,30 @@ export default function RecordScreen() {
 						}}
 					/>
 					<View style={styles.buttonSpacer} />
+					{/* Set Home button – always visible when not recording */}
+					{!isRecording && (
+						<>
+							<TouchableOpacity
+								style={[
+									styles.debugButton,
+									isSettingHome && { backgroundColor: STATUS_WARNING_COLOR },
+									!isSettingHome && homeHexTile !== null && { backgroundColor: STATUS_SUCCESS_COLOR + '22' },
+								]}
+								onPress={() => {
+									isSettingHomeRef.current = !isSettingHome;
+									setIsSettingHome(!isSettingHome);
+								}}
+								activeOpacity={0.8}
+							>
+								<MaterialIcons
+									name="home"
+									size={20}
+									color={isSettingHome ? '#ffffff' : homeHexTile !== null ? STATUS_SUCCESS_COLOR : '#555555'}
+								/>
+							</TouchableOpacity>
+							<View style={styles.buttonSpacer} />
+						</>
+					)}
 					{isDebugMode && !isRecording && (
 						<>
 							<TouchableOpacity

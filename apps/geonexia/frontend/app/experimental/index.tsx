@@ -13,6 +13,17 @@ export default function ExperimentalScreen() {
 	return (
 		<View style={[styles.container, { backgroundColor: theme.screen.background }]}>
 			<ScrollView contentContainerStyle={styles.listContent}>
+				<SettingsListGroupTitle title="Onboarding" />
+				<SettingsList
+					iconBgColor={EXPERIMENTAL_COLOR}
+					leftIcon={<Ionicons name="compass-outline" size={22} color="#ffffff" />}
+					label="User Onboarding"
+					value="Setup-Assistent für neue Nutzer"
+					rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
+					handleFunction={() => router.push('/experimental/onboarding')}
+					groupPosition="single"
+				/>
+
 				<SettingsListGroupTitle title="Audio" />
 				<SettingsList
 					iconBgColor={EXPERIMENTAL_COLOR}

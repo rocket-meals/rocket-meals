@@ -9,7 +9,10 @@ export type BillboardConfigSliceState = {
 };
 
 const initialState: BillboardConfigSliceState = {
-	spriteAnchors: {},
+	spriteAnchors: {
+		// castle2 (index 12) default config
+		12: { scaleMultiplier: 0.6, anchorX: 0.5, anchorY: 0.65 },
+	},
 };
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
@@ -61,12 +64,15 @@ const billboardConfigSlice = createSlice({
 
 		/**
 		 * Replace the entire state with data loaded from persistent storage.
+		 * Merges the loaded config on top of the default values so that
+		 * sprites with defaults (e.g. castle2) are not lost when the user
+		 * has not explicitly configured them.
 		 */
 		loadPersistedBillboardConfig(
 			state,
 			action: PayloadAction<BillboardConfigState>,
 		) {
-			state.spriteAnchors = action.payload;
+			state.spriteAnchors = { ...initialState.spriteAnchors, ...action.payload };
 		},
 	},
 });
