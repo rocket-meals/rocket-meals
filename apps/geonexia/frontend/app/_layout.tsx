@@ -1,5 +1,5 @@
 import 'setimmediate';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -266,7 +266,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 	const isDevMode = useSelector((state: RootState) => state.hexTiles.isDevMode);
 	const { translate } = useTranslation();
 
-	const items: DrawerItem[] = [
+	const items = useMemo<DrawerItem[]>(() => [
 		{
 			key: 'index',
 			label: translate(GeonexiaTranslationKeys.nav_record),
@@ -323,7 +323,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
 			renderIcon: (_, color) => <Ionicons name="settings-outline" size={24} color={color} />,
 			onPress: () => props.navigation.navigate('settings/index'),
 		},
-	];
+	], [translate, isDevMode, props.navigation]);
 
 	return (
 		<AppDrawer

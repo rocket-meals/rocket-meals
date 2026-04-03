@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, Feather, MaterialIcons } from '@expo/vector-icons';
 import {
@@ -108,17 +108,17 @@ export default function SettingsScreen() {
 
 	const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
-	const themeOptions: { id: ThemeMode; label: string; icon: React.ReactNode }[] = [
+	const themeOptions = useMemo<{ id: ThemeMode; label: string; icon: React.ReactNode }[]>(() => [
 		{ id: 'light', label: translate(GeonexiaTranslationKeys.theme_light), icon: <MaterialCommunityIcons name="white-balance-sunny" size={22} color="#ffffff" /> },
 		{ id: 'dark', label: translate(GeonexiaTranslationKeys.theme_dark), icon: <MaterialCommunityIcons name="moon-waning-crescent" size={22} color="#ffffff" /> },
 		{ id: 'systematic', label: translate(GeonexiaTranslationKeys.theme_system), icon: <MaterialCommunityIcons name="theme-light-dark" size={22} color="#ffffff" /> },
-	];
+	], [translate]);
 
-	const gpsIntervalOptions: { id: GpsIntervalMode; label: string; icon: React.ReactNode }[] = [
+	const gpsIntervalOptions = useMemo<{ id: GpsIntervalMode; label: string; icon: React.ReactNode }[]>(() => [
 		{ id: 'default', label: translate(GeonexiaTranslationKeys.gps_interval_default), icon: <MaterialCommunityIcons name="crosshairs-gps" size={22} color="#ffffff" /> },
 		{ id: 'energy_saving', label: translate(GeonexiaTranslationKeys.gps_interval_energy_saving), icon: <MaterialCommunityIcons name="battery-heart-outline" size={22} color="#ffffff" /> },
 		{ id: 'high_precision', label: translate(GeonexiaTranslationKeys.gps_interval_high_precision), icon: <MaterialCommunityIcons name="radar" size={22} color="#ffffff" /> },
-	];
+	], [translate]);
 
 	function gpsIntervalModeLabel(mode: GpsIntervalMode): string {
 		switch (mode) {
