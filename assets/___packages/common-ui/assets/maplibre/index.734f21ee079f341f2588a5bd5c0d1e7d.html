@@ -4264,6 +4264,125 @@
         if (map.getSource('car-source')) map.removeSource('car-source');
       }
 
+      // ── Replay Animation (GPS-route marker, car-simulation approach) ──────────
+
+      var REPLAY_ANIMATION_MS = 50;
+      var REPLAY_CIRCLE_RADIUS = 8;
+      var REPLAY_CIRCLE_COLOR = '#7c3aed';
+
+      var replayAnimationActive = false;
+      var replayAnimationInterval = null;
+      var replayParticle = null; // { lng, lat, route: [[lng,lat],...], routeSegIdx, routeFrac }
+      var replayAnimationSpeed = 1.0; // multiplier for CAR_SPEED_DEG_PER_FRAME
+
+      function updateReplayParticle() {
+        var c = replayParticle;
+        if (!c || !c.route || c.route.length < 2) return;
+        var segStart = c.route[c.routeSegIdx];
+        var segEnd = c.route[c.routeSegIdx + 1];
+        if (!segEnd) {
+          // Reached end — loop back to start
+          c.routeSegIdx = 0;
+          c.routeFrac = 0;
+          c.lng = c.route[0][0];
+          c.lat = c.route[0][1];
+          return;
+        }
+        var dx = segEnd[0] - segStart[0];
+        var dy = segEnd[1] - segStart[1];
+        var segLen = Math.sqrt(dx * dx + dy * dy);
+        if (segLen === 0) {
+          c.routeSegIdx++;
+          return;
+        }
+        c.routeFrac += (CAR_SPEED_DEG_PER_FRAME * replayAnimationSpeed) / segLen;
+        if (c.routeFrac >= 1) {
+          while (c.routeFrac >= 1 && c.routeSegIdx < c.route.length - 2) {
+            var prevLen = segLen;
+            c.routeFrac -= 1;
+            c.routeSegIdx++;
+            segStart = c.route[c.routeSegIdx];
+            segEnd = c.route[c.routeSegIdx + 1];
+            if (!segEnd) break;
+            dx = segEnd[0] - segStart[0];
+            dy = segEnd[1] - segStart[1];
+            segLen = Math.sqrt(dx * dx + dy * dy);
+            if (segLen > 0) c.routeFrac = c.routeFrac * prevLen / segLen;
+          }
+          if (!segEnd || c.routeSegIdx >= c.route.length - 1) {
+            // Loop back to start
+            c.routeSegIdx = 0;
+            c.routeFrac = 0;
+            c.lng = c.route[0][0];
+            c.lat = c.route[0][1];
+            return;
+          }
+          segStart = c.route[c.routeSegIdx];
+          segEnd = c.route[c.routeSegIdx + 1];
+        }
+        if (segEnd) {
+          c.lng = segStart[0] + (segEnd[0] - segStart[0]) * c.routeFrac;
+          c.lat = segStart[1] + (segEnd[1] - segStart[1]) * c.routeFrac;
+        }
+      }
+
+      function replayParticleToGeoJSON() {
+        if (!replayParticle) return { type: 'FeatureCollection', features: [] };
+        return {
+          type: 'FeatureCollection',
+          features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [replayParticle.lng, replayParticle.lat] }, properties: {} }],
+        };
+      }
+
+      function startReplayAnimation() {
+        if (replayAnimationInterval) return;
+        replayAnimationInterval = setInterval(function () {
+          if (!map || !replayAnimationActive || !map.getSource('replay-source')) return;
+          updateReplayParticle();
+          map.getSource('replay-source').setData(replayParticleToGeoJSON());
+        }, REPLAY_ANIMATION_MS);
+      }
+
+      function stopReplayAnimation() {
+        if (replayAnimationInterval) { clearInterval(replayAnimationInterval); replayAnimationInterval = null; }
+        replayParticle = null;
+      }
+
+      function addReplayLayer() {
+        if (!map || !replayParticle) return;
+        var geojson = replayParticleToGeoJSON();
+        if (map.getSource('replay-source')) {
+          map.getSource('replay-source').setData(geojson);
+        } else {
+          map.addSource('replay-source', { type: 'geojson', data: geojson });
+          var firstFillExtrusion = null;
+          var layers = map.getStyle().layers;
+          for (var i = 0; i < layers.length; i++) {
+            if (layers[i].type === 'fill-extrusion') { firstFillExtrusion = layers[i].id; break; }
+          }
+          map.addLayer({
+            id: 'replay-layer',
+            type: 'circle',
+            source: 'replay-source',
+            paint: {
+              'circle-radius': REPLAY_CIRCLE_RADIUS,
+              'circle-color': REPLAY_CIRCLE_COLOR,
+              'circle-opacity': 0.95,
+              'circle-stroke-width': 2,
+              'circle-stroke-color': '#ffffff',
+            },
+          }, firstFillExtrusion || undefined);
+        }
+        startReplayAnimation();
+      }
+
+      function removeReplayLayer() {
+        if (!map) return;
+        stopReplayAnimation();
+        if (map.getLayer('replay-layer')) map.removeLayer('replay-layer');
+        if (map.getSource('replay-source')) map.removeSource('replay-source');
+      }
+
       // ─────────────────────────────────────────────────────────────────────────
 
       function particlesToGeoJSON() {
@@ -5439,6 +5558,26 @@
           }
         }
 
+        if (data.replayAnimation !== undefined) {
+          if (data.replayAnimation === null) {
+            replayAnimationActive = false;
+            removeReplayLayer();
+          } else {
+            var pts = data.replayAnimation.points || [];
+            if (pts.length >= 2) {
+              replayAnimationSpeed = data.replayAnimation.speed || 1.0;
+              var route = [];
+              for (var i = 0; i < pts.length; i++) {
+                route.push([pts[i].lng, pts[i].lat]);
+              }
+              replayParticle = { lng: route[0][0], lat: route[0][1], route: route, routeSegIdx: 0, routeFrac: 0 };
+              replayAnimationActive = true;
+              removeReplayLayer();
+              addReplayLayer();
+            }
+          }
+        }
+
         if (data.imageOverlays !== undefined) {
           updateImageOverlays(data.imageOverlays);
         }
@@ -5755,6 +5894,11 @@
           if (carModeActive) {
             if (!map.getSource('car-source')) {
               addCarLayer();
+            }
+          }
+          if (replayAnimationActive && replayParticle) {
+            if (!map.getSource('replay-source')) {
+              addReplayLayer();
             }
           }
           if (currentHighlightedFeature && !map.getSource(HIGHLIGHT_BUILDING_SOURCE)) {
