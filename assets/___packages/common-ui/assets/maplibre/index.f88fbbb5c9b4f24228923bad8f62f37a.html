@@ -4816,6 +4816,13 @@
             mesh.scale.set(sizeMeters, sizeMeters, sizeMeters);
             // Store per-billboard flat flag so the render loop can apply per-mesh rotation.
             mesh.userData.flat = featureFlat;
+            // Flat adaptations (stonePath etc.) must always render below face-camera objects
+            // (Castle, trees etc.).  THREE.js sorts transparent objects by camera distance
+            // which can place a ground-flat mesh on top of a tilted object mesh at certain
+            // pitch angles.  Explicit renderOrder overrides that sorting:
+            //   0 → hex texture adaptations (flat, ground layer)
+            //   1 → hex objects (face-camera, always on top)
+            mesh.renderOrder = featureFlat ? 0 : 1;
 
             meshes.push(mesh);
 
@@ -4834,7 +4841,7 @@
             var anchorMesh = new THREE.Mesh(anchorGeo, anchorMat);
             anchorMesh.position.set(dx, dy, 0);
             anchorMesh.scale.set(sizeMeters, sizeMeters, sizeMeters);
-            anchorMesh.renderOrder = 1;
+            anchorMesh.renderOrder = 2; // above flat (0) and object (1) billboard meshes
             // Tag so we can identify anchor meshes later
             anchorMesh.userData.isAnchorPoint = true;
             anchorMesh.visible = billboardShowAnchors;
