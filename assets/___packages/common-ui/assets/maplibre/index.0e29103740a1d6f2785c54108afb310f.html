@@ -5024,6 +5024,57 @@
         }
       }
 
+      // ─── Color map ───────────────────────────────────────────────────────────────
+      // Keyword lists for each MapColorKey category.  A layer whose id contains any
+      // of the listed substrings is treated as part of that category.
+      var COLOR_MAP_LAYER_KEYWORDS = {
+        background: ['background'],
+        grass:      ['grass', 'park', 'wood', 'forest', 'scrub', 'farmland', 'orchard', 'meadow', 'garden', 'vegetation', 'landuse-green', 'landuse_green', 'landcover-grass', 'landcover_grass'],
+        water:      ['water', 'lake', 'ocean', 'river', 'canal', 'wetland', 'waterway', 'reservoir'],
+        road:       ['road', 'motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'track', 'bridge', 'tunnel', 'path', 'highway'],
+        building:   ['building'],
+      };
+
+      // Paint-property name per layer type used when overriding colors.
+      var COLOR_MAP_PAINT_PROP = {
+        'fill':           'fill-color',
+        'fill-extrusion': 'fill-extrusion-color',
+        'line':           'line-color',
+        'background':     'background-color',
+      };
+
+      /**
+       * Apply a color map to the currently loaded map style.
+       * @param {Object} colorMap  Partial record of MapColorKey → CSS color string.
+       */
+      function applyColorMap(colorMap) {
+        if (!colorMap || !map) return;
+        var style = map.getStyle();
+        if (!style || !style.layers) return;
+        var colorKeys = Object.keys(colorMap);
+        for (var i = 0; i < style.layers.length; i++) {
+          var layer = style.layers[i];
+          var layerId = layer.id.toLowerCase();
+          var paintProp = COLOR_MAP_PAINT_PROP[layer.type];
+          if (!paintProp) continue;
+          for (var ci = 0; ci < colorKeys.length; ci++) {
+            var colorKey = colorKeys[ci];
+            var color = colorMap[colorKey];
+            if (!color) continue;
+            var keywords = COLOR_MAP_LAYER_KEYWORDS[colorKey];
+            if (!keywords) continue;
+            var matched = false;
+            for (var k = 0; k < keywords.length; k++) {
+              if (layerId.indexOf(keywords[k]) !== -1) { matched = true; break; }
+            }
+            if (matched) {
+              try { map.setPaintProperty(layer.id, paintProp, color); } catch (e) { /* skip unsupported layers */ }
+              break;
+            }
+          }
+        }
+      }
+
       // ─── Extension hooks ──────────────────────────────────────────────────────────
       // Consumers can set these hooks to extend map behaviour without modifying this
       // file. The Geonexia hex-tile layer script uses them.
@@ -5322,6 +5373,10 @@
 
         if (data.mapStyle) {
           map.setStyle(data.mapStyle);
+        }
+
+        if (data.colorMap !== undefined) {
+          applyColorMap(data.colorMap);
         }
 
         if (data.fitBounds) {
