@@ -3746,6 +3746,7 @@
         padding: 24px;
         text-align: center;
       }
+      /* INJECT_STYLE_HERE */
     </style>
   </head>
   <body>
@@ -5846,6 +5847,11 @@
             if (loadingSpan) loadingSpan.textContent = loadingTextParam;
           }
           var styleParam = params.get('style') || null;
+          if (params.get('hideLegal') === '1') {
+            var hideLegalStyle = document.createElement('style');
+            hideLegalStyle.textContent = '.maplibregl-ctrl-attrib { display: none !important; }';
+            document.head.appendChild(hideLegalStyle);
+          }
           var lat = parseFloat(params.get('lat'));
           var lng = parseFloat(params.get('lng'));
           var zoom = parseFloat(params.get('zoom'));
