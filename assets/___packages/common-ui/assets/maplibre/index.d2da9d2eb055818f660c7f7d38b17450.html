@@ -3762,6 +3762,7 @@
       var map = null;
       var mapReady = false;
       var pendingMessage = null;
+      var currentColorMap = null;
       var activeMarkers = {};
       var DEFAULT_REFERENCE_ZOOM = 14;
       var MIN_MARKER_SCALE = 0.05;
@@ -5376,6 +5377,7 @@
         }
 
         if (data.colorMap !== undefined) {
+          currentColorMap = data.colorMap;
           applyColorMap(data.colorMap);
         }
 
@@ -5669,10 +5671,10 @@
         parseAndHandle(e.data);
       });
 
-      function initMap(initialCenter, initialZoom, initialPitch) {
+      function initMap(initialCenter, initialZoom, initialPitch, styleUrl) {
         map = new maplibregl.Map({
           container: 'map',
-          style: 'https://tiles.openfreemap.org/styles/liberty',
+          style: styleUrl || 'https://tiles.openfreemap.org/styles/liberty',
           center: initialCenter || [10.0, 51.3],
           zoom: initialZoom != null ? initialZoom : 16,
           pitch: initialPitch != null ? initialPitch : 20,
@@ -5805,6 +5807,9 @@
         map.on('rotate', updateConeRotation);
 
         map.on('styledata', function () {
+          if (currentColorMap) {
+            applyColorMap(currentColorMap);
+          }
           if (peopleModeActive) {
             if (!map.getSource('people-source')) {
               addPeopleLayer();
@@ -5840,11 +5845,15 @@
             var loadingSpan = document.getElementById('loading-text');
             if (loadingSpan) loadingSpan.textContent = loadingTextParam;
           }
+          var styleParam = params.get('style') || null;
           var lat = parseFloat(params.get('lat'));
           var lng = parseFloat(params.get('lng'));
           var zoom = parseFloat(params.get('zoom'));
           if (!isNaN(lat) && !isNaN(lng)) {
-            initMap([lng, lat], !isNaN(zoom) ? zoom : null);
+            initMap([lng, lat], !isNaN(zoom) ? zoom : null, null, styleParam);
+            return;
+          } else {
+            initMap(null, null, null, styleParam);
             return;
           }
         } catch (e) {}
