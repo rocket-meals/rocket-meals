@@ -22,13 +22,10 @@ Usage (called by png2svg.sh, but can also be used standalone):
 from __future__ import annotations
 
 import argparse
-import io
 import os
 import re
 import subprocess
-import struct
 import sys
-import tempfile
 from pathlib import Path
 
 try:
@@ -66,10 +63,14 @@ def make_pbm(mask_bytes: bytes, width: int, height: int) -> bytes:
 
 def run_potrace(pbm_data: bytes, potrace_opts: str) -> str:
     """Run potrace on PBM data and return the SVG path data."""
-    # potrace -s (SVG) reads from stdin, writes to stdout
+    # potrace -s (SVG) reads from stdin, writes to stdout.
+    # -u 1 ensures 1 unit = 1 pixel so path coordinates match the image
+    # dimensions (without -u 1, potrace uses decipoints and applies a
+    # scale(0.1) transform that --flat strips, leaving coordinates 10×
+    # too large for the viewBox).
     opts = potrace_opts.split() if potrace_opts.strip() else []
     result = subprocess.run(
-        ["potrace", "-s", "--flat", *opts],
+        ["potrace", "-s", "--flat", "-u", "1", *opts],
         input=pbm_data,
         capture_output=True,
     )
@@ -88,7 +89,7 @@ def extract_paths(svg_text: str) -> list[str]:
 def png_to_svg(
     input_path: str,
     output_path: str,
-    max_colors: int = 64,
+    max_colors: int = 128,
     alpha_threshold: int = 128,
     potrace_opts: str = "-t 4",
 ) -> None:
@@ -96,19 +97,40 @@ def png_to_svg(
     width, height = img.size
 
     # ── 1. Quantise ──────────────────────────────────────────────────────
-    # We work on an opaque copy so that quantisation ignores alpha.
-    opaque = Image.new("RGB", (width, height), (255, 255, 255))
-    opaque.paste(img, mask=img.split()[3])  # paste using alpha channel as mask
-
-    quantised = opaque.quantize(colors=max_colors, method=Image.Quantize.MEDIANCUT)
-    palette_data = quantised.getpalette()  # flat list [r,g,b, r,g,b, …]
-    if palette_data is None:
-        raise RuntimeError("quantise returned no palette")
-
-    quant_rgb = quantised.convert("RGB")
-    quant_pixels = quant_rgb.load()
+    # Extract only the visible (non-transparent) pixels for quantisation so
+    # that palette slots are not wasted on the transparent background colour.
     alpha_channel = img.split()[3]
     alpha_pixels = alpha_channel.load()
+    rgb = img.convert("RGB")
+    rgb_pixels = rgb.load()
+
+    visible_pixels: list[tuple[int, int, int]] = []
+    for y in range(height):
+        for x in range(width):
+            if alpha_pixels[x, y] >= alpha_threshold:
+                visible_pixels.append(rgb_pixels[x, y])
+
+    if not visible_pixels:
+        Path(output_path).write_text(
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}"/>\n'
+        )
+        return
+
+    # Build a 1-pixel-tall image of just the visible pixels, quantise that.
+    vis_img = Image.new("RGB", (len(visible_pixels), 1))
+    vis_img.putdata(visible_pixels)
+    quantised_vis = vis_img.quantize(colors=max_colors, method=Image.Quantize.MEDIANCUT)
+    palette = quantised_vis.getpalette()
+    if palette is None:
+        raise RuntimeError("quantise returned no palette")
+
+    # Build a full-frame quantised image by mapping every pixel through
+    # the palette derived from visible pixels only.
+    opaque = Image.new("RGB", (width, height), (0, 0, 0))
+    opaque.paste(img.convert("RGB"))
+    quant_full = opaque.quantize(palette=quantised_vis, dither=Image.Dither.NONE)
+    quant_rgb = quant_full.convert("RGB")
+    quant_pixels = quant_rgb.load()
 
     # ── 2. Collect unique visible colours ─────────────────────────────────
     colour_set: set[tuple[int, int, int]] = set()
@@ -181,7 +203,7 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="Convert a PNG to a multi-colour SVG")
     ap.add_argument("--input", required=True, help="Input PNG file")
     ap.add_argument("--output", required=True, help="Output SVG file")
-    ap.add_argument("--max-colors", type=int, default=64)
+    ap.add_argument("--max-colors", type=int, default=128)
     ap.add_argument("--alpha-threshold", type=int, default=128)
     ap.add_argument("--potrace-opts", default="-t 4")
     args = ap.parse_args()

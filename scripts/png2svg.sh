@@ -27,7 +27,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ---------------------------------------------------------------------------
 # Defaults – tweak these if you want different quality / colour count.
 # ---------------------------------------------------------------------------
-MAX_COLORS="${MAX_COLORS:-64}"        # max number of colour clusters
+MAX_COLORS="${MAX_COLORS:-128}"        # max number of colour clusters
 POTRACE_OPTS="${POTRACE_OPTS:--t 4}"  # potrace turdsize (ignore specs < N px)
 ALPHA_THRESHOLD="${ALPHA_THRESHOLD:-128}"  # pixels below this alpha are transparent
 
