@@ -126,10 +126,10 @@ def png_to_svg(
 
     # Build a full-frame quantised image by mapping every pixel through
     # the palette derived from visible pixels only.
-    opaque = Image.new("RGB", (width, height), (0, 0, 0))
-    opaque.paste(img.convert("RGB"))
-    quant_full = opaque.quantize(palette=quantised_vis, dither=Image.Dither.NONE)
-    quant_rgb = quant_full.convert("RGB")
+    rgb_frame = Image.new("RGB", (width, height), (0, 0, 0))
+    rgb_frame.paste(img.convert("RGB"))
+    quantised_full = rgb_frame.quantize(palette=quantised_vis, dither=Image.Dither.NONE)
+    quant_rgb = quantised_full.convert("RGB")
     quant_pixels = quant_rgb.load()
 
     # ── 2. Collect unique visible colours ─────────────────────────────────
