@@ -110,6 +110,45 @@ const normalizeExpectedValue = (value: unknown): string => {
 	return String(value).trim().toLowerCase();
 };
 
+const isAnswerVisible = (
+	answer: DatabaseTypes.FormAnswers,
+	allAnswers: DatabaseTypes.FormAnswers[],
+	formData: { [key: string]: { value: any; error: string; custom_type: string } }
+): boolean => {
+	const formField = isFormFieldEntity(answer?.form_field) ? answer.form_field : null;
+	const baseVisibility = formField?.is_visible_in_form ?? true;
+	if (!baseVisibility) return false;
+
+	const visibilityDependsOnFieldId = formField ? extractFormFieldId(formField.visibility_depends_on_referenced_field) : undefined;
+	const expectedVisibilityValue = formField?.visibility_depends_on_referenced_value_equals;
+	const normalizedExpected = normalizeExpectedValue(expectedVisibilityValue);
+	const hasVisibilityDependency = Boolean(visibilityDependsOnFieldId && normalizedExpected !== '');
+
+	if (!hasVisibilityDependency) return true;
+
+	const referencedAnswer = allAnswers.find(item => {
+		const referencedField = isFormFieldEntity(item?.form_field) ? item.form_field : null;
+		const referencedFieldId = extractFormFieldId(referencedField || item?.form_field);
+		return referencedFieldId === visibilityDependsOnFieldId;
+	});
+
+	if (!referencedAnswer) return false;
+
+	const referencedField = isFormFieldEntity(referencedAnswer?.form_field) ? referencedAnswer.form_field : null;
+	const referencedFieldType = referencedField?.field_type || '';
+	const [referencedCustomType] = referencedFieldType.split('-');
+	const key = String(referencedAnswer?.id);
+	const formDataEntry = formData[key];
+	let currentValue: any;
+	if (formDataEntry !== undefined) {
+		currentValue = formDataEntry.value;
+	} else {
+		currentValue = (referencedAnswer as any)?.[referencedCustomType] ?? null;
+	}
+	const normalizedCurrent = normalizeCurrentValue(currentValue, referencedCustomType);
+	return normalizedCurrent === normalizedExpected;
+};
+
 const normalizeCurrentValue = (value: unknown, customType?: string): string => {
         if (customType === 'value_boolean') {
                 if (value === null || value === undefined) return 'false';
@@ -623,24 +662,59 @@ const Index = () => {
 			}
 		}
 
+		// Validate all visible required fields before processing uploads
+		for (const answer of formAnswers) {
+			if (!isAnswerVisible(answer, formAnswers, formData)) continue;
+			const isRequired = (answer?.form_field as DatabaseTypes.FormFields)?.is_required;
+			if (!isRequired) continue;
+
+			const fieldId = String(answer?.id);
+			const fieldType = (answer?.form_field as DatabaseTypes.FormFields)?.field_type || '';
+			const [custom_type] = fieldType.split('-');
+			const formDataEntry = formData[fieldId];
+			const value = formDataEntry?.value;
+			const fieldInFormData = formData.hasOwnProperty(fieldId);
+
+			let hasValue: boolean;
+			if (custom_type === 'value_image') {
+				if (fieldInFormData) {
+					hasValue = value !== null && value !== undefined;
+				} else {
+					hasValue = Boolean((answer as any)?.value_image);
+				}
+			} else if (custom_type === 'value_files') {
+				if (fieldInFormData) {
+					hasValue = Array.isArray(value) && value.length > 0;
+				} else {
+					const answerFiles = (answer as any)?.value_files;
+					hasValue = Array.isArray(answerFiles) && answerFiles.length > 0;
+				}
+			} else {
+				hasValue = Boolean(value) && (typeof value !== 'string' || value.trim() !== '');
+			}
+
+			if (!hasValue) {
+				hasError = true;
+				const fieldName = (answer?.form_field as DatabaseTypes.FormFields)?.translations?.length > 0 ? getFromCategoryTranslation((answer?.form_field as DatabaseTypes.FormFields)?.translations, language) : (answer?.form_field as DatabaseTypes.FormFields)?.alias;
+				toast(`Field "${fieldName}" is required`, 'error');
+			}
+		}
+
+		if (hasError) {
+			setSubmissionLoading(false);
+			return;
+		}
+
 		const filteredFormAnswers = formAnswers.filter(answer => formData.hasOwnProperty(String(answer?.id)));
 
 		const updatedFormAnswers = await Promise.all(
 			filteredFormAnswers.map(async answer => {
 				const fieldId = answer?.id;
-				const isRequired = (answer?.form_field as DatabaseTypes.FormFields)?.is_required;
 				const formDataEntry = formData[String(fieldId)];
 				const value = formDataEntry?.value;
 				const fieldType = (answer?.form_field as DatabaseTypes.FormFields)?.field_type || '';
 				const prefix = (answer?.form_field as DatabaseTypes.FormFields)?.value_prefix || '-';
 				const custom_id = fieldType?.split('-')[1];
-
-				if (isRequired && (!value || value.trim() === '')) {
-					hasError = true;
-					const fieldName = (answer?.form_field as DatabaseTypes.FormFields)?.translations?.length > 0 ? getFromCategoryTranslation((answer?.form_field as DatabaseTypes.FormFields)?.translations, language) : (answer?.form_field as DatabaseTypes.FormFields)?.alias;
-					toast(`Field "${fieldName}" is required`, 'error');
-					return null;
-				}
 
 				const { custom_type } = formDataEntry;
 				let formateDate;
@@ -742,10 +816,6 @@ const Index = () => {
 		);
 
 		const finalAnswers = updatedFormAnswers.filter(Boolean);
-		if (hasError) {
-			setSubmissionLoading(false);
-			return;
-		}
 
 		if (finalAnswers.length > 0) {
 			// In offline mode, immediately add to queue without attempting upload
