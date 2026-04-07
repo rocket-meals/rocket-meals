@@ -4432,7 +4432,7 @@
                   ctx.closePath();
                   ctx.clip();
 
-                  // Draw the texture aligned to North (no rotation) and compensate for the
+                  // Draw the texture with optional rotation and compensate for the
                   // geographic aspect ratio of the bounding box so the texture appears
                   // undistorted on the map.
                   //
@@ -4467,9 +4467,12 @@
                     drawH = size;
                     drawW = size * targetCanvasRatio;
                   }
-                  var offsetX = (size - drawW) / 2;
-                  var offsetY = (size - drawH) / 2;
-                  ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+                  // Apply rotation around the canvas centre so the texture top aligns
+                  // with the northernmost vertex of the hex cell.  ov.rotation is the
+                  // bearing in degrees clockwise from north (0 = no rotation).
+                  ctx.translate(size / 2, size / 2);
+                  ctx.rotate((ov.rotation || 0) * Math.PI / 180);
+                  ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
 
                   var clippedUrl = canvas.toDataURL('image/png');
                   if (map.getSource(srcId) || map.getLayer(layId)) {
