@@ -32,6 +32,12 @@ export type FoodCreationHelperObject = {
   foodofferCategoryExternalIdentifiersToFoodofferCategoriesDict: DictFoodofferCategoriesExternalIdentifiersToFoodofferCategories;
 };
 
+export type FoodOfferCreationDicts = {
+  dictCanteenExternalIdentifierToCanteen: Record<string, DatabaseTypes.Canteens | null>;
+  dictMarkingExternalIdentifierToMarking: Record<string, DatabaseTypes.Markings | null>;
+  dictFoodsFound: Record<string, DatabaseTypes.Foods | null>;
+};
+
 export class ParseSchedule {
   private readonly context: WorkflowRunContext;
   private readonly foodParser: FoodParserInterface | null;
@@ -134,12 +140,9 @@ export class ParseSchedule {
           await this.context.logger.appendLog('Update Foods');
           await this.updateFoods(foodsJSONList, helperObject);
 
-          await this.context.logger.appendLog('Delete specific food offers');
+          await this.context.logger.appendLog('Delete and create food offers per date');
           //await this.deleteAllComponentFoodoffers(); // No need since, a hook will delete the components if the foodoffer is deleted
-          await this.deleteRequiredFoodOffersForTheirCanteens(foodofferListForParser);
-
-          await this.context.logger.appendLog('Create food offers');
-          await this.createFoodOffers(foodofferListForParser, helperObject);
+          await this.deleteAndCreateFoodOffersPerDate(foodofferListForParser, helperObject);
 
           return this.context.logger.getFinalLogWithStateAndParams({
             state: WORKFLOW_RUN_STATE.SUCCESS,
@@ -318,6 +321,139 @@ export class ParseSchedule {
         await this.deleteFoodOffersNewerOrEqualThanDate(foodofferDatesToDelete, canteen);
       }
     }
+  }
+
+  /**
+   * Optimized approach: instead of deleting all food offers first and then creating all,
+   * we process date by date. For each date we delete the old offers and immediately create
+   * the new ones. This minimizes the window during which no food offers are visible for any given date.
+   */
+  async deleteAndCreateFoodOffersPerDate(foodofferListForParser: FoodoffersTypeForParser[], helperObject: FoodCreationHelperObject) {
+    // Step 1: Handle "delete without dates" per canteen (same as before, date-independent)
+    const foodoffersGroupedByCanteen: Record<string, FoodoffersTypeForParser[]> = {};
+    for (const foodofferForParser of foodofferListForParser) {
+      const key = foodofferForParser.canteen_external_identifier;
+      if (!foodoffersGroupedByCanteen[key]) {
+        foodoffersGroupedByCanteen[key] = [];
+      }
+      foodoffersGroupedByCanteen[key].push(foodofferForParser);
+    }
+
+    const canteenExternalIdentifiers = Object.keys(foodoffersGroupedByCanteen);
+    for (const canteenExternalIdentifier of canteenExternalIdentifiers) {
+      const canteen = await this.findOrCreateCanteenByExternalIdentifier(canteenExternalIdentifier);
+      if (!!canteen && canteen.foodoffers_import_delete_all_without_dates) {
+        await this.deleteAllFoodoffersForCanteenWithoutDates(canteen);
+      }
+    }
+
+    // Step 2: Pre-load creation dicts (canteens, markings, foods) once for all dates
+    const creationDicts = await this.prepareFoodOfferCreationDicts(foodofferListForParser);
+
+    // Step 3: Group foodoffers by date string and sort dates chronologically
+    const foodoffersByDateString: Record<string, FoodoffersTypeForParser[]> = {};
+    for (const foodofferForParser of foodofferListForParser) {
+      const dateString = DateHelper.foodofferDateTypeToString(foodofferForParser.date);
+      if (!foodoffersByDateString[dateString]) {
+        foodoffersByDateString[dateString] = [];
+      }
+      foodoffersByDateString[dateString].push(foodofferForParser);
+    }
+    const sortedDateStrings = Object.keys(foodoffersByDateString).sort();
+
+    // Step 4: For each date, delete then create (minimizes the window per date)
+    const totalDates = sortedDateStrings.length;
+    for (let dateIndex = 0; dateIndex < totalDates; dateIndex++) {
+      const dateString = sortedDateStrings[dateIndex];
+      if (!dateString) {
+        continue;
+      }
+      const foodoffersForDate = foodoffersByDateString[dateString];
+      if (!foodoffersForDate) {
+        continue;
+      }
+
+      await this.context.logger.appendLog('Processing date ' + (dateIndex + 1) + ' / ' + totalDates + ': ' + dateString);
+
+      // Delete food offers for this exact date per canteen
+      const canteenExternalIdentifiersForDate = new Set(foodoffersForDate.map((f: FoodoffersTypeForParser) => f.canteen_external_identifier));
+      for (const canteenExtId of canteenExternalIdentifiersForDate) {
+        const canteen = creationDicts.dictCanteenExternalIdentifierToCanteen[canteenExtId];
+        if (!!canteen) {
+          await this.deleteAllFoodOffersForDateForCanteen(dateString, canteen);
+        }
+      }
+
+      // Create food offers for this date
+      await this.createFoodOffersWithDicts(foodoffersForDate, helperObject, creationDicts);
+    }
+
+    // Step 5: Cleanup - delete offers with date > newest date per canteen
+    // This maintains parity with the original behavior that deletes all offers >= oldest date
+    // (which also removes offers for dates beyond the new list's range)
+    if (sortedDateStrings.length > 0) {
+      const newestDateString = sortedDateStrings[sortedDateStrings.length - 1];
+      if (newestDateString) {
+        for (const canteenExternalIdentifier of canteenExternalIdentifiers) {
+          const canteen = creationDicts.dictCanteenExternalIdentifierToCanteen[canteenExternalIdentifier];
+          if (!!canteen) {
+            await this.deleteAllFoodOffersAfterDateForCanteen(newestDateString, canteen);
+          }
+        }
+      }
+    }
+  }
+
+  async deleteAllFoodOffersForDateForCanteen(dateString: string, canteen: DatabaseTypes.Canteens) {
+    await this.context.logger.appendLog('Delete food offers for date: ' + dateString + ' for canteen: ' + canteen.id);
+
+    const itemService = await this.context.myDatabaseHelper.getFoodoffersHelper();
+    const itemsToDelete = await itemService.readByQuery({
+      filter: {
+        _and: [
+          {
+            date: {
+              _eq: dateString,
+            },
+          },
+          {
+            canteen: {
+              _eq: canteen.id,
+            },
+          },
+        ],
+      },
+      fields: ['id'],
+      limit: -1,
+    });
+
+    await this.deleteFoodOffers(itemsToDelete, `Delete food offers for date: ${dateString} for canteen: ${canteen.id}`);
+  }
+
+  async deleteAllFoodOffersAfterDateForCanteen(dateString: string, canteen: DatabaseTypes.Canteens) {
+    await this.context.logger.appendLog('Delete food offers after date: ' + dateString + ' for canteen: ' + canteen.id);
+
+    const itemService = await this.context.myDatabaseHelper.getFoodoffersHelper();
+    const itemsToDelete = await itemService.readByQuery({
+      filter: {
+        _and: [
+          {
+            date: {
+              _gt: dateString,
+            },
+          },
+          {
+            canteen: {
+              _eq: canteen.id,
+            },
+          },
+        ],
+      },
+      fields: ['id'],
+      limit: -1,
+    });
+
+    await this.deleteFoodOffers(itemsToDelete, `Delete food offers after date: ${dateString} for canteen: ${canteen.id}`);
   }
 
   async deleteAllFoodoffersForCanteenWithoutDates(canteen: DatabaseTypes.Canteens) {
@@ -771,6 +907,149 @@ export class ParseSchedule {
       foodoffer_components: this.buildComponentFoodoffersCreate(foodofferForParser.components, canteen, dictMarkingExternalIdentifierToMarking, helperObject.dictMarkingsExclusions), // Directus nested create format is not reflected in the static type
     };
     return foodOfferToCreate;
+  }
+
+  /**
+   * Pre-loads canteen, marking, and food dictionaries needed for creating food offers.
+   * This is extracted so it can be called once and reused across per-date creation calls.
+   */
+  async prepareFoodOfferCreationDicts(foodofferListForParser: FoodoffersTypeForParser[]): Promise<FoodOfferCreationDicts> {
+    const dictCanteenExternalIdentifierToCanteen: Record<string, DatabaseTypes.Canteens | null> = {};
+    const dictMarkingExternalIdentifierToMarking: Record<string, DatabaseTypes.Markings | null> = {};
+
+    // collect unique canteen and marking external identifiers
+    for (const foodofferForParser of foodofferListForParser) {
+      dictCanteenExternalIdentifierToCanteen[foodofferForParser.canteen_external_identifier] = null;
+
+      for (const marking_external_identifier of foodofferForParser.marking_external_identifiers) {
+        dictMarkingExternalIdentifierToMarking[marking_external_identifier] = null;
+      }
+
+      for (const component of foodofferForParser.components) {
+        for (const marking_external_identifier of component.marking_external_identifiers) {
+          dictMarkingExternalIdentifierToMarking[marking_external_identifier] = null;
+        }
+      }
+    }
+
+    // load canteens
+    for (const canteenExternalIdentifier of Object.keys(dictCanteenExternalIdentifierToCanteen)) {
+      const canteen = await this.findOrCreateCanteenByExternalIdentifier(canteenExternalIdentifier);
+      if (!!canteen) {
+        dictCanteenExternalIdentifierToCanteen[canteenExternalIdentifier] = canteen;
+      }
+    }
+
+    // load markings
+    let shouldCreateNewMarkings = false;
+    if (!!this.foodParser) {
+      shouldCreateNewMarkings = this.foodParser.shouldCreateNewMarkingsWhenTheyDoNotExistYet();
+    }
+    for (const markingExternalIdentifier of Object.keys(dictMarkingExternalIdentifierToMarking)) {
+      let marking: DatabaseTypes.Markings | undefined | null = null;
+      if (shouldCreateNewMarkings) {
+        marking = await this.findOrCreateMarkingByExternalIdentifier(markingExternalIdentifier);
+      } else {
+        marking = await this.findMarkingByExternalIdentifier(markingExternalIdentifier);
+      }
+      if (!!marking) {
+        dictMarkingExternalIdentifierToMarking[markingExternalIdentifier] = marking;
+      }
+    }
+
+    // load foods
+    const dictFoodsFound: Record<string, DatabaseTypes.Foods | null> = {};
+    for (const foodofferForParser of foodofferListForParser) {
+      dictFoodsFound[foodofferForParser.food_id] = null;
+    }
+    const foodsService = await this.getFoodsService();
+    for (const foodId of Object.keys(dictFoodsFound)) {
+      const food = await foodsService.readOne(foodId);
+      if (!!food) {
+        dictFoodsFound[foodId] = food;
+      }
+    }
+
+    return {
+      dictCanteenExternalIdentifierToCanteen,
+      dictMarkingExternalIdentifierToMarking,
+      dictFoodsFound,
+    };
+  }
+
+  /**
+   * Creates food offers using pre-loaded dictionaries for a subset of foodoffers.
+   */
+  async createFoodOffersWithDicts(foodofferListForParser: FoodoffersTypeForParser[], helperObject: FoodCreationHelperObject, dicts: FoodOfferCreationDicts) {
+    const amountOfRawMealOffers = foodofferListForParser.length;
+
+    const foodoffersToCreate: Partial<DatabaseTypes.Foodoffers>[] = [];
+    for (const [index, foodofferForParser] of foodofferListForParser.entries()) {
+      const canteen = dicts.dictCanteenExternalIdentifierToCanteen[foodofferForParser.canteen_external_identifier];
+      const canteenFound = !!canteen;
+
+      const marking_external_identifiers = foodofferForParser.marking_external_identifiers;
+      const markings: DatabaseTypes.Markings[] = [];
+
+      for (const marking_external_identifier of marking_external_identifiers) {
+        const marking = dicts.dictMarkingExternalIdentifierToMarking[marking_external_identifier];
+        if (marking) {
+          markings.push(marking);
+        }
+      }
+      const markingsAllFound = markings.length === marking_external_identifiers.length;
+
+      const foodofferCategoryExternalIdentifier = foodofferForParser.category_external_identifier;
+      let foodofferCategory: DatabaseTypes.FoodoffersCategories | undefined = undefined;
+      if (!!foodofferCategoryExternalIdentifier) {
+        foodofferCategory = helperObject.foodofferCategoryExternalIdentifiersToFoodofferCategoriesDict[foodofferCategoryExternalIdentifier];
+      }
+
+      const food_id = foodofferForParser.food_id;
+      const food = dicts.dictFoodsFound[food_id];
+      const foodFound = !!food;
+
+      if (canteenFound && markingsAllFound && foodFound) {
+        const filteredMarkings = MarkingFilterHelper.filterMarkingByRestrictionRules(markings, helperObject.dictMarkingsExclusions);
+        const foodOfferToCreate = this.getFoodofferToCreate(foodofferForParser, canteen, filteredMarkings, food, foodofferCategory, helperObject, dicts.dictMarkingExternalIdentifierToMarking);
+        foodoffersToCreate.push(foodOfferToCreate);
+      } else {
+        await this.context.logger.appendLog('Error Foodoffer ' + (index + 1) + ' / ' + amountOfRawMealOffers + ' - canteenFound: ' + canteenFound + ' - markingsAllFound: ' + markingsAllFound + ' - foodFound: ' + foodFound);
+      }
+    }
+
+    const batchSize = 10;
+    const myFoodOffersService = await this.context.myDatabaseHelper.getFoodoffersHelper();
+    const myTimer = new MyTimer(SCHEDULE_NAME + ' - Create Food Offers');
+    await this.context.logger.appendLog('Amount of food offers to create: ' + foodoffersToCreate.length);
+
+    let batchIndex = 1;
+    const amountOfBatches = Math.ceil(foodoffersToCreate.length / batchSize);
+    for (let i = 0; i < foodoffersToCreate.length; i += batchSize) {
+      const batch = foodoffersToCreate.slice(i, i + batchSize);
+      await this.context.logger.appendLog('Create Food Offers Batch ' + batchIndex + ' / ' + amountOfBatches);
+
+      const disableEventEmit = true;
+      for (const foodofferToCreate of batch) {
+        try {
+          await this.context.logger.appendLog('Create Food Offer ' + JSON.stringify(foodofferToCreate, null, 2));
+          const result = await myFoodOffersService.createOne(foodofferToCreate, {
+            disableEventEmit: disableEventEmit,
+          });
+          await this.context.logger.appendLog('Created Food Offer ' + JSON.stringify(result, null, 2));
+        } catch (error: any) {
+          await this.context.logger.appendLog('Error creating food offer: ' + JSON.stringify(error, null, 2));
+        }
+      }
+
+      myTimer.printElapsedTimeAndEstimatedTimeRemaining({
+        progress: batchIndex,
+        total: amountOfBatches,
+        prefix: null,
+        suffix: 'Total amount of food offers: ' + foodoffersToCreate.length,
+      });
+      batchIndex++;
+    }
   }
 
   async createFoodOffers(foodofferListForParser: FoodoffersTypeForParser[], helperObject: FoodCreationHelperObject) {
