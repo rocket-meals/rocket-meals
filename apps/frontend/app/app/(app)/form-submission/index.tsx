@@ -110,6 +110,27 @@ const normalizeExpectedValue = (value: unknown): string => {
 	return String(value).trim().toLowerCase();
 };
 
+const normalizeCurrentValue = (value: unknown, customType?: string): string => {
+        if (customType === 'value_boolean') {
+                if (value === null || value === undefined) return 'false';
+                if (value === 1 || value === true) return 'true';
+                if (value === 0 || value === false) return 'false';
+
+                return 'null';
+        }
+
+        if (value === null || value === undefined) return '';
+
+	if (typeof value === 'string') return value.trim().toLowerCase();
+	if (typeof value === 'number') return String(value);
+	if (typeof value === 'boolean') return value ? 'true' : 'false';
+	if (Array.isArray(value)) {
+		return value.map(item => String(item).trim().toLowerCase()).join(',');
+	}
+
+	return String(value).trim().toLowerCase();
+};
+
 const isAnswerVisible = (
 	answer: DatabaseTypes.FormAnswers,
 	allAnswers: DatabaseTypes.FormAnswers[],
@@ -147,27 +168,6 @@ const isAnswerVisible = (
 	}
 	const normalizedCurrent = normalizeCurrentValue(currentValue, referencedCustomType);
 	return normalizedCurrent === normalizedExpected;
-};
-
-const normalizeCurrentValue = (value: unknown, customType?: string): string => {
-        if (customType === 'value_boolean') {
-                if (value === null || value === undefined) return 'false';
-                if (value === 1 || value === true) return 'true';
-                if (value === 0 || value === false) return 'false';
-
-                return 'null';
-        }
-
-        if (value === null || value === undefined) return '';
-
-	if (typeof value === 'string') return value.trim().toLowerCase();
-	if (typeof value === 'number') return String(value);
-	if (typeof value === 'boolean') return value ? 'true' : 'false';
-	if (Array.isArray(value)) {
-		return value.map(item => String(item).trim().toLowerCase()).join(',');
-	}
-
-	return String(value).trim().toLowerCase();
 };
 
 const Index = () => {
