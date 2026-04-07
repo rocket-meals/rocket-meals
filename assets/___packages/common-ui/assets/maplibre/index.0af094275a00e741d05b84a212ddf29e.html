@@ -4455,16 +4455,17 @@
                   //   physW/physH = (drawW/drawH) * physAspect = imgAspect
                   //   → drawW/drawH = imgAspect / physAspect
                   var targetCanvasRatio = imgAspect / physAspect;
-                  // Use cover semantics: scale until both canvas dimensions are filled.
+                  // Use contain semantics: scale until the image fits within the canvas without cropping.
+                  // This ensures tall (portrait) textures are never clipped at the top or bottom.
                   var drawW, drawH;
                   if (targetCanvasRatio >= 1) {
-                    // Image is relatively wider: fit height to canvas, scale width accordingly.
-                    drawH = size;
-                    drawW = size * targetCanvasRatio;
-                  } else {
-                    // Image is relatively taller: fit width to canvas, scale height accordingly.
+                    // Image is relatively wider: constrain width to canvas, derive height from aspect ratio.
                     drawW = size;
                     drawH = size / targetCanvasRatio;
+                  } else {
+                    // Image is relatively taller: constrain height to canvas, derive width from aspect ratio.
+                    drawH = size;
+                    drawW = size * targetCanvasRatio;
                   }
                   var offsetX = (size - drawW) / 2;
                   var offsetY = (size - drawH) / 2;
