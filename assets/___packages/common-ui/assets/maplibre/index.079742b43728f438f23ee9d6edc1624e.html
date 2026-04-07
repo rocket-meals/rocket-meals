@@ -4432,26 +4432,43 @@
                   ctx.closePath();
                   ctx.clip();
 
-                  // Rotate the texture to align with the H3 hex orientation.
-                  // ov.rotation is the geographic bearing (radians from North, CW) from the
-                  // hex centre to its first vertex – this is the "phase" of the H3 cell.
-                  // We rotate the canvas by the same angle so the texture top aligns with
-                  // the direction of vertex 0 of the H3 cell.
-                  var rot = ov.rotation || 0;
-                  var cx = size / 2, cy = size / 2;
-                  ctx.translate(cx, cy);
-                  ctx.rotate(rot);
-                  ctx.translate(-cx, -cy);
-
-                  // Scale the image up to ensure full coverage after rotation.
-                  // A rotation of up to 45° (π/4) requires a scale of 1/cos(45°) ≈ 1.414.
-                  // We use the bounding half-angle of each 60° hex sector (max offset = π/6)
-                  // so 1/cos(π/6) ≈ 1.155, but we add a small margin → clamp at 1.5 max.
-                  var absRot = Math.abs(rot % (Math.PI / 2));
-                  if (absRot > Math.PI / 4) absRot = Math.PI / 2 - absRot;
-                  var scaleFactor = rot !== 0 ? Math.min(1 / (Math.cos(absRot) || 1) * 1.05, 1.5) : 1.0;
-                  var offset = (scaleFactor - 1) * size / 2;
-                  ctx.drawImage(img, -offset, -offset, size * scaleFactor, size * scaleFactor);
+                  // Draw the texture aligned to North (no rotation) and compensate for the
+                  // geographic aspect ratio of the bounding box so the texture appears
+                  // undistorted on the map.
+                  //
+                  // The canvas (size × size pixels) will be stretched by MapLibre to cover
+                  // the bounding box [lngRange × latRange] in degrees. Because 1° longitude
+                  // covers less physical distance than 1° latitude at higher latitudes
+                  // (by a factor of cos(lat)), a naive square draw distorts the image.
+                  //
+                  // We compensate by computing the physical W/H ratio of the bbox and
+                  // drawing the image with the inverse ratio in canvas space, so that
+                  // MapLibre's stretch cancels the distortion out.
+                  var cosLat = Math.cos(((maxLat + minLat) / 2) * Math.PI / 180);
+                  // physAspect: physical width / physical height of the bounding box.
+                  var physAspect = (lngRange * cosLat) / (latRange || 1e-9);
+                  // Natural image aspect ratio; fall back to 1 for SVGs that return 0.
+                  var naturalW = img.naturalWidth || img.width || 1;
+                  var naturalH = img.naturalHeight || img.height || 1;
+                  var imgAspect = naturalW / naturalH;
+                  // Target canvas W/H so the image appears at its natural proportions:
+                  //   physW/physH = (drawW/drawH) * physAspect = imgAspect
+                  //   → drawW/drawH = imgAspect / physAspect
+                  var targetCanvasRatio = imgAspect / physAspect;
+                  // Use cover semantics: scale until both canvas dimensions are filled.
+                  var drawW, drawH;
+                  if (targetCanvasRatio >= 1) {
+                    // Image is relatively wider: fit height to canvas, scale width accordingly.
+                    drawH = size;
+                    drawW = size * targetCanvasRatio;
+                  } else {
+                    // Image is relatively taller: fit width to canvas, scale height accordingly.
+                    drawW = size;
+                    drawH = size / targetCanvasRatio;
+                  }
+                  var offsetX = (size - drawW) / 2;
+                  var offsetY = (size - drawH) / 2;
+                  ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
 
                   var clippedUrl = canvas.toDataURL('image/png');
                   if (map.getSource(srcId) || map.getLayer(layId)) {
