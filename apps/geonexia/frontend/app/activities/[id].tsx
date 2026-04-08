@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 import * as Clipboard from 'expo-clipboard';
+import * as Location from 'expo-location';
 import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { MyMap, MyMapHandle, QrCode, SettingsList, SettingsListBoolean, SettingsListGroupTitle, SettingsListSelectOption, SettingsListSelectOptionItem, SettingsListSelectOptionSingle, useMyScrollViewModal, useTheme } from 'repo-depkit-common-ui';
@@ -732,6 +733,32 @@ export default function ActivityDetailScreen() {
 				mapRef.current.sendToMap({ autoRotate: false });
 				mapRef.current.sendToMap({ replayAnimation: null });
 			}
+		};
+	}, []);
+
+	// Track the user's live GPS position in the background while the replay
+	// screen is open, so the current position marker stays up to date.
+	useEffect(() => {
+		let sub: Location.LocationSubscription | null = null;
+		let active = true;
+
+		(async () => {
+			const { status } = await Location.requestForegroundPermissionsAsync();
+			if (status !== 'granted' || !active) return;
+
+			sub = await Location.watchPositionAsync(
+				{ accuracy: Location.Accuracy.Balanced, timeInterval: 3000, distanceInterval: 5 },
+				(loc) => {
+					mapRef.current?.sendToMap({
+						userLocation: { lat: loc.coords.latitude, lng: loc.coords.longitude },
+					});
+				},
+			);
+		})();
+
+		return () => {
+			active = false;
+			sub?.remove();
 		};
 	}, []);
 

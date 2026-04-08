@@ -40,8 +40,8 @@ export const HEX_TILE_SCRIPT = `
   var HEX_BORDER_COLOR = '#1e3a1e';
   var HEX_BORDER_WIDTH = 2.5;
   var HEX_BORDER_OPACITY = 0.85;
-  // Walk path: sandy brown/earth tone for tiles the user has physically walked on
-  var WALK_PATH_COLOR = 'rgba(180, 130, 60, 0.85)';
+  // Walk path: red for tiles the user has physically walked on
+  var WALK_PATH_COLOR = 'rgba(220, 38, 38, 0.85)';
   var WALK_PATH_WIDTH = 2.5;
 
   // ── MapLibre source / layer IDs ───────────────────────────────────────────
