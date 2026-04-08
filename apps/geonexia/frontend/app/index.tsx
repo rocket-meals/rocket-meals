@@ -4166,6 +4166,20 @@ export default function RecordScreen() {
 			}
 
 			const lastAccepted = lastAcceptedGpsPointRef.current;
+
+			// ── GPS time interval filter ──────────────────────────────────────────
+			// The OS may deliver location updates more frequently than the requested
+			// timeInterval. During recording, discard any point that arrives before
+			// 95 % of the configured GPS interval has elapsed since the last accepted
+			// point. This prevents recording too many GPS points.
+			if (isRecordingRef.current && lastAccepted) {
+				const minIntervalMs = store.getState().gpsInterval.intervalSeconds * 1000 * 0.95;
+				const dtMs = point.timestamp - lastAccepted.timestamp;
+				if (dtMs < minIntervalMs) {
+					return;
+				}
+			}
+
 			if (lastAccepted) {
 				const distKm = haversineKm(lastAccepted.lat, lastAccepted.lng, point.lat, point.lng);
 				const dtSec = (point.timestamp - lastAccepted.timestamp) / 1000;
