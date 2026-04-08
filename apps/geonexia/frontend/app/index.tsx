@@ -571,7 +571,13 @@ const FLUID_BASELINE_ML = 600;
 const SPEED_WARMUP_MS = 10_000;
 const SPEED_WINDOW_SIZE = 5;
 const GPS_TIME_INTERVAL_MS = 1000;
-const GPS_DISTANCE_INTERVAL_METERS = 5;
+// Minimum distance (m) a runner must move before a location update is triggered.
+// Derived from the configured time interval so that the distance threshold is
+// never reached before the time threshold at typical running speeds (≥ 2 m/s).
+// Example: 5 s × 2 m/s = 10 m  →  the time interval fires first for any pace.
+function gpsDistanceIntervalMeters(timeIntervalMs: number): number {
+	return Math.max(10, Math.round(timeIntervalMs / 1000 * 2));
+}
 /**
  * Maximum number of intermediate H3 cells to fill in when a GPS gap is detected
  * (i.e. the straight-line H3 path between two accepted GPS fixes is longer than 1
@@ -3482,11 +3488,10 @@ export default function RecordScreen() {
 				announceAppInBackgroundRef.current
 			) {
 				const locale = getLocales()[0]?.languageTag ?? 'en-US';
-				const langCode = locale.split('-')[0].toLowerCase();
 				const text = buildBackgroundAnnouncement(locale);
 				const curSs = speechSettingsRef.current;
 				try {
-					speakAnnouncement(text, langCode, {
+					speakAnnouncement(text, locale, {
 						rate: speechRateToNumber(curSs.speechRate),
 					}, 'background');
 				} catch (err) {
@@ -4285,14 +4290,13 @@ export default function RecordScreen() {
 						: accumulatedSecondsRef.current;
 				const paceMinPerKm = elapsedSec > 0 && d > 0 ? elapsedSec / 60 / d : null;
 				const locale = getLocales()[0]?.languageTag ?? 'en-US';
-				const langCode = locale.split('-')[0].toLowerCase();
 				const curSs = speechSettingsRef.current;
 				const text = buildKmAnnouncement(crossedKm, paceMinPerKm, locale, {
 					announcePace: curSs.announcePace,
 					announceSpeedKmh: curSs.announceSpeed,
 				});
 				try {
-					speakAnnouncement(text, langCode, {
+					speakAnnouncement(text, locale, {
 						rate: speechRateToNumber(curSs.speechRate),
 					}, 'km_milestone');
 				} catch (err) {
@@ -4330,7 +4334,6 @@ export default function RecordScreen() {
 
 					const now = Date.now();
 					const locale = getLocales()[0]?.languageTag ?? 'en-US';
-					const langCode = locale.split('-')[0].toLowerCase();
 
 					// Announce "too fast" / "too slow" only on transition from on_target.
 					if (
@@ -4340,7 +4343,7 @@ export default function RecordScreen() {
 					) {
 						const text = buildPaceHintAnnouncement(next, currentPace, targetPace, locale);
 						try {
-							speakAnnouncement(text, langCode, {
+							speakAnnouncement(text, locale, {
 								volume: curSs.volume,
 								rate: speechRateToNumber(curSs.speechRate),
 								useApplicationAudioSession: curSs.duckMusicDuringTTS,
@@ -4356,7 +4359,7 @@ export default function RecordScreen() {
 					if (next === 'on_target' && prev !== 'on_target') {
 						const text = buildOnTargetAnnouncement(locale);
 						try {
-							speakAnnouncement(text, langCode, {
+							speakAnnouncement(text, locale, {
 								volume: curSs.volume,
 								rate: speechRateToNumber(curSs.speechRate),
 								useApplicationAudioSession: curSs.duckMusicDuringTTS,
@@ -4517,7 +4520,7 @@ export default function RecordScreen() {
 			});
 			if (text.length > 0) {
 				try {
-					speakAnnouncement(text, langCode, {
+					speakAnnouncement(text, locale, {
 						volume: curSs.volume,
 						rate: speechRateToNumber(curSs.speechRate),
 						useApplicationAudioSession: curSs.duckMusicDuringTTS,
@@ -4532,6 +4535,7 @@ export default function RecordScreen() {
 	const startRecording = useCallback(async () => {
 		const expoGo = isRunningInExpoGo();
 		const gpsTimeIntervalMs = store.getState().gpsInterval.intervalSeconds * 1000;
+		const gpsDistMeters = gpsDistanceIntervalMeters(gpsTimeIntervalMs);
 		console.log('[RecordScreen] startRecording called. isRunningInExpoGo:', expoGo);
 
 		// Cancel measure mode before starting a recording
@@ -4609,7 +4613,7 @@ export default function RecordScreen() {
 					{
 						accuracy: Location.Accuracy.BestForNavigation,
 						timeInterval: gpsTimeIntervalMs,
-						distanceInterval: GPS_DISTANCE_INTERVAL_METERS,
+						distanceInterval: gpsDistMeters,
 					},
 					(loc) => {
 						console.log('[RecordScreen] Foreground location update:', loc.coords.latitude, loc.coords.longitude);
@@ -4644,7 +4648,7 @@ export default function RecordScreen() {
 				await Location.startLocationUpdatesAsync(ACTIVITY_LOCATION_TASK, {
 					accuracy: Location.Accuracy.BestForNavigation,
 					timeInterval: gpsTimeIntervalMs,
-					distanceInterval: GPS_DISTANCE_INTERVAL_METERS,
+					distanceInterval: gpsDistMeters,
 					showsBackgroundLocationIndicator: true,
 					foregroundService: {
 						notificationTitle: 'Activity Recording',
@@ -4659,7 +4663,7 @@ export default function RecordScreen() {
 					{
 						accuracy: Location.Accuracy.BestForNavigation,
 						timeInterval: gpsTimeIntervalMs,
-						distanceInterval: GPS_DISTANCE_INTERVAL_METERS,
+						distanceInterval: gpsDistMeters,
 					},
 					(loc) => {
 						console.log('[RecordScreen] Foreground location update:', loc.coords.latitude, loc.coords.longitude);
