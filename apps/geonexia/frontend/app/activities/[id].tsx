@@ -736,8 +736,8 @@ export default function ActivityDetailScreen() {
 		};
 	}, []);
 
-	// Track the user's live GPS position in the background while the replay
-	// screen is open, so the current position marker stays up to date.
+	// Track the user's live GPS position while the replay screen is active,
+	// so the current position marker stays up to date on the map.
 	useEffect(() => {
 		let sub: Location.LocationSubscription | null = null;
 		let active = true;
