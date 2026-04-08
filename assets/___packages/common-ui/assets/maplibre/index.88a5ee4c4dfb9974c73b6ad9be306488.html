@@ -5267,6 +5267,47 @@
       }
       // ─────────────────────────────────────────────────────────────────────────────
 
+      // ─── Debug GPS measurement points layer ──────────────────────────────────────
+      // Rendered on top of the route line in debug mode; small black circles at each
+      // raw GPS coordinate so the measurement density is visible.
+      var DEBUG_GPS_POINTS_SOURCE = 'debug-gps-points-source';
+      var DEBUG_GPS_POINTS_LAYER  = 'debug-gps-points-layer';
+      // Radius is intentionally smaller than the route line width at every zoom level
+      // so the points sit visually "inside" the line rather than obscuring it.
+      var DEBUG_GPS_POINT_RADIUS_EXPR = ['interpolate', ['linear'], ['zoom'], 8, 1.5, 13, 3, 18, 5];
+
+      function updateDebugGpsPointsLayer(coords) {
+        if (!map) return;
+        var features = [];
+        if (coords && coords.length > 0) {
+          for (var i = 0; i < coords.length; i++) {
+            features.push({
+              type: 'Feature',
+              geometry: { type: 'Point', coordinates: coords[i] },
+              properties: {},
+            });
+          }
+        }
+        var geojson = { type: 'FeatureCollection', features: features };
+        if (map.getSource(DEBUG_GPS_POINTS_SOURCE)) {
+          map.getSource(DEBUG_GPS_POINTS_SOURCE).setData(geojson);
+        } else {
+          map.addSource(DEBUG_GPS_POINTS_SOURCE, { type: 'geojson', data: geojson });
+          map.addLayer({
+            id: DEBUG_GPS_POINTS_LAYER,
+            type: 'circle',
+            source: DEBUG_GPS_POINTS_SOURCE,
+            paint: {
+              'circle-radius': DEBUG_GPS_POINT_RADIUS_EXPR,
+              'circle-color': '#000000',
+              'circle-opacity': 0.85,
+              'circle-stroke-width': 0,
+            },
+          });
+        }
+      }
+      // ─────────────────────────────────────────────────────────────────────────────
+
       // ─── User location marker ─────────────────────────────────────────────────────
       var userLocationMarker = null;
       var userHeadingDeg = 0;
@@ -5650,6 +5691,10 @@
 
         if (data.routeStartPoint !== undefined) {
           updateRouteStartPoint(data.routeStartPoint);
+        }
+
+        if (data.debugGpsPoints !== undefined) {
+          updateDebugGpsPointsLayer(data.debugGpsPoints);
         }
 
         if (data.userLocation !== undefined) {
