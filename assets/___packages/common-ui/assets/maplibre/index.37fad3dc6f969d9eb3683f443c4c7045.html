@@ -4808,6 +4808,7 @@
             var anchorX = feature.properties.anchorX !== undefined ? feature.properties.anchorX : 0.5;
             var anchorY = feature.properties.anchorY !== undefined ? feature.properties.anchorY : 1.0;
             var featureFlat = feature.properties.flat === true;
+            var featureOpacity = feature.properties.opacity != null ? feature.properties.opacity : 1.0;
 
             var texture = billboardTextureCache[iconKey];
             if (!texture) continue;
@@ -4823,6 +4824,7 @@
             var material = new THREE.MeshBasicMaterial({
               map: texture,
               transparent: true,
+              opacity: featureOpacity,
               side: THREE.DoubleSide,
               depthTest: false,
               depthWrite: false,
