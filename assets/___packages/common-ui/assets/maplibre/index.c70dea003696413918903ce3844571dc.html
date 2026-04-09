@@ -4809,6 +4809,7 @@
             var anchorY = feature.properties.anchorY !== undefined ? feature.properties.anchorY : 1.0;
             var featureFlat = feature.properties.flat === true;
             var featureOpacity = feature.properties.opacity != null ? feature.properties.opacity : 1.0;
+            var featureTextureRotation = feature.properties.textureRotation != null ? feature.properties.textureRotation : 0;
 
             var texture = billboardTextureCache[iconKey];
             if (!texture) continue;
@@ -4839,8 +4840,9 @@
             var dy = (billboardCenter.y - merc.y) / billboardMPU;
             mesh.position.set(dx, dy, 0);
             mesh.scale.set(sizeMeters, sizeMeters, sizeMeters);
-            // Store per-billboard flat flag so the render loop can apply per-mesh rotation.
+            // Store per-billboard flat flag and texture rotation so the render loop can apply per-mesh rotation.
             mesh.userData.flat = featureFlat;
+            mesh.userData.textureRotation = featureTextureRotation;
             // Flat adaptations (stonePath etc.) must always render below face-camera objects
             // (Castle, trees etc.).  THREE.js sorts transparent objects by camera distance
             // which can place a ground-flat mesh on top of a tilted object mesh at certain
@@ -4980,7 +4982,10 @@
                 child.rotation.set(pitchRad, 0, -bearingRad, 'ZXY');
               } else {
                 // 'map' mode or per-mesh flat: lie flat on the map surface.
-                child.rotation.set(0, 0, 0);
+                // Apply the position angle as a Z rotation so the texture is oriented
+                // toward its anchor direction (e.g. outer_30 → rotated 30° clockwise).
+                var flatRotRad = (child.userData.textureRotation || 0) * Math.PI / 180;
+                child.rotation.set(0, 0, flatRotRad);
               }
             }
 
