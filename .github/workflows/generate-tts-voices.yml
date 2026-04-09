@@ -31,16 +31,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: "📦 Install piper-tts and ffmpeg"
-        run: |
-          # Install ffmpeg for WAV → MP3 conversion
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
-
-          # Install piper-tts (local TTS engine, no API key required)
-          pip install piper-tts
+      - name: "📦 Install mistralai"
+        run: pip install mistralai
 
       - name: "🗣️ Generate voice MP3 files"
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: python scripts/generate-tts-voices.py
 
       - name: "💾 Commit generated voices"

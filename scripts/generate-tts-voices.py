@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-Generate TTS voice MP3 files from a JSON definition file using piper-tts.
+Generate TTS voice MP3 files from a JSON definition file using Voxtral (Mistral AI).
 
-Runs locally without any API key. Designed for GitHub Actions CI.
+Requires the MISTRAL_API_KEY environment variable to be set.
+Designed for GitHub Actions CI.
 
 Usage:
     python scripts/generate-tts-voices.py
@@ -12,12 +13,13 @@ Writes: apps/geonexia/frontend/assets/tts-generated-voices/<key>.mp3
         apps/geonexia/frontend/assets/tts-generated-voices/generatedVoicesIndex.ts
 """
 
+import base64
 import json
 import os
-import subprocess
 import sys
-import tempfile
 from pathlib import Path
+
+from mistralai import Mistral
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
 
@@ -26,22 +28,9 @@ VOICES_DIR = REPO_ROOT / "apps" / "geonexia" / "frontend" / "assets" / "tts-gene
 VOICES_JSON = VOICES_DIR / "voices.json"
 GENERATED_INDEX = VOICES_DIR / "generatedVoicesIndex.ts"
 
-# ── Piper voice model mapping ─────────────────────────────────────────────────
-# Language prefix (first two chars of key) → piper voice model name.
-# Models are auto-downloaded by piper on first use.
-# See https://github.com/rhasspy/piper#voices for available voices.
+# ── Voxtral model ─────────────────────────────────────────────────────────────
 
-LANG_VOICE_MAP: dict[str, str] = {
-    "DE": "de_DE-thorsten-high",
-    "EN": "en_US-lessac-high",
-    "FR": "fr_FR-siwis-medium",
-    "ES": "es_ES-sharvard-medium",
-    "IT": "it_IT-riccardo-x_low",
-    "PT": "pt_BR-faber-medium",
-    "NL": "nl_NL-mls-medium",
-}
-
-DEFAULT_VOICE = "en_US-lessac-high"
+VOXTRAL_MODEL = "voxtral-mini-tts-2603"
 
 
 def detect_language(key: str) -> str:
@@ -49,57 +38,21 @@ def detect_language(key: str) -> str:
     return key.split("_")[0].upper()
 
 
-def get_voice_for_key(key: str) -> str:
-    """Return the piper voice model for a given key."""
-    lang = detect_language(key)
-    return LANG_VOICE_MAP.get(lang, DEFAULT_VOICE)
-
-
-def generate_mp3(text: str, voice: str, output_path: Path) -> bool:
-    """Generate an MP3 file from text using piper-tts."""
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as wav_file:
-        wav_path = wav_file.name
-
+def generate_mp3(client: Mistral, text: str, output_path: Path) -> bool:
+    """Generate an MP3 file from text using the Voxtral TTS API."""
     try:
-        # Generate WAV with piper
-        piper_cmd = [
-            "piper",
-            "--model", voice,
-            "--output_file", wav_path,
-        ]
-        result = subprocess.run(
-            piper_cmd,
+        response = client.audio.speech.complete(
+            model=VOXTRAL_MODEL,
             input=text,
-            capture_output=True,
-            text=True,
-            timeout=120,
+            response_format="mp3",
+            stream=False,
         )
-        if result.returncode != 0:
-            print(f"  [ERROR] piper failed: {result.stderr.strip()}")
-            return False
-
-        # Convert WAV → MP3 with ffmpeg
-        ffmpeg_cmd = [
-            "ffmpeg", "-y",
-            "-i", wav_path,
-            "-codec:a", "libmp3lame",
-            "-qscale:a", "2",
-            str(output_path),
-        ]
-        result = subprocess.run(
-            ffmpeg_cmd,
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
-        if result.returncode != 0:
-            print(f"  [ERROR] ffmpeg failed: {result.stderr.strip()}")
-            return False
-
+        audio_bytes = base64.b64decode(response.audio_data)
+        output_path.write_bytes(audio_bytes)
         return True
-    finally:
-        if os.path.exists(wav_path):
-            os.unlink(wav_path)
+    except Exception as exc:
+        print(f"  [ERROR] Voxtral API call failed: {exc}")
+        return False
 
 
 def generate_typescript_index(voices: dict[str, str]) -> None:
@@ -133,6 +86,11 @@ def generate_typescript_index(voices: dict[str, str]) -> None:
 
 
 def main() -> None:
+    api_key = os.environ.get("MISTRAL_API_KEY")
+    if not api_key:
+        print("ERROR: MISTRAL_API_KEY environment variable is not set.")
+        sys.exit(1)
+
     if not VOICES_JSON.exists():
         print(f"ERROR: voices.json not found at {VOICES_JSON}")
         sys.exit(1)
@@ -141,19 +99,21 @@ def main() -> None:
         voices: dict[str, str] = json.load(f)
 
     print(f"Found {len(voices)} voice entries to generate.")
+    print(f"Using model: {VOXTRAL_MODEL}")
+
+    client = Mistral(api_key=api_key)
 
     success_count = 0
     fail_count = 0
 
     for key, text in voices.items():
         output_path = VOICES_DIR / f"{key}.mp3"
-        voice = get_voice_for_key(key)
         lang = detect_language(key)
 
-        print(f"  [{lang}] {key} → {voice}")
+        print(f"  [{lang}] {key}")
         print(f"         \"{text}\"")
 
-        if generate_mp3(text, voice, output_path):
+        if generate_mp3(client, text, output_path):
             print(f"         ✓ {output_path.name}")
             success_count += 1
         else:
