@@ -5106,53 +5106,101 @@
       //   onMapClick(e, map)    – called from the click handler; return true to consume
       window._mapExtensions = {};
 
-      // ─── Route track layer ────────────────────────────────────────────────────────
-      // Zoom-based line width expression: thicker at higher zoom levels so the
-      // route remains visible regardless of zoom. Values are 2× the original
-      // width (was 4) to match the "2× thicker" requirement.
-      var ROUTE_LINE_WIDTH_EXPR = ['interpolate', ['linear'], ['zoom'], 8, 4, 13, 8, 18, 14];
+      // ─── Route track canvas overlay ───────────────────────────────────────────
+      // The live GPS route is drawn on an HTML <canvas> overlay rather than a
+      // MapLibre GL line layer.  This ensures the red route line is ALWAYS
+      // visible above 3D fill-extrusion buildings regardless of map pitch,
+      // because HTML canvas elements are composited by the browser above all
+      // WebGL content.  MapLibre GL JS 4.x does not support line-z-offset, so a
+      // WebGL line layer at ground-level is depth-occluded by building walls
+      // when the map is pitched to 60°.
+      //
+      // The zoom-interpolation expressions below are still used by the
+      // speed-coloured route-segments layer (activity detail view).
+      var ROUTE_LINE_WIDTH_EXPR        = ['interpolate', ['linear'], ['zoom'], 8, 4, 13, 8, 18, 14];
       var ROUTE_LINE_BORDER_WIDTH_EXPR = ['interpolate', ['linear'], ['zoom'], 8, 7, 13, 12, 18, 19];
+      var routeTrackCoords    = null; // last received [[lng,lat],...] or null
+      var routeTrackCanvas    = null; // <canvas> DOM element
+      var routeTrackCtx       = null; // CanvasRenderingContext2D
+      var routeTrackCanvasDpr = 1;    // device pixel ratio at last resize
 
-      var ROUTE_TRACK_SOURCE = 'route-track-source';
-      var ROUTE_TRACK_LAYER  = 'route-track-layer';
-      var routeTrackCoords   = null; // last received [[lng,lat],...] or null
+      // Returns the desired main-line width in CSS pixels for the current zoom,
+      // matching the zoom-interpolation that the former WebGL layer used.
+      function routeTrackLineWidth(zoom) {
+        if (zoom <= 8)  return 4;
+        if (zoom <= 13) return 4  + (8  - 4)  * (zoom - 8)  / (13 - 8);
+        if (zoom <= 18) return 8  + (14 - 8)  * (zoom - 13) / (18 - 13);
+        return 14;
+      }
+
+      function syncRouteTrackCanvasSize() {
+        if (!routeTrackCanvas) return;
+        var dpr = window.devicePixelRatio || 1;
+        var w   = window.innerWidth;
+        var h   = window.innerHeight;
+        routeTrackCanvas.width  = Math.round(w * dpr);
+        routeTrackCanvas.height = Math.round(h * dpr);
+        routeTrackCanvasDpr     = dpr;
+        routeTrackCtx = routeTrackCanvas.getContext('2d');
+      }
+
+      function drawRouteTrackCanvas() {
+        if (!routeTrackCtx || !routeTrackCanvas) return;
+        var dpr = routeTrackCanvasDpr;
+        routeTrackCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        routeTrackCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        if (!routeTrackCoords || routeTrackCoords.length < 2 || !map) return;
+        var zoom = map.getZoom();
+        var mainW   = routeTrackLineWidth(zoom);
+        var borderW = mainW * 1.55; // matches the ~1.55× border-to-main ratio from the former WebGL layers
+
+        // Project all coordinates to screen pixels once.
+        var pts = [];
+        for (var i = 0; i < routeTrackCoords.length; i++) {
+          var pt = map.project({ lng: routeTrackCoords[i][0], lat: routeTrackCoords[i][1] });
+          pts.push(pt);
+        }
+
+        // Gray border pass (drawn wider, underneath the red line).
+        routeTrackCtx.beginPath();
+        routeTrackCtx.strokeStyle = 'rgba(156, 163, 175, 0.7)';
+        routeTrackCtx.lineWidth   = borderW;
+        routeTrackCtx.lineCap     = 'round';
+        routeTrackCtx.lineJoin    = 'round';
+        routeTrackCtx.moveTo(pts[0].x, pts[0].y);
+        for (var j = 1; j < pts.length; j++) routeTrackCtx.lineTo(pts[j].x, pts[j].y);
+        routeTrackCtx.stroke();
+
+        // Red line pass.
+        routeTrackCtx.beginPath();
+        routeTrackCtx.strokeStyle = 'rgba(220, 38, 38, 0.85)';
+        routeTrackCtx.lineWidth   = mainW;
+        routeTrackCtx.lineCap     = 'round';
+        routeTrackCtx.lineJoin    = 'round';
+        routeTrackCtx.moveTo(pts[0].x, pts[0].y);
+        for (var k = 1; k < pts.length; k++) routeTrackCtx.lineTo(pts[k].x, pts[k].y);
+        routeTrackCtx.stroke();
+      }
+
+      function initRouteTrackCanvas() {
+        // Create a transparent canvas and append it inside the map container so
+        // it is positioned above the WebGL canvas but MapLibre HTML markers
+        // (appended after it) appear on top of the route line.
+        var container = map.getContainer();
+        routeTrackCanvas = document.createElement('canvas');
+        routeTrackCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+        container.appendChild(routeTrackCanvas);
+        syncRouteTrackCanvasSize();
+        window.addEventListener('resize', function () {
+          syncRouteTrackCanvasSize();
+          drawRouteTrackCanvas();
+        });
+        map.on('render', drawRouteTrackCanvas);
+      }
 
       function updateRouteTrackLayer(coords) {
-        if (!map) return;
         routeTrackCoords = (coords && coords.length > 0) ? coords : null;
-        var geojson = {
-          type: 'FeatureCollection',
-          features: (coords && coords.length > 1) ? [{
-            type: 'Feature',
-            geometry: { type: 'LineString', coordinates: coords },
-            properties: {},
-          }] : [],
-        };
-        if (map.getSource(ROUTE_TRACK_SOURCE)) {
-          map.getSource(ROUTE_TRACK_SOURCE).setData(geojson);
-        } else {
-          map.addSource(ROUTE_TRACK_SOURCE, { type: 'geojson', data: geojson });
-          // Gray border layer drawn first (wider), then the colored line on top
-          map.addLayer({
-            id: ROUTE_TRACK_LAYER + '-border',
-            type: 'line',
-            source: ROUTE_TRACK_SOURCE,
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#9ca3af', 'line-width': ROUTE_LINE_BORDER_WIDTH_EXPR, 'line-opacity': 0.7 },
-          });
-          map.addLayer({
-            id: ROUTE_TRACK_LAYER,
-            type: 'line',
-            source: ROUTE_TRACK_SOURCE,
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': 'rgba(220, 38, 38, 0.85)', 'line-width': ROUTE_LINE_WIDTH_EXPR, 'line-opacity': 1 },
-          });
-        }
-        // Always raise route track layers to the very top of the layer stack so the
-        // GPS recording line is rendered above hex tiles, terrain image overlays, and
-        // any other layers that may have been added since the last update.
-        if (map.getLayer(ROUTE_TRACK_LAYER + '-border')) map.moveLayer(ROUTE_TRACK_LAYER + '-border');
-        if (map.getLayer(ROUTE_TRACK_LAYER)) map.moveLayer(ROUTE_TRACK_LAYER);
+        drawRouteTrackCanvas();
       }
 
       // ─── Speed-colored route segments (activity detail view) ──────────────────
@@ -5755,6 +5803,7 @@
 
         map.on('load', function () {
           document.getElementById('loading').style.display = 'none';
+          initRouteTrackCanvas();
           mapReady = true;
           if (pendingMessage) {
             applyMessage(pendingMessage);
@@ -5895,8 +5944,8 @@
           if (currentHighlightedFeature && !map.getSource(HIGHLIGHT_BUILDING_SOURCE)) {
             highlightBuilding(currentHighlightedFeature);
           }
-          if (routeTrackCoords && !map.getSource(ROUTE_TRACK_SOURCE)) {
-            updateRouteTrackLayer(routeTrackCoords);
+          if (routeTrackCoords) {
+            drawRouteTrackCanvas();
           }
           if (routeSegmentsData && !map.getSource(ROUTE_SEG_SOURCE)) {
             updateRouteSegmentsLayer(routeSegmentsData);
