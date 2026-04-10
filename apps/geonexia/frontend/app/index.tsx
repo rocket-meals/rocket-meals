@@ -3395,6 +3395,23 @@ export default function RecordScreen() {
 	}, []);
 
 	useEffect(() => {
+		// On mount: stop any background location task left over from a previous session
+		// (e.g. the app was killed or crashed while a recording was active).
+		// Background location tasks persist across app restarts on both iOS and Android,
+		// so GPS queries would otherwise continue even without an active recording.
+		TaskManager.isTaskRegisteredAsync(ACTIVITY_LOCATION_TASK)
+			.then((isRunning) => {
+				if (isRunning) {
+					console.log('[RecordScreen] Stale background location task detected on mount – stopping it.');
+					Location.stopLocationUpdatesAsync(ACTIVITY_LOCATION_TASK).catch((err) => {
+						console.warn('[RecordScreen] Failed to stop stale background task on mount:', err);
+					});
+				}
+			})
+			.catch((err) => {
+				console.warn('[RecordScreen] isTaskRegisteredAsync failed on mount:', err);
+			});
+
 		return () => {
 			// Cleanup on unmount: stop any active tracking
 			_onLocationUpdate = null;
