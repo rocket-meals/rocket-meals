@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, Feather, MaterialIcons } from '@expo/vector-icons';
+import * as Clipboard from 'expo-clipboard';
 import {
 	SettingsList,
 	SettingsListBoolean,
@@ -179,6 +180,7 @@ function TTSLogContent({
 }) {
 	const [entries, setEntries] = useState<TTSLogEntry[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [copied, setCopied] = useState(false);
 
 	useEffect(() => {
 		loadTTSLog().then((log) => {
@@ -192,6 +194,12 @@ function TTSLogContent({
 		setEntries([]);
 		onClear();
 	}, [onClear]);
+
+	const handleCopyJson = useCallback(async () => {
+		await Clipboard.setStringAsync(JSON.stringify(entries, null, 2));
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	}, [entries]);
 
 	if (loading) {
 		return <Text style={{ color: theme.screen.text, padding: 16 }}>Loading…</Text>;
@@ -207,6 +215,17 @@ function TTSLogContent({
 				<MaterialIcons name="delete-sweep" size={18} color="#ffffff" />
 				<Text style={styles.resetConfirmButtonText}>Clear Log ({entries.length})</Text>
 			</TouchableOpacity>
+
+			{entries.length > 0 && (
+				<TouchableOpacity
+					style={[styles.resetConfirmButton, { backgroundColor: '#2563eb' }]}
+					onPress={handleCopyJson}
+					activeOpacity={0.8}
+				>
+					<MaterialIcons name={copied ? 'check' : 'content-copy'} size={18} color="#ffffff" />
+					<Text style={styles.resetConfirmButtonText}>{copied ? 'Copied!' : 'Copy JSON'}</Text>
+				</TouchableOpacity>
+			)}
 
 			{entries.length === 0 ? (
 				<Text style={[styles.ttsLogEmpty, { color: theme.screen.text }]}>

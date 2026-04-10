@@ -637,6 +637,86 @@ function computeBearing(lat1: number, lng1: number, lat2: number, lng2: number):
 	return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
 }
 
+// ─── Synthetic debug route for pace-hint testing ────────────────────────────
+
+/**
+ * Build a synthetic {@link SavedActivity} that simulates a run with
+ * alternating pace segments so the pace-hint TTS announcements can be tested
+ * in debug-replay mode without a real outdoor run.
+ *
+ * Segments (each has 10 GPS points):
+ *   1. 300 m at ~7:00 min/km  (normal)
+ *   2. 100 m at ~15:00 min/km (very slow)
+ *   3. 300 m at ~7:00 min/km  (normal)
+ *   4. 200 m at ~4:00 min/km  (too fast)
+ *   5. 300 m at ~7:00 min/km  (normal)
+ */
+function buildPaceHintTestActivity(): SavedActivity {
+	const segments: Array<{ distanceM: number; paceMinPerKm: number; numPoints: number }> = [
+		{ distanceM: 300, paceMinPerKm: 7, numPoints: 10 },
+		{ distanceM: 100, paceMinPerKm: 15, numPoints: 10 },
+		{ distanceM: 300, paceMinPerKm: 7, numPoints: 10 },
+		{ distanceM: 200, paceMinPerKm: 4, numPoints: 10 },
+		{ distanceM: 300, paceMinPerKm: 7, numPoints: 10 },
+	];
+
+	const LAT_DEG_PER_M = 1 / 111_320;
+	const startLat = 48.137154;   // Munich, Marienplatz
+	const startLng = 11.576124;
+	const baseTime = Date.now() - 30 * 60 * 1000; // 30 min ago
+
+	const points: RoutePoint[] = [];
+	let curLat = startLat;
+	let curLng = startLng;
+	let curTime = baseTime;
+
+	for (const seg of segments) {
+		const stepM = seg.distanceM / seg.numPoints;
+		const speedMs = 1000 / (seg.paceMinPerKm * 60); // m/s
+		const stepSec = stepM / speedMs;
+
+		for (let i = 0; i < seg.numPoints; i++) {
+			// Move north (simple approximation – good enough for a short test route)
+			curLat += stepM * LAT_DEG_PER_M;
+			curTime += stepSec * 1000;
+			points.push({
+				lat: curLat,
+				lng: curLng,
+				altitude: 520,
+				speed: speedMs,
+				timestamp: Math.round(curTime),
+			});
+		}
+	}
+
+	const totalDistKm = segments.reduce((s, seg) => s + seg.distanceM, 0) / 1000;
+	const durationSec = (points[points.length - 1].timestamp - points[0].timestamp) / 1000;
+	const avgSpeedMs = (totalDistKm * 1000) / durationSec;
+	const paceMinPerKm = durationSec > 0 ? (durationSec / 60) / totalDistKm : 0;
+
+	return {
+		id: '__pace_hint_test__',
+		startedAt: points[0].timestamp,
+		endedAt: points[points.length - 1].timestamp,
+		routePoints: points,
+		stats: {
+			distanceKm: totalDistKm,
+			durationSeconds: durationSec,
+			paceMinPerKm,
+			maxSpeedKmh: 15,
+			minSpeedKmh: 4,
+			avgSpeedKmh: avgSpeedMs * 3.6,
+			medianSpeedKmh: avgSpeedMs * 3.6,
+			kcal: 0,
+			steps: 0,
+			elevationGainM: 0,
+			elevationLossM: 0,
+			fluidNeedsMl: 0,
+		},
+		sportType: 'run',
+	};
+}
+
 /**
  * Ray-casting point-in-polygon test.
  * Polygon is an array of [lng, lat] pairs.
@@ -2726,6 +2806,12 @@ export default function RecordScreen() {
 	const lastPaceHintTimeRef = useRef(0);
 	/** Minimum cooldown between pace hint announcements (ms). */
 	const PACE_HINT_COOLDOWN_MS = 15_000;
+	/**
+	 * Rolling window duration (ms) used to compute pace for the pace-hint
+	 * announcements. Using the last ~30 s of GPS points gives a stable
+	 * short-term pace instead of relying on a single (noisy) GPS speed reading.
+	 */
+	const PACE_HINT_WINDOW_MS = 30_000;
 
 	// Follow mode: when active the map stays centred on the user's location.
 	// Starts as true so the map tracks the user by default.
@@ -4294,16 +4380,33 @@ export default function RecordScreen() {
 		if (speechSettingsRef.current.enabled && d > 0) {
 			const curSs = speechSettingsRef.current;
 			if (curSs.paceTargetEnabled) {
-				// Use instantaneous GPS speed for comparison so the hint reflects
-				// the runner's current speed rather than the session average.
-				// Fall back to the average pace when GPS speed is unavailable.
+				// Compute pace from a rolling window of recent GPS points instead
+				// of the single instantaneous GPS speed which can be very noisy.
+				// This gives a stable short-term pace that reacts within seconds
+				// while filtering out momentary GPS speed drops / spikes.
+				const pts = routePointsRef.current;
+				const nowTs = point.timestamp;
+				let windowDistKm = 0;
+				let windowStartTs = nowTs;
+				for (let wi = pts.length - 1; wi > 0; wi--) {
+					const age = nowTs - pts[wi - 1].timestamp;
+					if (age > PACE_HINT_WINDOW_MS) break;
+					windowDistKm += haversineKm(
+						pts[wi - 1].lat, pts[wi - 1].lng,
+						pts[wi].lat, pts[wi].lng,
+					);
+					windowStartTs = pts[wi - 1].timestamp;
+				}
+				const windowElapsedSec = (nowTs - windowStartTs) / 1000;
+				// Require at least 5 s and ~5 m of data to avoid divide-by-zero /
+				// wild values at the very start.  Fall back to the session average.
 				const elapsedSec = startTimeRef.current > 0
 					? (Date.now() - startTimeRef.current) / 1000 + accumulatedSecondsRef.current
 					: accumulatedSecondsRef.current;
 				const currentPace =
-					point.speed != null && point.speed > 0.5
-						? 1000 / (point.speed * 60) // instantaneous pace: min/km from m/s
-						: elapsedSec > 0 ? elapsedSec / 60 / d : null; // average fallback
+					windowDistKm > 0.005 && windowElapsedSec > 5
+						? (windowElapsedSec / 60) / windowDistKm
+						: (elapsedSec > 0 && d > 0 ? elapsedSec / 60 / d : null);
 				if (currentPace != null) {
 					const targetPace = curSs.paceTargetMinutes + curSs.paceTargetSeconds / 60;
 					const fasterThreshold = curSs.paceHintFasterMinutes + curSs.paceHintFasterSeconds / 60;
@@ -4768,6 +4871,7 @@ export default function RecordScreen() {
 		} catch {
 			// ignore
 		}
+		const syntheticActivity = buildPaceHintTestActivity();
 		showDebugReplayModal({
 			title: '🔄 Replay Activity (Debug)',
 			onClose: closeDebugReplayModal,
@@ -4783,7 +4887,18 @@ export default function RecordScreen() {
 							onSelected(null);
 							closeDebugReplayModal();
 						}}
-						groupPosition={activities.length === 0 ? 'single' : 'top'}
+						groupPosition="top"
+					/>
+					<SettingsListSelectOptionSingle
+						key="__pace_test__"
+						label="🏃 Pace Hint Test (normal → slow → normal → fast → normal)"
+						isSelected={debugReplayActivityRef.current?.id === syntheticActivity.id}
+						selectionColor="#f97316"
+						onPress={() => {
+							onSelected(syntheticActivity);
+							closeDebugReplayModal();
+						}}
+						groupPosition={activities.length === 0 ? 'bottom' : 'middle'}
 					/>
 					{activities.map((activity, i) => {
 						const date = new Date(activity.startedAt);
