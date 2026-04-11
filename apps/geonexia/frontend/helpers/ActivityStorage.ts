@@ -40,11 +40,6 @@ export type ComputedActivityData = {
 	 * not physically walked on during the activity.
 	 */
 	enclosedHexTiles: string[];
-	/**
-	 * H3 cell indices that are directly adjacent to a walked tile but were
-	 * neither walked on nor enclosed by the route loop.
-	 */
-	adjacentWalkedHexTiles: string[];
 };
 
 export type RoutePoint = {

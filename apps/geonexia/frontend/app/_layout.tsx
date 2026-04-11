@@ -410,13 +410,13 @@ export default function Layout() {
 							saveWorldBuildingId(WORLD_BUILDING_ID);
 						}
 						store.dispatch(setDevMode({ isDevMode, records: rebuiltRecords, walkedEdges: rebuiltEdges }));
-						// Fire-and-forget: fetch features for enclosed and adjacent-walked tiles
+						// Fire-and-forget: fetch features for enclosed tiles
 						// that are not yet in the feature cache, then apply forest trees.
 						void (async () => {
 							try {
 								const tilesWithoutCache = Object.entries(rebuiltRecords)
 									.filter(([hexId, rec]) =>
-										(rec.enclosedCount > 0 || rec.adjacentWalkedCount > 0) &&
+										rec.enclosedCount > 0 &&
 										!rec.walkedOn &&
 										!hexTileFeatureCache[hexId],
 									)
@@ -473,7 +473,7 @@ export default function Layout() {
 					const hexTileFeatureCache = await loadHexTileFeatureCache();
 					const newEntries: HexTileFeatureCache = {};
 					for (const [hexId, rec] of Object.entries(records)) {
-						const needsTrees = !rec.walkedOn && (rec.enclosedCount > 0 || rec.adjacentWalkedCount > 0);
+						const needsTrees = !rec.walkedOn && rec.enclosedCount > 0;
 						if (!needsTrees) continue;
 						const smallTreeAnchor = getSmallTreeAnchorForHexId(hexId);
 						const hasCenterTree = rec.billboards?.[BillboardAnchorPosition.CENTER] === BILLBOARD_PINE_TREE_LARGE;

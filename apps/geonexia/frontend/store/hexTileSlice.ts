@@ -61,10 +61,8 @@ function getOrCreate(records: Record<string, HexTileRecord>, h3Index: string): H
 			h3Index,
 			lastVisitedAt: null,
 			lastEnclosedAt: null,
-			lastAdjacentWalkedAt: null,
 			visitCount: 0,
 			enclosedCount: 0,
-			adjacentWalkedCount: 0,
 			level: 0,
 			walkedOn: false,
 		};
@@ -126,25 +124,6 @@ const hexTileSlice = createSlice({
 				const rec = getOrCreate(state.records, h3Index);
 				rec.lastEnclosedAt = timestamp;
 				rec.enclosedCount += 1;
-				const newLevel = computeHexTileLevel(rec);
-				const startLevel = state.runStartLevels[h3Index] ?? 0;
-				rec.level = Math.min(newLevel, startLevel + 1);
-			}
-		},
-
-		/**
-		 * Record that the given tiles are adjacent to walked tiles in a completed run.
-		 * Treated the same as enclosed tiles for level computation and terrain assignment.
-		 */
-		markAdjacentWalked(
-			state,
-			action: PayloadAction<{ h3Indices: string[]; timestamp: number }>,
-		) {
-			const { h3Indices, timestamp } = action.payload;
-			for (const h3Index of h3Indices) {
-				const rec = getOrCreate(state.records, h3Index);
-				rec.lastAdjacentWalkedAt = timestamp;
-				rec.adjacentWalkedCount += 1;
 				const newLevel = computeHexTileLevel(rec);
 				const startLevel = state.runStartLevels[h3Index] ?? 0;
 				rec.level = Math.min(newLevel, startLevel + 1);
@@ -312,5 +291,5 @@ const hexTileSlice = createSlice({
 	},
 });
 
-export const { startRun, markVisited, markEnclosed, markAdjacentWalked, loadPersistedState, setHexTileCustomization, setBillboardAtAnchor, setBillboardFlatAtAnchor, setTextureAdaptionAtAnchor, applyMapCustomizations, setDevMode, setDebugMode, addWalkedEdges, loadWalkedEdgesState } = hexTileSlice.actions;
+export const { startRun, markVisited, markEnclosed, loadPersistedState, setHexTileCustomization, setBillboardAtAnchor, setBillboardFlatAtAnchor, setTextureAdaptionAtAnchor, applyMapCustomizations, setDevMode, setDebugMode, addWalkedEdges, loadWalkedEdgesState } = hexTileSlice.actions;
 export default hexTileSlice.reducer;

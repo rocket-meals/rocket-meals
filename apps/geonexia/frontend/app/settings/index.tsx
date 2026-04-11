@@ -549,7 +549,7 @@ export default function SettingsScreen() {
 							try {
 								const tilesWithoutCache = Object.entries(records)
 									.filter(([hexId, rec]) =>
-										(rec.enclosedCount > 0 || rec.adjacentWalkedCount > 0) &&
+										rec.enclosedCount > 0 &&
 										!rec.walkedOn &&
 										!hexTileFeatureCache[hexId],
 									)

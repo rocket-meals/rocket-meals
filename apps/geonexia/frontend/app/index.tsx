@@ -31,12 +31,12 @@ import { isAvailable as isH3Available, latLngToCell, cellToLatLng, gridDisk, gri
 import { queryTileFeaturesForHexCell } from '../helpers/TileFeatureHelper';
 import { ROUTE_NAME_LANDMARK_NAME_NULL_ALLOW } from '../helpers/OpenMapTilesSchema';
 import { RoutePoint, RunStats, SavedActivity, saveActivity, loadActivities, saveOsmConsent, loadOsmConsent } from '../helpers/ActivityStorage';
-import { computeActivityData, hasForestFeature, BILLBOARD_PINE_TREE_LARGE, BILLBOARD_PINE_TREE_SMALL, getSmallTreeAnchorForHexId, findAdjacentWalkedCells } from '../helpers/ActivityMapRebuildHelper';
+import { computeActivityData, hasForestFeature, BILLBOARD_PINE_TREE_LARGE, BILLBOARD_PINE_TREE_SMALL, getSmallTreeAnchorForHexId } from '../helpers/ActivityMapRebuildHelper';
 import { mergeHexTileFeatureCache, loadHexTileFeatureCache, type HexTileFeatureCache } from '../helpers/HexTileFeatureStorage';
 import { SavedRoute, loadRoutes, saveRoute } from '../helpers/RouteStorage';
 import { buildRouteDisplayData, computeEdgesFromHexTiles, computeHexBounds } from '../helpers/RouteDisplayHelper';
 import { HexTileRecord, BillboardAnchorPosition } from '../helpers/HexTileStorage';
-import { startRun, markVisited, markEnclosed, markAdjacentWalked, setHexTileCustomization, setBillboardAtAnchor, setTextureAdaptionAtAnchor, applyMapCustomizations, addWalkedEdges, HexTileCustomizationPayload } from '../store/hexTileSlice';
+import { startRun, markVisited, markEnclosed, setHexTileCustomization, setBillboardAtAnchor, setTextureAdaptionAtAnchor, applyMapCustomizations, addWalkedEdges, HexTileCustomizationPayload } from '../store/hexTileSlice';
 import { setSportType, SPORT_TYPES, SportType } from '../store/sportTypeSlice';
 import { store, RootState } from '../store/store';
 import { setHomeHexTile } from '../store/playerInformationSlice';
@@ -1880,10 +1880,8 @@ function HexTileInfoContent({ h3Index }: { h3Index: string }) {
 		{ label: 'Walked On', value: record ? (record.walkedOn ? '✅ Yes' : '⬜ No (enclosed only)') : '⬜ No' },
 		{ label: 'Visit Count', value: record ? String(record.visitCount) : '0' },
 		{ label: 'Enclosed Count', value: record ? String(record.enclosedCount) : '0' },
-		{ label: 'Adjacent Count', value: record ? String(record.adjacentWalkedCount) : '0' },
 		{ label: 'Last Visited', value: record ? formatTimestamp(record.lastVisitedAt) : '—' },
 		{ label: 'Last Enclosed', value: record ? formatTimestamp(record.lastEnclosedAt) : '—' },
-		{ label: 'Last Adjacent', value: record ? formatTimestamp(record.lastAdjacentWalkedAt) : '—' },
 		...(parentInfo ? [
 			{ label: 'Parent H3', value: parentInfo.parentIndex },
 			{ label: 'Nr. im Parent', value: parentInfo.childNumber !== null ? `${parentInfo.childNumber} / ${parentInfo.totalChildren}` : '—' },
@@ -3814,26 +3812,6 @@ export default function RecordScreen() {
 				}
 			})();
 		}
-		// Fire-and-forget: fetch and cache map features for adjacent cells so that
-		// the next map rebuild can apply the pine tree billboard on forest tiles.
-		const adjacentCells = findAdjacentWalkedCells(routeCells, new Set([...routeCells, ...enclosedCells]));
-		if (adjacentCells.length > 0) {
-			void (async () => {
-				try {
-					const newEntries: HexTileFeatureCache = {};
-					for (const hexId of adjacentCells) {
-						try {
-							newEntries[hexId] = await queryTileFeaturesForHexCell(hexId);
-						} catch {
-							// ignore per-cell errors
-						}
-					}
-					await mergeHexTileFeatureCache(newEntries);
-				} catch (err) {
-					console.warn('[MeasureSave] Adjacent feature cache update failed:', err);
-				}
-			})();
-		}
 	}, []);
 
 	const handleSaveMeasureAsRoute = useCallback((routeCells: string[], name: string) => {
@@ -4950,48 +4928,6 @@ export default function RecordScreen() {
 			}
 		} catch (err) {
 			console.warn('[RecordScreen] Enclosed tile detection failed:', err);
-		}
-
-		// Detect and mark tiles adjacent to the walked path (but not walked or enclosed).
-		try {
-			const walkedIds = orderedHexTilesRef.current.slice();
-			const excludedFromAdjacent = new Set([...visitedHexIdsRef.current, ...enclosedCells]);
-			const adjacentCells = findAdjacentWalkedCells(walkedIds, excludedFromAdjacent);
-			if (adjacentCells.length > 0) {
-				dispatch(markAdjacentWalked({ h3Indices: adjacentCells, timestamp: endedAt }));
-				// Fire-and-forget: fetch map features for adjacent cells, cache them,
-				// and immediately apply the pine tree billboard on forest tiles.
-				void (async () => {
-					try {
-						const newEntries: HexTileFeatureCache = {};
-						for (const hexId of adjacentCells) {
-							try {
-								const features = await queryTileFeaturesForHexCell(hexId);
-								newEntries[hexId] = features;
-								if (hasForestFeature(features)) {
-									dispatch(setBillboardAtAnchor({
-										h3Index: hexId,
-										anchorColor: BillboardAnchorPosition.CENTER,
-										billboard: BILLBOARD_PINE_TREE_LARGE,
-									}));
-									dispatch(setBillboardAtAnchor({
-										h3Index: hexId,
-										anchorColor: getSmallTreeAnchorForHexId(hexId),
-										billboard: BILLBOARD_PINE_TREE_SMALL,
-									}));
-								}
-							} catch {
-								// ignore per-cell errors
-							}
-						}
-						await mergeHexTileFeatureCache(newEntries);
-					} catch (err) {
-						console.warn('[RecordScreen] Adjacent feature cache update failed:', err);
-					}
-				})();
-			}
-		} catch (err) {
-			console.warn('[RecordScreen] Adjacent walked tile detection failed:', err);
 		}
 
 		// Refresh the map to show newly enclosed tiles and updated walk path.
