@@ -34,17 +34,17 @@ jobs:
           git remote add upstream https://github.com/rocket-meals/rocket-meals.git || true
           git fetch upstream master
           
-          # Count commits that are in upstream but not yet in the fork (fork is behind by this many)
-          BEHIND=$(git rev-list HEAD..upstream/master --count)
-          AHEAD=$(git rev-list upstream/master..HEAD --count)
+          LOCAL_COMMIT=$(git rev-parse HEAD)
+          UPSTREAM_COMMIT=$(git rev-parse upstream/master)
           
-          echo "Fork is $BEHIND commit(s) behind upstream and $AHEAD commit(s) ahead of upstream"
+          echo "Fork commit:     $LOCAL_COMMIT"
+          echo "Upstream commit: $UPSTREAM_COMMIT"
           
-          if [ "$BEHIND" -gt 0 ]; then
-            echo "Updates available from upstream ($BEHIND new commit(s))"
+          if [ "$LOCAL_COMMIT" != "$UPSTREAM_COMMIT" ]; then
+            echo "Fork is not up to date with upstream - updates available"
             echo "has-updates=true" >> $GITHUB_OUTPUT
           else
-            echo "No updates available from upstream"
+            echo "Fork is up to date with upstream"
             echo "has-updates=false" >> $GITHUB_OUTPUT
           fi
 
@@ -75,8 +75,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
         run: |
-          echo "🚀 Triggering Combined CI workflow after successful sync..."
-          gh workflow run ci.yml --ref master
+          REPO_FULL_NAME="${{ steps.check-repo.outputs.repository-name }}"
+          echo "🚀 Triggering Combined CI workflow on $REPO_FULL_NAME after successful sync..."
+          gh workflow run ci.yml --repo "$REPO_FULL_NAME" --ref master
           echo "✅ Combined CI workflow triggered!"
 
       - name: ⏭️ Skip Fork Sync - No Updates
