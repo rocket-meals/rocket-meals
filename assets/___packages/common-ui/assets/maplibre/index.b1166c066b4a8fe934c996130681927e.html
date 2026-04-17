@@ -4579,8 +4579,14 @@
       }
 
       function addGlbModel(modelData) {
-        if (!map || !modelData || !modelData.id || !modelData.url || !modelData.position) return;
-        if (typeof THREE === 'undefined' || typeof THREE.GLTFLoader === 'undefined') return;
+        if (!map || !modelData || !modelData.id || !modelData.url || !modelData.position) {
+          sendToRN({ tag: 'GlbDebugLog', message: 'addGlbModel skipped: map=' + !!map + ' id=' + (modelData && modelData.id) + ' url=' + !!(modelData && modelData.url) + ' pos=' + !!(modelData && modelData.position), isError: true });
+          return;
+        }
+        if (typeof THREE === 'undefined' || typeof THREE.GLTFLoader === 'undefined') {
+          sendToRN({ tag: 'GlbDebugLog', message: 'addGlbModel: THREE.js or GLTFLoader not available', isError: true });
+          return;
+        }
         var layerId = 'glb-layer-' + modelData.id;
         if (map.getLayer(layerId)) map.removeLayer(layerId);
         var origin = [modelData.position.lng, modelData.position.lat];
@@ -4613,8 +4619,15 @@
             var self = this;
             var loader = new THREE.GLTFLoader();
             var url = modelData.url;
-            function onGltfLoad(gltf) { self.scene.add(gltf.scene); }
-            function onGltfError(err) { console.error('GLB load error for model ' + modelData.id + ':', err); }
+            function onGltfLoad(gltf) {
+              self.scene.add(gltf.scene);
+              sendToRN({ tag: 'GlbDebugLog', message: 'GLB loaded OK: ' + modelData.id, isError: false });
+            }
+            function onGltfError(err) {
+              var msg = 'GLB load error: ' + modelData.id + ': ' + (err && (err.message || String(err)));
+              console.error(msg, err);
+              sendToRN({ tag: 'GlbDebugLog', message: msg, isError: true });
+            }
             if (url && url.indexOf('data:') === 0) {
               // Data URIs cannot be reliably loaded via XHR in some WebView environments.
               // Decode the base64 payload and hand the raw ArrayBuffer to loader.parse().
@@ -4626,7 +4639,9 @@
                 for (var bi = 0; bi < binary.length; bi++) { bytes[bi] = binary.charCodeAt(bi); }
                 loader.parse(bytes.buffer, '', onGltfLoad, onGltfError);
               } catch (e) {
-                console.error('GLB data-URI decode error for model ' + modelData.id + ':', e);
+                var decMsg = 'GLB data-URI decode error: ' + modelData.id + ': ' + (e && (e.message || String(e)));
+                console.error(decMsg, e);
+                sendToRN({ tag: 'GlbDebugLog', message: decMsg, isError: true });
               }
             } else {
               loader.load(url, onGltfLoad, undefined, onGltfError);
@@ -4637,6 +4652,7 @@
           },
           render: function (gl, args) {
             // MapLibre GL ≥ v4 passes an object { projectionMatrix, ... }; v3 passed the matrix array directly.
+            if (!this.renderer || !this.scene || !this.camera) return;
             var rawMatrix = (args && args.projectionMatrix) ? args.projectionMatrix : args;
             var rx = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), mt.rx);
             var ry = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), mt.ry);
