@@ -85,8 +85,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
         run: |
+          REPO_FULL_NAME="${{ steps.check-repo.outputs.repository-name }}"
           echo "🚀 Triggering Combined CI workflow after successful sync..."
-          gh workflow run ci.yml --ref master
+          gh workflow run ci.yml --ref master --repo "$REPO_FULL_NAME"
           echo "✅ Combined CI workflow triggered!"
 
       - name: ⏭️ Skip Fork Sync - No Updates
