@@ -33,16 +33,17 @@ jobs:
           # Fetch upstream repository
           git remote add upstream https://github.com/rocket-meals/rocket-meals.git || true
           git fetch upstream master
-          
-          # Check if there are differences
-          LOCAL_COMMIT=$(git rev-parse HEAD)
-          UPSTREAM_COMMIT=$(git rev-parse upstream/master)
-          
-          echo "Local commit: $LOCAL_COMMIT"
-          echo "Upstream commit: $UPSTREAM_COMMIT"
-          
-          if [ "$LOCAL_COMMIT" != "$UPSTREAM_COMMIT" ]; then
-            echo "Updates available from upstream"
+
+          # Count commits in upstream that are NOT yet in our branch.
+          # Using rev-list range (not HEAD comparison) so diverged forks with their own
+          # commits are handled correctly — those extra local commits must not falsely
+          # trigger a "has updates" result.
+          UPSTREAM_AHEAD=$(git rev-list HEAD..upstream/master --count)
+
+          echo "Commits in upstream not in local branch: $UPSTREAM_AHEAD"
+
+          if [ "$UPSTREAM_AHEAD" -gt 0 ]; then
+            echo "Updates available from upstream ($UPSTREAM_AHEAD new commits)"
             echo "has-updates=true" >> $GITHUB_OUTPUT
           else
             echo "No updates available"
@@ -60,13 +61,21 @@ jobs:
           echo "Upstream repository: rocket-meals/rocket-meals"
           echo "Target branch: master"
 
-          # Sync the fork with the upstream repository without overwriting local commits.
-          # Forks intentionally diverge for tenant-specific settings (e.g. getCustomerConfig()).
-          if gh repo sync "$REPO_FULL_NAME" -b master; then
+          # Configure git identity for the merge commit.
+          git config user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+
+          # Merge upstream changes into the local branch.
+          # gh repo sync only supports fast-forward merges and therefore always fails for
+          # forks that intentionally diverge (e.g. tenant-specific getCustomerConfig()).
+          # Using git merge preserves fork-specific commits while still pulling in upstream
+          # changes. Conflicts cause a non-zero exit and must be resolved manually.
+          if git merge upstream/master --no-edit -m "chore: sync upstream changes"; then
+            git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO_FULL_NAME}.git" HEAD:master
             echo "✅ Fork synchronization completed successfully!"
             echo "sync-success=true" >> $GITHUB_OUTPUT
           else
-            echo "❌ Fork synchronization failed!"
+            echo "❌ Fork synchronization failed (merge conflicts or push error)!"
             echo "sync-success=false" >> $GITHUB_OUTPUT
             exit 1
           fi
