@@ -208,21 +208,26 @@ export default StyleSheet.create({
 		justifyContent: 'space-between',
 	},
 	tab: {
-		width: '32%',
+		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
 		paddingVertical: 10,
-		borderRadius: 50,
-		borderWidth: 1,
-		borderColor: '#ffffff',
+		borderRadius: 14,
+		borderWidth: 1.5,
+	},
+	tabContent: {
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: 3,
+	},
+	tabLabel: {
+		fontSize: 11,
+		fontFamily: 'Poppins_400Regular',
+		textAlign: 'center',
 	},
 	activeTab: {
 		backgroundColor: '#FCDE31',
 		borderColor: '#FCDE31',
-	},
-	tabLabel: {
-		fontFamily: 'Poppins_400Regular',
-		color: '#ffffff',
 	},
 	activeLabel: {
 		color: '#2E2E2E',
@@ -269,7 +274,7 @@ export default StyleSheet.create({
     },
     tabsMobile: {
         width: '100%',
-        gap: 0,
+        gap: 8,
     },
     featuredContainerLarge: {
         width: '80%',

@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import IconButton from '@/components/UI/IconButton';
@@ -27,10 +27,10 @@ const TabController = ({
 }: TabControllerProps) => {
     const getTabStyle = useCallback((tabName: string) => [
         styles.tab,
-        activeTab === tabName 
-            ? { backgroundColor: foodsAreaColor, borderColor: foodsAreaColor } 
-            : { backgroundColor: theme.screen.iconBg }
-    ], [activeTab, foodsAreaColor, theme.screen.iconBg]);
+        activeTab === tabName
+            ? { backgroundColor: foodsAreaColor, borderColor: foodsAreaColor }
+            : { backgroundColor: theme.screen.iconBg, borderColor: theme.screen.icon + '40' }
+    ], [activeTab, foodsAreaColor, theme.screen.iconBg, theme.screen.icon]);
 
     const renderTab = (tabName: string, iconName: any, labelKey: string) => (
         <CustomTooltip
@@ -48,11 +48,22 @@ const TabController = ({
                     }}
                     padding={10}
                 >
-                    <MaterialCommunityIcons
-                        name={iconName}
-                        size={26}
-                        color={activeTab === tabName ? contrastColor : theme.screen.icon}
-                    />
+                    <View style={styles.tabContent}>
+                        <MaterialCommunityIcons
+                            name={iconName}
+                            size={22}
+                            color={activeTab === tabName ? contrastColor : theme.screen.icon}
+                        />
+                        <Text
+                            style={[
+                                styles.tabLabel,
+                                { color: activeTab === tabName ? contrastColor : theme.screen.icon },
+                            ]}
+                            numberOfLines={1}
+                        >
+                            {translate(labelKey)}
+                        </Text>
+                    </View>
                 </IconButton>
             )}
         >
