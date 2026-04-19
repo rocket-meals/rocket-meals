@@ -225,13 +225,6 @@ export default StyleSheet.create({
 		fontFamily: 'Poppins_400Regular',
 		textAlign: 'center',
 	},
-	activeTab: {
-		backgroundColor: '#FCDE31',
-		borderColor: '#FCDE31',
-	},
-	activeLabel: {
-		color: '#2E2E2E',
-	},
 	pagerView: {
 		paddingVertical: 10,
 	},
