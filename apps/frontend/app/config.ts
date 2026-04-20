@@ -18,6 +18,7 @@ export type CustomerConfig = {
 	baseUrl: string;
 	server_url: string;
 	appleAppId?: string;
+        /** Subfolder name under `assets/generated/` containing pre-generated icon/splash assets for this customer. */
         generatedAssetsFolder: string;
         images: {
                 company_logo_source_path: string;
