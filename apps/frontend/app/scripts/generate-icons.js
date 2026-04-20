@@ -34,7 +34,7 @@ const generateIconsScript = path.resolve(appRoot, '../../../scripts/generateIcon
 // ---------------------------------------------------------------------------
 
 function hasImageMagick() {
-	return spawnSync('which', ['convert'], { stdio: 'ignore' }).status === 0;
+	return spawnSync('convert', ['--version'], { stdio: 'ignore' }).status === 0;
 }
 
 function installImageMagick() {
@@ -114,6 +114,8 @@ console.log(`  Output folder : ${outputPath}`);
 try {
 	execSync(
 		`bash "${generateIconsScript}" "${iconPath}" "${companyPath}" "${outputPath}"`,
+		// Pass AUTO_INSTALL_IMAGEMAGICK=false so generateIcons.sh does not attempt
+		// its own interactive installation — we have already handled it above.
 		{ stdio: 'inherit', env: { ...process.env, AUTO_INSTALL_IMAGEMAGICK: 'false' } }
 	);
 	console.log('[generate-icons] Icons generated successfully.');
