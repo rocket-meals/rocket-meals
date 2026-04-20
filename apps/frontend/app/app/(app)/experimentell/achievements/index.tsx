@@ -10,6 +10,8 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 
+const ICON_BG_OPACITY_HEX = '20';
+
 type Achievement = {
 	key: string;
 	labelKey: TranslationKeys;
@@ -36,7 +38,7 @@ const Achievements = () => {
 
 	const ratingsCount = useMemo(() => {
 		const feedbacks = ownFoodFeedbacks as DatabaseTypes.FoodsFeedbacks[];
-		return feedbacks.filter((f) => f.rating != null && f.rating > 0).length;
+		return feedbacks.filter((f) => RatingHelper.getNumberIfValueInRatingRange(f.rating) !== null).length;
 	}, [ownFoodFeedbacks]);
 
 	const favoritesCount = useMemo(() => {
@@ -251,7 +253,7 @@ const Achievements = () => {
 						color={isUnlocked ? achievement.iconColor : theme.screen.icon}
 					/>
 				}
-				iconBgColor={isUnlocked ? achievement.iconColor + '20' : undefined}
+				iconBgColor={isUnlocked ? achievement.iconColor + ICON_BG_OPACITY_HEX : undefined}
 				groupPosition={groupPosition}
 				showSeparator={index < total - 1}
 			/>
@@ -280,7 +282,7 @@ const Achievements = () => {
 					leftIcon={
 						<MaterialCommunityIcons name="trophy" size={22} color={primaryColor} />
 					}
-					iconBgColor={primaryColor + '20'}
+					iconBgColor={primaryColor + ICON_BG_OPACITY_HEX}
 					groupPosition="single"
 					showSeparator={false}
 				/>
