@@ -147,6 +147,12 @@ const Index = () => {
 			onPress: () => router.push('/experimentell/account-required-example'),
 		},
 		{
+			key: 'achievements',
+			label: translate(TranslationKeys.achievements),
+			leftIcon: <MaterialCommunityIcons name="trophy" size={24} color={theme.screen.icon} />,
+			onPress: () => router.push('/experimentell/achievements'),
+		},
+		{
 			key: 'eating-habits-performance',
 			label: translate(TranslationKeys.eating_habits_performance),
 			leftIcon: <MaterialCommunityIcons name="speedometer" size={24} color={theme.screen.icon} />,

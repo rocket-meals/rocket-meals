@@ -5952,5 +5952,375 @@
     "ru": "Вы недавно открывали это здание.",
     "tr": "Bu binayı yakın zamanda açtınız.",
     "zh": "您最近打开了这栋建筑。"
+  },
+  "achievements": {
+    "de": "Achievements",
+    "en": "Achievements",
+    "ar": "الإنجازات",
+    "es": "Logros",
+    "fr": "Succès",
+    "ru": "Достижения",
+    "tr": "Başarılar",
+    "zh": "成就"
+  },
+  "achievements_description": {
+    "de": "Sammle Achievements, indem du die App nutzt und entdeckst.",
+    "en": "Collect achievements by using and exploring the app.",
+    "ar": "اجمع الإنجازات من خلال استخدام التطبيق واستكشافه.",
+    "es": "Colecciona logros usando y explorando la app.",
+    "fr": "Collectionnez des succès en utilisant et en explorant l'appli.",
+    "ru": "Собирайте достижения, используя и исследуя приложение.",
+    "tr": "Uygulamayı kullanarak ve keşfederek başarılar toplayın.",
+    "zh": "通过使用和探索应用来收集成就。"
+  },
+  "achievements_group_profile": {
+    "de": "Profil",
+    "en": "Profile",
+    "ar": "الملف الشخصي",
+    "es": "Perfil",
+    "fr": "Profil",
+    "ru": "Профиль",
+    "tr": "Profil",
+    "zh": "个人资料"
+  },
+  "achievements_group_food_ratings": {
+    "de": "Bewertungen",
+    "en": "Ratings",
+    "ar": "التقييمات",
+    "es": "Valoraciones",
+    "fr": "Évaluations",
+    "ru": "Оценки",
+    "tr": "Değerlendirmeler",
+    "zh": "评分"
+  },
+  "achievements_group_favorites": {
+    "de": "Favoriten",
+    "en": "Favorites",
+    "ar": "المفضلة",
+    "es": "Favoritos",
+    "fr": "Favoris",
+    "ru": "Избранное",
+    "tr": "Favoriler",
+    "zh": "收藏"
+  },
+  "achievements_group_preferences": {
+    "de": "Vorlieben",
+    "en": "Preferences",
+    "ar": "التفضيلات",
+    "es": "Preferencias",
+    "fr": "Préférences",
+    "ru": "Предпочтения",
+    "tr": "Tercihler",
+    "zh": "偏好"
+  },
+  "achievements_group_campus": {
+    "de": "Campus",
+    "en": "Campus",
+    "ar": "الحرم الجامعي",
+    "es": "Campus",
+    "fr": "Campus",
+    "ru": "Кампус",
+    "tr": "Kampüs",
+    "zh": "校园"
+  },
+  "achievement_app_explorer": {
+    "de": "App-Entdecker",
+    "en": "App Explorer",
+    "ar": "مستكشف التطبيق",
+    "es": "Explorador de la App",
+    "fr": "Explorateur de l'appli",
+    "ru": "Исследователь приложения",
+    "tr": "Uygulama Kaşifi",
+    "zh": "应用探索者"
+  },
+  "achievement_app_explorer_description": {
+    "de": "Melde dich mit einem Account an.",
+    "en": "Sign in with an account.",
+    "ar": "سجّل الدخول بحساب.",
+    "es": "Inicia sesión con una cuenta.",
+    "fr": "Connectez-vous avec un compte.",
+    "ru": "Войдите в аккаунт.",
+    "tr": "Bir hesapla giriş yapın.",
+    "zh": "使用帐号登录。"
+  },
+  "achievement_personal_touch": {
+    "de": "Persönliche Note",
+    "en": "Personal Touch",
+    "ar": "لمسة شخصية",
+    "es": "Toque Personal",
+    "fr": "Touche Personnelle",
+    "ru": "Личный стиль",
+    "tr": "Kişisel Dokunuş",
+    "zh": "个人风格"
+  },
+  "achievement_personal_touch_description": {
+    "de": "Lege einen Spitznamen fest.",
+    "en": "Set a nickname.",
+    "ar": "عيّن اسماً مستعاراً.",
+    "es": "Establece un apodo.",
+    "fr": "Définissez un pseudo.",
+    "ru": "Установите псевдоним.",
+    "tr": "Bir takma ad belirleyin.",
+    "zh": "设置一个昵称。"
+  },
+  "achievement_home_base": {
+    "de": "Stammgast",
+    "en": "Home Base",
+    "ar": "القاعدة الرئيسية",
+    "es": "Base de Operaciones",
+    "fr": "Port d'attache",
+    "ru": "Домашняя база",
+    "tr": "Ev Üssü",
+    "zh": "大本营"
+  },
+  "achievement_home_base_description": {
+    "de": "Wähle eine Mensa aus.",
+    "en": "Select a canteen.",
+    "ar": "اختر مقصفاً.",
+    "es": "Selecciona un comedor.",
+    "fr": "Sélectionnez une cantine.",
+    "ru": "Выберите столовую.",
+    "tr": "Bir yemekhane seçin.",
+    "zh": "选择一个食堂。"
+  },
+  "achievement_first_bite": {
+    "de": "Erster Bissen",
+    "en": "First Bite",
+    "ar": "اللقمة الأولى",
+    "es": "Primer Bocado",
+    "fr": "Première Bouchée",
+    "ru": "Первый укус",
+    "tr": "İlk Lokma",
+    "zh": "第一口"
+  },
+  "achievement_first_bite_description": {
+    "de": "Bewerte dein erstes Gericht.",
+    "en": "Rate your first food.",
+    "ar": "قيّم أول وجبة لك.",
+    "es": "Valora tu primera comida.",
+    "fr": "Évaluez votre premier plat.",
+    "ru": "Оцените первое блюдо.",
+    "tr": "İlk yemeğinizi değerlendirin.",
+    "zh": "评价你的第一道菜。"
+  },
+  "achievement_foodie": {
+    "de": "Feinschmecker",
+    "en": "Foodie",
+    "ar": "ذوّاق",
+    "es": "Foodie",
+    "fr": "Gourmet",
+    "ru": "Гурман",
+    "tr": "Gurme",
+    "zh": "美食家"
+  },
+  "achievement_foodie_description": {
+    "de": "Bewerte 10 verschiedene Gerichte.",
+    "en": "Rate 10 different foods.",
+    "ar": "قيّم 10 وجبات مختلفة.",
+    "es": "Valora 10 comidas diferentes.",
+    "fr": "Évaluez 10 plats différents.",
+    "ru": "Оцените 10 разных блюд.",
+    "tr": "10 farklı yemeği değerlendirin.",
+    "zh": "评价10道不同的菜。"
+  },
+  "achievement_gourmet": {
+    "de": "Genießer",
+    "en": "Gourmet",
+    "ar": "خبير طعام",
+    "es": "Gourmet",
+    "fr": "Fin gourmet",
+    "ru": "Знаток",
+    "tr": "Gastronom",
+    "zh": "美食鉴赏家"
+  },
+  "achievement_gourmet_description": {
+    "de": "Bewerte 25 verschiedene Gerichte.",
+    "en": "Rate 25 different foods.",
+    "ar": "قيّم 25 وجبة مختلفة.",
+    "es": "Valora 25 comidas diferentes.",
+    "fr": "Évaluez 25 plats différents.",
+    "ru": "Оцените 25 разных блюд.",
+    "tr": "25 farklı yemeği değerlendirin.",
+    "zh": "评价25道不同的菜。"
+  },
+  "achievement_food_critic": {
+    "de": "Chefkritiker",
+    "en": "Food Critic",
+    "ar": "ناقد طعام",
+    "es": "Crítico Gastronómico",
+    "fr": "Critique Culinaire",
+    "ru": "Кулинарный критик",
+    "tr": "Yemek Eleştirmeni",
+    "zh": "美食评论家"
+  },
+  "achievement_food_critic_description": {
+    "de": "Bewerte 50 verschiedene Gerichte.",
+    "en": "Rate 50 different foods.",
+    "ar": "قيّم 50 وجبة مختلفة.",
+    "es": "Valora 50 comidas diferentes.",
+    "fr": "Évaluez 50 plats différents.",
+    "ru": "Оцените 50 разных блюд.",
+    "tr": "50 farklı yemeği değerlendirin.",
+    "zh": "评价50道不同的菜。"
+  },
+  "achievement_found_a_favorite": {
+    "de": "Liebling gefunden",
+    "en": "Found a Favorite",
+    "ar": "وجدت المفضل",
+    "es": "Favorito Encontrado",
+    "fr": "Favori Trouvé",
+    "ru": "Нашёл фаворита",
+    "tr": "Favori Bulundu",
+    "zh": "找到最爱"
+  },
+  "achievement_found_a_favorite_description": {
+    "de": "Markiere ein Gericht als Favorit.",
+    "en": "Mark a food as favorite.",
+    "ar": "علّم وجبة كمفضلة.",
+    "es": "Marca una comida como favorita.",
+    "fr": "Marquez un plat comme favori.",
+    "ru": "Отметьте блюдо как избранное.",
+    "tr": "Bir yemeği favori olarak işaretleyin.",
+    "zh": "将一道菜标记为收藏。"
+  },
+  "achievement_favorites_list": {
+    "de": "Top 5",
+    "en": "Top 5",
+    "ar": "أفضل 5",
+    "es": "Top 5",
+    "fr": "Top 5",
+    "ru": "Топ-5",
+    "tr": "İlk 5",
+    "zh": "前5名"
+  },
+  "achievement_favorites_list_description": {
+    "de": "Habe 5 Lieblingsgerichte.",
+    "en": "Have 5 favorite foods.",
+    "ar": "اجمع 5 وجبات مفضلة.",
+    "es": "Ten 5 comidas favoritas.",
+    "fr": "Ayez 5 plats favoris.",
+    "ru": "Имейте 5 избранных блюд.",
+    "tr": "5 favori yemeğiniz olsun.",
+    "zh": "拥有5道收藏菜品。"
+  },
+  "achievement_food_treasure_hunter": {
+    "de": "Schatzsucher",
+    "en": "Food Treasure Hunter",
+    "ar": "صائد الكنوز",
+    "es": "Cazatesoros Gastronómico",
+    "fr": "Chasseur de Trésors",
+    "ru": "Охотник за сокровищами",
+    "tr": "Hazine Avcısı",
+    "zh": "美食寻宝猎人"
+  },
+  "achievement_food_treasure_hunter_description": {
+    "de": "Habe 10 Lieblingsgerichte.",
+    "en": "Have 10 favorite foods.",
+    "ar": "اجمع 10 وجبات مفضلة.",
+    "es": "Ten 10 comidas favoritas.",
+    "fr": "Ayez 10 plats favoris.",
+    "ru": "Имейте 10 избранных блюд.",
+    "tr": "10 favori yemeğiniz olsun.",
+    "zh": "拥有10道收藏菜品。"
+  },
+  "achievement_know_yourself": {
+    "de": "Selbstkenner",
+    "en": "Know Yourself",
+    "ar": "اعرف نفسك",
+    "es": "Conócete",
+    "fr": "Connais-toi",
+    "ru": "Познай себя",
+    "tr": "Kendini Tanı",
+    "zh": "了解自己"
+  },
+  "achievement_know_yourself_description": {
+    "de": "Lege mindestens eine Essensvorliebe fest.",
+    "en": "Set at least one food preference.",
+    "ar": "حدد تفضيلاً واحداً للطعام على الأقل.",
+    "es": "Establece al menos una preferencia alimentaria.",
+    "fr": "Définissez au moins une préférence alimentaire.",
+    "ru": "Установите хотя бы одно предпочтение в еде.",
+    "tr": "En az bir yemek tercihi belirleyin.",
+    "zh": "至少设置一个饮食偏好。"
+  },
+  "achievement_diet_expert": {
+    "de": "Ernährungsexperte",
+    "en": "Diet Expert",
+    "ar": "خبير تغذية",
+    "es": "Experto en Dieta",
+    "fr": "Expert en alimentation",
+    "ru": "Эксперт по питанию",
+    "tr": "Beslenme Uzmanı",
+    "zh": "饮食专家"
+  },
+  "achievement_diet_expert_description": {
+    "de": "Lege mindestens 5 Essensvorlieben fest.",
+    "en": "Set at least 5 food preferences.",
+    "ar": "حدد 5 تفضيلات للطعام على الأقل.",
+    "es": "Establece al menos 5 preferencias alimentarias.",
+    "fr": "Définissez au moins 5 préférences alimentaires.",
+    "ru": "Установите как минимум 5 предпочтений в еде.",
+    "tr": "En az 5 yemek tercihi belirleyin.",
+    "zh": "至少设置5个饮食偏好。"
+  },
+  "achievement_campus_explorer": {
+    "de": "Campus-Entdecker",
+    "en": "Campus Explorer",
+    "ar": "مستكشف الحرم الجامعي",
+    "es": "Explorador del Campus",
+    "fr": "Explorateur du Campus",
+    "ru": "Исследователь кампуса",
+    "tr": "Kampüs Kaşifi",
+    "zh": "校园探索者"
+  },
+  "achievement_campus_explorer_description": {
+    "de": "Füge ein Gebäude zu deinen Favoriten hinzu.",
+    "en": "Add a building to your favorites.",
+    "ar": "أضف مبنى إلى مفضلتك.",
+    "es": "Añade un edificio a tus favoritos.",
+    "fr": "Ajoutez un bâtiment à vos favoris.",
+    "ru": "Добавьте здание в избранное.",
+    "tr": "Favorilerinize bir bina ekleyin.",
+    "zh": "将一栋建筑添加到收藏。"
+  },
+  "achievement_campus_guide": {
+    "de": "Campus-Guide",
+    "en": "Campus Guide",
+    "ar": "دليل الحرم الجامعي",
+    "es": "Guía del Campus",
+    "fr": "Guide du Campus",
+    "ru": "Гид по кампусу",
+    "tr": "Kampüs Rehberi",
+    "zh": "校园向导"
+  },
+  "achievement_campus_guide_description": {
+    "de": "Habe 3 Gebäude in deinen Favoriten.",
+    "en": "Have 3 buildings in your favorites.",
+    "ar": "اجمع 3 مبانٍ في مفضلتك.",
+    "es": "Ten 3 edificios en tus favoritos.",
+    "fr": "Ayez 3 bâtiments dans vos favoris.",
+    "ru": "Имейте 3 здания в избранном.",
+    "tr": "Favorilerinizde 3 bina olsun.",
+    "zh": "收藏3栋建筑。"
+  },
+  "achievement_unlocked": {
+    "de": "Freigeschaltet!",
+    "en": "Unlocked!",
+    "ar": "تم الفتح!",
+    "es": "¡Desbloqueado!",
+    "fr": "Débloqué !",
+    "ru": "Разблокировано!",
+    "tr": "Açıldı!",
+    "zh": "已解锁！"
+  },
+  "achievements_progress": {
+    "de": "Fortschritt",
+    "en": "Progress",
+    "ar": "التقدم",
+    "es": "Progreso",
+    "fr": "Progression",
+    "ru": "Прогресс",
+    "tr": "İlerleme",
+    "zh": "进度"
   }
 }
