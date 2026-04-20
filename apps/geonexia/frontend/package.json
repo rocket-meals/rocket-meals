@@ -8,7 +8,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "export:web": "expo export --platform web"
+    "export:web": "expo export --platform web",
+    "eas-build-post-install": "node -e \"require('ts-node').register({transpileOnly:true,compilerOptions:{module:'Node16',moduleResolution:'node16'}});const c=require('./config.ts').getCustomerConfig();require('child_process').execSync('yes | bash ../../../scripts/generateIcons.sh ./' + c.images.icon_logo_source_path + ' ./' + c.images.company_logo_source_path + ' ./assets/generated/', {stdio:'inherit'})\""
   },
   "jest": {
     "preset": "jest-expo",

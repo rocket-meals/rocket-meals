@@ -45,6 +45,10 @@ apps/geonexia/frontend/assets/icons_hash.json
 apps/geonexia/frontend/assets/generated/*
 !apps/geonexia/frontend/assets/generated/.keep
 
+# Score Tracker generated icon/splash files (created by scripts/generateIcons.sh)
+apps/score-tracker/frontend/assets/generated/*
+!apps/score-tracker/frontend/assets/generated/.keep
+
 apps/screenshotGenerator/dist/
 apps/screenshotGenerator/.yarn/
 apps/screenshotGenerator/.yarnrc.yml

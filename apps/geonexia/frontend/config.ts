@@ -3,6 +3,8 @@ import { ImageSourcePropType } from 'react-native';
 export type CustomerConfig = {
 	projectName: string;
 	images: {
+		icon_logo_source_path: string;
+		company_logo_source_path: string;
 		company_logo_source_get_for_react_native: () => ImageSourcePropType;
 	};
 };
@@ -18,6 +20,8 @@ export function getBuildNumber() {
 export const geonexiaConfig: CustomerConfig = {
 	projectName: 'Geonexia',
 	images: {
+		icon_logo_source_path: 'assets/icons/app_icon_source.png',
+		company_logo_source_path: '../../../customers/BaumgartnerSoftware/company.png',
 		company_logo_source_get_for_react_native: () => require('./assets/generated/company.png'),
 	},
 };
