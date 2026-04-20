@@ -25,11 +25,9 @@ apps/frontend/app/eas.json
 # Ignore all android generated files
 apps/frontend/app/android
 
-# Ignore generated icon/splash files (created by scripts/generateIcons.sh)
-# These are regenerated during CI setup (setup-and-install action) before build/submit.
+# Generated icon/splash files (created by scripts/generateIcons.sh)
+# These are now committed per customer subfolder so EAS Build works without regeneration.
 # Source images live in apps/frontend/app/assets/images/customers/
-apps/frontend/app/assets/generated/*
-!apps/frontend/app/assets/generated/.keep
 # Geonexia generated icon/splash files (created by scripts/generateIcons.sh)
 # Old location (now replaced by generated/ subfolder)
 apps/geonexia/frontend/assets/adaptive-icon.png

@@ -18,6 +18,7 @@ export type CustomerConfig = {
 	baseUrl: string;
 	server_url: string;
 	appleAppId?: string;
+        generatedAssetsFolder: string;
         images: {
                 company_logo_source_path: string;
                 company_logo_source_get_for_react_native: () => ImageSourcePropType;
@@ -38,7 +39,7 @@ export enum ConfigCustomerEnum {
 // and will fail if the function is not present or does not return a number.
 // The build number is used to determine if a new build is required.
 export function getBuildNumber() {
-	return 190;
+	return 192;
 }
 
 export function getMajorVersion() {
@@ -82,6 +83,7 @@ export const devConfig: CustomerConfig = {
 	baseUrl: '/rocket-meals',
 	server_url: ServerHelper.TEST_SERVER_CONFIG.server_url,
 	appleAppId: '6483930801',
+	generatedAssetsFolder: 'rocket-meals',
 	images: {
 		company_logo_source_path: 'assets/images/customers/rocket-meals/company.png',
 		company_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/rocket-meals/company.png')},
@@ -101,6 +103,7 @@ export const swosyConfig: CustomerConfig = {
 	baseUrl: '/swosy',
 	server_url: ServerHelper.SWOSY_SERVER_CONFIG.server_url,
 	appleAppId: '6667117575',
+	generatedAssetsFolder: 'swosy',
 	images: {
 		company_logo_source_path: 'assets/images/customers/swosy/company.png',
 		company_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/swosy/company.png')},
@@ -120,6 +123,7 @@ export const studiFutterConfig: CustomerConfig = {
 	baseUrl: '/studi-futter',
 	server_url: ServerHelper.STUDI_FUTTER_SERVER_CONFIG.server_url,
 	appleAppId: '1548108390',
+	generatedAssetsFolder: 'studi-futter',
 	images: {
 		company_logo_source_path: 'assets/images/customers/studi-futter/company.png',
 		company_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/studi-futter/company.png')},
@@ -155,6 +159,7 @@ export const configMuenster: CustomerConfig = {
 	bundleIdAndroid:  undefined,
 	baseUrl: '/muenster',
 	server_url: ServerHelper.SERVER_CONFIG_MUENSTER.server_url,
+	generatedAssetsFolder: 'rocket-meals',
 	images: {
 		company_logo_source_path: 'assets/images/customers/rocket-meals/company.png',
 		company_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/rocket-meals/company.png')},
@@ -188,15 +193,16 @@ export function getCustomerConfig(): CustomerConfig {
 
 export function getFinalConfig(config?: any) {
 	const customerConfig: CustomerConfig = getCustomerConfig();
+	const generatedDir = './assets/generated/' + customerConfig.generatedAssetsFolder;
 	return {
 		expo: {
 			name: customerConfig.projectName,
 			slug: customerConfig.projectSlug,
 			version: getVersion(),
 			orientation: 'default',
-			icon: './assets/generated/icon.png',
+			icon: generatedDir + '/icon.png',
 			notification: {
-				icon: './assets/generated/notification-icon.png',
+				icon: generatedDir + '/notification-icon.png',
 			},
 			updates: {
 				enabled: true,
@@ -206,7 +212,7 @@ export function getFinalConfig(config?: any) {
 			scheme: customerConfig.appScheme,
 			userInterfaceStyle: 'automatic',
 			splash: {
-				image: './assets/generated/splash.png',
+				image: generatedDir + '/splash.png',
 				resizeMode: 'contain',
 				backgroundColor: '#ffffff',
 			},
@@ -281,7 +287,7 @@ export function getFinalConfig(config?: any) {
 			},
 			android: {
 				adaptiveIcon: {
-					foregroundImage: './assets/generated/adaptive-icon.png',
+					foregroundImage: generatedDir + '/adaptive-icon.png',
 					backgroundColor: '#ffffff',
 				},
 				package: customerConfig.bundleIdAndroid,
@@ -291,7 +297,7 @@ export function getFinalConfig(config?: any) {
 			web: {
 				bundler: 'metro',
 				output: 'static',
-				favicon: './assets/generated/favicon.png',
+				favicon: generatedDir + '/favicon.png',
 			},
 			plugins: [
 				'expo-router',
@@ -310,7 +316,7 @@ export function getFinalConfig(config?: any) {
 				[
 					'expo-splash-screen',
 					{
-						image: './assets/generated/splash-icon.png',
+						image: generatedDir + '/splash-icon.png',
 						imageWidth: 200,
 						resizeMode: 'contain',
 						backgroundColor: '#ffffff',
