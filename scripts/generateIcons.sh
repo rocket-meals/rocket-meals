@@ -1,16 +1,21 @@
 #!/bin/bash
+set -euo pipefail
 
 # Function to check if ImageMagick is installed
 check_imagemagick() {
     if ! command -v convert &> /dev/null; then
         echo "ImageMagick could not be found."
-        read -p "Do you want to install ImageMagick? (y/n): " install_choice
-
-        if [[ "$install_choice" == "y" || "$install_choice" == "Y" ]]; then
+        if [[ "${AUTO_INSTALL_IMAGEMAGICK:-false}" == "true" ]]; then
             install_imagemagick
         else
-            echo "ImageMagick is required to run this script. Exiting."
-            exit 1
+            read -p "Do you want to install ImageMagick? (y/n): " install_choice
+
+            if [[ "$install_choice" == "y" || "$install_choice" == "Y" ]]; then
+                install_imagemagick
+            else
+                echo "ImageMagick is required to run this script. Exiting."
+                exit 1
+            fi
         fi
     fi
 }
