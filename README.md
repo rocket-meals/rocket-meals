@@ -2,6 +2,14 @@
   <img src="assets/icon.png" alt="Rocket Meals icon" width="120" />
 </div>
 
+## 🔗 Quick Links
+
+| Repo | GitHub | Actions |
+|------|--------|---------|
+| 🚀 rocket-meals | [rocket-meals/rocket-meals](https://github.com/rocket-meals/rocket-meals) | [CI](https://github.com/rocket-meals/rocket-meals/actions) |
+| 🐦 swosy | [rocket-meals/swosy](https://github.com/rocket-meals/swosy) | [CI](https://github.com/rocket-meals/swosy/actions) |
+| 🥗 studi-futter | [rocket-meals/studi-futter](https://github.com/rocket-meals/studi-futter) | [CI](https://github.com/rocket-meals/studi-futter/actions) |
+
 [![🚀 CI](https://github.com/rocket-meals/rocket-meals/actions/workflows/ci.yml/badge.svg)](https://github.com/rocket-meals/rocket-meals/actions/workflows/ci.yml)
 [![Screenshots CI](https://github.com/rocket-meals/rocket-meals/actions/workflows/frontend_screenshot.yml/badge.svg)](https://github.com/rocket-meals/rocket-meals/actions/workflows/frontend_screenshot.yml)
 
