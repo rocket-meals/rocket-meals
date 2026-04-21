@@ -10,6 +10,20 @@
  * in the original) is identical.
  */
 
+// ─── Minimal service interfaces (only the methods we actually call) ──────────
+
+interface ICollectionsService {
+  readByQuery(query: { limit: number }): Promise<any[]>;
+}
+
+interface IFieldsService {
+  readAll(): Promise<any[]>;
+}
+
+interface IRelationsService {
+  readAll(): Promise<any[]>;
+}
+
 // ─── Types (match the shapes returned by Directus REST API) ─────────────────
 
 type RelationMeta = {
@@ -84,9 +98,9 @@ function resolveFieldType(field: FieldInfo, useIntersectionTypes: boolean): stri
 // ─── ee() — fetch + build collection map ────────────────────────────────────
 
 async function buildCollectionMap(
-  collectionsService: any,
-  fieldsService: any,
-  relationsService: any,
+  collectionsService: ICollectionsService,
+  fieldsService: IFieldsService,
+  relationsService: IRelationsService,
 ): Promise<Record<string, CollectionEntry>> {
   const collectionsRaw: any[] = await collectionsService.readByQuery({ limit: -1 });
   const fieldsRaw: any[] = (await fieldsService.readAll()) ?? [];
@@ -138,9 +152,9 @@ async function buildCollectionMap(
 // ─── ne() — generate TypeScript string ──────────────────────────────────────
 
 export async function generateTypes(
-  collectionsService: any,
-  fieldsService: any,
-  relationsService: any,
+  collectionsService: ICollectionsService,
+  fieldsService: IFieldsService,
+  relationsService: IRelationsService,
   useIntersectionTypes = false,
   sdk11 = true,
 ): Promise<string> {

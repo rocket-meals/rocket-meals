@@ -1,5 +1,6 @@
 import { defineEndpoint } from '@directus/extensions-sdk';
 import { ApiContext } from '../helpers/ApiContext';
+import { AccountabilityHelper } from '../helpers/AccountabilityHelper';
 import { generateTypes } from './GenerateTypesLogic';
 
 export default defineEndpoint({
@@ -8,7 +9,7 @@ export default defineEndpoint({
     router.get('/ts', async (req, res) => {
       try {
         const schema = await apiContext.getSchema();
-        const accountability = (req as any).accountability ?? null;
+        const accountability = AccountabilityHelper.getAccountabilityFromRequest(req) ?? null;
 
         const collectionsService = new apiContext.services.CollectionsService({ schema, accountability });
         const fieldsService = new apiContext.services.FieldsService({ schema, accountability });
