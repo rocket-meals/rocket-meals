@@ -1,11 +1,15 @@
 name: Check Build Number
-description: Vergleicht, ob sich die Buildnummer in app.config.ts geändert hat
+description: Vergleicht, ob sich die Buildnummer in config.ts geändert hat
 
 inputs:
   working-directory:
     required: false
-    description: 'Das Verzeichnis, in dem sich die app.config.ts befindet'
+    description: 'Das Verzeichnis, in dem sich die config.ts befindet'
     default: apps/frontend/app
+  previous-build-number:
+    required: false
+    description: 'Optionale vorherige Buildnummer (z.B. von sync-fork). Wenn gesetzt, wird diese statt HEAD^ verwendet.'
+    default: ''
 
 runs:
   using: "composite"
@@ -14,15 +18,21 @@ runs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 2
-        # Get the last 2 commits to compare the build number
 
     - name: 🔍 Vergleiche Buildnummer
       id: check
       run: |
-        old=$(git show HEAD^:${{ inputs.working-directory }}/config.ts | grep -A 5 'function getBuildNumber' | grep 'return' | grep -Eo '[0-9]+' | head -1 || echo "not-found")
         new=$(cat ${{ inputs.working-directory }}/config.ts | grep -A 5 'function getBuildNumber' | grep 'return' | grep -Eo '[0-9]+' | head -1 || echo "not-found")
-        echo "📦 Old build number: $old"
         echo "📦 New build number: $new"
+
+        PREVIOUS_BUILD_NUMBER="${{ inputs.previous-build-number }}"
+        if [ -n "$PREVIOUS_BUILD_NUMBER" ]; then
+          old="$PREVIOUS_BUILD_NUMBER"
+          echo "📦 Old build number (from workflow input): $old"
+        else
+          old=$(git show HEAD^:${{ inputs.working-directory }}/config.ts | grep -A 5 'function getBuildNumber' | grep 'return' | grep -Eo '[0-9]+' | head -1 || echo "not-found")
+          echo "📦 Old build number (from HEAD^): $old"
+        fi
 
         if [ "$old" = "not-found" ]; then
           echo "⚠️ Old build number not found, skipping comparison"
@@ -31,14 +41,13 @@ runs:
         fi
 
         if [ "$old" != "$new" ]; then
-          echo "✅ Build number changed"
+          echo "✅ Build number changed ($old → $new)"
           echo "changed=true" >> "$GITHUB_OUTPUT"
         else
-          echo "🚫 Build number unchanged"
+          echo "🚫 Build number unchanged ($old)"
           echo "changed=false" >> "$GITHUB_OUTPUT"
         fi
       shell: bash
-
 
 outputs:
   changed:

@@ -4,6 +4,22 @@ on:
   push:
     branches: [main, master, dev]
   workflow_dispatch:
+    inputs:
+      previous-build-number-frontend:
+        description: 'Previous build number for apps/frontend/app (passed by sync-fork)'
+        required: false
+        default: ''
+        type: string
+      previous-build-number-geonexia:
+        description: 'Previous build number for apps/geonexia/frontend (passed by sync-fork)'
+        required: false
+        default: ''
+        type: string
+      previous-build-number-score-tracker:
+        description: 'Previous build number for apps/score-tracker/frontend (passed by sync-fork)'
+        required: false
+        default: ''
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -35,6 +51,8 @@ jobs:
       - name: "🔍 Compare Build Number"
         id: check
         uses: ./.github/actions/check-build-number
+        with:
+          previous-build-number: ${{ inputs.previous-build-number-frontend }}
 
 #  lint:
 #    name: "🎨 Prettier & ESLint"
@@ -349,6 +367,7 @@ jobs:
         uses: ./.github/actions/check-build-number
         with:
           working-directory: apps/geonexia/frontend
+          previous-build-number: ${{ inputs.previous-build-number-geonexia }}
 
   geonexia-build-ios:
     name: "📦 Geonexia Build & 🚀 Submit iOS App"
@@ -404,6 +423,7 @@ jobs:
         uses: ./.github/actions/check-build-number
         with:
           working-directory: apps/score-tracker/frontend
+          previous-build-number: ${{ inputs.previous-build-number-score-tracker }}
 
   score-tracker-build-ios:
     name: "📦 Score Tracker Build & 🚀 Submit iOS App"

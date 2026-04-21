@@ -49,6 +49,32 @@ jobs:
             echo "has-updates=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: 📦 Capture Pre-Sync Build Numbers
+        id: pre-sync-builds
+        if: steps.check-repo.outputs.is-fork == 'true' && steps.check-updates.outputs.has-updates == 'true'
+        run: |
+          extract_build_number() {
+            local config_path="$1"
+            if [ -f "$config_path" ]; then
+              grep -A 5 'function getBuildNumber' "$config_path" | grep 'return' | grep -Eo '[0-9]+' | head -1 || echo ""
+            else
+              echo ""
+            fi
+          }
+
+          FRONTEND=$(extract_build_number "apps/frontend/app/config.ts")
+          GEONEXIA=$(extract_build_number "apps/geonexia/frontend/config.ts")
+          SCORE_TRACKER=$(extract_build_number "apps/score-tracker/frontend/config.ts")
+
+          echo "📦 Pre-sync build numbers:"
+          echo "  Frontend: ${FRONTEND:-not-found}"
+          echo "  Geonexia: ${GEONEXIA:-not-found}"
+          echo "  Score Tracker: ${SCORE_TRACKER:-not-found}"
+
+          echo "frontend=$FRONTEND" >> $GITHUB_OUTPUT
+          echo "geonexia=$GEONEXIA" >> $GITHUB_OUTPUT
+          echo "score-tracker=$SCORE_TRACKER" >> $GITHUB_OUTPUT
+
       - name: 🔄 Sync Fork with Upstream
         id: sync-result
         if: steps.check-repo.outputs.is-fork == 'true' && steps.check-updates.outputs.has-updates == 'true'
@@ -77,7 +103,12 @@ jobs:
           GH_TOKEN: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
         run: |
           echo "🚀 Triggering Combined CI workflow after successful sync..."
-          gh workflow run ci.yml --repo "${{ steps.check-repo.outputs.repository-name }}" --ref master
+          gh workflow run ci.yml \
+            --repo "${{ steps.check-repo.outputs.repository-name }}" \
+            --ref master \
+            -f previous-build-number-frontend="${{ steps.pre-sync-builds.outputs.frontend }}" \
+            -f previous-build-number-geonexia="${{ steps.pre-sync-builds.outputs.geonexia }}" \
+            -f previous-build-number-score-tracker="${{ steps.pre-sync-builds.outputs.score-tracker }}"
           echo "✅ Combined CI workflow triggered!"
 
       - name: ⏭️ Skip Fork Sync - No Updates
