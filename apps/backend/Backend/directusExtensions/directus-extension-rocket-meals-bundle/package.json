@@ -180,11 +180,6 @@
       },
       {
         "type": "endpoint",
-        "name": "generate-types-api",
-        "source": "src/generate-types-endpoint/index.ts"
-      },
-      {
-        "type": "endpoint",
         "name": "news-rss-endpoint",
         "source": "src/news-rss-endpoint/index.ts"
       },
