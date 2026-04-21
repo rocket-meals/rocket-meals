@@ -1,10 +1,10 @@
 name: Check Build Number
-description: Vergleicht, ob sich die Buildnummer in app.config.ts geändert hat
+description: Vergleicht, ob sich die Buildnummer in config.ts geändert hat. Nutzt GitHub Actions Cache um auch in Fork-Repos Änderungen zu erkennen die durch Sync vom Upstream kommen.
 
 inputs:
   working-directory:
     required: false
-    description: 'Das Verzeichnis, in dem sich die app.config.ts befindet'
+    description: 'Das Verzeichnis, in dem sich die config.ts befindet'
     default: apps/frontend/app
 
 runs:
@@ -16,29 +16,65 @@ runs:
         fetch-depth: 2
         # Get the last 2 commits to compare the build number
 
+    - name: 📥 Restore cached build number
+      id: cache-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: /tmp/last-build-number-cache
+        key: build-number-${{ inputs.working-directory }}-${{ github.run_id }}
+        restore-keys: |
+          build-number-${{ inputs.working-directory }}-
+
     - name: 🔍 Vergleiche Buildnummer
       id: check
       run: |
-        old=$(git show HEAD^:${{ inputs.working-directory }}/config.ts | grep -A 5 'function getBuildNumber' | grep 'return' | grep -Eo '[0-9]+' | head -1 || echo "not-found")
-        new=$(cat ${{ inputs.working-directory }}/config.ts | grep -A 5 'function getBuildNumber' | grep 'return' | grep -Eo '[0-9]+' | head -1 || echo "not-found")
-        echo "📦 Old build number: $old"
-        echo "📦 New build number: $new"
+        CACHE_DIR="/tmp/last-build-number-cache"
+        CACHE_FILE="$CACHE_DIR/${{ inputs.working-directory }}/last-build-number.txt"
 
-        if [ "$old" = "not-found" ]; then
-          echo "⚠️ Old build number not found, skipping comparison"
+        # Read current build number
+        new=$(cat ${{ inputs.working-directory }}/config.ts | grep -A 5 'function getBuildNumber' | grep 'return' | grep -Eo '[0-9]+' | head -1 || echo "not-found")
+        echo "📦 Current build number: $new"
+
+        if [ "$new" = "not-found" ]; then
+          echo "⚠️ Current build number not found in config.ts"
           echo "changed=skip" >> "$GITHUB_OUTPUT"
           exit 0
         fi
 
-        if [ "$old" != "$new" ]; then
-          echo "✅ Build number changed"
+        # Try to get cached build number first (works across syncs in forks)
+        if [ -f "$CACHE_FILE" ]; then
+          old=$(cat "$CACHE_FILE")
+          echo "📦 Cached build number: $old (from previous CI run)"
+          COMPARISON_SOURCE="cache"
+        else
+          # Fallback: compare with previous commit (works for direct pushes)
+          old=$(git show HEAD^:${{ inputs.working-directory }}/config.ts 2>/dev/null | grep -A 5 'function getBuildNumber' | grep 'return' | grep -Eo '[0-9]+' | head -1 || echo "not-found")
+          echo "📦 Previous commit build number: $old (HEAD^ fallback, no cache found)"
+          COMPARISON_SOURCE="git"
+        fi
+
+        if [ "$old" = "not-found" ]; then
+          echo "⚠️ Old build number not found, treating as changed (first run)"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+        elif [ "$old" != "$new" ]; then
+          echo "✅ Build number changed ($old → $new, source: $COMPARISON_SOURCE)"
           echo "changed=true" >> "$GITHUB_OUTPUT"
         else
-          echo "🚫 Build number unchanged"
+          echo "🚫 Build number unchanged ($new, source: $COMPARISON_SOURCE)"
           echo "changed=false" >> "$GITHUB_OUTPUT"
         fi
+
+        # Save current build number for next run
+        mkdir -p "$(dirname "$CACHE_FILE")"
+        echo "$new" > "$CACHE_FILE"
       shell: bash
 
+    - name: 💾 Save build number to cache
+      if: steps.check.outputs.changed != 'skip'
+      uses: actions/cache/save@v4
+      with:
+        path: /tmp/last-build-number-cache
+        key: build-number-${{ inputs.working-directory }}-${{ github.run_id }}
 
 outputs:
   changed:
