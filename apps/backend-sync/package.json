@@ -34,7 +34,6 @@
     "node-cron": "^3.0.2",
     "node-fetch": "^2.7.0",
     "path": "^0.12.7",
-    "playwright": "1.59.1",
     "repo-depkit-common": "workspace:*",
     "url": "^0.11.3",
     "yargs": "^17.7.2"
