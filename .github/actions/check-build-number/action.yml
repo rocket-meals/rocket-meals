@@ -21,7 +21,7 @@ runs:
       uses: actions/cache/restore@v4
       with:
         path: /tmp/last-build-number-cache
-        key: build-number-${{ inputs.working-directory }}-${{ github.run_id }}
+        key: build-number-${{ inputs.working-directory }}-${{ github.sha }}
         restore-keys: |
           build-number-${{ inputs.working-directory }}-
 
@@ -74,7 +74,7 @@ runs:
       uses: actions/cache/save@v4
       with:
         path: /tmp/last-build-number-cache
-        key: build-number-${{ inputs.working-directory }}-${{ github.run_id }}
+        key: build-number-${{ inputs.working-directory }}-${{ github.sha }}
 
 outputs:
   changed:
