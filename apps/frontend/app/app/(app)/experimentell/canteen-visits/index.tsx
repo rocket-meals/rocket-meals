@@ -33,7 +33,7 @@ import { CanteenVisitsHelper, getFriendProfileIds } from '@/redux/actions/Cantee
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { UserHelper } from '@/helper/UserHelper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { FriendsContent } from '@/app/(app)/experimentell/friendships';
+import { FriendsContent } from '@/components/FriendsContent';
 import { CanteenVisitDetailsModalContent } from '@/components/CanteenVisitsDateRow';
 
 interface DayData {
@@ -194,13 +194,13 @@ const CanteenVisitsScreen: React.FC = () => {
 						showScrollViewModal({
 							title: translate(TranslationKeys.friendships),
 							children: <FriendsContent showHeading={false} />,
-						});
+						}, { noGrip: true });
 					}}
 					showLoginModal={() => router.navigate('/(auth)/login')}
 					onOwnVisitChanged={handleOwnVisitChanged}
 				/>
 			),
-		});
+		}, { noGrip: true });
 	}, [visitCounts, translate, theme, primaryColor, foods_area_color, isRegistered, friendProfileIds, friendsDict, profile?.id, canteenId, showScrollViewModal, closeScrollViewModal, router, handleOwnVisitChanged]);
 
 	useEffect(() => {

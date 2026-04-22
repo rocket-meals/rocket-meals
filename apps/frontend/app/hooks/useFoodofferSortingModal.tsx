@@ -185,7 +185,8 @@ export const useFoodofferSortingModal = () => {
                                 title: translate(TranslationKeys.sort),
                                 onClose: closeScrollViewModal,
                                 children: <SortSheet closeSheet={closeScrollViewModal} />,
-                        }
+                        },
+                        { noGrip: true }
                 );
         }, [closeScrollViewModal, showScrollViewModal, translate]);
 

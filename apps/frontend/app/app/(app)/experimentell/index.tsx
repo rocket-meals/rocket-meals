@@ -146,13 +146,6 @@ const Index = () => {
 			leftIcon: <MaterialCommunityIcons name="account-lock" size={24} color={theme.screen.icon} />,
 			onPress: () => router.push('/experimentell/account-required-example'),
 		},
-
-		{
-			key: 'friendships',
-			label: translate(TranslationKeys.friendships),
-			leftIcon: <MaterialCommunityIcons name="account-group" size={24} color={theme.screen.icon} />,
-			onPress: () => router.push('/experimentell/friendships'),
-		},
 	];
 
 	return (

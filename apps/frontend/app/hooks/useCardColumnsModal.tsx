@@ -55,7 +55,7 @@ export const useCardColumnsModal = () => {
 			title: translate(TranslationKeys.amount_columns_for_cards),
 			onClose: closeScrollViewModal,
 			children: <CardColumnsSheet closeSheet={closeScrollViewModal} />,
-		});
+		}, { noGrip: true });
 	}, [closeScrollViewModal, showScrollViewModal, translate]);
 
 	return { openCardColumnsModal };

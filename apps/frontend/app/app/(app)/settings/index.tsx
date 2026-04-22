@@ -53,6 +53,7 @@ import useHousingSortingModal from '@/hooks/useHousingSortingModal';
 import useCampusSortingModal from '@/hooks/useCampusSortingModal';
 import useMyScrollviewModalChangeMyCanteenSelection from '@/hooks/useMyScrollviewModalChangeMyCanteenSelection';
 import useCanteenVisitsVisibilityModal from '@/hooks/useCanteenVisitsVisibilityModal';
+import { FriendsContent } from '@/components/FriendsContent';
 import { ApartmentSortOption, CampusSortOption, FoodSortOption } from 'repo-depkit-common';
 import { MapStyleKey, SettingsListMyMapThemeSelection } from 'repo-depkit-common-ui';
 
@@ -355,6 +356,13 @@ const Settings = () => {
 		router.navigate('/(user)/delete-user');
 	};
 
+	const openFriendsModal = useCallback(() => {
+		showScrollViewModal({
+			title: translate(TranslationKeys.friendships),
+			children: <FriendsContent showHeading={false} />,
+		}, { noGrip: true });
+	}, [showScrollViewModal, translate]);
+
         const priceGroups: Record<PriceGroupKey, { label: string }> = {
                 [PriceGroupKey.student]: {
                         label: translate(TranslationKeys.price_group_student),
@@ -478,7 +486,7 @@ const Settings = () => {
 								label={translate(TranslationKeys.friendships)}
 								value={String(acceptedFriendsCount)}
 								rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
-								handleFunction={() => router.navigate('/experimentell/friendships')}
+								handleFunction={openFriendsModal}
 								groupPosition="bottom"
 							/>
 						)}

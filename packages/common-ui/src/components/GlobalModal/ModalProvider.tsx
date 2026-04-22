@@ -7,6 +7,7 @@ type ModalOptions = {
 	backgroundStyle?: any;
 	headerBackgroundColor?: string;
 	overlayStyle?: any;
+	noGrip?: boolean;
 };
 
 type ModalStackItem = {
@@ -14,6 +15,7 @@ type ModalStackItem = {
 	backgroundStyle: any;
 	overlayStyle: any;
 	headerBackgroundColor: string | undefined;
+	noGrip?: boolean;
 };
 
 type ModalContextType = {
@@ -72,6 +74,7 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 			overlayStyle: options?.overlayStyle ?? { backgroundColor: 'rgba(0,0,0,0.5)' },
 			headerBackgroundColor:
 				options?.headerBackgroundColor ?? options?.backgroundStyle?.backgroundColor ?? undefined,
+			noGrip: options?.noGrip,
 		};
 
 		modalStackRef.current = [...modalStackRef.current, newItem];
@@ -97,6 +100,7 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 			overlayStyle: options?.overlayStyle ?? { backgroundColor: 'rgba(0,0,0,0.5)' },
 			headerBackgroundColor:
 				options?.headerBackgroundColor ?? options?.backgroundStyle?.backgroundColor ?? undefined,
+			noGrip: options?.noGrip,
 		};
 
 		modalStackRef.current = [newItem];
@@ -245,6 +249,7 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 						onChange={handleSheetChange}
 						headerBackgroundColor={screenBackgroundColor}
 						backgroundStyle={currentItem.backgroundStyle}
+						noGrip={currentItem.noGrip}
 					>
 						{currentItem.content}
 					</BaseBottomSheet>

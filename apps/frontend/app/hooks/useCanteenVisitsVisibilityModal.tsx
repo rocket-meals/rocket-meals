@@ -90,7 +90,8 @@ export const useCanteenVisitsVisibilityModal = () => {
 				title: translate(TranslationKeys.canteen_visits_visibility),
 				onClose: closeScrollViewModal,
 				children: <VisibilitySheet closeSheet={closeScrollViewModal} />,
-			}
+			},
+			{ noGrip: true }
 		);
 	}, [closeScrollViewModal, showScrollViewModal, translate]);
 

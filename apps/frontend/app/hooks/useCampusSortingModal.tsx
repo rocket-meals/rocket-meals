@@ -83,7 +83,7 @@ export const useCampusSortingModal = () => {
 			title: translate(TranslationKeys.sort),
 			onClose: closeScrollViewModal,
 			children: <CampusSortSheet closeSheet={closeScrollViewModal} />,
-		});
+		}, { noGrip: true });
 	}, [closeScrollViewModal, showScrollViewModal, translate]);
 
 	return { openCampusSortingModal };

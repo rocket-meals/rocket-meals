@@ -163,7 +163,7 @@ export const useLanguageModal = () => {
                                         </View>
                                 ),
                         },
-                        {}
+                        { noGrip: true }
                 );
         }, [LanguageOption, showScrollViewModal, translate]);
 

@@ -58,7 +58,7 @@ export const useMenuPositionModal = () => {
 			title: translate(TranslationKeys.drawer_config_position),
 			onClose: closeScrollViewModal,
 			children: <MenuPositionSheet closeSheet={closeScrollViewModal} />,
-		});
+		}, { noGrip: true });
 	}, [closeScrollViewModal, showScrollViewModal, translate]);
 
 	return { openMenuPositionModal };

@@ -13,7 +13,7 @@ import SettingsListBoolean from '@/components/SettingsListBoolean';
 import { SettingsListGroupTitle } from 'repo-depkit-common-ui';
 import { TranslationKeys } from '@/locales/keys';
 import { CanteenVisitsHelper, getFriendProfileIds } from '@/redux/actions/CanteenVisits/CanteenVisits';
-import { FriendsContent } from '@/app/(app)/experimentell/friendships';
+import { FriendsContent } from '@/components/FriendsContent';
 import DebugView from '@/components/DebugView';
 import { useRouter } from 'expo-router';
 
@@ -338,7 +338,7 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 						showScrollViewModal({
 							title: translate(TranslationKeys.friendships),
 							children: <FriendsContent showHeading={false} />,
-						});
+						}, { noGrip: true });
 					}}
 					showLoginModal={() => router.navigate('/(auth)/login')}
 					onOwnVisitChanged={(_, visit) => {
@@ -347,7 +347,7 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 					}}
 				/>
 			),
-		});
+		}, { noGrip: true });
 	}, [counts, canteenId, date, primaryColor, foods_area_color, isRegistered, friendProfileIds, friendsDict, profile?.id, translate, theme, showScrollViewModal, closeScrollViewModal, router, fetchData]);
 
 	// Early return if not enabled or visibility is 'off' — placed after all hooks

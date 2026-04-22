@@ -12,7 +12,7 @@ export const useMyScrollviewModalBusinessHours = () => {
 		showScrollViewModal({
 			title: translate(TranslationKeys.businesshours),
 			children: <HoursSheetContent />,
-		});
+		}, { noGrip: true });
 	}, [showScrollViewModal, translate]);
 
 	return { openBusinessHoursModal, closeBusinessHoursModal: closeScrollViewModal };

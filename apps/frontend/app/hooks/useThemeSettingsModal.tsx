@@ -27,7 +27,8 @@ export const useThemeSettingsModal = () => {
                                                         onSelect={onSelect}
                                                 />
                                         ),
-                                }
+                                },
+                                { noGrip: true }
                         );
                 },
                 [closeScrollViewModal, showScrollViewModal, translate]

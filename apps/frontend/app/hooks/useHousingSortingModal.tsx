@@ -88,7 +88,7 @@ export const useHousingSortingModal = () => {
 			title: translate(TranslationKeys.sort),
 			onClose: closeScrollViewModal,
 			children: <HousingSortSheet closeSheet={closeScrollViewModal} />,
-		});
+		}, { noGrip: true });
 	}, [closeScrollViewModal, showScrollViewModal, translate]);
 
 	return { openHousingSortingModal };

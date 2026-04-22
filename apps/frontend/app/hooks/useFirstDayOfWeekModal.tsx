@@ -60,7 +60,7 @@ export const useFirstDayOfWeekModal = () => {
 			title: translate(TranslationKeys.first_day_of_week),
 			onClose: closeScrollViewModal,
 			children: <FirstDayOfWeekSheet closeSheet={closeScrollViewModal} />,
-		});
+		}, { noGrip: true });
 	}, [closeScrollViewModal, showScrollViewModal, translate]);
 
 	return { openFirstDayOfWeekModal };

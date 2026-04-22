@@ -4,7 +4,7 @@ import { useModal } from './useModal';
 
 export type MyScrollViewModalConfig = Omit<MyScrollViewModalProps, 'closeSheet'> & { children?: ReactNode };
 
-type ScrollViewModalOptions = { backgroundStyle?: any; headerBackgroundColor?: string };
+type ScrollViewModalOptions = { backgroundStyle?: any; headerBackgroundColor?: string; noGrip?: boolean };
 
 export const useMyScrollViewModal = () => {
         const { show: showModal, close, showAndDiscardOthers: showAndDiscardOthersModal, closeAll, debug } = useModal();
