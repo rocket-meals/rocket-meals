@@ -4,8 +4,8 @@ import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { TranslationKeys } from '@/locales/keys';
 
 const FriendshipsScreen = () => {
-useSetPageTitle(TranslationKeys.friendships);
-return <FriendsContent showHeading={true} />;
+	useSetPageTitle(TranslationKeys.friendships);
+	return <FriendsContent showHeading={true} />;
 };
 
 export default FriendshipsScreen;
