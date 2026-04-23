@@ -9,6 +9,27 @@ export enum GeonexiaTranslationKeys {
 	discard = 'discard',
 	keep_editing = 'keep_editing',
 
+	// Sort & Filter
+	sort = 'sort',
+	filter = 'filter',
+	sort_by = 'sort_by',
+	sort_direction = 'sort_direction',
+	ascending = 'ascending',
+	descending = 'descending',
+	date = 'date',
+	duration = 'duration',
+	pace = 'pace',
+	route = 'route',
+	all_routes = 'all_routes',
+	no_route = 'no_route',
+	all_sport_types = 'all_sport_types',
+	filter_by_date = 'filter_by_date',
+	filter_by_sport_type = 'filter_by_sport_type',
+	filter_by_route = 'filter_by_route',
+	from_date = 'from_date',
+	to_date = 'to_date',
+	reset = 'reset',
+
 	// Route detail screen
 	route_rename = 'route_rename',
 	route_name = 'route_name',

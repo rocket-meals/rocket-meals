@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import {
 	ScrollView,
 	StyleSheet,
@@ -9,11 +9,12 @@ import {
 } from 'react-native';
 import { useFocusEffect, useNavigation } from 'expo-router';
 import { useRouter } from 'expo-router';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
-import { SettingsListGroupTitle, useMyScrollViewModal, useTheme } from 'repo-depkit-common-ui';
+import { SettingsListGroupTitle, SettingsListSelectOption, SettingsListSelectOptionSingle, useMyScrollViewModal, useTheme } from 'repo-depkit-common-ui';
 
 import SettingsListActivity from '../../components/SettingsListActivity';
+import ActivityCalendarSheet from '../../components/ActivityCalendarSheet';
 import { useDispatch } from 'react-redux';
 
 import { loadActivities, saveActivity, SavedActivity } from '../../helpers/ActivityStorage';
@@ -26,8 +27,272 @@ import { BillboardAnchorPosition } from '../../helpers/HexTileStorage';
 import { queryTileFeaturesForHexCell } from '../../helpers/TileFeatureHelper';
 import { AppDispatch, store } from '../../store/store';
 import useGeonexiaAlert from '../../hooks/useGeonexiaAlert';
+import { useTranslation } from '../../hooks/useTranslation';
+import { GeonexiaTranslationKeys } from '../../locales/keys';
+import { SPORT_TYPES, SportType } from '../../store/sportTypeSlice';
 
 const PRIMARY_COLOR = '#2563eb';
+
+// ─── Sort & Filter types ──────────────────────────────────────────────────────
+
+type SortField = 'date' | 'distance' | 'duration' | 'pace';
+type SortDirection = 'asc' | 'desc';
+
+type ActivityFilters = {
+	fromDate: string | null; // 'YYYY-MM-DD'
+	toDate: string | null; // 'YYYY-MM-DD'
+	sportType: SportType | null; // null = all
+	routeId: string | null | undefined; // undefined = all, null = unassigned, string = specific route
+};
+
+const DEFAULT_SORT_FIELD: SortField = 'date';
+const DEFAULT_SORT_DIRECTION: SortDirection = 'desc';
+
+/** Convert a SavedActivity timestamp to 'YYYY-MM-DD'. */
+function timestampToDateStr(ts: number): string {
+	const d = new Date(ts);
+	const yyyy = d.getFullYear();
+	const mm = String(d.getMonth() + 1).padStart(2, '0');
+	const dd = String(d.getDate()).padStart(2, '0');
+	return `${yyyy}-${mm}-${dd}`;
+}
+
+function applyFilters(activities: SavedActivity[], filters: ActivityFilters): SavedActivity[] {
+	return activities.filter((a) => {
+		if (filters.fromDate) {
+			const activityDate = timestampToDateStr(a.startedAt);
+			if (activityDate < filters.fromDate) return false;
+		}
+		if (filters.toDate) {
+			const activityDate = timestampToDateStr(a.startedAt);
+			if (activityDate > filters.toDate) return false;
+		}
+		if (filters.sportType !== null) {
+			if (a.sportType !== filters.sportType) return false;
+		}
+		if (filters.routeId !== undefined) {
+			if (filters.routeId === null) {
+				// Show only unassigned activities
+				if (a.routeId != null) return false;
+			} else {
+				if (a.routeId !== filters.routeId) return false;
+			}
+		}
+		return true;
+	});
+}
+
+function sortActivities(activities: SavedActivity[], field: SortField, direction: SortDirection): SavedActivity[] {
+	const sorted = [...activities].sort((a, b) => {
+		let cmp = 0;
+		switch (field) {
+			case 'date':
+				cmp = a.startedAt - b.startedAt;
+				break;
+			case 'distance':
+				cmp = a.stats.distanceKm - b.stats.distanceKm;
+				break;
+			case 'duration':
+				cmp = a.stats.durationSeconds - b.stats.durationSeconds;
+				break;
+			case 'pace':
+				cmp = a.stats.paceMinPerKm - b.stats.paceMinPerKm;
+				break;
+		}
+		return direction === 'asc' ? cmp : -cmp;
+	});
+	return sorted;
+}
+
+// ─── Sort Modal Content ───────────────────────────────────────────────────────
+
+function SortModalContent({
+	sortField,
+	sortDirection,
+	onFieldChange,
+	onDirectionChange,
+	translate,
+}: {
+	sortField: SortField;
+	sortDirection: SortDirection;
+	onFieldChange: (f: SortField) => void;
+	onDirectionChange: (d: SortDirection) => void;
+	translate: (key: GeonexiaTranslationKeys) => string;
+}) {
+	const sortFieldOptions: { id: SortField; label: string; icon: React.ReactNode }[] = [
+		{ id: 'date', label: translate(GeonexiaTranslationKeys.date), icon: <MaterialIcons name="calendar-today" size={18} color="#ffffff" /> },
+		{ id: 'distance', label: translate(GeonexiaTranslationKeys.distance), icon: <MaterialIcons name="straighten" size={18} color="#ffffff" /> },
+		{ id: 'duration', label: translate(GeonexiaTranslationKeys.duration), icon: <MaterialIcons name="timer" size={18} color="#ffffff" /> },
+		{ id: 'pace', label: translate(GeonexiaTranslationKeys.pace), icon: <MaterialIcons name="speed" size={18} color="#ffffff" /> },
+	];
+
+	const directionOptions: { id: SortDirection; label: string; icon: React.ReactNode }[] = [
+		{ id: 'asc', label: translate(GeonexiaTranslationKeys.ascending), icon: <MaterialIcons name="arrow-upward" size={18} color="#ffffff" /> },
+		{ id: 'desc', label: translate(GeonexiaTranslationKeys.descending), icon: <MaterialIcons name="arrow-downward" size={18} color="#ffffff" /> },
+	];
+
+	return (
+		<View style={{ gap: 16, paddingBottom: 8 }}>
+			<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.sort_by)} />
+			<SettingsListSelectOption
+				options={sortFieldOptions}
+				selectedOption={sortField}
+				onSelect={(opt) => onFieldChange(opt.id)}
+				iconBgColor={PRIMARY_COLOR}
+				selectionColor={PRIMARY_COLOR}
+			/>
+			<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.sort_direction)} />
+			<SettingsListSelectOption
+				options={directionOptions}
+				selectedOption={sortDirection}
+				onSelect={(opt) => onDirectionChange(opt.id)}
+				iconBgColor={PRIMARY_COLOR}
+				selectionColor={PRIMARY_COLOR}
+			/>
+		</View>
+	);
+}
+
+// ─── Filter Modal Content ─────────────────────────────────────────────────────
+
+function FilterModalContent({
+	filters,
+	activities,
+	routes,
+	onFiltersChange,
+	onReset,
+	translate,
+}: {
+	filters: ActivityFilters;
+	activities: SavedActivity[];
+	routes: SavedRoute[];
+	onFiltersChange: (f: ActivityFilters) => void;
+	onReset: () => void;
+	translate: (key: GeonexiaTranslationKeys) => string;
+}) {
+	const { theme } = useTheme();
+	const [showFromCalendar, setShowFromCalendar] = useState(false);
+	const [showToCalendar, setShowToCalendar] = useState(false);
+
+	// Sport type options
+	const sportTypeOptions: { id: string; label: string; icon?: React.ReactNode }[] = [
+		{ id: '__all__', label: translate(GeonexiaTranslationKeys.all_sport_types) },
+		...SPORT_TYPES.map((st) => ({
+			id: st.type,
+			label: st.label,
+			icon: st.iconLibrary === 'MaterialCommunityIcons'
+				? <MaterialCommunityIcons name={st.iconName as any} size={18} color="#ffffff" />
+				: <MaterialIcons name={st.iconName as any} size={18} color="#ffffff" />,
+		})),
+	];
+
+	// Route options
+	const routeOptions: { id: string; label: string }[] = [
+		{ id: '__all__', label: translate(GeonexiaTranslationKeys.all_routes) },
+		{ id: '__none__', label: translate(GeonexiaTranslationKeys.no_route) },
+		...routes.map((r) => ({ id: r.id, label: r.name || r.id })),
+	];
+
+	const selectedSportType = filters.sportType === null ? '__all__' : filters.sportType;
+	const selectedRoute = filters.routeId === undefined ? '__all__' : (filters.routeId === null ? '__none__' : filters.routeId);
+
+	return (
+		<View style={{ gap: 16, paddingBottom: 8 }}>
+			{/* Date filter */}
+			<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.filter_by_date)} />
+			<TouchableOpacity
+				onPress={() => setShowFromCalendar(!showFromCalendar)}
+				activeOpacity={0.7}
+			>
+				<SettingsListSelectOptionSingle
+					label={`${translate(GeonexiaTranslationKeys.from_date)}: ${filters.fromDate ?? '–'}`}
+					isSelected={filters.fromDate !== null}
+					selectionColor={PRIMARY_COLOR}
+					onPress={() => setShowFromCalendar(!showFromCalendar)}
+					groupPosition={showFromCalendar ? 'top' : (showToCalendar ? 'top' : 'top')}
+					showSeparator
+					noIconIndent
+				/>
+			</TouchableOpacity>
+			{showFromCalendar && (
+				<ActivityCalendarSheet
+					activities={activities}
+					selectedDate={filters.fromDate ?? undefined}
+					onSelect={(dateStr) => {
+						onFiltersChange({ ...filters, fromDate: dateStr });
+						setShowFromCalendar(false);
+					}}
+				/>
+			)}
+			<TouchableOpacity
+				onPress={() => setShowToCalendar(!showToCalendar)}
+				activeOpacity={0.7}
+			>
+				<SettingsListSelectOptionSingle
+					label={`${translate(GeonexiaTranslationKeys.to_date)}: ${filters.toDate ?? '–'}`}
+					isSelected={filters.toDate !== null}
+					selectionColor={PRIMARY_COLOR}
+					onPress={() => setShowToCalendar(!showToCalendar)}
+					groupPosition="bottom"
+					showSeparator={false}
+					noIconIndent
+				/>
+			</TouchableOpacity>
+			{showToCalendar && (
+				<ActivityCalendarSheet
+					activities={activities}
+					selectedDate={filters.toDate ?? undefined}
+					onSelect={(dateStr) => {
+						onFiltersChange({ ...filters, toDate: dateStr });
+						setShowToCalendar(false);
+					}}
+				/>
+			)}
+
+			{/* Sport type filter */}
+			<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.filter_by_sport_type)} />
+			<SettingsListSelectOption
+				options={sportTypeOptions}
+				selectedOption={selectedSportType}
+				onSelect={(opt) => {
+					onFiltersChange({
+						...filters,
+						sportType: opt.id === '__all__' ? null : (opt.id as SportType),
+					});
+				}}
+				iconBgColor={PRIMARY_COLOR}
+				selectionColor={PRIMARY_COLOR}
+			/>
+
+			{/* Route filter */}
+			<SettingsListGroupTitle title={translate(GeonexiaTranslationKeys.filter_by_route)} />
+			<SettingsListSelectOption
+				options={routeOptions}
+				selectedOption={selectedRoute}
+				onSelect={(opt) => {
+					onFiltersChange({
+						...filters,
+						routeId: opt.id === '__all__' ? undefined : (opt.id === '__none__' ? null : opt.id),
+					});
+				}}
+				iconBgColor={PRIMARY_COLOR}
+				selectionColor={PRIMARY_COLOR}
+			/>
+
+			{/* Reset button */}
+			<TouchableOpacity
+				style={styles.resetButton}
+				onPress={onReset}
+				activeOpacity={0.8}
+			>
+				<MaterialIcons name="refresh" size={18} color={PRIMARY_COLOR} />
+				<Text style={[styles.resetButtonText, { color: PRIMARY_COLOR }]}>
+					{translate(GeonexiaTranslationKeys.reset)}
+				</Text>
+			</TouchableOpacity>
+		</View>
+	);
+}
 
 // ─── Import Content (shown inside bottom sheet modal) ─────────────────────────
 
@@ -83,10 +348,25 @@ export default function ActivitiesScreen() {
 	const navigation = useNavigation();
 	const dispatch = useDispatch<AppDispatch>();
 	const { show: showImportModal, close: closeImportModal } = useMyScrollViewModal();
+	const { show: showSortModal, close: closeSortModal } = useMyScrollViewModal();
+	const { show: showFilterModal, close: closeFilterModal } = useMyScrollViewModal();
 	const { showAlert } = useGeonexiaAlert();
+	const { translate } = useTranslation();
 	const [activities, setActivities] = useState<SavedActivity[]>([]);
 	const [routes, setRoutes] = useState<SavedRoute[]>([]);
 	const [loading, setLoading] = useState(true);
+
+	// Sort & filter state
+	const [sortField, setSortField] = useState<SortField>(DEFAULT_SORT_FIELD);
+	const [sortDirection, setSortDirection] = useState<SortDirection>(DEFAULT_SORT_DIRECTION);
+	const [filters, setFilters] = useState<ActivityFilters>({
+		fromDate: null,
+		toDate: null,
+		sportType: null,
+		routeId: undefined,
+	});
+
+	const hasActiveFilters = filters.fromDate !== null || filters.toDate !== null || filters.sportType !== null || filters.routeId !== undefined;
 
 	const loadData = useCallback(() => {
 		setLoading(true);
@@ -301,11 +581,71 @@ export default function ActivitiesScreen() {
 		});
 	}, [showImportModal, handleImport, closeImportModal, theme]);
 
-	// Show import, export, and rebuild buttons in the header
+	const openSortModal = useCallback(() => {
+		showSortModal({
+			title: `🔀 ${translate(GeonexiaTranslationKeys.sort)}`,
+			children: (
+				<SortModalContent
+					sortField={sortField}
+					sortDirection={sortDirection}
+					onFieldChange={(f) => {
+						setSortField(f);
+						closeSortModal();
+					}}
+					onDirectionChange={(d) => {
+						setSortDirection(d);
+						closeSortModal();
+					}}
+					translate={translate}
+				/>
+			),
+		});
+	}, [showSortModal, closeSortModal, sortField, sortDirection, translate]);
+
+	const resetFilters = useCallback(() => {
+		setFilters({ fromDate: null, toDate: null, sportType: null, routeId: undefined });
+	}, []);
+
+	const openFilterModal = useCallback(() => {
+		showFilterModal({
+			title: `🔍 ${translate(GeonexiaTranslationKeys.filter)}`,
+			children: (
+				<FilterModalContent
+					filters={filters}
+					activities={activities}
+					routes={routes}
+					onFiltersChange={setFilters}
+					onReset={() => {
+						resetFilters();
+						closeFilterModal();
+					}}
+					translate={translate}
+				/>
+			),
+		});
+	}, [showFilterModal, closeFilterModal, filters, activities, routes, resetFilters, translate]);
+
+	// Apply filters and sorting
+	const processedActivities = useMemo(() => {
+		const filtered = applyFilters(activities, filters);
+		return sortActivities(filtered, sortField, sortDirection);
+	}, [activities, filters, sortField, sortDirection]);
+
+	// Show sort, filter, import, export, and rebuild buttons in the header
 	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerRight: () => (
 				<View style={styles.headerButtons}>
+					<TouchableOpacity onPress={openSortModal} style={styles.headerImportButton} activeOpacity={0.7}>
+						<MaterialCommunityIcons name="sort" size={24} color={PRIMARY_COLOR} />
+					</TouchableOpacity>
+					<TouchableOpacity onPress={openFilterModal} style={styles.headerImportButton} activeOpacity={0.7}>
+						<MaterialCommunityIcons
+							name={hasActiveFilters ? 'filter' : 'filter-outline'}
+							size={24}
+							color={hasActiveFilters ? PRIMARY_COLOR : theme.screen.icon}
+						/>
+					</TouchableOpacity>
 					<TouchableOpacity onPress={handleRebuildMap} style={styles.headerImportButton} activeOpacity={0.7}>
 						<MaterialIcons name="refresh" size={24} color={PRIMARY_COLOR} />
 					</TouchableOpacity>
@@ -318,7 +658,7 @@ export default function ActivitiesScreen() {
 				</View>
 			),
 		});
-	}, [navigation, openImportModal, handleExportAll, handleRebuildMap]);
+	}, [navigation, openImportModal, openSortModal, openFilterModal, handleExportAll, handleRebuildMap, hasActiveFilters, theme.screen.icon]);
 
 	const handleActivityPress = useCallback((id: string) => {
 		router.push(`/activities/${id}`);
@@ -339,9 +679,9 @@ export default function ActivitiesScreen() {
 	// Build a map from routeId → SavedRoute for quick lookups
 	const routeMap = new Map<string, SavedRoute>(routes.map((r) => [r.id, r]));
 
-	// Group activities by routeId; undefined/null go into the 'unassigned' bucket
+	// Group processed (filtered + sorted) activities by routeId
 	const groupMap = new Map<string | null, SavedActivity[]>();
-	for (const activity of activities) {
+	for (const activity of processedActivities) {
 		const key = activity.routeId ?? null;
 		if (!groupMap.has(key)) groupMap.set(key, []);
 		groupMap.get(key)!.push(activity);
@@ -360,9 +700,28 @@ export default function ActivitiesScreen() {
 
 	return (
 		<ScrollView style={[styles.container, { backgroundColor: theme.screen.background }]} contentContainerStyle={styles.listContent}>
+			{hasActiveFilters && (
+				<View style={styles.activeFilterBanner}>
+					<MaterialCommunityIcons name="filter" size={16} color={PRIMARY_COLOR} />
+					<Text style={[styles.activeFilterText, { color: PRIMARY_COLOR }]}>
+						{processedActivities.length} / {activities.length} {translate(GeonexiaTranslationKeys.activities)}
+					</Text>
+					<TouchableOpacity onPress={resetFilters} activeOpacity={0.7}>
+						<MaterialIcons name="close" size={18} color={PRIMARY_COLOR} />
+					</TouchableOpacity>
+				</View>
+			)}
+			{processedActivities.length === 0 && hasActiveFilters && (
+				<View style={[styles.emptyContainer, { paddingTop: 48 }]}>
+					<MaterialCommunityIcons name="filter-off" size={48} color={theme.screen.icon} />
+					<Text style={[styles.emptySubtitle, { color: theme.screen.icon }]}>
+						No activities match the current filters.
+					</Text>
+				</View>
+			)}
 			{groupOrder.map((routeId) => {
 				const groupActivities = groupMap.get(routeId) ?? [];
-				const routeName = routeId !== null ? (routeMap.get(routeId)?.name ?? routeId) : 'Ohne Route';
+				const routeName = routeId !== null ? (routeMap.get(routeId)?.name ?? routeId) : translate(GeonexiaTranslationKeys.no_route);
 				return (
 					<View key={routeId ?? '__unassigned__'}>
 						<SettingsListGroupTitle title={routeName} />
@@ -461,5 +820,31 @@ const styles = StyleSheet.create({
 	importCancelButtonText: {
 		fontSize: 15,
 		fontWeight: '500',
+	},
+	resetButton: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
+		paddingVertical: 12,
+		gap: 8,
+	},
+	resetButtonText: {
+		fontSize: 15,
+		fontWeight: '600',
+	},
+	activeFilterBanner: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: 8,
+		paddingVertical: 6,
+		paddingHorizontal: 12,
+		borderRadius: 8,
+		backgroundColor: '#2563eb18',
+	},
+	activeFilterText: {
+		fontSize: 13,
+		fontWeight: '600',
+		flex: 1,
 	},
 });

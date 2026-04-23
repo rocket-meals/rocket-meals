@@ -582,5 +582,81 @@
   "subclass_vineyard": {
     "de": "Weinberg",
     "en": "Vineyard"
+  },
+  "sort": {
+    "de": "Sortieren",
+    "en": "Sort"
+  },
+  "filter": {
+    "de": "Filtern",
+    "en": "Filter"
+  },
+  "sort_by": {
+    "de": "Sortieren nach",
+    "en": "Sort by"
+  },
+  "sort_direction": {
+    "de": "Sortierrichtung",
+    "en": "Sort direction"
+  },
+  "ascending": {
+    "de": "Aufsteigend",
+    "en": "Ascending"
+  },
+  "descending": {
+    "de": "Absteigend",
+    "en": "Descending"
+  },
+  "date": {
+    "de": "Datum",
+    "en": "Date"
+  },
+  "duration": {
+    "de": "Dauer",
+    "en": "Duration"
+  },
+  "pace": {
+    "de": "Tempo",
+    "en": "Pace"
+  },
+  "route": {
+    "de": "Route",
+    "en": "Route"
+  },
+  "all_routes": {
+    "de": "Alle Routen",
+    "en": "All routes"
+  },
+  "no_route": {
+    "de": "Ohne Route",
+    "en": "No route"
+  },
+  "all_sport_types": {
+    "de": "Alle Sportarten",
+    "en": "All sport types"
+  },
+  "filter_by_date": {
+    "de": "Nach Datum filtern",
+    "en": "Filter by date"
+  },
+  "filter_by_sport_type": {
+    "de": "Nach Sportart filtern",
+    "en": "Filter by sport type"
+  },
+  "filter_by_route": {
+    "de": "Nach Route filtern",
+    "en": "Filter by route"
+  },
+  "from_date": {
+    "de": "Von",
+    "en": "From"
+  },
+  "to_date": {
+    "de": "Bis",
+    "en": "To"
+  },
+  "reset": {
+    "de": "Zurücksetzen",
+    "en": "Reset"
   }
 }
