@@ -1,34 +1,30 @@
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import { Text, TextInput, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { CalendarSheetProps, Direction } from './types';
+import { CalendarSheetProps } from './types';
 import MyScrollViewModal from '@/components/MyScrollViewModal';
 import { isWeb } from '@/constants/Constants';
-import { Entypo } from '@expo/vector-icons';
-import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import { useLanguage } from '@/hooks/useLanguage';
-import { myContrastColor } from '@/helper/ColorHelper';
 import { SET_SELECTED_DATE } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
 import { StringHelper } from 'repo-depkit-common';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
 import { format, isValid, parse } from 'date-fns';
+import { MyCalendar, MyCalendarLocaleConfig } from 'repo-depkit-common-ui';
 
 export const CalendarSheetContent: React.FC<CalendarSheetProps> = ({ closeSheet, onSelect, selectedDateProp, updateGlobal }) => {
     const { theme } = useTheme();
     const { translate } = useLanguage();
     const dispatch = useDispatch();
-    const [currentMonth, setCurrentMonth] = useState(new Date());
     const [manualDate, setManualDate] = useState('');
     const [manualError, setManualError] = useState('');
     const { primaryColor, appSettings, selectedTheme: mode, firstDayOfTheWeek } = useAppSelector((state) => state.settings);
     const { selectedDate } = useAppSelector((state) => state.food);
     const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
-    const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
 
     const weekStartMap: Record<string, number> = {
         monday: 1,
@@ -40,12 +36,6 @@ export const CalendarSheetContent: React.FC<CalendarSheetProps> = ({ closeSheet,
         sunday: 0,
     };
     const firstDay = weekStartMap[firstDayOfTheWeek?.id] ?? 1;
-
-    const navigateMonth = (direction: 'next' | 'prev') => {
-        const newMonth = new Date(currentMonth);
-        newMonth.setMonth(currentMonth.getMonth() + (direction === 'next' ? 1 : -1));
-        setCurrentMonth(newMonth);
-    };
 
     const formatManualInput = (value: string) => {
         const digitsOnly = StringHelper.replaceAllWithOptions({ str: value, find: '\\D', replace: '' }).slice(0, 8);
@@ -94,15 +84,27 @@ export const CalendarSheetContent: React.FC<CalendarSheetProps> = ({ closeSheet,
         closeSheet();
     };
 
-    LocaleConfig.locales['custom'] = {
+    const handleDaySelect = (dateString: string) => {
+        if (onSelect) {
+            onSelect(dateString);
+        } else if (updateGlobal) {
+            dispatch({
+                type: SET_SELECTED_DATE,
+                payload: dateString,
+            });
+        }
+        closeSheet();
+    };
+
+    const localeConfig: MyCalendarLocaleConfig = useMemo(() => ({
         monthNames: [translate(TranslationKeys.January), translate(TranslationKeys.February), translate(TranslationKeys.March), translate(TranslationKeys.April), translate(TranslationKeys.May), translate(TranslationKeys.June), translate(TranslationKeys.July), translate(TranslationKeys.August), translate(TranslationKeys.September), translate(TranslationKeys.October), translate(TranslationKeys.November), translate(TranslationKeys.December)],
         monthNamesShort: [translate(TranslationKeys.Jan), translate(TranslationKeys.Feb), translate(TranslationKeys.Mar), translate(TranslationKeys.Apr), translate(TranslationKeys.MayShort), translate(TranslationKeys.Jun), translate(TranslationKeys.Jul), translate(TranslationKeys.Aug), translate(TranslationKeys.Sep), translate(TranslationKeys.Oct), translate(TranslationKeys.Nov), translate(TranslationKeys.Dec)],
         dayNames: [translate(TranslationKeys.Sun), translate(TranslationKeys.Mon), translate(TranslationKeys.Tue), translate(TranslationKeys.Wed), translate(TranslationKeys.Thu), translate(TranslationKeys.Fri), translate(TranslationKeys.Sat)],
         dayNamesShort: [translate(TranslationKeys.Sun_S), translate(TranslationKeys.Mon_S), translate(TranslationKeys.Tue_S), translate(TranslationKeys.Wed_S), translate(TranslationKeys.Thu_S), translate(TranslationKeys.Fri_S), translate(TranslationKeys.Sat_S)],
         today: translate(TranslationKeys.today),
-    };
+    }), [translate]);
 
-    LocaleConfig.defaultLocale = 'custom';
+    const effectiveSelectedDate = selectedDateProp ?? selectedDate;
 
     return (
         <>
@@ -139,62 +141,17 @@ export const CalendarSheetContent: React.FC<CalendarSheetProps> = ({ closeSheet,
                     marginTop: isWeb ? 40 : 20,
                 }}
             >
-                <Calendar
-                    key={currentMonth.toISOString()}
-                    style={styles.calendar}
+                <MyCalendar
+                    selectedDate={effectiveSelectedDate}
+                    onSelect={handleDaySelect}
+                    accentColor={foods_area_color}
                     firstDay={firstDay}
-                    current={currentMonth.toISOString().split('T')[0]}
-                    onDayPress={(day: any) => {
-                        if (onSelect) {
-                            onSelect(day.dateString);
-                        } else if (updateGlobal) {
-                            dispatch({
-                                type: SET_SELECTED_DATE,
-                                payload: day.dateString,
-                            });
-                        }
-                        closeSheet();
-                    }}
+                    localeConfig={localeConfig}
+                    localeKey="frontend-custom"
                     markedDates={{
-                        [selectedDateProp ? selectedDateProp : selectedDate]: {
-                            selected: true,
+                        [effectiveSelectedDate]: {
                             disableTouchEvent: true,
-                            selectedColor: foods_area_color,
                         },
-                    }}
-                    renderArrow={(direction: Direction) => (
-                        <TouchableOpacity
-                            style={{
-                                ...styles.calendarAction,
-                                backgroundColor: foods_area_color,
-                            }}
-                            onPress={() => navigateMonth(direction === 'left' ? 'prev' : 'next')}
-                        >
-                            <Entypo name={direction === 'left' ? 'chevron-left' : 'chevron-right'} size={20} color={contrastColor} />
-                        </TouchableOpacity>
-                    )}
-                    onMonthChange={(month: any) => {
-                        setCurrentMonth(new Date(month.year, month.month - 1));
-                    }}
-                    hideExtraDays
-                    theme={{
-                        backgroundColor: 'black',
-                        calendarBackground: theme.sheet.sheetBg,
-                        textSectionTitleColor: theme.screen.text,
-                        selectedDayBackgroundColor: foods_area_color,
-                        selectedDayTextColor: contrastColor,
-                        todayTextColor: foods_area_color,
-                        monthTextColor: theme.screen.text,
-                        dayTextColor: theme.screen.text,
-                        textDisabledColor: 'gray',
-                        arrowColor: contrastColor,
-                        disabledArrowColor: 'gray',
-                        textDayFontFamily: 'Poppins_400Regular',
-                        textMonthFontFamily: 'Poppins_400Regular',
-                        textDayHeaderFontFamily: 'Poppins_400Regular',
-                        textDayFontSize: 16,
-                        textMonthFontSize: 18,
-                        textDayHeaderFontSize: 14,
                     }}
                 />
                 <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_foodoffers_select_date} />

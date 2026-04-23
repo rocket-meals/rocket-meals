@@ -11,10 +11,10 @@ import { useFocusEffect, useNavigation } from 'expo-router';
 import { useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
-import { SettingsListGroupTitle, SettingsListSelectOption, SettingsListSelectOptionSingle, useMyScrollViewModal, useTheme } from 'repo-depkit-common-ui';
+import { MyCalendar, SettingsListGroupTitle, SettingsListSelectOption, SettingsListSelectOptionSingle, useMyScrollViewModal, useTheme } from 'repo-depkit-common-ui';
+import { DateHelper } from 'repo-depkit-common';
 
 import SettingsListActivity from '../../components/SettingsListActivity';
-import ActivityCalendarSheet from '../../components/ActivityCalendarSheet';
 import { useDispatch } from 'react-redux';
 
 import { loadActivities, saveActivity, SavedActivity } from '../../helpers/ActivityStorage';
@@ -30,7 +30,6 @@ import useGeonexiaAlert from '../../hooks/useGeonexiaAlert';
 import { useTranslation } from '../../hooks/useTranslation';
 import { GeonexiaTranslationKeys } from '../../locales/keys';
 import { SPORT_TYPES, SportType } from '../../store/sportTypeSlice';
-import { timestampToDateStr } from '../../helpers/DateHelper';
 
 const PRIMARY_COLOR = '#2563eb';
 
@@ -52,11 +51,11 @@ const DEFAULT_SORT_DIRECTION: SortDirection = 'desc';
 function applyFilters(activities: SavedActivity[], filters: ActivityFilters): SavedActivity[] {
 	return activities.filter((a) => {
 		if (filters.fromDate) {
-			const activityDate = timestampToDateStr(a.startedAt);
+			const activityDate = DateHelper.getDirectusDateOnlyString(new Date(a.startedAt));
 			if (activityDate < filters.fromDate) return false;
 		}
 		if (filters.toDate) {
-			const activityDate = timestampToDateStr(a.startedAt);
+			const activityDate = DateHelper.getDirectusDateOnlyString(new Date(a.startedAt));
 			if (activityDate > filters.toDate) return false;
 		}
 		if (filters.sportType !== null) {
@@ -166,6 +165,16 @@ function FilterModalContent({
 	const [showFromCalendar, setShowFromCalendar] = useState(false);
 	const [showToCalendar, setShowToCalendar] = useState(false);
 
+	// Build marked dates from activities (dots on days with activities)
+	const activityMarkedDates = useMemo(() => {
+		const marks: Record<string, any> = {};
+		for (const a of activities) {
+			const dateStr = DateHelper.getDirectusDateOnlyString(new Date(a.startedAt));
+			marks[dateStr] = { marked: true, dotColor: PRIMARY_COLOR };
+		}
+		return marks;
+	}, [activities]);
+
 	// Sport type options
 	const sportTypeOptions: { id: string; label: string; icon?: React.ReactNode }[] = [
 		{ id: '__all__', label: translate(GeonexiaTranslationKeys.all_sport_types) },
@@ -207,13 +216,14 @@ function FilterModalContent({
 				/>
 			</TouchableOpacity>
 			{showFromCalendar && (
-				<ActivityCalendarSheet
-					activities={activities}
+				<MyCalendar
 					selectedDate={filters.fromDate ?? undefined}
 					onSelect={(dateStr) => {
 						onFiltersChange({ ...filters, fromDate: dateStr });
 						setShowFromCalendar(false);
 					}}
+					accentColor={PRIMARY_COLOR}
+					markedDates={activityMarkedDates}
 				/>
 			)}
 			<TouchableOpacity
@@ -231,13 +241,14 @@ function FilterModalContent({
 				/>
 			</TouchableOpacity>
 			{showToCalendar && (
-				<ActivityCalendarSheet
-					activities={activities}
+				<MyCalendar
 					selectedDate={filters.toDate ?? undefined}
 					onSelect={(dateStr) => {
 						onFiltersChange({ ...filters, toDate: dateStr });
 						setShowToCalendar(false);
 					}}
+					accentColor={PRIMARY_COLOR}
+					markedDates={activityMarkedDates}
 				/>
 			)}
 

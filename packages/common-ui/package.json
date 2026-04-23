@@ -12,6 +12,7 @@
     "expo-location": "*",
     "react": "*",
     "react-native": "*",
+    "react-native-calendars": "*",
     "react-native-gesture-handler": "*",
     "react-native-qrcode-svg": "*",
     "react-native-reanimated": "*",

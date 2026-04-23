@@ -93,3 +93,6 @@ export type { CardWithTextProps } from './src/components/CardWithText';
 
 export { default as SettingsListMyMapThemeSelection } from './src/components/SettingsListMyMapThemeSelection';
 export type { SettingsListMyMapThemeSelectionProps } from './src/components/SettingsListMyMapThemeSelection';
+
+export { default as MyCalendar } from './src/components/MyCalendar';
+export type { MyCalendarProps, MyCalendarLocaleConfig } from './src/components/MyCalendar';
