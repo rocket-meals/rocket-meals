@@ -1,5 +1,5 @@
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
@@ -29,20 +29,27 @@ const Home = () => {
 	const buildingsOrganizationsHelper = new BuildingsOrganizationsHelper();
 	const organizationsHelper = new OrganizationsHelper();
 	const { serverInfo } = useAppSelector(state => state.settings);
-	const { isManagement } = useAppSelector(state => state.authReducer);
+	const { isManagement, profile } = useAppSelector(state => state.authReducer);
 	const [loading, setLoading] = useState(false);
 	const { canteens } = useAppSelector(state => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
+	const foodOffersRoute = ('/(app)/' + AppScreens.FOOD_OFFERS) as any;
 
 	const checkCanteenSelection = () => {
 		if (selectedCanteen) {
-			router.push(('/(app)/' + AppScreens.FOOD_OFFERS) as any);
+			router.push(foodOffersRoute);
 		}
 	};
 
 	const handleSelectCanteen = (canteen: DatabaseTypes.Canteens) => {
 		dispatch({ type: SET_SELECTED_CANTEEN, payload: canteen });
-		router.push(('/(app)/' + AppScreens.FOOD_OFFERS) as any);
+		router.push(foodOffersRoute);
+	};
+
+	const getProfileCanteenId = (canteen: DatabaseTypes.Profiles['canteen']): string | undefined => {
+		if (typeof canteen === 'string') return canteen;
+		if (canteen && typeof canteen === 'object') return (canteen as DatabaseTypes.Canteens).id;
+		return undefined;
 	};
 
 	const getCanteensWithBuildings = async () => {
@@ -102,6 +109,20 @@ const Home = () => {
 			});
 
 			dispatch({ type: SET_CANTEENS, payload: updatedCanteens });
+
+			// Auto-select the canteen from the user's profile if none is selected yet
+			if (!selectedCanteen) {
+				const profileCanteenId = getProfileCanteenId(profile?.canteen);
+				if (profileCanteenId) {
+					const profileCanteen = updatedCanteens.find(c => String(c.id) === String(profileCanteenId));
+					if (profileCanteen) {
+						dispatch({ type: SET_SELECTED_CANTEEN, payload: profileCanteen });
+						router.push(foodOffersRoute);
+						return;
+					}
+				}
+			}
+
 			setLoading(false);
 		} catch (error) {
 			setLoading(false);
@@ -117,6 +138,18 @@ const Home = () => {
 			getCanteensWithBuildings();
 		}, [])
 	);
+
+	// Handle case where profile is fetched after canteens are already loaded
+	useEffect(() => {
+		if (selectedCanteen || !canteens || canteens.length === 0) return;
+		const profileCanteenId = getProfileCanteenId(profile?.canteen);
+		if (!profileCanteenId) return;
+		const profileCanteen = canteens.find(c => String(c.id) === String(profileCanteenId));
+		if (profileCanteen) {
+			dispatch({ type: SET_SELECTED_CANTEEN, payload: profileCanteen });
+			router.push(foodOffersRoute);
+		}
+	}, [profile?.canteen, canteens, selectedCanteen, dispatch, router, foodOffersRoute]);
 
 	if (!loading && (!canteens || canteens.length === 0)) {
 		return (
