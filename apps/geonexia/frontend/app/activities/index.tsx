@@ -30,6 +30,7 @@ import useGeonexiaAlert from '../../hooks/useGeonexiaAlert';
 import { useTranslation } from '../../hooks/useTranslation';
 import { GeonexiaTranslationKeys } from '../../locales/keys';
 import { SPORT_TYPES, SportType } from '../../store/sportTypeSlice';
+import { timestampToDateStr } from '../../helpers/DateHelper';
 
 const PRIMARY_COLOR = '#2563eb';
 
@@ -47,15 +48,6 @@ type ActivityFilters = {
 
 const DEFAULT_SORT_FIELD: SortField = 'date';
 const DEFAULT_SORT_DIRECTION: SortDirection = 'desc';
-
-/** Convert a SavedActivity timestamp to 'YYYY-MM-DD'. */
-function timestampToDateStr(ts: number): string {
-	const d = new Date(ts);
-	const yyyy = d.getFullYear();
-	const mm = String(d.getMonth() + 1).padStart(2, '0');
-	const dd = String(d.getDate()).padStart(2, '0');
-	return `${yyyy}-${mm}-${dd}`;
-}
 
 function applyFilters(activities: SavedActivity[], filters: ActivityFilters): SavedActivity[] {
 	return activities.filter((a) => {
@@ -715,7 +707,7 @@ export default function ActivitiesScreen() {
 				<View style={[styles.emptyContainer, { paddingTop: 48 }]}>
 					<MaterialCommunityIcons name="filter-off" size={48} color={theme.screen.icon} />
 					<Text style={[styles.emptySubtitle, { color: theme.screen.icon }]}>
-						No activities match the current filters.
+						{translate(GeonexiaTranslationKeys.no_filter_results)}
 					</Text>
 				</View>
 			)}

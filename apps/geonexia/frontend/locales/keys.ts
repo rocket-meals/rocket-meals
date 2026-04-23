@@ -29,6 +29,7 @@ export enum GeonexiaTranslationKeys {
 	from_date = 'from_date',
 	to_date = 'to_date',
 	reset = 'reset',
+	no_filter_results = 'no_filter_results',
 
 	// Route detail screen
 	route_rename = 'route_rename',

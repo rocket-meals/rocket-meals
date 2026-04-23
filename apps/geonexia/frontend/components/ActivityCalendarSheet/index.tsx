@@ -1,29 +1,14 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Entypo } from '@expo/vector-icons';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useTheme } from 'repo-depkit-common-ui';
 
 import { SavedActivity } from '../../helpers/ActivityStorage';
 import { useTranslation } from '../../hooks/useTranslation';
-import { GeonexiaTranslationKeys } from '../../locales/keys';
+import { timestampToDateStr } from '../../helpers/DateHelper';
 
 const PRIMARY_COLOR = '#2563eb';
-
-LocaleConfig.locales['geonexia-en'] = {
-	monthNames: ['January','February','March','April','May','June','July','August','September','October','November','December'],
-	monthNamesShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-	dayNames: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-	dayNamesShort: ['Su','Mo','Tu','We','Th','Fr','Sa'],
-	today: 'Today',
-};
-LocaleConfig.locales['geonexia-de'] = {
-	monthNames: ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
-	monthNamesShort: ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],
-	dayNames: ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'],
-	dayNamesShort: ['So','Mo','Di','Mi','Do','Fr','Sa'],
-	today: 'Heute',
-};
 
 type Props = {
 	activities: SavedActivity[];
@@ -35,13 +20,27 @@ type Props = {
 function buildActivityDateSet(activities: SavedActivity[]): Set<string> {
 	const set = new Set<string>();
 	for (const a of activities) {
-		const d = new Date(a.startedAt);
-		const yyyy = d.getFullYear();
-		const mm = String(d.getMonth() + 1).padStart(2, '0');
-		const dd = String(d.getDate()).padStart(2, '0');
-		set.add(`${yyyy}-${mm}-${dd}`);
+		set.add(timestampToDateStr(a.startedAt));
 	}
 	return set;
+}
+
+function configureLocale(language: string) {
+	if (LocaleConfig.locales['geonexia-en']) return; // Already configured
+	LocaleConfig.locales['geonexia-en'] = {
+		monthNames: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+		monthNamesShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+		dayNames: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+		dayNamesShort: ['Su','Mo','Tu','We','Th','Fr','Sa'],
+		today: 'Today',
+	};
+	LocaleConfig.locales['geonexia-de'] = {
+		monthNames: ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
+		monthNamesShort: ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],
+		dayNames: ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'],
+		dayNamesShort: ['So','Mo','Di','Mi','Do','Fr','Sa'],
+		today: 'Heute',
+	};
 }
 
 const ActivityCalendarSheet: React.FC<Props> = ({ activities, selectedDate, onSelect }) => {
@@ -49,7 +48,10 @@ const ActivityCalendarSheet: React.FC<Props> = ({ activities, selectedDate, onSe
 	const { language } = useTranslation();
 	const [currentMonth, setCurrentMonth] = useState(new Date());
 
-	LocaleConfig.defaultLocale = language === 'de' ? 'geonexia-de' : 'geonexia-en';
+	useMemo(() => {
+		configureLocale(language);
+		LocaleConfig.defaultLocale = language === 'de' ? 'geonexia-de' : 'geonexia-en';
+	}, [language]);
 
 	const activityDates = buildActivityDateSet(activities);
 

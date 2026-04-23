@@ -658,5 +658,9 @@
   "reset": {
     "de": "Zurücksetzen",
     "en": "Reset"
+  },
+  "no_filter_results": {
+    "de": "Keine Aktivitäten entsprechen den aktuellen Filtern.",
+    "en": "No activities match the current filters."
   }
 }
