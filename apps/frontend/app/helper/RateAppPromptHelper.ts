@@ -168,8 +168,11 @@ const KEY_NATIVE_REVIEW_DATES = 'rateAppNativeReviewDates';
  * Handles migration from the legacy format (boolean `true`) by
  * converting it to today's date on first read. After 7 days the
  * feature may trigger again.
+ *
+ * @param featureId – unique feature identifier
+ * @param now – optional reference timestamp for migration (defaults to `new Date()`)
  */
-export async function getLastAskedDateForFeature(featureId: string): Promise<string | null> {
+export async function getLastAskedDateForFeature(featureId: string, now?: Date): Promise<string | null> {
 	const key = KEY_FEATURE_PREFIX + featureId;
 	const value = await getValue(key);
 
@@ -179,7 +182,7 @@ export async function getLastAskedDateForFeature(featureId: string): Promise<str
 	// Legacy format: boolean `true` (old code stored this permanently).
 	// Migrate by writing today's date so the 7-day cooldown starts now.
 	if (value === true) {
-		const today = getTodayDateString();
+		const today = getTodayDateString(now);
 		await setValue(key, today);
 		return today;
 	}

@@ -86,7 +86,7 @@ const useAskUserToRateApp = () => {
 				const [lastAskedDateGlobal, lastAskedDateForFeature, nativeReviewDates] =
 					await Promise.all([
 						getLastAskedDateGlobal(),
-						getLastAskedDateForFeature(featureId),
+						getLastAskedDateForFeature(featureId, now),
 						getNativeReviewDates(),
 					]);
 
