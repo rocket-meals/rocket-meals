@@ -1,70 +1,41 @@
 import React, { useCallback } from 'react';
-import { Platform, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import * as StoreReview from 'expo-store-review';
 
-import { getValue, setValue } from '@/constants/AsyncStorageHelper';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { TranslationKeys } from '@/locales/keys';
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
-
-const ASYNC_STORAGE_KEY_RATE_APP_FEATURE_PREFIX = 'rateAppAsked_';
-const ASYNC_STORAGE_KEY_RATE_APP_LAST_ASKED_DATE = 'rateAppLastAskedDate';
-
-/**
- * Check whether the user has already been asked for this specific feature.
- */
-async function wasAskedForFeature(featureId: string): Promise<boolean> {
-	const value = await getValue(ASYNC_STORAGE_KEY_RATE_APP_FEATURE_PREFIX + featureId);
-	return value === true;
-}
-
-/**
- * Mark a specific feature as "already asked".
- */
-async function markFeatureAsked(featureId: string): Promise<void> {
-	await setValue(ASYNC_STORAGE_KEY_RATE_APP_FEATURE_PREFIX + featureId, true);
-}
-
-/**
- * Get the date string (YYYY-MM-DD) when the user was last asked (any feature).
- */
-async function getLastAskedDate(): Promise<string | null> {
-	const value = await getValue(ASYNC_STORAGE_KEY_RATE_APP_LAST_ASKED_DATE);
-	return typeof value === 'string' ? value : null;
-}
-
-/**
- * Store today's date as the last-asked date.
- */
-async function markAskedToday(): Promise<void> {
-	const today = new Date().toISOString().split('T')[0];
-	await setValue(ASYNC_STORAGE_KEY_RATE_APP_LAST_ASKED_DATE, today);
-}
-
-/**
- * Returns true when the user should NOT be prompted right now because they
- * were already asked at some point today (regardless of feature).
- */
-async function wasAlreadyAskedToday(): Promise<boolean> {
-	const lastDate = await getLastAskedDate();
-	if (!lastDate) return false;
-	const today = new Date().toISOString().split('T')[0];
-	return lastDate === today;
-}
+import {
+	shouldShowRateAppPrompt,
+	getLastAskedDateForFeature,
+	getLastAskedDateGlobal,
+	getNativeReviewDates,
+	markFeatureAsked,
+	markAskedGlobally,
+	addNativeReviewDate,
+	getDevicePlatform,
+	getTodayDateString,
+} from '@/helper/RateAppPromptHelper';
 
 /**
  * Hook that asks the user to rate the app at a contextually relevant moment.
  *
  * On native platforms it first tries the native in-app review dialog
  * (expo-store-review). If that is not available — or if the platform is web —
- * a modal with the RateAppSettingsItem is shown instead.
+ * a modal with the {@link RateAppSettingsItem} (store links) is shown instead.
+ *
+ * All gating logic is delegated to the **pure** function
+ * {@link shouldShowRateAppPrompt} in `RateAppPromptHelper.ts`.
  *
  * Persistence rules (via AsyncStorage):
- * - Each feature is tracked individually so the same trigger only fires once.
- * - A global "last asked date" ensures the user is prompted at most once per day
- *   even when multiple features would trigger.
+ * - Each feature records the date it last triggered a prompt so the
+ *   same feature does not re-trigger within 7 days.
+ * - A global last-asked date ensures no prompt at all within 7 days of
+ *   the previous one, regardless of which feature triggers.
+ * - On iOS, the dates when the native dialog was shown are tracked so
+ *   we stay within Apple's 3-per-year guideline.
  */
 const useAskUserToRateApp = () => {
 	const { show: showModal } = useMyScrollViewModal();
@@ -96,34 +67,57 @@ const useAskUserToRateApp = () => {
 	}, [showModal, translate, theme.screen.text]);
 
 	/**
-	 * Main entry point. Call this with a unique `featureId` (e.g. "canteen_visits")
-	 * when the user has a positive experience and should be asked to rate the app.
+	 * Main entry point. Call this with a unique `featureId`
+	 * (e.g. `"canteen_visits"`) when the user has a positive experience
+	 * and should be asked to rate the app.
 	 *
-	 * The function is a no-op when:
-	 * - The user was already asked for this feature, OR
-	 * - The user was already asked today (any feature).
+	 * The function is a no-op when the pure logic in
+	 * {@link shouldShowRateAppPrompt} decides the prompt should not be
+	 * shown (cooldown not elapsed, iOS limit reached, etc.).
 	 */
 	const askUserToRateApp = useCallback(
 		async (featureId: string) => {
 			try {
-				const [featureAlreadyAsked, alreadyAskedToday] = await Promise.all([
-					wasAskedForFeature(featureId),
-					wasAlreadyAskedToday(),
-				]);
+				const now = new Date();
+				const todayStr = getTodayDateString(now);
+				const platform = getDevicePlatform();
 
-				if (featureAlreadyAsked || alreadyAskedToday) {
+				// Fetch all persisted state in parallel.
+				const [lastAskedDateGlobal, lastAskedDateForFeature, nativeReviewDates] =
+					await Promise.all([
+						getLastAskedDateGlobal(),
+						getLastAskedDateForFeature(featureId),
+						getNativeReviewDates(),
+					]);
+
+				// ── Pure decision ────────────────────────────────────
+				const result = shouldShowRateAppPrompt({
+					platform,
+					featureId,
+					now,
+					lastAskedDateGlobal,
+					lastAskedDateForFeature,
+					nativeReviewDates,
+				});
+
+				if (!result.shouldPrompt) {
 					return;
 				}
 
-				// Persist immediately so subsequent calls during the same session are
-				// suppressed even before the user interacts with the prompt.
-				await Promise.all([markFeatureAsked(featureId), markAskedToday()]);
+				// Persist immediately so subsequent calls during the
+				// same session are suppressed.
+				await Promise.all([
+					markFeatureAsked(featureId, todayStr),
+					markAskedGlobally(todayStr),
+				]);
 
-				if (Platform.OS !== 'web') {
+				// ── Try native in-app review ─────────────────────────
+				if (result.canUseNativeReview) {
 					try {
 						const isAvailable = await StoreReview.isAvailableAsync();
 						if (isAvailable) {
 							await StoreReview.requestReview();
+							await addNativeReviewDate(todayStr);
 							return;
 						}
 					} catch (error) {
@@ -131,7 +125,7 @@ const useAskUserToRateApp = () => {
 					}
 				}
 
-				// Fallback: show modal with store links
+				// ── Fallback: show modal with store links ────────────
 				showRateAppModal();
 			} catch (error) {
 				console.log('useAskUserToRateApp: error', error);
