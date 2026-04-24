@@ -117,7 +117,7 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 			return;
 		}
 		if (toggling) return;
-		const wasCreating = !ownVisit;
+		const isCreatingNewVisit = !ownVisit;
 		setToggling(true);
 		try {
 			if (ownVisit) {
@@ -131,7 +131,7 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 			fetchCounts();
 			fetchDebugData();
 			// Ask for a rating when the user just joined and friends are already visiting
-			if (wasCreating && counts.friends > 0) {
+			if (isCreatingNewVisit && counts.friends > 0) {
 				askUserToRateAppProp?.('canteen_visits');
 			}
 		} catch (e) {
@@ -328,7 +328,7 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 		}
 		if (!profile?.id || toggling) return;
 		setToggling(true);
-		const wasCreating = !ownVisit;
+		const isCreatingNewVisit = !ownVisit;
 		try {
 			if (ownVisit) {
 				await canteenVisitsHelper.deleteOwnVisitsForDate(canteenId, date, profile.id);
@@ -336,14 +336,14 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 				await canteenVisitsHelper.createVisitForDate(canteenId, date, profile.id);
 			}
 			await fetchData();
+			// Ask for a rating when the user just joined and friends are already visiting
+			if (isCreatingNewVisit && counts.friends > 0) {
+				askUserToRateApp('canteen_visits');
+			}
 		} catch (e) {
 			console.error('Error toggling canteen visit:', e);
 		} finally {
 			setToggling(false);
-		}
-		// Ask for a rating when the user just joined and friends are already visiting
-		if (wasCreating && counts.friends > 0) {
-			askUserToRateApp('canteen_visits');
 		}
 	}, [isRegistered, profile?.id, toggling, ownVisit, canteenId, date, router, fetchData, counts.friends, askUserToRateApp]);
 
