@@ -323,6 +323,7 @@ export enum TranslationKeys {
         experimentell = 'experimentell',
         debug_logout = 'debug_logout',
         rate_app = 'rate_app',
+        rate_app_enjoy_feature = 'rate_app_enjoy_feature',
         rate_now = 'rate_now',
         rate_later = 'rate_later',
         app_download = 'app_download',

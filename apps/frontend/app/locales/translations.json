@@ -3223,6 +3223,16 @@
     "tr": "Uygulamayı değerlendir",
     "zh": "为应用评分"
   },
+  "rate_app_enjoy_feature": {
+    "de": "Dir gefällt die App? Wir würden uns über eine Bewertung freuen!",
+    "en": "Enjoying the app? We would love your rating!",
+    "ar": "هل تستمتع بالتطبيق؟ سنكون سعداء بتقييمك!",
+    "es": "¿Te gusta la app? ¡Nos encantaría tu valoración!",
+    "fr": "Vous aimez l'application ? Nous serions ravis de recevoir votre avis !",
+    "ru": "Нравится приложение? Мы будем рады вашей оценке!",
+    "tr": "Uygulamayı beğendiniz mi? Değerlendirmenizi memnuniyetle karşılarız!",
+    "zh": "喜欢这个应用吗？我们期待您的评分！"
+  },
   "rate_now": {
     "de": "Jetzt bewerten",
     "en": "Rate now",

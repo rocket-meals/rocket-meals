@@ -16,6 +16,7 @@ import { CanteenVisitsHelper, getFriendProfileIds } from '@/redux/actions/Cantee
 import { FriendsContent } from '@/components/FriendsContent';
 import DebugView from '@/components/DebugView';
 import { useRouter } from 'expo-router';
+import useAskUserToRateApp from '@/hooks/useAskUserToRateApp';
 
 const canteenVisitsHelper = new CanteenVisitsHelper();
 
@@ -37,6 +38,7 @@ export interface CanteenVisitDetailsModalContentProps {
 	showFriendsModal: () => void;
 	showLoginModal: () => void;
 	onOwnVisitChanged?: (date: string, visit: DatabaseTypes.CanteenVisits | null) => void;
+	askUserToRateApp?: (featureId: string) => void;
 }
 
 export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalContentProps> = ({
@@ -55,6 +57,7 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 	showFriendsModal,
 	showLoginModal,
 	onOwnVisitChanged,
+	askUserToRateApp: askUserToRateAppProp,
 }) => {
 	const [ownVisit, setOwnVisit] = useState<DatabaseTypes.CanteenVisits | null | undefined>(undefined);
 	const [toggling, setToggling] = useState(false);
@@ -114,6 +117,7 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 			return;
 		}
 		if (toggling) return;
+		const wasCreating = !ownVisit;
 		setToggling(true);
 		try {
 			if (ownVisit) {
@@ -126,12 +130,16 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 			onOwnVisitChanged?.(date, updatedVisit);
 			fetchCounts();
 			fetchDebugData();
+			// Ask for a rating when the user just joined and friends are already visiting
+			if (wasCreating && counts.friends > 0) {
+				askUserToRateAppProp?.('canteen_visits');
+			}
 		} catch (e) {
 			console.error('Error toggling own canteen visit:', e);
 		} finally {
 			setToggling(false);
 		}
-	}, [isRegistered, profileId, toggling, ownVisit, canteenId, date, closeModal, showLoginModal, onOwnVisitChanged, fetchCounts, fetchDebugData]);
+	}, [isRegistered, profileId, toggling, ownVisit, canteenId, date, closeModal, showLoginModal, onOwnVisitChanged, fetchCounts, fetchDebugData, counts.friends, askUserToRateAppProp]);
 
 	return (
 		<View>
@@ -250,6 +258,7 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 	const { profile, user, isDevMode } = useAppSelector((state) => state.authReducer);
 	const { friendships } = useAppSelector((state) => state.friendships);
 	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
+	const { askUserToRateApp } = useAskUserToRateApp();
 
 	const isRegistered = UserHelper.isRegisteredUser(user);
 	const foods_area_color = appSettings?.foods_area_color || primaryColor;
@@ -319,6 +328,7 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 		}
 		if (!profile?.id || toggling) return;
 		setToggling(true);
+		const wasCreating = !ownVisit;
 		try {
 			if (ownVisit) {
 				await canteenVisitsHelper.deleteOwnVisitsForDate(canteenId, date, profile.id);
@@ -331,7 +341,11 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 		} finally {
 			setToggling(false);
 		}
-	}, [isRegistered, profile?.id, toggling, ownVisit, canteenId, date, router, fetchData]);
+		// Ask for a rating when the user just joined and friends are already visiting
+		if (wasCreating && counts.friends > 0) {
+			askUserToRateApp('canteen_visits');
+		}
+	}, [isRegistered, profile?.id, toggling, ownVisit, canteenId, date, router, fetchData, counts.friends, askUserToRateApp]);
 
 	const openDetailsModal = useCallback(() => {
 		showScrollViewModal({
@@ -362,10 +376,11 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 						setOwnVisit(visit);
 						fetchData();
 					}}
+					askUserToRateApp={askUserToRateApp}
 				/>
 			),
 		});
-	}, [counts, canteenId, date, primaryColor, foods_area_color, isRegistered, friendProfileIds, friendsDict, profile?.id, translate, theme, showScrollViewModal, closeScrollViewModal, router, fetchData]);
+	}, [counts, canteenId, date, primaryColor, foods_area_color, isRegistered, friendProfileIds, friendsDict, profile?.id, translate, theme, showScrollViewModal, closeScrollViewModal, router, fetchData, askUserToRateApp]);
 
 	// Early return if not enabled or visibility is 'off' — placed after all hooks
 	if (!showCanteenVisits || canteenVisitsVisibility === 'off') {
