@@ -1,0 +1,49 @@
+name: 'Deploy Backend Server'
+description: 'SSH into the backend server and run the weekly-update script to restart services'
+inputs:
+  DEPLOY_SSH_KEY:
+    description: 'Private SSH key for the deploy user'
+    required: true
+  DEPLOY_HOST:
+    description: 'Hostname or IP of the backend server'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: "🔍 Check deploy secrets"
+      id: check-secrets
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.DEPLOY_SSH_KEY }}" ] || [ -z "${{ inputs.DEPLOY_HOST }}" ]; then
+          echo "⚠️ DEPLOY_SSH_KEY or DEPLOY_HOST not configured – skipping deployment"
+          echo "secrets-available=false" >> $GITHUB_OUTPUT
+        else
+          echo "✅ Deploy secrets are configured"
+          echo "secrets-available=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: "🔑 Setup SSH key"
+      if: steps.check-secrets.outputs.secrets-available == 'true'
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ inputs.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keyscan -H "${{ inputs.DEPLOY_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+    - name: "🚀 Deploy via SSH"
+      if: steps.check-secrets.outputs.secrets-available == 'true'
+      shell: bash
+      run: |
+        echo "🔗 Connecting to ${{ inputs.DEPLOY_HOST }} as deploy user..."
+        ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+          deploy@${{ inputs.DEPLOY_HOST }} \
+          "sudo bash -c 'cd /root && cd rocket-meals && ./scripts/weekly-update.sh'"
+        echo "✅ Deployment completed successfully"
+
+    - name: "🧹 Cleanup SSH key"
+      if: always() && steps.check-secrets.outputs.secrets-available == 'true'
+      shell: bash
+      run: |
+        rm -f ~/.ssh/deploy_key

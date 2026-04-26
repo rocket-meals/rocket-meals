@@ -258,6 +258,65 @@ jobs:
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
+  check-backend-deploy:
+    name: "🔍 Check Backend Deploy"
+    runs-on: ubuntu-latest
+    needs: [backend-directus, check-repository]
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: "🔍 Check if deploy is needed"
+        id: check
+        run: |
+          IS_UPSTREAM="${{ needs.check-repository.outputs.is-upstream }}"
+
+          if [ "$IS_UPSTREAM" = "true" ]; then
+            echo "📦 Upstream repository – always deploy after backend build"
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "📦 Fork repository – checking for backend/deploy file changes"
+            COMPARE_REF="${{ github.event.inputs.previous_commit_sha }}"
+            if [ -z "$COMPARE_REF" ]; then
+              COMPARE_REF="HEAD^"
+              echo "Comparing against HEAD^"
+            else
+              echo "Comparing against commit $COMPARE_REF (from sync-fork)"
+            fi
+
+            CHANGED_FILES=$(git diff --name-only "$COMPARE_REF" HEAD -- \
+              'apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/dist' \
+              'docker-compose.yaml' \
+              'apps/backend/docker-compose.yaml' \
+              'apps/proxy/docker-compose.yaml' || true)
+
+            if [ -n "$CHANGED_FILES" ]; then
+              echo "✅ Backend/deploy files changed:"
+              echo "$CHANGED_FILES"
+              echo "should-deploy=true" >> $GITHUB_OUTPUT
+            else
+              echo "🚫 No backend/deploy changes detected"
+              echo "should-deploy=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  deploy-backend:
+    name: "🚀 Deploy Backend Server"
+    runs-on: ubuntu-latest
+    needs: [check-backend-deploy]
+    if: needs.check-backend-deploy.outputs.should-deploy == 'true'
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "🚀 Deploy via SSH"
+        uses: ./.github/actions/deploy-backend
+        with:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+
   expo-update:
     name: "🏗 EAS Update Production"
     runs-on: ubuntu-latest
