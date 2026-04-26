@@ -262,6 +262,8 @@ jobs:
     name: "🔍 Check Backend Deploy"
     runs-on: ubuntu-latest
     needs: [backend-directus, check-repository]
+    permissions:
+      contents: read
     outputs:
       should-deploy: ${{ steps.check.outputs.should-deploy }}
     steps:
@@ -308,6 +310,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [check-backend-deploy]
     if: needs.check-backend-deploy.outputs.should-deploy == 'true'
+    permissions:
+      contents: read
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4

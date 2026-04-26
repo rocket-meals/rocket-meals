@@ -37,9 +37,9 @@ runs:
       shell: bash
       run: |
         echo "🔗 Connecting to ${{ inputs.DEPLOY_HOST }} as deploy user..."
-        ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+        ssh -i ~/.ssh/deploy_key \
           deploy@${{ inputs.DEPLOY_HOST }} \
-          "sudo bash -c 'cd /root && cd rocket-meals && ./scripts/weekly-update.sh'"
+          "sudo bash -c 'cd /root/rocket-meals && ./scripts/weekly-update.sh'"
         echo "✅ Deployment completed successfully"
 
     - name: "🧹 Cleanup SSH key"
