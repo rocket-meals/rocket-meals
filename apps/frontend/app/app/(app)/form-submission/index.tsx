@@ -635,7 +635,7 @@ const Index = () => {
 				const prefix = (answer?.form_field as DatabaseTypes.FormFields)?.value_prefix || '-';
 				const custom_id = fieldType?.split('-')[1];
 
-				if (isRequired && (!value || value.trim() === '')) {
+				if (isRequired && (value === null || value === undefined || (typeof value === 'string' && value.trim() === ''))) {
 					hasError = true;
 					const fieldName = (answer?.form_field as DatabaseTypes.FormFields)?.translations?.length > 0 ? getFromCategoryTranslation((answer?.form_field as DatabaseTypes.FormFields)?.translations, language) : (answer?.form_field as DatabaseTypes.FormFields)?.alias;
 					toast(`Field "${fieldName}" is required`, 'error');
