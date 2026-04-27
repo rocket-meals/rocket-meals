@@ -68,7 +68,10 @@ log "Aktualisiere rocket-meals-envs Repository"
 git -C "$ENV_REPO_DIR" pull || { log "Fehler: Aktualisierung von rocket-meals-envs fehlgeschlagen" >&2; exit 1; }
 
 log "Generiere .env für Umgebung '$ENV_NAME'"
-(cd "$ENV_REPO_DIR" && npm run generate -- --env "$ENV_NAME" --output "$REPO_DIR/.env")
+if ! command -v yarn &>/dev/null; then
+  npm install -g yarn
+fi
+(cd "$ENV_REPO_DIR" && yarn generate --env "$ENV_NAME" --output "$REPO_DIR/.env")
 
 if [[ ! -f "$REPO_DIR/.env" ]]; then
   echo "Fehler: .env wurde nach der Generierung nicht gefunden." >&2
