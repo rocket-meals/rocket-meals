@@ -1,16 +1,14 @@
 import React, { createContext, useCallback, useContext, useState, ReactNode, useRef, useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import BaseBottomSheet from '../BaseBottomSheet';
 import { useTheme } from '../../context/ThemeContext';
 
-// Optionally use BlurView from expo-blur when available; fall back to a dark semi-transparent overlay.
-let BlurViewComponent: React.ComponentType<{ style: any; intensity: number; tint: string; pointerEvents?: string }> | null = null;
-try {
-	// eslint-disable-next-line @typescript-eslint/no-var-requires
-	BlurViewComponent = require('expo-blur').BlurView;
-} catch {
-	// expo-blur is not installed – dark overlay fallback will be used
-}
+// On web, React Native Web passes style properties through to CSS, so backdropFilter works natively.
+// On native platforms (iOS/Android) we fall back to a dark semi-transparent overlay.
+const OVERLAY_STYLE =
+	Platform.OS === 'web'
+		? { backdropFilter: 'blur(8px)', backgroundColor: 'rgba(0,0,0,0.25)' }
+		: { backgroundColor: 'rgba(0,0,0,0.5)' };
 
 type ModalOptions = {
 	backgroundStyle?: any;
@@ -243,19 +241,10 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 			{children}
 			{currentItem && (
 				<View style={styles.modalContainer} pointerEvents="box-none">
-					{BlurViewComponent ? (
-						<BlurViewComponent
-							style={StyleSheet.absoluteFillObject}
-							intensity={50}
-							tint="dark"
-							pointerEvents="none"
-						/>
-					) : (
-						<View
-							style={[StyleSheet.absoluteFillObject, currentItem.overlayStyle ?? { backgroundColor: 'rgba(0,0,0,0.5)' }]}
-							pointerEvents="none"
-						/>
-					)}
+					<View
+						style={[StyleSheet.absoluteFillObject, OVERLAY_STYLE]}
+						pointerEvents="none"
+					/>
 					<BaseBottomSheet
 						ref={sheetRef}
 						enablePanDownToClose
