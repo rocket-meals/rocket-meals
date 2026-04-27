@@ -68,6 +68,7 @@ log "Aktualisiere rocket-meals-envs Repository"
 git -C "$ENV_REPO_DIR" pull || { log "Fehler: Aktualisierung von rocket-meals-envs fehlgeschlagen" >&2; exit 1; }
 
 log "Generiere .env für Umgebung '$ENV_NAME'"
+corepack enable
 (cd "$ENV_REPO_DIR" && yarn generate --env "$ENV_NAME" --output "$REPO_DIR/.env")
 
 if [[ ! -f "$REPO_DIR/.env" ]]; then
