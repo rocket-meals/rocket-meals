@@ -281,16 +281,9 @@ export class DirectusDatabaseSync {
 
   private async execDirectusSync(params: string) {
     let command = 'npx directus-sync@' + DirectusSyncVersion + ' ' + params;
-    let output = await this.execWithOutput(command);
-    const lines = output.split('\n');
-    for (const line of lines) {
-      if (line.includes('✅  Done!')) {
-        return true;
-      }
-    }
-    console.error('Error during execution of directus-sync');
-    console.error(output);
-    return false;
+    // execWithOutput throws on non-zero exit code, so reaching this point means success
+    await this.execWithOutput(command);
+    return true;
   }
 
   private async execDirectusSyncMethod(method: string, logText: string) {

@@ -61,8 +61,8 @@ async function main() {
   let runSyncDatabase = true
   if (runSyncDatabase){
     console.log("Syncing database schema with Docker Push option...");
-    let errors = await syncDatabase(SyncDataBaseOptionDockerPush);
-    if (errors) {
+    let success = await syncDatabase(SyncDataBaseOptionDockerPush);
+    if (!success) {
       console.error('❌ Fehler beim Synchronisieren des Datenbankschemas mit Docker Push Option.');
       process.exit(1);
     }
