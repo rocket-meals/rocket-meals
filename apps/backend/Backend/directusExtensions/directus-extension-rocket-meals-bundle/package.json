@@ -217,6 +217,11 @@
         "type": "hook",
         "name": "workflows-runs-log-cleanup-schedule",
         "source": "src/workflows-runs-log-cleanup-schedule/index.ts"
+      },
+      {
+        "type": "hook",
+        "name": "workflows-runs-cleanup-schedule",
+        "source": "src/workflows-runs-cleanup-schedule/index.ts"
       }
     ],
     "host": "^10.10.0"
