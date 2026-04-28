@@ -1,22 +1,27 @@
-import { CollectionNames, DatabaseTypes, FriendshipStatus } from 'repo-depkit-common';
+import { CollectionNames, CronHelper, DatabaseTypes, FriendshipStatus } from 'repo-depkit-common';
 import { ItemsServiceHelper } from '../helpers/ItemsServiceHelper';
 import { MyDatabaseHelper } from '../helpers/MyDatabaseHelper';
 import { MyDefineHook } from '../helpers/MyDefineHook';
+import { WorkflowScheduleHelper } from '../workflows-runs-hook';
+import { SingleWorkflowRun } from '../workflows-runs-hook/WorkflowRunJobInterface';
+import { WorkflowRunContext } from '../helpers/WorkflowRunContext';
+import { WORKFLOW_RUN_STATE } from '../helpers/itemServiceHelpers/WorkflowsRunEnum';
 
 const SCHEDULE_NAME = 'friendships_pending_cleanup';
 
 const PENDING_DAYS_THRESHOLD = 31;
 
-export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async ({ schedule }, apiContext) => {
-  const cronFrequency = '0 20 * * 3'; // every Wednesday at 20:00
+class FriendshipsPendingCleanupWorkflow extends SingleWorkflowRun {
+  getWorkflowId(): string {
+    return 'friendships-pending-cleanup';
+  }
 
-  schedule(cronFrequency, async () => {
-    apiContext.logger.info(SCHEDULE_NAME + ': start schedule run: ' + new Date().toISOString());
+  async runJob(context: WorkflowRunContext): Promise<Partial<DatabaseTypes.WorkflowsRuns>> {
+    await context.logger.appendLog('Starting pending friendships cleanup');
 
     try {
-      const myDatabaseHelper = new MyDatabaseHelper(apiContext);
       const friendshipsHelper = new ItemsServiceHelper<DatabaseTypes.Friendships>(
-        myDatabaseHelper,
+        context.myDatabaseHelper,
         CollectionNames.FRIENDSHIPS
       );
 
@@ -24,9 +29,7 @@ export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async
       cutoffDate.setDate(cutoffDate.getDate() - PENDING_DAYS_THRESHOLD);
       const cutoffDateISO = cutoffDate.toISOString();
 
-      apiContext.logger.info(
-        SCHEDULE_NAME + ': searching for pending friendships older than ' + cutoffDateISO
-      );
+      await context.logger.appendLog('Searching for pending friendships older than ' + cutoffDateISO);
 
       const pendingFriendships: DatabaseTypes.Friendships[] = await friendshipsHelper.readByQuery({
         filter: {
@@ -39,22 +42,29 @@ export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async
         limit: -1,
       });
 
-      apiContext.logger.info(
-        SCHEDULE_NAME + ': found ' + pendingFriendships.length + ' pending friendships to delete'
-      );
+      await context.logger.appendLog('Found ' + pendingFriendships.length + ' pending friendships to delete');
 
       if (pendingFriendships.length > 0) {
         const idsToDelete = pendingFriendships.map(f => f.id);
         await friendshipsHelper.deleteMany(idsToDelete);
-        apiContext.logger.info(
-          SCHEDULE_NAME + ': deleted ' + idsToDelete.length + ' pending friendships'
-        );
+        await context.logger.appendLog('Deleted ' + idsToDelete.length + ' pending friendships');
       }
+
+      return context.logger.getFinalLogWithStateAndParams({ state: WORKFLOW_RUN_STATE.SUCCESS });
     } catch (e) {
-      apiContext.logger.error(
-        SCHEDULE_NAME + ': error during pending friendship cleanup: ' + (e instanceof Error ? e.message : String(e))
-      );
-      apiContext.logger.error(e);
+      await context.logger.appendLog('Error during pending friendship cleanup: ' + (e instanceof Error ? e.message : String(e)));
+      return context.logger.getFinalLogWithStateAndParams({ state: WORKFLOW_RUN_STATE.FAILED });
     }
+  }
+}
+
+export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async ({ schedule }, apiContext) => {
+  const myDatabaseHelper = new MyDatabaseHelper(apiContext);
+
+  WorkflowScheduleHelper.registerScheduleToRunWorkflowRuns({
+    workflowRunInterface: new FriendshipsPendingCleanupWorkflow(),
+    myDatabaseHelper: myDatabaseHelper,
+    schedule: schedule,
+    cronOject: CronHelper.EVERY_WEDNESDAY_AT_20,
   });
 });

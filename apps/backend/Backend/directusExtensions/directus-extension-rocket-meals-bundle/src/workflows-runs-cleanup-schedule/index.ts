@@ -1,30 +1,31 @@
 import { MyDefineHook } from '../helpers/MyDefineHook';
 import { MyDatabaseHelper } from '../helpers/MyDatabaseHelper';
-import { DatabaseTypes } from 'repo-depkit-common';
+import { CronHelper, DatabaseTypes } from 'repo-depkit-common';
+import { WorkflowScheduleHelper } from '../workflows-runs-hook';
+import { SingleWorkflowRun } from '../workflows-runs-hook/WorkflowRunJobInterface';
+import { WorkflowRunContext } from '../helpers/WorkflowRunContext';
+import { WORKFLOW_RUN_STATE } from '../helpers/itemServiceHelpers/WorkflowsRunEnum';
 
 const SCHEDULE_NAME = 'workflows_runs_cleanup';
 
 const DAYS_TO_KEEP = 31;
 
-export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async ({ schedule }, apiContext) => {
-  const isProduction = true;
+class WorkflowsRunsCleanupWorkflow extends SingleWorkflowRun {
+  getWorkflowId(): string {
+    return 'workflows-runs-cleanup';
+  }
 
-  const cronFrequencyEveryDayAt4AM = '0 4 * * *';
-  const cronFrequencyEveryMinute = '0 * * * * *';
-  const cronFrequency = isProduction ? cronFrequencyEveryDayAt4AM : cronFrequencyEveryMinute;
-
-  schedule(cronFrequency, async () => {
-    apiContext.logger.info(SCHEDULE_NAME + ': start schedule run: ' + new Date().toISOString());
+  async runJob(context: WorkflowRunContext): Promise<Partial<DatabaseTypes.WorkflowsRuns>> {
+    await context.logger.appendLog('Starting workflows_runs cleanup');
 
     try {
-      const myDatabaseHelper = new MyDatabaseHelper(apiContext);
-      const workflowsRunsHelper = myDatabaseHelper.getWorkflowsRunsHelper();
+      const workflowsRunsHelper = context.myDatabaseHelper.getWorkflowsRunsHelper();
 
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - DAYS_TO_KEEP);
       const cutoffDateISO = cutoffDate.toISOString();
 
-      apiContext.logger.info(SCHEDULE_NAME + ': deleting workflow_runs older than ' + cutoffDateISO);
+      await context.logger.appendLog('Deleting workflow_runs older than ' + cutoffDateISO);
 
       const oldRuns: DatabaseTypes.WorkflowsRuns[] = await workflowsRunsHelper.readByQuery({
         filter: {
@@ -36,16 +37,29 @@ export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async
         limit: -1,
       });
 
-      apiContext.logger.info(SCHEDULE_NAME + ': found ' + oldRuns.length + ' workflow_runs to delete');
+      await context.logger.appendLog('Found ' + oldRuns.length + ' workflow_runs to delete');
 
       if (oldRuns.length > 0) {
         const idsToDelete = oldRuns.map(r => r.id);
         await workflowsRunsHelper.deleteMany(idsToDelete);
-        apiContext.logger.info(SCHEDULE_NAME + ': deleted ' + idsToDelete.length + ' workflow_runs');
+        await context.logger.appendLog('Deleted ' + idsToDelete.length + ' workflow_runs');
       }
+
+      return context.logger.getFinalLogWithStateAndParams({ state: WORKFLOW_RUN_STATE.SUCCESS });
     } catch (e) {
-      apiContext.logger.error(SCHEDULE_NAME + ': error during workflow_runs cleanup: ' + (e instanceof Error ? e.message : String(e)));
-      apiContext.logger.error(e);
+      await context.logger.appendLog('Error during workflow_runs cleanup: ' + (e instanceof Error ? e.message : String(e)));
+      return context.logger.getFinalLogWithStateAndParams({ state: WORKFLOW_RUN_STATE.FAILED });
     }
+  }
+}
+
+export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async ({ schedule }, apiContext) => {
+  const myDatabaseHelper = new MyDatabaseHelper(apiContext);
+
+  WorkflowScheduleHelper.registerScheduleToRunWorkflowRuns({
+    workflowRunInterface: new WorkflowsRunsCleanupWorkflow(),
+    myDatabaseHelper: myDatabaseHelper,
+    schedule: schedule,
+    cronOject: CronHelper.EVERY_DAY_AT_4AM,
   });
 });

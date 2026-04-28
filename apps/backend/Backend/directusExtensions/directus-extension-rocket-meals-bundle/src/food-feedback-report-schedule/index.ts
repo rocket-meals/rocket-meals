@@ -1,10 +1,10 @@
 import { ReportSchedule } from './ReportSchedule';
-import { CollectionNames, DatabaseTypes } from 'repo-depkit-common';
-import {MyDefineHook} from "../helpers/MyDefineHook";
+import { CollectionNames, CronHelper, DatabaseTypes } from 'repo-depkit-common';
+import { MyDefineHook } from '../helpers/MyDefineHook';
 
 const SCHEDULE_NAME = 'food_feedback_report';
 
-export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME,async ({ schedule, filter }, apiContext) => {
+export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async ({ schedule, filter }, apiContext) => {
 
   const collection = CollectionNames.CANTEEN_FOOD_FEEDBACK_REPORT_SCHEDULES;
 
@@ -40,8 +40,9 @@ export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME,async 
   });
 
   const parseSchedule = new ReportSchedule(apiContext);
+  const cronString = CronHelper.getCronString(CronHelper.EVERY_20_SECONDS);
 
-  schedule('*/20 * * * * *', async () => {
+  schedule(cronString, async () => {
     await parseSchedule.run();
   });
 });

@@ -110,4 +110,22 @@ export class CronHelper {
     month: '*',
     dayOfWeek: '*',
   };
+
+  static EVERY_WEDNESDAY_AT_20: CronObject = {
+    seconds: 0,
+    minutes: 0,
+    hours: 20,
+    dayOfMonth: '*',
+    month: '*',
+    dayOfWeek: 3,
+  };
+
+  static EVERY_20_SECONDS: CronObject = {
+    seconds: '*/20',
+    minutes: '*',
+    hours: '*',
+    dayOfMonth: '*',
+    month: '*',
+    dayOfWeek: '*',
+  };
 }

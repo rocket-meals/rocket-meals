@@ -1,47 +1,39 @@
 import { ActivityServiceCreator } from '../helpers/ItemsServiceCreator';
-import {MyDefineHook} from "../helpers/MyDefineHook";
+import { CronHelper, DatabaseTypes } from 'repo-depkit-common';
+import { MyDatabaseHelper } from '../helpers/MyDatabaseHelper';
+import { MyDefineHook } from '../helpers/MyDefineHook';
+import { WorkflowScheduleHelper } from '../workflows-runs-hook';
+import { SingleWorkflowRun } from '../workflows-runs-hook/WorkflowRunJobInterface';
+import { WorkflowRunContext } from '../helpers/WorkflowRunContext';
+import { WORKFLOW_RUN_STATE } from '../helpers/itemServiceHelpers/WorkflowsRunEnum';
 
 const SCHEDULE_NAME = 'activity_auto_cleanup';
 
-export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async ({ schedule }, apiContext) => {
-  const isProduction = true;
+// https://www.datenschutz-notizen.de/ip-adressen-und-datenschutz-teil-iii-speicherfristen-0634313/
+// https://www.datenschutz-notizen.de/speicherdauer-von-logfiles-innerhalb-des-unternehmensnetzwerks-1344161/
+const MAX_MINUTES_TO_KEEP: number = 60 * 24 * 30; // 30 days
 
-  const cronFrequencyEveryDayAt4AM = '0 4 * * *';
-  const cronFrequencyEveryMinute = '0 * * * * *';
-  const cronFrequency = isProduction ? cronFrequencyEveryDayAt4AM : cronFrequencyEveryMinute;
+class ActivityAutoCleanupWorkflow extends SingleWorkflowRun {
+  getWorkflowId(): string {
+    return 'activity-auto-cleanup';
+  }
 
-  /**
-   * Automated Log Rotation
-   * Set up automated log rotation to ensure that your log files remain manageable in size and are archived periodically.
-   */
+  async runJob(context: WorkflowRunContext): Promise<Partial<DatabaseTypes.WorkflowsRuns>> {
+    await context.logger.appendLog('Starting activity auto cleanup');
 
-  const MODE_DELETE_OLD_LOGS: string = 'delete_old_logs';
-  const MODE_SELECTED: string = MODE_DELETE_OLD_LOGS;
+    try {
+      const activityServiceCreator = new ActivityServiceCreator(context.myDatabaseHelper.apiContext);
+      const activityService = await activityServiceCreator.getActivityService();
 
-  // https://www.datenschutz-notizen.de/ip-adressen-und-datenschutz-teil-iii-speicherfristen-0634313/
-  // https://www.datenschutz-notizen.de/speicherdauer-von-logfiles-innerhalb-des-unternehmensnetzwerks-1344161/
-
-  const MAX_MINUTES_TO_KEEP_PRODUCTION: number = 60 * 24 * 30; // 30 days
-  const MAX_MINUTES_TO_KEEP_DEVELOPMENT: number = 5;
-  const MAX_MINUTES_TO_KEEP: number = isProduction ? MAX_MINUTES_TO_KEEP_PRODUCTION : MAX_MINUTES_TO_KEEP_DEVELOPMENT;
-
-  schedule(cronFrequency, async () => {
-    apiContext.logger.info(SCHEDULE_NAME + ': start schedule run: ' + new Date().toISOString());
-    const activityServiceCreator = new ActivityServiceCreator(apiContext);
-    const activityService = await activityServiceCreator.getActivityService();
-
-    if (MODE_SELECTED === MODE_DELETE_OLD_LOGS) {
       const FIELD_TIMESTAMP = 'timestamp';
 
-      apiContext.logger.info(SCHEDULE_NAME + ': Deleting old logs');
+      await context.logger.appendLog('Deleting old activity logs');
       let now = new Date();
       let nowMinusMaxDays = new Date();
       nowMinusMaxDays.setMinutes(now.getMinutes() - MAX_MINUTES_TO_KEEP);
-      // timestamp required in timestamp	"2024-05-12T10:45:52.792Z"
       let nowMinusMaxDaysISO = nowMinusMaxDays.toISOString();
-      apiContext.logger.info(SCHEDULE_NAME + ': nowMinusMaxDaysISO: ' + nowMinusMaxDaysISO);
+      await context.logger.appendLog('Cutoff date: ' + nowMinusMaxDaysISO);
 
-      // https://github.com/directus/directus/blob/main/api/src/services/items.ts
       const query = {
         limit: -1,
         filter: {
@@ -56,6 +48,23 @@ export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async
       };
 
       await activityService.deleteByQuery(query);
+      await context.logger.appendLog('Activity cleanup completed');
+
+      return context.logger.getFinalLogWithStateAndParams({ state: WORKFLOW_RUN_STATE.SUCCESS });
+    } catch (e) {
+      await context.logger.appendLog('Error during activity cleanup: ' + (e instanceof Error ? e.message : String(e)));
+      return context.logger.getFinalLogWithStateAndParams({ state: WORKFLOW_RUN_STATE.FAILED });
     }
+  }
+}
+
+export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async ({ schedule }, apiContext) => {
+  const myDatabaseHelper = new MyDatabaseHelper(apiContext);
+
+  WorkflowScheduleHelper.registerScheduleToRunWorkflowRuns({
+    workflowRunInterface: new ActivityAutoCleanupWorkflow(),
+    myDatabaseHelper: myDatabaseHelper,
+    schedule: schedule,
+    cronOject: CronHelper.EVERY_DAY_AT_4AM,
   });
 });
