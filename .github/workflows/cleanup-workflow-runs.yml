@@ -1,0 +1,49 @@
+name: "🧹 Cleanup Old Workflow Runs"
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    name: "🗑️ Delete Workflow Runs older than 31 days"
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+
+    steps:
+      - name: "🗑️ Delete old workflow runs"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CUTOFF=$(date -d '31 days ago' --utc +%Y-%m-%dT%H:%M:%SZ)
+          echo "Deleting workflow runs created before: $CUTOFF"
+
+          PAGE=1
+          DELETED=0
+
+          while true; do
+            RUNS=$(gh api \
+              --method GET \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/${{ github.repository }}/actions/runs?per_page=100&page=$PAGE" \
+              --jq ".workflow_runs[] | select(.created_at < \"$CUTOFF\") | .id")
+
+            if [ -z "$RUNS" ]; then
+              break
+            fi
+
+            for RUN_ID in $RUNS; do
+              echo "Deleting run $RUN_ID"
+              gh api \
+                --method DELETE \
+                -H "Accept: application/vnd.github+json" \
+                "/repos/${{ github.repository }}/actions/runs/$RUN_ID"
+              DELETED=$((DELETED + 1))
+            done
+
+            PAGE=$((PAGE + 1))
+          done
+
+          echo "✅ Deleted $DELETED workflow run(s)."
