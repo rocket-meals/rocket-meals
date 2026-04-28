@@ -7,7 +7,11 @@ const SCHEDULE_NAME = 'workflows_runs_cleanup';
 const DAYS_TO_KEEP = 31;
 
 export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async ({ schedule }, apiContext) => {
-  const cronFrequency = '0 4 * * *'; // every day at 4 AM
+  const isProduction = true;
+
+  const cronFrequencyEveryDayAt4AM = '0 4 * * *';
+  const cronFrequencyEveryMinute = '0 * * * * *';
+  const cronFrequency = isProduction ? cronFrequencyEveryDayAt4AM : cronFrequencyEveryMinute;
 
   schedule(cronFrequency, async () => {
     apiContext.logger.info(SCHEDULE_NAME + ': start schedule run: ' + new Date().toISOString());
