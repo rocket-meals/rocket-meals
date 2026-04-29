@@ -180,10 +180,7 @@ const styles = StyleSheet.create({
 		marginRight: 10,
 	},
 	textWrapper: {
-		flexDirection: 'row',
-		flexWrap: 'wrap',
-		alignItems: 'center',
-		columnGap: 3,
+		flexDirection: 'column',
 		flex: 1,
 	},
 	title: {
@@ -198,11 +195,11 @@ const styles = StyleSheet.create({
 		flexShrink: 1,
 		flexGrow: 1,
 		justifyContent: 'center',
-		alignItems: 'flex-end',
+		alignItems: 'flex-start',
 	},
 	value: {
 		fontSize: 13,
-		textAlign: 'right',
+		textAlign: 'left',
 	},
 	rightWrapper: {
 		minWidth: 34,
