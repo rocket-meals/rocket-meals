@@ -67,13 +67,28 @@ class AppReviewsPullWorkflow extends SingleWorkflowRun {
         });
 
         if (existing && existing.length > 0) {
-          // Update response if the pulled review has a response and the existing record does not
+          // Sync all changed fields (title, content, rating, positive, response)
           const existingFeedback = existing[0]!;
-          if (review.response && (!existingFeedback.response || existingFeedback.response.trim() === '')) {
-            await appFeedbacksHelper.updateOne(existingFeedback.id, {
-              response: review.response,
-              feedback_read_by_support: true,
-            });
+          const titleChanged = review.title !== existingFeedback.title;
+          const contentChanged = review.content !== existingFeedback.content;
+          const ratingChanged = review.source_rating_raw !== existingFeedback.source_rating_raw;
+          const positiveChanged = review.positive !== existingFeedback.positive;
+          const storeResponse = review.response ?? null;
+          const storedResponse = existingFeedback.response ?? null;
+          const responseChanged = storeResponse !== storedResponse;
+
+          if (titleChanged || contentChanged || ratingChanged || positiveChanged || responseChanged) {
+            const updateData: Partial<DatabaseTypes.AppFeedbacks> = {
+              title: review.title,
+              content: review.content,
+              source_rating_raw: review.source_rating_raw,
+              positive: review.positive,
+              response: storeResponse,
+            };
+            if (storeResponse !== null) {
+              updateData.feedback_read_by_support = true;
+            }
+            await appFeedbacksHelper.updateOne(existingFeedback.id, updateData);
             updated++;
           } else {
             skipped++;
@@ -89,7 +104,7 @@ class AppReviewsPullWorkflow extends SingleWorkflowRun {
         created++;
       }
 
-      await context.logger.appendLog('Created ' + created + ' new reviews, updated ' + updated + ' with responses, skipped ' + skipped + ' duplicates');
+      await context.logger.appendLog('Created ' + created + ' new reviews, updated ' + updated + ' existing reviews, skipped ' + skipped + ' unchanged');
       return context.logger.getFinalLogWithStateAndParams({ state: WORKFLOW_RUN_STATE.SUCCESS });
     } catch (e) {
       await context.logger.appendLog('error during reviews pull: ' + (e instanceof Error ? e.message : String(e)));
