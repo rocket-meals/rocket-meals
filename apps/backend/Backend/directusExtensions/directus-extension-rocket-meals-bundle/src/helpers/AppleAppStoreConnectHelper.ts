@@ -55,8 +55,11 @@ export class AppleAppStoreConnectHelper {
    * ensures the PEM header/footer are present.
    */
   static normalizePemKey(raw: string): string {
-    // Replace literal \n (two chars) with real newlines
-    let key = raw.replace(/\\n/g, '\n');
+    // Replace double-escaped \\n (backslash + backslash + n) with real newlines first,
+    // then replace single-escaped \n (backslash + n) with real newlines.
+    // Order matters: handle the longer sequence first to avoid leaving stray backslashes.
+    let key = raw.replace(/\\\\n/g, '\n');
+    key = key.replace(/\\n/g, '\n');
     // Trim whitespace
     key = key.trim();
     return key;

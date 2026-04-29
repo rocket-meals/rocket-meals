@@ -12,6 +12,13 @@ describe('AppleAppStoreConnectHelper.normalizePemKey', () => {
     expect(result).toBe('-----BEGIN PRIVATE KEY-----\nABC\nDEF\n-----END PRIVATE KEY-----');
   });
 
+  it('converts double-escaped \\\\n sequences to real newlines', () => {
+    // Some secret management systems double-escape newlines: \\n instead of \n
+    const raw = '-----BEGIN PRIVATE KEY-----\\\\nABC\\\\nDEF\\\\n-----END PRIVATE KEY-----';
+    const result = AppleAppStoreConnectHelper.normalizePemKey(raw);
+    expect(result).toBe('-----BEGIN PRIVATE KEY-----\nABC\nDEF\n-----END PRIVATE KEY-----');
+  });
+
   it('leaves keys with real newlines unchanged', () => {
     const raw = '-----BEGIN PRIVATE KEY-----\nABC\nDEF\n-----END PRIVATE KEY-----';
     const result = AppleAppStoreConnectHelper.normalizePemKey(raw);
