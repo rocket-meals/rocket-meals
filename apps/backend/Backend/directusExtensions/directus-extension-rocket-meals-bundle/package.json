@@ -194,6 +194,11 @@
         "source": "src/news-rss-endpoint/index.ts"
       },
       {
+        "type": "endpoint",
+        "name": "delete-by-query-endpoint",
+        "source": "src/delete-by-query-endpoint/index.ts"
+      },
+      {
         "type": "hook",
         "name": "users-avatar-delete-hook",
         "source": "src/users-avatar-delete-hook/index.ts"
