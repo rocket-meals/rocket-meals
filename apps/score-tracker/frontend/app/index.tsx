@@ -26,6 +26,10 @@ import type { AppDispatch, RootState } from '../store/store';
 
 const PRIMARY_COLOR = '#2563eb';
 const DANGER_COLOR = '#dc2626';
+const HEADER_HEIGHT_APPROX = 56;
+const BOTTOM_BAR_HEIGHT = 68;
+const MIN_TILE_HEIGHT = 140;
+const TILE_SPACING = 12;
 
 // ─── Score Input Modal Content ────────────────────────────────────────────────
 
@@ -422,9 +426,8 @@ export default function GameScreen() {
 
 	// ─── Compute tile height so tiles fill the screen ─────────────────────────
 
-	const BOTTOM_BAR_HEIGHT = 68;
-	const availableHeight = windowHeight - insets.top - insets.bottom - BOTTOM_BAR_HEIGHT - 56; // 56 for header approx
-	const tileHeight = Math.max(140, Math.floor(availableHeight / Math.max(players.length, 1)) - 12);
+	const availableHeight = windowHeight - insets.top - insets.bottom - BOTTOM_BAR_HEIGHT - HEADER_HEIGHT_APPROX;
+	const tileHeight = Math.max(MIN_TILE_HEIGHT, Math.floor(availableHeight / Math.max(players.length, 1)) - TILE_SPACING);
 
 	// ─── Render ───────────────────────────────────────────────────────────────
 

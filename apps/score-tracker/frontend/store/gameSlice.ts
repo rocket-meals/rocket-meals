@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { Player, Round, GameState } from '../helpers/GameStorage';
+import { PLAYER_COLORS } from '../helpers/GameStorage';
 export type { Player, Round, GameState };
+export { PLAYER_COLORS };
 
 // ─── State type ───────────────────────────────────────────────────────────────
 
@@ -15,17 +17,6 @@ const initialState: GameSliceState = {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-export const PLAYER_COLORS = [
-	'#2563eb', // blue
-	'#dc2626', // red
-	'#16a34a', // green
-	'#d97706', // amber
-	'#9333ea', // purple
-	'#0891b2', // cyan
-	'#e11d48', // rose
-	'#4f46e5', // indigo
-];
 
 function generateId(): string {
 	return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);

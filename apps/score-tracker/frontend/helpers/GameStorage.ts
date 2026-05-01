@@ -1,5 +1,18 @@
 import { File, Paths } from 'expo-file-system';
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+export const PLAYER_COLORS = [
+	'#2563eb', // blue
+	'#dc2626', // red
+	'#16a34a', // green
+	'#d97706', // amber
+	'#9333ea', // purple
+	'#0891b2', // cyan
+	'#e11d48', // rose
+	'#4f46e5', // indigo
+];
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type Player = {
@@ -46,10 +59,9 @@ export async function loadGameState(): Promise<GameState> {
 		const parsed = JSON.parse(content) as GameState;
 		if (Array.isArray(parsed.players) && Array.isArray(parsed.rounds)) {
 			// Migrate old players without a color field
-			const FALLBACK_COLORS = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2', '#e11d48', '#4f46e5'];
 			for (let i = 0; i < parsed.players.length; i++) {
 				if (!parsed.players[i].color) {
-					parsed.players[i].color = FALLBACK_COLORS[i % FALLBACK_COLORS.length];
+					parsed.players[i].color = PLAYER_COLORS[i % PLAYER_COLORS.length];
 				}
 			}
 			return parsed;
