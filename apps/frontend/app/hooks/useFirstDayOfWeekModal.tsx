@@ -10,7 +10,6 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { SET_FIRST_DAY_OF_THE_WEEK } from '@/redux/Types/types';
 import { CollectibleAt } from 'repo-depkit-common';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const FirstDayOfWeekSheet: React.FC<{ closeSheet: () => void }> = ({ closeSheet }) => {
 	const { translate } = useLanguage();
@@ -52,19 +51,15 @@ const FirstDayOfWeekSheet: React.FC<{ closeSheet: () => void }> = ({ closeSheet 
 
 export const useFirstDayOfWeekModal = () => {
 	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isRtl = !isLtrLanguage;
+	const { translate } = useLanguage();
 
 	const openFirstDayOfWeekModal = useCallback(() => {
 		showScrollViewModal({
 			title: translate(TranslationKeys.first_day_of_week),
 			onClose: closeScrollViewModal,
-			titleTextAlign: isRtl ? 'right' : 'left',
-			titleWritingDirection: isRtl ? 'rtl' : 'ltr',
 			children: <FirstDayOfWeekSheet closeSheet={closeScrollViewModal} />,
 		});
-	}, [closeScrollViewModal, isRtl, showScrollViewModal, translate]);
+	}, [closeScrollViewModal, showScrollViewModal, translate]);
 
 	return { openFirstDayOfWeekModal };
 };

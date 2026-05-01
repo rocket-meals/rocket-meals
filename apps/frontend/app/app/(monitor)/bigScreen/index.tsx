@@ -36,10 +36,7 @@ const Index = () => {
 	const { width, height } = Dimensions.get('window');
 	const imageSize = width / 2;
 	const [currentTime, setCurrentTime] = useState('');
-	const { markingsDict, foodCategoriesDict, foodOfferCategoriesDict } = useAppSelector((state) => state.food);
-	const markings = useMemo(() => Object.values(markingsDict || {}), [markingsDict]);
-	const foodCategories = useMemo(() => Object.values(foodCategoriesDict || {}), [foodCategoriesDict]);
-	const foodOfferCategories = useMemo(() => Object.values(foodOfferCategoriesDict || {}), [foodOfferCategoriesDict]);
+	const { markings, foodCategories, foodOfferCategories } = useAppSelector((state) => state.food);
 	const [logoStyle, setLogoStyle] = useState(styles.logo);
 	const { language, primaryColor: projectColor, appSettings, serverInfo } = useAppSelector((state) => state.settings);
 	const [foods, setFoods] = useState([]);
@@ -54,8 +51,7 @@ const Index = () => {
 	const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 	const mountTimeRef = useRef(Date.now());
 	const lastNonEmptyFoodsFetchTimeRef = useRef<number | null>(null);
-	const { canteensDict } = useAppSelector((state) => state.canteenReducer);
-	const canteens = useMemo(() => Object.values(canteensDict || {}), [canteensDict]);
+	const { canteens } = useAppSelector((state) => state.canteenReducer);
 	const [selectedCanteen, setSelectedCanteen] = useState<any>(null);
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
 
@@ -381,7 +377,7 @@ const Index = () => {
 												fontSize: screenWidth > 600 ? 14 : 12,
 											}}
 										>
-											{translate(TranslationKeys.offline)}
+											{'Offline'}
 										</Text>
 									</View>
 								)}

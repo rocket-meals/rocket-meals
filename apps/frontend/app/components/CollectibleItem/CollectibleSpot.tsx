@@ -1,5 +1,6 @@
 import React from 'react';
-import { CollectibleAtType } from 'repo-depkit-common';
+import { View } from 'react-native';
+import { CollectibleAt, CollectibleAtType } from 'repo-depkit-common';
 
 import CollectibleItem from './index';
 
@@ -10,13 +11,14 @@ type CollectibleSpotProps = {
 
 const CollectibleSpot: React.FC<CollectibleSpotProps> = ({ collectibleKey, isPreview }) => {
         return (
-                <CollectibleItem
-                        collectibleKey={collectibleKey}
-                        hideOnCollect={isPreview ? false : undefined}
-                        isPreview={isPreview}
-                        hideCounter
-                        wrapperStyle={{ alignItems: 'center', marginVertical: 8 }}
-                />
+                <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                        <CollectibleItem
+                                collectibleKey={collectibleKey}
+                                hideOnCollect={isPreview ? false : undefined}
+                                isPreview={isPreview}
+                                hideCounter
+                        />
+                </View>
         );
 };
 

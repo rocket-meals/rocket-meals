@@ -8,16 +8,10 @@ import { StatisticsCardProps } from './types';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/reducer';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const StatisticsCard: React.FC<StatisticsCardProps> = ({ food, handleImageSheet, setSelectedFoodId }) => {
 	const { theme } = useTheme();
-	const { translate } = useLanguage();
 	const { serverInfo, appSettings } = useAppSelector((state) => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 	const defaultImage = getImageUrl(String(appSettings.foods_placeholder_image)) || appSettings.foods_placeholder_image_remote_url || getImageUrl(serverInfo?.info?.project?.project_logo);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 
@@ -35,7 +29,7 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({ food, handleImageSheet,
 			style={{
 				...styles.container,
 				borderColor: theme.screen.icon,
-				flexDirection: screenWidth > 950 ? (isArabic ? 'row-reverse' : 'row') : 'column',
+				flexDirection: screenWidth > 950 ? 'row' : 'column',
 				height: screenWidth > 950 ? 180 : 190,
 			}}
 		>
@@ -44,7 +38,6 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({ food, handleImageSheet,
 					...styles.imageContainer,
 					width: screenWidth > 950 ? 178 : 90,
 					height: screenWidth > 950 ? 178 : 90,
-					...(isArabic && screenWidth <= 950 ? { alignSelf: 'flex-end' } : null),
 				}}
 			>
 				<MyImage
@@ -54,7 +47,7 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({ food, handleImageSheet,
 					defaultImageUrl={defaultImage}
 				/>
 				<TouchableOpacity
-					style={[styles.uploadImage, isArabic ? { left: undefined, right: 5 } : null]}
+					style={styles.uploadImage}
 					onPress={() => {
 						setSelectedFoodId(food?.id);
 						handleImageSheet();
@@ -70,19 +63,17 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({ food, handleImageSheet,
 					marginTop: screenWidth > 950 ? 0 : 10,
 				}}
 			>
-				<View style={{ ...styles.row, marginBottom: screenWidth > 950 ? 20 : 10, flexDirection: isArabic ? 'row-reverse' : 'row' }}>
-					<View style={{ ...styles.col, gap: screenWidth > 950 ? 10 : 5, flexDirection: isArabic ? 'row-reverse' : 'row' }}>
+				<View style={{ ...styles.row, marginBottom: screenWidth > 950 ? 20 : 10 }}>
+					<View style={{ ...styles.col, gap: screenWidth > 950 ? 10 : 5 }}>
 						<MaterialCommunityIcons name="chart-bar" color={theme.screen.icon} size={screenWidth > 950 ? 24 : 20} />
 						<Text
 							style={{
 								...styles.label,
 								color: theme.screen.text,
 								fontSize: screenWidth > 950 ? 18 : 12,
-								textAlign: isArabic ? 'right' : 'left',
-								writingDirection: isArabic ? 'rtl' : 'ltr',
 							}}
 						>
-							{translate(TranslationKeys.amount_ratings)}
+							Number of Ratings
 						</Text>
 					</View>
 					<Text
@@ -90,26 +81,22 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({ food, handleImageSheet,
 							...styles.value,
 							color: theme.screen.text,
 							fontSize: screenWidth > 950 ? 18 : 12,
-							textAlign: isArabic ? 'left' : 'right',
-							writingDirection: 'ltr',
 						}}
 					>
 						{food?.rating_amount}
 					</Text>
 				</View>
-				<View style={{ ...styles.row, marginBottom: screenWidth > 950 ? 20 : 10, flexDirection: isArabic ? 'row-reverse' : 'row' }}>
-					<View style={{ ...styles.col, gap: screenWidth > 950 ? 10 : 5, flexDirection: isArabic ? 'row-reverse' : 'row' }}>
+				<View style={{ ...styles.row, marginBottom: screenWidth > 950 ? 20 : 10 }}>
+					<View style={{ ...styles.col, gap: screenWidth > 950 ? 10 : 5 }}>
 						<MaterialCommunityIcons name="chart-areaspline" color={theme.screen.icon} size={screenWidth > 950 ? 24 : 20} />
 						<Text
 							style={{
 								...styles.label,
 								color: theme.screen.text,
 								fontSize: screenWidth > 950 ? 18 : 12,
-								textAlign: isArabic ? 'right' : 'left',
-								writingDirection: isArabic ? 'rtl' : 'ltr',
 							}}
 						>
-							{translate(TranslationKeys.average_rating)}
+							Average Rating
 						</Text>
 					</View>
 					<Text
@@ -117,8 +104,6 @@ const StatisticsCard: React.FC<StatisticsCardProps> = ({ food, handleImageSheet,
 							...styles.value,
 							color: theme.screen.text,
 							fontSize: screenWidth > 950 ? 18 : 12,
-							textAlign: isArabic ? 'left' : 'right',
-							writingDirection: 'ltr',
 						}}
 					>
 						{food?.rating_average?.toFixed(2)}

@@ -33,7 +33,6 @@ import { RootDrawerParamList } from './types';
 import CampusHeader from './components/CampusHeader';
 import CampusListHeader from './components/CampusListHeader';
 import CampusEmptyState from './components/CampusEmptyState';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import CardDimensionHelper from '@/helper/CardDimensionHelper';
 
 // Types
@@ -42,10 +41,9 @@ type BuildingWithDistance = DatabaseTypes.Buildings & { distance?: number };
 const Index: React.FC = () => {
 	useSetPageTitle(TranslationKeys.campus);
 	const { theme } = useTheme();
-	const isLtrLanguage = useIsLtrLanguage();
 	const toast = useToast();
 	const dispatch = useDispatch();
-	const { translate, language } = useLanguage();
+	const { translate } = useLanguage();
 	const { width: windowWidth } = useWindowDimensions();
 
 	// Refs for helpers to avoid recreation
@@ -151,7 +149,7 @@ const Index: React.FC = () => {
 			}
 			return null;
 		} catch (e) {
-			toast(translate(TranslationKeys.please_select_your_canteen), 'error');
+			toast('Please select canteen', 'error');
 			return null;
 		}
 	}, [buildingsHelper, selectedCanteen, toast]);
@@ -206,7 +204,7 @@ const Index: React.FC = () => {
 				setHasLoaded(true);
 			} catch (e) {
 				console.error('fetchAllCampuses error', e);
-			toast(translate(TranslationKeys.failedToLoadCampuses), 'error');
+				toast('Failed to load campuses', 'error');
 			} finally {
 				if (showLoading) setLoading(false);
 			}
@@ -279,7 +277,7 @@ const Index: React.FC = () => {
 		try {
 			const { status } = await Location.requestForegroundPermissionsAsync();
 			if (status !== 'granted') {
-				toast(translate(TranslationKeys.permission_denied_title), 'error');
+				toast('Permission denied', 'error');
 				return;
 			}
 			const loc = await Location.getCurrentPositionAsync({});
@@ -384,7 +382,7 @@ const Index: React.FC = () => {
 					translate={translate}
 					onToggleDrawer={toggleDrawer}
 					onSort={openCampusSortingModal}
-					drawerPosition={drawerPosition === 'system' ? (isLtrLanguage ? 'left' : 'right') : drawerPosition}
+					drawerPosition={drawerPosition}
 				/>
 
 				<View style={{ flex: 1, alignItems: 'center' }}>

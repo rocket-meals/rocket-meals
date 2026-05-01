@@ -1,12 +1,11 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useAppSelector } from '@/redux/hooks';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
 import BaseBottomModal from '@/components/BaseBottomModal';
-import AppButton from '@/components/AppButton';
 
 export interface DistanceModalProps {
 	visible: boolean;
@@ -25,21 +24,18 @@ const DistanceModal: React.FC<DistanceModalProps> = ({ visible, onClose, onUseCu
 		<BaseBottomModal visible={visible} onClose={onClose} title={translate(TranslationKeys.distance)}>
 			<View style={{ gap: 20, padding: 20 }}>
 				<Text style={{ color: theme.screen.text, textAlign: 'center' }}>{translate(TranslationKeys.distance_based_canteen_selection_or_if_asked_on_real_location)}</Text>
-				<AppButton
-					variant="ghost"
-					usePlainText
-					text={translate(TranslationKeys.use_current_position_for_distance)}
+				<TouchableOpacity
 					style={{
 						backgroundColor: housingAreaColor,
 						padding: 10,
 						borderRadius: 8,
 						alignItems: 'center',
-						marginVertical: 0,
 					}}
 					onPress={onUseCurrentPosition}
-					textStyle={{ color: contrastColor }}
-				/>
-				<Text style={{ color: theme.screen.text }}>{translate(TranslationKeys.distancePrivacyNotice)}</Text>
+				>
+					<Text style={{ color: contrastColor }}>{translate(TranslationKeys.use_current_position_for_distance)}</Text>
+				</TouchableOpacity>
+				<Text style={{ color: theme.screen.text }}>{'Wir teilen deinen aktuellen Standort nicht mit uns. Er wird ausschließlich auf deinem Handy verwendet, um die Entfernung zu berechnen. Aus Datenschutzgründen verlassen diese Daten niemals dein Gerät und werden nicht gespeichert. So kannst du sicher sein, dass deine Privatsphäre geschützt ist, während du den vollen Funktionsumfang testen kannst.'}</Text>
 			</View>
 		</BaseBottomModal>
 	);

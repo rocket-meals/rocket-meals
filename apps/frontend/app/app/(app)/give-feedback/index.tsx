@@ -9,7 +9,6 @@ import SettingsList from '@/components/SettingsList';
 import { MaterialIcons, Octicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAppSelector } from '@/redux/hooks';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const styles = StyleSheet.create({
 	container: {
@@ -38,10 +37,8 @@ const styles = StyleSheet.create({
 const GiveFeedback = () => {
 	useSetPageTitle(TranslationKeys.rueckmeldung_geben);
 	const { theme } = useTheme();
-	const { translate, language } = useLanguage();
+	const { translate } = useLanguage();
 	const { primaryColor } = useAppSelector((state) => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 
 	return (
 		<ScrollView
@@ -49,47 +46,20 @@ const GiveFeedback = () => {
 			contentContainerStyle={{ backgroundColor: theme.screen.background }}
 		>
 			<View style={styles.content}>
-				<Text
-					style={{
-						...styles.heading,
-						color: theme.screen.text,
-						textAlign: isArabic ? 'right' : 'left',
-						writingDirection: isArabic ? 'rtl' : 'ltr',
-					}}
-				>
-					{translate(TranslationKeys.rueckmeldung_geben)}
-				</Text>
+				<Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.rueckmeldung_geben)}</Text>
 
 				<View style={styles.groupContainer}>
-					<Text
-						style={{
-							...styles.description,
-							color: theme.screen.text,
-							textAlign: isArabic ? 'right' : 'left',
-							writingDirection: isArabic ? 'rtl' : 'ltr',
-						}}
-					>
-						{translate(TranslationKeys.rueckmeldung_rate_app_description)}
-					</Text>
+					<Text style={{ ...styles.description, color: theme.screen.text }}>{translate(TranslationKeys.rueckmeldung_rate_app_description)}</Text>
 					<RateAppSettingsItem />
 				</View>
 
 				<View style={styles.groupContainer}>
-					<Text
-						style={{
-							...styles.description,
-							color: theme.screen.text,
-							textAlign: isArabic ? 'right' : 'left',
-							writingDirection: isArabic ? 'rtl' : 'ltr',
-						}}
-					>
-						{translate(TranslationKeys.rueckmeldung_feedback_description)}
-					</Text>
+					<Text style={{ ...styles.description, color: theme.screen.text }}>{translate(TranslationKeys.rueckmeldung_feedback_description)}</Text>
 					<SettingsList
 						iconBgColor={primaryColor}
 						leftIcon={<MaterialIcons name="feedback" size={24} color={theme.screen.icon} />}
 						label={translate(TranslationKeys.feedback_and_support)}
-						rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />}
+						rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
 						handleFunction={() => router.navigate('/feedback-support')}
 						groupPosition="single"
 					/>

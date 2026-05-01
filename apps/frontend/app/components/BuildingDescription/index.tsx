@@ -6,53 +6,16 @@ import { useAppSelector } from '@/redux/hooks';
 import { getBuildingTranslationByLanguageCode } from '@/helper/resourceHelper';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const BuildingDescription: React.FC<any> = ({ campusDetails }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const { language } = useAppSelector((state) => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 
 	return (
 		<View style={styles.container}>
-			<Text
-				style={{
-					...styles.heading,
-					color: theme.screen.text,
-					textAlign: isArabic ? 'right' : 'left',
-					writingDirection: isArabic ? 'rtl' : 'ltr',
-					alignSelf: isArabic ? 'flex-end' : 'flex-start',
-				}}
-			>
-				{translate(TranslationKeys.description)}
-			</Text>
-			{campusDetails && campusDetails?.translations?.length > 0 ? (
-				<Text
-					style={{
-						...styles.body,
-						color: theme.screen.text,
-						textAlign: isArabic ? 'right' : 'left',
-						writingDirection: isArabic ? 'rtl' : 'ltr',
-						alignSelf: isArabic ? 'flex-end' : 'flex-start',
-					}}
-				>
-					{getBuildingTranslationByLanguageCode(campusDetails?.translations, language) || ''}
-				</Text>
-			) : (
-				<Text
-					style={{
-						...styles.body,
-						color: theme.screen.text,
-						textAlign: isArabic ? 'right' : 'left',
-						writingDirection: isArabic ? 'rtl' : 'ltr',
-						alignSelf: isArabic ? 'flex-end' : 'flex-start',
-					}}
-				>
-					{translate(TranslationKeys.missingTranslationContent)}
-				</Text>
-			)}
+			<Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.description)}</Text>
+			{campusDetails && campusDetails?.translations?.length > 0 ? <Text style={{ ...styles.body, color: theme.screen.text }}>{getBuildingTranslationByLanguageCode(campusDetails?.translations, language) || ''}</Text> : <Text style={{ ...styles.body, color: theme.screen.text }}>{'Missing translation(content)'}</Text>}
 		</View>
 	);
 };

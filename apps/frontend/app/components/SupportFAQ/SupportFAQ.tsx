@@ -4,8 +4,6 @@ import { Entypo, FontAwesome6, Ionicons, MaterialIcons } from '@expo/vector-icon
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTheme } from '@/hooks/useTheme';
 import styles from '../../app/(app)/support-FAQ/styles';
-import { useAppSelector } from '@/redux/hooks';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 type SupportFAQProps = {
 	icon?: string;
@@ -18,9 +16,6 @@ type SupportFAQProps = {
 
 const SupportFAQ: React.FC<SupportFAQProps> = ({ icon, label, text, onPress, isArrowRight = true, redirectIcon = true }) => {
 	const { theme } = useTheme();
-	const language = useAppSelector((state) => state.settings.language);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 
 	const renderIcon = (icon: string | undefined) => {
 		if (icon === 'feedback') {
@@ -46,20 +41,12 @@ const SupportFAQ: React.FC<SupportFAQProps> = ({ icon, label, text, onPress, isA
 	}, []);
 
 	return (
-		<TouchableOpacity style={{ ...styles.row, backgroundColor: theme.screen.iconBg, ...(isArabic ? { flexDirection: 'row-reverse' } : {}) }} onPress={onPress}>
-			<View style={[styles.leftView, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+		<TouchableOpacity style={{ ...styles.row, backgroundColor: theme.screen.iconBg }} onPress={onPress}>
+			<View style={styles.leftView}>
 				{icon && renderIcon(icon)}
-				<Text
-					style={[
-						styles.linkText,
-						{ color: theme.screen.text, fontSize: windowWidth < 500 ? 14 : 18 },
-						isArabic ? { marginLeft: 0, marginRight: 10, textAlign: 'right' } : undefined,
-					]}
-				>
-					{label}
-				</Text>
+				<Text style={[styles.linkText, { color: theme.screen.text, fontSize: windowWidth < 500 ? 14 : 18 }]}>{label}</Text>
 			</View>
-			<View style={[styles.textIcon, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+			<View style={styles.textIcon}>
 				{text && (
 					<Text
 						style={[
@@ -68,7 +55,6 @@ const SupportFAQ: React.FC<SupportFAQProps> = ({ icon, label, text, onPress, isA
 								color: theme.screen.text,
 								fontSize: windowWidth < 500 ? 14 : 18,
 							},
-							isArabic ? { marginRight: 0, marginLeft: 10, textAlign: 'left' } : undefined,
 						]}
 					>
 						{text}

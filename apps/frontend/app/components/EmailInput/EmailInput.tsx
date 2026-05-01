@@ -5,8 +5,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { isWeb } from '@/constants/Constants';
 import { TranslationKeys } from '@/locales/keys';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
-import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -32,9 +30,7 @@ const EmailInput = ({
 	suffix: string | null | undefined;
 }) => {
 	const { theme } = useTheme();
-	const isLtrLanguage = useIsLtrLanguage();
-	const { translate, language } = useLanguage();
-	const languageTextAlign = useLanguageTextAlign();
+	const { translate } = useLanguage();
 	const flag = !suffix && !prefix;
 
 	const validateEmail = (text: string) => {
@@ -73,7 +69,6 @@ const EmailInput = ({
 								width: isWeb ? '90%' : '80%',
 							},
 						{ color: theme.screen.text },
-						{ textAlign: languageTextAlign },
 					]}
 					cursorColor={theme.screen.text}
 					placeholderTextColor={theme.screen.placeholder}

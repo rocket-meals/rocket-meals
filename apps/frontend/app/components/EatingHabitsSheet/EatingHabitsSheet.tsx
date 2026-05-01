@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { isWeb } from '@/constants/Constants';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTheme } from '@/hooks/useTheme';
@@ -14,8 +14,7 @@ import { DatabaseTypes } from 'repo-depkit-common';
 const EatingHabitsSheet: React.FC<EatingHabitsSheetProps> = ({ closeSheet }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const markingsDict = useAppSelector(state => state.food.markingsDict);
-	const markings = useMemo(() => Object.values(markingsDict || {}), [markingsDict]);
+	const markings = useAppSelector(state => state.food.markings);
 	return (
 		<BottomSheetScrollView style={{ ...styles.sheetView, backgroundColor: theme.sheet.sheetBg }} contentContainerStyle={styles.contentContainer}>
 			<View

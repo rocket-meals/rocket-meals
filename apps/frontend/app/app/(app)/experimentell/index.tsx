@@ -3,24 +3,21 @@ import React, { useMemo } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
-import { Entypo, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import SettingsList from '@/components/SettingsList';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.experimentell);
-	const { translate, language } = useLanguage();
+	const { translate } = useLanguage();
     const { theme } = useTheme();
     const { buildingsDict } = useAppSelector((state) => state.canteenReducer);
     const { primaryColor } = useAppSelector((state) => state.settings);
 	const selectedCanteen = useSelectedCanteen();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 
 	const buildingPosition = useMemo(() => {
 		if (selectedCanteen?.building) {
@@ -37,12 +34,12 @@ const Index = () => {
 		{
 			key: 'edge-speech',
 			label: translate(TranslationKeys.edge_speech_test),
-			leftIcon: <MaterialIcons name="record-voice-over" size={24} color={theme.screen.icon} />,
+			leftIcon: <MaterialCommunityIcons name="text-to-speech" size={24} color={theme.screen.icon} />,
 			onPress: () => router.push('/experimentell/edge-speech'),
 		},
 		{
 			key: 'map-with-custom-images-and-buildings',
-			label: translate(TranslationKeys.map_custom_images_and_buildings),
+			label: 'Map – Custom Images & Buildings',
 			leftIcon: <MaterialCommunityIcons name="layers" size={24} color={theme.screen.icon} />,
 			onPress: () => router.push('/experimentell/map-with-custom-images-and-buildings'),
 		},
@@ -109,7 +106,7 @@ const Index = () => {
 
 		{
 			key: 'settings-list-components',
-			label: translate(TranslationKeys.settings_list_components),
+			label: 'SettingsList Komponenten',
 			leftIcon: <MaterialCommunityIcons name="format-list-bulleted" size={24} color={theme.screen.icon} />,
 			onPress: () => router.push('/experimentell/settings-list-components'),
 		},
@@ -154,9 +151,9 @@ const Index = () => {
 			}}
 		>
 			<View style={{ ...styles.content }}>
-				<Text style={{ ...styles.heading, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.experimentell)}</Text>
+				<Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.experimentell)}</Text>
 				{buildingPosition && (
-					<Text style={{ ...styles.body, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>
+					<Text style={{ ...styles.body, color: theme.screen.text }}>
 						{translate(TranslationKeys.coordinates)}: {buildingPosition.lat}, {buildingPosition.lng}
 					</Text>
 				)}
@@ -164,17 +161,7 @@ const Index = () => {
 					const totalItems = listItems.length;
 					const groupPosition = totalItems === 1 ? 'single' : index === 0 ? 'top' : index === totalItems - 1 ? 'bottom' : 'middle';
 
-					return (
-						<SettingsList
-							key={item.key}
-							iconBgColor={primaryColor}
-							leftIcon={item.leftIcon}
-							label={item.label}
-							rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
-							handleFunction={item.onPress}
-							groupPosition={groupPosition}
-						/>
-					);
+					return <SettingsList key={item.key} iconBgColor={primaryColor} leftIcon={item.leftIcon} label={item.label} rightIcon={<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />} handleFunction={item.onPress} groupPosition={groupPosition} />;
 				})}
 			</View>
 		</ScrollView>

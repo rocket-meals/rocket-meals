@@ -1,5 +1,5 @@
 import LabelHeader from '@/components/LabelHeader/LabelHeader';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, DimensionValue, Easing, ScrollView, Text, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useDispatch } from 'react-redux';
@@ -33,10 +33,7 @@ const Index = () => {
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
 	const rowHeight = 80;
-	const { markingsDict, foodCategoriesDict, foodOfferCategoriesDict } = useAppSelector((state) => state.food);
-	const markings = useMemo(() => Object.values(markingsDict || {}), [markingsDict]);
-	const localFoodCategories = useMemo(() => Object.values(foodCategoriesDict || {}), [foodCategoriesDict]);
-	const localFoodOfferCategories = useMemo(() => Object.values(foodOfferCategoriesDict || {}), [foodOfferCategoriesDict]);
+	const { markings, foodCategories: localFoodCategories, foodOfferCategories: localFoodOfferCategories } = useAppSelector((state) => state.food);
 	const canteenHelper = new CanteenHelper();
 	const buildingsHelper = new BuildingsHelper();
 	const foodAttributesHelper = new FoodAttributesHelper();
@@ -51,9 +48,8 @@ const Index = () => {
 	const [mainFoodCategories, setMainFoodCategories] = useState<any>({});
 	const [optionalFoodCategories, setOptionalFoodCategories] = useState<any>({});
 	const [selectedCanteen, setSelectedCanteen] = useState<any>(null);
-	const { canteensDict } = useAppSelector((state) => state.canteenReducer);
-	const canteens = useMemo(() => Object.values(canteensDict || {}), [canteensDict]);
 	const [selectedAdditionalCanteen, setSelectedAdditionalCanteen] = useState<DatabaseTypes.Canteens | null>(null);
+	const { canteens } = useAppSelector((state) => state.canteenReducer);
 	const { isManagement } = useAppSelector((state) => state.authReducer);
 	const { primaryColor: projectColor, language, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
 	const { foodAttributesDict } = useAppSelector((state) => state.foodAttributes);

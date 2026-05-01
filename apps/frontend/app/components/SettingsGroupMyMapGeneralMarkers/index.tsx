@@ -6,8 +6,6 @@ import { SET_OSM_VECTOR_MAP_POI_SUB_SETTINGS, SET_OSM_VECTOR_MAP_SHOW_SETTINGS }
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import SettingsListBoolean from '@/components/SettingsListBoolean';
 import { POI_SUBTYPES } from '@/components/MyMap/poiSubtypes';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
 
 const DEFAULT_SHOW_SETTINGS = { poi: true, transit: true, roadNames: true, leisure: true, barriers: false, parking: true };
 
@@ -17,7 +15,6 @@ const EmojiIcon: React.FC<{ emoji: string }> = ({ emoji }) => (
 
 const SettingsGroupMyMapGeneralMarkers: React.FC = () => {
     const dispatch = useDispatch();
-    const { translate } = useLanguage();
     const showSettings = useAppSelector(
         (state) => ((state.settings as any).osmVectorMapShowSettings ?? DEFAULT_SHOW_SETTINGS) as Record<string, boolean>,
     );
@@ -35,9 +32,9 @@ const SettingsGroupMyMapGeneralMarkers: React.FC = () => {
 
     return (
         <>
-            <SettingsGroupTitle>{translate(TranslationKeys.mapLayers)}</SettingsGroupTitle>
+            <SettingsGroupTitle>Karten-Ebenen</SettingsGroupTitle>
             <SettingsListBoolean
-                title={translate(TranslationKeys.shops_poi)}
+                title="Shops/POI"
                 leftIcon={<EmojiIcon emoji="🏪" />}
                 isEnabled={poiEnabled}
                 onToggle={() => toggle('poi')}
@@ -47,7 +44,7 @@ const SettingsGroupMyMapGeneralMarkers: React.FC = () => {
                 {POI_SUBTYPES.map((subtype) => (
                     <SettingsListBoolean
                         key={subtype.key}
-                        title={translate(subtype.labelKey)}
+                        title={subtype.label}
                         leftIcon={<EmojiIcon emoji={subtype.emoji} />}
                         isEnabled={poiSubSettings[subtype.key] ?? true}
                         onToggle={() => togglePoiSub(subtype.key)}
@@ -57,35 +54,35 @@ const SettingsGroupMyMapGeneralMarkers: React.FC = () => {
                 ))}
             </View>
             <SettingsListBoolean
-                title={translate(TranslationKeys.bus_transit)}
+                title="Bus/Transit"
                 leftIcon={<EmojiIcon emoji="🚌" />}
                 isEnabled={showSettings.transit ?? true}
                 onToggle={() => toggle('transit')}
                 groupPosition="middle"
             />
             <SettingsListBoolean
-                title={translate(TranslationKeys.sportAndLeisure)}
+                title="Sport & Freizeit"
                 leftIcon={<EmojiIcon emoji="🏊" />}
                 isEnabled={showSettings.leisure ?? true}
                 onToggle={() => toggle('leisure')}
                 groupPosition="middle"
             />
             <SettingsListBoolean
-                title={translate(TranslationKeys.barriersAndClosures)}
+                title="Barrieren & Sperren"
                 leftIcon={<EmojiIcon emoji="🚧" />}
                 isEnabled={showSettings.barriers ?? false}
                 onToggle={() => toggle('barriers')}
                 groupPosition="middle"
             />
             <SettingsListBoolean
-                title={translate(TranslationKeys.parking)}
+                title="Parkplätze"
                 leftIcon={<EmojiIcon emoji="🅿️" />}
                 isEnabled={showSettings.parking ?? true}
                 onToggle={() => toggle('parking')}
                 groupPosition="middle"
             />
             <SettingsListBoolean
-                title={translate(TranslationKeys.road_names)}
+                title="Straßennamen"
                 leftIcon={<EmojiIcon emoji="🛣️" />}
                 isEnabled={showSettings.roadNames ?? true}
                 onToggle={() => toggle('roadNames')}

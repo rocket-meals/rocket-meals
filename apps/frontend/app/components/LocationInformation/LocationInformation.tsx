@@ -11,15 +11,12 @@ import SettingsList from '@/components/SettingsList';
 
 import SettingsListCoordinate from '@/components/SettingsListCoordinate/SettingsListCoordinate';
 import { useAppSelector } from '@/redux/hooks';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const LocationInformation: React.FC<any> = ({ campusDetails }) => {
 	const { theme } = useTheme();
 	const toast = useToast();
 	const { translate } = useLanguage();
 	const { appSettings, primaryColor } = useAppSelector(state => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 	const campusAreaColor = appSettings?.campus_area_color ?? primaryColor;
 
 	const coordinates = campusDetails?.coordinates?.coordinates;
@@ -29,7 +26,7 @@ const LocationInformation: React.FC<any> = ({ campusDetails }) => {
 		const googleMapsUrl = campusDetails?.url;
 		const copied = await Clipboard.setStringAsync(googleMapsUrl);
 		if (copied) {
-			toast(translate(TranslationKeys.copied), 'success');
+			toast('Copied', 'success');
 		}
 	};
 
@@ -59,17 +56,7 @@ const LocationInformation: React.FC<any> = ({ campusDetails }) => {
 
 	return (
 		<View style={styles.container}>
-			<Text
-				style={{
-					...styles.heading,
-					color: theme.screen.text,
-					textAlign: isArabic ? 'right' : 'left',
-					writingDirection: isArabic ? 'rtl' : 'ltr',
-					alignSelf: isArabic ? 'flex-end' : 'flex-start',
-				}}
-			>
-				{translate(TranslationKeys.information)}
-			</Text>
+			<Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.information)}</Text>
 			<View style={{ gap: 0 }}>
 				{infoItems.map((item, index) => {
 					const groupPosition =

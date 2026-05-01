@@ -3,8 +3,6 @@ import { AppState, AppStateStatus, Text, View } from 'react-native';
 
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { useTheme } from '@/hooks/useTheme';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
 
 interface UseAppForegroundScrollViewModalOptions {
         autoRegister?: boolean;
@@ -14,19 +12,18 @@ const useAppForegroundScrollViewModal = ({ autoRegister = true }: UseAppForegrou
         const appState = useRef<AppStateStatus>(AppState.currentState);
         const { show } = useMyScrollViewModal();
         const { theme } = useTheme();
-        const { translate } = useLanguage();
 
         const handleAppForeground = useCallback(() => {
                 show({
                         children: (
                                 <View style={{ padding: 24 }}>
                                         <Text style={{ color: theme.screen.text, textAlign: 'center' }}>
-                                                {translate(TranslationKeys.appInForeground)}
+                                                App in den Vordergrund
                                         </Text>
                                 </View>
                         ),
                 });
-        }, [show, theme.screen.text, translate]);
+        }, [show, theme.screen.text]);
 
         useEffect(() => {
                 if (!autoRegister) return;

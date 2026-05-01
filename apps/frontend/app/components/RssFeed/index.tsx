@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
 
 export type RssFeedProps = {
 	urls?: string | string[];
@@ -40,7 +38,6 @@ const parseFeed = (xml: string) => {
 
 const RssFeed: React.FC<RssFeedProps> = ({ urls, switchIntervalInSeconds }) => {
 	const { theme } = useTheme();
-	const { translate } = useLanguage();
 	const [items, setItems] = useState<any[]>([]);
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -111,7 +108,7 @@ const RssFeed: React.FC<RssFeedProps> = ({ urls, switchIntervalInSeconds }) => {
 					},
 				]}
 			>
-				<Text style={{ color: theme.screen.text }}>{translate(TranslationKeys.noNews)}</Text>
+				<Text style={{ color: theme.screen.text }}>No News</Text>
 			</View>
 		);
 	}

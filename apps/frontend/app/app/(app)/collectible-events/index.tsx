@@ -62,15 +62,15 @@ const CollectibleEventsScreen = () => {
         const { theme } = useTheme();
         const { translate, language } = useLanguage();
         const { primaryColor } = useAppSelector((state) => state.settings);
-        const { collectibleEventsItemsDict, collectibleEventsDict = {} } = useAppSelector(
+        const { collectibleEvents, collectibleEventsDict = {} } = useAppSelector(
                 (state) => state.collectibleEvents
         );
         const debugMode = useDebugMode();
         const router = useRouter();
 
         const events = useMemo<DatabaseTypes.CollectibleEvents[]>(
-                () => Object.values(collectibleEventsItemsDict || {}) as DatabaseTypes.CollectibleEvents[],
-                [collectibleEventsItemsDict]
+                () => collectibleEvents || [],
+                [collectibleEvents]
         );
         const eventsWithProgress = useMemo(
                 () =>

@@ -12,12 +12,10 @@ import useSetPageTitle from '@/hooks/useSetPageTitle';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
 import { useAppSelector } from '@/redux/hooks';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const SupportFaq = () => {
 	useSetPageTitle(TranslationKeys.feedback_support_faq);
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
+	const { translate } = useLanguage();
     const { theme } = useTheme();
     const toast = useToast();
     const { profile } = useAppSelector((state) => state.authReducer);
@@ -51,7 +49,7 @@ const SupportFaq = () => {
 				if (supported) {
 					await Linking.openURL(url);
 				} else {
-					toast(translate(TranslationKeys.cannotOpenUrl).replace('${url}', url), 'error');
+					toast(`Cannot open URL: ${url}`, 'error');
 				}
 			}
 		} catch (error) {
@@ -74,16 +72,17 @@ const SupportFaq = () => {
 
 					<Text style={{ ...styles.groupHeading, color: theme.screen.text }}>{translate(TranslationKeys.feedback_support_faq)}</Text>
 					<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '95%' }]}>
-						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialIcons name="feedback" size={24} color={theme.screen.icon} />} label={`${translate(TranslationKeys.feedback)} & ${translate(TranslationKeys.support)}`} rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/feedback-support')} groupPosition={profile?.id ? 'top' : 'single'} />
-						{profile?.id && <SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="email" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.my_support_tickets)} rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/support-ticket')} groupPosition="bottom" />}
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialIcons name="feedback" size={24} color={theme.screen.icon} />} label={`${translate(TranslationKeys.feedback)} & ${translate(TranslationKeys.support)}`} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/feedback-support')} groupPosition={profile?.id ? 'top' : 'single'} />
+						{profile?.id && <SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="email" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.my_support_tickets)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/support-ticket')} groupPosition="bottom" />}
 					</View>
-					<Text style={{ ...styles.groupHeading, color: theme.screen.text }}>{translate(TranslationKeys.app)}</Text>
+
+					<Text style={{ ...styles.groupHeading, color: theme.screen.text }}>App</Text>
 					<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '95%' }]}>
 						<SettingsList
 							iconBgColor={primaryColor}
 							leftIcon={<Ionicons name="logo-apple" size={24} color={theme.screen.icon} />}
 							label="Apple Store"
-							rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
+							rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
 							handleFunction={() => {
 								if (appSettings?.app_stores_url_to_apple) {
 									openInBrowser(appSettings?.app_stores_url_to_apple);
@@ -95,7 +94,7 @@ const SupportFaq = () => {
 							iconBgColor={primaryColor}
 							leftIcon={<Ionicons name="logo-google-playstore" size={24} color={theme.screen.icon} />}
 							label="Google Play Store"
-							rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
+							rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
 							handleFunction={() => {
 								if (appSettings?.app_stores_url_to_google) {
 									openInBrowser(appSettings?.app_stores_url_to_google);
@@ -108,7 +107,7 @@ const SupportFaq = () => {
 							leftIcon={<MaterialCommunityIcons name="email" size={24} color={theme.screen.icon} />}
 							label={translate(TranslationKeys.email)}
 							value="info@rocket-meals.de"
-							rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
+							rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
 							handleFunction={() => {
 								Linking.openURL('mailto:info@rocket-meals.de');
 							}}
@@ -124,7 +123,7 @@ const SupportFaq = () => {
 							leftIcon={<MaterialIcons name="developer-mode" size={24} color={theme.screen.icon} />}
 							label={translate(TranslationKeys.developer)}
 							value="Baumgartner Software UG"
-							rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
+							rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
 							handleFunction={() => {
 								openInBrowser('https://baumgartner-software.de');
 							}}
@@ -135,7 +134,7 @@ const SupportFaq = () => {
                                                         leftIcon={<MaterialIcons name="apps" size={24} color={theme.screen.icon} />}
                                                         label={translate(TranslationKeys.software_name)}
                                                         value="Rocket Meals"
-							rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
+							rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
 							handleFunction={() => {
 								openInBrowser('https://rocket-meals.de');
 							}}

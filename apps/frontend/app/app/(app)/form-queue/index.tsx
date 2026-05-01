@@ -19,7 +19,6 @@ import { format, isValid, parse } from 'date-fns';
 import { uploadToDirectus, uploadToDirectusFromMobile } from '@/constants/HelperFunctions';
 import { Buffer } from 'buffer';
 import { fetchSpecificField } from '@/redux/actions/Fields/Fields';
-import AppButton from '@/components/AppButton';
 
 const Index = () => {
     useSetPageTitle(TranslationKeys.form_queue);
@@ -31,10 +30,10 @@ const Index = () => {
     const [isSyncingAll, setIsSyncingAll] = useState(false);
     const formsSubmissionsHelper = new FormsSubmissionsHelper();
     const formAnswersHelper = new FormAnswersHelper();
-    const { formQueueDict } = useAppSelector((state) => state.form);
+    const { formQueue } = useAppSelector((state) => state.form);
     const { primaryColor } = useAppSelector((state) => state.settings);
 
-    const queueEntries: FormQueueEntry[] = Object.values(formQueueDict || {});
+    const queueEntries: FormQueueEntry[] = formQueue || [];
 
     const syncQueueEntry = async (entry: FormQueueEntry) => {
         setSyncingId(entry.id);
@@ -186,10 +185,7 @@ const Index = () => {
                 <View style={{ width: isWeb ? '70%' : '90%' }}>
                     {/* Sync All button */}
                     {queueEntries.length > 0 && (
-                        <AppButton
-                            variant="ghost"
-                            usePlainText
-                            text={translate(TranslationKeys.form_queue_sync_all)}
+                        <TouchableOpacity
                             onPress={syncAllQueueEntries}
                             disabled={isSyncingAll || syncingId !== null}
                             style={{
@@ -202,11 +198,13 @@ const Index = () => {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 gap: 8,
-                                marginVertical: 0,
                             }}
-                            textStyle={{ color: '#fff', fontFamily: 'Poppins_700Bold', fontSize: 15 }}
-                            iconLeft={<MaterialCommunityIcons name="sync" size={20} color="#fff" />}
-                        />
+                        >
+                            <MaterialCommunityIcons name="sync" size={20} color="#fff" />
+                            <Text style={{ color: '#fff', fontFamily: 'Poppins_700Bold', fontSize: 15 }}>
+                                {translate(TranslationKeys.form_queue_sync_all)}
+                            </Text>
+                        </TouchableOpacity>
                     )}
 
                     {/* Queue list */}

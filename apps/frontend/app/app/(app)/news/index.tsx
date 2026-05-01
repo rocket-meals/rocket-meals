@@ -21,8 +21,7 @@ const Index = () => {
 	const newsHelper = new NewsHelper();
 	const [refreshing, setRefreshing] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const { newsDict } = useAppSelector((state) => state.news);
-	const news = useMemo(() => Object.values(newsDict || {}) as DatabaseTypes.News[], [newsDict]);
+	const { news } = useAppSelector((state) => state.news);
 
 	const onRefresh = useCallback(() => {
 		setRefreshing(true);
@@ -57,7 +56,7 @@ const Index = () => {
 	};
 
 	useEffect(() => {
-		if (!Object.keys(newsDict || {}).length) {
+		if (!news || news.length === 0) {
 			fetchAllNews();
 		}
 	}, []);

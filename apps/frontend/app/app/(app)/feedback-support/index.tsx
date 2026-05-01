@@ -22,13 +22,10 @@ import useMyScrollviewTextInputModal from '@/hooks/useMyScrollviewTextInputModal
 import { excerpt } from '@/constants/HelperFunctions';
 import SettingsListLikeDislike from '@/components/SettingsListLikeDislike';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const FeedbackScreen = () => {
 	useSetPageTitle(TranslationKeys.feedback_and_support);
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isRtl = !isLtrLanguage;
+	const { translate } = useLanguage();
 	const { theme } = useTheme();
 	const toast = useToast();
 	const appFeedback = new AppFeedback();
@@ -227,7 +224,7 @@ const FeedbackScreen = () => {
 				console.log('Set loading to false finished');
 				await fetchDeviceInfo();
 				console.log('Fetched device info after creating feedback');
-				toast(translate(TranslationKeys.feedbackSubmittedSuccessMessage), 'success');
+				toast('Feedback submitted successfully! Thank you for your input.', 'success');
 				console.log('Navigating to support ticket or FAQ');
 				if (profile?.id) {
 					router.navigate('/support-ticket');
@@ -242,7 +239,7 @@ const FeedbackScreen = () => {
 				} catch (jsonError) {
 					setErrorJson(String(e));
 				}
-				toast(`${translate(TranslationKeys.error)}: ${e?.message || e}`, 'error');
+				toast(`Error: ${e?.message || e}`, 'error');
 			}
 		}
 	};
@@ -266,7 +263,7 @@ const FeedbackScreen = () => {
 				await appFeedback.updateAppFeedback(String(app_feedbacks_id), sanitizedInput);
 				setLoading(false);
 				fetchDeviceInfo();
-				toast(translate(TranslationKeys.feedbackUpdatedSuccessMessage), 'success');
+				toast('Feedback updated successfully! Thank you for your input.', 'success');
 				router.navigate('/support-ticket');
 			} catch (e: any) {
 				setLoading(false);
@@ -276,7 +273,7 @@ const FeedbackScreen = () => {
 				} catch (jsonError) {
 					setErrorJson(String(e));
 				}
-				toast(`${translate(TranslationKeys.error)}: ${e?.message || e}`, 'error');
+				toast(`Error: ${e?.message || e}`, 'error');
 			}
 		}
 	};
@@ -297,8 +294,6 @@ const FeedbackScreen = () => {
 								fontSize: windowWidth > 600 ? (isWeb ? 20 : 24) : 24,
 								color: theme.screen.text,
 								padding: 15,
-								textAlign: isRtl ? 'right' : 'left',
-								writingDirection: isRtl ? 'rtl' : 'ltr',
 							}}
 						>
 							{translate(TranslationKeys.your_request)}
@@ -371,7 +366,6 @@ const FeedbackScreen = () => {
 									borderRadius: 10,
 									backgroundColor: primaryColor,
 									opacity: inputValues?.title?.length === 0 || inputValues?.content?.length === 0 ? 0.5 : 1,
-									flexDirection: isRtl ? 'row-reverse' : 'row',
 								},
 							]}
 							onPress={() => {
@@ -389,17 +383,13 @@ const FeedbackScreen = () => {
 								</View>
 							) : (
 								<>
-									<View style={[styles.leftView, { flex: 1, justifyContent: isRtl ? 'flex-end' : 'flex-start' }]}>
+									<View style={styles.leftView}>
 										<Text
 											style={[
 												styles.linkText,
 												{
 													color: contrastColor,
 													fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
-													textAlign: isRtl ? 'right' : 'left',
-													writingDirection: isRtl ? 'rtl' : 'ltr',
-													marginLeft: isRtl ? 0 : 10,
-													marginRight: isRtl ? 10 : 0,
 												},
 											]}
 										>
@@ -420,7 +410,6 @@ const FeedbackScreen = () => {
 									padding: 15,
 									borderRadius: 10,
 									backgroundColor: theme.screen.iconBg,
-									flexDirection: isRtl ? 'row-reverse' : 'row',
 								}}
 							>
 								<View style={styles.leftView}>
@@ -433,7 +422,7 @@ const FeedbackScreen = () => {
 											},
 										]}
 									>
-										{translate(TranslationKeys.profileId)}
+										Profile ID
 									</Text>
 								</View>
 
@@ -472,7 +461,7 @@ const FeedbackScreen = () => {
 											},
 										]}
 									>
-										{translate(TranslationKeys.profileId)}
+										Profile ID
 									</Text>
 								</View>
 
@@ -499,7 +488,7 @@ const FeedbackScreen = () => {
 								key={item.key}
 								iconBgColor={primaryColor}
 								label={translate(item.title as any)}
-								value={excerpt(String(item.key === 'device_brand' ? (inputValues[item.key] ? inputValues[item.key] : 'unknown') : inputValues[item.key] || ''), windowWidth > 850 ? 50 : 20)}
+								value={excerpt(String(item.key === 'device_brand' ? (inputValues[item.key] ? inputValues[item.key] : translate(TranslationKeys.unknown)) : inputValues[item.key] || ''), windowWidth > 850 ? 50 : 20)}
 								rightIcon={<MaterialCommunityIcons name="pencil" size={24} color={theme.screen.icon} />}
 								handleFunction={() => {
 									openFeedbackSheet({
@@ -510,8 +499,6 @@ const FeedbackScreen = () => {
 								}}
 								groupPosition={index === 0 ? 'top' : index === deviceSettingsItems.length - 1 ? 'bottom' : 'middle'}
 								noIconIndent
-								reverseLayout={false}
-								titleTextAlign="left"
 							/>
 						))}
 

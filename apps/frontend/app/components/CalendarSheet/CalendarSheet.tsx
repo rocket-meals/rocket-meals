@@ -17,19 +17,15 @@ import { StringHelper } from 'repo-depkit-common';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
 import { format, isValid, parse } from 'date-fns';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
-import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
 export const CalendarSheetContent: React.FC<CalendarSheetProps> = ({ closeSheet, onSelect, selectedDateProp, updateGlobal }) => {
     const { theme } = useTheme();
-    const isLtrLanguage = useIsLtrLanguage();
     const { translate } = useLanguage();
-	const languageTextAlign = useLanguageTextAlign();
     const dispatch = useDispatch();
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [manualDate, setManualDate] = useState('');
     const [manualError, setManualError] = useState('');
-    const { primaryColor, appSettings, selectedTheme: mode, firstDayOfTheWeek, language } = useAppSelector((state) => state.settings);
+    const { primaryColor, appSettings, selectedTheme: mode, firstDayOfTheWeek } = useAppSelector((state) => state.settings);
     const { selectedDate } = useAppSelector((state) => state.food);
     const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
     const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
@@ -119,7 +115,6 @@ export const CalendarSheetContent: React.FC<CalendarSheetProps> = ({ closeSheet,
                             backgroundColor: theme.sheet.inputBg,
                             borderColor: manualError ? theme.sheet.inputBorderInvalid : theme.sheet.inputBg,
                         },
-                        { textAlign: languageTextAlign },
                     ]}
                     cursorColor={theme.screen.text}
                     placeholderTextColor={theme.sheet.placeholder}

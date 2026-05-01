@@ -2,29 +2,13 @@ import { ADD_FORM_QUEUE_ENTRY, CLEAR_CACHED_FORM_DATA, CLEAR_FORM, CLEAR_FORM_QU
 import { CachedFormEntry, FormQueueEntry } from '@/redux/Types/stateTypes';
 import { DatabaseTypes } from 'repo-depkit-common';
 
-const arrayToDict = <T>(payload: unknown, getKey: (item: any, index: number) => string | null): Record<string, T> => {
-	if (!payload) return {};
-	if (!Array.isArray(payload)) return payload as Record<string, T>;
-	return payload.reduce((acc: Record<string, T>, item: any, index: number) => {
-		const key = getKey(item, index);
-		if (key) {
-			acc[key] = item;
-		}
-		return acc;
-	}, {});
-};
-
-const idKey = (item: any) => (item?.id ? String(item.id) : null);
-
-const byFormSubmissionIdKey = (item: any) => (item?.form_submission_id ? String(item.form_submission_id) : idKey(item));
-
 const initialState = {
 	filterBy: 'draft',
 	formSubmission: {},
-	formQueueDict: {} as Record<string, FormQueueEntry>,
+	formQueue: [] as FormQueueEntry[],
 	cachedFormData: {} as Record<string, CachedFormEntry>,
-	cachedFormCategoriesDict: {} as Record<string, DatabaseTypes.FormCategories>,
-	cachedFormsDict: {} as Record<string, Record<string, DatabaseTypes.Forms>>,
+	cachedFormCategories: [] as DatabaseTypes.FormCategories[],
+	cachedForms: {} as Record<string, DatabaseTypes.Forms[]>,
 };
 
 const formReducer = (state = initialState, actions: any) => {
@@ -42,57 +26,31 @@ const formReducer = (state = initialState, actions: any) => {
 			};
 		}
 		case ADD_FORM_QUEUE_ENTRY: {
-			const key = byFormSubmissionIdKey(actions.payload);
-			if (!key) {
-				return state;
+			const queue = state.formQueue || [];
+			const existingIndex = queue.findIndex((entry: FormQueueEntry) => entry.form_submission_id === actions.payload.form_submission_id);
+			if (existingIndex !== -1) {
+				const updated = [...queue];
+				updated[existingIndex] = actions.payload;
+				return { ...state, formQueue: updated };
 			}
-			return {
-				...state,
-				formQueueDict: {
-					...(state.formQueueDict || {}),
-					[key]: actions.payload,
-				},
-			};
+			return { ...state, formQueue: [...queue, actions.payload] };
 		}
 		case REMOVE_FORM_QUEUE_ENTRY: {
-			const idToRemove = String(actions.payload ?? '');
-			const updated = { ...(state.formQueueDict || {}) };
-			Object.keys(updated).forEach((key) => {
-				const entry = updated[key];
-				if (String(entry?.id) === idToRemove || String(entry?.form_submission_id) === idToRemove) {
-					delete updated[key];
-				}
-			});
 			return {
 				...state,
-				formQueueDict: updated,
+				formQueue: (state.formQueue || []).filter((entry: FormQueueEntry) => entry.id !== actions.payload),
 			};
 		}
 		case UPDATE_FORM_QUEUE_ENTRY: {
-			const payload = actions.payload;
-			const idToUpdate = String(payload?.id ?? '');
-			const updated = { ...(state.formQueueDict || {}) };
-			let updatedKey: string | null = null;
-
-			Object.keys(updated).forEach((key) => {
-				const entry = updated[key];
-				if (String(entry?.id) === idToUpdate) {
-					updated[key] = { ...entry, ...payload };
-					updatedKey = key;
-				}
-			});
-
-			if (!updatedKey) {
-				const key = byFormSubmissionIdKey(payload);
-				if (key) {
-					updated[key] = payload;
-				}
-			}
-
-			return { ...state, formQueueDict: updated };
+			return {
+				...state,
+				formQueue: (state.formQueue || []).map((entry: FormQueueEntry) =>
+					entry.id === actions.payload.id ? { ...entry, ...actions.payload } : entry
+				),
+			};
 		}
 		case CLEAR_FORM_QUEUE: {
-			return { ...state, formQueueDict: {} };
+			return { ...state, formQueue: [] };
 		}
 		case SET_CACHED_FORM_DATA: {
 			const { form_id, form, submissions, answers } = actions.payload;
@@ -108,19 +66,15 @@ const formReducer = (state = initialState, actions: any) => {
 			return { ...state, cachedFormData: {} };
 		}
 		case SET_CACHED_FORM_CATEGORIES: {
-			return {
-				...state,
-				cachedFormCategoriesDict: arrayToDict(actions.payload, (item, index) => idKey(item) ?? `idx:${index}`),
-			};
+			return { ...state, cachedFormCategories: actions.payload };
 		}
 		case SET_CACHED_FORMS: {
 			const { category_id, forms } = actions.payload;
-			const formsDict = arrayToDict(forms, (item, index) => idKey(item) ?? `idx:${index}`);
 			return {
 				...state,
-				cachedFormsDict: {
-					...(state.cachedFormsDict || {}),
-					[String(category_id)]: formsDict,
+				cachedForms: {
+					...(state.cachedForms || {}),
+					[category_id]: forms,
 				},
 			};
 		}
