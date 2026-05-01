@@ -5,6 +5,7 @@ import { File, Paths } from 'expo-file-system';
 export type Player = {
 	id: string;
 	name: string;
+	color: string;
 };
 
 export type Round = {
@@ -44,6 +45,13 @@ export async function loadGameState(): Promise<GameState> {
 		const content = await file.text();
 		const parsed = JSON.parse(content) as GameState;
 		if (Array.isArray(parsed.players) && Array.isArray(parsed.rounds)) {
+			// Migrate old players without a color field
+			const FALLBACK_COLORS = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#9333ea', '#0891b2', '#e11d48', '#4f46e5'];
+			for (let i = 0; i < parsed.players.length; i++) {
+				if (!parsed.players[i].color) {
+					parsed.players[i].color = FALLBACK_COLORS[i % FALLBACK_COLORS.length];
+				}
+			}
 			return parsed;
 		}
 		return { players: [], rounds: [] };

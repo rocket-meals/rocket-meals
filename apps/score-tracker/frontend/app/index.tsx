@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,59 +14,18 @@ import { useNavigation } from 'expo-router';
 import {
 	addPlayer,
 	renamePlayer,
+	setPlayerColor,
 	removePlayer,
 	setScore,
 	addRound,
 	resetScores,
 	resetAll,
+	PLAYER_COLORS,
 } from '../store/gameSlice';
 import type { AppDispatch, RootState } from '../store/store';
 
 const PRIMARY_COLOR = '#2563eb';
 const DANGER_COLOR = '#dc2626';
-const CELL_MIN_WIDTH = 80;
-const HEADER_HEIGHT = 40;
-const ROW_HEIGHT = 44;
-
-// ─── Score Cell ───────────────────────────────────────────────────────────────
-
-function ScoreCell({
-	value,
-	onPress,
-	isTotal,
-}: {
-	value: number | null;
-	onPress?: () => void;
-	isTotal?: boolean;
-}) {
-	const { theme } = useTheme();
-	return (
-		<TouchableOpacity
-			style={[
-				styles.cell,
-				{
-					backgroundColor: isTotal ? theme.header.background : theme.screen.background,
-					borderColor: theme.screen.border,
-				},
-			]}
-			onPress={onPress}
-			disabled={!onPress}
-			activeOpacity={onPress ? 0.6 : 1}
-		>
-			<Text
-				style={[
-					styles.cellText,
-					{
-						color: theme.screen.text,
-						fontWeight: isTotal ? '700' : '400',
-					},
-				]}
-			>
-				{value != null ? String(value) : '–'}
-			</Text>
-		</TouchableOpacity>
-	);
-}
 
 // ─── Score Input Modal Content ────────────────────────────────────────────────
 
@@ -167,7 +126,7 @@ function ScoreInputContent({
 				onPress={handleSave}
 				activeOpacity={0.8}
 			>
-				<Text style={styles.scoreInputSaveText}>Save</Text>
+				<Text style={styles.scoreInputSaveText}>Speichern</Text>
 			</TouchableOpacity>
 			<View style={styles.quickButtonsRow}>
 				{QUICK_SCORES.map((v) => (
@@ -193,11 +152,80 @@ function ScoreInputContent({
 	);
 }
 
+// ─── Color Picker Row ─────────────────────────────────────────────────────────
+
+function ColorPickerRow({
+	selectedColor,
+	onSelect,
+}: {
+	selectedColor: string;
+	onSelect: (color: string) => void;
+}) {
+	return (
+		<View style={styles.colorPickerRow}>
+			{PLAYER_COLORS.map((color) => (
+				<TouchableOpacity
+					key={color}
+					style={[
+						styles.colorCircle,
+						{ backgroundColor: color },
+						selectedColor === color && styles.colorCircleSelected,
+					]}
+					onPress={() => onSelect(color)}
+					activeOpacity={0.7}
+				>
+					{selectedColor === color && (
+						<Ionicons name="checkmark" size={20} color="#ffffff" />
+					)}
+				</TouchableOpacity>
+			))}
+		</View>
+	);
+}
+
+// ─── Player Tile ──────────────────────────────────────────────────────────────
+
+function PlayerTile({
+	name,
+	score,
+	color,
+	isLeader,
+	onPress,
+	tileHeight,
+}: {
+	name: string;
+	score: number;
+	color: string;
+	isLeader: boolean;
+	onPress: () => void;
+	tileHeight: number;
+}) {
+	return (
+		<TouchableOpacity
+			style={[styles.playerTile, { backgroundColor: color, height: tileHeight }]}
+			onPress={onPress}
+			activeOpacity={0.8}
+		>
+			{isLeader && (
+				<View style={styles.leaderBadge}>
+					<Ionicons name="trophy" size={28} color="#fbbf24" />
+				</View>
+			)}
+			<Text style={styles.playerTileName} numberOfLines={2}>
+				{name}
+			</Text>
+			<Text style={styles.playerTileScore}>{score}</Text>
+			<Text style={styles.playerTileLabel}>Punkte</Text>
+		</TouchableOpacity>
+	);
+}
+
 // ─── Game Screen ──────────────────────────────────────────────────────────────
 
 export default function GameScreen() {
 	const { theme } = useTheme();
 	const insets = useSafeAreaInsets();
+	const { height: windowHeight } = useWindowDimensions();
 	const dispatch = useDispatch<AppDispatch>();
 	const players = useSelector((state: RootState) => state.game.players);
 	const rounds = useSelector((state: RootState) => state.game.rounds);
@@ -220,6 +248,23 @@ export default function GameScreen() {
 		}
 		return result;
 	}, [players, rounds]);
+
+	// Find the leader (player with the highest score)
+	const leaderId = useMemo(() => {
+		if (players.length === 0) return null;
+		let maxScore = -Infinity;
+		let maxId: string | null = null;
+		for (const player of players) {
+			const total = totals[player.id] ?? 0;
+			if (total > maxScore) {
+				maxScore = total;
+				maxId = player.id;
+			}
+		}
+		// Only show leader if at least one player has > 0 points
+		if (maxScore <= 0) return null;
+		return maxId;
+	}, [players, totals]);
 
 	// Rounds reversed (newest first)
 	const reversedRounds = useMemo(() => [...rounds].reverse(), [rounds]);
@@ -248,7 +293,7 @@ export default function GameScreen() {
 	}, [dispatch]);
 
 	const handleOpenPlayerModal = useCallback(
-		(playerId: string, playerName: string) => {
+		(playerId: string, playerName: string, playerColor: string) => {
 			showModal({
 				title: playerName,
 				children: (
@@ -260,6 +305,33 @@ export default function GameScreen() {
 							onSave={(newName) => {
 								dispatch(renamePlayer({ playerId, name: newName }));
 								closeModal();
+							}}
+							groupPosition="top"
+						/>
+						<View style={styles.colorPickerSection}>
+							<Text style={[styles.colorPickerLabel, { color: theme.screen.text }]}>Farbe ändern</Text>
+							<ColorPickerRow
+								selectedColor={playerColor}
+								onSelect={(color) => {
+									dispatch(setPlayerColor({ playerId, color }));
+									closeModal();
+								}}
+							/>
+						</View>
+						<SettingsList
+							label="Punkte eintragen"
+							leftIcon={<Ionicons name="add-circle-outline" size={20} color="#ffffff" />}
+							iconBgColor={PRIMARY_COLOR}
+							handleFunction={() => {
+								closeModal();
+								// Open score input for the latest round, or create a round first
+								if (rounds.length === 0) {
+									dispatch(addRound());
+								}
+								const latestRound = rounds.length > 0 ? rounds[rounds.length - 1] : null;
+								if (latestRound) {
+									handleOpenScoreInput(latestRound.id, playerId, latestRound.scores[playerId] ?? null);
+								}
 							}}
 							groupPosition="top"
 						/>
@@ -277,7 +349,7 @@ export default function GameScreen() {
 				),
 			});
 		},
-		[showModal, closeModal, dispatch],
+		[showModal, closeModal, dispatch, rounds, theme.screen.text],
 	);
 
 	const handleOpenDeleteModal = useCallback(() => {
@@ -348,76 +420,32 @@ export default function GameScreen() {
 		);
 	}
 
-	// ─── Render ───────────────────────────────────────────────────────────────
+	// ─── Compute tile height so tiles fill the screen ─────────────────────────
 
-	const labelWidth = 80;
+	const BOTTOM_BAR_HEIGHT = 68;
+	const availableHeight = windowHeight - insets.top - insets.bottom - BOTTOM_BAR_HEIGHT - 56; // 56 for header approx
+	const tileHeight = Math.max(140, Math.floor(availableHeight / Math.max(players.length, 1)) - 12);
+
+	// ─── Render ───────────────────────────────────────────────────────────────
 
 	return (
 		<View style={[styles.container, { backgroundColor: theme.screen.background, paddingLeft: insets.left, paddingRight: insets.right }]}>
-			{/* Horizontally scrollable table */}
-			<View style={styles.tableWrapper}>
-				{/* Row label column (fixed) */}
-				<View style={styles.labelColumn}>
-					<View style={[styles.labelCell, styles.headerLabelCell, { borderColor: theme.screen.border }]}>
-						<Text style={[styles.labelText, { color: theme.screen.text }]}> </Text>
-					</View>
-					<View style={[styles.labelCell, { borderColor: theme.screen.border, backgroundColor: theme.header.background }]}>
-						<Text style={[styles.labelText, { color: theme.screen.text, fontWeight: '700' }]}>Gesamt</Text>
-					</View>
-					{reversedRounds.map((round, index) => (
-						<View key={round.id} style={[styles.labelCell, { borderColor: theme.screen.border }]}>
-							<Text style={[styles.labelText, { color: theme.screen.text }]}>
-								R{rounds.length - index}
-							</Text>
-						</View>
-					))}
-				</View>
-
-				{/* Scrollable data columns */}
-				<ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dataScrollH}>
-					<View>
-						{/* Player name header row */}
-						<View style={styles.dataRow}>
-							{players.map((player) => (
-								<TouchableOpacity
-									key={player.id}
-									style={[styles.cell, styles.headerCell, { borderColor: theme.screen.border, backgroundColor: theme.header.background }]}
-									onPress={() => handleOpenPlayerModal(player.id, player.name)}
-									activeOpacity={0.7}
-								>
-									<Text style={[styles.cellText, { color: theme.header.text, fontWeight: '600' }]} numberOfLines={1}>
-										{player.name}
-									</Text>
-								</TouchableOpacity>
-							))}
-						</View>
-
-						{/* Totals row */}
-						<View style={styles.dataRow}>
-							{players.map((player) => (
-								<ScoreCell key={player.id} value={totals[player.id] ?? 0} isTotal />
-							))}
-						</View>
-
-						{/* Round rows in a vertical scroll */}
-						<ScrollView style={styles.roundsScroll} showsVerticalScrollIndicator>
-							{reversedRounds.map((round) => (
-								<View key={round.id} style={styles.dataRow}>
-									{players.map((player) => (
-										<ScoreCell
-											key={`${round.id}-${player.id}`}
-											value={round.scores[player.id] ?? null}
-											onPress={() =>
-												handleOpenScoreInput(round.id, player.id, round.scores[player.id] ?? null)
-											}
-										/>
-									))}
-								</View>
-							))}
-						</ScrollView>
-					</View>
-				</ScrollView>
-			</View>
+			<ScrollView
+				contentContainerStyle={styles.tilesContainer}
+				showsVerticalScrollIndicator={false}
+			>
+				{players.map((player) => (
+					<PlayerTile
+						key={player.id}
+						name={player.name}
+						score={totals[player.id] ?? 0}
+						color={player.color || PRIMARY_COLOR}
+						isLeader={player.id === leaderId}
+						onPress={() => handleOpenPlayerModal(player.id, player.name, player.color || PRIMARY_COLOR)}
+						tileHeight={tileHeight}
+					/>
+				))}
+			</ScrollView>
 
 			{/* Bottom bar: "Nächste Runde" button */}
 			<View style={[styles.bottomBar, { borderTopColor: theme.screen.border, paddingBottom: insets.bottom + 12 }]}>
@@ -463,48 +491,39 @@ const styles = StyleSheet.create({
 	headerButton: {
 		padding: 4,
 	},
-	tableWrapper: {
-		flex: 1,
-		flexDirection: 'row',
+	tilesContainer: {
+		padding: 12,
+		gap: 12,
 	},
-	labelColumn: {
-		width: 80,
-	},
-	labelCell: {
-		height: ROW_HEIGHT,
+	playerTile: {
+		borderRadius: 20,
+		padding: 24,
 		justifyContent: 'center',
 		alignItems: 'center',
-		borderWidth: 0.5,
+		position: 'relative',
 	},
-	headerLabelCell: {
-		height: HEADER_HEIGHT,
+	leaderBadge: {
+		position: 'absolute',
+		top: 16,
+		right: 16,
 	},
-	labelText: {
-		fontSize: 12,
+	playerTileName: {
+		fontSize: 26,
+		fontWeight: '700',
+		color: '#ffffff',
+		textAlign: 'center',
+		marginBottom: 8,
+	},
+	playerTileScore: {
+		fontSize: 52,
+		fontWeight: '800',
+		color: '#ffffff',
+	},
+	playerTileLabel: {
+		fontSize: 16,
 		fontWeight: '500',
-	},
-	dataScrollH: {
-		flex: 1,
-	},
-	dataRow: {
-		flexDirection: 'row',
-	},
-	cell: {
-		minWidth: CELL_MIN_WIDTH,
-		height: ROW_HEIGHT,
-		justifyContent: 'center',
-		alignItems: 'center',
-		borderWidth: 0.5,
-		paddingHorizontal: 8,
-	},
-	headerCell: {
-		height: HEADER_HEIGHT,
-	},
-	cellText: {
-		fontSize: 14,
-	},
-	roundsScroll: {
-		flex: 1,
+		color: 'rgba(255,255,255,0.8)',
+		marginTop: 4,
 	},
 	bottomBar: {
 		flexDirection: 'row',
@@ -512,6 +531,50 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 		paddingVertical: 12,
 		borderTopWidth: 1,
+		gap: 12,
+	},
+	nextRoundButton: {
+		flex: 1,
+		height: 44,
+		borderRadius: 8,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	nextRoundText: {
+		color: '#ffffff',
+		fontSize: 16,
+		fontWeight: '600',
+	},
+	modalContent: {
+		padding: 10,
+	},
+	colorPickerSection: {
+		paddingHorizontal: 16,
+		paddingVertical: 12,
+	},
+	colorPickerLabel: {
+		fontSize: 15,
+		fontWeight: '600',
+		marginBottom: 10,
+	},
+	colorPickerRow: {
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		gap: 10,
+	},
+	colorCircle: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	colorCircleSelected: {
+		borderWidth: 3,
+		borderColor: '#ffffff',
+	},
+	scoreInputContainer: {
+		padding: 16,
 		gap: 12,
 	},
 	signToggle: {
@@ -529,25 +592,6 @@ const styles = StyleSheet.create({
 	signButtonText: {
 		fontSize: 22,
 		fontWeight: '700',
-	},
-	nextRoundButton: {
-		flex: 1,
-		height: 44,
-		borderRadius: 8,
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	nextRoundText: {
-		color: '#ffffff',
-		fontSize: 16,
-		fontWeight: '600',
-	},
-	modalContent: {
-		padding: 10,
-	},
-	scoreInputContainer: {
-		padding: 16,
-		gap: 12,
 	},
 	scoreInputField: {
 		flexDirection: 'row',
