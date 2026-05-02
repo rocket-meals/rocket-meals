@@ -627,4 +627,5 @@ export enum TranslationKeys {
 	food_Plan_Day = 'foodPlanDay',
 	Food_Plan_List = 'FoodPlan:List',
 	debugErrors = 'debugErrors',
+	avatar_showcase = 'avatar_showcase',
 }

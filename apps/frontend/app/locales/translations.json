@@ -6076,5 +6076,15 @@
     "ru": "Выключено",
     "tr": "Kapalı",
     "zh": "关闭"
+  },
+  "avatar_showcase": {
+    "de": "Avatar Showcase",
+    "en": "Avatar Showcase",
+    "ar": "عرض الصور الرمزية",
+    "es": "Galería de Avatares",
+    "fr": "Vitrine d'Avatars",
+    "ru": "Витрина аватаров",
+    "tr": "Avatar Vitrini",
+    "zh": "头像展示"
   }
 }
