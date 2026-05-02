@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MyAvatar, { AvatarStyle, AvatarSize, STYLE_MAP } from '../MyAvatar';
 import { Style } from '@dicebear/core';
@@ -53,78 +53,29 @@ function getStyleComponentOptions(style: AvatarStyle): Record<string, string[]> 
 	return result;
 }
 
-type AvatarConfigListener = (config: AvatarConfig) => void;
-
-/** Shared mutable store so the sticky header avatar can react to config changes from the scrollable content. */
-class AvatarConfigStore {
-	private config: AvatarConfig;
-	private listeners: Set<AvatarConfigListener> = new Set();
-
-	constructor(initial: AvatarConfig) {
-		this.config = initial;
-	}
-
-	getConfig(): AvatarConfig {
-		return this.config;
-	}
-
-	update(config: AvatarConfig): void {
-		this.config = config;
-		this.listeners.forEach((fn) => fn(config));
-	}
-
-	subscribe(fn: AvatarConfigListener): () => void {
-		this.listeners.add(fn);
-		return () => {
-			this.listeners.delete(fn);
-		};
-	}
-}
-
-/** Sticky avatar preview that subscribes to config changes from the editor content below. */
-const AvatarStickyHeader: React.FC<{ store: AvatarConfigStore }> = ({ store }) => {
-	const [config, setConfig] = useState<AvatarConfig>(store.getConfig());
-
-	useEffect(() => {
-		return store.subscribe(setConfig);
-	}, [store]);
-
-	return (
-		<View style={styles.avatarContainer}>
-			<MyAvatar
-				seed={config.seed}
-				style={config.style}
-				size={AvatarSize.XLARGE}
-				borderRadius={AvatarSize.XLARGE / 2}
-				options={config.options}
-			/>
-		</View>
-	);
-};
-
 type AvatarEditorModalContentProps = {
+	initialConfig: AvatarConfig;
 	accentColor?: string;
-	store: AvatarConfigStore;
 	configRef: React.MutableRefObject<AvatarConfig>;
 };
 
 const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
+	initialConfig,
 	accentColor,
-	store,
 	configRef,
 }) => {
-	const [config, setConfig] = useState<AvatarConfig>(store.getConfig());
+	const [config, setConfig] = useState<AvatarConfig>(initialConfig);
 
 	const handleChange = (newConfig: AvatarConfig) => {
 		setConfig(newConfig);
 		configRef.current = newConfig;
-		store.update(newConfig);
 	};
 
 	const componentOptions = useMemo(() => getStyleComponentOptions(config.style), [config.style]);
 	const componentKeys = useMemo(() => Object.keys(componentOptions), [componentOptions]);
 
 	const handleStyleChange = (newStyle: AvatarStyle) => {
+		// Reset options when style changes since different styles have different options
 		handleChange({ ...config, style: newStyle, options: undefined });
 	};
 
@@ -141,6 +92,16 @@ const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
 
 	return (
 		<View style={styles.content}>
+			<View style={styles.avatarContainer}>
+				<MyAvatar
+					seed={config.seed}
+					style={config.style}
+					size={AvatarSize.XLARGE}
+					borderRadius={AvatarSize.XLARGE / 2}
+					options={config.options}
+				/>
+			</View>
+
 			<SettingsListGroupTitle title="Seed" />
 			<SettingsListTextInput
 				label="Seed"
@@ -218,20 +179,16 @@ export const useAvatarEditorModal = () => {
 	const showAvatarEditor = useCallback(
 		(initialConfig: AvatarConfig, onClose: (config: AvatarConfig) => void, options?: UseAvatarEditorModalOptions) => {
 			configRef.current = { ...initialConfig };
-			const store = new AvatarConfigStore(initialConfig);
 
 			show({
 				title: options?.title ?? 'Avatar Editor',
 				onClose: () => {
 					onClose(configRef.current);
 				},
-				stickyHeaderComponent: (
-					<AvatarStickyHeader store={store} />
-				),
 				children: (
 					<AvatarEditorModalContent
+						initialConfig={initialConfig}
 						accentColor={options?.accentColor}
-						store={store}
 						configRef={configRef}
 					/>
 				),
