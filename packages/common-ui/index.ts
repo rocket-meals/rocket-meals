@@ -35,6 +35,9 @@ export type { SettingsListSelectOptionSingleProps } from './src/components/Setti
 export { default as SettingsListSelectOption } from './src/components/SettingsListSelectOption';
 export type { SettingsListSelectOptionProps, SettingsListSelectOptionItem } from './src/components/SettingsListSelectOption';
 
+export { default as SettingsListSelectLeftRight } from './src/components/SettingsListSelectLeftRight';
+export type { SettingsListSelectLeftRightProps } from './src/components/SettingsListSelectLeftRight';
+
 export { default as SettingsListLikeDislikeFast } from './src/components/SettingsListLikeDislikeFast';
 export type { SettingsListLikeDislikeFastProps } from './src/components/SettingsListLikeDislikeFast';
 
