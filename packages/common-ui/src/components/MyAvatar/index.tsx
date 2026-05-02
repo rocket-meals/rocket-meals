@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Image, View, StyleSheet } from 'react-native';
 import { createAvatar } from '@dicebear/core';
+import type { Style } from '@dicebear/core';
 import * as collection from '@dicebear/collection';
 
 /**
@@ -62,7 +63,7 @@ export interface MyAvatarProps {
 /**
  * Maps the MyAvatarStyle enum to the corresponding @dicebear/collection style object.
  */
-const STYLE_MAP: Record<MyAvatarStyle, any> = {
+const STYLE_MAP: Record<MyAvatarStyle, Style<{}>> = {
 	[MyAvatarStyle.ADVENTURER]: collection.adventurer,
 	[MyAvatarStyle.ADVENTURER_NEUTRAL]: collection.adventurerNeutral,
 	[MyAvatarStyle.AVATAAARS]: collection.avataaars,

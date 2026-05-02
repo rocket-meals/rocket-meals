@@ -3,6 +3,7 @@ import { ScrollView, Text, View, Pressable, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
+import { useLanguage } from '@/hooks/useLanguage';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { TranslationKeys } from '@/locales/keys';
 import { MyAvatar, MyAvatarStyle, MyAvatarShape } from 'repo-depkit-common-ui';
@@ -13,6 +14,7 @@ const ALL_SHAPES = Object.values(MyAvatarShape);
 
 const AvatarShowcase = () => {
 	useSetPageTitle(TranslationKeys.avatar_showcase);
+	const { translate } = useLanguage();
 	const { theme } = useTheme();
 	const { primaryColor } = useAppSelector((state) => state.settings);
 
@@ -46,7 +48,7 @@ const AvatarShowcase = () => {
 			style={{ flex: 1, backgroundColor: theme.screen.background }}
 			contentContainerStyle={{ padding: 20 }}
 		>
-			<Text style={{ ...localStyles.heading, color: theme.screen.text }}>Avatar Showcase</Text>
+			<Text style={{ ...localStyles.heading, color: theme.screen.text }}>{translate(TranslationKeys.avatar_showcase)}</Text>
 
 			{/* Main Avatar Preview */}
 			<View style={localStyles.previewContainer}>
