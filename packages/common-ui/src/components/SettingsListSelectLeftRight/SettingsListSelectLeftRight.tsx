@@ -54,10 +54,10 @@ const SettingsListSelectLeftRight = <T extends string | number>({
 
 	const rightElement = (
 		<>
-			<TouchableOpacity onPress={handlePrevious} style={styles.arrowButton} hitSlop={8}>
+			<TouchableOpacity onPress={handlePrevious} style={styles.arrowButton} hitSlop={8} accessibilityLabel="Previous option" accessibilityRole="button">
 				<MaterialCommunityIcons name="chevron-left" size={ARROW_SIZE} color={arrowColor} />
 			</TouchableOpacity>
-			<TouchableOpacity onPress={handleNext} style={styles.arrowButton} hitSlop={8}>
+			<TouchableOpacity onPress={handleNext} style={styles.arrowButton} hitSlop={8} accessibilityLabel="Next option" accessibilityRole="button">
 				<MaterialCommunityIcons name="chevron-right" size={ARROW_SIZE} color={arrowColor} />
 			</TouchableOpacity>
 		</>

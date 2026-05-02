@@ -69,7 +69,6 @@ const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
 				groupPosition="single"
 			/>
 
-			<SettingsListGroupTitle label="Style" />
 			<SettingsListSelectLeftRight
 				options={AVATAR_STYLE_OPTIONS}
 				selectedOption={config.style}
@@ -79,7 +78,6 @@ const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
 				groupPosition="single"
 			/>
 
-			<SettingsListGroupTitle label="Size" />
 			<SettingsListSelectLeftRight
 				options={AVATAR_SIZE_OPTIONS}
 				selectedOption={config.size}
