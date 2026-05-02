@@ -27,9 +27,6 @@ import {
 import CustomMenuHeader from '@/components/CustomMenuHeader/CustomMenuHeader';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import DebugView from "@/components/DebugView";
-import AppButton from '@/components/AppButton';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
-import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 import useCollectibleEventCongratulationsModal from '@/hooks/useCollectibleEventCongratulationsModal';
 import useDebugMode from '@/hooks/useDebugMode';
 
@@ -87,22 +84,19 @@ const formatCollectibleLabel = (key: string) =>
                 .join(' ');
 
 const DebugSection: React.FC<DebugSectionProps> = ({
-        activeCollectibleEvent,
-        theme,
-        buttonColor,
-        resetCurrentCollectibles,
-        resetAllParticipations,
-        simulateAllFound,
-        simulateNextFound,
-        nextCollectibleKey,
-        debugSpotLabel,
-}) => {
-        const { translate } = useLanguage();
-        const isLtrLanguage = useIsLtrLanguage();
-        const languageTextAlign = useLanguageTextAlign();
+                                                           activeCollectibleEvent,
+                                                           theme,
+                                                           buttonColor,
+                                                           resetCurrentCollectibles,
+                                                           resetAllParticipations,
+                                                           simulateAllFound,
+                                                           simulateNextFound,
+                                                           nextCollectibleKey,
+                                                           debugSpotLabel,
+                                                   }) => {
         return (
             <View style={{ marginTop: 16 }}>
-                    <Text style={{ ...styles.label, color: theme.screen.text, marginBottom: 8 }}>{translate(TranslationKeys.debug)}</Text>
+                    <Text style={{ ...styles.label, color: theme.screen.text, marginBottom: 8 }}>Debug</Text>
                     <View style={{ marginTop: 12, gap: 8 }}>
                             <TouchableOpacity
                                 style={{
@@ -131,21 +125,31 @@ const DebugSection: React.FC<DebugSectionProps> = ({
                                     </Text>
                             </TouchableOpacity>
 
-                            <AppButton
-                                text={translate(TranslationKeys.reset_current_event_found_collectible)}
+                            <TouchableOpacity
+                                style={{
+                                        ...styles.button,
+                                        backgroundColor: buttonColor,
+                                        opacity: 0.9,
+                                }}
                                 onPress={resetCurrentCollectibles}
-                                style={{ ...styles.button, backgroundColor: buttonColor, opacity: 0.9, marginVertical: 0 }}
-                                textStyle={{ ...styles.buttonText, color: theme.dark }}
-                                usePlainText
-                            />
+                            >
+                                    <Text style={{ ...styles.buttonText, color: theme.dark }}>
+                                            Reset current event found collectible
+                                    </Text>
+                            </TouchableOpacity>
 
-                            <AppButton
-                                text={translate(TranslationKeys.reset_all_event_participations)}
+                            <TouchableOpacity
+                                style={{
+                                        ...styles.button,
+                                        backgroundColor: theme.accent,
+                                        opacity: 0.9,
+                                }}
                                 onPress={resetAllParticipations}
-                                style={{ ...styles.button, backgroundColor: theme.accent, opacity: 0.9, marginVertical: 0 }}
-                                textStyle={{ ...styles.buttonText, color: theme.dark }}
-                                usePlainText
-                            />
+                            >
+                                    <Text style={{ ...styles.buttonText, color: theme.dark }}>
+                                            Reset all event participations
+                                    </Text>
+                            </TouchableOpacity>
                     </View>
 
                     {nextCollectibleKey ? (
@@ -158,7 +162,7 @@ const DebugSection: React.FC<DebugSectionProps> = ({
                     {activeCollectibleEvent ? (
                         <View style={{ marginTop: 12 }}>
                                 <Text style={{ ...styles.info, color: theme.screen.text, marginBottom: 4 }}>
-                                        {translate(TranslationKeys.event_details)}
+                                        Event Details
                                 </Text>
                                 <SettingsList
                                     key="event-id"
@@ -199,8 +203,6 @@ const CollectibleEventScreen = () => {
         const { theme } = useTheme();
         const toast = useToast();
         const { translate, language } = useLanguage();
-        const isLtrLanguage = useIsLtrLanguage();
-	const languageTextAlign = useLanguageTextAlign();
         const { profile, loggedIn } = useAppSelector((state) => state.authReducer);
         const { primaryColor } = useAppSelector((state) => state.settings);
         const buttonColor = primaryColor || theme.primary;
@@ -428,12 +430,12 @@ const CollectibleEventScreen = () => {
                         return;
                 }
 
-                const pointsToSave = displayedCollectedCount ?? 0;
+                const pointsToSave = displayedCollectedCount;
 
                 setIsSaving(true);
                 try {
                 const updatePayload: Partial<DatabaseTypes.CollectibleEventParticipants> = {
-                        points: String(pointsToSave),
+                        points: pointsToSave,
                         email: email?.trim() || null,
                         phone_number: phoneNumber?.trim() || null,
                         data: collectibleDict,
@@ -488,8 +490,8 @@ const CollectibleEventScreen = () => {
                                 );
 
                                 if (existing?.id) {
-                                        await participantsHelper.updateItem(existing.id, { points: '0', data: {} });
-                                        setParticipation(prev => (prev ? { ...prev, points: '0', data: {} } : prev));
+                                        await participantsHelper.updateItem(existing.id, { points: 0, data: {} });
+                                        setParticipation(prev => (prev ? { ...prev, points: 0, data: {} } : prev));
                                         toast(translate(TranslationKeys.reset), 'success');
                                 }
                         } catch (error) {
@@ -610,7 +612,6 @@ const CollectibleEventScreen = () => {
                                                     color: theme.screen.text,
                                                     backgroundColor: theme.drawerBg,
                                                     borderColor: theme.screen.icon,
-                                                    textAlign: languageTextAlign,
                                             }}
                                             value={email}
                                             onChangeText={setEmail}
@@ -629,7 +630,6 @@ const CollectibleEventScreen = () => {
                                                     color: theme.screen.text,
                                                     backgroundColor: theme.drawerBg,
                                                     borderColor: theme.screen.icon,
-                                                    textAlign: languageTextAlign,
                                             }}
                                             value={phoneNumber}
                                             onChangeText={setPhoneNumber}
@@ -642,14 +642,21 @@ const CollectibleEventScreen = () => {
                                                 {translate(TranslationKeys.collectible_event_data_notice)}
                                         </Text>
 
-                                        <AppButton
-                                            text={isSaving ? translate(TranslationKeys.loading) : translate(TranslationKeys.save)}
-                                            onPress={handleSave}
+                                        <TouchableOpacity
+                                            style={{
+                                                    ...styles.button,
+                                                    backgroundColor: buttonColor,
+                                                    opacity: isSaving ? 0.6 : 1,
+                                            }}
                                             disabled={isSaving}
-                                            style={{ ...styles.button, backgroundColor: buttonColor, opacity: isSaving ? 0.6 : 1, marginVertical: 0 }}
-                                            textStyle={{ ...styles.buttonText, color: theme.dark }}
-                                            usePlainText
-                                        />
+                                            onPress={handleSave}
+                                        >
+                                                <Text style={{ ...styles.buttonText, color: theme.dark }}>
+                                                        {isSaving
+                                                            ? translate(TranslationKeys.loading)
+                                                            : translate(TranslationKeys.save)}
+                                                </Text>
+                                        </TouchableOpacity>
                                 </View>
                             ) : null}
 
@@ -718,15 +725,15 @@ const CollectibleEventScreen = () => {
                                     <View style={{ marginTop: 16 }}>
                                             <Text
                                                 style={{
-                                                    ...styles.label,
-                                                    color: theme.screen.text,
-                                                    marginBottom: 8,
-                                            }}
-                                        >
-                                                {translate(TranslationKeys.debug_logs)}
-                                        </Text>
-                                        <View style={{ gap: 6 }}>
-                                                {debugLogs.map((log, index) => (
+                                                        ...styles.label,
+                                                        color: theme.screen.text,
+                                                        marginBottom: 8,
+                                                }}
+                                            >
+                                                    Debug Logs
+                                            </Text>
+                                            <View style={{ gap: 6 }}>
+                                                    {debugLogs.map((log, index) => (
                                                         <Text
                                                             // eslint-disable-next-line react/no-array-index-key
                                                             key={`debug-log-${index}`}
@@ -734,10 +741,10 @@ const CollectibleEventScreen = () => {
                                                         >
                                                                 {log}
                                                         </Text>
-                                                ))}
-                                        </View>
-                                </View>
-                        </DebugView>
+                                                    ))}
+                                            </View>
+                                    </View>
+                            </DebugView>
 
                             {isLoading ? (
                                 <View style={[styles.inline, { justifyContent: 'flex-start' }]}>

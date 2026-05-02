@@ -101,10 +101,10 @@ export default StyleSheet.create({
 	confirmButton: {
 		width: '100%',
 		height: 52,
+		backgroundColor: '#FCDE31',
 		justifyContent: 'center',
 		alignItems: 'center',
 		borderRadius: 50,
-		marginVertical: 0
 	},
 	cancleButton: {
 		width: '100%',

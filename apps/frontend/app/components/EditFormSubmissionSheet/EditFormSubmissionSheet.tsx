@@ -1,4 +1,4 @@
-import { Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import styles from './styles';
@@ -12,15 +12,10 @@ import { DatabaseTypes } from 'repo-depkit-common';
 import { SET_FORM_SUBMISSION } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
 import { useAppSelector } from '@/redux/hooks';
-import AppButton from '@/components/AppButton';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
-import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
 const EditFormSubmissionSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
 	const { theme } = useTheme();
-	const isLtrLanguage = useIsLtrLanguage();
-	const { translate, language } = useLanguage();
-	const languageTextAlign = useLanguageTextAlign();
+	const { translate } = useLanguage();
 	const dispatch = useDispatch();
 	const { formSubmission } = useAppSelector((state) => state.form);
 	const [alias, setAlias] = useState(formSubmission ? formSubmission?.alias : '');
@@ -71,25 +66,29 @@ const EditFormSubmissionSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
 						...styles.inputContainer,
 					}}
 				>
-					<TextInput style={[styles.input, { color: theme.screen.text }, { textAlign: languageTextAlign }]} cursorColor={theme.screen.text} placeholderTextColor={theme.screen.placeholder} onChangeText={setAlias} value={alias || ''} placeholder={translate(TranslationKeys.type_here)} />
+					<TextInput style={[styles.input, { color: theme.screen.text }]} cursorColor={theme.screen.text} placeholderTextColor={theme.screen.placeholder} onChangeText={setAlias} value={alias || ''} placeholder="Type here..." />
 				</View>
 				<View style={styles.actionContainer}>
-					<AppButton
-						text={translate(TranslationKeys.cancel)}
+					<TouchableOpacity
+						style={{
+							...styles.button,
+							backgroundColor: theme.screen.iconBg,
+							borderColor: theme.screen.text,
+						}}
 						onPress={closeSheet}
-						variant="outline"
-						style={{ ...styles.button, backgroundColor: theme.screen.iconBg, borderColor: theme.screen.text }}
-						textStyle={{ ...styles.buttonLabel, color: theme.screen.text }}
-					/>
-					<AppButton
-						text={translate(TranslationKeys.save)}
+					>
+						<Text style={{ ...styles.buttonLabel, color: theme.screen.text }}>{translate(TranslationKeys.cancel)}</Text>
+					</TouchableOpacity>
+					<TouchableOpacity
+						style={{
+							...styles.button,
+							backgroundColor: primaryColor,
+							borderColor: primaryColor,
+						}}
 						onPress={handleChangeAlias}
-						loading={loading}
-						loadingIndicatorColor={theme.screen.text}
-						loadingIndicatorSize={22}
-						style={{ ...styles.button, backgroundColor: primaryColor, borderColor: primaryColor }}
-						textStyle={{ ...styles.buttonLabel, color: theme.activeText }}
-					/>
+					>
+						{loading ? <ActivityIndicator size={22} color={theme.screen.text} /> : <Text style={{ ...styles.buttonLabel, color: theme.activeText }}>{translate(TranslationKeys.save)}</Text>}
+					</TouchableOpacity>
 				</View>
 			</View>
 		</BottomSheetScrollView>

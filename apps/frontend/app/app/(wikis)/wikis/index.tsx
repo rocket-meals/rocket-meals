@@ -1,5 +1,5 @@
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
@@ -13,20 +13,15 @@ import { AppScreens, DatabaseTypes } from 'repo-depkit-common';
 import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const Index = () => {
 	const { theme } = useTheme();
 	const { translate, translateDynamic } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
 	const [wiki, setWiki] = useState<DatabaseTypes.Wikis>();
 	const [loading, setLoading] = useState(true);
-	const { wikisDict, language, primaryColor, drawerPosition } = useAppSelector((state) => state.settings);
-	const wikis = useMemo(() => Object.values(wikisDict || {}) as DatabaseTypes.Wikis[], [wikisDict]);
+	const { wikis, language, primaryColor } = useAppSelector((state) => state.settings);
 	const { deviceMock } = useGlobalSearchParams();
 	const { custom_id, id } = useLocalSearchParams();
-	const resolvedDrawerPosition = drawerPosition === 'system' ? (isLtrLanguage ? 'left' : 'right') : drawerPosition;
-	const isArabicRight = !isLtrLanguage && resolvedDrawerPosition === 'right';
 	//Set Page Title
 	const title = wiki?.translations ? translateDynamic(getTitleFromTranslation(wiki?.translations, language)) : 'Wikis';
 	useSetPageTitle(title);
@@ -65,12 +60,12 @@ const Index = () => {
 					paddingHorizontal: isWeb ? 20 : 10,
 				}}
 			>
-				<View style={[styles.row, isArabicRight ? { justifyContent: 'flex-end' } : undefined]}>
-					<View style={[styles.col1, isArabicRight ? { flexDirection: 'row-reverse' } : undefined]}>
+				<View style={styles.row}>
+					<View style={styles.col1}>
 						<TouchableOpacity onPress={() => router.navigate(('/(app)/' + AppScreens.FOOD_OFFERS) as any)} style={{ padding: 10 }}>
-							<Ionicons name={isArabicRight ? 'arrow-forward' : 'arrow-back'} size={24} color={theme.header.text} />
+							<Ionicons name="arrow-back" size={24} color={theme.header.text} />
 						</TouchableOpacity>
-						<Text style={{ ...styles.heading, color: theme.header.text, ...(isArabicRight ? { textAlign: 'right' } : {}) }}>{wiki?.translations && translateDynamic(getTitleFromTranslation(wiki?.translations, language))}</Text>
+						<Text style={{ ...styles.heading, color: theme.header.text }}>{wiki?.translations && translateDynamic(getTitleFromTranslation(wiki?.translations, language))}</Text>
 					</View>
 				</View>
 			</View>

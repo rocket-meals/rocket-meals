@@ -16,9 +16,12 @@
     "react-native-qrcode-svg": "*",
     "react-native-reanimated": "*",
     "react-native-safe-area-context": "*",
+    "react-native-svg": "*",
     "react-native-webview": "*"
   },
   "dependencies": {
+    "@dicebear/collection": "^9.4.2",
+    "@dicebear/core": "^9.4.2",
     "repo-depkit-common": "workspace:*",
     "tinycolor2": "^1.6.0"
   },

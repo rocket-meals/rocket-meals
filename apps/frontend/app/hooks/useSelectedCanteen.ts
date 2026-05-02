@@ -7,15 +7,14 @@ import { shallowEqual } from 'react-redux';
 export default function useSelectedCanteen() {
 	const kioskMode = useKioskMode();
 	const { canteens_id } = useGlobalSearchParams<{ canteens_id?: string }>();
-	const { canteensDict, selectedCanteen } = useAppSelector((state) => ({
-		canteensDict: state.canteenReducer.canteensDict,
+	const { canteens, selectedCanteen } = useAppSelector((state) => ({
+		canteens: state.canteenReducer.canteens,
 		selectedCanteen: state.canteenReducer.selectedCanteen
 	}), shallowEqual);
-	const canteens = useMemo(() => Object.values(canteensDict || {}), [canteensDict]);
 
 	return useMemo(() => {
 		if (canteens_id) {
-			const found = canteensDict?.[String(canteens_id)] ?? canteens.find(c => String(c.id) === String(canteens_id));
+			const found = canteens.find(c => String(c.id) === String(canteens_id));
 			if (found) {
 				return found;
 			}
@@ -29,12 +28,12 @@ export default function useSelectedCanteen() {
 		}
 
 		if (selectedCanteen) {
-			const exists = canteensDict?.[String(selectedCanteen.id)] ?? canteens.find(c => String(c.id) === String(selectedCanteen.id));
+			const exists = canteens.find(c => String(c.id) === String(selectedCanteen.id));
 			if (exists) {
 				return exists;
 			}
 		}
 
 		return null;
-	}, [kioskMode, canteens_id, canteens, canteensDict, selectedCanteen]);
+	}, [kioskMode, canteens_id, canteens, selectedCanteen]);
 }

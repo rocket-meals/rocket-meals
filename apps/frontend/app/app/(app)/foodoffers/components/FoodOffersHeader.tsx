@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { View, Text, Platform, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Platform, useWindowDimensions } from 'react-native';
 import { Ionicons, MaterialIcons, FontAwesome6, Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import { useNavigation, useRouter } from 'expo-router';
@@ -7,7 +7,6 @@ import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import IconButton from '@/components/UI/IconButton';
-import AppButton from '@/components/AppButton';
 import { TranslationKeys } from '@/locales/keys';
 import { excerpt } from '@/constants/HelperFunctions';
 import { isWeb } from '@/constants/Constants';
@@ -92,14 +91,15 @@ const FoodOffersHeader: React.FC<FoodOffersHeaderProps> = ({
                         </TooltipContent>
                     </CustomTooltip>
 
-                    <AppButton
-                        variant="ghost"
-                        usePlainText
-                        text={excerpt(String(selectedCanteen?.alias), screenWidth > 800 ? 30 : 10) || translate(TranslationKeys.food_offers)}
+                    <TouchableOpacity
                         onPress={() => openSheet('canteen')}
-                        style={[iconPaddingStyle, { marginVertical: 0 }]}
-                        textStyle={[styles.heading, { color: theme.header.text }]}
-                    />
+                        activeOpacity={0.7}
+                        style={iconPaddingStyle}
+                    >
+                        <Text style={[styles.heading, { color: theme.header.text }]}>
+                            {excerpt(String(selectedCanteen?.alias), screenWidth > 800 ? 30 : 10) || 'Food Offers'}
+                        </Text>
+                    </TouchableOpacity>
                 </View>
 
                 <View style={[styles.col2, col2GapStyle, drawerPosition === 'right' && styles.rowReverse]}>
@@ -165,7 +165,7 @@ const FoodOffersHeader: React.FC<FoodOffersHeaderProps> = ({
                 </View>
             </View>
 
-            <View style={rowStyle}>
+            <View style={styles.row}>
                 <View style={[styles.col2, col2GapStyle2]}>
                     <CustomTooltip
                         placement="top"

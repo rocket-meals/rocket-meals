@@ -8,23 +8,19 @@ import { myContrastColor } from '@/helper/ColorHelper';
 import { useAppSelector } from '@/redux/hooks';
 import { useTheme } from '@/hooks/useTheme';
 import { StringHelper } from 'repo-depkit-common';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const CustomMarkdown: React.FC<CustomMarkdownProps> = ({ content, backgroundColor, imageWidth, imageHeight }) => {
 	const { theme } = useTheme();
-	const { primaryColor, selectedTheme: mode, language } = useAppSelector((state) => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
+	const { primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
 
 	const getContent = () => {
 		// Regex patterns for different content types
 		const contentPatterns = {
-			email: /\[([^\]]+)]\s*\((mailto:[^\)]+)\)/,
-			link: /\[([^\]]+)]\s*\((https?:\/\/[^\)]+)\)/,
+			email: /\[([^\]]+)]\((mailto:[^\)]+)\)/,
+			link: /\[([^\]]+)]\((https?:\/\/[^\)]+)\)/,
 			image: /!\[([^\]]*)]\(([^)]+)\)/,
 			heading: /^#{1,3}\s*(.*)$/,
 		};
-		const urlPattern = /(https?:\/\/[^\s)]+)(?=[)\s]|$)/g;
 
 		if (content) {
 			const rawText = content;
@@ -36,22 +32,6 @@ const CustomMarkdown: React.FC<CustomMarkdownProps> = ({ content, backgroundColo
 				const result: any[] = [];
 				const stack: Array<{ level: number; items: any[] }> = [{ level: 0, items: result }];
 				let currentParagraph: Array<{ text: string; indent: number }> = [];
-
-				const sanitizeUrl = (value: string) => {
-					let url = value.trim();
-					while (url.endsWith(')') || url.endsWith(']') || url.endsWith('}') || url.endsWith(',') || url.endsWith('.') || url.endsWith('،') || url.endsWith('؛')) {
-						url = url.slice(0, -1);
-					}
-					return url;
-				};
-
-				const fallbackLinkLabel = (url: string) => {
-					if (!url) return url;
-					if (url.includes('apps.apple.com')) return 'App Store (Apple)';
-					if (url.includes('play.google.com')) return 'Apps on Google Play';
-					if (url.includes('mocca.stw-d.de')) return 'https://mocca.stw-d.de/mocca.website';
-					return url;
-				};
 
 				const flushTextContent = () => {
 					if (currentParagraph.length) {
@@ -165,28 +145,6 @@ const CustomMarkdown: React.FC<CustomMarkdownProps> = ({ content, backgroundColo
 						continue;
 					}
 
-					const urls = Array.from(trimmedForMatch.matchAll(urlPattern)).map(match => sanitizeUrl(match[1] || '')).filter(Boolean);
-					if (urls.length > 0) {
-						flushTextContent();
-						const textWithoutUrls = urls.reduce((acc, url) => acc.replace(url, ''), trimmedLine).replace(/\s{2,}/g, ' ').trim();
-						if (textWithoutUrls) {
-							stack[stack.length - 1].items.push({
-								type: 'text',
-								content: textWithoutUrls,
-								indent: indentLength,
-							});
-						}
-						urls.forEach((url) => {
-							stack[stack.length - 1].items.push({
-								type: 'link',
-								displayText: fallbackLinkLabel(url),
-								url,
-								indent: indentLength,
-							});
-						});
-						continue;
-					}
-
 					currentParagraph.push({
 						text: trimmedLine,
 						indent: indentLength,
@@ -198,9 +156,6 @@ const CustomMarkdown: React.FC<CustomMarkdownProps> = ({ content, backgroundColo
 			};
 
 			const calculateMarginLeft = (level: number, indent = 0) => level * 16 + indent * 4;
-			const calculateMarginRight = (level: number, indent = 0) => level * 16 + indent * 4;
-			const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 
 			// Component for rendering text with proper formatting
 			const TextContent = ({ text, level, indent }: { text: string; level: number; indent: number }) => (
@@ -209,10 +164,8 @@ const CustomMarkdown: React.FC<CustomMarkdownProps> = ({ content, backgroundColo
 						fontSize: 16,
 						fontFamily: 'Poppins_400Regular',
 						color: theme.screen.text,
-						...(isArabic
-							? { marginLeft: 0, marginRight: 0, textAlign: 'right', alignSelf: 'flex-end', writingDirection: 'rtl' }
-							: { marginLeft: calculateMarginLeft(level, indent) }),
-						lineHeight: 34,
+						marginLeft: calculateMarginLeft(level, indent),
+						lineHeight: 24,
 					}}
 				>
 					{text}
@@ -295,9 +248,7 @@ const CustomMarkdown: React.FC<CustomMarkdownProps> = ({ content, backgroundColo
 									color: theme.screen.text,
 									marginTop: level === 0 ? 0 : 12,
 									marginBottom: 12,
-									...(isArabic
-										? { marginLeft: 0, marginRight: 0, textAlign: 'right', alignSelf: 'flex-end', writingDirection: 'rtl' }
-										: { marginLeft: calculateMarginLeft(level, 0) }),
+									marginLeft: calculateMarginLeft(level, 0),
 								}}
 							>
 								{item.content}
@@ -305,33 +256,21 @@ const CustomMarkdown: React.FC<CustomMarkdownProps> = ({ content, backgroundColo
 						);
 
 					case 'emptyLine':
-						return <View key={`empty-${level}-${index}`} />;
+						return <View key={`empty-${level}-${index}`} style={{ height: 16 }} />;
 
 					case 'text':
 						return <TextContent key={`text-${level}-${index}`} text={item.content} level={level} indent={item.indent || 0} />;
 
 					case 'email':
 						return (
-							<View
-								key={`email-${level}-${index}`}
-								style={{
-									...(isArabic ? { marginRight: calculateMarginRight(level, item.indent || 0), alignItems: 'flex-end' } : { marginLeft: calculateMarginLeft(level, item.indent || 0) }),
-									marginBottom: 10,
-								}}
-							>
+							<View key={`email-${level}-${index}`} style={{ marginLeft: calculateMarginLeft(level, item.indent || 0), marginBottom: 10 }}>
 								<RedirectButton type="email" label={item.displayText} onClick={() => Linking.openURL(`mailto:${item.email}`)} backgroundColor={backgroundColor || ''} color={contrastColor} />
 							</View>
 						);
 
 					case 'link':
 						return (
-							<View
-								key={`link-${level}-${index}`}
-								style={{
-									...(isArabic ? { marginRight: calculateMarginRight(level, item.indent || 0), alignItems: 'flex-end' } : { marginLeft: calculateMarginLeft(level, item.indent || 0) }),
-									marginBottom: 10,
-								}}
-							>
+							<View key={`link-${level}-${index}`} style={{ marginLeft: calculateMarginLeft(level, item.indent || 0), marginBottom: 10 }}>
 								<RedirectButton type="link" label={item.displayText} onClick={() => Linking.openURL(item.url)} backgroundColor={backgroundColor || ''} color={contrastColor} />
 							</View>
 						);

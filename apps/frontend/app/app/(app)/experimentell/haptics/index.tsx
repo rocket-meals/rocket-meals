@@ -11,15 +11,12 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import styles from '../styles';
 import { useAppSelector } from '../../../../redux/hooks';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const HapticsScreen = () => {
 	useSetPageTitle(TranslationKeys.haptics_test);
 	const { theme } = useTheme();
-	const { translate, language } = useLanguage();
+	const { translate } = useLanguage();
 	const { primaryColor } = useAppSelector((state: RootState) => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 	const [lastEvent, setLastEvent] = useState<string | null>(null);
 
 	const handleHaptic = useCallback(async (label: string, action: () => Promise<void>) => {
@@ -30,37 +27,37 @@ const HapticsScreen = () => {
 	const options = [
 		{
 			key: 'selection',
-			label: translate(TranslationKeys.haptic_selection),
+			label: 'Selection',
 			action: () => Haptics.selectionAsync(),
 		},
 		{
 			key: 'impact-light',
-			label: translate(TranslationKeys.haptic_impact_light),
+			label: 'Impact Light',
 			action: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light),
 		},
 		{
 			key: 'impact-medium',
-			label: translate(TranslationKeys.haptic_impact_medium),
+			label: 'Impact Medium',
 			action: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium),
 		},
 		{
 			key: 'impact-heavy',
-			label: translate(TranslationKeys.haptic_impact_heavy),
+			label: 'Impact Heavy',
 			action: () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy),
 		},
 		{
 			key: 'notification-success',
-			label: translate(TranslationKeys.haptic_notification_success),
+			label: 'Notification Success',
 			action: () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
 		},
 		{
 			key: 'notification-warning',
-			label: translate(TranslationKeys.haptic_notification_warning),
+			label: 'Notification Warning',
 			action: () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning),
 		},
 		{
 			key: 'notification-error',
-			label: translate(TranslationKeys.haptic_notification_error),
+			label: 'Notification Error',
 			action: () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error),
 		},
 	];
@@ -74,11 +71,9 @@ const HapticsScreen = () => {
 			}}
 		>
 			<View style={styles.content}>
-				<Text style={{ ...styles.heading, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>
-					{translate(TranslationKeys.haptics_test)}
-				</Text>
+				<Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.haptics_test)}</Text>
 				<View style={styles.section}>
-					<Text style={{ ...styles.body, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>
+					<Text style={{ ...styles.body, color: theme.screen.text }}>
 						{translate(TranslationKeys.haptics_test_description)}
 					</Text>
 				</View>
@@ -88,21 +83,21 @@ const HapticsScreen = () => {
 							<TouchableOpacity
 								key={option.key}
 								onPress={() => handleHaptic(option.label, option.action)}
-								style={{ ...styles.listItem, backgroundColor: theme.card.background, flexDirection: isArabic ? 'row-reverse' : 'row' }}
+								style={{ ...styles.listItem, backgroundColor: theme.card.background }}
 							>
-								<View style={[styles.col, isArabic ? { flexDirection: 'row-reverse' } : null]}>
+								<View style={styles.col}>
 									<View style={{ backgroundColor: primaryColor, borderRadius: 8, padding: 6 }}>
 										<MaterialCommunityIcons name="vibrate" size={20} color={theme.screen.icon} />
 									</View>
-									<Text style={{ ...styles.body, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>{option.label}</Text>
+									<Text style={{ ...styles.body, color: theme.screen.text }}>{option.label}</Text>
 								</View>
 							</TouchableOpacity>
 						);
 					})}
 				</View>
 				<View style={[styles.logsContainer, { backgroundColor: theme.card.background }]}>
-					<Text style={{ ...styles.body, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.last_haptic_event)}</Text>
-					<Text style={{ ...styles.logEntry, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>
+					<Text style={{ ...styles.body, color: theme.screen.text }}>{translate(TranslationKeys.last_haptic_event)}</Text>
+					<Text style={{ ...styles.logEntry, color: theme.screen.text }}>
 						{lastEvent ?? translate(TranslationKeys.haptics_test_empty)}
 					</Text>
 				</View>

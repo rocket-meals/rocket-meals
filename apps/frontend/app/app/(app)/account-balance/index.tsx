@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type LottieView from 'lottie-react-native';
-import SafeLottieView from '@/components/SafeLottieView/SafeLottieView';
+import LottieView from 'lottie-react-native';
 import { Dimensions, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -32,10 +31,8 @@ import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import DebugView from '@/components/DebugView';
-import AppButton from '@/components/AppButton';
+import ProjectButton from '@/components/ProjectButton';
 import { myContrastColor } from '@/helper/ColorHelper';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
-import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
 enum BalanceStateLowerBound {
 	CONFIDENT = 10,
@@ -50,12 +47,9 @@ const AccountBalanceScreen = () => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { profile } = useAppSelector((state) => state.authReducer);
+	const { profile, isDevMode } = useAppSelector((state) => state.authReducer);
 	const { appSettings, language, primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
 	const balance_area_color = appSettings?.balance_area_color ? appSettings?.balance_area_color : primaryColor;
-	const isLtrLanguage = useIsLtrLanguage();
-	const languageTextAlign = useLanguageTextAlign();
-	const isRtlLanguage = !isLtrLanguage;
 	const [isNfcSupported, setIsNfcSupported] = useState(false);
 	const [isNfcEnabled, setIsNfcEnabled] = useState(false);
 	const [isActive, setIsActive] = useState(false);
@@ -188,7 +182,6 @@ const AccountBalanceScreen = () => {
                 showModal(
                         {
                                 title: 'NFC',
-								titleTextAlign: 'center',
                                 showsVerticalScrollIndicator: false,
                                 children: (
                                         <View style={styles.sheetView}>
@@ -201,7 +194,7 @@ const AccountBalanceScreen = () => {
                                                         {translate(TranslationKeys.nfcInstructionRead)}
                                                 </Text>
                                                 <View style={styles.nfcAnimationContainer}>
-                                                        <SafeLottieView
+                                                        <LottieView
                                                                 source={require('@/assets/gifs/nfc.json')}
                                                                 resizeMode="contain"
                                                                 style={styles.nfcAnimation}
@@ -299,28 +292,21 @@ const AccountBalanceScreen = () => {
 
 	const renderLottie = useMemo(() => {
 		if (animationJson) {
-			return (
-				<SafeLottieView
-					ref={animationRef}
-					source={animationJson ? animationJson : {}}
-					resizeMode="contain"
-					style={isWeb ? { width: 170, height: 170 } : { width: '100%', height: '100%' }}
-					autoPlay={!!autoPlay}
-					loop={false}
-				/>
-			);
+			return <LottieView ref={animationRef} source={animationJson ? animationJson : {}} resizeMode="contain" style={{ width: '100%', height: '100%' }} autoPlay={!!autoPlay} loop={false} />;
 		}
 	}, [autoPlay, animationJson]);
 
 	return (
 		<ScrollView style={{ ...styles.container, backgroundColor: theme.screen.background }} contentContainerStyle={{ alignItems: 'center' }}>
 			<View style={styles.imageContainer}>{renderLottie}</View>
-			
+
+			{/* Account Balance Info */}
+
 			<Text style={{ ...styles.balanceTitle, color: theme.header.text }}>{translate(TranslationKeys.accountbalance)}</Text>
 			<Text style={{ ...styles.balance, color: theme.header.text }}>{profile?.credit_balance ? showFormatedPrice(formatPrice(profile?.credit_balance)) : '? €'}</Text>
 			{(isWeb || !isNfcSupported) && <Text style={{ ...styles.subText, color: theme.header.text }}>{translate(TranslationKeys.nfcNotSupported)}</Text>}
 			{!isWeb && isNfcEnabled && isNfcSupported && (
-				<AppButton
+				<ProjectButton
 					style={{ width: '80%' }}
 					onPress={async () => {
 						try {
@@ -336,40 +322,38 @@ const AccountBalanceScreen = () => {
 				/>
 			)}
 			{isNfcSupported && !isNfcEnabled && (
-				<AppButton
-					onPress={() => Linking.openSettings()}
-					style={{ ...styles.nfcButton, borderColor: theme.screen.iconBg, marginVertical: 0 }}
-					textStyle={{ ...styles.nfcLabel, color: theme.screen.text }}
-					text={translate(TranslationKeys.pleaseEnableNFC)}
-					iconLeft={<MaterialCommunityIcons name="nfc" size={24} color={theme.screen.icon} />}
-					usePlainText
-					variant="outline"
-				/>
+				<TouchableOpacity
+					style={{ ...styles.nfcButton, borderColor: theme.screen.iconBg }}
+					onPress={() => Linking.openSettings()} // Open NFC settings
+				>
+					<MaterialCommunityIcons name="nfc" size={24} color={theme.screen.icon} />
+					<Text style={{ ...styles.nfcLabel, color: theme.screen.text }}>{translate(TranslationKeys.pleaseEnableNFC)}</Text>
+				</TouchableOpacity>
 			)}
 
 			{/* Additional Information */}
 			<View style={[styles.infoContainer, { width: windowWidth > 600 ? '90%' : '100%' }]}>
-				<View style={[styles.infoRow, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-					<View style={[styles.iconLabelContainer, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-						<MaterialCommunityIcons name="credit-card" size={24} color={theme.screen.icon} style={[styles.icon, isRtlLanguage ? { marginRight: 0, marginLeft: 8 } : undefined]} />
-						<Text style={{ ...styles.label, color: theme.header.text, textAlign: languageTextAlign, writingDirection: isRtlLanguage ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.accountbalance)}</Text>
+				<View style={styles.infoRow}>
+					<View style={styles.iconLabelContainer}>
+						<MaterialCommunityIcons name="credit-card" size={24} color={theme.screen.icon} style={styles.icon} />
+						<Text style={{ ...styles.label, color: theme.header.text }}>{translate(TranslationKeys.accountbalance)}</Text>
 					</View>
 
-					<Text style={{ ...styles.value, color: theme.header.text, ...(isRtlLanguage ? { textAlign: 'left', writingDirection: 'ltr' } : {}) }}>{profile?.credit_balance ? showFormatedPrice(formatPrice(profile?.credit_balance)) : '? €'}</Text>
+					<Text style={{ ...styles.value, color: theme.header.text }}>{profile?.credit_balance ? showFormatedPrice(formatPrice(profile?.credit_balance)) : '? €'}</Text>
 				</View>
-				<View style={[styles.infoRow, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-					<View style={[styles.iconLabelContainer, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-						<MaterialCommunityIcons name="transfer" size={24} color={theme.screen.icon} style={[styles.icon, isRtlLanguage ? { marginRight: 0, marginLeft: 8 } : undefined]} />
-						<Text style={{ ...styles.label, color: theme.header.text, textAlign: languageTextAlign, writingDirection: isRtlLanguage ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.accountbalanceLastTransaction)}</Text>
+				<View style={styles.infoRow}>
+					<View style={styles.iconLabelContainer}>
+						<MaterialCommunityIcons name="transfer" size={24} color={theme.screen.icon} style={styles.icon} />
+						<Text style={{ ...styles.label, color: theme.header.text }}>{translate(TranslationKeys.accountbalanceLastTransaction)}</Text>
 					</View>
-					<Text style={{ ...styles.value, color: theme.header.text, ...(isRtlLanguage ? { textAlign: 'left', writingDirection: 'ltr' } : {}) }}>{profile?.credit_balance_last_transaction ? showFormatedPrice(formatPrice(profile?.credit_balance_last_transaction)) : '? €'}</Text>
+					<Text style={{ ...styles.value, color: theme.header.text }}>{profile?.credit_balance_last_transaction ? showFormatedPrice(formatPrice(profile?.credit_balance_last_transaction)) : '? €'}</Text>
 				</View>
-				<View style={[styles.infoRow, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-					<View style={[styles.iconLabelContainer, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-						<FontAwesome5 name="calendar-alt" size={24} color={theme.screen.icon} style={[styles.icon, isRtlLanguage ? { marginRight: 0, marginLeft: 8 } : undefined]} />
-						<Text style={{ ...styles.label, color: theme.header.text, textAlign: languageTextAlign, writingDirection: isRtlLanguage ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.accountbalanceDateUpdated)}</Text>
+				<View style={styles.infoRow}>
+					<View style={styles.iconLabelContainer}>
+						<FontAwesome5 name="calendar-alt" size={24} color={theme.screen.icon} style={styles.icon} />
+						<Text style={{ ...styles.label, color: theme.header.text }}>{translate(TranslationKeys.accountbalanceDateUpdated)}</Text>
 					</View>
-					<Text style={{ ...styles.value, color: theme.header.text, ...(isRtlLanguage ? { textAlign: 'left', writingDirection: 'ltr' } : {}) }}>{profile?.credit_balance_date_updated ? format(profile?.credit_balance_date_updated, 'dd.MM.yyyy HH:mm') : ''}</Text>
+					<Text style={{ ...styles.value, color: theme.header.text }}>{profile?.credit_balance_date_updated ? format(profile?.credit_balance_date_updated, 'dd.MM.yyyy HH:mm') : ''}</Text>
 				</View>
 				<View style={styles.additionalInfoContainer}>{appSettings && appSettings?.balance_translations && <CustomMarkdown content={getTextFromTranslation(appSettings?.balance_translations, language) || ''} backgroundColor={balance_area_color} imageWidth={'100%'} imageHeight={400} />}</View>
 				<DebugView
@@ -387,12 +371,17 @@ const AccountBalanceScreen = () => {
 				>
 					<View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 4 }}>
 						{[1, 5, 20].map(amount => (
-							<AppButton
+							<TouchableOpacity
 								key={`simulate-${amount}`}
-								text={`Simulate ${amount}€`}
-								variant="outline"
-								usePlainText
-								style={[styles.nfcButtonPrice, { borderColor: theme.screen.iconBg }]}
+								style={{
+									paddingVertical: 8,
+									paddingHorizontal: 14,
+									borderRadius: 8,
+									borderWidth: 1,
+									borderColor: theme.screen.iconBg,
+									marginHorizontal: 6,
+									marginTop: 8,
+								}}
 								onPress={async () => {
 									const mock: CardResponse = {
 										currentBalance: amount.toFixed(2),
@@ -405,14 +394,15 @@ const AccountBalanceScreen = () => {
 									};
 									try {
 										await callBack(mock);
-										toast(translate(TranslationKeys.simulatedNfcRead).replace('${amount}', String(amount)), 'info');
+										toast(`Simulated NFC read: ${amount}€`, 'info');
 									} catch (e: any) {
 										console.error('Error in simulated read', e);
 										addDebugError(e, 'Simulated NFC Read');
 									}
 								}}
-								textStyle={{ color: theme.screen.text }}
-							/>
+							>
+								<Text style={{ color: theme.screen.text }}>{`Simulate ${amount}€`}</Text>
+							</TouchableOpacity>
 						))}
 					</View>
 				</DebugView>

@@ -7,8 +7,6 @@ import { ServerAPI } from '@/redux/actions';
 import { configureStore } from '@/redux/store';
 import { PriceGroupKey } from '@/app/(app)/settings/types';
 
-const EMPTY_OBJECT = {};
-
 export const generateCodeVerifier = async () => {
 	const bytesMinAmount = 32;
 	const bytesMaxAmount = 96;
@@ -245,18 +243,21 @@ export function formatFoodInformationValue(value: string | number | null | undef
 }
 
 export const getpreviousFeedback = (feedbacks: any, foodId: string) => {
-	const list = Array.isArray(feedbacks) ? feedbacks : [];
-	const match = list.find((feedback: any) => {
-		const feedbackFoodId = typeof feedback?.food === 'object' ? feedback?.food?.id : feedback?.food;
-		return feedbackFoodId === foodId;
-	});
-	return match ?? EMPTY_OBJECT;
+	const feedback = feedbacks.filter((feedback: any) => feedback.food === foodId);
+	if (feedback.length > 0) {
+		return feedback[0];
+	} else {
+		return {};
+	}
 };
 
 export const getFoodOffer = (foodOffers: any, offerId: string) => {
-	const list = Array.isArray(foodOffers) ? foodOffers : [];
-	const match = list.find((offer: any) => offer?.id === offerId);
-	return match ?? EMPTY_OBJECT;
+	const foodOffer = foodOffers.filter((offer: any) => offer.id === offerId);
+	if (foodOffer.length > 0) {
+		return foodOffer[0];
+	} else {
+		return {};
+	}
 };
 
 export const showPrice = (item: any, profile: Partial<DatabaseTypes.Profiles>) => {

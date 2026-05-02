@@ -10,18 +10,15 @@ import useActiveCollectibleEvent from '@/hooks/useActiveCollectibleEvent';
 import { useLanguage } from '@/hooks/useLanguage';
 import CustomStackHeader from '@/components/CustomStackHeader/CustomStackHeader';
 import { getHighResImageUrl } from '@/constants/HelperFunctions';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const CollectibleEventMonitor = () => {
 	useSetPageTitle(TranslationKeys.collectible_event_monitor);
 	const { theme } = useTheme();
 	const router = useRouter();
 	const { fullscreen } = useLocalSearchParams();
-	const { translate, language } = useLanguage();
+	const { translate } = useLanguage();
 	const { activeCollectibleEvent } = useActiveCollectibleEvent();
 	const isFullscreen = Array.isArray(fullscreen) ? fullscreen.includes('true') : fullscreen === 'true';
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 
 	const jsonString = useMemo(
 		() => JSON.stringify(activeCollectibleEvent ?? null, null, 2),
@@ -29,9 +26,8 @@ const CollectibleEventMonitor = () => {
 	);
 
 	const backgroundImageUrl = useMemo(() => {
-		const remoteUrl = (activeCollectibleEvent as any)?.monitor_background_image_remote_url;
-		if (remoteUrl) {
-			return String(remoteUrl);
+		if (activeCollectibleEvent?.monitor_background_image_remote_url) {
+			return activeCollectibleEvent.monitor_background_image_remote_url;
 		}
 
 		if (activeCollectibleEvent?.monitor_background_image) {
@@ -79,52 +75,20 @@ const CollectibleEventMonitor = () => {
 						{ backgroundColor: backgroundImageUrl ? 'rgba(0,0,0,0.45)' : theme.screen.background },
 					]}
 				>
-					<View style={styles.headerContainer}>
-						{isFullscreen ? (
-							<View
-								style={[
-									styles.fullscreenHeaderRow,
-									isArabic ? { flexDirection: 'row-reverse' } : null,
-								]}
-							>
-								{fullscreenButton}
-								<Text
-									style={[
-										styles.fullscreenHeaderTitle,
-										{ color: theme.screen.text },
-										isArabic ? { textAlign: 'right', writingDirection: 'rtl' } : null,
-									]}
-								>
-									{translate(TranslationKeys.collectible_event_monitor)}
-								</Text>
-							</View>
-						) : (
+					{isFullscreen ? (
+						<View style={styles.floatingButton}>{fullscreenButton}</View>
+					) : (
+						<View style={styles.headerContainer}>
 							<CustomStackHeader label={translate(TranslationKeys.collectible_event_monitor)} rightElement={fullscreenButton} />
-						)}
-					</View>
+						</View>
+					)}
 
 					<ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-						{!isFullscreen ? (
-							<Text
-								style={{
-									...styles.heading,
-									color: theme.screen.text,
-									...(isArabic ? { textAlign: 'right', writingDirection: 'rtl', alignSelf: 'flex-end' } : null),
-								}}
-							>
-								{translate(TranslationKeys.collectible_event_monitor)}
-							</Text>
-						) : null}
+						<Text style={{ ...styles.heading, color: theme.screen.text }}>
+							{translate(TranslationKeys.collectible_event_monitor)}
+						</Text>
 						<View style={{ ...styles.card, backgroundColor: theme.screen.iconBg }}>
-							<Text
-								style={{
-									...styles.code,
-									color: theme.screen.text,
-									...(isArabic ? { textAlign: 'right', writingDirection: 'rtl' } : null),
-								}}
-							>
-								{jsonString}
-							</Text>
+							<Text style={{ ...styles.code, color: theme.screen.text }}>{jsonString}</Text>
 						</View>
 					</ScrollView>
 				</View>

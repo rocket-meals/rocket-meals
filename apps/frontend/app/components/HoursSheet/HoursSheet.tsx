@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import MyScrollViewModal from '@/components/MyScrollViewModal';
@@ -52,8 +52,7 @@ export const HoursSheetContent: React.FC = () => {
 	const [hours, setHours] = useState<GroupedHours | null>(null);
 	const [loading, setLoading] = useState(false);
 	const { language, firstDayOfTheWeek } = useAppSelector((state) => state.settings);
-	const { businessHoursGroupsDict } = useAppSelector((state) => state.canteenReducer);
-	const businessHoursGroups = useMemo(() => Object.values(businessHoursGroupsDict || {}), [businessHoursGroupsDict]);
+	const { businessHoursGroups } = useAppSelector((state) => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
 	const buildingsHelper = new BuildingsHelper();
 	const businessHoursHelper = new BusinessHoursHelper();

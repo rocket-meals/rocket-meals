@@ -11,17 +11,12 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import SettingsList from '@/components/SettingsList';
-import { useAppSelector } from '@/redux/hooks';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.role_management);
 	const { translate } = useLanguage();
         const { theme } = useTheme();
         const dispatch = useDispatch();
-        const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
-        const chevronName: React.ComponentProps<typeof Octicons>['name'] = isArabic ? 'chevron-left' : 'chevron-right';
 
         return (
                 <ScrollView
@@ -40,7 +35,7 @@ const Index = () => {
                                         <SettingsList
                                                 leftIcon={<MaterialCommunityIcons name="calendar" size={24} />}
                                                 label={translate(TranslationKeys.foodweekplan)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+                                                rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
                                                 onPress={() => {
                                                         dispatch({
                                                                 type: SET_WEEK_PLAN,
@@ -56,7 +51,7 @@ const Index = () => {
                                         <SettingsList
                                                 leftIcon={<MaterialCommunityIcons name="folder-image" size={24} />}
                                                 label={translate(TranslationKeys.foodBigScreen)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+                                                rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
                                                 onPress={() => {
                                                         dispatch({
                                                                 type: SET_DAY_PLAN,
@@ -78,7 +73,7 @@ const Index = () => {
                                         <SettingsList
                                                 leftIcon={<MaterialCommunityIcons name="view-list" size={24} />}
                                                 label={translate(TranslationKeys.monitorDayPlan)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+                                                rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
                                                 onPress={() => {
                                                         dispatch({
                                                                 type: SET_FOOD_PLAN,
@@ -96,7 +91,7 @@ const Index = () => {
                                         <SettingsList
                                                 leftIcon={<Ionicons name="bag-add" size={24} />}
                                                 label={translate(TranslationKeys.markings)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+                                                rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
                                                 onPress={() => {
                                                         router.navigate('/labels');
                                                 }}
@@ -109,7 +104,7 @@ const Index = () => {
                                         <SettingsList
                                                 leftIcon={<FontAwesome name="list-alt" size={22} />}
                                                 label={translate(TranslationKeys.form_categories)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+                                                rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
                                                 onPress={() => {
                                                         router.navigate('/form-categories');
                                                 }}
@@ -122,7 +117,7 @@ const Index = () => {
                                         <SettingsList
                                                 leftIcon={<MaterialCommunityIcons name="trophy" size={24} />}
                                                 label={translate(TranslationKeys.collectible_event_monitor)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+                                                rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
                                                 onPress={() => {
                                                         router.navigate('/collectible-event-monitor');
                                                 }}
@@ -135,7 +130,7 @@ const Index = () => {
                                         <SettingsList
                                                 leftIcon={<FontAwesome name="rss-square" size={22} />}
                                                 label={translate(TranslationKeys.rss_feed)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+                                                rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
                                                 onPress={() => {
                                                         router.navigate('/rss-feed-config');
                                                 }}
@@ -143,12 +138,12 @@ const Index = () => {
                                         />
                                 </View>
 
-                                <SettingsGroupTitle>{translate(TranslationKeys.statistics)}</SettingsGroupTitle>
+                                <SettingsGroupTitle>{translate(TranslationKeys.statistiken)}</SettingsGroupTitle>
                                 <View style={styles.groupContainer}>
                                         <SettingsList
                                                 leftIcon={<MaterialCommunityIcons name="calendar" size={24} />}
                                                 label={translate(TranslationKeys.test_statistik)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+                                                rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
                                                 onPress={() => {
                                                         router.navigate('/statistics');
                                                 }}
@@ -161,7 +156,7 @@ const Index = () => {
                                         <SettingsList
                                                 leftIcon={<MaterialCommunityIcons name="comment-edit" size={24} />}
                                                 label={translate(TranslationKeys.rueckmeldung_geben)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+                                                rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
                                                 onPress={() => {
                                                         router.navigate('/give-feedback');
                                                 }}

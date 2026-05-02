@@ -1,16 +1,14 @@
-import { Text, View } from 'react-native';
-import React, { useMemo } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import React from 'react';
 import { styles } from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { router } from 'expo-router';
 import { useAppSelector } from '@/redux/hooks';
 import { getTitleFromTranslation } from '@/helper/resourceHelper';
-import AppButton from '@/components/AppButton';
 
 const Footer = () => {
 	const { theme } = useTheme();
-	const { wikisDict, language } = useAppSelector(state => state.settings);
-	const wikis = useMemo(() => Object.values(wikisDict || {}), [wikisDict]);
+	const { wikis, language } = useAppSelector(state => state.settings);
 
 	return (
 		<View style={styles.footer}>
@@ -19,19 +17,16 @@ const Footer = () => {
 					if (wiki?.custom_id && !wiki?.url && wiki?.show_in_drawer_as_bottom_item) {
 						return (
 							<React.Fragment key={index}>
-								<AppButton
-									variant="ghost"
-									usePlainText
-									text={getTitleFromTranslation(wiki?.translations, language)}
+								<TouchableOpacity
 									onPress={() =>
 										router.push({
 											pathname: '/wikis',
 											params: { custom_id: wiki?.custom_id },
 										})
 									}
-									style={{ marginVertical: 0 }}
-									textStyle={{ ...styles.link, color: theme.screen.text }}
-								/>
+								>
+									<Text style={{ ...styles.link, color: theme.screen.text }}>{getTitleFromTranslation(wiki?.translations, language)}</Text>
+								</TouchableOpacity>
 								<Text style={{ ...styles.divider, color: theme.screen.text }}>|</Text>
 							</React.Fragment>
 						);

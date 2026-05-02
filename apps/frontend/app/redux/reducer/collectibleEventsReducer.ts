@@ -9,22 +9,8 @@ import {
 import { CollectibleEventsState } from '../Types/stateTypes';
 import { DatabaseTypes } from 'repo-depkit-common';
 
-const arrayToDict = <T>(payload: unknown, getKey: (item: any, index: number) => string | null): Record<string, T> => {
-	if (!payload) return {};
-	if (!Array.isArray(payload)) return payload as Record<string, T>;
-	return payload.reduce((acc: Record<string, T>, item: any, index: number) => {
-		const key = getKey(item, index);
-		if (key) {
-			acc[key] = item;
-		}
-		return acc;
-	}, {});
-};
-
-const idKey = (item: any) => (item?.id ? String(item.id) : null);
-
 const initialState: CollectibleEventsState = {
-        collectibleEventsItemsDict: {} as Record<string, DatabaseTypes.CollectibleEvents>,
+        collectibleEvents: [] as DatabaseTypes.CollectibleEvents[],
         collectibleEventsDict: {} as Record<string, Record<string, boolean>>,
 };
 
@@ -33,7 +19,7 @@ const collectibleEventsReducer = (state: CollectibleEventsState = initialState, 
                 case SET_COLLECTIBLE_EVENTS: {
                         return {
                                 ...state,
-                                collectibleEventsItemsDict: arrayToDict(actions.payload, (item, index) => idKey(item) ?? `idx:${index}`),
+                                collectibleEvents: actions.payload,
                         };
                 }
                 case SET_COLLECTIBLE_EVENT_DICT: {

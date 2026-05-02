@@ -10,8 +10,6 @@ import { isWeb } from '@/constants/Constants';
 import MyImage from '@/components/MyImage';
 import SettingsList from '@/components/SettingsList';
 import type { FoodDetailsSectionBaseProps } from './types';
-import { useAppSelector } from '@/redux/hooks';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 interface FoodHeaderProps extends FoodDetailsSectionBaseProps {
     foodDetails: any;
@@ -39,22 +37,11 @@ const FoodHeader = ({
 }: FoodHeaderProps) => {
     const isLargeScreen = screenWidth > 1000;
     const isMediumScreen = screenWidth > 800;
-    const language = useAppSelector((state) => state.settings.language);
-    const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 
     const dynamicImageStyle = useMemo(() => ({
         width: isLargeScreen ? 400 : screenWidth - 40,
         height: isLargeScreen ? 400 : screenWidth - 40,
     }), [isLargeScreen, screenWidth]);
-
-    const containerWidthStyle = useMemo(() => {
-        if (containerWidth === undefined || containerWidth === null) return null;
-        if (typeof containerWidth === 'number') return { width: containerWidth };
-        if (containerWidth === 'auto') return { width: 'auto' as const };
-        if (/^\\d+%$/.test(containerWidth)) return { width: containerWidth as `${number}%` };
-        return null;
-    }, [containerWidth]);
 
     const renderRatingStars = useCallback(() => (
         <View style={isWeb ? styles.stars : styles.mobileStars}>
@@ -155,7 +142,7 @@ const FoodHeader = ({
                                 </View>
                             )}
                         </View>
-                        <View style={isLargeScreen ? null : [styles.marginTopMedium, containerWidthStyle]}>
+                        <View style={isLargeScreen ? null : [styles.marginTopMedium, containerWidth ? { width: containerWidth } : null]}>
                             <SettingsList
                                 leftIcon={<MaterialIcons name="star" size={22} />}
                                 iconBgColor={foodsAreaColor}
@@ -182,8 +169,7 @@ const FoodHeader = ({
                             { color: theme.screen.text },
                             isLargeScreen ? styles.textLeft : styles.textCenter,
                             styles.flexColumn,
-                            isMediumScreen ? styles.fontSizeLarge : styles.fontSizeMedium,
-                            isArabic ? { lineHeight: isMediumScreen ? 34 : 30 } : undefined
+                            isMediumScreen ? styles.fontSizeLarge : styles.fontSizeMedium
                         ]}
                     >
                         {foodDetails?.name}
@@ -236,8 +222,7 @@ const FoodHeader = ({
             <Text
                 style={[
                     styles.mobileFoodHeading,
-                    { color: theme.screen.text },
-                    isArabic ? { lineHeight: 50 } : undefined
+                    { color: theme.screen.text }
                 ]}
             >
                 {foodDetails?.name}
