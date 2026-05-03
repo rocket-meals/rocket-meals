@@ -20,7 +20,7 @@ type SettingsListPropsOwn = SettingsListItemBaseProps & {
 	 */
 	title?: string;
 	value?: string;
-	titleTextAlign?: 'auto' | 'left' | 'right' | 'center';
+	titleTextAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';
 	reverseLayout?: boolean;
 	/**
 	 * Element rendered on the right side. "rightIcon" is kept for
@@ -75,14 +75,7 @@ type SettingsListPropsOwn = SettingsListItemBaseProps & {
 	 * true. Consuming apps can use this to open an account-required modal.
 	 */
 	onAccountRequired?: () => void;
-	/**
-	 * When true, the layout of the item is reversed (RTL support).
-	 */
-	reverseLayout?: boolean;
-	/**
-	 * Text alignment for the title.
-	 */
-	titleTextAlign?: 'left' | 'center' | 'right' | 'justify' | 'auto';
+
 };
 
 export type SettingsListProps = PropsWithChildren<SettingsListPropsOwn>;

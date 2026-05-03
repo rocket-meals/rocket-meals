@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Appearance, Platform, StatusBar } from 'react-native';
 import { darkTheme, lightTheme } from '@/styles/themes';
-import { configureStore } from '@/redux/store';
+import { store } from '@/redux/store';
 
 export const useTheme = () => {
-	const [theme, setTheme] = useState(configureStore.getState().settings.selectedTheme);
+	const [theme, setTheme] = useState(store.getState().settings.selectedTheme);
 
 	const changeTheme = (mode: 'light' | 'dark' | 'systematic') => ({
 		type: 'CHANGE_THEME',
@@ -12,7 +12,7 @@ export const useTheme = () => {
 	});
 
 	const setThemeMode = (mode: 'light' | 'dark' | 'systematic') => {
-		configureStore.dispatch(changeTheme(mode));
+		store.dispatch(changeTheme(mode));
 	};
 
 	const computedTheme = useMemo(() => {
@@ -24,17 +24,17 @@ export const useTheme = () => {
 	}, [theme]);
 
 	useEffect(() => {
-		const unsubscribe = configureStore.subscribe(() => {
-			setTheme(configureStore.getState().settings.selectedTheme);
+		const unsubscribe = store.subscribe(() => {
+			setTheme(store.getState().settings.selectedTheme);
 		});
 
 		if (theme === 'systematic') {
 			const systemTheme = Appearance.getColorScheme();
-			configureStore.dispatch(changeTheme('systematic'));
+			store.dispatch(changeTheme('systematic'));
 
 			const listener = Appearance.addChangeListener(({ colorScheme }) => {
 				if (colorScheme) {
-					configureStore.dispatch(changeTheme('systematic'));
+					store.dispatch(changeTheme('systematic'));
 				}
 			});
 

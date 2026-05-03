@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import Server from './ServerUrl';
 import { DatabaseTypes, NumberHelper, StringHelper } from 'repo-depkit-common';
 import { ServerAPI } from '@/redux/actions';
-import { configureStore } from '@/redux/store';
+import { store } from '@/redux/store';
 import { PriceGroupKey } from '@/app/(app)/settings/types';
 
 const EMPTY_OBJECT = {};
@@ -65,7 +65,7 @@ export const getImageUrl = (imageId: string, size: number = 512) => {
 	if (!imageId) {
 		return null;
 	}
-	const { useWebpForAssets } = configureStore.getState().settings;
+	const { useWebpForAssets } = store.getState().settings;
 	const format = useWebpForAssets ? '&format=webp' : '';
 	return `${Server.ServerUrl}/assets/${imageId}?fit=cover&width=${size}&height=${size}&quality=100${format}`;
 };
@@ -78,7 +78,7 @@ export const getFormValueImageUrl = (imageId: string) => {
 	if (!imageId) {
 		return null;
 	}
-	const { useWebpForAssets } = configureStore.getState().settings;
+	const { useWebpForAssets } = store.getState().settings;
 	const format = useWebpForAssets ? '?format=webp' : '';
 	return `${Server.ServerUrl}/assets/${imageId}${format}`;
 };

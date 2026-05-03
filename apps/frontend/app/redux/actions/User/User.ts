@@ -1,7 +1,7 @@
 // import {SyncState, useSyncState} from '@/helper/syncState/SyncState';
 // import {PersistentStore} from '@/helper/syncState/PersistentStore';
 // import {NonPersistentStore} from '@/helper/syncState/NonPersistentStore';
-import { configureStore } from '@/redux/store';
+import { store } from '@/redux/store';
 // import {PersistentSecureStore} from '@/helper/syncState/PersistentSecureStore';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
@@ -111,7 +111,7 @@ export function getAnonymousUser(): any {
 // }
 
 export function isUserLoggedIn(): boolean {
-	const state = configureStore.getState();
+	const state = store.getState();
 	const userLoggedIn = state.authReducer.loggedIn;
 	return !!userLoggedIn;
 }

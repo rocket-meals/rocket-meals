@@ -1,22 +1,17 @@
-import * as redux from 'redux';
-import { legacy_createStore as createStore } from 'redux';
-import * as thunk from 'redux-thunk';
+import { configureStore as rtkConfigureStore } from '@reduxjs/toolkit';
 import promise from 'redux-promise';
 import { createMigrate, persistReducer, persistStore } from 'redux-persist';
 import AsyncStorage from '@/constants/AsyncStorage';
 import { reducer } from '@/redux/reducer';
 
 const migrations = {
-	// define migrations
 	1: () => {
-		// For now we return undefined to clear the store on first migration
 		return undefined;
 	},
 	2: () => {
-		// Clear persisted state and trigger logout flow if needed
 		if (typeof window !== 'undefined') {
-			localStorage.clear(); // Or AsyncStorage.clear()
-			window.location.reload(); // Force app reload
+			localStorage.clear();
+			window.location.reload();
 		}
 		return undefined;
 	},
@@ -24,7 +19,7 @@ const migrations = {
 
 const persistConfig = {
 	key: 'root',
-	version: 1, // 🔁 Bump this when you make breaking changes
+	version: 1,
 	storage: AsyncStorage,
 	migrate: createMigrate(migrations, { debug: false }),
 };
@@ -40,12 +35,16 @@ const rootReducer = (state: any, action: any) => {
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// You can enable logger in dev only
 
-// const middleware = redux.applyMiddleware(promise, thunk.thunk, logger);
+export const store = rtkConfigureStore({
+	reducer: persistedReducer,
+	middleware: (getDefaultMiddleware) =>
+		getDefaultMiddleware({
+			serializableCheck: false,
+		}).concat(promise as any),
+});
 
-const middleware = redux.applyMiddleware(promise, thunk.thunk);
+export const persistor = persistStore(store);
 
-export const configureStore = createStore(persistedReducer, middleware);
 
-export const persistor = persistStore(configureStore);
+export const configureStore = store;

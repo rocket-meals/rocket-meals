@@ -1,14 +1,16 @@
 import React from 'react';
-import { ImageResizeMode, ImageStyle, StyleProp } from 'react-native';
+import { ImageStyle, StyleProp } from 'react-native';
 import MyImage from '@/components/MyImage';
 import { getCompanyLogoLocalSaved } from '@/config';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { DatabaseTypes } from 'repo-depkit-common';
 
+type SupportedResizeMode = 'contain' | 'cover' | 'stretch' | 'center' | 'repeat';
+
 interface CompanyImageProps {
 	appSettings?: DatabaseTypes.AppSettings | null;
 	style?: StyleProp<ImageStyle>;
-	resizeMode?: ImageResizeMode;
+	resizeMode?: SupportedResizeMode;
 }
 
 const CompanyImage: React.FC<CompanyImageProps> = ({ appSettings, style, resizeMode = 'contain' }) => {

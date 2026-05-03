@@ -29,7 +29,7 @@ import {ThemeProvider} from '@/context/ThemeContext';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {Provider} from 'react-redux';
 import {PersistGate} from 'redux-persist/integration/react';
-import {configureStore, persistor} from '@/redux/store';
+import {store, persistor} from '@/redux/store';
 import {ServerAPI} from '@/redux/actions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useTheme} from '@/hooks/useTheme';
@@ -102,7 +102,7 @@ export default function Layout() {
                                 | null;
 
                         if (storedCustomerEnum && customerConfigs[storedCustomerEnum]) {
-                                configureStore.dispatch({
+                                store.dispatch({
                                         type: SET_SELECTED_CUSTOMER,
                                         payload: storedCustomerEnum,
                                 });
@@ -117,7 +117,7 @@ export default function Layout() {
                         const buildTimeConfig = getCustomerConfig();
                         const buildTimeEnum = getCustomerEnumForConfig(buildTimeConfig);
                         if (buildTimeEnum) {
-                                configureStore.dispatch({
+                                store.dispatch({
                                         type: SET_SELECTED_CUSTOMER,
                                         payload: buildTimeEnum,
                                 });
@@ -152,7 +152,7 @@ export default function Layout() {
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<ExpoUpdateLoader>
-				<Provider store={configureStore}>
+				<Provider store={store}>
 					<GluestackUIProvider config={config}>
 						<PersistGate loading={null} persistor={persistor}>
 							<RootSiblingParent>

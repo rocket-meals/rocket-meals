@@ -8673,7 +8673,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reduxjs/toolkit@npm:^2.5.1":
+"@reduxjs/toolkit@npm:^2.11.2, @reduxjs/toolkit@npm:^2.5.1":
   version: 2.11.2
   resolution: "@reduxjs/toolkit@npm:2.11.2"
   dependencies:
@@ -26607,6 +26607,7 @@ __metadata:
     "@react-navigation/bottom-tabs": "npm:^7.0.0"
     "@react-navigation/drawer": "npm:^7.0.0"
     "@react-navigation/native": "npm:^7.0.0"
+    "@reduxjs/toolkit": "npm:^2.11.2"
     "@shopify/flash-list": "npm:2.0.2"
     "@types/jest": "npm:^29.5.12"
     "@types/leaflet": "npm:^1.9.21"

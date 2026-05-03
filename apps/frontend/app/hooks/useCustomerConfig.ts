@@ -1,17 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ConfigCustomerEnum, CustomerConfig, getCustomerConfig, getCustomerConfigsDict } from '@/config';
-import { configureStore } from '@/redux/store';
+import { ConfigCustomerEnum, CustomerConfig, getCustomerConfig, getCustomerConfigsDict, getCustomerEnumForConfig } from '@/config';
+import { store } from '@/redux/store';
 
 const customerConfigs = getCustomerConfigsDict();
 
+const getFallbackCustomer = (): ConfigCustomerEnum =>
+	store.getState().settings.selectedCustomer
+	?? getCustomerEnumForConfig(getCustomerConfig())
+	?? ConfigCustomerEnum.TEST;
+
 export const useCustomerConfig = (): CustomerConfig => {
         const [selectedCustomer, setSelectedCustomer] = useState<ConfigCustomerEnum>(
-                configureStore.getState().settings.selectedCustomer
+                getFallbackCustomer()
         );
 
         useEffect(() => {
-                const unsubscribe = configureStore.subscribe(() => {
-                        setSelectedCustomer(configureStore.getState().settings.selectedCustomer);
+                const unsubscribe = store.subscribe(() => {
+                        const next = store.getState().settings.selectedCustomer;
+                        if (next !== null && next !== undefined) {
+                                setSelectedCustomer(next);
+                        }
                 });
 
                 return () => unsubscribe();

@@ -44,6 +44,7 @@
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/drawer": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
+    "@reduxjs/toolkit": "^2.11.2",
     "@shopify/flash-list": "2.0.2",
     "@types/leaflet": "^1.9.21",
     "axios": "^1.7.7",

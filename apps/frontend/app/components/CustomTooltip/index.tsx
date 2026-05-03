@@ -26,7 +26,7 @@ const CustomTooltip: React.FC<TooltipProps> = ({ trigger, children, ...props }) 
 	if (!isWeb) {
 		// On native there is no hover – skip the entire Gluestack Tooltip tree.
 		// Pass an empty object as triggerProps; no Gluestack event handlers needed.
-		return <>{trigger({})}</>;
+		return <>{trigger({}, {} as any)}</>;
 	}
 
 	return (
