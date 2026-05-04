@@ -253,7 +253,7 @@ const Index = () => {
 				leftIcon={<MaterialCommunityIcons name="layers-outline" size={22} color={theme.screen.icon} />}
 				label={translate(TranslationKeys.foodoffers_show_separated_markings_breakdown)}
 				value={markingsBreakdownLabel}
-				rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+				rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
 				handleFunction={openMarkingsBreakdownModal}
 				groupPosition="top"
 			/>

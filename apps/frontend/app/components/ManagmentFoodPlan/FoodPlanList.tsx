@@ -8,6 +8,7 @@ import { router } from 'expo-router';
 import AppButton from '../AppButton';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const FoodPlanList = ({
 	data,
@@ -24,6 +25,8 @@ const FoodPlanList = ({
 }) => {
 	const { theme } = useTheme();
 	const {translate} = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
 
@@ -154,7 +157,7 @@ const FoodPlanList = ({
 					color: theme.screen.text,
 					fontSize: windowWidth > 600 ? 18 : 14,
 				}}
-				iconRight={<MaterialCommunityIcons name="chevron-right" size={20} color={theme.screen.icon} style={{ marginRight: 10 }} />}
+				iconRight={<MaterialCommunityIcons name={isArabic ? 'chevron-left' : 'chevron-right'} size={20} color={theme.screen.icon} style={{ marginRight: 10 }} />}
 			/>
 		</View>
 	);

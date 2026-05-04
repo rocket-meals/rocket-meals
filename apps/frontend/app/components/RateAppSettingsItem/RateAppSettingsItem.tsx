@@ -124,7 +124,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 			<SettingsListBoolean
 				label="Was user asked for rating?"
 				isEnabled={wasAskedForRating}
-				onToggle={() => {}}
+				onToggle={() => { }}
 				disabled
 				groupPosition="middle"
 				showSeparator
@@ -187,7 +187,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 										) : (
 											<>
 												<Ionicons name={row.icon} size={20} color={theme.screen.icon} />
-												<Octicons name="chevron-right" size={20} color={theme.screen.icon} />
+												<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={20} color={theme.screen.icon} />
 											</>
 										)}
 									</View>
@@ -229,7 +229,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 							) : (
 								<>
 									<Ionicons name={nativeRow?.icon || STORE_ICON_BY_TARGET[nativeStore]} size={20} color={theme.screen.icon} />
-									<Octicons name="chevron-right" size={20} color={theme.screen.icon} />
+									<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={20} color={theme.screen.icon} />
 								</>
 							)}
 						</View>

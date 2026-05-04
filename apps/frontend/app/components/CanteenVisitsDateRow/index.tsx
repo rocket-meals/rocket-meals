@@ -18,6 +18,7 @@ import DebugView from '@/components/DebugView';
 import useCheckAppRateAsking from '@/hooks/useCheckAppRateAsking';
 import useCanteenVisitData from '@/hooks/useCanteenVisitData';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
+import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const canteenVisitsHelper = new CanteenVisitsHelper();
 
@@ -56,6 +57,8 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 	showLoginModal,
 	onRefresh,
 }) => {
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const [toggling, setToggling] = useState(false);
 	const { checkAndShowAppRating } = useCheckAppRateAsking();
 
@@ -140,7 +143,7 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 						iconBgColor={primaryColor}
 						label={translate(TranslationKeys.canteen_visits_manage_friends)}
 						value={NumberHelper.formatCompact(counts.friends)}
-						rightIcon={<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />}
+						rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
 						handleFunction={() => {
 							showFriendsModal();
 						}}
@@ -178,7 +181,7 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 						leftIcon={<MaterialCommunityIcons name="login" size={24} color={theme.screen.icon} />}
 						iconBgColor={primaryColor}
 						label={translate(TranslationKeys.canteen_visits_login_hint)}
-						rightIcon={<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />}
+						rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
 						handleFunction={showLoginModal}
 						groupPosition="bottom"
 					/>
@@ -225,6 +228,8 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 	const canteenVisitsVisibility = useAppSelector((state) => (state.settings as any).canteenVisits?.visibility ?? 'all') as 'all' | 'friends_only' | 'public_only' | 'off';
 	const { profile, user, isDevMode } = useAppSelector((state) => state.authReducer);
 	const { friendships } = useAppSelector((state) => state.friendships);
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const { show: showScrollViewModal } = useMyScrollViewModal();
 	const { checkAndShowAppRating } = useCheckAppRateAsking();
 	const { openAccountRequiredModal } = useAccountRequiredModal();

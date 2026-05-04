@@ -62,178 +62,179 @@ import { FriendsContent } from '@/components/FriendsContent';
 type CollectibleItemSize = 'small' | 'medium' | 'large';
 
 const Settings = () => {
-        useSetPageTitle(TranslationKeys.settings);
-        const { theme, setThemeMode } = useTheme();
-        const isLtrLanguage = useIsLtrLanguage();
-        const dispatch = useDispatch();
-        const toast = useToast();
-        const [isActive, setIsActive] = useState(false);
-        const { translate, language } = useLanguage();
+	useSetPageTitle(TranslationKeys.settings);
+	const { theme, setThemeMode } = useTheme();
+	const isLtrLanguage = useIsLtrLanguage();
+	const dispatch = useDispatch();
+	const toast = useToast();
+	const [isActive, setIsActive] = useState(false);
+	const { translate, language } = useLanguage();
 	const languageTextAlign = useLanguageTextAlign();
-        const foodOffersTimeSheetRef = useRef<BottomSheet>(null);
-        const collectibleSettingsModalRef = useRef<() => void>(() => {});
-        const isOpeningNestedCollectibleModal = useRef(false);
-        const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
-        const { openConfirmLogoutModal } = useConfirmLogoutModal();
-        const { manualCheck } = useExpoUpdateChecker();
-        const { user, profile, termsAndPrivacyConsentAcceptedDate, isManagement, isDevMode } = useAppSelector((state) => state.authReducer);
-        const isRegisteredUser = UserHelper.isRegisteredUser(user);
-        const { buttonLabel: logoutButtonLabel } = useLogoutButtonTranslation();
-        const { openLanguageModal } = useLanguageModal();
-        const { openFoodofferSortingModal } = useFoodofferSortingModal();
-        const { openThemeSettingsModal } = useThemeSettingsModal();
-        const { openMenuPositionModal } = useMenuPositionModal();
-        const { openCardColumnsModal } = useCardColumnsModal();
-        const { openFirstDayOfWeekModal } = useFirstDayOfWeekModal();
-        const { openHousingSortingModal } = useHousingSortingModal();
-        const { openCampusSortingModal } = useCampusSortingModal();
-        const { openChangeMyCanteenSelectionModal } = useMyScrollviewModalChangeMyCanteenSelection();
-        const { openCanteenVisitsVisibilityModal } = useCanteenVisitsVisibilityModal();
+	const foodOffersTimeSheetRef = useRef<BottomSheet>(null);
+	const collectibleSettingsModalRef = useRef<() => void>(() => { });
+	const isOpeningNestedCollectibleModal = useRef(false);
+	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
+	const { openConfirmLogoutModal } = useConfirmLogoutModal();
+	const { manualCheck } = useExpoUpdateChecker();
+	const { user, profile, termsAndPrivacyConsentAcceptedDate, isManagement, isDevMode } = useAppSelector((state) => state.authReducer);
+	const isRegisteredUser = UserHelper.isRegisteredUser(user);
+	const { buttonLabel: logoutButtonLabel } = useLogoutButtonTranslation();
+	const { openLanguageModal } = useLanguageModal();
+	const { openFoodofferSortingModal } = useFoodofferSortingModal();
+	const { openThemeSettingsModal } = useThemeSettingsModal();
+	const { openMenuPositionModal } = useMenuPositionModal();
+	const { openCardColumnsModal } = useCardColumnsModal();
+	const { openFirstDayOfWeekModal } = useFirstDayOfWeekModal();
+	const { openHousingSortingModal } = useHousingSortingModal();
+	const { openCampusSortingModal } = useCampusSortingModal();
+	const { openChangeMyCanteenSelectionModal } = useMyScrollviewModalChangeMyCanteenSelection();
+	const { openCanteenVisitsVisibilityModal } = useCanteenVisitsVisibilityModal();
 
-        const openFriendsModal = useCallback(() => {
-                showScrollViewModal({
-                        title: translate(TranslationKeys.friendships),
-                        children: <FriendsContent showHeading={false} />,
-                        disableHorizontalPadding: true,
-                });
-        }, [showScrollViewModal, translate]);
+	const openFriendsModal = useCallback(() => {
+		showScrollViewModal({
+			title: translate(TranslationKeys.friendships),
+			titleTextAlign: languageTextAlign,
+			children: <FriendsContent showHeading={false} />,
+			disableHorizontalPadding: true,
+		});
+	}, [languageTextAlign, showScrollViewModal, translate]);
 
-        const { primaryColor, drawerPosition, selectedTheme, nickNameLocal, firstDayOfTheWeek, amountColumnsForcard, serverInfo, appSettings, useWebpForAssets, foodOffersNextDayThreshold, debugMode, simulateExpoUpdateAvailable, collectibleItemSize, collectibleRandomPosition, selectedCustomer, sortBy, apartmentsSortBy, campusesSortBy } = useAppSelector((state) => state.settings);
-        const osmVectorMapStyleKey = useAppSelector((state) => ((state.settings as any).osmVectorMapStyleKey ?? MapStyleKey.DEFAULT) as MapStyleKey);
-        const canteenVisitsVisibility = useAppSelector((state) => (state.settings as any).canteenVisits?.visibility ?? 'all') as 'all' | 'friends_only' | 'off';
-        const { friendships } = useAppSelector((state) => state.friendships);
-        const acceptedFriendsCount = useMemo(
-                () => friendships.filter((f) => f.friendship_status === 'accepted').length,
-                [friendships]
-        );
-        const currentNickname = useMemo(
-                () => (profile?.id ? profile?.nickname ?? '' : nickNameLocal ?? ''),
-                [nickNameLocal, profile?.id, profile?.nickname]
-        );
-        const selectedCanteen = useSelectedCanteen();
-        const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
-        const profileHelper = useMemo(() => new ProfileHelper(), []);
-        const customerConfig = useCustomerConfig();
-        const { openCustomerConfigModal } = useCustomerConfigModal();
-        const { openTextInputModal } = useMyScrollviewTextInputModal();
+	const { primaryColor, drawerPosition, selectedTheme, nickNameLocal, firstDayOfTheWeek, amountColumnsForcard, serverInfo, appSettings, useWebpForAssets, foodOffersNextDayThreshold, debugMode, simulateExpoUpdateAvailable, collectibleItemSize, collectibleRandomPosition, selectedCustomer, sortBy, apartmentsSortBy, campusesSortBy } = useAppSelector((state) => state.settings);
+	const osmVectorMapStyleKey = useAppSelector((state) => ((state.settings as any).osmVectorMapStyleKey ?? MapStyleKey.DEFAULT) as MapStyleKey);
+	const canteenVisitsVisibility = useAppSelector((state) => (state.settings as any).canteenVisits?.visibility ?? 'all') as 'all' | 'friends_only' | 'off';
+	const { friendships } = useAppSelector((state) => state.friendships);
+	const acceptedFriendsCount = useMemo(
+		() => friendships.filter((f) => f.friendship_status === 'accepted').length,
+		[friendships]
+	);
+	const currentNickname = useMemo(
+		() => (profile?.id ? profile?.nickname ?? '' : nickNameLocal ?? ''),
+		[nickNameLocal, profile?.id, profile?.nickname]
+	);
+	const selectedCanteen = useSelectedCanteen();
+	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
+	const profileHelper = useMemo(() => new ProfileHelper(), []);
+	const customerConfig = useCustomerConfig();
+	const { openCustomerConfigModal } = useCustomerConfigModal();
+	const { openTextInputModal } = useMyScrollviewTextInputModal();
 
-        const languageCode = language;
+	const languageCode = language;
 
-        const languageName = Languages[languageCode as keyof typeof Languages];
+	const languageName = Languages[languageCode as keyof typeof Languages];
 
-        const selectedCustomerDisplayName = useMemo(
-                () => customerConfig.projectName || selectedCustomer || '',
-                [customerConfig.projectName, selectedCustomer]
-        );
+	const selectedCustomerDisplayName = useMemo(
+		() => customerConfig.projectName || selectedCustomer || '',
+		[customerConfig.projectName, selectedCustomer]
+	);
 
-        const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
-        const housing_area_color = appSettings?.housing_area_color ? appSettings?.housing_area_color : primaryColor;
-        const campus_area_color = appSettings?.campus_area_color ? appSettings?.campus_area_color : primaryColor;
+	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
+	const housing_area_color = appSettings?.housing_area_color ? appSettings?.housing_area_color : primaryColor;
+	const campus_area_color = appSettings?.campus_area_color ? appSettings?.campus_area_color : primaryColor;
 
-        const customerServerUrl = useCustomerServerUrl();
+	const customerServerUrl = useCustomerServerUrl();
 
-        const collectibleSizeOptions = useMemo(
-                () => [
-                        { value: 'small', label: translate(TranslationKeys.collectible_event_item_size_small) },
-                        { value: 'medium', label: translate(TranslationKeys.collectible_event_item_size_medium) },
-                        { value: 'large', label: translate(TranslationKeys.collectible_event_item_size_large) },
-                ],
-                [translate]
-        );
+	const collectibleSizeOptions = useMemo(
+		() => [
+			{ value: 'small', label: translate(TranslationKeys.collectible_event_item_size_small) },
+			{ value: 'medium', label: translate(TranslationKeys.collectible_event_item_size_medium) },
+			{ value: 'large', label: translate(TranslationKeys.collectible_event_item_size_large) },
+		],
+		[translate]
+	);
 
-        const collectibleSizeLabel = useMemo(
-                () => collectibleSizeOptions.find(option => option.value === collectibleItemSize)?.label || '',
-                [collectibleItemSize, collectibleSizeOptions]
-        );
+	const collectibleSizeLabel = useMemo(
+		() => collectibleSizeOptions.find(option => option.value === collectibleItemSize)?.label || '',
+		[collectibleItemSize, collectibleSizeOptions]
+	);
 
-        const sortingOptionLabels: Partial<Record<FoodSortOption, string>> = useMemo(
-                () => ({
-                        [FoodSortOption.INTELLIGENT]: 'sort_option_intelligent',
-                        [FoodSortOption.FAVORITE]: 'sort_option_favorite',
-                        [FoodSortOption.EATING]: 'eating_habits',
-                        [FoodSortOption.FOOD_CATEGORY]: 'sort_option_food_category',
-                        [FoodSortOption.FOODOFFER_CATEGORY]: 'sort_option_foodoffer_category',
-                        [FoodSortOption.RATING]: 'sort_option_public_rating',
-                        [FoodSortOption.PRICE_ASCENDING]: 'sort_option_price_ascending',
-                        [FoodSortOption.PRICE_DESCENDING]: 'sort_option_price_descending',
-                        [FoodSortOption.ALPHABETICAL]: 'sort_option_alphabetical',
-                        [FoodSortOption.NONE]: 'sort_option_none',
-                }),
-                []
-        );
+	const sortingOptionLabels: Partial<Record<FoodSortOption, string>> = useMemo(
+		() => ({
+			[FoodSortOption.INTELLIGENT]: 'sort_option_intelligent',
+			[FoodSortOption.FAVORITE]: 'sort_option_favorite',
+			[FoodSortOption.EATING]: 'eating_habits',
+			[FoodSortOption.FOOD_CATEGORY]: 'sort_option_food_category',
+			[FoodSortOption.FOODOFFER_CATEGORY]: 'sort_option_foodoffer_category',
+			[FoodSortOption.RATING]: 'sort_option_public_rating',
+			[FoodSortOption.PRICE_ASCENDING]: 'sort_option_price_ascending',
+			[FoodSortOption.PRICE_DESCENDING]: 'sort_option_price_descending',
+			[FoodSortOption.ALPHABETICAL]: 'sort_option_alphabetical',
+			[FoodSortOption.NONE]: 'sort_option_none',
+		}),
+		[]
+	);
 
-        const sortingLabel = useMemo(
-                () => translate(sortingOptionLabels[sortBy as FoodSortOption] ?? 'sort_option_none'),
-                [sortBy, sortingOptionLabels, translate]
-        );
+	const sortingLabel = useMemo(
+		() => translate(sortingOptionLabels[sortBy as FoodSortOption] ?? 'sort_option_none'),
+		[sortBy, sortingOptionLabels, translate]
+	);
 
-        const housingSortingOptionLabels: Partial<Record<ApartmentSortOption, string>> = useMemo(
-                () => ({
-                        [ApartmentSortOption.INTELLIGENT]: 'sort_option_intelligent',
-                        [ApartmentSortOption.FREE_ROOMS]: 'free_rooms',
-                        [ApartmentSortOption.DISTANCE]: 'sort_option_distance',
-                        [ApartmentSortOption.ALPHABETICAL]: 'sort_option_alphabetical',
-                        [ApartmentSortOption.NONE]: 'sort_option_none',
-                }),
-                []
-        );
+	const housingSortingOptionLabels: Partial<Record<ApartmentSortOption, string>> = useMemo(
+		() => ({
+			[ApartmentSortOption.INTELLIGENT]: 'sort_option_intelligent',
+			[ApartmentSortOption.FREE_ROOMS]: 'free_rooms',
+			[ApartmentSortOption.DISTANCE]: 'sort_option_distance',
+			[ApartmentSortOption.ALPHABETICAL]: 'sort_option_alphabetical',
+			[ApartmentSortOption.NONE]: 'sort_option_none',
+		}),
+		[]
+	);
 
-        const housingSortingLabel = useMemo(
-                () => translate(housingSortingOptionLabels[apartmentsSortBy as ApartmentSortOption] ?? 'sort_option_none'),
-                [apartmentsSortBy, housingSortingOptionLabels, translate]
-        );
+	const housingSortingLabel = useMemo(
+		() => translate(housingSortingOptionLabels[apartmentsSortBy as ApartmentSortOption] ?? 'sort_option_none'),
+		[apartmentsSortBy, housingSortingOptionLabels, translate]
+	);
 
-        const campusSortingOptionLabels: Partial<Record<CampusSortOption, string>> = useMemo(
-                () => ({
-                        [CampusSortOption.INTELLIGENT]: 'sort_option_intelligent',
-                        [CampusSortOption.DISTANCE]: 'sort_option_distance',
-                        [CampusSortOption.ALPHABETICAL]: 'sort_option_alphabetical',
-                        [CampusSortOption.NONE]: 'sort_option_none',
-                }),
-                []
-        );
+	const campusSortingOptionLabels: Partial<Record<CampusSortOption, string>> = useMemo(
+		() => ({
+			[CampusSortOption.INTELLIGENT]: 'sort_option_intelligent',
+			[CampusSortOption.DISTANCE]: 'sort_option_distance',
+			[CampusSortOption.ALPHABETICAL]: 'sort_option_alphabetical',
+			[CampusSortOption.NONE]: 'sort_option_none',
+		}),
+		[]
+	);
 
-        const campusSortingLabel = useMemo(
-                () => translate(campusSortingOptionLabels[campusesSortBy as CampusSortOption] ?? 'sort_option_none'),
-                [campusSortingOptionLabels, campusesSortBy, translate]
-        );
+	const campusSortingLabel = useMemo(
+		() => translate(campusSortingOptionLabels[campusesSortBy as CampusSortOption] ?? 'sort_option_none'),
+		[campusSortingOptionLabels, campusesSortBy, translate]
+	);
 
-        const canteenVisitsVisibilityLabel = useMemo(() => {
-                switch (canteenVisitsVisibility) {
-                        case 'all':
-                                return translate(TranslationKeys.canteen_visits_visibility_all);
-                        case 'friends_only':
-                                return translate(TranslationKeys.canteen_visits_visibility_friends_only);
-                        case 'off':
-                                return translate(TranslationKeys.canteen_visits_visibility_off);
-                        default:
-                                return translate(TranslationKeys.canteen_visits_visibility_all);
-                }
-        }, [canteenVisitsVisibility, translate]);
+	const canteenVisitsVisibilityLabel = useMemo(() => {
+		switch (canteenVisitsVisibility) {
+			case 'all':
+				return translate(TranslationKeys.canteen_visits_visibility_all);
+			case 'friends_only':
+				return translate(TranslationKeys.canteen_visits_visibility_friends_only);
+			case 'off':
+				return translate(TranslationKeys.canteen_visits_visibility_off);
+			default:
+				return translate(TranslationKeys.canteen_visits_visibility_all);
+		}
+	}, [canteenVisitsVisibility, translate]);
 
-        const saveNickname = useCallback(
-                async (value: string) => {
-                        const nextNickname = value?.trim?.() ?? '';
-                        if (isRegisteredUser) {
-                                const result = (await profileHelper.updateProfile({
-                                        ...profile,
-                                        nickname: nextNickname,
-                                })) as DatabaseTypes.Profiles;
-                                if (result) {
-                                        dispatch({
-                                                type: UPDATE_PROFILE,
-                                                payload: result,
-                                        });
-                                }
-                        } else {
-                                dispatch({
-                                        type: SET_NICKNAME_LOCAL,
-                                        payload: nextNickname,
-                                });
-                        }
-                },
-                [dispatch, isRegisteredUser, profile, profileHelper]
-        );
+	const saveNickname = useCallback(
+		async (value: string) => {
+			const nextNickname = value?.trim?.() ?? '';
+			if (isRegisteredUser) {
+				const result = (await profileHelper.updateProfile({
+					...profile,
+					nickname: nextNickname,
+				})) as DatabaseTypes.Profiles;
+				if (result) {
+					dispatch({
+						type: UPDATE_PROFILE,
+						payload: result,
+					});
+				}
+			} else {
+				dispatch({
+					type: SET_NICKNAME_LOCAL,
+					payload: nextNickname,
+				});
+			}
+		},
+		[dispatch, isRegisteredUser, profile, profileHelper]
+	);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -255,214 +256,214 @@ const Settings = () => {
 		};
 	}, []);
 
-        const openNicknameSheet = useCallback(() => {
-                openTextInputModal({
-                        title: translate(TranslationKeys.nickname),
-                        placeholder: translate(TranslationKeys.nickname),
-                        initialValue: currentNickname,
-                        saveLabel: translate(TranslationKeys.save),
-                        onSave: saveNickname,
-                        checkTextInput: value => ({
-                                isValid: true,
-                                value: value.trim(),
-                        }),
-                });
-        }, [currentNickname, openTextInputModal, saveNickname, translate]);
+	const openNicknameSheet = useCallback(() => {
+		openTextInputModal({
+			title: translate(TranslationKeys.nickname),
+			placeholder: translate(TranslationKeys.nickname),
+			initialValue: currentNickname,
+			saveLabel: translate(TranslationKeys.save),
+			onSave: saveNickname,
+			checkTextInput: value => ({
+				isValid: true,
+				value: value.trim(),
+			}),
+		});
+	}, [currentNickname, openTextInputModal, saveNickname, translate]);
 
-        const handleTheme = (theme: any) => {
-                setThemeMode(theme);
-        };
+	const handleTheme = (theme: any) => {
+		setThemeMode(theme);
+	};
 
-        const openColorSchemeSheet = useCallback(() => {
-                openThemeSettingsModal({
-                        selectedTheme,
-                        onSelect: handleTheme,
-                });
-        }, [handleTheme, openThemeSettingsModal, selectedTheme]);
+	const openColorSchemeSheet = useCallback(() => {
+		openThemeSettingsModal({
+			selectedTheme,
+			onSelect: handleTheme,
+		});
+	}, [handleTheme, openThemeSettingsModal, selectedTheme]);
 
-        const openFoodOffersTimeSheet = () => {
-                foodOffersTimeSheetRef?.current?.expand();
-        };
+	const openFoodOffersTimeSheet = () => {
+		foodOffersTimeSheetRef?.current?.expand();
+	};
 
-        const closeFoodOffersTimeSheet = () => {
-                foodOffersTimeSheetRef?.current?.close();
-        };
+	const closeFoodOffersTimeSheet = () => {
+		foodOffersTimeSheetRef?.current?.close();
+	};
 
-        const handleSelectServer = useCallback(
-                async (config: CustomerConfig) => {
-                        ServerAPI.updateServerUrl(config.server_url);
-                        await AsyncStorage.setItem('server_url_custom', config.server_url);
-                        const selectedCustomer = getCustomerEnumForConfig(config) ?? ConfigCustomerEnum.TEST;
-                        dispatch({
-                                type: SET_SELECTED_CUSTOMER,
-                                payload: selectedCustomer,
-                        });
-                        await AsyncStorage.setItem('selected_customer_enum', selectedCustomer);
-                        await performLogout(dispatch, router);
-                },
-                [dispatch, router]
-        );
+	const handleSelectServer = useCallback(
+		async (config: CustomerConfig) => {
+			ServerAPI.updateServerUrl(config.server_url);
+			await AsyncStorage.setItem('server_url_custom', config.server_url);
+			const selectedCustomer = getCustomerEnumForConfig(config) ?? ConfigCustomerEnum.TEST;
+			dispatch({
+				type: SET_SELECTED_CUSTOMER,
+				payload: selectedCustomer,
+			});
+			await AsyncStorage.setItem('selected_customer_enum', selectedCustomer);
+			await performLogout(dispatch, router);
+		},
+		[dispatch, router]
+	);
 
-        const openServerSheet = useCallback(() => {
-                openCustomerConfigModal({
-                        selectedServer: customerServerUrl,
-                        onSelect: handleSelectServer,
-                });
-        }, [customerServerUrl, handleSelectServer, openCustomerConfigModal]);
+	const openServerSheet = useCallback(() => {
+		openCustomerConfigModal({
+			selectedServer: customerServerUrl,
+			onSelect: handleSelectServer,
+		});
+	}, [customerServerUrl, handleSelectServer, openCustomerConfigModal]);
 
-        const toggleWebpForAssets = () => {
-                dispatch({
-                        type: SET_USE_WEBP_FOR_ASSETS,
-                        payload: !useWebpForAssets,
-                });
-        };
+	const toggleWebpForAssets = () => {
+		dispatch({
+			type: SET_USE_WEBP_FOR_ASSETS,
+			payload: !useWebpForAssets,
+		});
+	};
 
-        const toggleDebugMode = () => {
-                dispatch({
-                        type: SET_DEBUG_MODE,
-                        payload: !debugMode,
-                });
-        };
+	const toggleDebugMode = () => {
+		dispatch({
+			type: SET_DEBUG_MODE,
+			payload: !debugMode,
+		});
+	};
 
-        const toggleSimulateExpoUpdate = () => {
-                dispatch({
-                        type: SET_SIMULATE_EXPO_UPDATE_AVAILABLE,
-                        payload: !simulateExpoUpdateAvailable,
-                });
-        };
+	const toggleSimulateExpoUpdate = () => {
+		dispatch({
+			type: SET_SIMULATE_EXPO_UPDATE_AVAILABLE,
+			payload: !simulateExpoUpdateAvailable,
+		});
+	};
 
-        const handleResetCollectibles = useCallback(() => {
-                dispatch({ type: RESET_ALL_COLLECTIBLE_EVENT_DICTS });
-                toast(translate(TranslationKeys.reset), 'success');
-        }, [dispatch, toast, translate]);
+	const handleResetCollectibles = useCallback(() => {
+		dispatch({ type: RESET_ALL_COLLECTIBLE_EVENT_DICTS });
+		toast(translate(TranslationKeys.reset), 'success');
+	}, [dispatch, toast, translate]);
 
-        const handleSelectCollectibleSize = useCallback(
-                (_id: string, value: string) => {
-                        const nextSize = (collectibleSizeOptions.find(option => option.label === value)?.value || collectibleItemSize || 'medium') as CollectibleItemSize;
-                        dispatch({
-                                type: SET_COLLECTIBLE_ITEM_SIZE,
-                                payload: nextSize,
-                        });
-                },
-                [collectibleItemSize, collectibleSizeOptions, dispatch]
-        );
+	const handleSelectCollectibleSize = useCallback(
+		(_id: string, value: string) => {
+			const nextSize = (collectibleSizeOptions.find(option => option.label === value)?.value || collectibleItemSize || 'medium') as CollectibleItemSize;
+			dispatch({
+				type: SET_COLLECTIBLE_ITEM_SIZE,
+				payload: nextSize,
+			});
+		},
+		[collectibleItemSize, collectibleSizeOptions, dispatch]
+	);
 
-        const toggleCollectibleRandomPosition = useCallback(() => {
-                dispatch({
-                        type: SET_COLLECTIBLE_RANDOM_POSITION,
-                        payload: !collectibleRandomPosition,
-                });
-        }, [collectibleRandomPosition, dispatch]);
+	const toggleCollectibleRandomPosition = useCallback(() => {
+		dispatch({
+			type: SET_COLLECTIBLE_RANDOM_POSITION,
+			payload: !collectibleRandomPosition,
+		});
+	}, [collectibleRandomPosition, dispatch]);
 
-        const handleCheckForUpdates = () => {
-                manualCheck();
-        };
+	const handleCheckForUpdates = () => {
+		manualCheck();
+	};
 
-        const handleLogout = useCallback(() => openConfirmLogoutModal(), [openConfirmLogoutModal]);
+	const handleLogout = useCallback(() => openConfirmLogoutModal(), [openConfirmLogoutModal]);
 
-        const handleLogin = useCallback(() => openConfirmLogoutModal(), [openConfirmLogoutModal]);
+	const handleLogin = useCallback(() => openConfirmLogoutModal(), [openConfirmLogoutModal]);
 
-        const logoutButtonHandler = useMemo(() => (isRegisteredUser ? handleLogout : handleLogin), [handleLogin, handleLogout, isRegisteredUser]);
+	const logoutButtonHandler = useMemo(() => (isRegisteredUser ? handleLogout : handleLogin), [handleLogin, handleLogout, isRegisteredUser]);
 
 	const handleDeleteAccount = async () => {
 		router.navigate('/(user)/delete-user');
 	};
 
-        const priceGroups: Record<PriceGroupKey, { label: string }> = {
-                [PriceGroupKey.student]: {
-                        label: translate(TranslationKeys.price_group_student),
-                },
-                [PriceGroupKey.employee]: {
-                        label: translate(TranslationKeys.price_group_employee),
-                },
-                [PriceGroupKey.guest]: {
-                        label: translate(TranslationKeys.price_group_guest),
-                },
-        };
+	const priceGroups: Record<PriceGroupKey, { label: string }> = {
+		[PriceGroupKey.student]: {
+			label: translate(TranslationKeys.price_group_student),
+		},
+		[PriceGroupKey.employee]: {
+			label: translate(TranslationKeys.price_group_employee),
+		},
+		[PriceGroupKey.guest]: {
+			label: translate(TranslationKeys.price_group_guest),
+		},
+	};
 
-        const openCollectibleSizeModal = useCallback(() => {
-                showScrollViewModal(
-                        {
-                                title: translate(TranslationKeys.collectible_event_item_size),
-								titleTextAlign: languageTextAlign,
-								titleWritingDirection: isLtrLanguage ? 'ltr' : 'rtl',
-                                onClose: () => {
-                                        if (isOpeningNestedCollectibleModal.current) {
-                                                isOpeningNestedCollectibleModal.current = false;
-                                                return;
-                                        }
+	const openCollectibleSizeModal = useCallback(() => {
+		showScrollViewModal(
+			{
+				title: translate(TranslationKeys.collectible_event_item_size),
+				titleTextAlign: languageTextAlign,
+				titleWritingDirection: isLtrLanguage ? 'ltr' : 'rtl',
+				onClose: () => {
+					if (isOpeningNestedCollectibleModal.current) {
+						isOpeningNestedCollectibleModal.current = false;
+						return;
+					}
 
-                                        setTimeout(() => collectibleSettingsModalRef.current?.(), 150);
-                                },
-                                children: (
-                                        <View style={{ gap: 16 }}>
-                                                <DropdownInput
-                                                        id="collectible_item_size"
-                                                        value={collectibleSizeLabel}
-                                                        onChange={handleSelectCollectibleSize}
-                                                        error={undefined}
-                                                        isDisabled={false}
-                                                        custom_type="collectible_item_size"
-                                                        options={collectibleSizeOptions.map(option => option.label)}
-                                                        allowCustomValues={false}
-                                                        onOpenSheet={() => {
-                                                                isOpeningNestedCollectibleModal.current = true;
-                                                        }}
-                                                        onCloseSheet={() => {
-                                                                isOpeningNestedCollectibleModal.current = false;
-                                                                setTimeout(() => collectibleSettingsModalRef.current?.(), 150);
-                                                        }}
-                                                />
-                                        </View>
-                                ),
-                        },
-                        {}
-                );
-        }, [collectibleSizeLabel, collectibleSizeOptions, handleSelectCollectibleSize, language, showScrollViewModal, translate]);
+					setTimeout(() => collectibleSettingsModalRef.current?.(), 150);
+				},
+				children: (
+					<View style={{ gap: 16 }}>
+						<DropdownInput
+							id="collectible_item_size"
+							value={collectibleSizeLabel}
+							onChange={handleSelectCollectibleSize}
+							error={undefined}
+							isDisabled={false}
+							custom_type="collectible_item_size"
+							options={collectibleSizeOptions.map(option => option.label)}
+							allowCustomValues={false}
+							onOpenSheet={() => {
+								isOpeningNestedCollectibleModal.current = true;
+							}}
+							onCloseSheet={() => {
+								isOpeningNestedCollectibleModal.current = false;
+								setTimeout(() => collectibleSettingsModalRef.current?.(), 150);
+							}}
+						/>
+					</View>
+				),
+			},
+			{}
+		);
+	}, [collectibleSizeLabel, collectibleSizeOptions, handleSelectCollectibleSize, language, showScrollViewModal, translate]);
 
-        const openCollectibleSettingsModal = useCallback(() => {
-                showScrollViewModal(
-                        {
-                                title: translate(TranslationKeys.collectible_event_settings),
-								titleTextAlign: languageTextAlign,
-								titleWritingDirection: isLtrLanguage ? 'ltr' : 'rtl',
-                                children: (
-                                        <View style={{ gap: 0 }}>
-                                                <SettingsList
-                                                        iconBgColor={primaryColor}
-                                                        leftIcon={<MaterialCommunityIcons name="backup-restore" size={24} color={theme.screen.icon} />}
-                                                        label={translate(TranslationKeys.collectible_event_reset_collected)}
-														rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
-                                                        handleFunction={handleResetCollectibles}
-                                                        groupPosition="top"
-                                                />
-                                                <SettingsList
-                                                        iconBgColor={primaryColor}
-                                                        leftIcon={<MaterialCommunityIcons name="image-size-select-large" size={24} color={theme.screen.icon} />}
-                                                        label={translate(TranslationKeys.collectible_event_item_size)}
-                                                        value={collectibleSizeLabel}
-														rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
-                                                        handleFunction={openCollectibleSizeModal}
-                                                        groupPosition="middle"
-                                                />
-                                                <SettingsListBoolean
-                                                        iconBgColor={primaryColor}
-                                                        leftIcon={<MaterialIcons name="my-location" size={24} color={theme.screen.icon} />}
-                                                        label={translate(TranslationKeys.collectible_event_random_position)}
-                                                        isEnabled={collectibleRandomPosition}
-                                                        onToggle={toggleCollectibleRandomPosition}
-                                                        groupPosition="bottom"
-                                                />
-                                        </View>
-                                ),
-                        },
-                        {}
-                );
-        }, [collectibleRandomPosition, collectibleSizeLabel, handleResetCollectibles, language, openCollectibleSizeModal, primaryColor, showScrollViewModal, theme.screen.icon, theme.screen.iconBg, theme.screen.text, translate, toggleCollectibleRandomPosition]);
+	const openCollectibleSettingsModal = useCallback(() => {
+		showScrollViewModal(
+			{
+				title: translate(TranslationKeys.collectible_event_settings),
+				titleTextAlign: languageTextAlign,
+				titleWritingDirection: isLtrLanguage ? 'ltr' : 'rtl',
+				children: (
+					<View style={{ gap: 0 }}>
+						<SettingsList
+							iconBgColor={primaryColor}
+							leftIcon={<MaterialCommunityIcons name="backup-restore" size={24} color={theme.screen.icon} />}
+							label={translate(TranslationKeys.collectible_event_reset_collected)}
+							rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
+							handleFunction={handleResetCollectibles}
+							groupPosition="top"
+						/>
+						<SettingsList
+							iconBgColor={primaryColor}
+							leftIcon={<MaterialCommunityIcons name="image-size-select-large" size={24} color={theme.screen.icon} />}
+							label={translate(TranslationKeys.collectible_event_item_size)}
+							value={collectibleSizeLabel}
+							rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
+							handleFunction={openCollectibleSizeModal}
+							groupPosition="middle"
+						/>
+						<SettingsListBoolean
+							iconBgColor={primaryColor}
+							leftIcon={<MaterialIcons name="my-location" size={24} color={theme.screen.icon} />}
+							label={translate(TranslationKeys.collectible_event_random_position)}
+							isEnabled={collectibleRandomPosition}
+							onToggle={toggleCollectibleRandomPosition}
+							groupPosition="bottom"
+						/>
+					</View>
+				),
+			},
+			{}
+		);
+	}, [collectibleRandomPosition, collectibleSizeLabel, handleResetCollectibles, language, openCollectibleSizeModal, primaryColor, showScrollViewModal, theme.screen.icon, theme.screen.iconBg, theme.screen.text, translate, toggleCollectibleRandomPosition]);
 
-        useEffect(() => {
-                collectibleSettingsModalRef.current = openCollectibleSettingsModal;
-        }, [openCollectibleSettingsModal]);
+	useEffect(() => {
+		collectibleSettingsModalRef.current = openCollectibleSettingsModal;
+	}, [openCollectibleSettingsModal]);
 
 	const showFriendsInSettings = !!(appSettings?.friends_enabled || isDevMode);
 
@@ -478,8 +479,8 @@ const Settings = () => {
 				<View style={sectionStyle}>
 					<SettingsGroupTitle>{translate(TranslationKeys.group_account_personalization)}</SettingsGroupTitle>
 					<View style={groupStyle}>
-						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="clipboard-account" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.account)} value={isRegisteredUser ? user?.id : translate(TranslationKeys.without_account)} handleFunction={() => {}} groupPosition="top" valueNumberOfLines={1} />
-						<SettingsList iconBgColor={primaryColor} leftIcon={<Ionicons name="language" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.language)} value={languageName} rightIcon={<MaterialCommunityIcons name="pencil" size={20} color={theme.screen.icon} />} handleFunction={() => openLanguageModal()} groupPosition="middle" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="clipboard-account" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.account)} value={isRegisteredUser ? user?.id : translate(TranslationKeys.without_account)} handleFunction={() => { }} groupPosition="top" valueNumberOfLines={1} />
+						{/* <SettingsList iconBgColor={primaryColor} leftIcon={<Ionicons name="language" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.language)} value={languageName} rightIcon={<MaterialCommunityIcons name="pencil" size={20} color={theme.screen.icon} />} handleFunction={() => openLanguageModal()} groupPosition="middle" /> */}
 						<SettingsListEditable
 							iconBgColor={primaryColor}
 							leftIcon={<MaterialCommunityIcons name="account" size={24} color={theme.screen.icon} />}
@@ -493,18 +494,18 @@ const Settings = () => {
 						{isRegisteredUser ? (
 							<SettingsList iconBgColor={primaryColor} leftIcon={<AntDesign name="user-delete" size={22} color={theme.screen.icon} />} label={`${translate(TranslationKeys.account_delete)}`} rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />} handleFunction={handleDeleteAccount} groupPosition="middle" />
 						) : null}
-						<SettingsList iconBgColor={primaryColor} leftIcon={<Ionicons name="language" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.language)} value={languageName} rightIcon={<MaterialCommunityIcons name="pencil" size={20} color={theme.screen.icon} />} handleFunction={() => openLanguageModal()} groupPosition="bottom" />
 						{showFriendsInSettings && (
 							<SettingsList
 								iconBgColor={primaryColor}
 								leftIcon={<MaterialCommunityIcons name="account-multiple-plus" size={24} color={theme.screen.icon} />}
 								label={translate(TranslationKeys.friendships)}
 								value={String(acceptedFriendsCount)}
-								rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+								rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
 								handleFunction={openFriendsModal}
-								groupPosition="bottom"
+							// groupPosition="bottom"
 							/>
 						)}
+						<SettingsList iconBgColor={primaryColor} leftIcon={<Ionicons name="language" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.language)} value={languageName} rightIcon={<MaterialCommunityIcons name="pencil" size={20} color={theme.screen.icon} />} handleFunction={() => openLanguageModal()} groupPosition="bottom" />
 					</View>
 				</View>
 			),
@@ -522,23 +523,18 @@ const Settings = () => {
 						<SettingsList iconBgColor={foods_area_color} leftIcon={<Ionicons name="card" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.accountbalance)} value={profile?.credit_balance ? showFormatedPrice(formatPrice(profile?.credit_balance)) : '€'} rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/account-balance')} groupPosition="middle" />
 						<SettingsList iconBgColor={foods_area_color} leftIcon={<Ionicons name="bag-add-sharp" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.eating_habits)} rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/eating-habits')} groupPosition="middle" />
 						<SettingsList iconBgColor={foods_area_color} leftIcon={<MaterialIcons name="sort" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.sort)} value={sortingLabel} rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />} handleFunction={openFoodofferSortingModal} groupPosition="middle" />
-						<SettingsList iconBgColor={primaryColor} leftIcon={<Ionicons name="notifications" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.notification)} rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/notification')} groupPosition="bottom" />
-						<SettingsList iconBgColor={foods_area_color} leftIcon={<MaterialIcons name="euro" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.price_group)} value={profile?.price_group && priceGroups[profile.price_group as PriceGroupKey] ? priceGroups[profile.price_group as PriceGroupKey].label : ''} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/price-group')} groupPosition="middle" />
-						<SettingsList iconBgColor={foods_area_color} leftIcon={<Ionicons name="card" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.accountbalance)} value={profile?.credit_balance ? showFormatedPrice(formatPrice(profile?.credit_balance)) : '€'} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/account-balance')} groupPosition="middle" />
-						<SettingsList iconBgColor={foods_area_color} leftIcon={<Ionicons name="bag-add-sharp" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.eating_habits)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/eating-habits')} groupPosition="middle" />
-						<SettingsList iconBgColor={foods_area_color} leftIcon={<MaterialIcons name="sort" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.sort)} value={sortingLabel} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={openFoodofferSortingModal} groupPosition="middle" />
 						{showFriendsInSettings && (
 							<SettingsList
 								iconBgColor={foods_area_color}
 								leftIcon={<MaterialCommunityIcons name="silverware-fork-knife" size={24} color={theme.screen.icon} />}
 								label={translate(TranslationKeys.canteen_visits_visibility)}
 								value={canteenVisitsVisibilityLabel}
-								rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+								rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
 								handleFunction={openCanteenVisitsVisibilityModal}
 								groupPosition="middle"
 							/>
 						)}
-						<SettingsList iconBgColor={primaryColor} leftIcon={<Ionicons name="notifications" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.notification)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/notification')} groupPosition="bottom" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<Ionicons name="notifications" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.notification)} rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/notification')} groupPosition="bottom" />
 					</View>
 				</View>
 			),
@@ -656,27 +652,27 @@ const Settings = () => {
 						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialIcons name="support-agent" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.feedback_support_faq)} rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/support-FAQ')} groupPosition="middle" />
 						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="license" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.license_information)} rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/licenseInformation')} groupPosition="middle" />
 						{/* Terms & Conditions */}
-						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="file-document-check" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.terms_and_conditions_accepted_and_privacy_policy_read_at_date)} value={termsAndPrivacyConsentAcceptedDate ?? undefined} handleFunction={() => {}} groupPosition="bottom" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="file-document-check" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.terms_and_conditions_accepted_and_privacy_policy_read_at_date)} value={termsAndPrivacyConsentAcceptedDate ?? undefined} handleFunction={() => { }} groupPosition="bottom" />
 					</View>
 				</View>
 			),
 		});
 
 		// === Account Actions (Logout / Delete) ===
-		rows.push({
-			key: 'section-account-actions',
-			element: (
-				<View style={sectionStyle}>
-					<SettingsGroupTitle>{translate(TranslationKeys.account)}</SettingsGroupTitle>
-					<View style={groupStyle}>
-						<SettingsList iconBgColor={primaryColor} leftIcon={<Entypo name="login" size={24} color={theme.screen.icon} />} label={logoutButtonLabel} rightIcon={<Entypo name="login" size={24} color={theme.screen.icon} />} handleFunction={logoutButtonHandler} groupPosition={isRegisteredUser ? 'top' : 'single'} />
-						{isRegisteredUser ? (
-							<SettingsList iconBgColor={primaryColor} leftIcon={<AntDesign name="user-delete" size={22} color={theme.screen.icon} />} label={`${translate(TranslationKeys.account_delete)}`} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={handleDeleteAccount} groupPosition="bottom" />
-						) : null}
-					</View>
-				</View>
-			),
-		});
+		// rows.push({
+		// 	key: 'section-account-actions',
+		// 	element: (
+		// 		<View style={sectionStyle}>
+		// 			<SettingsGroupTitle>{translate(TranslationKeys.account)}</SettingsGroupTitle>
+		// 			<View style={groupStyle}>
+		// 				<SettingsList iconBgColor={primaryColor} leftIcon={<Entypo name="login" size={24} color={theme.screen.icon} />} label={logoutButtonLabel} rightIcon={<Entypo name="login" size={24} color={theme.screen.icon} />} handleFunction={logoutButtonHandler} groupPosition={isRegisteredUser ? 'top' : 'single'} />
+		// 				{isRegisteredUser ? (
+		// 					<SettingsList iconBgColor={primaryColor} leftIcon={<AntDesign name="user-delete" size={22} color={theme.screen.icon} />} label={`${translate(TranslationKeys.account_delete)}`} rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />} handleFunction={handleDeleteAccount} groupPosition="bottom" />
+		// 				) : null}
+		// 			</View>
+		// 		</View>
+		// 	),
+		// });
 
 		// === Footer ===
 		rows.push({
@@ -762,7 +758,7 @@ const Settings = () => {
 					leftIcon={<MaterialCommunityIcons name="numeric" size={24} color={theme.screen.icon} />}
 					label={translate(TranslationKeys.version)}
 					value={getVersionInternalForAppsettingsScreen().toString()}
-					handleFunction={() => {}}
+					handleFunction={() => { }}
 					groupPosition="single"
 				/>
 			),

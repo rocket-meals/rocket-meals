@@ -14,6 +14,7 @@ import { TranslationKeys } from '@/locales/keys';
 import { getTitleFromTranslation } from '@/helper/resourceHelper';
 import { RootState } from '@/redux/reducer';
 import useDebugMode from '@/hooks/useDebugMode';
+import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import styles from './styles';
 
 const getGroupPosition = (index: number, length: number) => {
@@ -66,6 +67,7 @@ const CollectibleEventsScreen = () => {
                 (state) => state.collectibleEvents
         );
         const debugMode = useDebugMode();
+        const isLtrLanguage = useIsLtrLanguage();
         const router = useRouter();
 
         const events = useMemo<DatabaseTypes.CollectibleEvents[]>(
@@ -110,7 +112,7 @@ const CollectibleEventsScreen = () => {
                                                 label="Debug Collectible Event"
                                                 groupPosition="single"
                                                 handleFunction={() => router.navigate('/collectible-event')}
-                                                rightIcon={<Octicons name="chevron-right" size={20} color={theme.screen.icon} />}
+                                                rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={20} color={theme.screen.icon} />}
                                         />
                                 ) : null}
                                 {hasEvents ? (
@@ -133,7 +135,7 @@ const CollectibleEventsScreen = () => {
                                                         value={formatEventValue(collectedCount, totalCollectibles, dateRange)}
                                                         groupPosition={getGroupPosition(index, eventsWithProgress.length) as any}
                                                         handleFunction={debugMode ? () => router.navigate('/collectible-event') : undefined}
-                                                        rightIcon={debugMode ? <Octicons name="chevron-right" size={20} color={theme.screen.icon} /> : undefined}
+                                                        rightIcon={debugMode ? <Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={20} color={theme.screen.icon} /> : undefined}
                                                 />
                                         ))
                                 ) : (

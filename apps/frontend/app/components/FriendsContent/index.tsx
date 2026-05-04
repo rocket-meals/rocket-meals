@@ -9,6 +9,7 @@ import { TranslationKeys } from '@/locales/keys';
 import SettingsList from '@/components/SettingsList';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import SettingsListNickname from '@/components/SettingsListNickname';
+import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import { MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import { FriendshipsHelper } from '@/redux/actions/Friendships/Friendships';
@@ -207,6 +208,8 @@ const PendingFriendshipContent: React.FC<PendingFriendshipContentProps> = ({ fri
 	const { primaryColor } = useAppSelector((state) => state.settings);
 	const showToast = useToast();
 	const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 
 	const stopPolling = useCallback(() => {
 		if (pollingRef.current) {
@@ -295,7 +298,7 @@ const PendingFriendshipContent: React.FC<PendingFriendshipContentProps> = ({ fri
 					label={translate(TranslationKeys.friendships_delete)}
 					iconBgColor="#F44336"
 					leftIcon={<MaterialCommunityIcons name="delete" size={24} color="white" />}
-					rightIcon={<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />}
+					rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
 					handleFunction={handleDelete}
 					groupPosition="single"
 				/>
@@ -423,6 +426,8 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 	const { profile } = useAppSelector((state) => state.authReducer);
 	const { primaryColor } = useAppSelector((state) => state.settings);
 	const { friendships } = useAppSelector((state) => state.friendships);
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 
 	const friendshipsHelper = useMemo(() => new FriendshipsHelper(), []);
 	const [refreshing, setRefreshing] = useState(false);
@@ -478,6 +483,7 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 		if (!profile?.id) return;
 		showScrollViewModal({
 			title: translate(TranslationKeys.friendships_generate_qr),
+			titleTextAlign: isArabic ? 'right' : 'left',
 			children: (
 				<QRGenerateModalContent
 					profileId={profile.id}
@@ -500,6 +506,7 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 	const openScanModal = useCallback((noCamera: boolean) => {
 		showScrollViewModal({
 			title: noCamera ? translate(TranslationKeys.friendships_add_manual) : translate(TranslationKeys.friendships_scan_qr),
+			titleTextAlign: isArabic ? 'right' : 'left',
 			children: (
 				<ScanModalContent
 					noCamera={noCamera}
@@ -563,6 +570,7 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 		if (isPending) {
 			showScrollViewModal({
 				title: translate(TranslationKeys.friendships_details),
+				titleTextAlign: isArabic ? 'right' : 'left',
 				children: (
 					<PendingFriendshipContent
 						friendship={friendship}
@@ -582,6 +590,7 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 
 		showScrollViewModal({
 			title: translate(TranslationKeys.friendships_details),
+			titleTextAlign: isArabic ? 'right' : 'left',
 			children: (
 				<View style={{ gap: 16 }}>
 					<View>
@@ -604,7 +613,7 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 							label={translate(TranslationKeys.friendships_delete)}
 							iconBgColor="#F44336"
 							leftIcon={<MaterialCommunityIcons name="delete" size={24} color="white" />}
-							rightIcon={<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />}
+							rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
 							handleFunction={handleDelete}
 							groupPosition="single"
 						/>
@@ -656,7 +665,7 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 					label={displayLabel}
 					value={showStatus ? translateFriendshipStatus(friendship.friendship_status) : undefined}
 					groupPosition={groupPosition}
-					rightIcon={<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />}
+					rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
 					handleFunction={() => openFriendshipDetail(friendship)}
 				/>
 			);
@@ -694,7 +703,7 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 					iconBgColor={primaryColor}
 					leftIcon={<MaterialCommunityIcons name="qrcode" size={24} color={theme.screen.icon} />}
 					label={translate(TranslationKeys.friendships_generate_qr)}
-					rightIcon={<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />}
+					rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
 					handleFunction={handleGenerateQR}
 					groupPosition="top"
 				/>
@@ -702,7 +711,7 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 					iconBgColor={primaryColor}
 					leftIcon={<MaterialCommunityIcons name="qrcode-scan" size={24} color={theme.screen.icon} />}
 					label={translate(TranslationKeys.friendships_scan_qr)}
-					rightIcon={<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />}
+					rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
 					handleFunction={handleScanQR}
 					groupPosition="middle"
 				/>
@@ -710,7 +719,7 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 					iconBgColor={primaryColor}
 					leftIcon={<MaterialCommunityIcons name="account-plus" size={24} color={theme.screen.icon} />}
 					label={translate(TranslationKeys.friendships_add_manual)}
-					rightIcon={<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />}
+					rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
 					handleFunction={handleManualAdd}
 					groupPosition="bottom"
 				/>
