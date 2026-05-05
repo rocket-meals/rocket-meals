@@ -1,10 +1,14 @@
 // src/utils/getPushToken.ts
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 export async function registerForPushNotificationsAsync(): Promise<string | null> {
   try {
+    if (Platform.OS === 'web') {
+      return null;
+    }
+
+    const Notifications = await import('expo-notifications');
     let token: string | null = null;
 
     if (!Device.isDevice) {

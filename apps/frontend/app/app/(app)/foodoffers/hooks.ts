@@ -21,8 +21,7 @@ import {
     SET_SELECTED_DATE
 } from '@/redux/Types/types';
 import { CanteenFeedbackLabelHelper } from '@/redux/actions/CanteenFeedbacksLabel/CanteenFeedbacksLabel';
-import * as Notifications from 'expo-notifications';
-import LottieView from 'lottie-react-native';
+import type LottieView from 'lottie-react-native';
 import noFoodOffersFound from '@/assets/animations/noFoodOffersFound.json';
 import { replaceLottieColors } from '@/helper/animationHelper';
 import { useFocusEffect } from 'expo-router';
@@ -302,6 +301,7 @@ export const useSheetHandling = (
 
 export const useNotifications = () => {
     const requestPermissions = async () => {
+        const Notifications = await import('expo-notifications');
         const { status } = await Notifications.getPermissionsAsync();
         if (status !== 'granted') {
             await Notifications.requestPermissionsAsync();
