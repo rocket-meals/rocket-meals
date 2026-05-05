@@ -1,13 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
 
 const Index = () => {
-	const { translate } = useLanguage();
 	return (
 		<View>
-			<Text>{translate(TranslationKeys.faq_food)}</Text>
+			<Text>index</Text>
 		</View>
 	);
 };

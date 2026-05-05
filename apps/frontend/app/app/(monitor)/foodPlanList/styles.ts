@@ -114,7 +114,7 @@ export default StyleSheet.create({
 		alignItems: 'center',
 	},
 	buttonText: {
-		// fontWeight: 'bold',
+		fontWeight: 'bold',
 	},
 	attributeListContainer: {
 		width: '100%',

@@ -13,7 +13,6 @@ const styles = StyleSheet.create({
                 flexDirection: 'row',
                 alignItems: 'center',
                 marginBottom: 8,
-                marginHorizontal: 20
         },
         title: {
                 fontSize: 16,
@@ -25,7 +24,6 @@ const styles = StyleSheet.create({
                 flexWrap: 'wrap',
                 marginTop: 4,
                 marginBottom: 8,
-                marginHorizontal: 20
         },
         actionButton: {
                 flexDirection: 'row',

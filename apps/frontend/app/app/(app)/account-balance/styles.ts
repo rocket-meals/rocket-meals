@@ -71,7 +71,6 @@ export default StyleSheet.create({
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		marginVertical: 15,
-		alignItems: 'center',
 	},
 	label: {
 		fontSize: 16,
@@ -101,18 +100,6 @@ export default StyleSheet.create({
 	nfcLabel: {
 		fontSize: 16,
 		fontFamily: 'Poppins_400Regular',
-	},
-	nfcButtonPrice: {
-		paddingVertical: 8,
-		paddingHorizontal: 14,
-		borderRadius: 8,
-		borderWidth: 1,
-		marginHorizontal: 6,
-		marginTop: 8,
-		marginVertical: 0,
-		minHeight: 0,
-		height: undefined,
-		gap: 0,
 	},
 	nfcInstructionRead: {
 		fontSize: 16,

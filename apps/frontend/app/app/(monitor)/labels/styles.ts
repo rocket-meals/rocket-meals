@@ -12,30 +12,18 @@ export default StyleSheet.create({
 		borderBottomWidth: 1,
 		borderBottomColor: '#ddd',
 	},
-	gridItem: {
-		paddingHorizontal: 10,
-		paddingVertical: 8,
+	mainContainer: {
+		margin: 10,
 	},
 	iconText: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		width: '100%',
-	},
-	iconSlot: {
-		width: 30,
-		height: 30,
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-	iconPlaceholder: {
-		width: 30,
-		height: 30,
+		marginBottom: 10,
 	},
 	title: {
-		marginLeft: 8,
+		marginLeft: 5,
 		fontSize: 17,
-		flex: 1,
-		flexShrink: 1,
+		maxWidth: '90%',
 	},
 	logoContainer: {
 		flexDirection: 'row',

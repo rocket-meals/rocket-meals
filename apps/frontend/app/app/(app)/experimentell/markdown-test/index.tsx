@@ -9,7 +9,6 @@ import { TranslationKeys } from '@/locales/keys';
 import SettingsList from '@/components/SettingsList';
 import useMyScrollviewTextInputModal from '@/hooks/useMyScrollviewTextInputModal';
 import MyMarkdown from '@/components/MyMarkdown';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 type MarkdownExample = {
 	id: string;
@@ -20,9 +19,7 @@ type MarkdownExample = {
 const MarkdownTestScreen = () => {
 	useSetPageTitle(TranslationKeys.markdown_test);
 	const { theme } = useTheme();
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
+	const { translate } = useLanguage();
 	const { openTextInputModal } = useMyScrollviewTextInputModal();
 	const [customMarkdown, setCustomMarkdown] = useState('**Markdown**\\n\\nMehrzeiliges Beispiel.');
 
@@ -64,27 +61,19 @@ const MarkdownTestScreen = () => {
 	return (
 		<ScrollView style={[styles.container, { backgroundColor: theme.screen.background }]} contentContainerStyle={styles.contentContainer}>
 			<View style={styles.content}>
-				<Text style={[styles.heading, { color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }]}>{translate(TranslationKeys.markdown_test)}</Text>
-				<Text style={[styles.description, { color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }]}>{translate(TranslationKeys.markdown_test_description)}</Text>
+				<Text style={[styles.heading, { color: theme.screen.text }]}>{translate(TranslationKeys.markdown_test)}</Text>
+				<Text style={[styles.description, { color: theme.screen.text }]}>{translate(TranslationKeys.markdown_test_description)}</Text>
 
-				<SettingsList
-					iconBgColor={theme.screen.iconBg}
-					leftIcon={<MaterialCommunityIcons name="text-box-edit-outline" size={24} color={theme.screen.icon} />}
-					label={translate(TranslationKeys.markdown_custom_input)}
-					value={translate(TranslationKeys.tap_to_edit)}
-					rightIcon={<MaterialCommunityIcons name="pencil" size={20} color={theme.screen.icon} />}
-					handleFunction={openEditor}
-					groupPosition="single"
-				/>
+				<SettingsList iconBgColor={theme.screen.iconBg} leftIcon={<MaterialCommunityIcons name="text-box-edit-outline" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.markdown_custom_input)} value={translate(TranslationKeys.tap_to_edit)} rightIcon={<MaterialCommunityIcons name="pencil" size={20} color={theme.screen.icon} />} handleFunction={openEditor} groupPosition="single" />
 
 				<View style={[styles.section, { backgroundColor: theme.screen.iconBg }]}>
-					<Text style={[styles.sectionTitle, { color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }]}>{translate(TranslationKeys.markdown_custom_output)}</Text>
+					<Text style={[styles.sectionTitle, { color: theme.screen.text }]}>{translate(TranslationKeys.markdown_custom_output)}</Text>
 					<MyMarkdown content={customMarkdown} textColor={theme.screen.text} />
 				</View>
 
 				{markdownExamples.map(example => (
 					<View key={example.id} style={[styles.section, { backgroundColor: theme.screen.iconBg }]}>
-						<Text style={[styles.sectionTitle, { color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }]}>{example.title}</Text>
+						<Text style={[styles.sectionTitle, { color: theme.screen.text }]}>{example.title}</Text>
 						<MyMarkdown content={example.content} textColor={theme.screen.text} />
 					</View>
 				))}

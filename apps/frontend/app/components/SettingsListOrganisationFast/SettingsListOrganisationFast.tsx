@@ -18,8 +18,8 @@ export interface SettingsListOrganisationFastProps {
 
 const makeSelectOrganisation = (organisationId: string) =>
 	createSelector(
-		[(state: RootState) => state.canteenReducer.organisationsDict],
-		(organisationsDict) => organisationsDict?.[String(organisationId)] ?? null
+		[(state: RootState) => state.canteenReducer.organisations],
+		(organisations) => organisations?.find((o: DatabaseTypes.Organizations) => o.id === organisationId)
 	);
 
 const SettingsListOrganisationFast: React.FC<SettingsListOrganisationFastProps> = ({

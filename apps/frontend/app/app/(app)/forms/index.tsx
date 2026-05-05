@@ -14,7 +14,6 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { useLanguage } from '@/hooks/useLanguage';
 import { SET_CACHED_FORMS } from '@/redux/Types/types';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const CACHED_COLOR = '#22c55e';
 
@@ -27,12 +26,10 @@ const [loading, setLoading] = useState(false);
 const [isShowingCachedData, setIsShowingCachedData] = useState(false);
     const { category_id } = useLocalSearchParams();
     const { language } = useAppSelector((state) => state.settings);
-    const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
     const [forms, setForms] = useState<DatabaseTypes.Forms[]>([]);
 const formsHelper = new FormsHelper();
 const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
-const { cachedFormData, cachedFormsDict } = useAppSelector((state) => state.form);
+const { cachedFormData, cachedForms } = useAppSelector((state) => state.form);
 
 const getAllForms = async () => {
 setLoading(true);
@@ -46,7 +43,7 @@ setForms(result);
 dispatch({ type: SET_CACHED_FORMS, payload: { category_id: String(category_id), forms: result } });
 }
 } catch {
-const cached = Object.values((cachedFormsDict || {})[String(category_id)] || {}) as DatabaseTypes.Forms[];
+const cached = (cachedForms || {})[String(category_id)] || [];
 if (cached.length > 0) {
 setForms(cached);
 setIsShowingCachedData(true);
@@ -110,7 +107,6 @@ return (
 style={{
 ...styles.formCategory,
 backgroundColor: theme.screen.iconBg,
-flexDirection: isArabic ? 'row-reverse' : 'row',
 }}
 key={form?.id}
 onPress={() => {
@@ -120,22 +116,15 @@ params: { form_id: form?.id },
 });
 }}
 >
-<View style={[styles.col, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+<View style={styles.col}>
 {IconComponent && <IconComponent name={iconName} size={20} color={theme.screen.icon} />}
-<Text
-	style={{
-		...styles.body,
-		color: theme.screen.text,
-		textAlign: isArabic ? 'right' : 'left',
-		writingDirection: isArabic ? 'rtl' : 'ltr',
-	}}
->
-	{form?.translations ? getFromCategoryTranslation(form?.translations, language) : form?.alias}
-</Text>
+<Text style={{ ...styles.body, color: theme.screen.text }}>{form?.translations ? getFromCategoryTranslation(form?.translations, language) : form?.alias}</Text>
 </View>
-<View style={{ flexDirection: isArabic ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-	{isCached ? <FontAwesome name="cloud-download" size={18} color={CACHED_COLOR} /> : null}
-	<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
+<View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+{isCached ? (
+<FontAwesome name="cloud-download" size={18} color={CACHED_COLOR} />
+) : null}
+<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
 </View>
 </TouchableOpacity>
 );

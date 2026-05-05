@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { store } from '@/redux/store';
 import translations from '@/locales/translations.json';
-import { CHANGE_LANGUAGE, SET_DRAWER_POSITION, SET_FUN_LANGUAGE_MODE, SET_PIRATE_LANGUAGE } from '@/redux/Types/types';
+import { CHANGE_LANGUAGE, SET_FUN_LANGUAGE_MODE, SET_PIRATE_LANGUAGE } from '@/redux/Types/types';
 import { StringHelper } from 'repo-depkit-common';
-import { isLtrLanguageCode } from '@/hooks/useIsLtrLanguage';
 
 const changeLanguage = (language: 'en' | 'de' | 'fr' | 'ar' | 'es' | 'ru' | 'tr' | 'zh') => ({
 	type: CHANGE_LANGUAGE,
@@ -123,11 +122,15 @@ export const useLanguage = () => {
 	const [funLanguageMode, setFunLanguageModeState] = useState<string | null>(store.getState().settings.funLanguageMode);
 
 	const setLanguageMode = (language: 'en' | 'de' | 'fr' | 'ar' | 'es' | 'ru' | 'tr' | 'zh') => {
+<<<<<<< HEAD
 		const currentDrawerPosition = store.getState().settings.drawerPosition;
 		if (!isLtrLanguageCode(language) && (currentDrawerPosition === 'system' || currentDrawerPosition === 'left' || !currentDrawerPosition)) {
 			store.dispatch({ type: SET_DRAWER_POSITION, payload: 'right' });
 		}
 		store.dispatch(changeLanguage(language));
+=======
+		configureStore.dispatch(changeLanguage(language));
+>>>>>>> c5e289d8ee955969134201fcbdae37043450ab48
 	};
 
 	const togglePirateLanguage = (enabled: boolean) => {

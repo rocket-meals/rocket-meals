@@ -120,7 +120,7 @@ export interface FilesService extends ItemsService<DatabaseTypes.DirectusFiles> 
 
 export class FileServiceCreator extends GetItemsService {
   private readonly eventContext: MyEventContext | undefined;
-  private useAdminAccountability: boolean = true;
+  private readonly useAdminAccountability: boolean = true;
 
   constructor(apiContext: ApiContext, eventContext?: MyEventContext, useAdminAccountability: boolean = true) {
     super(apiContext);

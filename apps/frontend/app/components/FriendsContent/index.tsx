@@ -17,7 +17,7 @@ import { ADD_FRIENDSHIP, REMOVE_FRIENDSHIP, SET_FRIENDSHIPS, UPDATE_FRIENDSHIP }
 import { DatabaseTypes } from 'repo-depkit-common';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import useToast from '@/hooks/useToast';
-import AppButton from '@/components/AppButton';
+import ProjectButton from '@/components/ProjectButton';
 import DebugView from '@/components/DebugView';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Clipboard from 'expo-clipboard';
@@ -127,7 +127,7 @@ const ScanModalContent: React.FC<ScanModalContentProps> = ({ onSubmit, checkAlre
 					isVisible={true}
 				/>
 				<View style={scanStyles.buttonContainer}>
-					<AppButton
+					<ProjectButton
 						text={translate(TranslationKeys.friendships_scan_again)}
 						onPress={handleScanAgain}
 						iconLeft={<MaterialCommunityIcons name="qrcode-scan" size={20} color={contrastColor} />}
@@ -160,7 +160,7 @@ const ScanModalContent: React.FC<ScanModalContentProps> = ({ onSubmit, checkAlre
 					autoCorrect={false}
 				/>
 				<View style={scanStyles.buttonContainer}>
-					<AppButton
+					<ProjectButton
 						text={translate(TranslationKeys.friendships_add_manual)}
 						onPress={handleManualSubmit}
 						iconLeft={<MaterialCommunityIcons name="account-plus" size={20} color={contrastColor} />}
@@ -380,7 +380,7 @@ const QRGenerateModalContent: React.FC<QRGenerateModalContentProps> = ({ profile
 					isVisible={true}
 				/>
 				<View style={scanStyles.buttonContainer}>
-					<AppButton
+					<ProjectButton
 						text={translate(TranslationKeys.friendships_generate_retry)}
 						onPress={generate}
 						iconLeft={<MaterialCommunityIcons name="refresh" size={20} color={contrastColor} />}

@@ -9,13 +9,9 @@ import { TranslationKeys } from '@/locales/keys';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { EmailHelper } from 'repo-depkit-common';
 import { SettingsListTextInputField } from '@/components/SettingsListTextInput';
-import AppButton from '@/components/AppButton';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const ManagementSheet: React.FC<SheetProps> = ({ handleLogin, loading }) => {
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
+	const { translate } = useLanguage();
 	const { theme } = useTheme();
 	const state = useAppSelector((state) => state);
 	const { primaryColor, selectedTheme: mode } = state.settings;
@@ -47,10 +43,10 @@ const ManagementSheet: React.FC<SheetProps> = ({ handleLogin, loading }) => {
 	return (
 		<View style={styles.sheetView}>
 			<View style={styles.sheetHeader}></View>
-			<Text style={{ ...styles.sheetHeading, color: theme.sheet.text, ...(isArabic ? { textAlign: 'right', writingDirection: 'rtl' } : {}) }}>
+			<Text style={{ ...styles.sheetHeading, color: theme.sheet.text }}>
 				{translate(TranslationKeys.show_login_for_management_with_email_and_password)}
 			</Text>
-			<Text style={{ ...styles.sheetSubHeading, color: theme.sheet.text, ...(isArabic ? { textAlign: 'right', writingDirection: 'rtl' } : {}) }}>
+			<Text style={{ ...styles.sheetSubHeading, color: theme.sheet.text }}>
 				{translate(TranslationKeys.management_login_description)}
 			</Text>
 			<SettingsListTextInputField
@@ -74,27 +70,27 @@ const ManagementSheet: React.FC<SheetProps> = ({ handleLogin, loading }) => {
 				returnKeyType="done"
 				onSubmitEditing={onSubmit}
 			/>
-			<AppButton
-				variant="ghost"
-				usePlainText
-				text={loading ? '' : translate(TranslationKeys.sign_in)}
-				onPress={onSubmit}
-				loadingIndicatorColor={theme.screen.text}
-				loadingIndicatorSize={20}
+			<TouchableOpacity
 				style={{
 					...styles.sheetLoginButton,
 					backgroundColor: isFormValid ? primaryColor : theme.sheet.buttonDisabled,
-					marginVertical: 0,
 				}}
-				textStyle={
-					loading
-						? { width: 0, height: 0 }
-						: {
-								...styles.sheetLoginLabel,
-								color: isFormValid ? contrastColor : theme.screen.text,
-							}
-				}
-			/>
+				disabled={!isFormValid}
+				onPress={onSubmit}
+			>
+				{loading ? (
+					<ActivityIndicator size={'small'} color={theme.screen.text} />
+				) : (
+					<Text
+						style={{
+							...styles.sheetLoginLabel,
+							color: isFormValid ? contrastColor : theme.screen.text,
+						}}
+					>
+						{translate(TranslationKeys.sign_in)}
+					</Text>
+				)}
+			</TouchableOpacity>
 		</View>
 	);
 };

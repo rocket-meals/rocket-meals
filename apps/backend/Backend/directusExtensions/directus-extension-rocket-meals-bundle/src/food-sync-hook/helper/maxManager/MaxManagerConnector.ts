@@ -42,7 +42,7 @@ type CanteenData = {
 
 export class MaxManagerConnector implements FoodParserInterface, MarkingParserInterface {
 
-    private config: MaxManagerConnectorConfig;
+    private readonly config: MaxManagerConnectorConfig;
 
     static PAGE_INDEX = "/index.php";
     static PAGE_AJAX_KONNEKTOR = "/inc/ajax-php_konnektor.inc.php";

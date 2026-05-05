@@ -17,18 +17,8 @@ interface CanteenSelectionProps {
 const CanteenSelection: React.FC<CanteenSelectionProps> = ({ onSelectCanteen }) => {
 	const { theme } = useTheme();
 	const { serverInfo, appSettings, primaryColor } = useAppSelector((state) => state.settings);
-	const { canteensDict, selectedCanteen } = useAppSelector((state) => state.canteenReducer);
+	const { canteens, selectedCanteen } = useAppSelector((state) => state.canteenReducer);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
-	const canteens = useMemo(
-		() =>
-			Object.values(canteensDict || {}).sort((a: any, b: any) => {
-				const aPublished = a.status === 'published';
-				const bPublished = b.status === 'published';
-				if (aPublished !== bPublished) return aPublished ? -1 : 1;
-				return (a.sort || 0) - (b.sort || 0);
-			}),
-		[canteensDict]
-	);
 	const [listWidth, setListWidth] = useState<number | null>(null);
 
 	const defaultImage = getImageUrl(serverInfo?.info?.project?.project_logo);

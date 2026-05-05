@@ -9,7 +9,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { isInExpoGo } from '@/helper/DeviceRuntimeHelper';
-import AppButton from '@/components/AppButton';
 
 interface ExpoUpdateCheckerProps {
 	children?: ReactNode;
@@ -88,25 +87,13 @@ const ExpoUpdateChecker: React.FC<ExpoUpdateCheckerProps> = ({ children }) => {
 						<Text style={{ color: theme.screen.text, textAlign: 'center' }}>{translate(messageKey)}</Text>
 					</View>
 					<View style={modalStyles.buttonContainer}>
-						<AppButton
-							text={translate(updateAvailable ? TranslationKeys.cancel : TranslationKeys.okay)}
-							onPress={() => setModalVisible(false)}
-							variant="ghost"
-							usePlainText
-							style={[modalStyles.cancelButton, { borderColor: primaryColor }]}
-							textStyle={[modalStyles.buttonText, { color: theme.screen.text }]}
-						/>
+						<TouchableOpacity onPress={() => setModalVisible(false)} style={[modalStyles.cancelButton, { borderColor: primaryColor }]}>
+							<Text style={[modalStyles.buttonText, { color: theme.screen.text }]}>{translate(updateAvailable ? TranslationKeys.cancel : TranslationKeys.okay)}</Text>
+						</TouchableOpacity>
 						{updateAvailable && (
-							<AppButton
-								text={translate(TranslationKeys.to_update)}
-								onPress={applyUpdate}
-								variant="ghost"
-								usePlainText
-								loading={updating}
-								loadingIndicatorColor={contrastColor}
-								style={[modalStyles.saveButton, { backgroundColor: primaryColor }]}
-								textStyle={[modalStyles.buttonText, { color: contrastColor }]}
-							/>
+							<TouchableOpacity onPress={applyUpdate} style={[modalStyles.saveButton, { backgroundColor: primaryColor }]}>
+								{updating ? <ActivityIndicator color={contrastColor} /> : <Text style={[modalStyles.buttonText, { color: contrastColor }]}>{translate(TranslationKeys.to_update)}</Text>}
+							</TouchableOpacity>
 						)}
 					</View>
 				</ModalSheet>

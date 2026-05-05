@@ -1,9 +1,7 @@
-import { TranslationKeys } from '@/locales/keys';
-
 export type PoiSubtype = {
     key: string;
     emoji: string;
-    labelKey: TranslationKeys;
+    label: string;
 };
 
 // All icon keys from ICON_EMOJI_MAP that belong to the "barriers" group.
@@ -40,19 +38,19 @@ export const PARKING_ICON_KEYS: string[] = [
 ];
 
 export const POI_SUBTYPES: PoiSubtype[] = [
-    { key: 'recycling', emoji: '♻️', labelKey: TranslationKeys.poi_recycling },
-    { key: 'waste_basket', emoji: '🗑️', labelKey: TranslationKeys.poi_waste_basket },
-    { key: 'waste_disposal', emoji: '🗑️', labelKey: TranslationKeys.poi_waste_disposal },
-    { key: 'bench', emoji: '🪑', labelKey: TranslationKeys.poi_bench },
-    { key: 'drinking_water', emoji: '🚰', labelKey: TranslationKeys.poi_drinking_water },
-    { key: 'toilets', emoji: '🚻', labelKey: TranslationKeys.poi_toilets },
-    { key: 'telephone', emoji: '☎️', labelKey: TranslationKeys.poi_telephone },
-    { key: 'vending_machine', emoji: '🎰', labelKey: TranslationKeys.poi_vending_machine },
-    { key: 'basin', emoji: '🪣', labelKey: TranslationKeys.poi_basin },
-    { key: 'chess', emoji: '♟️', labelKey: TranslationKeys.poi_chess },
-    { key: 'shelter', emoji: '🏠', labelKey: TranslationKeys.poi_shelter },
-    { key: 'fountain', emoji: '⛲', labelKey: TranslationKeys.poi_fountain },
-    { key: 'clock', emoji: '🕰️', labelKey: TranslationKeys.poi_clock },
-    { key: 'viewpoint', emoji: '👁️', labelKey: TranslationKeys.poi_viewpoint },
-    { key: 'information', emoji: 'ℹ️', labelKey: TranslationKeys.information },
+    { key: 'recycling', emoji: '♻️', label: 'Recycling' },
+    { key: 'waste_basket', emoji: '🗑️', label: 'Mülleimer' },
+    { key: 'waste_disposal', emoji: '🗑️', label: 'Müllentsorgung' },
+    { key: 'bench', emoji: '🪑', label: 'Bänke' },
+    { key: 'drinking_water', emoji: '🚰', label: 'Trinkwasser' },
+    { key: 'toilets', emoji: '🚻', label: 'Toiletten' },
+    { key: 'telephone', emoji: '☎️', label: 'Telefon' },
+    { key: 'vending_machine', emoji: '🎰', label: 'Automaten' },
+    { key: 'basin', emoji: '🪣', label: 'Becken' },
+    { key: 'chess', emoji: '♟️', label: 'Schach' },
+    { key: 'shelter', emoji: '🏠', label: 'Unterstand' },
+    { key: 'fountain', emoji: '⛲', label: 'Brunnen' },
+    { key: 'clock', emoji: '🕰️', label: 'Uhren' },
+    { key: 'viewpoint', emoji: '👁️', label: 'Aussichtspunkte' },
+    { key: 'information', emoji: 'ℹ️', label: 'Information' },
 ];

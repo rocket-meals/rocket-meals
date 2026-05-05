@@ -6,9 +6,6 @@ import { useTheme } from '@/hooks/useTheme';
 import useDebugMode from '@/hooks/useDebugMode';
 import { useAppSelector } from '@/redux/hooks';
 import styles from './styles';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 export type DebugLog = string | { message: string; timestamp?: string | Date };
 
@@ -39,7 +36,7 @@ interface DebugViewProps extends OverlayBaseProps {
 }
 
 const DebugView: React.FC<DebugViewProps> = ({
-        title,
+        title = 'Debug',
         logs = [],
         actions = [],
         isVisible = false,
@@ -47,11 +44,8 @@ const DebugView: React.FC<DebugViewProps> = ({
         children,
 }) => {
         const { theme } = useTheme();
-        const isLtrLanguage = useIsLtrLanguage();
-        const { translate } = useLanguage();
         const debugMode = useDebugMode();
         const isDevMode = useAppSelector((state) => state.authReducer.isDevMode);
-        const resolvedTitle = title ?? translate(TranslationKeys.debug);
 
         const formattedLogs = useMemo(() => {
                 return logs
@@ -78,13 +72,13 @@ const DebugView: React.FC<DebugViewProps> = ({
                                 styles.container,
                         ]}
                 >
-                        <View style={[styles.header, !isLtrLanguage ? { flexDirection: 'row-reverse' } : undefined]}>
+                        <View style={styles.header}>
                                 <MaterialCommunityIcons name="bug-outline" size={18} color={theme.screen.icon} />
-                                <Text style={{ ...styles.title, color: theme.screen.text }}>{resolvedTitle}</Text>
+                                <Text style={{ ...styles.title, color: theme.screen.text }}>{title}</Text>
                         </View>
 
                         {actions.length ? (
-                                <View style={[styles.actionsContainer, !isLtrLanguage ? { justifyContent: 'flex-end' } : undefined]}>
+                                <View style={styles.actionsContainer}>
                                         {actions.map((action, index) => (
                                                 <TouchableOpacity
                                                         key={`${action.label}-${index}`}

@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Updates from 'expo-updates';
 import usePlatformHelper from '@/helper/platformHelper';
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
 import { isInExpoGo } from '@/helper/DeviceRuntimeHelper';
 import { getCompanyLogoLocalSaved } from '@/config';
-import AppButton from '../AppButton';
 
 interface ExpoUpdateLoaderProps {
 	children?: React.ReactNode;
@@ -85,13 +84,9 @@ const ExpoUpdateLoader: React.FC<ExpoUpdateLoaderProps> = ({ children }) => {
 			<Image source={getCompanyLogoLocalSaved()} style={styles.logo} resizeMode="contain" />
 			<View style={styles.bottomContainer}>
 				{showCancel && (
-					<AppButton
-						text={translate(TranslationKeys.cancel)}
-						onPress={handleCancel}
-						style={styles.cancelButton}
-						textStyle={styles.cancelLabel}
-						usePlainText
-					/>
+					<TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
+						<Text style={styles.cancelLabel}>{translate(TranslationKeys.cancel)}</Text>
+					</TouchableOpacity>
 				)}
 				<Text style={styles.title}>{translate(status)}</Text>
 				<ActivityIndicator size="large" style={styles.spinner} />

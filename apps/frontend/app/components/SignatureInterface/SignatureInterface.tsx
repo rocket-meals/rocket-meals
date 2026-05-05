@@ -9,7 +9,6 @@ import { isWeb } from '@/constants/Constants';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { ServerAPI } from '@/redux/actions';
-import AppButton from '@/components/AppButton';
 
 // Import libraries based on platform
 const SignatureCanvas = Platform.OS === 'web' ? require('react-signature-canvas').default : require('react-native-signature-canvas').default;
@@ -127,7 +126,7 @@ const SignatureInterface = ({ id, value, onChange, error, isDisabled, custom_typ
 					descriptionText="Sign here"
 					penColor={'#000000'}
 					clearText="Clear"
-					confirmText={translate(TranslationKeys.save)}
+					confirmText="Save"
 					backgroundColor={'#ffffff'}
 					webStyle={styles.signaturePad}
 					autoClear={false}
@@ -155,15 +154,10 @@ const SignatureInterface = ({ id, value, onChange, error, isDisabled, custom_typ
 			)}
 
 			<View style={{ ...styles.buttonContainer }}>
-				<AppButton
-					variant="ghost"
-					usePlainText
-					text={translate(TranslationKeys.clear)}
-					onPress={handleClear}
-					style={{ ...styles.button, backgroundColor: primaryColor, marginVertical: 0 }}
-					textStyle={{ ...styles.buttonText, color: theme.screen.text }}
-					iconLeft={<MaterialIcons name="clear" size={24} color={theme.screen.text} />}
-				/>
+				<TouchableOpacity style={{ ...styles.button, backgroundColor: primaryColor }} onPress={handleClear} activeOpacity={0.7}>
+					<MaterialIcons name="clear" size={24} color={theme.screen.text} />
+					<Text style={{ ...styles.buttonText, color: theme.screen.text }}>{translate(TranslationKeys.clear)}</Text>
+				</TouchableOpacity>
 			</View>
 			{folderHint != null && (
 				<Text style={{ ...styles.folderHint, color: theme.screen.text }}>

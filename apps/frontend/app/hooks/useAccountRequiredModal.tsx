@@ -4,13 +4,11 @@ import { useDispatch } from 'react-redux';
 import { useRouter } from 'expo-router';
 
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
-import AppButton from '@/components/AppButton';
+import ProjectButton from '@/components/ProjectButton';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { TranslationKeys } from '@/locales/keys';
 import { performLogout } from '@/helper/logoutHelper';
-import { useAppSelector } from '@/redux/hooks';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const useAccountRequiredModal = () => {
 	const { show, close, closeAll } = useMyScrollViewModal();
@@ -18,9 +16,6 @@ const useAccountRequiredModal = () => {
 	const { theme } = useTheme();
 	const router = useRouter();
 	const dispatch = useDispatch();
-	const language = useAppSelector((state) => state.settings.language);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 
 	const openAccountRequiredModal = useCallback(() => {
 		const handleLogin = () => {
@@ -29,15 +24,13 @@ const useAccountRequiredModal = () => {
 
 		show({
 			title: translate(TranslationKeys.access_limited),
-			titleTextAlign: isArabic ? 'right' : 'left',
-			titleWritingDirection: isArabic ? 'rtl' : 'ltr',
 			onClose: close,
 			children: (
 				<View style={{ gap: 12 }}>
-					<Text style={{ color: theme.sheet.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>
+					<Text style={{ color: theme.sheet.text }}>
 						{translate(TranslationKeys.limited_access_description)}
 					</Text>
-					<AppButton
+					<ProjectButton
 						text={`${translate(TranslationKeys.sign_in)} / ${translate(TranslationKeys.create_account)}`}
 						onPress={() => {
 							closeAll();
@@ -48,7 +41,7 @@ const useAccountRequiredModal = () => {
 				</View>
 			),
 		});
-	}, [close, closeAll, dispatch, router, show, theme.sheet.text, translate, isArabic]);
+	}, [close, closeAll, dispatch, router, show, theme.sheet.text, translate]);
 
 	return { openAccountRequiredModal, closeAccountRequiredModal: close };
 };

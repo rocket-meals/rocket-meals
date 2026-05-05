@@ -5,7 +5,19 @@ import { File, Paths } from 'expo-file-system';
 export type Player = {
 	id: string;
 	name: string;
+	color: string;
 };
+
+export const PLAYER_COLORS = [
+	'#2563eb', // blue
+	'#dc2626', // red
+	'#16a34a', // green
+	'#ea580c', // orange
+	'#9333ea', // purple
+	'#0891b2', // cyan
+	'#ca8a04', // yellow
+	'#db2777', // pink
+];
 
 export type Round = {
 	id: string;

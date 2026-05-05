@@ -29,7 +29,6 @@ import MyMap from '@/components/MyMap';
 import type { MyMapHandle } from '@/components/MyMap/MyMapHelper';
 import { MapStyleKey, SettingsListMyMapThemeSelection, MAP_STYLE_DEFINITIONS } from 'repo-depkit-common-ui';
 import JoggingOverlay from '@/app/(app)/map/components/JoggingOverlay';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 type BuildingCoordinates = { coordinates?: [number, number] } | null;
 
@@ -145,23 +144,20 @@ const AirplaneControls: React.FC<AirplaneControlsProps> = ({
 	onSpeedUpLarge,
 	onSpeedDown,
 	onSpeedDownLarge,
-}) => {
-	const { translate } = useLanguage();
-	return (
-		<View style={gameModeStyles.airplaneLayout}>
-			<View style={gameModeStyles.turnColumn}>
-				<ControlButton onPressIn={onTurnLeftStart} onPressOut={onTurnLeftEnd} label="◀" color="rgba(26,115,232,0.85)" size="lg" />
-				<ControlButton onPressIn={onTurnRightStart} onPressOut={onTurnRightEnd} label="▶" color="rgba(26,115,232,0.85)" size="lg" />
-			</View>
-			<View style={gameModeStyles.throttleColumn}>
-				<ControlButton onPress={onSpeedUpLarge} label="+100" color="rgba(46,125,50,0.85)" size="sm" />
-				<ControlButton onPress={onSpeedUp} label="+10" color="rgba(46,125,50,0.85)" size="sm" />
-				<ControlButton onPress={onSpeedDown} label="-10" color="rgba(183,28,28,0.85)" size="sm" />
-				<ControlButton onPress={onSpeedDownLarge} label="-100" color="rgba(183,28,28,0.85)" size="sm" />
-			</View>
+}) => (
+	<View style={gameModeStyles.airplaneLayout}>
+		<View style={gameModeStyles.turnColumn}>
+			<ControlButton onPressIn={onTurnLeftStart} onPressOut={onTurnLeftEnd} label="◀" color="rgba(26,115,232,0.85)" size="lg" />
+			<ControlButton onPressIn={onTurnRightStart} onPressOut={onTurnRightEnd} label="▶" color="rgba(26,115,232,0.85)" size="lg" />
 		</View>
-	);
-};
+		<View style={gameModeStyles.throttleColumn}>
+			<ControlButton onPress={onSpeedUpLarge} label="+100" color="rgba(46,125,50,0.85)" size="sm" />
+			<ControlButton onPress={onSpeedUp} label="+10" color="rgba(46,125,50,0.85)" size="sm" />
+			<ControlButton onPress={onSpeedDown} label="-10" color="rgba(183,28,28,0.85)" size="sm" />
+			<ControlButton onPress={onSpeedDownLarge} label="-100" color="rgba(183,28,28,0.85)" size="sm" />
+		</View>
+	</View>
+);
 
 const gameModeStyles = StyleSheet.create({
 	airplaneLayout: { flexDirection: 'row', alignItems: 'center', gap: 12 },
@@ -220,9 +216,6 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 	onRevokeConsent,
 	theme,
 }) => {
-	const { translate } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 	const [selectedStyleKey, setSelectedStyleKey] = useState(initialSelectedStyleKey);
 	const [localFlyAnimation, setLocalFlyAnimation] = useState(initialUseFlyAnimation);
 	const [localClusterDistance, setLocalClusterDistance] = useState(String(initialClusterDistance));
@@ -235,7 +228,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 
 	return (
 		<>
-			<SettingsGroupTitle>{translate(TranslationKeys.map_settings)}</SettingsGroupTitle>
+			<SettingsGroupTitle>Karten Einstellungen</SettingsGroupTitle>
 			<SettingsListMyMapThemeSelection
 				selectedMapStyleKey={selectedStyleKey}
 				onMapStyleKeyChange={(key) => {
@@ -246,7 +239,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				groupPosition="top"
 			/>
 			<SettingsList
-				title={translate(TranslationKeys.cluster_distance_px)}
+				title="Cluster-Abstand (px)"
 				leftIcon={<MaterialCommunityIcons name="dots-grid" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<TextInput
@@ -265,7 +258,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				groupPosition="middle"
 			/>
 			<SettingsList
-				title={translate(TranslationKeys.smooth_camera_movement)}
+				title="Sanfte Kamera-Bewegung"
 				leftIcon={<MaterialIcons name="animation" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -280,7 +273,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				showSeparator={true}
 			/>
 			<SettingsList
-				title={translate(TranslationKeys.fullscreen)}
+				title="Vollbild"
 				leftIcon={<MaterialIcons name={isFullscreen ? 'fullscreen-exit' : 'fullscreen'} size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -292,26 +285,26 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				showSeparator={true}
 			/>
 			<SettingsList
-				title={translate(TranslationKeys.map_controls)}
+				title="Kartensteuerung"
 				leftIcon={<MaterialIcons name="touch-app" size={20} color={theme.screen.icon} />}
-				rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
+				rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />}
 				onPress={onShowControlsHint}
 				groupPosition="bottom"
 				showSeparator={false}
 			/>
 			<SettingsGroupMyMapGeneralMarkers />
-			<SettingsGroupTitle>{translate(TranslationKeys.privacy)}</SettingsGroupTitle>
+			<SettingsGroupTitle>Datenschutz</SettingsGroupTitle>
 			<SettingsList
-				title={translate(TranslationKeys.revoke_osm_consent)}
-				value={translate(TranslationKeys.map_not_loaded_afterwards)}
+				title="OpenStreetMap-Zustimmung widerrufen"
+				value="Karte wird danach nicht mehr geladen"
 				leftIcon={<MaterialCommunityIcons name="map-marker-off-outline" size={20} color={theme.screen.icon} />}
-				rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
+				rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />}
 				onPress={onRevokeConsent}
 				groupPosition="single"
 			/>
-			<SettingsGroupTitle>{translate(TranslationKeys.fun_settings)}</SettingsGroupTitle>
+			<SettingsGroupTitle>Spaß Einstellungen</SettingsGroupTitle>
 			<SettingsList
-				title={translate(TranslationKeys.game_mode)}
+				title="Spiel Modus"
 				leftIcon={<MaterialIcons name="sports-esports" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -326,7 +319,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				showSeparator={true}
 			/>
 			<SettingsList
-				title={translate(TranslationKeys.auto_rotate_mode)}
+				title="Auto-Rotate Modus"
 				leftIcon={<MaterialIcons name="360" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -341,7 +334,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				showSeparator={true}
 			/>
 			<SettingsList
-				title={translate(TranslationKeys.fictional_person_mode)}
+				title="Fiktiver Mensch Modus"
 				leftIcon={<MaterialIcons name="people" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -357,7 +350,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 			/>
 			{localPeopleMode && (
 				<SettingsList
-					title={translate(TranslationKeys.intelligent_movement)}
+					title="Intelligente Bewegung"
 					leftIcon={<MaterialIcons name="directions-walk" size={20} color={theme.screen.icon} />}
 					rightElement={
 						<Switch
@@ -374,7 +367,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 			)}
 			{localPeopleMode && (
 				<SettingsList
-					title={translate(TranslationKeys.simulated_people_count)}
+					title="Anzahl simulierter Menschen"
 					leftIcon={<MaterialIcons name="person-add" size={20} color={theme.screen.icon} />}
 					rightElement={
 						<TextInput
@@ -395,7 +388,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				/>
 			)}
 			<SettingsList
-				title={translate(TranslationKeys.fictional_driver_mode)}
+				title="Fiktiver Autofahrer Modus"
 				leftIcon={<MaterialIcons name="directions-car" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -420,51 +413,35 @@ type OsmControlsHintContentProps = {
 
 const OsmControlsHintContent: React.FC<OsmControlsHintContentProps> = ({ onDontShowAgain, theme }) => {
 	const isWeb = Platform.OS === 'web';
-	const { translate } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
-	const hintTextStyle = {
-		color: theme.screen.text,
-		fontSize: 15,
-		marginBottom: 8,
-		...(isArabic ? { textAlign: 'right' as const, writingDirection: 'rtl' as const, alignSelf: 'flex-end' as const } : null),
-	};
-	const infoTextStyle = {
-		color: theme.screen.text + '99',
-		fontSize: 13,
-		marginTop: 8,
-		marginBottom: 16,
-		...(isArabic ? { textAlign: 'right' as const, writingDirection: 'rtl' as const, alignSelf: 'flex-end' as const } : null),
-	};
 	return (
 		<View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
 			{isWeb ? (
 				<>
-					<Text style={hintTextStyle}>
-						{translate(TranslationKeys.mouse_left_drag_move)}
+					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
+						{'🖱️ Linke Maustaste halten: Karte verschieben'}
 					</Text>
-					<Text style={hintTextStyle}>
-						{translate(TranslationKeys.mouse_right_drag_pitch)}
+					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
+						{'🖱️ Rechte Maustaste halten: Neigung ändern'}
 					</Text>
-					<Text style={hintTextStyle}>
-						{translate(TranslationKeys.mouse_wheel_zoom)}
+					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
+						{'🖱️ Mausrad: Zoomen'}
 					</Text>
 				</>
 			) : (
 				<>
-					<Text style={hintTextStyle}>
-						{translate(TranslationKeys.touch_pinch_zoom)}
+					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
+						{'👌 Zwei Finger spreizen / zusammenführen: Zoomen'}
 					</Text>
-					<Text style={hintTextStyle}>
-						{translate(TranslationKeys.touch_two_finger_pitch)}
+					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
+						{'☝️☝️ Zwei Finger hoch / runter: Neigung ändern'}
 					</Text>
-					<Text style={hintTextStyle}>
-						{translate(TranslationKeys.touch_one_finger_move)}
+					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
+						{'☝️ Ein Finger bewegen: Karte verschieben'}
 					</Text>
 				</>
 			)}
-			<Text style={infoTextStyle}>
-				{translate(TranslationKeys.controls_hint_info)}
+			<Text style={{ color: theme.screen.text + '99', fontSize: 13, marginTop: 8, marginBottom: 16 }}>
+				{'Dieser Hinweis kann über die Einstellungen jederzeit aufgerufen werden.'}
 			</Text>
 			<TouchableOpacity
 				onPress={onDontShowAgain}
@@ -475,7 +452,7 @@ const OsmControlsHintContent: React.FC<OsmControlsHintContentProps> = ({ onDontS
 					alignItems: 'center',
 				}}
 			>
-				<Text style={{ color: theme.screen.text, fontSize: 15 }}>{translate(TranslationKeys.dont_show_hint_again)}</Text>
+				<Text style={{ color: theme.screen.text, fontSize: 15 }}>Diesen Hinweis nicht mehr anzeigen</Text>
 			</TouchableOpacity>
 		</View>
 	);
@@ -486,33 +463,27 @@ type OsmConsentContentProps = {
 	theme: ReturnType<typeof useTheme>['theme'];
 };
 
-const OsmConsentContent: React.FC<OsmConsentContentProps> = ({ onConsent, theme }) => {
-	const { translate } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
-
-	return (
-		<View style={{ paddingHorizontal: 16, paddingVertical: 24, alignItems: 'center' }}>
-			<MaterialCommunityIcons name="map-marker-radius" size={56} color={theme.screen.icon} style={{ marginBottom: 16 }} />
-			<Text style={{ color: theme.screen.text, fontSize: 17, fontWeight: 'bold', textAlign: 'center', marginBottom: 12 }}>
-				{translate(TranslationKeys.map_display_with_osm)}
-			</Text>
-			<Text style={{ color: theme.screen.text, fontSize: 14, textAlign: 'center', marginBottom: 8, lineHeight: 20 }}>
-				{translate(TranslationKeys.osm_consent_description)}
-			</Text>
-			<Text style={{ color: theme.screen.text + 'aa', fontSize: 13, textAlign: 'center', marginBottom: 24, lineHeight: 18 }}>
-				{translate(TranslationKeys.consent_saved_info)}
-			</Text>
-			<SettingsList
-				title={translate(TranslationKeys.load_map_data_consent)}
-				leftIcon={<MaterialCommunityIcons name="check-circle-outline" size={22} color={theme.screen.icon} />}
-				rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
-				onPress={onConsent}
-				groupPosition="single"
-			/>
-		</View>
-	);
-};
+const OsmConsentContent: React.FC<OsmConsentContentProps> = ({ onConsent, theme }) => (
+	<View style={{ paddingHorizontal: 16, paddingVertical: 24, alignItems: 'center' }}>
+		<MaterialCommunityIcons name="map-marker-radius" size={56} color={theme.screen.icon} style={{ marginBottom: 16 }} />
+		<Text style={{ color: theme.screen.text, fontSize: 17, fontWeight: 'bold', textAlign: 'center', marginBottom: 12 }}>
+			Kartenanzeige mit OpenStreetMap
+		</Text>
+		<Text style={{ color: theme.screen.text, fontSize: 14, textAlign: 'center', marginBottom: 8, lineHeight: 20 }}>
+			Diese Karte lädt Kartendaten von <Text style={{ fontWeight: 'bold' }}>OpenStreetMap</Text> (openstreetmap.org) und <Text style={{ fontWeight: 'bold' }}>OpenFreeMap</Text> (openfreemap.org). Dabei werden Daten wie deine IP-Adresse an Server der OpenStreetMap Foundation und Protomaps LLC übertragen.
+		</Text>
+		<Text style={{ color: theme.screen.text + 'aa', fontSize: 13, textAlign: 'center', marginBottom: 24, lineHeight: 18 }}>
+			Deine Zustimmung wird gespeichert und kann jederzeit in den Karten-Einstellungen widerrufen werden.
+		</Text>
+		<SettingsList
+			title="Kartendaten laden (Zustimmen)"
+			leftIcon={<MaterialCommunityIcons name="check-circle-outline" size={22} color={theme.screen.icon} />}
+			rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />}
+			onPress={onConsent}
+			groupPosition="single"
+		/>
+	</View>
+);
 
 type OsmFilterContentProps = {
 	organisations: DatabaseTypes.Organizations[];
@@ -699,10 +670,8 @@ const OsmVectorMapScreen: React.FC = () => {
 	const { theme } = useTheme();
 	const myMapRef = useRef<MyMapHandle>(null);
 
-	const { buildingsDict, buildingsOrganizationsDict, organisationsDict } = useAppSelector((state) => state.canteenReducer);
+	const { buildingsDict, buildingsOrganizations, organisations } = useAppSelector((state) => state.canteenReducer);
 	const buildings = useMemo(() => Object.values(buildingsDict ?? {}), [buildingsDict]);
-	const buildingsOrganizations = useMemo(() => Object.values(buildingsOrganizationsDict ?? {}), [buildingsOrganizationsDict]);
-	const organisations = useMemo(() => Object.values(organisationsDict ?? {}), [organisationsDict]);
 	const primaryColor = useAppSelector((state) => state.settings.primaryColor);
 	const drawerPosition = useAppSelector((state) => state.settings.drawerPosition);
 	const selectedStyleKey = useAppSelector((state) => ((state.settings as any).osmVectorMapStyleKey ?? MapStyleKey.DEFAULT) as MapStyleKey);
@@ -732,9 +701,7 @@ const OsmVectorMapScreen: React.FC = () => {
 	const selectedCanteen = useSelectedCanteen();
 	const { openBuildingDetailsModal } = useBuildingDetailsModal();
 	const { show, close } = useMyScrollViewModal();
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isRtl = !isLtrLanguage;
+	const { translate } = useLanguage();
 
 	const [logEntries, setLogEntries] = useState<string[]>([]);
 	const logScrollRef = useRef<ScrollView>(null);
@@ -804,17 +771,17 @@ const OsmVectorMapScreen: React.FC = () => {
 		});
 	}, []);
 
-	// const organisationsDict = useMemo(
-	// 	() =>
-	// 		(organisations as DatabaseTypes.Organizations[]).reduce<Record<string, DatabaseTypes.Organizations>>(
-	// 			(acc, org) => {
-	// 				acc[org.id] = org;
-	// 				return acc;
-	// 			},
-	// 			{},
-	// 		),
-	// 	[organisations],
-	// );
+	const organisationsDict = useMemo(
+		() =>
+			(organisations as DatabaseTypes.Organizations[]).reduce<Record<string, DatabaseTypes.Organizations>>(
+				(acc, org) => {
+					acc[org.id] = org;
+					return acc;
+				},
+				{},
+			),
+		[organisations],
+	);
 
 	const buildingIdToOrgsDict = useMemo(
 		() => BuildingsHelper.getBuildingIdToOrganizationsDict(buildingsOrganizations, organisationsDict),
@@ -1026,9 +993,7 @@ const OsmVectorMapScreen: React.FC = () => {
 			pendingNavigateRef.current = true;
 		}
 		setSearchQuery('');
-		if (Platform.OS !== 'web') {
-			Keyboard.dismiss();
-		}
+		Keyboard.dismiss();
 	}, []);
 
 	const selectedStyleUrl = MAP_STYLE_DEFINITIONS[selectedStyleKey]?.styleUrl ?? MAP_STYLE_DEFINITIONS[MapStyleKey.DEFAULT].styleUrl;
@@ -1390,9 +1355,7 @@ const OsmVectorMapScreen: React.FC = () => {
 
 	const openControlsHintModal = useCallback(() => {
 		show({
-			title: translate(TranslationKeys.map_controls),
-			titleTextAlign: isRtl ? 'right' : 'left',
-			titleWritingDirection: isRtl ? 'rtl' : 'ltr',
+			title: 'Kartensteuerung',
 			children: (
 				<OsmControlsHintContent
 					onDontShowAgain={() => {
@@ -1403,7 +1366,7 @@ const OsmVectorMapScreen: React.FC = () => {
 				/>
 			),
 		});
-	}, [show, close, dispatch, isRtl, theme, translate]);
+	}, [show, close, dispatch, theme]);
 
 	const setGameModeDispatch = useCallback(
 		(value: boolean) => {
@@ -1456,9 +1419,7 @@ const OsmVectorMapScreen: React.FC = () => {
 
 	const openSettingsModal = useCallback(() => {
 		show({
-			title: translate(TranslationKeys.map_settings),
-			titleTextAlign: isRtl ? 'right' : 'left',
-			titleWritingDirection: isRtl ? 'rtl' : 'ltr',
+			title: 'Karten Einstellungen',
 			children: (
 				<OsmSettingsContent
 					initialSelectedStyleKey={selectedStyleKey}
@@ -1490,7 +1451,7 @@ const OsmVectorMapScreen: React.FC = () => {
 				/>
 			),
 		});
-	}, [show, close, isRtl, selectedStyleKey, useFlyAnimation, clusterDistance, gameMode, autoRotateMode, peopleMode, intelligentMovement, peopleCount, carMode, isFullscreen, theme, setSelectedStyleKey, setUseFlyAnimationDispatch, setClusterDistanceDispatch, setGameModeDispatch, setAutoRotateModeDispatch, setPeopleModeDispatch, setIntelligentMovementDispatch, setPeopleCountDispatch, setCarModeDispatch, setConsentDispatch, handleToggleFullscreen, openControlsHintModal, translate]);
+	}, [show, close, selectedStyleKey, useFlyAnimation, clusterDistance, gameMode, autoRotateMode, peopleMode, intelligentMovement, peopleCount, carMode, isFullscreen, theme, setSelectedStyleKey, setUseFlyAnimationDispatch, setClusterDistanceDispatch, setGameModeDispatch, setAutoRotateModeDispatch, setPeopleModeDispatch, setIntelligentMovementDispatch, setPeopleCountDispatch, setCarModeDispatch, setConsentDispatch, handleToggleFullscreen, openControlsHintModal]);
 
 	// Compass: reset map bearing to north
 	const handleCompassPress = useCallback(() => {
@@ -1502,7 +1463,7 @@ const OsmVectorMapScreen: React.FC = () => {
 		try {
 			const { status } = await Location.requestForegroundPermissionsAsync();
 			if (status !== 'granted') {
-				Alert.alert(translate(TranslationKeys.location), translate(TranslationKeys.location_permission_denied));
+				Alert.alert('Standort', 'Standortberechtigung wurde verweigert.');
 				return;
 			}
 			const location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
@@ -1510,18 +1471,16 @@ const OsmVectorMapScreen: React.FC = () => {
 			setUserLocation({ lat: latitude, lng: longitude });
 			setMapCenterOverride({ lat: latitude, lng: longitude });
 			pendingNavigateRef.current = true;
-			addLog(`${translate(TranslationKeys.location)}: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
+			addLog(`Standort: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
 		} catch (error) {
 			console.error('Location error:', error);
-			Alert.alert(translate(TranslationKeys.location), translate(TranslationKeys.location_not_determined));
+			Alert.alert('Standort', 'Standort konnte nicht ermittelt werden.');
 		}
-	}, [addLog, translate]);
+	}, [addLog]);
 
 	const openFilterModal = useCallback(() => {
 		show({
 			title: translate(TranslationKeys.organisations),
-			titleTextAlign: isRtl ? 'right' : 'left',
-			titleWritingDirection: isRtl ? 'rtl' : 'ltr',
 			children: (
 				<OsmFilterContent
 					organisations={organisations as DatabaseTypes.Organizations[]}
@@ -1531,64 +1490,15 @@ const OsmVectorMapScreen: React.FC = () => {
 				/>
 			),
 		});
-	}, [show, translate, isRtl, organisations, organisationLikes, stableOnOrganisationLikeChange, stableOnResetAllFilters]);
+	}, [show, translate, organisations, organisationLikes, stableOnOrganisationLikeChange, stableOnResetAllFilters]);
 
 	const isFilterActive = useMemo(() => Object.keys(organisationLikes).length > 0, [organisationLikes]);
-
-	const [locationWatcher, setLocationWatcher] = useState<Location.LocationSubscription | null>(null);
-
-	const startLocationTracking = useCallback(async () => {
-		try {
-			const { status } = await Location.requestForegroundPermissionsAsync();
-			if (status !== 'granted') {
-				Alert.alert(translate(TranslationKeys.location), translate(TranslationKeys.location_permission_denied));
-				return;
-			}
-
-			const watcher = await Location.watchPositionAsync(
-				{
-					accuracy: Location.Accuracy.BestForNavigation,
-					timeInterval: 1000,
-					distanceInterval: 1,
-				},
-				(newLocation) => {
-					const { latitude, longitude } = newLocation.coords;
-					setUserLocation({ lat: latitude, lng: longitude });
-					addLog(`Tracking: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
-				},
-			);
-			if (Platform.OS !== 'web') {
-				setLocationWatcher(watcher);
-			}
-			addLog(translate(TranslationKeys.location_tracking_started));
-		} catch (error) {
-			console.error('Location tracking error:', error);
-			Alert.alert(translate(TranslationKeys.location), translate(TranslationKeys.location_tracking_not_started));
-		}
-	}, [addLog, translate]);
-
-	const stopLocationTracking = useCallback(() => {
-		if (locationWatcher && Platform.OS !== 'web') {
-			locationWatcher.remove();
-		}
-		setLocationWatcher(null);
-		setUserLocation(null);
-		addLog(translate(TranslationKeys.location_tracking_stopped));
-	}, [locationWatcher, addLog, translate]);
-
-	useEffect(() => {
-		return () => {
-			if (locationWatcher && Platform.OS !== 'web') {
-				locationWatcher.remove();
-			}
-		};
-	}, [locationWatcher]);
 
 	return (
 		<SafeAreaView style={[styles.safeArea, { backgroundColor: isFullscreen ? 'transparent' : theme.header.background }]}>
 			{!isFullscreen && (
 				<MapHeader
-					drawerPosition={drawerPosition === 'system' ? (isLtrLanguage ? 'left' : 'right') : drawerPosition}
+					drawerPosition={drawerPosition}
 					query={gameMode ? '' : searchQuery}
 					onQueryChange={gameMode ? noop : setSearchQuery}
 					onSettingsPress={openSettingsModal}
@@ -1623,7 +1533,7 @@ const OsmVectorMapScreen: React.FC = () => {
 							{/* Vehicle overlay – airplane centered on screen */}
 							<View style={styles.vehicleOverlay} pointerEvents="none">
 								<View style={{ transform: [{ scaleY: airplaneScaleY }, { rotate: airplaneEmojiRotation }] }}>
-									<Text style={{ fontSize: airplaneSize }} accessibilityLabel={translate(TranslationKeys.airplane)}>✈️</Text>
+									<Text style={{ fontSize: airplaneSize }} accessibilityLabel="Flugzeug">✈️</Text>
 								</View>
 							</View>
 
@@ -1636,9 +1546,9 @@ const OsmVectorMapScreen: React.FC = () => {
 									<MaterialIcons name="my-location" size={22} color={theme.screen.icon} />
 								</TouchableOpacity>
 								<View style={[styles.gameTopBarInfo, { backgroundColor: theme.screen.background + 'dd' }]}>
-									<Text style={[styles.gameTopBarTitle, { color: theme.screen.text }]}>✈️ {translate(TranslationKeys.airplane)}</Text>
+									<Text style={[styles.gameTopBarTitle, { color: theme.screen.text }]}>✈️ Flugzeug</Text>
 									<Text style={[styles.gameTopBarSub, { color: theme.screen.text + 'aa' }]}>
-										{`${speedLabel} · ${translate(TranslationKeys.heading)} ${Math.round(vehicleHeading)}°`}
+										{`${speedLabel} · Richtung ${Math.round(vehicleHeading)}°`}
 									</Text>
 								</View>
 							</View>
@@ -1727,7 +1637,7 @@ const OsmVectorMapScreen: React.FC = () => {
 							</View>
 							{/* Jogging route recorder */}
 							<JoggingOverlay mapRef={myMapRef} />
-							<DebugView title={translate(TranslationKeys.map_log_title)}>
+							<DebugView title="Map Log">
 								<ScrollView
 									ref={logScrollRef}
 									style={[styles.logContainer, { backgroundColor: theme.screen.background, borderTopColor: theme.screen.text + '33' }]}
@@ -1739,7 +1649,7 @@ const OsmVectorMapScreen: React.FC = () => {
 										</Text>
 									))}
 									{logEntries.length === 0 && (
-										<Text style={[styles.logPlaceholder, { color: theme.screen.text + '88' }]}>{translate(TranslationKeys.map_log_placeholder)}</Text>
+										<Text style={[styles.logPlaceholder, { color: theme.screen.text + '88' }]}>Map log…</Text>
 									)}
 								</ScrollView>
 							</DebugView>

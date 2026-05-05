@@ -1,4 +1,4 @@
-import { Dimensions, DimensionValue, Text } from 'react-native';
+import { Dimensions, DimensionValue, Text, TouchableOpacity } from 'react-native';
 import React from 'react';
 import styles from './styles';
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -7,7 +7,6 @@ import usePlatformHelper from '@/helper/platformHelper';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
-import AppButton from '@/components/AppButton';
 
 const RedirectButton: React.FC<RedirectButtonProps> = ({ type, label, backgroundColor, color, onClick }) => {
 	let containerWidth: DimensionValue;
@@ -34,28 +33,19 @@ const RedirectButton: React.FC<RedirectButtonProps> = ({ type, label, background
 	}
 
 	return (
-		<AppButton
-			variant="ghost"
-			usePlainText
-			text={label}
-			onPress={onClick}
+		<TouchableOpacity
 			style={{
 				...styles.container,
 				width: containerWidth,
 				height: isWeb() ? 50 : 43,
 				paddingHorizontal: 18,
 				backgroundColor: backgroundColor || primaryColor,
-				marginVertical: 0,
 			}}
-			textStyle={{ ...styles.label, color: color || contrastColor, fontSize }}
-			iconLeft={
-				type === 'email' ? (
-					<MaterialCommunityIcons name="email" size={24} color={color || contrastColor} />
-				) : (
-					<FontAwesome6 name="arrow-up-right-from-square" size={20} color={color || contrastColor} />
-				)
-			}
-		/>
+			onPress={onClick}
+		>
+			{type === 'email' ? <MaterialCommunityIcons name="email" size={24} color={color || contrastColor} /> : <FontAwesome6 name="arrow-up-right-from-square" size={20} color={color || contrastColor} />}
+			<Text style={{ ...styles.label, color: color || contrastColor, fontSize }}>{label}</Text>
+		</TouchableOpacity>
 	);
 };
 

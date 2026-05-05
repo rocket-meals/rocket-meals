@@ -20,8 +20,11 @@ type SettingsListPropsOwn = SettingsListItemBaseProps & {
 	 */
 	title?: string;
 	value?: string;
+<<<<<<< HEAD
 	titleTextAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';
 	reverseLayout?: boolean;
+=======
+>>>>>>> c5e289d8ee955969134201fcbdae37043450ab48
 	/**
 	 * Element rendered on the right side. "rightIcon" is kept for
 	 * backwards compatibility with the old `SettingList` component.
@@ -55,10 +58,6 @@ type SettingsListPropsOwn = SettingsListItemBaseProps & {
 	 */
 	titleNumberOfLines?: number;
 	/**
-	 * Maximum number of lines for the value text. Defaults to 0 (unlimited).
-	 */
-	valueNumberOfLines?: number;
-	/**
 	 * When true the item is shown with a dashed border (using the primary
 	 * color) and a semi-transparent dim overlay with a centered lock icon to
 	 * indicate that an account is required. The original left icon is kept
@@ -75,7 +74,10 @@ type SettingsListPropsOwn = SettingsListItemBaseProps & {
 	 * true. Consuming apps can use this to open an account-required modal.
 	 */
 	onAccountRequired?: () => void;
+<<<<<<< HEAD
 
+=======
+>>>>>>> c5e289d8ee955969134201fcbdae37043450ab48
 };
 
 export type SettingsListProps = PropsWithChildren<SettingsListPropsOwn>;

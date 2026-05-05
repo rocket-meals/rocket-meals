@@ -11,7 +11,6 @@ import { getImageUrl } from '@/constants/HelperFunctions';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { useAppSelector } from '@/redux/hooks';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 interface CanteenSelectionContentProps {
 	onSelectCanteen: (canteen: DatabaseTypes.Canteens) => void;
@@ -88,16 +87,12 @@ interface OpenCanteenSelectionModalParams {
 
 export const useMyScrollviewModalCanteenSelection = () => {
 	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isRtl = !isLtrLanguage;
+	const { translate } = useLanguage();
 
 	const openCanteenSelectionModal = useCallback(
 		({ onSelectCanteen, title, children }: OpenCanteenSelectionModalParams) => {
 			showScrollViewModal({
 				title: title ?? translate(TranslationKeys.canteen),
-				titleTextAlign: isRtl ? 'right' : 'left',
-				titleWritingDirection: isRtl ? 'rtl' : 'ltr',
 				onClose: closeScrollViewModal,
 				disableHorizontalPadding: true,
 				children: (
@@ -107,7 +102,7 @@ export const useMyScrollviewModalCanteenSelection = () => {
 				),
 			});
 		},
-		[closeScrollViewModal, isRtl, showScrollViewModal, translate]
+		[closeScrollViewModal, showScrollViewModal, translate]
 	);
 
 	return { openCanteenSelectionModal, closeCanteenSelectionModal: closeScrollViewModal };

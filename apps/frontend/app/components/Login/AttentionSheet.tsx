@@ -6,13 +6,11 @@ import { styles } from './styles';
 import { isWeb } from '@/constants/Constants';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useAppSelector } from '@/redux/hooks';
-import AppButton from '@/components/AppButton';
-import type LottieView from 'lottie-react-native';
+import LottieView from 'lottie-react-native';
 import { replaceLottieColors } from '@/helper/animationHelper';
 import animationJson from '@/assets/animations/astronaut-computer.json';
 import { TranslationKeys } from '@/locales/keys';
 import { myContrastColor } from '@/helper/ColorHelper';
-import SafeLottieView from '@/components/SafeLottieView/SafeLottieView';
 
 const AttentionSheet: React.FC<AttentionSheetProps> = ({ closeSheet, handleLogin }) => {
 	const { translate } = useLanguage();
@@ -38,34 +36,24 @@ const AttentionSheet: React.FC<AttentionSheetProps> = ({ closeSheet, handleLogin
 				</View>
 
 				<View style={styles.gifContainer}>
-					<SafeLottieView
-						ref={animationRef}
-						source={updatedAnimationJson}
-						resizeMode="contain"
-						style={isWeb ? { width: 180, height: 180 } : { width: '100%', height: '100%' }}
-						autoPlay={false}
-						loop={false}
-					/>
+					<LottieView ref={animationRef} source={updatedAnimationJson} resizeMode="contain" style={{ width: '100%', height: '100%' }} autoPlay={false} loop={false} />
 				</View>
 				<Text style={{ ...styles.attentionSheetHeading, color: theme.sheet.text }}>{translate(TranslationKeys.attention)}</Text>
 				<View style={{ ...styles.attentionContent, width: isWeb ? '80%' : '100%' }}>
 					<Text style={{ ...styles.attentionBody, color: theme.sheet.text }}>{translate(TranslationKeys.without_account_limitations)}</Text>
 					<View style={{ ...styles.attentionActions, width: isWeb ? '60%' : '100%' }}>
-						<AppButton
-							text={translate(TranslationKeys.confirm)}
+						<TouchableOpacity
+							style={[styles.confirmButton, { backgroundColor: primaryColor }]}
 							onPress={() => {
 								closeSheet();
 								handleLogin();
 							}}
-							style={[styles.confirmButton, { backgroundColor: primaryColor }]}
-							textStyle={[styles.confirmLabel, { color: contrastColor }]}
-						/>
-						<AppButton
-							text={translate(TranslationKeys.cancel)}
-							onPress={closeSheet}
-							style={styles.cancleButton}
-							textStyle={[styles.confirmLabel, { color: theme.dark }]}
-						/>
+						>
+							<Text style={[styles.confirmLabel, { color: contrastColor }]}>{translate(TranslationKeys.confirm)}</Text>
+						</TouchableOpacity>
+						<TouchableOpacity style={styles.cancleButton} onPress={closeSheet}>
+							<Text style={styles.confirmLabel}>{translate(TranslationKeys.cancel)}</Text>
+						</TouchableOpacity>
 					</View>
 				</View>
 			</View>
