@@ -1,5 +1,5 @@
 import { Dimensions, Image, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import styles from './styles';
@@ -24,17 +24,7 @@ const ManagementCanteensSheet: React.FC<ManagementCanteensSheetProps> = ({ close
 	const buildingsHelper = new BuildingsHelper();
 	const { serverInfo } = useAppSelector((state) => state.settings);
 	const { isManagement } = useAppSelector((state) => state.authReducer);
-	const { canteensDict } = useAppSelector((state) => state.canteenReducer);
-	const canteens = useMemo(
-		() =>
-			Object.values(canteensDict || {}).sort((a: any, b: any) => {
-				const aPublished = a.status === 'published';
-				const bPublished = b.status === 'published';
-				if (aPublished !== bPublished) return aPublished ? -1 : 1;
-				return (a.sort || 0) - (b.sort || 0);
-			}),
-		[canteensDict]
-	);
+	const { canteens } = useAppSelector((state) => state.canteenReducer);
 	const defaultImage = getImageUrl(serverInfo?.info?.project?.project_logo);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 

@@ -6,7 +6,6 @@ import { CollectibleAt } from 'repo-depkit-common';
 import BaseBottomSheet from '../BaseBottomSheet';
 import CollectibleSpot from '../CollectibleItem/CollectibleSpot';
 import MyMarkdown from '../MyMarkdown';
-import MarkingIcon from '../MarkingIcon';
 import styles from './styles';
 import { isWeb } from '@/constants/Constants';
 import { getImageUrl } from '@/constants/HelperFunctions';
@@ -24,9 +23,6 @@ export const MarkingContent: React.FC = () => {
 	const { markingDetails } = useAppSelector((state: RootState) => state.food);
 	const { language } = useAppSelector((state: RootState) => state.settings);
 	const description = getDescriptionFromTranslation(markingDetails?.translations, language);
-	const imageUri =
-		(markingDetails?.image_remote_url ?? undefined) ||
-		(markingDetails?.image ? (getImageUrl(String(markingDetails.image)) ?? undefined) : undefined);
 
 	return (
 		<>
@@ -51,19 +47,16 @@ export const MarkingContent: React.FC = () => {
 			</View>
 			<View style={{ ...styles.menuContainer, width: isWeb ? '90%' : '100%' }}>
 				<View style={styles.imageContainer}>
-					{imageUri ? (
-						<Image
-							key={imageUri ?? String(markingDetails?.id ?? 'marking-image')}
-							source={{ uri: imageUri }}
-							style={{
-								...styles.image,
-								backgroundColor: markingDetails?.background_color ? markingDetails?.background_color : 'transparent',
-								borderRadius: markingDetails?.background_color ? 8 : markingDetails?.hide_border ? 5 : 0,
-							}}
-						/>
-					) : markingDetails ? (
-						<MarkingIcon marking={markingDetails} size={98} />
-					) : null}
+					<Image
+						source={{
+							uri: markingDetails?.image_remote_url || getImageUrl(String(markingDetails?.image)) || undefined,
+						}}
+						style={{
+							...styles.image,
+							backgroundColor: markingDetails?.background_color ? markingDetails?.background_color : 'transparent',
+							borderRadius: markingDetails?.background_color ? 8 : markingDetails?.hide_border ? 5 : 0,
+						}}
+					/>
 				</View>
 				<MyMarkdown content={description} />
 				<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_markings_details} />

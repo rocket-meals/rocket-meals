@@ -11,13 +11,9 @@ import { SET_WEEK_PLAN } from '@/redux/Types/types';
 import { myContrastColor } from '@/helper/ColorHelper';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
-import AppButton from '@/components/AppButton';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
 
 const Index = () => {
-	const { translate } = useLanguage();
-	useSetPageTitle(TranslationKeys.food_plan_week);
+	useSetPageTitle('FoodPlan:Week');
 	const currentYear: number = moment().year();
 	const { theme } = useTheme();
 	const router = useRouter();
@@ -114,58 +110,63 @@ const Index = () => {
 	return (
 		<View style={[styles.container, { backgroundColor: theme.screen.background }]}>
 			<View style={[styles.header, { backgroundColor: theme.screen.background }]}>
-				<AppButton
-					variant="ghost"
-					usePlainText
+				<TouchableOpacity
+					style={{
+						...styles.currentWeekButton,
+						backgroundColor: foods_area_color,
+					}}
 					onPress={() => handleWeekPress('current', selectedWeek)}
-					style={{ ...styles.currentWeekButton, backgroundColor: foods_area_color, marginVertical: 0, justifyContent: 'center' }}
-					textStyle={{ width: 0, height: 0 }}
-					iconLeft={<View />}
-					iconRight={
-						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-							<Text style={{ ...styles.headerText, color: contrastColor }}>{translate(TranslationKeys.always_current_week)}</Text>
-							<FontAwesome6 name="arrow-up-right-from-square" size={16} color={contrastColor} />
-						</View>
-					}
-				/>
+				>
+					<View />
+					<Text
+						style={{
+							...styles.headerText,
+							color: contrastColor,
+						}}
+					>
+						Immer Aktuelle Woche
+					</Text>
+					<FontAwesome6 name="arrow-up-right-from-square" size={16} color={contrastColor} />
+				</TouchableOpacity>
 			</View>
 
 			<View style={styles.yearSelector}>
 				<View style={styles.yearsContainer}>
-					<AppButton
-						variant="ghost"
-						usePlainText
-						text={`${selectedYear - 1}`}
+					<TouchableOpacity
 						onPress={handleBack}
-						style={{ ...styles.yearButton, backgroundColor: theme.screen.iconBg, borderColor: theme.screen.icon, marginVertical: 0 }}
-						textStyle={{ ...styles.yearText, color: theme.screen.text }}
-						iconLeft={<Ionicons name="chevron-back" size={20} color={theme.screen.text} />}
-					/>
+						style={{
+							...styles.yearButton,
+							backgroundColor: theme.screen.iconBg,
+							borderColor: theme.screen.icon,
+						}}
+					>
+						<Ionicons name="chevron-back" size={20} color={theme.screen.text} />
+						<Text style={{ ...styles.yearText, color: theme.screen.text }}>{selectedYear - 1}</Text>
+					</TouchableOpacity>
 
 					<View style={[styles.yearButton, [styles.selectedYear, { backgroundColor: foods_area_color }]]}>
 						<Text style={{ ...styles.selectedYearText, color: contrastColor }}>{selectedYear}</Text>
 					</View>
 
-					<AppButton
-						variant="ghost"
-						usePlainText
-						text={`${selectedYear + 1}`}
+					<TouchableOpacity
 						onPress={handleForward}
-						style={{ ...styles.yearButton, backgroundColor: theme.screen.iconBg, borderColor: theme.screen.icon, marginVertical: 0 }}
-						textStyle={{ ...styles.yearText, color: theme.screen.text }}
-						iconRight={<Ionicons name="chevron-forward" size={20} color={theme.screen.text} />}
-					/>
+						style={{
+							...styles.yearButton,
+							backgroundColor: theme.screen.iconBg,
+							borderColor: theme.screen.icon,
+						}}
+					>
+						<Text style={{ ...styles.yearText, color: theme.screen.text }}>{selectedYear + 1}</Text>
+						<Ionicons name="chevron-forward" size={20} color={theme.screen.text} />
+					</TouchableOpacity>
 				</View>
 			</View>
 
 			<ScrollView contentContainerStyle={styles.weeksContainer}>
 				<View style={[styles.weeksGrid, { justifyContent: 'center', alignItems: 'center', gap: 10 }]}>
 					{weeks.map(week => (
-						<AppButton
+						<TouchableOpacity
 							key={week.weekNumber}
-							variant="ghost"
-							usePlainText
-							text={`${translate(TranslationKeys.week)} ${week.weekNumber} (${week.dateRange})`}
 							style={[
 								styles.weekButton,
 								selectedWeek === week.weekNumber
@@ -187,13 +188,12 @@ const Index = () => {
 								},
 							]}
 							onPress={() => handleWeekPress('any', week.weekNumber)}
-							textStyle={[
-								styles.weekText,
-								selectedWeek === week.weekNumber ? { ...styles.selectedWeekText, color: contrastColor } : { ...styles.selectedWeekText, color: theme.screen.text },
-								{ fontSize: width < 450 ? 10 : 14 },
-							]}
-							iconRight={<FontAwesome6 name="arrow-up-right-from-square" size={width < 450 ? 14 : 16} color={selectedWeek === week.weekNumber ? contrastColor : theme.screen.text} />}
-						/>
+						>
+							<Text style={[styles.weekText, selectedWeek === week.weekNumber ? { ...styles.selectedWeekText, color: contrastColor } : { ...styles.selectedWeekText, color: theme.screen.text }, { fontSize: width < 450 ? 10 : 14 }]}>
+								Week {week.weekNumber} ({week.dateRange})
+							</Text>
+							<FontAwesome6 name="arrow-up-right-from-square" size={width < 450 ? 14 : 16} color={selectedWeek === week.weekNumber ? contrastColor : theme.screen.text} />
+						</TouchableOpacity>
 					))}
 				</View>
 			</ScrollView>

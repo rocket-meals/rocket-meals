@@ -6,7 +6,6 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAppSelector } from '@/redux/hooks';
 import { TranslationKeys } from '@/locales/keys';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const TriStateCheckbox = ({
 	id,
@@ -25,9 +24,7 @@ const TriStateCheckbox = ({
 }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const { primaryColor, language } = useAppSelector(state => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
+	const { primaryColor } = useAppSelector(state => state.settings);
 
 	// If onlyTwo === true we normalize any non-1 value to 0 (false).
 	// Otherwise keep tri-state semantics where value can be 1, 0 or null/undefined.
@@ -75,15 +72,7 @@ const TriStateCheckbox = ({
 							<View style={styles.optionBox}>
 								<MaterialIcons name={isSelected ? 'check-box' : 'check-box-outline-blank'} size={22} color={isSelected ? theme.activeText : theme.screen.icon} />
 							</View>
-							<Text
-								style={{
-									...styles.optionLabel,
-									color: isSelected ? theme.activeText : theme.screen.text,
-									...(isArabic ? { flex: 1, textAlign: 'right', writingDirection: 'rtl' } : null),
-								}}
-							>
-								{option.label}
-							</Text>
+							<Text style={{ ...styles.optionLabel, color: isSelected ? theme.activeText : theme.screen.text }}>{option.label}</Text>
 						</TouchableOpacity>
 					);
 				})}

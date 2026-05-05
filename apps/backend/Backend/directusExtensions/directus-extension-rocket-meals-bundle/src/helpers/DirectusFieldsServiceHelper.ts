@@ -4,7 +4,7 @@ import {CollectionFieldNames, CollectionNames, DatabaseTypes} from 'repo-depkit-
 
 export class DirectusFieldsServiceHelper {
 
-  private myDatabaseHelper: MyDatabaseHelperInterface;
+  private readonly myDatabaseHelper: MyDatabaseHelperInterface;
 
   constructor(myDatabaseHelper: MyDatabaseHelperInterface) {
     this.myDatabaseHelper = myDatabaseHelper;

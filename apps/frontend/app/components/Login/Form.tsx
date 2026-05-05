@@ -17,19 +17,16 @@ import { format } from 'date-fns';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
 import { useAppSelector } from '@/redux/hooks';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionSheet, providers }) => {
 	const [isChecked, setChecked] = useState(false);
 	const { theme } = useTheme();
 	const dispatch = useDispatch();
 	const { isWeb } = usePlatformHelper();
-	const { translate, language } = useLanguage();
+	const { translate } = useLanguage();
 	const state = useAppSelector((state) => state);
 	const { primaryColor, selectedTheme: mode } = state.settings;
 	const contrastColor = myContrastColor(primaryColor || theme.login.linkButton, theme, mode === 'dark');
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 
 	const getToken = async (codeVerifier: string, code: string) => {
 		try {
@@ -84,41 +81,23 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 		<View
 			style={{
 				...styles.loginForm,
-				alignItems: isWeb() ? (isArabic ? 'flex-end' : 'flex-start') : 'center',
+				alignItems: isWeb() ? 'flex-start' : 'center',
 			}}
 		>
-			<Text
-				style={{
-					...styles.heading,
-					color: theme.login.text,
-					width: '100%',
-					textAlign: isArabic ? 'right' : 'left',
-					writingDirection: isArabic ? 'rtl' : 'ltr',
-				}}
-			>
-				{translate(TranslationKeys.sign_in)}
-			</Text>
+			<Text style={{ ...styles.heading, color: theme.login.text }}>{translate(TranslationKeys.sign_in)}</Text>
 			<View>
 				<TouchableOpacity
 					onPress={() => {
 						setChecked(!isChecked);
 					}}
-					style={[styles.section, { width: '100%' }, isArabic ? { flexDirection: 'row-reverse' } : null]}
+					style={styles.section}
 				>
-					<Checkbox
-						style={[styles.checkbox, isArabic ? { marginRight: 0, marginLeft: 15 } : null]}
-						value={isChecked}
-						onValueChange={setChecked}
-						color={isChecked ? '#000000' : undefined}
-					/>
+					<Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} color={isChecked ? '#000000' : undefined} />
 					<Text
 						style={{
 							...styles.checkboxLabel,
 							color: theme.login.text,
-							flex: 1,
-							flexShrink: 1,
-							textAlign: isArabic ? 'right' : 'left',
-							writingDirection: isArabic ? 'rtl' : 'ltr',
+							width: isWeb() ? '100%' : '90%',
 						}}
 					>
 						{translate(TranslationKeys.i_accept_privacy_policy_and_terms_of_service)}
@@ -134,7 +113,6 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 								style={{
 									...styles.button,
 									borderColor: theme.login.border,
-									...(isArabic ? { flexDirection: 'row-reverse', justifyContent: 'flex-start' } : {}),
 								}}
 								disabled={!isChecked}
 								onPress={() => onPressLogin(provider?.name)}
@@ -142,17 +120,7 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 								<View style={{ ...styles.leftIcon, backgroundColor: primaryColor }}>
 									<MaterialCommunityIcons name={provider?.icon} size={22} color={contrastColor} />
 								</View>
-								<Text
-									style={{
-										...styles.buttonLabel,
-										color: theme.login.text,
-										...(isArabic
-											? { flex: 1, marginLeft: 0, marginRight: 10, textAlign: 'center', writingDirection: 'rtl' }
-											: { flex: 1, textAlign: 'center' }),
-									}}
-								>
-									{`${translate(TranslationKeys.sign_in_with)}: ${provider?.label || provider?.name?.charAt(0)?.toUpperCase() + provider?.name?.slice(1)?.toLowerCase()}`}
-								</Text>
+								<Text style={{ ...styles.buttonLabel, color: theme.login.text }}>{`${translate(TranslationKeys.sign_in_with)}: ${provider?.label || provider?.name?.charAt(0)?.toUpperCase() + provider?.name?.slice(1)?.toLowerCase()}`}</Text>
 								<View style={{ width: 58 }} />
 							</TouchableOpacity>
 						))}
@@ -162,7 +130,6 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 						...styles.button,
 						...styles.incognito,
 						borderColor: theme.login.border,
-						...(isArabic ? { flexDirection: 'row-reverse', justifyContent: 'flex-start' } : {}),
 					}}
 					disabled={!isChecked}
 					onPress={openAttentionSheet}
@@ -170,43 +137,19 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 					<View style={{ ...styles.leftIcon, backgroundColor: primaryColor }}>
 						<MaterialCommunityIcons name="incognito" size={28} color={contrastColor} />
 					</View>
-					<Text
-						style={{
-							...styles.buttonLabel,
-							color: theme.login.text,
-							...(isArabic ? { flex: 1, marginLeft: 0, marginRight: 10, textAlign: 'center', writingDirection: 'rtl' } : { flex: 1, textAlign: 'center' }),
-						}}
-					>
-						{translate(TranslationKeys.continue_without_account)}
-					</Text>
+					<Text style={{ ...styles.buttonLabel, color: theme.login.text }}>{translate(TranslationKeys.continue_without_account)}</Text>
 					<View style={{ width: 58 }} />
 				</TouchableOpacity>
 			</View>
 
-			<View style={[styles.managementLogin, isArabic ? { flexDirection: 'row-reverse', alignSelf: 'flex-end' } : null]}>
-				<Text
-					style={{
-						...styles.fromManagement,
-						color: theme.login.text,
-						...(isArabic ? { marginRight: 0, marginLeft: 4, textAlign: 'center', writingDirection: 'rtl' } : {}),
-					}}
-				>
-					{`${translate(TranslationKeys.for_management)}${isArabic ? '؟' : '?'}`}
-				</Text>
+			<View style={styles.managementLogin}>
+				<Text style={{ ...styles.fromManagement, color: theme.login.text }}>{`${translate(TranslationKeys.for_management)}?`}</Text>
 				<TouchableOpacity
 					onPress={() => {
 						openSheet();
 					}}
 				>
-					<Text
-						style={{
-							...styles.loginText,
-							color: theme.screen.text,
-							...(isArabic ? { textAlign: 'center', writingDirection: 'rtl' } : {}),
-						}}
-					>
-						{translate(TranslationKeys.sign_in)}
-					</Text>
+					<Text style={{ ...styles.loginText, color: theme.screen.text }}>{translate(TranslationKeys.sign_in)}</Text>
 				</TouchableOpacity>
 			</View>
 		</View>

@@ -11,7 +11,6 @@ export interface SettingsListLikeButtonProps {
 	likeLoading?: boolean;
 	likeCount?: number;
 	primaryColor?: string;
-	isArabic?: boolean;
 }
 
 const isWeb = Platform.OS === 'web';
@@ -22,7 +21,6 @@ const SettingsListLikeButton: React.FC<SettingsListLikeButtonProps> = ({
 	likeLoading = false,
 	likeCount,
 	primaryColor,
-	isArabic = false,
 }) => {
 	const { theme, isDark } = useTheme();
 	const settingsCtx = useSettingsContext();

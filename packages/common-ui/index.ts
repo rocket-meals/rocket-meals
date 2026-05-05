@@ -91,5 +91,18 @@ export type { ScreenHeaderProps } from './src/components/ScreenHeader';
 export { default as CardWithText } from './src/components/CardWithText';
 export type { CardWithTextProps } from './src/components/CardWithText';
 
+export { default as SettingsListLeftRight } from './src/components/SettingsListLeftRight';
+export type { SettingsListLeftRightProps, SettingsListLeftRightItem } from './src/components/SettingsListLeftRight';
+
 export { default as SettingsListMyMapThemeSelection } from './src/components/SettingsListMyMapThemeSelection';
 export type { SettingsListMyMapThemeSelectionProps } from './src/components/SettingsListMyMapThemeSelection';
+
+export { default as MyAvatar, STYLE_MAP } from './src/components/MyAvatar';
+export { AvatarStyle, AvatarSize } from './src/components/MyAvatar';
+export type { MyAvatarProps, AvatarConfig } from './src/components/MyAvatar';
+
+export { useAvatarEditorModal, AvatarPropKey } from './src/components/MyAvatarEditor';
+export type { UseAvatarEditorModalOptions, OpenAvatarEditorProps } from './src/components/MyAvatarEditor';
+
+export { default as MyColorPicker, PRESET_COLORS, HAIR_COLORS, SKIN_COLORS } from './src/components/MyColorPicker';
+export type { MyColorPickerProps } from './src/components/MyColorPicker';

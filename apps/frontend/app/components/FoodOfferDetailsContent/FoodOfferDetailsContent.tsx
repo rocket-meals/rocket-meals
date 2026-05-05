@@ -43,7 +43,7 @@ export interface FoodOfferDetailsContentProps {
 }
 
 const selectFoodState = (state: RootState) => state.food;
-const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => Object.values(foodState.ownFoodFeedbacksDict ?? {}));
+const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => foodState.ownFoodFeedbacks);
 
 const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offerId, foodId: initialFoodId }) => {
     const { theme } = useTheme();
@@ -62,23 +62,18 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
     const serverInfo = useAppSelector((state) => state.settings.serverInfo, shallowEqual);
     const mode = useAppSelector((state) => state.settings.selectedTheme);
 
+    const ownFoodFeedbacks = useAppSelector(selectOwnFoodFeedbacks);
+    const previousFeedback = useMemo(() => {
+        const result = initialFoodId ? getpreviousFeedback(ownFoodFeedbacks, initialFoodId.toString()) : undefined;
+        return result;
+    }, [ownFoodFeedbacks, initialFoodId]);
+
     const profileHelper = useMemo(() => new ProfileHelper(), []);
     const foodfeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
     const [notificationGranted, pushTokenObj, _, requestDeviceNotificationPermission] = NotificationHelper.useNotificationPermission(profile);
 
     const { foodDetails, foodAttributes, loading: foodAttributesLoading } = useFoodDetails({ offerId, initialFoodId });
     const { groupedAttributes } = useFoodAttributes({ foodAttributes, foodDetails });
-
-    const ownFoodFeedbacks = useAppSelector(selectOwnFoodFeedbacks);
-    const resolvedFoodId = useMemo(() => {
-        if (initialFoodId) return initialFoodId.toString();
-        if (foodDetails?.id) return String(foodDetails.id);
-        return undefined;
-    }, [foodDetails?.id, initialFoodId]);
-    const previousFeedback = useMemo(() => {
-        const result = resolvedFoodId ? getpreviousFeedback(ownFoodFeedbacks, resolvedFoodId) : undefined;
-        return result;
-    }, [ownFoodFeedbacks, resolvedFoodId]);
 
     const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
     const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');

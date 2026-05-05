@@ -20,8 +20,6 @@ export const lightTheme = {
 	},
 	drawer: {
 		link: '#000000',
-		logoBg: '#424242',
-		divider: '#696969',
 	},
 	login: {
 		background: '#E2E2E2',
@@ -67,7 +65,6 @@ export const lightTheme = {
 		icon: '#000000',
 		placeholder: '#696969',
 		iconBg: '#e0e0e0',
-		border: '#e0e0e0',
 	},
 	header: {
 		background: '#ffffff',
@@ -102,8 +99,6 @@ export const darkTheme = {
 	},
 	drawer: {
 		link: '#ffffff',
-		logoBg: '#424242',
-		divider: '#696969',
 	},
 	login: {
 		background: '#222222',
@@ -149,7 +144,6 @@ export const darkTheme = {
 		icon: '#ffffff',
 		placeholder: '#696969',
 		iconBg: '#2e2e2e',
-		border: '#3a3a3a',
 	},
 	header: {
 		background: '#2E2E2E',

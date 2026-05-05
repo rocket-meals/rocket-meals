@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dimensions, Image, ScrollView, Text, View } from 'react-native';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -11,43 +11,24 @@ import { TranslationKeys } from '@/locales/keys';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
-const parseMarkdown = (text: string, theme: any, isRtl: boolean) => {
+const parseMarkdown = (text: string, theme: any) => {
 	return text.split('\n').map((line, index) => {
 		if (line.startsWith('## ')) {
 			return (
-				<Text
-					key={index}
-					style={[
-						styles.value,
-						{ color: theme.header.text, textAlign: isRtl ? 'right' : 'left', writingDirection: isRtl ? 'rtl' : 'ltr' },
-					]}
-				>
+				<Text key={index} style={[styles.value, { color: theme.header.text }]}>
 					{line.replace('## ', '')}
 				</Text>
 			);
 		} else if (line.startsWith('### ')) {
 			return (
-				<Text
-					key={index}
-					style={[
-						styles.labelParagraph,
-						{ color: theme.header.text, textAlign: isRtl ? 'right' : 'left', writingDirection: isRtl ? 'rtl' : 'ltr' },
-					]}
-				>
+				<Text key={index} style={[styles.labelParagraph, { color: theme.header.text }]}>
 					{line.replace('### ', '')}
 				</Text>
 			);
 		} else {
 			return (
-				<Text
-					key={index}
-					style={[
-						styles.titleHeading,
-						{ color: theme.header.text, textAlign: isRtl ? 'right' : 'left', writingDirection: isRtl ? 'rtl' : 'ltr' },
-					]}
-				>
+				<Text key={index} style={[styles.titleHeading, { color: theme.header.text }]}>
 					{line}
 				</Text>
 			);
@@ -57,42 +38,13 @@ const parseMarkdown = (text: string, theme: any, isRtl: boolean) => {
 
 const DataAccess = ({ onOpenBottomSheet }: any) => {
 	const { theme } = useTheme();
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isRtl = !isLtrLanguage;
-	const { user, profile } = useAppSelector(state => state.authReducer);
-	const { primaryColor } = useAppSelector(state => state.settings);
-	const { collectibleEventsItemsDict } = useAppSelector(state => state.collectibleEvents ?? {});
-	const collectibleEvents = useMemo(() => Object.values(collectibleEventsItemsDict || {}), [collectibleEventsItemsDict]);
-	const {
-		canteensDict,
-		buildingsDict,
-		buildingsOrganizationsDict,
-		organisationsDict,
-		selectedCanteenFoodOffersDict,
-		canteenFoodOffersDict,
-		businessHoursDict,
-		businessHoursGroupsDict,
-		canteenFeedbackLabelsDict,
-		ownCanteenFeedBackLabelEntriesDict,
-	} = useAppSelector(state => state.canteenReducer);
-
-	const {
-		foodFeedbackLabelsDict,
-		ownFoodFeedbacksDict,
-		ownfoodFeedbackLabelEntriesDict,
-		markingsDict,
-		markingGroupsDict,
-		selectedFoodMarkingsDict,
-		foodCategoriesDict,
-		foodOfferCategoriesDict,
-		foodOffersInfoItemsDict,
-		mostLikedFoodsDict,
-		mostDislikedFoodsDict,
-		popupEventsDict,
-		markingDetails,
-	} = useAppSelector(state => state.food);
-	const ownFoodFeedbacks = useMemo(() => Object.values(ownFoodFeedbacksDict || {}), [ownFoodFeedbacksDict]);
+	const { translate } = useLanguage();
+  const { user, profile } = useAppSelector(state => state.authReducer);
+  const { primaryColor } = useAppSelector(state => state.settings);
+  const { collectibleEvents } = useAppSelector(state => state.collectibleEvents ?? {});
+  const { canteens, buildingsDict, buildingsOrganizations, organisations, selectedCanteenFoodOffers, canteenFoodOffers, businessHours, canteenFeedbackLabels, ownCanteenFeedBackLabelEntries } = useAppSelector(state => state.canteenReducer);
+  
+  const { foodFeedbackLabels, ownFoodFeedbacks, ownfoodFeedbackLabelEntries, markings, selectedFoodMarkings, foodCategories, foodOfferCategories, markingDetails } = useAppSelector(state => state.food);
 
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
 
@@ -116,33 +68,30 @@ const DataAccess = ({ onOpenBottomSheet }: any) => {
 	];
 
 	const dataDevice = [
-		{ label: 'canteensDict', value: canteensDict },
+		{ label: 'canteens', value: canteens },
 		{ label: 'buildingsDict', value: buildingsDict },
-		{ label: 'buildingsOrganizationsDict', value: buildingsOrganizationsDict },
-		{ label: 'organisationsDict', value: organisationsDict },
-		{ label: 'selectedCanteenFoodOffersDict', value: selectedCanteenFoodOffersDict },
-		{ label: 'canteenFoodOffersDict', value: canteenFoodOffersDict },
-		{ label: 'businessHoursDict', value: businessHoursDict },
-		{ label: 'businessHoursGroupsDict', value: businessHoursGroupsDict },
-		{ label: 'canteenFeedbackLabelsDict', value: canteenFeedbackLabelsDict },
+		{ label: 'buildingsOrganizations', value: buildingsOrganizations },
+		{ label: 'organisations', value: organisations },
+		{ label: 'Selected Canteen FoodOffers', value: selectedCanteenFoodOffers },
+		{ label: 'Canteen FoodOffers', value: canteenFoodOffers },
+		{ label: 'Business Hours', value: businessHours },
+		{ label: 'Canteen FeedbackLabels', value: canteenFeedbackLabels },
 		{
 			label: 'Own Canteen FeedBack Label Entries',
-			value: ownCanteenFeedBackLabelEntriesDict,
+			value: ownCanteenFeedBackLabelEntries,
 		},
-		{ label: 'foodFeedbackLabelsDict', value: foodFeedbackLabelsDict },
-		{ label: 'ownFoodFeedbacksDict', value: ownFoodFeedbacksDict },
-		{ label: 'ownfoodFeedbackLabelEntriesDict', value: ownfoodFeedbackLabelEntriesDict },
-		{ label: 'markingsDict', value: markingsDict },
-		{ label: 'markingGroupsDict', value: markingGroupsDict },
-		{ label: 'selectedFoodMarkingsDict', value: selectedFoodMarkingsDict },
-		{ label: 'foodCategoriesDict', value: foodCategoriesDict },
-		{ label: 'foodOfferCategoriesDict', value: foodOfferCategoriesDict },
-		{ label: 'foodOffersInfoItemsDict', value: foodOffersInfoItemsDict },
-		{ label: 'mostLikedFoodsDict', value: mostLikedFoodsDict },
-		{ label: 'mostDislikedFoodsDict', value: mostDislikedFoodsDict },
-		{ label: 'popupEventsDict', value: popupEventsDict },
-		{ label: 'markingDetails', value: markingDetails },
-		{ label: 'collectibleEvents', value: collectibleEvents },
+		{ label: 'Food FeedbackLabels', value: foodFeedbackLabels },
+		{ label: 'Own FoodFeedbacks', value: ownFoodFeedbacks },
+		{
+			label: 'Own Food Feedback Label Entries',
+			value: ownfoodFeedbackLabelEntries,
+		},
+		{ label: 'Markings', value: markings },
+		{ label: 'Selected Food Markings', value: selectedFoodMarkings },
+                { label: 'Food Categories', value: foodCategories },
+                { label: 'FoodOffer Categories', value: foodOfferCategories },
+                { label: 'MarkingDetails', value: markingDetails },
+                { label: 'Collectible Events', value: collectibleEvents },
         ];
 
 	return (
@@ -157,8 +106,9 @@ const DataAccess = ({ onOpenBottomSheet }: any) => {
 					<View style={styles.imageContainer}>
 						<Image source={require('../../assets/images/dataAccess.png')} style={styles.image} />
 					</View>
-					<View style={{ width: '100%' }}>{parseMarkdown(dataAccessText, theme, isRtl)}</View>
+					<View>{parseMarkdown(dataAccessText, theme)}</View>
 				</View>
+				<SettingsGroupTitle>{translate(TranslationKeys.your_data_which_we_know_if_you_have_a_profile)}</SettingsGroupTitle>
 				{/* Info Items List */}
 				<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_data_access} />
 				<View
@@ -166,47 +116,26 @@ const DataAccess = ({ onOpenBottomSheet }: any) => {
 						width: windowWidth < 500 ? '100%' : isWeb ? '80%' : '100%',
 					}}
 				>
-					<SettingsGroupTitle>{translate(TranslationKeys.your_data_which_we_know_if_you_have_a_profile)}</SettingsGroupTitle>
 					{infoItems.map((item, index) => {
 						const last = index === infoItems.length - 1;
 						const first = index === 0;
 						const groupPosition = infoItems.length === 1 ? 'single' : first ? 'top' : last ? 'bottom' : 'middle';
-						return (
-							<SettingsList
-								key={index}
-								iconBgColor={primaryColor}
-								leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />}
-								label={item.label}
-								rightIcon={<Entypo name={isRtl ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
-								handleFunction={() => onOpenBottomSheet(item)}
-								groupPosition={groupPosition as any}
-							/>
-						);
+						return <SettingsList key={index} iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />} label={item.label} rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />} handleFunction={() => onOpenBottomSheet(item)} groupPosition={groupPosition as any} />;
 					})}
 
 					{/* Device Data List */}
 					<SettingsGroupTitle>{translate(TranslationKeys.translation_all_on_device_saved_data)}</SettingsGroupTitle>
-					{dataDevice.map((data, index) => {
-						if (!data?.value) return null;
-						const last = index === dataDevice.length - 1;
-						const first = index === 0;
-						const groupPosition = dataDevice.length === 1 ? 'single' : first ? 'top' : last ? 'bottom' : 'middle';
-						return (
-							<SettingsList
-								key={index}
-								iconBgColor={primaryColor}
-								leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />}
-								label={data.label}
-								rightIcon={<Entypo name={isRtl ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
-								handleFunction={() => onOpenBottomSheet(data)}
-								groupPosition={groupPosition as any}
-							/>
-						);
-					})}
-				</View>
-			</ScrollView>
-		</View>
-	);
+                                        {dataDevice.map((data, index) => {
+                                                if (!data?.value) return null;
+                                                const last = index === dataDevice.length - 1;
+                                                const first = index === 0;
+                                                const groupPosition = dataDevice.length === 1 ? 'single' : first ? 'top' : last ? 'bottom' : 'middle';
+                                                return <SettingsList key={index} iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />} label={data.label} rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />} handleFunction={() => onOpenBottomSheet(data)} groupPosition={groupPosition as any} />;
+                                        })}
+                                </View>
+                        </ScrollView>
+                </View>
+        );
 };
 
 export default DataAccess;

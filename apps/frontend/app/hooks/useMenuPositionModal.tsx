@@ -13,7 +13,6 @@ import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 import { SET_DRAWER_POSITION } from '@/redux/Types/types';
 import { CollectibleAt } from 'repo-depkit-common';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const MenuPositionSheet: React.FC<{ closeSheet: () => void }> = ({ closeSheet }) => {
 	const { translate } = useLanguage();
@@ -50,19 +49,15 @@ const MenuPositionSheet: React.FC<{ closeSheet: () => void }> = ({ closeSheet })
 
 export const useMenuPositionModal = () => {
 	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isRtl = !isLtrLanguage;
+	const { translate } = useLanguage();
 
 	const openMenuPositionModal = useCallback(() => {
 		showScrollViewModal({
 			title: translate(TranslationKeys.drawer_config_position),
-			titleTextAlign: isRtl ? 'right' : 'left',
-			titleWritingDirection: isRtl ? 'rtl' : 'ltr',
 			onClose: closeScrollViewModal,
 			children: <MenuPositionSheet closeSheet={closeScrollViewModal} />,
 		});
-	}, [closeScrollViewModal, isRtl, showScrollViewModal, translate]);
+	}, [closeScrollViewModal, showScrollViewModal, translate]);
 
 	return { openMenuPositionModal };
 };

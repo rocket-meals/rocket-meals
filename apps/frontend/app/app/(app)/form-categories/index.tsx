@@ -1,5 +1,5 @@
 import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo, FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -19,8 +19,6 @@ import { SET_CACHED_FORM_CATEGORIES, SET_CACHED_FORMS, SET_CACHED_FORM_DATA, SET
 import { useLanguage } from '@/hooks/useLanguage';
 import useToast from '@/hooks/useToast';
 import SettingsListBoolean from '@/components/SettingsListBoolean/SettingsListBoolean';
-import AppButton from '@/components/AppButton';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.select_a_form_category);
@@ -38,12 +36,9 @@ const Index = () => {
 	const formsHelper = new FormsHelper();
 	const formsSubmissionsHelper = new FormsSubmissionsHelper();
 	const formAnswersHelper = new FormAnswersHelper();
-	const { cachedFormCategoriesDict, cachedFormsDict, formQueueDict } = useAppSelector((state) => state.form);
-	const cachedFormCategories = useMemo(() => Object.values(cachedFormCategoriesDict || {}), [cachedFormCategoriesDict]);
+	const { cachedFormCategories, cachedForms, formQueue } = useAppSelector((state) => state.form);
 
-	const queueCount = useMemo(() => Object.keys(formQueueDict || {}).length, [formQueueDict]);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
+	const queueCount = (formQueue || []).length;
 
 	const getAllCategories = async () => {
 		setLoading(true);
@@ -51,7 +46,7 @@ const Index = () => {
 
 		if (offlineMode) {
 			// In offline mode, use cache only
-			const cached = cachedFormCategories;
+			const cached = cachedFormCategories || [];
 			setFormCategories(cached);
 			if (cached.length > 0) setIsShowingCachedData(true);
 			setLoading(false);
@@ -69,7 +64,7 @@ const Index = () => {
 			}
 		} catch {
 			// Network failed – fall back to locally cached data
-			const cached = cachedFormCategories;
+			const cached = cachedFormCategories || [];
 			if (cached.length > 0) {
 				setFormCategories(cached);
 				setIsShowingCachedData(true);
@@ -191,7 +186,7 @@ const Index = () => {
 
 	const isCategoryCached = (categoryId: string | number) => {
 		const key = String(categoryId);
-		return !!Object.keys((cachedFormsDict || {})[key] || {}).length;
+		return !!(cachedForms && cachedForms[key] && cachedForms[key].length > 0);
 	};
 
 	return (
@@ -203,36 +198,29 @@ const Index = () => {
 				}}
 			>
 				{/* Top action row: download button + queue button */}
-				<View
-					style={{
-						flexDirection: isArabic ? 'row-reverse' : 'row',
-						alignItems: 'center',
-						justifyContent: isArabic ? 'flex-start' : 'flex-end',
-						gap: 8,
-						marginBottom: 6,
-					}}
-				>
-					<AppButton
-						variant="ghost"
-						usePlainText
-						text={isDownloadingAll ? translate(TranslationKeys.form_cache_downloading) : translate(TranslationKeys.form_download_all)}
+				<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 8, marginBottom: 6 }}>
+					<TouchableOpacity
 						onPress={downloadAllData}
 						disabled={isDownloadingAll || loading}
 						style={{
-							flexDirection: isArabic ? 'row-reverse' : 'row',
+							flexDirection: 'row',
 							alignItems: 'center',
 							gap: 6,
 							paddingVertical: 8,
 							paddingHorizontal: 14,
 							borderRadius: 20,
 							backgroundColor: theme.screen.iconBg,
-							marginVertical: 0,
 						}}
-						textStyle={{ color: theme.screen.text, fontFamily: 'Poppins_400Regular', fontSize: 14 }}
-						iconLeft={
-							isDownloadingAll ? <ActivityIndicator size={18} color={theme.screen.icon} /> : <FontAwesome name="cloud-download" size={20} color={theme.screen.icon} />
-						}
-					/>
+					>
+						{isDownloadingAll ? (
+							<ActivityIndicator size={18} color={theme.screen.icon} />
+						) : (
+							<FontAwesome name="cloud-download" size={20} color={theme.screen.icon} />
+						)}
+						<Text style={{ color: theme.screen.text, fontFamily: 'Poppins_400Regular', fontSize: 14 }}>
+							{isDownloadingAll ? translate(TranslationKeys.form_cache_downloading) : translate(TranslationKeys.form_download_all)}
+						</Text>
+					</TouchableOpacity>
 
 					{/* Queue button */}
 					<TouchableOpacity
@@ -312,7 +300,6 @@ const Index = () => {
 										style={{
 											...styles.formCategory,
 											backgroundColor: theme.screen.iconBg,
-											flexDirection: isArabic ? 'row-reverse' : 'row',
 										}}
 										key={category?.id}
 										onPress={() => {
@@ -322,27 +309,18 @@ const Index = () => {
 											});
 										}}
 									>
-										<View style={[styles.col, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+										<View style={styles.col}>
 											{IconComponent && <IconComponent name={iconName} size={20} color={theme.screen.icon} />}
-											<Text
-												style={{
-													...styles.body,
-													color: theme.screen.text,
-													textAlign: isArabic ? 'right' : 'left',
-													writingDirection: isArabic ? 'rtl' : 'ltr',
-												}}
-											>
-												{category?.translations ? getFromCategoryTranslation(category?.translations, language) : category?.alias}
-											</Text>
+											<Text style={{ ...styles.body, color: theme.screen.text }}>{category?.translations ? getFromCategoryTranslation(category?.translations, language) : category?.alias}</Text>
 										</View>
-										<View style={[styles.rowEnd, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+										<View style={styles.rowEnd}>
 											{cached && (
 												<FontAwesome name="cloud-download" size={16} color={offlineMode ? 'green' : theme.screen.icon} />
 											)}
 											{isShowingCachedData && (
 												<MaterialCommunityIcons name="cached" size={18} color={theme.screen.icon} />
 											)}
-											<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
+											<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
 										</View>
 									</TouchableOpacity>
 								);

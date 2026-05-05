@@ -7,8 +7,6 @@ import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
 import { TranslationKeys } from '@/locales/keys';
 import styles from '../styles';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
-import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
 interface HousingListHeaderProps {
 	screenWidth: number;
@@ -31,9 +29,6 @@ const HousingListHeader: React.FC<HousingListHeaderProps> = ({
 	setQuery,
 	translate,
 }) => {
-	const isLtrLanguage = useIsLtrLanguage();
-	const languageTextAlign = useLanguageTextAlign();
-
 	return (
 		<View style={{ width: '100%', alignItems: 'center' }}>
 			<View style={{ width: '100%', padding: screenWidth > 600 ? 20 : 5 }}>
@@ -61,7 +56,7 @@ const HousingListHeader: React.FC<HousingListHeaderProps> = ({
 				]}
 			>
 				<TextInput
-					style={[styles.searchInput, { color: theme.screen.text }, { textAlign: languageTextAlign }]}
+					style={[styles.searchInput, { color: theme.screen.text }]}
 					cursorColor={theme.screen.text}
 					placeholderTextColor={theme.screen.placeholder}
 					onChangeText={setQuery}

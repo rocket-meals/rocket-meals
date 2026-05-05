@@ -18,16 +18,6 @@ const styles = StyleSheet.create({
 	headerContainer: {
 		marginBottom: 10,
 	},
-	fullscreenHeaderRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 12,
-	},
-	fullscreenHeaderTitle: {
-		fontSize: 18,
-		fontWeight: '600',
-		flexShrink: 1,
-	},
 	container: {
 		flex: 1,
 	},
@@ -52,6 +42,12 @@ const styles = StyleSheet.create({
 		padding: 10,
 		borderRadius: 50,
 		borderWidth: 1,
+	},
+	floatingButton: {
+		position: 'absolute',
+		right: 16,
+		top: 12,
+		zIndex: 1,
 	},
 });
 

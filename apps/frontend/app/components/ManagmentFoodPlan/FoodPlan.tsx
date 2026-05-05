@@ -4,6 +4,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import styles from './styles';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
+<<<<<<< HEAD
 import AppButton from '@/components/AppButton';
 import { router } from 'expo-router';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -15,6 +16,11 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 	const {translate} = useLanguage();
 	const isLtrLanguage = useIsLtrLanguage();
 	const isArabic = !isLtrLanguage;
+=======
+
+const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFoodInterval, foodOffer, intervalNext, refreshData }: { data: any[]; onPressItem: (item: any) => void; selectedValue: string; selectedValuNext: string; nextFoodInterval: string; foodOffer: string; intervalNext: string; refreshData: string }) => {
+	const { theme } = useTheme();
+>>>>>>> c5e289d8ee955969134201fcbdae37043450ab48
 
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
 
@@ -164,11 +170,10 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 					</View>
 				</TouchableOpacity>
 			))}
-			<AppButton
-				variant="ghost"
-				usePlainText
-				text={translate(TranslationKeys.day_screen)}
+			<TouchableOpacity
+				style={[styles.mainContainer, { backgroundColor: theme.screen.iconBg }]}
 				// onPress={() => router.navigate('/list-day-screen')}
+<<<<<<< HEAD
 				style={[styles.mainContainer, { backgroundColor: theme.screen.iconBg, marginVertical: 0 }]}
 				textStyle={{
 					color: theme.screen.text,
@@ -176,6 +181,19 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 				}}
 				iconRight={<MaterialCommunityIcons name={isArabic ? 'chevron-left' : 'chevron-right'} size={20} color={theme.screen.icon} style={{ marginRight: 10 }} />}
 			/>
+=======
+			>
+				<Text
+					style={{
+						color: theme.screen.text,
+						fontSize: windowWidth > 600 ? 18 : 14,
+					}}
+				>
+					DayScreen
+				</Text>
+				<MaterialCommunityIcons name="chevron-right" size={20} color={theme.screen.icon} style={{ marginRight: 10 }} />
+			</TouchableOpacity>
+>>>>>>> c5e289d8ee955969134201fcbdae37043450ab48
 		</View>
 	);
 };

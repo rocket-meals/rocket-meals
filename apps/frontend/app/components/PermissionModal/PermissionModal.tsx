@@ -1,4 +1,4 @@
-import { Dimensions, Text } from 'react-native';
+import { Dimensions, Text, TouchableOpacity } from 'react-native';
 import React, { useCallback } from 'react';
 import BaseModal from '@/components/BaseModal';
 import { styles } from './styles';
@@ -13,7 +13,6 @@ import { myContrastColor } from '@/helper/ColorHelper';
 import { performLogout } from '@/helper/logoutHelper';
 
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
-import AppButton from '@/components/AppButton';
 
 const PermissionModal: React.FC<PermissionModalProps> = ({ isVisible, setIsVisible }) => {
 	const { theme } = useTheme();
@@ -45,19 +44,18 @@ const PermissionModal: React.FC<PermissionModalProps> = ({ isVisible, setIsVisib
 			>
 				{translate(TranslationKeys.limited_access_description)}
 			</Text>
-			<AppButton
-				variant="ghost"
-				usePlainText
-				text={`${translate(TranslationKeys.sign_in)} / ${translate(TranslationKeys.create_account)}`}
-				onPress={handleLogout}
+			<TouchableOpacity
 				style={{
 					...styles.loginButton,
 					backgroundColor: primaryColor,
 					width: Dimensions.get('window').width < 500 ? '100%' : '80%',
-					marginVertical: 0,
 				}}
-				textStyle={{ ...styles.loginLabel, color: contrastColor }}
-			/>
+				onPress={handleLogout}
+			>
+				<Text style={{ ...styles.loginLabel, color: contrastColor }}>
+					{translate(TranslationKeys.sign_in)} / {translate(TranslationKeys.create_account)}
+				</Text>
+			</TouchableOpacity>
 		</BaseModal>
 	);
 };

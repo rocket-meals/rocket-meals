@@ -26,7 +26,6 @@ import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
 import { getAppElementTranslation } from '@/helper/resourceHelper';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import FoodOfferInfoItem from '@/components/FoodOfferInfoItem/FoodOfferInfoItem';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import CardDimensionHelper from '@/helper/CardDimensionHelper';
 import { CanteenVisitsDateRow } from '@/components/CanteenVisitsDateRow';
 
@@ -53,19 +52,13 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { canteenFeedbackLabelsDict, canteensDict } = useAppSelector((state) => state.canteenReducer);
-	const canteens = useMemo(() => Object.values(canteensDict || {}), [canteensDict]);
-	const canteenFeedbackLabels = useMemo(() => Object.values(canteenFeedbackLabelsDict || {}), [canteenFeedbackLabelsDict]);
+	const { canteenFeedbackLabels, canteens } = useAppSelector((state) => state.canteenReducer);
 	const { sortBy, language, amountColumnsForcard, appSettings, primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
-	const { ownFoodFeedbacksDict, foodCategoriesDict, foodOfferCategoriesDict, foodOffersInfoItemsDict } = useAppSelector((state) => state.food);
-	const ownFoodFeedbacks = useMemo(() => Object.values(ownFoodFeedbacksDict || {}), [ownFoodFeedbacksDict]);
-	const foodCategories = useMemo(() => Object.values(foodCategoriesDict || {}), [foodCategoriesDict]);
-	const foodOfferCategories = useMemo(() => Object.values(foodOfferCategoriesDict || {}), [foodOfferCategoriesDict]);
-	const foodOffersInfoItems = useMemo(() => Object.values(foodOffersInfoItemsDict || {}), [foodOffersInfoItemsDict]);
-	const { profile, user } = useAppSelector((state) => state.authReducer);
-	const { appElementsDict } = useAppSelector((state) => state.appElements);
-	const appElements = useMemo(() => Object.values(appElementsDict || {}), [appElementsDict]);
-	const selectedCanteen = (canteensDict?.[String(canteenId)] ?? canteens?.find(c => String(c.id) === String(canteenId))) as DatabaseTypes.Canteens | undefined;
+	const { ownFoodFeedbacks, foodCategories, foodOfferCategories, foodOffersInfoItems } = useAppSelector((state) => state.food);
+	const { profile, user, isDevMode } = useAppSelector((state) => state.authReducer);
+	const { appElements } = useAppSelector((state) => state.appElements);
+	
+	const selectedCanteen = canteens?.find(c => c.id === canteenId) as DatabaseTypes.Canteens | undefined;
 	const flatListRef = useRef<FlatList<DayData>>(null);
 	const [days, setDays] = useState<DayData[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -80,8 +73,6 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 	const contrastColor = useMyContrastColor(theme.screen.background, theme, mode === 'dark');
 	const smartReadableDate = useSmartReadableDateMethod();
 	const languageCode = language;
-	const isLtrLanguage = useIsLtrLanguage();
-	const isRtl = !isLtrLanguage;
 
 	useEffect(() => {
 		const fetchLabels = async () => {
@@ -385,18 +376,8 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 
 		return (
 			<View style={styles.dayContainer}>
-				<View style={[styles.dateHeaderRow, isRtl && { flexDirection: 'row-reverse' }]}>
-					<Text
-						style={[
-							styles.dateHeader,
-							{
-								color: theme.screen.text,
-								textAlign: isRtl ? 'right' : 'left',
-							},
-						]}
-					>
-						{smartReadableDate(parseDateOnly(item.date))}
-					</Text>
+				<View style={styles.dateHeaderRow}>
+					<Text style={[styles.dateHeader, { color: theme.screen.text }]}>{smartReadableDate(parseDateOnly(item.date))}</Text>
 					{item.offers.length > 0 && <CanteenVisitsDateRow canteenId={canteenId} date={item.date} />}
 				</View>
 				{beforeElement && (
@@ -465,15 +446,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 						return null;
 					})}
 					{item.offers.length === 0 && !hasInfoItems && (
-						<Text
-							style={{
-								color: theme.screen.text,
-								textAlign: isRtl ? 'right' : 'left',
-								writingDirection: isRtl ? 'rtl' : 'ltr',
-							}}
-						>
-							{translate(TranslationKeys.no_foodoffers_found_for_selection)}
-						</Text>
+						<Text style={{ color: theme.screen.text }}>{translate(TranslationKeys.no_foodoffers_found_for_selection)}</Text>
 					)}
 				</View>
 				{afterElement && (
@@ -483,16 +456,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 				)}
 				{feedbacks && feedbacks.length > 0 && (
 					<View style={styles.feebackContainer}>
-						<Text
-							style={[
-								styles.feedbackLabelsTitle,
-								{
-									color: theme.screen.text,
-									textAlign: isRtl ? 'right' : 'left',
-									writingDirection: isRtl ? 'rtl' : 'ltr',
-								},
-							]}
-						>
+						<Text style={[styles.feedbackLabelsTitle, { color: theme.screen.text }]}>
 							{translate(TranslationKeys.feedback_labels)}
 						</Text>
 						{feedbacks}

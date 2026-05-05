@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import styles from './styles';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { router } from 'expo-router';
+<<<<<<< HEAD
 import AppButton from '../AppButton';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
@@ -15,6 +16,11 @@ const FoodPlanWeek = ({ data, onPressItem }: { data: any[]; onPressItem: (item: 
 	const { translate } = useLanguage();
 	const isLtrLanguage = useIsLtrLanguage();
 	const isArabic = !isLtrLanguage;
+=======
+
+const FoodPlanWeek = ({ data, onPressItem }: { data: any[]; onPressItem: (item: any) => void }) => {
+	const { theme } = useTheme();
+>>>>>>> c5e289d8ee955969134201fcbdae37043450ab48
 
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
 
@@ -101,6 +107,7 @@ const FoodPlanWeek = ({ data, onPressItem }: { data: any[]; onPressItem: (item: 
 					</View>
 				</TouchableOpacity>
 			))}
+<<<<<<< HEAD
 			<AppButton
 				variant="ghost"
 				usePlainText
@@ -113,6 +120,19 @@ const FoodPlanWeek = ({ data, onPressItem }: { data: any[]; onPressItem: (item: 
 				}}
 				iconRight={<MaterialCommunityIcons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={20} color={theme.screen.icon} style={{ marginRight: 10 }} />}
 			/>
+=======
+			<TouchableOpacity style={[styles.mainContainer, { backgroundColor: theme.screen.iconBg }]} onPress={() => router.navigate('/list-week-screen')}>
+				<Text
+					style={{
+						color: theme.screen.text,
+						fontSize: windowWidth > 600 ? 18 : 14,
+					}}
+				>
+					Wochen Auswahl
+				</Text>
+				<MaterialCommunityIcons name="chevron-right" size={20} color={theme.screen.icon} style={{ marginRight: 10 }} />
+			</TouchableOpacity>
+>>>>>>> c5e289d8ee955969134201fcbdae37043450ab48
 		</View>
 	);
 };

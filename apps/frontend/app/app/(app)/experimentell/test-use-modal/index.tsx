@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -8,16 +8,12 @@ import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import useMyScrollviewTextInputModal from '@/hooks/useMyScrollviewTextInputModal';
 import SettingsList from '@/components/SettingsList';
-import AppButton from '@/components/AppButton';
 import styles from './styles';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const TestUseModalScreen = () => {
         useSetPageTitle(TranslationKeys.test_use_modal);
         const { theme } = useTheme();
-        const { translate, language } = useLanguage();
-        const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
+        const { translate } = useLanguage();
         const { show, close, debug } = useMyScrollViewModal();
         const { openTextInputModal } = useMyScrollviewTextInputModal();
         const [modalTextValue, setModalTextValue] = useState('');
@@ -26,8 +22,6 @@ const TestUseModalScreen = () => {
                 show(
                         {
                                 title: translate(TranslationKeys.test_use_modal),
-                                titleTextAlign: isArabic ? 'right' : 'left',
-                                titleWritingDirection: isArabic ? 'rtl' : 'ltr',
                                 showsVerticalScrollIndicator: false,
                                 children: (
                                         <View
@@ -39,29 +33,30 @@ const TestUseModalScreen = () => {
                                                         },
                                                 ]}
                                         >
-                                                <Text style={[styles.modalTitle, { color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }]}>
+                                                <Text style={[styles.modalTitle, { color: theme.screen.text }]}>
                                                         {translate(TranslationKeys.test_use_modal)}
                                                 </Text>
-                                                <Text style={[styles.modalBody, { color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }]}>
+                                                <Text style={[styles.modalBody, { color: theme.screen.text }]}>
                                                         {translate(TranslationKeys.modal_example_body)}
                                                 </Text>
-                                                <AppButton
-                                                        variant="ghost"
-                                                        usePlainText
-                                                        text={translate(TranslationKeys.close_modal)}
-                                                        onPress={close}
+                                                <TouchableOpacity
                                                         style={[
                                                                 styles.modalButton,
                                                                 {
                                                                         backgroundColor: theme.button?.background || theme.screen.iconBg,
-                                                                        marginVertical: 0,
                                                                 },
                                                         ]}
-                                                        textStyle={[
-                                                                styles.modalButtonText,
-                                                                { color: theme.button?.text || theme.screen.text },
-                                                        ]}
-                                                />
+                                                        onPress={close}
+                                                >
+                                                        <Text
+                                                                style={[
+                                                                        styles.modalButtonText,
+                                                                        { color: theme.button?.text || theme.screen.text },
+                                                                ]}
+                                                        >
+                                                                {translate(TranslationKeys.close_modal)}
+                                                        </Text>
+                                                </TouchableOpacity>
                                         </View>
                                 ),
                         },
@@ -85,28 +80,25 @@ const TestUseModalScreen = () => {
                         contentContainerStyle={{ ...styles.contentContainer, backgroundColor: theme.screen.background }}
                 >
                         <View style={styles.content}>
-                                <Text style={[styles.heading, { color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }]}>
+                                <Text style={[styles.heading, { color: theme.screen.text }]}>
                                         {translate(TranslationKeys.test_use_modal)}
                                 </Text>
-                                <Text style={[styles.description, { color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }]}>
+                                <Text style={[styles.description, { color: theme.screen.text }]}>
                                         {translate(TranslationKeys.modal_example_body)}
                                 </Text>
-                                <AppButton
-                                        variant="ghost"
-                                        usePlainText
-                                        text={translate(TranslationKeys.open_modal_example)}
-                                        onPress={openExampleModal}
+                                <TouchableOpacity
                                         style={[
                                                 styles.button,
-                                                {
-                                                        backgroundColor: theme.button?.background || theme.screen.iconBg,
-                                                        marginVertical: 0,
-                                                },
+                                                { backgroundColor: theme.button?.background || theme.screen.iconBg },
                                         ]}
-                                        textStyle={[styles.buttonText, { color: theme.button?.text || theme.screen.text }]}
-                                />
+                                        onPress={openExampleModal}
+                                >
+                                        <Text style={[styles.buttonText, { color: theme.button?.text || theme.screen.text }]}>
+                                                {translate(TranslationKeys.open_modal_example)}
+                                        </Text>
+                                </TouchableOpacity>
                                 <View style={styles.section}>
-                                        <Text style={[styles.sectionTitle, { color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }]}>
+                                        <Text style={[styles.sectionTitle, { color: theme.screen.text }]}>
                                                 {translate(TranslationKeys.modal_text_input_label)}
                                         </Text>
                                         <SettingsList
@@ -134,7 +126,7 @@ const TestUseModalScreen = () => {
                                         />
                                 </View>
                                 <View style={[styles.debugCard, { backgroundColor: theme.screen.iconBg }]}>
-                                        <Text style={[styles.debugTitle, { color: theme.screen.text }]}>{translate(TranslationKeys.useModalDebugTitle)}</Text>
+                                        <Text style={[styles.debugTitle, { color: theme.screen.text }]}>useModal debug</Text>
                                         <Text selectable style={[styles.debugText, { color: theme.screen.text }]}>
                                                 {JSON.stringify(debug, null, 2)}
                                         </Text>

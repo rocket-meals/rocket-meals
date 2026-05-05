@@ -1,8 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
-import { Platform, TextInput } from 'react-native';
-const InputComponent = Platform.OS === 'web' ? TextInput : BottomSheetTextInput;
 import { useTheme } from '../../context/ThemeContext';
 import { useSettingsContext } from '../../context/SettingsContext';
 import { useMyScrollViewModal } from '../GlobalModal/useMyScrollViewModal';
@@ -71,7 +69,7 @@ const DatePickerSheet: React.FC<DatePickerSheetProps> = ({
 
 	return (
 		<View style={styles.sheetView}>
-			<InputComponent
+			<BottomSheetTextInput
 				style={[
 					styles.sheetInput,
 					{

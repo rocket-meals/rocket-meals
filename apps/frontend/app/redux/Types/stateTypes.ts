@@ -11,7 +11,7 @@ export type AuthState = {
 }
 
 export type AppElementState = {
-	appElementsDict: Record<string, DatabaseTypes.AppElements>;
+	appElements: DatabaseTypes.AppElements[];
 }
 
 export type ApartmentsState = {
@@ -28,17 +28,17 @@ export type CanteenWithImage = DatabaseTypes.Canteens & {
 };
 
 export type CanteensState = {
-	canteensDict: Record<string, CanteenWithImage>;
+	canteens: CanteenWithImage[];
 	buildingsDict: Record<string, DatabaseTypes.Buildings>;
-	buildingsOrganizationsDict: Record<string, DatabaseTypes.BuildingsOrganizations>;
-	organisationsDict: Record<string, DatabaseTypes.Organizations>;
+	buildingsOrganizations: DatabaseTypes.BuildingsOrganizations[];
+	organisations: DatabaseTypes.Organizations[];
 	selectedCanteen: CanteenWithImage | null;
-	selectedCanteenFoodOffersDict: Record<string, DatabaseTypes.Foodoffers>;
-	canteenFoodOffersDict: Record<string, DatabaseTypes.Foodoffers>;
-	businessHoursDict: Record<string, DatabaseTypes.Businesshours>;
-	businessHoursGroupsDict: Record<string, DatabaseTypes.BusinesshoursGroups>;
-	canteenFeedbackLabelsDict: Record<string, DatabaseTypes.CanteensFeedbacksLabels>;
-	ownCanteenFeedBackLabelEntriesDict: Record<string, DatabaseTypes.CanteensFeedbacksLabelsEntries>;
+	selectedCanteenFoodOffers: DatabaseTypes.Foodoffers[];
+	canteenFoodOffers: DatabaseTypes.Foodoffers[];
+	businessHours: DatabaseTypes.Businesshours[];
+	businessHoursGroups: DatabaseTypes.BusinesshoursGroups[];
+	canteenFeedbackLabels: DatabaseTypes.CanteensFeedbacksLabels[];
+	ownCanteenFeedBackLabelEntries: DatabaseTypes.CanteensFeedbacksLabelsEntries[];
 }
 
 export type SettingsState = {
@@ -51,14 +51,11 @@ export type SettingsState = {
         primaryColor: string;
         appSettings: DatabaseTypes.AppSettings;
         language: string;
-        pirateLanguage: boolean;
-        funLanguageMode: string | null;
-        offlineMode: boolean;
         firstDayOfTheWeek: { id: string; name: string };
         drawerPosition: 'left' | 'right' | 'system';
         selectedCustomer: ConfigCustomerEnum | null;
-        wikisPagesDict: Record<string, any>;
-        wikisDict: Record<string, DatabaseTypes.Wikis>;
+        wikisPages: any[];
+        wikis: DatabaseTypes.Wikis[];
         nickNameLocal: string;
         amountColumnsForcard: number;
         useWebpForAssets: boolean;
@@ -76,20 +73,20 @@ export type SettingsState = {
 }
 
 export type FoodState = {
-	foodFeedbackLabelsDict: Record<string, DatabaseTypes.FoodsFeedbacksLabels>;
-	ownFoodFeedbacksDict: Record<string, DatabaseTypes.FoodsFeedbacks>;
-	ownfoodFeedbackLabelEntriesDict: Record<string, DatabaseTypes.FoodsFeedbacksLabelsEntries>;
-	markingsDict: Record<string, DatabaseTypes.Markings>;
-	markingGroupsDict: Record<string, DatabaseTypes.MarkingsGroups>;
-	selectedFoodMarkingsDict: Record<string, DatabaseTypes.FoodoffersMarkings>;
-	foodCategoriesDict: Record<string, DatabaseTypes.FoodsCategories>;
-	foodOfferCategoriesDict: Record<string, DatabaseTypes.FoodoffersCategories>;
-	foodOffersInfoItemsDict: Record<string, DatabaseTypes.FoodoffersInfoItems>;
+	foodFeedbackLabels: DatabaseTypes.FoodsFeedbacksLabels[];
+	ownFoodFeedbacks: DatabaseTypes.FoodsFeedbacks[];
+	ownfoodFeedbackLabelEntries: DatabaseTypes.FoodsFeedbacksLabelsEntries[];
+	markings: DatabaseTypes.Markings[];
+	markingGroups: DatabaseTypes.MarkingsGroups[];
+	selectedFoodMarkings: DatabaseTypes.FoodoffersMarkings[];
+	foodCategories: DatabaseTypes.FoodsCategories[];
+	foodOfferCategories: DatabaseTypes.FoodoffersCategories[];
+	foodOffersInfoItems: DatabaseTypes.FoodoffersInfoItems[];
 	markingDetails: DatabaseTypes.Markings;
-	mostLikedFoodsDict: Record<string, DatabaseTypes.Foods>;
-	mostDislikedFoodsDict: Record<string, DatabaseTypes.Foods>;
+	mostLikedFoods: DatabaseTypes.Foods[];
+	mostDislikedFoods: DatabaseTypes.Foods[];
 	foodCollection: Record<string, any>;
-	popupEventsDict: Record<string, ExtendedPopUpEvents>;
+	popupEvents: ExtendedPopUpEvents[];
 	selectedDate: string;
 }
 
@@ -99,7 +96,7 @@ type ExtendedPopUpEvents = {
 } & DatabaseTypes.PopupEvents;
 
 export type FoodAttributesState = {
-	foodAttributeGroupsDict: Record<string, DatabaseTypes.FoodsAttributesGroups>;
+	foodAttributeGroups: DatabaseTypes.FoodsAttributesGroups[];
 	foodAttributesDict: Record<string, DatabaseTypes.FoodsAttributes>;
 }
 
@@ -122,10 +119,10 @@ export type CachedFormEntry = {
 export type FormState = {
 	filterBy: string;
 	formSubmission: DatabaseTypes.FormSubmissions;
-	formQueueDict: Record<string, FormQueueEntry>;
+	formQueue: FormQueueEntry[];
 	cachedFormData: Record<string, CachedFormEntry>;
-	cachedFormCategoriesDict: Record<string, DatabaseTypes.FormCategories>;
-	cachedFormsDict: Record<string, Record<string, DatabaseTypes.Forms>>;
+	cachedFormCategories: DatabaseTypes.FormCategories[];
+	cachedForms: Record<string, DatabaseTypes.Forms[]>;
 }
 
 export type CampusState = {
@@ -136,11 +133,11 @@ export type CampusState = {
 }
 
 export type NewsState = {
-	newsDict: Record<string, DatabaseTypes.News>;
+	news: DatabaseTypes.News[];
 }
 
 export type CollectibleEventsState = {
-        collectibleEventsItemsDict: Record<string, DatabaseTypes.CollectibleEvents>;
+        collectibleEvents: DatabaseTypes.CollectibleEvents[];
         collectibleEventsDict: Record<string, Record<string, boolean>>;
 };
 
@@ -190,7 +187,7 @@ export type PopupEventsHashState = {
 }
 
 export type ChatsState = {
-        chatsDict: Record<string, DatabaseTypes.Chats>;
+        chats: DatabaseTypes.Chats[];
         readStatus: Record<string, string>;
 }
 

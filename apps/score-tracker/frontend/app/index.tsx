@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,12 +8,14 @@ import {
 	SettingsListTextInput,
 	useMyScrollViewModal,
 	useTheme,
+	MyColorPicker,
 } from 'repo-depkit-common-ui';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from 'expo-router';
 import {
 	addPlayer,
 	renamePlayer,
+	setPlayerColor,
 	removePlayer,
 	setScore,
 	addRound,
@@ -21,51 +23,20 @@ import {
 	resetAll,
 } from '../store/gameSlice';
 import type { AppDispatch, RootState } from '../store/store';
+import { PLAYER_COLORS } from '../helpers/GameStorage';
 
 const PRIMARY_COLOR = '#2563eb';
 const DANGER_COLOR = '#dc2626';
-const CELL_MIN_WIDTH = 80;
-const HEADER_HEIGHT = 40;
-const ROW_HEIGHT = 44;
 
-// ─── Score Cell ───────────────────────────────────────────────────────────────
+const TILE_BORDER_RADIUS = 16;
+const TILE_GAP = 12;
+const MIN_TILE_HEIGHT = 120;
 
-function ScoreCell({
-	value,
-	onPress,
-	isTotal,
-}: {
-	value: number | null;
-	onPress?: () => void;
-	isTotal?: boolean;
-}) {
-	const { theme } = useTheme();
-	return (
-		<TouchableOpacity
-			style={[
-				styles.cell,
-				{
-					backgroundColor: isTotal ? theme.header.background : theme.screen.background,
-					borderColor: theme.screen.border,
-				},
-			]}
-			onPress={onPress}
-			disabled={!onPress}
-			activeOpacity={onPress ? 0.6 : 1}
-		>
-			<Text
-				style={[
-					styles.cellText,
-					{
-						color: theme.screen.text,
-						fontWeight: isTotal ? '700' : '400',
-					},
-				]}
-			>
-				{value != null ? String(value) : '–'}
-			</Text>
-		</TouchableOpacity>
-	);
+// Helper to determine groupPosition for list items
+function getGroupPosition(index: number, total: number): 'top' | 'middle' | 'bottom' {
+	if (total === 1 || index === 0) return 'top';
+	if (index === total - 1) return 'bottom';
+	return 'middle';
 }
 
 // ─── Score Input Modal Content ────────────────────────────────────────────────
@@ -193,6 +164,55 @@ function ScoreInputContent({
 	);
 }
 
+// ─── Player Tile ──────────────────────────────────────────────────────────────
+
+function PlayerTile({
+	name,
+	score,
+	color,
+	isLeader,
+	onPress,
+	onLongPress,
+	tileHeight,
+	tileWidth,
+}: {
+	name: string;
+	score: number;
+	color: string;
+	isLeader: boolean;
+	onPress: () => void;
+	onLongPress: () => void;
+	tileHeight: number;
+	tileWidth?: number;
+}) {
+	return (
+		<TouchableOpacity
+			style={[
+				styles.playerTile,
+				{
+					backgroundColor: color,
+					height: tileHeight,
+					width: tileWidth,
+				},
+			]}
+			onPress={onPress}
+			onLongPress={onLongPress}
+			activeOpacity={0.8}
+		>
+			{isLeader && (
+				<View style={styles.leaderBadge}>
+					<Ionicons name="trophy" size={28} color="#fbbf24" />
+				</View>
+			)}
+			<Text style={styles.playerTileName} numberOfLines={2} adjustsFontSizeToFit>
+				{name}
+			</Text>
+			<Text style={styles.playerTileScore}>{score}</Text>
+			<Text style={styles.playerTileLabel}>Punkte</Text>
+		</TouchableOpacity>
+	);
+}
+
 // ─── Game Screen ──────────────────────────────────────────────────────────────
 
 export default function GameScreen() {
@@ -204,8 +224,18 @@ export default function GameScreen() {
 	const { show: showModal, close: closeModal } = useMyScrollViewModal();
 	const { show: showDeleteModal, close: closeDeleteModal } = useMyScrollViewModal();
 	const { show: showScoreModal, close: closeScoreModal } = useMyScrollViewModal();
+	const { show: showEditModal, close: closeEditModal } = useMyScrollViewModal();
+	const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
 	const navigation = useNavigation();
+
+	// Landscape detection and column count
+	const isLandscape = windowWidth > windowHeight;
+	const columnCount = (players.length === 4 || (isLandscape && players.length >= 2)) ? 2 : 1;
+
+	// Keep a ref to players so the header handler always has fresh data
+	const playersRef = useRef(players);
+	playersRef.current = players;
 
 	// Compute totals per player
 	const totals = useMemo(() => {
@@ -221,15 +251,73 @@ export default function GameScreen() {
 		return result;
 	}, [players, rounds]);
 
-	// Rounds reversed (newest first)
-	const reversedRounds = useMemo(() => [...rounds].reverse(), [rounds]);
+	// Find leader (player with highest score)
+	const leaderId = useMemo(() => {
+		if (players.length === 0) return null;
+		let maxScore = -Infinity;
+		let maxId: string | null = null;
+		for (const player of players) {
+			const total = totals[player.id] ?? 0;
+			if (total > maxScore) {
+				maxScore = total;
+				maxId = player.id;
+			}
+		}
+		// Only show leader if at least one player has a score > 0
+		if (maxScore <= 0) return null;
+		return maxId;
+	}, [players, totals]);
+
+	// Compute tile height to fill screen
+	const tileHeight = useMemo(() => {
+		const count = players.length;
+		if (count === 0) return 200;
+		// Available height: window minus header (~56), bottom bar (~80), safe areas, gaps
+		const rows = Math.ceil(count / columnCount);
+		const availableHeight = windowHeight - 56 - 80 - insets.top - insets.bottom - TILE_GAP * (rows + 1);
+		const minHeight = MIN_TILE_HEIGHT;
+		return Math.max(minHeight, Math.floor(availableHeight / rows));
+	}, [players.length, windowHeight, insets.top, insets.bottom, columnCount]);
+
+	// Tile width for multi-column grid layout
+	const tileWidth = useMemo(() => {
+		if (columnCount === 1) return undefined;
+		const availableWidth = windowWidth - insets.left - insets.right;
+		return Math.floor((availableWidth - TILE_GAP * (columnCount + 1)) / columnCount);
+	}, [columnCount, windowWidth, insets.left, insets.right]);
 
 	// ─── Header buttons ───────────────────────────────────────────────────────
+
+	const handleOpenEditNamesModal = useCallback(() => {
+		const currentPlayers = playersRef.current;
+		showEditModal({
+			title: '✏️ Namen bearbeiten',
+			children: (
+				<View style={styles.modalContent}>
+					{currentPlayers.map((player, index) => (
+						<SettingsListTextInput
+							key={player.id}
+							label={player.name}
+							placeholder="Name eingeben"
+							initialValue={player.name}
+							onSave={(newName) => {
+								dispatch(renamePlayer({ playerId: player.id, name: newName }));
+							}}
+							groupPosition={getGroupPosition(index, currentPlayers.length)}
+						/>
+					))}
+				</View>
+			),
+		});
+	}, [showEditModal, dispatch]);
 
 	React.useLayoutEffect(() => {
 		navigation.setOptions({
 			headerRight: () => (
 				<View style={styles.headerButtons}>
+					<TouchableOpacity onPress={handleOpenEditNamesModal} style={styles.headerButton}>
+						<Ionicons name="create-outline" size={22} color={theme.header.text} />
+					</TouchableOpacity>
 					<TouchableOpacity onPress={handleOpenDeleteModal} style={styles.headerButton}>
 						<Ionicons name="trash-outline" size={22} color={theme.header.text} />
 					</TouchableOpacity>
@@ -239,7 +327,7 @@ export default function GameScreen() {
 				</View>
 			),
 		});
-	}, [navigation, theme.header.text]);
+	}, [navigation, theme.header.text, handleOpenEditNamesModal]);
 
 	// ─── Handlers ─────────────────────────────────────────────────────────────
 
@@ -248,7 +336,7 @@ export default function GameScreen() {
 	}, [dispatch]);
 
 	const handleOpenPlayerModal = useCallback(
-		(playerId: string, playerName: string) => {
+		(playerId: string, playerName: string, playerColor: string) => {
 			showModal({
 				title: playerName,
 				children: (
@@ -262,6 +350,19 @@ export default function GameScreen() {
 								closeModal();
 							}}
 							groupPosition="top"
+						/>
+						<SettingsList
+							label="Farbe ändern"
+							leftIcon={<Ionicons name="color-palette-outline" size={20} color="#ffffff" />}
+							iconBgColor={playerColor}
+							groupPosition="middle"
+						/>
+						<MyColorPicker
+							colors={PLAYER_COLORS}
+							selectedColor={playerColor}
+							onSelect={(color) => {
+								dispatch(setPlayerColor({ playerId, color }));
+							}}
 						/>
 						<SettingsList
 							label="Spieler löschen"
@@ -310,23 +411,51 @@ export default function GameScreen() {
 		});
 	}, [showDeleteModal, closeDeleteModal, dispatch]);
 
-	const handleOpenScoreInput = useCallback(
-		(roundId: string, playerId: string, currentScore: number | null) => {
+	const handleTilePress = useCallback(
+		(playerId: string) => {
+			// If there are no rounds yet, add one first — the score modal
+			// will open on next render via the effect below.
+			if (rounds.length === 0) {
+				dispatch(addRound());
+				// Rounds state will update on next render; schedule modal open
+				pendingScorePlayerRef.current = playerId;
+				return;
+			}
+			openScoreModalForPlayer(playerId);
+		},
+		[rounds, dispatch],
+	);
+
+	const pendingScorePlayerRef = React.useRef<string | null>(null);
+
+	const openScoreModalForPlayer = useCallback(
+		(playerId: string) => {
+			const latestRound = rounds[rounds.length - 1];
+			if (!latestRound) return;
 			showScoreModal({
 				title: 'Punkte eingeben',
 				children: (
 					<ScoreInputContent
-						initialValue={currentScore}
+						initialValue={latestRound.scores[playerId] ?? null}
 						onSave={(value) => {
-							dispatch(setScore({ roundId, playerId, score: value }));
+							dispatch(setScore({ roundId: latestRound.id, playerId, score: value }));
 							closeScoreModal();
 						}}
 					/>
 				),
 			});
 		},
-		[showScoreModal, closeScoreModal, dispatch],
+		[rounds, showScoreModal, closeScoreModal, dispatch],
 	);
+
+	// Open score modal after a round was auto-created
+	React.useEffect(() => {
+		if (pendingScorePlayerRef.current && rounds.length > 0) {
+			const playerId = pendingScorePlayerRef.current;
+			pendingScorePlayerRef.current = null;
+			openScoreModalForPlayer(playerId);
+		}
+	}, [rounds, openScoreModalForPlayer]);
 
 	const handleAddRound = useCallback(() => {
 		dispatch(addRound());
@@ -350,74 +479,31 @@ export default function GameScreen() {
 
 	// ─── Render ───────────────────────────────────────────────────────────────
 
-	const labelWidth = 80;
-
 	return (
 		<View style={[styles.container, { backgroundColor: theme.screen.background, paddingLeft: insets.left, paddingRight: insets.right }]}>
-			{/* Horizontally scrollable table */}
-			<View style={styles.tableWrapper}>
-				{/* Row label column (fixed) */}
-				<View style={styles.labelColumn}>
-					<View style={[styles.labelCell, styles.headerLabelCell, { borderColor: theme.screen.border }]}>
-						<Text style={[styles.labelText, { color: theme.screen.text }]}> </Text>
-					</View>
-					<View style={[styles.labelCell, { borderColor: theme.screen.border, backgroundColor: theme.header.background }]}>
-						<Text style={[styles.labelText, { color: theme.screen.text, fontWeight: '700' }]}>Gesamt</Text>
-					</View>
-					{reversedRounds.map((round, index) => (
-						<View key={round.id} style={[styles.labelCell, { borderColor: theme.screen.border }]}>
-							<Text style={[styles.labelText, { color: theme.screen.text }]}>
-								R{rounds.length - index}
-							</Text>
-						</View>
-					))}
-				</View>
-
-				{/* Scrollable data columns */}
-				<ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dataScrollH}>
-					<View>
-						{/* Player name header row */}
-						<View style={styles.dataRow}>
-							{players.map((player) => (
-								<TouchableOpacity
-									key={player.id}
-									style={[styles.cell, styles.headerCell, { borderColor: theme.screen.border, backgroundColor: theme.header.background }]}
-									onPress={() => handleOpenPlayerModal(player.id, player.name)}
-									activeOpacity={0.7}
-								>
-									<Text style={[styles.cellText, { color: theme.header.text, fontWeight: '600' }]} numberOfLines={1}>
-										{player.name}
-									</Text>
-								</TouchableOpacity>
-							))}
-						</View>
-
-						{/* Totals row */}
-						<View style={styles.dataRow}>
-							{players.map((player) => (
-								<ScoreCell key={player.id} value={totals[player.id] ?? 0} isTotal />
-							))}
-						</View>
-
-						{/* Round rows in a vertical scroll */}
-						<ScrollView style={styles.roundsScroll} showsVerticalScrollIndicator>
-							{reversedRounds.map((round) => (
-								<View key={round.id} style={styles.dataRow}>
-									{players.map((player) => (
-										<ScoreCell
-											key={`${round.id}-${player.id}`}
-											value={round.scores[player.id] ?? null}
-											onPress={() =>
-												handleOpenScoreInput(round.id, player.id, round.scores[player.id] ?? null)
-											}
-										/>
-									))}
-								</View>
-							))}
-						</ScrollView>
-					</View>
-				</ScrollView>
-			</View>
+			<ScrollView
+				style={styles.tilesScroll}
+				contentContainerStyle={[
+					styles.tilesContainer,
+					columnCount > 1 && styles.tilesContainerGrid,
+					{ paddingBottom: insets.bottom + 80 },
+				]}
+				showsVerticalScrollIndicator={false}
+			>
+				{players.map((player) => (
+					<PlayerTile
+						key={player.id}
+						name={player.name}
+						score={totals[player.id] ?? 0}
+						color={player.color}
+						isLeader={player.id === leaderId}
+						onPress={() => handleTilePress(player.id)}
+						onLongPress={() => handleOpenPlayerModal(player.id, player.name, player.color)}
+						tileHeight={tileHeight}
+						tileWidth={tileWidth}
+					/>
+				))}
+			</ScrollView>
 
 			{/* Bottom bar: "Nächste Runde" button */}
 			<View style={[styles.bottomBar, { borderTopColor: theme.screen.border, paddingBottom: insets.bottom + 12 }]}>
@@ -463,50 +549,61 @@ const styles = StyleSheet.create({
 	headerButton: {
 		padding: 4,
 	},
-	tableWrapper: {
+	tilesScroll: {
 		flex: 1,
+	},
+	tilesContainer: {
+		padding: TILE_GAP,
+		gap: TILE_GAP,
+	},
+	tilesContainerGrid: {
 		flexDirection: 'row',
+		flexWrap: 'wrap',
 	},
-	labelColumn: {
-		width: 80,
-	},
-	labelCell: {
-		height: ROW_HEIGHT,
+	playerTile: {
+		borderRadius: TILE_BORDER_RADIUS,
 		justifyContent: 'center',
 		alignItems: 'center',
-		borderWidth: 0.5,
+		paddingHorizontal: 20,
+		paddingVertical: 16,
+		position: 'relative',
 	},
-	headerLabelCell: {
-		height: HEADER_HEIGHT,
+	leaderBadge: {
+		position: 'absolute',
+		top: 12,
+		right: 12,
+		backgroundColor: 'rgba(0,0,0,0.25)',
+		borderRadius: 20,
+		width: 40,
+		height: 40,
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
-	labelText: {
-		fontSize: 12,
+	playerTileName: {
+		fontSize: 28,
+		fontWeight: '700',
+		color: '#ffffff',
+		textAlign: 'center',
+		marginBottom: 8,
+	},
+	playerTileScore: {
+		fontSize: 56,
+		fontWeight: '800',
+		color: '#ffffff',
+		textAlign: 'center',
+	},
+	playerTileLabel: {
+		fontSize: 16,
 		fontWeight: '500',
-	},
-	dataScrollH: {
-		flex: 1,
-	},
-	dataRow: {
-		flexDirection: 'row',
-	},
-	cell: {
-		minWidth: CELL_MIN_WIDTH,
-		height: ROW_HEIGHT,
-		justifyContent: 'center',
-		alignItems: 'center',
-		borderWidth: 0.5,
-		paddingHorizontal: 8,
-	},
-	headerCell: {
-		height: HEADER_HEIGHT,
-	},
-	cellText: {
-		fontSize: 14,
-	},
-	roundsScroll: {
-		flex: 1,
+		color: 'rgba(255,255,255,0.75)',
+		textAlign: 'center',
+		marginTop: 4,
 	},
 	bottomBar: {
+		position: 'absolute',
+		bottom: 0,
+		left: 0,
+		right: 0,
 		flexDirection: 'row',
 		alignItems: 'center',
 		paddingHorizontal: 16,

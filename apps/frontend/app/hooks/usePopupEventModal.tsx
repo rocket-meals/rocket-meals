@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import PopupEventSheet from '@/components/PopupEventSheet/PopupEventSheet';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { PopupEventHelper } from '@/helper/PopupEventHelper';
@@ -10,8 +10,7 @@ import useKioskMode from '@/hooks/useKioskMode';
 const usePopupEventModal = () => {
 	const dispatch = useDispatch();
 	const kioskMode = useKioskMode();
-	const popupEventsDict = useAppSelector((state) => state.food.popupEventsDict, shallowEqual);
-	const popupEvents = useMemo(() => Object.values(popupEventsDict || {}), [popupEventsDict]);
+	const popupEvents = useAppSelector((state) => state.food.popupEvents, shallowEqual);
 	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
 	const popupEventShownIdRef = useRef<string | null>(null);
 	const [currentPopupEvent, setCurrentPopupEvent] = useState<any | null>(null);

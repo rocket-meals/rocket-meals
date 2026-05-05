@@ -20,8 +20,6 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt, StringHelper } from 'repo-depkit-common';
-import AppButton from '@/components/AppButton';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const extractTextAndLink = (description: string) => {
 	// Remove unintended spaces between `]` and `(`
@@ -56,8 +54,6 @@ const TimetableScreen = () => {
 	const course_timetable_area_color = appSettings?.course_timetable_area_color ? appSettings?.course_timetable_area_color : primaryColor;
 	const contrastColor = myContrastColor(course_timetable_area_color, theme, mode === 'dark');
 	const { text, label, link } = extractTextAndLink(courseTimetableDescriptionEmpty[language as keyof typeof courseTimetableDescriptionEmpty] || courseTimetableDescriptionEmpty.en);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 
 	const openSheet = useCallback(() => {
 		bottomSheetRef?.current?.expand();
@@ -108,7 +104,7 @@ const TimetableScreen = () => {
 					if (supported) {
 						await Linking.openURL(link);
 					} else {
-						toast(translate(TranslationKeys.cannotOpenUrl).replace('${url}', link), 'error');
+						toast(`Cannot open URL: ${link}`, 'error');
 					}
 				}
 			} catch (error) {
@@ -143,35 +139,29 @@ const TimetableScreen = () => {
         return (
                 <View style={{ ...styles.container, backgroundColor: theme.screen.background }}>
                         <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-								<View style={{ width: '100%', alignItems: isArabic ? 'flex-end' : 'flex-start' }}>
-									<AppButton
-										onPress={openSheet}
-										style={{
-											...styles.createButton,
-											backgroundColor: course_timetable_area_color,
-											marginVertical: 0,
-											...(isArabic ? { marginLeft: 0, marginRight: 10 } : null),
-										}}
-										text={`${translate(TranslationKeys.event)} ${translate(TranslationKeys.create)}`}
-										iconLeft={isArabic ? undefined : <FontAwesome name="calendar-plus-o" size={20} color={contrastColor} />}
-										iconRight={isArabic ? <FontAwesome name="calendar-plus-o" size={20} color={contrastColor} /> : undefined}
-										textStyle={{ ...styles.createButtonText, color: contrastColor }}
-										usePlainText
-									/>
-								</View>
+                                <TouchableOpacity
+                                        style={{
+                                                ...styles.createButton,
+                                                backgroundColor: course_timetable_area_color,
+                                        }}
+                                        onPress={openSheet}
+                                >
+                                        <FontAwesome name="calendar-plus-o" size={20} color={contrastColor} />
+                                        <View>
+                                                <Text style={{ ...styles.createButtonText, color: contrastColor }}>{`${translate(TranslationKeys.event)} ${translate(TranslationKeys.create)}`}</Text>
+                                        </View>
+                                </TouchableOpacity>
                                 {events && events?.length > 0 ? (
                                         <CourseTimetable events={events} openSheet={openSheet} setIsUpdate={setIsUpdate} setTimeTableData={setTimeTableData} setSelectedEventId={setSelectedEventId} />
                                 ) : (
                                         <View style={styles.noEventsContainer}>
                                                 <Text
-													style={{
-															...styles.body,
-															color: theme.sheet.text,
-															textAlign: isArabic ? 'right' : 'left',
-															writingDirection: isArabic ? 'rtl' : 'ltr',
-													}}
+                                                        style={{
+                                                                ...styles.body,
+                                                                color: theme.sheet.text,
+                                                        }}
                                                 >
-                                                    {parseMarkdown(text)}
+                                                        {parseMarkdown(text)}
                                                 </Text>
                                                 {link && <RedirectButton label={label} type="link" backgroundColor={course_timetable_area_color} color={contrastColor} onClick={() => handleOpenInBrowser(link)} />}
                                         </View>

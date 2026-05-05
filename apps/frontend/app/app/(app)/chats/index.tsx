@@ -15,19 +15,15 @@ import { MARK_ALL_CHATS_AS_READ, MARK_ALL_CHATS_AS_UNREAD } from '@/redux/Types/
 import { persistChatReadStatus } from '@/helper/chatReadStatus';
 import styles from './styles';
 import useChatUnreadStatus, { getChatTimestamp } from '@/hooks/useChatUnreadStatus';
-import AppButton from '@/components/AppButton';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const ChatsScreen = () => {
         useSetPageTitle(TranslationKeys.chats);
         const { theme } = useTheme();
-        const { translate, language } = useLanguage();
+        const { translate } = useLanguage();
         const dispatch = useDispatch();
 
         const { chats, readStatus, hasUnreadChats, isChatUnread } = useChatUnreadStatus();
         const { primaryColor, selectedTheme } = useAppSelector((state) => state.settings);
-        const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 
         const sortedChats = useMemo(() => {
                 return [...chats].sort((a, b) => {
@@ -94,55 +90,32 @@ const ChatsScreen = () => {
                 const buttonTextColor = myContrastColor(primaryColor, theme, selectedTheme === 'dark');
 
                 return (
-                        <View style={[styles.headerActions, isArabic ? { flexDirection: 'row-reverse', justifyContent: 'flex-start' } : null]}>
-                                <AppButton
-                                        text={translate(TranslationKeys.mark_all_chats_as_read)}
+                        <View style={styles.headerActions}>
+                                <TouchableOpacity
                                         onPress={() => {
                                                 void markAllAsRead();
                                         }}
-                                        disabled={!hasUnreadChats}
                                         style={[
                                                 styles.actionButton,
                                                 { backgroundColor: primaryColor },
                                                 !hasUnreadChats && styles.actionButtonDisabled,
-                                                { marginVertical: 0 },
-                                                isArabic ? { alignSelf: 'flex-end' } : null,
                                         ]}
-                                        textStyle={[
-                                                styles.actionButtonText,
-                                                {
-                                                        color: buttonTextColor,
-                                                        textAlign: isArabic ? 'right' : 'left',
-                                                        writingDirection: isArabic ? 'rtl' : 'ltr',
-                                                        lineHeight: isArabic ? 30 : undefined,
-                                                },
-                                        ]}
-                                        usePlainText
-                                />
-                                <AppButton
-                                        text={translate(TranslationKeys.mark_all_chats_as_unread)}
+                                        disabled={!hasUnreadChats}
+                                >
+                                        <Text style={[styles.actionButtonText, { color: buttonTextColor }]}>
+                                                {translate(TranslationKeys.mark_all_chats_as_read)}
+                                        </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
                                         onPress={() => {
                                                 void markAllAsUnread();
                                         }}
-                                        variant="outline"
-                                        style={[
-                                                styles.actionButton,
-                                                styles.secondaryActionButton,
-                                                { borderColor: theme.screen.icon },
-                                                { marginVertical: 0 },
-                                                isArabic ? { alignSelf: 'flex-end' } : null,
-                                        ]}
-                                        textStyle={[
-                                                styles.actionButtonText,
-                                                {
-                                                        color: theme.screen.text,
-                                                        textAlign: isArabic ? 'right' : 'left',
-                                                        writingDirection: isArabic ? 'rtl' : 'ltr',
-                                                        lineHeight: isArabic ? 28 : undefined,
-                                                },
-                                        ]}
-                                        usePlainText
-                                />
+                                        style={[styles.actionButton, styles.secondaryActionButton, { borderColor: theme.screen.icon }]}
+                                >
+                                        <Text style={[styles.actionButtonText, { color: theme.screen.text }]}>
+                                                {translate(TranslationKeys.mark_all_chats_as_unread)}
+                                        </Text>
+                                </TouchableOpacity>
                         </View>
                 );
         };
@@ -155,12 +128,11 @@ const ChatsScreen = () => {
 
                 const rightElement = (
                         <View style={styles.rightIconWrapper}>
-                                <MaterialCommunityIcons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />
+                                <MaterialCommunityIcons name="chevron-right" size={24} color={theme.screen.icon} />
                                 {isUnread ? (
                                         <View
                                                 style={[
                                                         styles.itemNotificationDot,
-                                                        isArabic ? { left: -2 } : { right: -2 },
                                                         {
                                                                 backgroundColor: theme.accent,
                                                                 borderColor: theme.screen.background,

@@ -19,8 +19,6 @@ const SettingsList: React.FC<SettingsListProps> = ({
 	title,
 	label,
 	value,
-	titleTextAlign,
-	reverseLayout,
 	rightElement,
 	rightIcon,
 	onPress,
@@ -35,7 +33,6 @@ const SettingsList: React.FC<SettingsListProps> = ({
 	titleNumberOfLines = 0,
 	isAccountRequired = false,
 	onAccountRequired,
-	valueNumberOfLines = 0,
 }) => {
 	const { theme, isDark } = useTheme();
 	const settingsCtx = useSettingsContext();
@@ -91,71 +88,36 @@ const SettingsList: React.FC<SettingsListProps> = ({
 	}
 
 	const inner = (
-		<Container onPress={pressHandler} style={[...containerStyles, reverseLayout ? styles.containerReverse : null]}>
+		<Container onPress={pressHandler} style={containerStyles}>
 			{showIconWrapper ? (
 				leftIconComponent ? (
 					leftIconComponent
 				) : (
-					<View style={[...iconWrapperStyles, reverseLayout ? styles.iconWrapperReverse : null]}>{renderedLeftIcon}</View>
+					<View style={iconWrapperStyles}>{renderedLeftIcon}</View>
 				)
 			) : hasIcon ? (
 				leftIconComponent ? leftIconComponent : renderedLeftIcon
 			) : null}
-			{shouldReserveIconSpace ? <View style={[styles.iconPlaceholder, reverseLayout ? styles.iconPlaceholderReverse : null]} /> : null}
-			<View style={[styles.textWrapper, valueNumberOfLines ? { flexWrap: 'nowrap' } : null, reverseLayout ? styles.textWrapperReverse : null]}>
-				<View style={[styles.titleContainer, valueNumberOfLines ? { flexGrow: 0, flexShrink: 0 } : null]}>
-					<Text
-						selectable
-						style={[
-							styles.title,
-							{ color: theme.screen.text, fontStyle: italic ? 'italic' : 'normal', textAlign: titleTextAlign } as TextStyle,
-						]}
-						numberOfLines={titleNumberOfLines}
-						ellipsizeMode="tail"
-					>
+			{shouldReserveIconSpace ? <View style={styles.iconPlaceholder} /> : null}
+			<View style={styles.textWrapper}>
+				<View style={styles.titleContainer}>
+					<Text selectable style={[styles.title, { color: theme.screen.text, fontStyle: italic ? 'italic' : 'normal' } as TextStyle]} numberOfLines={titleNumberOfLines} ellipsizeMode="tail">
 						{title || label}
 					</Text>
 				</View>
 				{value ? (
-					<View
-						style={[
-							valueNumberOfLines ? styles.valueContainer : null,
-							reverseLayout && titleTextAlign !== 'right' ? styles.valueContainerReverse : null,
-						]}
-					>
-						<Text
-							selectable
-							style={[
-								styles.value,
-								reverseLayout && titleTextAlign !== 'right' ? styles.valueReverse : null,
-								{ color: theme.screen.text } as TextStyle,
-								valueNumberOfLines ? { flexShrink: 1 } : null,
-							]}
-							numberOfLines={valueNumberOfLines}
-							ellipsizeMode={valueNumberOfLines ? 'tail' : undefined}
-						>
+					<View style={styles.valueContainer}>
+						<Text selectable style={[styles.value, { color: theme.screen.text } as TextStyle]} numberOfLines={0}>
 							{value}
 						</Text>
 					</View>
 				) : null}
 			</View>
-			{rightElement || rightIcon ? (
-				<View style={[styles.rightWrapper, reverseLayout ? styles.rightWrapperReverse : null]}>{rightElement || rightIcon}</View>
-			) : null}
+			{rightElement || rightIcon ? <View style={styles.rightWrapper}>{rightElement || rightIcon}</View> : null}
 		</Container>
 	);
 
-	const separator = showSeparator ? (
-		<View
-			style={[
-				styles.separator,
-				{
-					backgroundColor: theme.screen.background,
-					...(reverseLayout ? { marginRight: noIconIndent ? 0 : 54 } : { marginLeft: noIconIndent ? 0 : 54 }),
-				},
-			]}
-		/>
-	) : null;
+	const separator = showSeparator ? <View style={[styles.separator, { backgroundColor: theme.screen.background, marginLeft: noIconIndent ? 0 : 54 }]} /> : null;
 
 	const accountRequiredBorderStyle: ViewStyle =
 		groupPosition === 'middle' || groupPosition === 'bottom'
@@ -197,9 +159,6 @@ const styles = StyleSheet.create({
 		paddingHorizontal: horizontalScreenPadding,
 		paddingVertical: basePaddingVertical,
 	},
-	containerReverse: {
-		flexDirection: 'row-reverse',
-	},
 	iconWrapper: {
 		width: 34,
 		height: 34,
@@ -207,10 +166,6 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginRight: 10,
-	},
-	iconWrapperReverse: {
-		marginRight: 0,
-		marginLeft: 10,
 	},
 	transparentIconWrapper: {
 		width: undefined,
@@ -224,19 +179,12 @@ const styles = StyleSheet.create({
 		height: 34,
 		marginRight: 10,
 	},
-	iconPlaceholderReverse: {
-		marginRight: 0,
-		marginLeft: 10,
-	},
 	textWrapper: {
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		alignItems: 'center',
 		columnGap: 3,
 		flex: 1,
-	},
-	textWrapperReverse: {
-		flexDirection: 'row-reverse',
 	},
 	title: {
 		fontSize: 15,
@@ -252,15 +200,9 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'flex-end',
 	},
-	valueContainerReverse: {
-		alignItems: 'flex-start',
-	},
 	value: {
 		fontSize: 13,
 		textAlign: 'right',
-	},
-	valueReverse: {
-		textAlign: 'left',
 	},
 	rightWrapper: {
 		minWidth: 34,
@@ -269,10 +211,6 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginLeft: 5,
-	},
-	rightWrapperReverse: {
-		marginLeft: 0,
-		marginRight: 5,
 	},
 	separator: {
 		width: '100%',
