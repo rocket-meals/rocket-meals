@@ -11,6 +11,7 @@ import { SET_WEEK_PLAN } from '@/redux/Types/types';
 import { myContrastColor } from '@/helper/ColorHelper';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RootState } from '@/redux/reducer';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 
 const Index = () => {
 	useSetPageTitle('FoodPlan:Week');
@@ -19,6 +20,8 @@ const Index = () => {
 	const router = useRouter();
 	const dispatch = useDispatch();
 	const { width } = useWindowDimensions();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const [years, setYears] = useState<number[]>([currentYear - 1, currentYear, currentYear + 1]);
 	const [selectedYear, setSelectedYear] = useState<number>(currentYear);
 	const { weekPlan } = useAppSelector((state) => state.management);
@@ -140,7 +143,7 @@ const Index = () => {
 							borderColor: theme.screen.icon,
 						}}
 					>
-						<Ionicons name="chevron-back" size={20} color={theme.screen.text} />
+						<Ionicons name={isArabic ? 'chevron-forward' : 'chevron-back'} size={20} color={theme.screen.text} />
 						<Text style={{ ...styles.yearText, color: theme.screen.text }}>{selectedYear - 1}</Text>
 					</TouchableOpacity>
 
@@ -157,7 +160,7 @@ const Index = () => {
 						}}
 					>
 						<Text style={{ ...styles.yearText, color: theme.screen.text }}>{selectedYear + 1}</Text>
-						<Ionicons name="chevron-forward" size={20} color={theme.screen.text} />
+						<Ionicons name={isArabic ? 'chevron-back' : 'chevron-forward'} size={20} color={theme.screen.text} />
 					</TouchableOpacity>
 				</View>
 			</View>

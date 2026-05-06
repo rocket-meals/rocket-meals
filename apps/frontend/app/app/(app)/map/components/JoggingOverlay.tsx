@@ -210,7 +210,7 @@ const GPS_TIME_INTERVAL_MS = 5000;
 const GPS_DISTANCE_INTERVAL_METERS = 5;
 
 export type JoggingOverlayProps = {
-	mapRef: React.RefObject<MyMapHandle>;
+	mapRef: React.RefObject<MyMapHandle | null>;
 };
 
 const JoggingOverlay: React.FC<JoggingOverlayProps> = ({ mapRef }) => {

@@ -10,7 +10,7 @@ export default function FoodOfferLayout() {
 	const dispatch = useDispatch();
 	const { theme } = useTheme();
 	const wikisHelper = new WikisHelper();
-	const { wikis } = useAppSelector((state) => state.settings);
+	const { wikisDict } = useAppSelector((state) => state.settings);
 
 	const getWikis = async () => {
 		try {
@@ -24,10 +24,10 @@ export default function FoodOfferLayout() {
 	};
 
 	useEffect(() => {
-		if (wikis?.length === 0) {
+		if (Object.keys(wikisDict || {}).length === 0) {
 			getWikis();
 		}
-	}, [wikis]);
+	}, [wikisDict]);
 	return (
 		<Stack
 			screenOptions={{

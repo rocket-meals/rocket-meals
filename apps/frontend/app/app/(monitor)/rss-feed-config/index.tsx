@@ -25,7 +25,7 @@ const RssFeedConfig = () => {
 	return (
 		<ScrollView style={[styles.container, { backgroundColor: theme.screen.background }]}>
 			<View style={styles.field}>
-				<Text style={[styles.label, { color: theme.screen.text }]}>RSS Feed URLs</Text>
+				<Text style={[styles.label, { color: theme.screen.text }]}>{translate(TranslationKeys.rss_feed_urls)}</Text>
 				{urls.map((url, index) => (
 					<TextInput
 						key={index}
@@ -43,13 +43,13 @@ const RssFeedConfig = () => {
 						placeholderTextColor={theme.screen.icon}
 					/>
 				))}
-				<Text style={[styles.example, { color: theme.screen.text }]}>Beispiel: https://www.tagesschau.de/infoservices/alle-meldungen-100~rss2.xml</Text>
+				<Text style={[styles.label, { color: theme.screen.text }]}>{translate(TranslationKeys.example)}: https://www.tagesschau.de/infoservices/alle-meldungen-100~rss2.xml</Text>
 				<TouchableOpacity style={[styles.addButton, { backgroundColor: theme.screen.iconBg }]} onPress={addUrlField}>
-					<Text style={[styles.addButtonText, { color: theme.screen.text }]}>Add URL</Text>
+					<Text style={[styles.addButtonText, { color: theme.screen.text }]}>{translate(TranslationKeys.add_url)}</Text>
 				</TouchableOpacity>
 			</View>
 			<View style={styles.field}>
-				<Text style={[styles.label, { color: theme.screen.text }]}>Switch Interval (seconds)</Text>
+				<Text style={[styles.label, { color: theme.screen.text }]}>{translate(TranslationKeys.switch_interval_seconds)}</Text>
 				<TextInput style={[styles.input, { color: theme.screen.text, borderColor: theme.screen.icon }]} value={interval} onChangeText={setInterval} keyboardType="number-pad" placeholder="10" placeholderTextColor={theme.screen.icon} />
 			</View>
 			<TouchableOpacity

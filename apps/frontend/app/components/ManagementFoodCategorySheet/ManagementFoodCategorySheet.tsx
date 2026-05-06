@@ -22,7 +22,9 @@ export const ManagementFoodCategoryContent: React.FC<ManagementFoodCategorySheet
 	const [value, setValue] = useState('');
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
 	const { primaryColor, language } = useAppSelector(state => state.settings);
-	const { foodCategories, foodOfferCategories } = useAppSelector(state => state.food);
+	const { foodCategoriesDict = {}, foodOfferCategoriesDict = {} } = useAppSelector(state => state.food);
+	const foodCategories = Object.values(foodCategoriesDict);
+	const foodOfferCategories = Object.values(foodOfferCategoriesDict);
 
 	const currentSelectedId = selectedFoodCategory.key === 'Speiseangebot' ? dayPlan?.mealOfferCategory?.id : dayPlan?.foodCategory?.id;
 

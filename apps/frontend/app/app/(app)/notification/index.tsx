@@ -35,7 +35,8 @@ const NotificationScreen = () => {
 	const animationRef = useRef<LottieView>(null);
 	const [animationJson, setAmimationJson] = useState<any>(null);
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
-	const foodFeedbacks = useAppSelector((state) => state.food.ownFoodFeedbacks);
+	const ownFoodFeedbacksDict = useAppSelector((state) => state.food.ownFoodFeedbacksDict);
+	const foodFeedbacks = useMemo(() => Object.values(ownFoodFeedbacksDict || {}), [ownFoodFeedbacksDict]);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -79,7 +80,7 @@ const NotificationScreen = () => {
 				}))
 			);
 			let foodDetails = await Promise.all(foodDetailsPromises);
-			foodDetails = foodDetails.filter(food => food.feedback.notify === true);
+			foodDetails = foodDetails.filter((food: any) => food.feedback.notify === true);
 
 			setFoodWithFeedback(foodDetails);
 		} catch (error) {

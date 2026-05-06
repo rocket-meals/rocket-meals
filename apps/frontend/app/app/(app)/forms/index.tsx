@@ -1,5 +1,5 @@
 import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo, FontAwesome } from '@expo/vector-icons';
@@ -13,6 +13,7 @@ import { FormsHelper } from '@/redux/actions/Forms/Forms';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { SET_CACHED_FORMS } from '@/redux/Types/types';
 
 const CACHED_COLOR = '#22c55e';
@@ -21,6 +22,8 @@ const Index = () => {
 useSetPageTitle(TranslationKeys.select_a_form);
 const { theme } = useTheme();
 const { translate } = useLanguage();
+const isLtrLanguage = useIsLtrLanguage();
+const isArabic = !isLtrLanguage;
 const dispatch = useDispatch();
 const [loading, setLoading] = useState(false);
 const [isShowingCachedData, setIsShowingCachedData] = useState(false);
@@ -29,7 +32,8 @@ const [isShowingCachedData, setIsShowingCachedData] = useState(false);
     const [forms, setForms] = useState<DatabaseTypes.Forms[]>([]);
 const formsHelper = new FormsHelper();
 const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
-const { cachedFormData, cachedForms } = useAppSelector((state) => state.form);
+const { cachedFormData, cachedFormsDict } = useAppSelector((state) => state.form);
+const cachedForms = cachedFormsDict;
 
 const getAllForms = async () => {
 setLoading(true);
@@ -43,9 +47,10 @@ setForms(result);
 dispatch({ type: SET_CACHED_FORMS, payload: { category_id: String(category_id), forms: result } });
 }
 } catch {
-const cached = (cachedForms || {})[String(category_id)] || [];
-if (cached.length > 0) {
-setForms(cached);
+const cachedDict = (cachedForms || {})[String(category_id)] || {};
+const cachedArray = Object.values(cachedDict);
+if (cachedArray.length > 0) {
+setForms(cachedArray);
 setIsShowingCachedData(true);
 }
 } finally {
@@ -124,7 +129,7 @@ params: { form_id: form?.id },
 {isCached ? (
 <FontAwesome name="cloud-download" size={18} color={CACHED_COLOR} />
 ) : null}
-<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
 </View>
 </TouchableOpacity>
 );

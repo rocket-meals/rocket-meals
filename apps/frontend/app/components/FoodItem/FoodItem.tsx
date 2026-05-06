@@ -36,8 +36,8 @@ import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSet
 
 
 const selectFoodState = (state: RootState) => state.food;
-const selectMarkings = createSelector([selectFoodState], foodState => foodState.markings);
-const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => foodState.ownFoodFeedbacks);
+const selectMarkings = createSelector([selectFoodState], foodState => Object.values(foodState.markingsDict || {}));
+const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => Object.values(foodState.ownFoodFeedbacksDict || {}));
 
 export const FoodItemBase: React.FC<FoodItemProps> = memo(
   ({ 
@@ -230,7 +230,7 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
             openAccountRequiredModal();
           } else {
             console.error('Failed to update rating:', err);
-            toast('Could not update rating', 'error');
+            toast(translate(TranslationKeys.could_not_update_rating), 'error');
           }
         }
       },

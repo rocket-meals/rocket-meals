@@ -22,6 +22,7 @@ import { loadFoodById } from '@/helper/FoodHelper';
 import styles from './styles';
 import { MARK_CHAT_AS_READ } from '@/redux/Types/types';
 import { persistChatReadStatus } from '@/helper/chatReadStatus';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 
 type LinkedFoodInfo = {
@@ -37,12 +38,14 @@ const ChatDetailsScreen = () => {
         const { primaryColor: projectColor, selectedTheme: mode, appSettings, serverInfo } = useAppSelector((state) => state.settings);
 
         const dispatch = useDispatch();
-        const { chats, readStatus } = useAppSelector((state) => state.chats);
+        const { chatsDict, readStatus } = useAppSelector((state) => state.chats);
         const { profile } = useAppSelector((state) => state.authReducer);
 	const [messages, setMessages] = useState<DatabaseTypes.ChatMessages[]>([]);
         const [newMessage, setNewMessage] = useState('');
         const [sending, setSending] = useState(false);
         const { translate, language } = useLanguage();
+        const isLtrLanguage = useIsLtrLanguage();
+        const isArabic = !isLtrLanguage;
         const [linkedFoodFeedback, setLinkedFoodFeedback] = useState<LinkedFoodInfo | null>(null);
         const [refreshing, setRefreshing] = useState(false);
         const listRef = useRef<FlatList<DatabaseTypes.ChatMessages> | null>(null);
@@ -88,7 +91,7 @@ const ChatDetailsScreen = () => {
                 }
         }, [fetchMessages, refreshKey]);
 
-        const chat = chats.find(c => c.id === chat_id);
+        const chat = chat_id ? chatsDict[chat_id] : undefined;
         const chatInitialMessage = (chat as { initial_message?: string } | undefined)?.initial_message;
         const initialMessage = typeof chatInitialMessage === 'string' ? chatInitialMessage.trim() : undefined;
 
@@ -424,7 +427,7 @@ const ChatDetailsScreen = () => {
                                                         }
                                                         rightIcon={
                                                                 <MaterialCommunityIcons
-                                                                        name="chevron-right"
+                                                                        name={isArabic ? 'chevron-left' : 'chevron-right'}
                                                                         size={24}
                                                                         color={theme.screen.icon}
                                                                 />
@@ -491,7 +494,7 @@ const ChatDetailsScreen = () => {
                                                                         {translate(TranslationKeys.show_more_information)}
                                                                 </Text>
                                                                 <MaterialCommunityIcons
-                                                                        name="chevron-right"
+                                                                        name={isArabic ? 'chevron-left' : 'chevron-right'}
                                                                         size={24}
                                                                         color={theme.screen.icon}
                                                                 />

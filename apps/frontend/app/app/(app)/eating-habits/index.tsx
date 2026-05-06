@@ -34,8 +34,8 @@ const Index = () => {
 	useSetPageTitle(TranslationKeys.eating_habits);
 	const { theme } = useTheme();
 	const dispatch = useDispatch();
-	const { translate } = useLanguage();
-	const { markings } = useAppSelector((state) => state.food);
+	const { translate, isLtrLanguage } = useLanguage();
+	const { markingsDict } = useAppSelector((state) => state.food);
 	const { primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
 	const { user, profile } = useAppSelector((state) => state.authReducer);
 	const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
@@ -49,7 +49,7 @@ const Index = () => {
 	const customerConfigDefaultBreakdown = useCustomerConfigSeperateMarkingsForFood();
 	const seperatedMarkingsValue = useSeperatedMarkingsForFood();
 
-	const markingIds = useMemo(() => (markings ?? []).map((m: DatabaseTypes.Markings) => m.id), [markings]);
+	const markingIds = useMemo(() => Object.values(markingsDict ?? {}).map((m: DatabaseTypes.Markings) => m.id), [markingsDict]);
 
 	const openMenuSheet = useCallback(() => {
 		menuSheetRef?.current?.expand();

@@ -51,8 +51,6 @@ export default StyleSheet.create({
 		paddingHorizontal: 20,
 		fontFamily: 'Poppins_400Regular',
 		borderWidth: 1,
-		outline: 'none',
-		outlineColor: 'transparent',
 		borderColor: '#3A3A3A',
 		fontSize: 16,
 	},

@@ -9,6 +9,7 @@ import type BottomSheet from '@gorhom/bottom-sheet';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { AntDesign, Entypo, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { SET_FOOD_ATTRIBUTES_DICT, SET_FOOD_PLAN } from '@/redux/Types/types';
 import CustomCollapsible from '@/components/CustomCollapsible/CustomCollapsible';
 import { isWeb } from '@/constants/Constants';
@@ -33,6 +34,8 @@ const Index = () => {
 	useSetPageTitle(TranslationKeys.food_plan_list);
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const dispatch = useDispatch();
 	const foodAttributesHelper = new FoodAttributesHelper();
 	const { foodAttributesDict: initialFoodAttributes } = useAppSelector((state) => state.foodAttributes);
@@ -183,11 +186,11 @@ const Index = () => {
 						backgroundColor: theme.screen.iconBg,
 						paddingHorizontal: windowWidth > 600 ? 20 : 10,
 					}}
-					onPress={() => openCanteenModal('optional')}
+					onPress={() => openCanteenModal('additional')}
 				>
 					<View style={styles.col1}>
 						<Ionicons name="restaurant-sharp" size={24} color={theme.screen.icon} />
-						<Text style={{ ...styles.label, color: theme.screen.text }}>Optional: Zusätzliche Mensa/Cafeteria</Text>
+						<Text style={{ ...styles.label, color: theme.screen.text }}>{translate(TranslationKeys.optional_additional_canteen)}</Text>
 					</View>
 					<View style={styles.col2}>
 						<Text style={{ ...styles.label, color: theme.screen.text }}>{foodPlan?.additionalSelectedCanteen?.alias}</Text>
@@ -201,10 +204,10 @@ const Index = () => {
 						backgroundColor: theme.screen.iconBg,
 						paddingHorizontal: windowWidth > 600 ? 20 : 10,
 					}}
-					onPress={() => openIntervalSheet('foodInterval', 'Next Food Interval')}
+					onPress={() => openIntervalSheet('foodInterval', translate(TranslationKeys.next_food_interval))}
 				>
 					<View style={styles.col1}>
-						<Text style={{ ...styles.label, color: theme.screen.text }}>Next Food Interval</Text>
+						<Text style={{ ...styles.label, color: theme.screen.text }}>{translate(TranslationKeys.next_food_interval)}</Text>
 					</View>
 					<View style={styles.col2}>
 						<Text style={{ ...styles.label, color: theme.screen.text }}>{foodPlan?.nextFoodInterval}</Text>
@@ -218,10 +221,10 @@ const Index = () => {
 						backgroundColor: theme.screen.iconBg,
 						paddingHorizontal: windowWidth > 600 ? 20 : 10,
 					}}
-					onPress={() => openIntervalSheet('refreshFoodInterval', 'Refresh Food Offers Interval')}
+					onPress={() => openIntervalSheet('refreshFoodInterval', translate(TranslationKeys.refresh_data_interval_seconds))}
 				>
 					<View style={styles.col1}>
-						<Text style={{ ...styles.label, color: theme.screen.text }}>Refresh Data Interval (seconds)</Text>
+						<Text style={{ ...styles.label, color: theme.screen.text }}>{translate(TranslationKeys.refresh_data_interval_seconds)}</Text>
 					</View>
 					<View style={styles.col2}>
 						<Text style={{ ...styles.label, color: theme.screen.text }}>{foodPlan?.refreshInterval}</Text>
@@ -313,10 +316,10 @@ const Index = () => {
 					}}
 				>
 					<View style={styles.col1}>
-						<Text style={{ ...styles.label, color: theme.screen.text }}>DayScreen</Text>
+						<Text style={{ ...styles.label, color: theme.screen.text }}>{translate(TranslationKeys.day_screen)}</Text>
 					</View>
 					<View style={styles.col2}>
-						<Entypo name="chevron-small-right" size={22} color={theme.screen.icon} />
+						<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={22} color={theme.screen.icon} />
 					</View>
 				</TouchableOpacity>
 			</ScrollView>
@@ -399,7 +402,7 @@ const Index = () => {
 										borderColor: foods_area_color,
 									}}
 								>
-									<Text style={[styles.buttonText, { color: contrastColor }]}>cancel</Text>
+									<Text style={[styles.buttonText, { color: contrastColor }]}>{translate(TranslationKeys.cancel)}</Text>
 								</TouchableOpacity>
 								<TouchableOpacity
 									onPress={() => {
@@ -421,7 +424,7 @@ const Index = () => {
 										backgroundColor: foods_area_color,
 									}}
 								>
-									<Text style={[styles.buttonText, { color: contrastColor }]}>save</Text>
+									<Text style={[styles.buttonText, { color: contrastColor }]}>{translate(TranslationKeys.save)}</Text>
 								</TouchableOpacity>
 							</View>
 						</View>

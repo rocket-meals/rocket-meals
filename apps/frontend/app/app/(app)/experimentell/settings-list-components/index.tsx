@@ -19,15 +19,15 @@ import { TranslationKeys } from '@/locales/keys';
 import styles from './styles';
 
 const SettingsListComponents = () => {
-	useSetPageTitle('SettingsList Komponenten');
-	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	useSetPageTitle(TranslationKeys.settings_list_components);
+	const { theme } = useTheme();
 	const isLtrLanguage = useIsLtrLanguage();
 	const isArabic = !isLtrLanguage;
 	const { primaryColor } = useAppSelector((state) => state.settings);
 	const [dateValue, setDateValue] = useState('01.01.2024');
 	const [dateError, setDateError] = useState('');
-	const [inputValue, setInputValue] = useState('Beispieltext');
+	const [inputValue, setInputValue] = useState(translate(TranslationKeys.example_value));
 	const [nickname, setNickname] = useState('Tester');
 	const [boolValue, setBoolValue] = useState(true);
 	const [likeValue, setLikeValue] = useState<boolean | null>(null);
@@ -41,26 +41,26 @@ const SettingsListComponents = () => {
 			}}
 		>
 			<View style={styles.content}>
-				<Text style={{ ...styles.heading, color: theme.screen.text }}>SettingsList Komponenten</Text>
+				<Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.settings_list_components)}</Text>
 
-				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>SettingsList (isAccountRequired)</Text>
+				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>{translate(TranslationKeys.settings_list_account_required)}</Text>
 			<SettingsList
 				iconBgColor={primaryColor}
-				title="Account-Funktion"
-				value="Login erforderlich"
+				title={translate(TranslationKeys.account_function)}
+				value={translate(TranslationKeys.login_required)}
 				isAccountRequired
 				groupPosition="single"
 			/>
 
-			<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>SettingsList</Text>
+			<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>{translate(TranslationKeys.settings)}</Text>
 				<SettingsList
 					iconBgColor={primaryColor}
 					leftIcon={<MaterialCommunityIcons name="format-list-text" size={24} color={theme.screen.icon} />}
-					title="SettingsList Titel"
-					value="Beispielwert"
+					title={translate(TranslationKeys.settings_list_title)}
+					value={translate(TranslationKeys.example_value)}
 					groupPosition="single"
 				/>
-				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>SettingsList Check</Text>
+				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>{translate(TranslationKeys.settings_list_check)}</Text>
 				<SettingsList
 					iconBgColor={primaryColor}
 					leftIcon={<MaterialCommunityIcons name="format-list-text" size={24} color={theme.screen.icon} />}
@@ -69,16 +69,16 @@ const SettingsListComponents = () => {
 					groupPosition="single"
 				/>
 
-				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>SettingsListEditable</Text>
+				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>{translate(TranslationKeys.edit)}</Text>
 				<SettingsListEditable
 					iconBgColor={primaryColor}
 					leftIcon={<MaterialCommunityIcons name="pencil" size={24} color={theme.screen.icon} />}
-					label="Bearbeitbar"
-					value="Tippe zum Editieren"
+					label={translate(TranslationKeys.editable_label)}
+					value={translate(TranslationKeys.tap_to_edit)}
 					groupPosition="single"
 				/>
 
-				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>SettingsListDate</Text>
+				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>{translate(TranslationKeys.date)}</Text>
 				<SettingsListDate
 					id="test-date"
 					value={dateValue}
@@ -86,28 +86,28 @@ const SettingsListComponents = () => {
 					onError={(_id, error) => setDateError(error)}
 					error={dateError}
 					custom_type="date"
-					label="Datum"
+					label={translate(TranslationKeys.date)}
 					iconBgColor={primaryColor}
 					leftIcon={<MaterialCommunityIcons name="calendar" size={24} color={theme.screen.icon} />}
 					groupPosition="single"
 				/>
 
-				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>SettingsListBoolean</Text>
+				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>{translate(TranslationKeys.boolean_setting)}</Text>
 				<SettingsListBoolean
 					iconBgColor={primaryColor}
 					leftIcon={<MaterialCommunityIcons name="toggle-switch-outline" size={24} color={theme.screen.icon} />}
-					label="Boolean Setting"
+					label={translate(TranslationKeys.boolean_setting)}
 					isEnabled={boolValue}
 					onToggle={() => setBoolValue(current => !current)}
 					groupPosition="single"
 				/>
 
-				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>SettingsListTextInput</Text>
+				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>{translate(TranslationKeys.input_label)}</Text>
 				<SettingsListTextInput
-					label="Eingabe"
+					label={translate(TranslationKeys.input_label)}
 					value={inputValue}
-					placeholder="Eingabe"
-					saveLabel="Speichern"
+					placeholder={translate(TranslationKeys.input_label)}
+					saveLabel={translate(TranslationKeys.save)}
 					onSave={value => setInputValue(value.trim())}
 					checkTextInput={value => ({
 						isValid: value.trim().length > 0,
@@ -116,28 +116,29 @@ const SettingsListComponents = () => {
 					groupPosition="single"
 				/>
 
-				<Text style={{ ...styles.sectionTitle, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.settings_list_nickname)}</Text>
+				<Text style={{ ...styles.sectionTitle, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.nickname)}</Text>
 				<SettingsListNickname groupPosition="single" />
 
-				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>SettingsListCoordinate</Text>
+				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>{translate(TranslationKeys.coordinates)}</Text>
 				<SettingsListCoordinate
 					iconBgColor={primaryColor}
 					location={{ latitude: 51.4556, longitude: 7.0116 }}
 					groupPosition="single"
+					reverseLayout={isArabic}
 				/>
 
-				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>SettingsListLikeDislike</Text>
+				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>{translate(TranslationKeys.like_dislike_demo)}</Text>
 				<SettingsList
 					iconBgColor={primaryColor}
 					leftIcon={<MaterialCommunityIcons name="thumb-up-outline" size={24} color={theme.screen.icon} />}
-					title="Like / Dislike Demo"
+					title={translate(TranslationKeys.like_dislike_demo)}
 					rightElement={
 						<SettingsListLikeDislike
 							like={likeValue}
 							onPressLike={() => setLikeValue(current => (current === true ? null : true))}
 							onPressDislike={() => setLikeValue(current => (current === false ? null : false))}
-							likeTooltipText="Das gefällt mir"
-							dislikeTooltipText="Das gefällt mir nicht"
+							likeTooltipText={translate(TranslationKeys.i_like_that)}
+							dislikeTooltipText={translate(TranslationKeys.i_dislike_that)}
 						/>
 					}
 					groupPosition="single"

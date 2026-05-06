@@ -1,5 +1,5 @@
 import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -19,7 +19,6 @@ import { format, isValid, parse } from 'date-fns';
 import { uploadToDirectus, uploadToDirectusFromMobile } from '@/constants/HelperFunctions';
 import { Buffer } from 'buffer';
 import { fetchSpecificField } from '@/redux/actions/Fields/Fields';
-import AppButton from '@/components/AppButton';
 import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 
 const Index = () => {
@@ -32,7 +31,8 @@ const Index = () => {
     const [isSyncingAll, setIsSyncingAll] = useState(false);
     const formsSubmissionsHelper = new FormsSubmissionsHelper();
     const formAnswersHelper = new FormAnswersHelper();
-    const { formQueue } = useAppSelector((state) => state.form);
+    const { formQueueDict } = useAppSelector((state) => state.form);
+    const formQueue = useMemo(() => Object.values(formQueueDict || {}), [formQueueDict]);
     const { primaryColor } = useAppSelector((state) => state.settings);
     const isLtrLanguage = useIsLtrLanguage();
     const isArabic = !isLtrLanguage;
@@ -267,7 +267,7 @@ const Index = () => {
                                         >
                                             <MaterialCommunityIcons name="trash-can-outline" size={22} color={theme.screen.icon} />
                                         </TouchableOpacity>
-                                         <Entypo name={isLtrLanguage ? 'chevron-small-right' : 'chevron-small-left'} color={theme.screen.icon} size={24} />
+                                        <Entypo name={isLtrLanguage ? 'chevron-small-right' : 'chevron-small-left'} color={theme.screen.icon} size={24} />
                                     </View>
                                 </TouchableOpacity>
                             )}

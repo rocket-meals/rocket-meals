@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Keyboard, Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { useAppSelector } from '@/redux/hooks';
@@ -225,10 +226,13 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 	const [localIntelligentMovement, setLocalIntelligentMovement] = useState(initialIntelligentMovement);
 	const [localPeopleCount, setLocalPeopleCount] = useState(String(initialPeopleCount));
 	const [localCarMode, setLocalCarMode] = useState(initialCarMode);
+	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 
 	return (
 		<>
-			<SettingsGroupTitle>Karten Einstellungen</SettingsGroupTitle>
+			<SettingsGroupTitle>{translate(TranslationKeys.map_settings)}</SettingsGroupTitle>
 			<SettingsListMyMapThemeSelection
 				selectedMapStyleKey={selectedStyleKey}
 				onMapStyleKeyChange={(key) => {
@@ -237,9 +241,10 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				}}
 				leftIcon={<MaterialIcons name="layers" size={20} color={theme.screen.icon} />}
 				groupPosition="top"
+				reverseLayout={isArabic}
 			/>
 			<SettingsList
-				title="Cluster-Abstand (px)"
+				title={translate(TranslationKeys.cluster_distance_px)}
 				leftIcon={<MaterialCommunityIcons name="dots-grid" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<TextInput
@@ -258,7 +263,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				groupPosition="middle"
 			/>
 			<SettingsList
-				title="Sanfte Kamera-Bewegung"
+				title={translate(TranslationKeys.smooth_camera_movement)}
 				leftIcon={<MaterialIcons name="animation" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -273,7 +278,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				showSeparator={true}
 			/>
 			<SettingsList
-				title="Vollbild"
+				title={translate(TranslationKeys.fullscreen)}
 				leftIcon={<MaterialIcons name={isFullscreen ? 'fullscreen-exit' : 'fullscreen'} size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -285,26 +290,26 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				showSeparator={true}
 			/>
 			<SettingsList
-				title="Kartensteuerung"
+				title={translate(TranslationKeys.map_controls)}
 				leftIcon={<MaterialIcons name="touch-app" size={20} color={theme.screen.icon} />}
-				rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />}
+				rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
 				onPress={onShowControlsHint}
 				groupPosition="bottom"
 				showSeparator={false}
 			/>
 			<SettingsGroupMyMapGeneralMarkers />
-			<SettingsGroupTitle>Datenschutz</SettingsGroupTitle>
+			<SettingsGroupTitle>{translate(TranslationKeys.privacy)}</SettingsGroupTitle>
 			<SettingsList
-				title="OpenStreetMap-Zustimmung widerrufen"
-				value="Karte wird danach nicht mehr geladen"
+				title={translate(TranslationKeys.revoke_osm_consent)}
+				value={translate(TranslationKeys.map_wont_be_loaded_after)}
 				leftIcon={<MaterialCommunityIcons name="map-marker-off-outline" size={20} color={theme.screen.icon} />}
-				rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />}
+				rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
 				onPress={onRevokeConsent}
 				groupPosition="single"
 			/>
-			<SettingsGroupTitle>Spaß Einstellungen</SettingsGroupTitle>
+			<SettingsGroupTitle>{translate(TranslationKeys.fun_settings)}</SettingsGroupTitle>
 			<SettingsList
-				title="Spiel Modus"
+				title={translate(TranslationKeys.game_mode)}
 				leftIcon={<MaterialIcons name="sports-esports" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -319,7 +324,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				showSeparator={true}
 			/>
 			<SettingsList
-				title="Auto-Rotate Modus"
+				title={translate(TranslationKeys.auto_rotate_mode)}
 				leftIcon={<MaterialIcons name="360" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -334,7 +339,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				showSeparator={true}
 			/>
 			<SettingsList
-				title="Fiktiver Mensch Modus"
+				title={translate(TranslationKeys.fictional_human_mode)}
 				leftIcon={<MaterialIcons name="people" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -350,7 +355,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 			/>
 			{localPeopleMode && (
 				<SettingsList
-					title="Intelligente Bewegung"
+					title={translate(TranslationKeys.intelligent_movement)}
 					leftIcon={<MaterialIcons name="directions-walk" size={20} color={theme.screen.icon} />}
 					rightElement={
 						<Switch
@@ -367,7 +372,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 			)}
 			{localPeopleMode && (
 				<SettingsList
-					title="Anzahl simulierter Menschen"
+					title={translate(TranslationKeys.number_of_simulated_humans)}
 					leftIcon={<MaterialIcons name="person-add" size={20} color={theme.screen.icon} />}
 					rightElement={
 						<TextInput
@@ -388,7 +393,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				/>
 			)}
 			<SettingsList
-				title="Fiktiver Autofahrer Modus"
+				title={translate(TranslationKeys.fictional_driver_mode)}
 				leftIcon={<MaterialIcons name="directions-car" size={20} color={theme.screen.icon} />}
 				rightElement={
 					<Switch
@@ -412,36 +417,37 @@ type OsmControlsHintContentProps = {
 };
 
 const OsmControlsHintContent: React.FC<OsmControlsHintContentProps> = ({ onDontShowAgain, theme }) => {
+	const { translate } = useLanguage();
 	const isWeb = Platform.OS === 'web';
 	return (
 		<View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
 			{isWeb ? (
 				<>
 					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
-						{'🖱️ Linke Maustaste halten: Karte verschieben'}
+						{translate(TranslationKeys.map_control_hint_left_mouse)}
 					</Text>
 					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
-						{'🖱️ Rechte Maustaste halten: Neigung ändern'}
+						{translate(TranslationKeys.map_control_hint_right_mouse)}
 					</Text>
 					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
-						{'🖱️ Mausrad: Zoomen'}
+						{translate(TranslationKeys.map_control_hint_mouse_wheel)}
 					</Text>
 				</>
 			) : (
 				<>
 					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
-						{'👌 Zwei Finger spreizen / zusammenführen: Zoomen'}
+						{translate(TranslationKeys.map_control_hint_two_fingers_zoom)}
 					</Text>
 					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
-						{'☝️☝️ Zwei Finger hoch / runter: Neigung ändern'}
+						{translate(TranslationKeys.map_control_hint_two_fingers_pitch)}
 					</Text>
 					<Text style={{ color: theme.screen.text, fontSize: 15, marginBottom: 8 }}>
-						{'☝️ Ein Finger bewegen: Karte verschieben'}
+						{translate(TranslationKeys.map_control_hint_one_finger_move)}
 					</Text>
 				</>
 			)}
 			<Text style={{ color: theme.screen.text + '99', fontSize: 13, marginTop: 8, marginBottom: 16 }}>
-				{'Dieser Hinweis kann über die Einstellungen jederzeit aufgerufen werden.'}
+				{translate(TranslationKeys.map_control_hint_settings_note)}
 			</Text>
 			<TouchableOpacity
 				onPress={onDontShowAgain}
@@ -452,7 +458,7 @@ const OsmControlsHintContent: React.FC<OsmControlsHintContentProps> = ({ onDontS
 					alignItems: 'center',
 				}}
 			>
-				<Text style={{ color: theme.screen.text, fontSize: 15 }}>Diesen Hinweis nicht mehr anzeigen</Text>
+				<Text style={{ color: theme.screen.text, fontSize: 15 }}>{translate(TranslationKeys.dont_show_hint_again)}</Text>
 			</TouchableOpacity>
 		</View>
 	);
@@ -463,27 +469,32 @@ type OsmConsentContentProps = {
 	theme: ReturnType<typeof useTheme>['theme'];
 };
 
-const OsmConsentContent: React.FC<OsmConsentContentProps> = ({ onConsent, theme }) => (
-	<View style={{ paddingHorizontal: 16, paddingVertical: 24, alignItems: 'center' }}>
-		<MaterialCommunityIcons name="map-marker-radius" size={56} color={theme.screen.icon} style={{ marginBottom: 16 }} />
-		<Text style={{ color: theme.screen.text, fontSize: 17, fontWeight: 'bold', textAlign: 'center', marginBottom: 12 }}>
-			Kartenanzeige mit OpenStreetMap
-		</Text>
-		<Text style={{ color: theme.screen.text, fontSize: 14, textAlign: 'center', marginBottom: 8, lineHeight: 20 }}>
-			Diese Karte lädt Kartendaten von <Text style={{ fontWeight: 'bold' }}>OpenStreetMap</Text> (openstreetmap.org) und <Text style={{ fontWeight: 'bold' }}>OpenFreeMap</Text> (openfreemap.org). Dabei werden Daten wie deine IP-Adresse an Server der OpenStreetMap Foundation und Protomaps LLC übertragen.
-		</Text>
-		<Text style={{ color: theme.screen.text + 'aa', fontSize: 13, textAlign: 'center', marginBottom: 24, lineHeight: 18 }}>
-			Deine Zustimmung wird gespeichert und kann jederzeit in den Karten-Einstellungen widerrufen werden.
-		</Text>
-		<SettingsList
-			title="Kartendaten laden (Zustimmen)"
-			leftIcon={<MaterialCommunityIcons name="check-circle-outline" size={22} color={theme.screen.icon} />}
-			rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />}
-			onPress={onConsent}
-			groupPosition="single"
-		/>
-	</View>
-);
+const OsmConsentContent: React.FC<OsmConsentContentProps> = ({ onConsent, theme }) => {
+	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
+	return (
+		<View style={{ paddingHorizontal: 16, paddingVertical: 24, alignItems: 'center' }}>
+			<MaterialCommunityIcons name="map-marker-radius" size={56} color={theme.screen.icon} style={{ marginBottom: 16 }} />
+			<Text style={{ color: theme.screen.text, fontSize: 17, fontWeight: 'bold', textAlign: 'center', marginBottom: 12 }}>
+				{translate(TranslationKeys.map_display_with_osm)}
+			</Text>
+			<Text style={{ color: theme.screen.text, fontSize: 14, textAlign: 'center', marginBottom: 8, lineHeight: 20 }}>
+				{translate(TranslationKeys.map_consent_description)}
+			</Text>
+			<Text style={{ color: theme.screen.text + 'aa', fontSize: 13, textAlign: 'center', marginBottom: 24, lineHeight: 18 }}>
+				{translate(TranslationKeys.map_consent_stored_note)}
+			</Text>
+			<SettingsList
+				title={translate(TranslationKeys.load_map_data_consent)}
+				leftIcon={<MaterialCommunityIcons name="check-circle-outline" size={22} color={theme.screen.icon} />}
+				rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
+				onPress={onConsent}
+				groupPosition="single"
+			/>
+		</View>
+	);
+};
 
 type OsmFilterContentProps = {
 	organisations: DatabaseTypes.Organizations[];
@@ -594,7 +605,7 @@ const BUILDING_MARKER_COLOR = '#1565c0';
 const MAX_BUILDING_LABEL_CHARS = 8;
 const MAX_SEARCH_RESULTS = 3;
 
-const noop = () => {};
+const noop = () => { };
 
 function getContrastColor(hexColor: string): string {
 	const hex = hexColor.replace('#', '');
@@ -668,10 +679,13 @@ function createBuildingMarkerSvg(
 const OsmVectorMapScreen: React.FC = () => {
 	useSetPageTitle(TranslationKeys.map);
 	const { theme } = useTheme();
+	const { translate } = useLanguage();
 	const myMapRef = useRef<MyMapHandle>(null);
 
-	const { buildingsDict, buildingsOrganizations, organisations } = useAppSelector((state) => state.canteenReducer);
+	const { buildingsDict, buildingsOrganizationsDict, organisationsDict } = useAppSelector((state) => state.canteenReducer);
 	const buildings = useMemo(() => Object.values(buildingsDict ?? {}), [buildingsDict]);
+	const buildingsOrganizations = useMemo(() => Object.values(buildingsOrganizationsDict ?? {}), [buildingsOrganizationsDict]);
+	const organisations = useMemo(() => Object.values(organisationsDict ?? {}), [organisationsDict]);
 	const primaryColor = useAppSelector((state) => state.settings.primaryColor);
 	const drawerPosition = useAppSelector((state) => state.settings.drawerPosition);
 	const selectedStyleKey = useAppSelector((state) => ((state.settings as any).osmVectorMapStyleKey ?? MapStyleKey.DEFAULT) as MapStyleKey);
@@ -701,7 +715,6 @@ const OsmVectorMapScreen: React.FC = () => {
 	const selectedCanteen = useSelectedCanteen();
 	const { openBuildingDetailsModal } = useBuildingDetailsModal();
 	const { show, close } = useMyScrollViewModal();
-	const { translate } = useLanguage();
 
 	const [logEntries, setLogEntries] = useState<string[]>([]);
 	const logScrollRef = useRef<ScrollView>(null);
@@ -761,8 +774,8 @@ const OsmVectorMapScreen: React.FC = () => {
 	const poiSubSettingsRef = useRef(poiSubSettings);
 	poiSubSettingsRef.current = poiSubSettings;
 
-	const handleOrganisationLikeChangeRef = useRef<(orgId: string, like: boolean) => void>(() => {});
-	const handleResetAllFiltersRef = useRef<() => void>(() => {});
+	const handleOrganisationLikeChangeRef = useRef<(orgId: string, like: boolean) => void>(() => { });
+	const handleResetAllFiltersRef = useRef<() => void>(() => { });
 
 	const addLog = useCallback((entry: string) => {
 		setLogEntries((prev) => {
@@ -770,18 +783,6 @@ const OsmVectorMapScreen: React.FC = () => {
 			return next.length > MAX_LOG_ENTRIES ? next.slice(next.length - MAX_LOG_ENTRIES) : next;
 		});
 	}, []);
-
-	const organisationsDict = useMemo(
-		() =>
-			(organisations as DatabaseTypes.Organizations[]).reduce<Record<string, DatabaseTypes.Organizations>>(
-				(acc, org) => {
-					acc[org.id] = org;
-					return acc;
-				},
-				{},
-			),
-		[organisations],
-	);
 
 	const buildingIdToOrgsDict = useMemo(
 		() => BuildingsHelper.getBuildingIdToOrganizationsDict(buildingsOrganizations, organisationsDict),
@@ -1546,9 +1547,9 @@ const OsmVectorMapScreen: React.FC = () => {
 									<MaterialIcons name="my-location" size={22} color={theme.screen.icon} />
 								</TouchableOpacity>
 								<View style={[styles.gameTopBarInfo, { backgroundColor: theme.screen.background + 'dd' }]}>
-									<Text style={[styles.gameTopBarTitle, { color: theme.screen.text }]}>✈️ Flugzeug</Text>
+									<Text style={[styles.gameTopBarTitle, { color: theme.screen.text }]}>✈️ {translate(TranslationKeys.airplane)}</Text>
 									<Text style={[styles.gameTopBarSub, { color: theme.screen.text + 'aa' }]}>
-										{`${speedLabel} · Richtung ${Math.round(vehicleHeading)}°`}
+										{`${speedLabel} · ${translate(TranslationKeys.direction)} ${Math.round(vehicleHeading)}°`}
 									</Text>
 								</View>
 							</View>
@@ -1637,7 +1638,7 @@ const OsmVectorMapScreen: React.FC = () => {
 							</View>
 							{/* Jogging route recorder */}
 							<JoggingOverlay mapRef={myMapRef} />
-							<DebugView title="Map Log">
+							<DebugView title={translate(TranslationKeys.map_log)}>
 								<ScrollView
 									ref={logScrollRef}
 									style={[styles.logContainer, { backgroundColor: theme.screen.background, borderTopColor: theme.screen.text + '33' }]}
@@ -1649,7 +1650,7 @@ const OsmVectorMapScreen: React.FC = () => {
 										</Text>
 									))}
 									{logEntries.length === 0 && (
-										<Text style={[styles.logPlaceholder, { color: theme.screen.text + '88' }]}>Map log…</Text>
+										<Text style={[styles.logPlaceholder, { color: theme.screen.text + '88' }]}>{translate(TranslationKeys.map_log)}…</Text>
 									)}
 								</ScrollView>
 							</DebugView>
@@ -1668,10 +1669,10 @@ const OsmVectorMapScreen: React.FC = () => {
 									searchResults.length === 1
 										? 'single'
 										: index === 0
-										? 'top'
-										: index === searchResults.length - 1
-										? 'bottom'
-										: 'middle'
+											? 'top'
+											: index === searchResults.length - 1
+												? 'bottom'
+												: 'middle'
 								}
 								noIconIndent
 							/>

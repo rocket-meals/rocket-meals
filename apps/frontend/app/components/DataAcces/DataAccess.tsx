@@ -7,6 +7,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import SettingsList from '@/components/SettingsList';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
@@ -41,10 +42,48 @@ const DataAccess = ({ onOpenBottomSheet }: any) => {
 	const { translate } = useLanguage();
   const { user, profile } = useAppSelector(state => state.authReducer);
   const { primaryColor } = useAppSelector(state => state.settings);
-  const { collectibleEvents } = useAppSelector(state => state.collectibleEvents ?? {});
-  const { canteens, buildingsDict, buildingsOrganizations, organisations, selectedCanteenFoodOffers, canteenFoodOffers, businessHours, canteenFeedbackLabels, ownCanteenFeedBackLabelEntries } = useAppSelector(state => state.canteenReducer);
+  const isLtrLanguage = useIsLtrLanguage();
+  const isArabic = !isLtrLanguage;
+  const { collectibleEventsDict = {} } = useAppSelector(state => state.collectibleEvents ?? {});
+  const {
+    canteensDict = {},
+    buildingsDict = {},
+    buildingsOrganizationsDict = {},
+    organisationsDict = {},
+    selectedCanteenFoodOffersDict = {},
+    canteenFoodOffersDict = {},
+    businessHoursDict = {},
+    canteenFeedbackLabelsDict = {},
+    ownCanteenFeedBackLabelEntriesDict = {}
+  } = useAppSelector(state => state.canteenReducer);
   
-  const { foodFeedbackLabels, ownFoodFeedbacks, ownfoodFeedbackLabelEntries, markings, selectedFoodMarkings, foodCategories, foodOfferCategories, markingDetails } = useAppSelector(state => state.food);
+  const canteens = Object.values(canteensDict);
+  const buildingsOrganizations = Object.values(buildingsOrganizationsDict);
+  const organisations = Object.values(organisationsDict);
+  const selectedCanteenFoodOffers = Object.values(selectedCanteenFoodOffersDict);
+  const canteenFoodOffers = Object.values(canteenFoodOffersDict);
+  const businessHours = Object.values(businessHoursDict);
+  const canteenFeedbackLabels = Object.values(canteenFeedbackLabelsDict);
+  const ownCanteenFeedBackLabelEntries = Object.values(ownCanteenFeedBackLabelEntriesDict);
+
+  const {
+    foodFeedbackLabelsDict = {},
+    ownFoodFeedbacksDict = {},
+    ownfoodFeedbackLabelEntriesDict = {},
+    markingsDict = {},
+    selectedFoodMarkingsDict = {},
+    foodCategoriesDict = {},
+    foodOfferCategoriesDict = {},
+    markingDetails
+  } = useAppSelector(state => state.food);
+
+  const foodFeedbackLabels = Object.values(foodFeedbackLabelsDict);
+  const ownFoodFeedbacks = Object.values(ownFoodFeedbacksDict);
+  const ownfoodFeedbackLabelEntries = Object.values(ownfoodFeedbackLabelEntriesDict);
+  const markings = Object.values(markingsDict);
+  const selectedFoodMarkings = Object.values(selectedFoodMarkingsDict);
+  const foodCategories = Object.values(foodCategoriesDict);
+  const foodOfferCategories = Object.values(foodOfferCategoriesDict);
 
 	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
 
@@ -91,7 +130,7 @@ const DataAccess = ({ onOpenBottomSheet }: any) => {
                 { label: 'Food Categories', value: foodCategories },
                 { label: 'FoodOffer Categories', value: foodOfferCategories },
                 { label: 'MarkingDetails', value: markingDetails },
-                { label: 'Collectible Events', value: collectibleEvents },
+                { label: 'Collectible Events', value: collectibleEventsDict },
         ];
 
 	return (
@@ -120,7 +159,7 @@ const DataAccess = ({ onOpenBottomSheet }: any) => {
 						const last = index === infoItems.length - 1;
 						const first = index === 0;
 						const groupPosition = infoItems.length === 1 ? 'single' : first ? 'top' : last ? 'bottom' : 'middle';
-						return <SettingsList key={index} iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />} label={item.label} rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />} handleFunction={() => onOpenBottomSheet(item)} groupPosition={groupPosition as any} />;
+						return <SettingsList key={index} iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />} label={item.label} rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />} handleFunction={() => onOpenBottomSheet(item)} groupPosition={groupPosition as any} />;
 					})}
 
 					{/* Device Data List */}
@@ -130,7 +169,7 @@ const DataAccess = ({ onOpenBottomSheet }: any) => {
                                                 const last = index === dataDevice.length - 1;
                                                 const first = index === 0;
                                                 const groupPosition = dataDevice.length === 1 ? 'single' : first ? 'top' : last ? 'bottom' : 'middle';
-                                                return <SettingsList key={index} iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />} label={data.label} rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />} handleFunction={() => onOpenBottomSheet(data)} groupPosition={groupPosition as any} />;
+                                                return <SettingsList key={index} iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />} label={data.label} rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />} handleFunction={() => onOpenBottomSheet(data)} groupPosition={groupPosition as any} />;
                                         })}
                                 </View>
                         </ScrollView>

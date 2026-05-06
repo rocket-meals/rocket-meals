@@ -173,9 +173,9 @@ const Index: React.FC = () => {
 						// Note: JSON.stringify is expensive but safer than missing updates.
 						// Given the severe performance issues, we prioritize stability.
 						const isDateMatch = newCampus.date_updated && oldCampus.date_updated && newCampus.date_updated === oldCampus.date_updated;
-						
+
 						if (isDateMatch) return oldCampus;
-						
+
 						// Fallback deep compare
 						if (JSON.stringify(newCampus) === JSON.stringify(oldCampus)) {
 							return oldCampus;
@@ -228,13 +228,13 @@ const Index: React.FC = () => {
 
 	// Sorting Logic
 	const sortCampuses = useCallback((list: BuildingWithDistance[], sortBy: CampusSortOption) => {
-		 const newList = [...list];
-		 if (sortBy === CampusSortOption.ALPHABETICAL) {
-			 return newList.sort((a, b) => (a?.alias ?? '').localeCompare(b?.alias ?? ''));
-		 } else if (sortBy === CampusSortOption.DISTANCE || sortBy === CampusSortOption.INTELLIGENT) {
-			 return newList.sort((a, b) => (a?.distance || 0) - (b?.distance || 0));
-		 }
-		 return newList;
+		const newList = [...list];
+		if (sortBy === CampusSortOption.ALPHABETICAL) {
+			return newList.sort((a, b) => (a?.alias ?? '').localeCompare(b?.alias ?? ''));
+		} else if (sortBy === CampusSortOption.DISTANCE || sortBy === CampusSortOption.INTELLIGENT) {
+			return newList.sort((a, b) => (a?.distance || 0) - (b?.distance || 0));
+		}
+		return newList;
 	}, []);
 
 	// Memoized Processing Pipeline
@@ -340,14 +340,14 @@ const Index: React.FC = () => {
 			);
 		},
 		[
-			openImageManagementModal, 
-			openDistanceSheet, 
-			amountColumnsForcard, 
-			primaryColor, 
-			projectLogo, 
-			campusAreaColor, 
-			selectedTheme, 
-			windowWidth, 
+			openImageManagementModal,
+			openDistanceSheet,
+			amountColumnsForcard,
+			primaryColor,
+			projectLogo,
+			campusAreaColor,
+			selectedTheme,
+			windowWidth,
 			isManagement,
 			buildingsLastOpenedIds,
 			itemGap,

@@ -11,7 +11,7 @@ export type AuthState = {
 }
 
 export type AppElementState = {
-	appElements: DatabaseTypes.AppElements[];
+	appElementsDict: Record<string, DatabaseTypes.AppElements>;
 }
 
 export type ApartmentsState = {
@@ -28,17 +28,17 @@ export type CanteenWithImage = DatabaseTypes.Canteens & {
 };
 
 export type CanteensState = {
-	canteens: CanteenWithImage[];
+	canteensDict: Record<string, CanteenWithImage>;
 	buildingsDict: Record<string, DatabaseTypes.Buildings>;
-	buildingsOrganizations: DatabaseTypes.BuildingsOrganizations[];
-	organisations: DatabaseTypes.Organizations[];
+	buildingsOrganizationsDict: Record<string, DatabaseTypes.BuildingsOrganizations>;
+	organisationsDict: Record<string, DatabaseTypes.Organizations>;
 	selectedCanteen: CanteenWithImage | null;
-	selectedCanteenFoodOffers: DatabaseTypes.Foodoffers[];
-	canteenFoodOffers: DatabaseTypes.Foodoffers[];
-	businessHours: DatabaseTypes.Businesshours[];
-	businessHoursGroups: DatabaseTypes.BusinesshoursGroups[];
-	canteenFeedbackLabels: DatabaseTypes.CanteensFeedbacksLabels[];
-	ownCanteenFeedBackLabelEntries: DatabaseTypes.CanteensFeedbacksLabelsEntries[];
+	selectedCanteenFoodOffersDict: Record<string, DatabaseTypes.Foodoffers>;
+	canteenFoodOffersDict: Record<string, DatabaseTypes.Foodoffers>;
+	businessHoursDict: Record<string, DatabaseTypes.Businesshours>;
+	businessHoursGroupsDict: Record<string, DatabaseTypes.BusinesshoursGroups>;
+	canteenFeedbackLabelsDict: Record<string, DatabaseTypes.CanteensFeedbacksLabels>;
+	ownCanteenFeedBackLabelEntriesDict: Record<string, DatabaseTypes.CanteensFeedbacksLabelsEntries>;
 }
 
 export type SettingsState = {
@@ -48,45 +48,66 @@ export type SettingsState = {
 	campusesSortBy: CampusSortOption;
 	apartmentsSortBy: ApartmentSortOption;
 	serverInfo: Record<string, any>;
-        primaryColor: string;
-        appSettings: DatabaseTypes.AppSettings;
-        language: string;
-        firstDayOfTheWeek: { id: string; name: string };
-        drawerPosition: 'left' | 'right' | 'system';
-        selectedCustomer: ConfigCustomerEnum | null;
-        wikisPages: any[];
-        wikis: DatabaseTypes.Wikis[];
-        nickNameLocal: string;
-        amountColumnsForcard: number;
-        useWebpForAssets: boolean;
-        foodOffersNextDayThreshold: string | null;
-        debugMode: boolean;
-        simulateExpoUpdateAvailable: boolean;
-        collectibleItemSize: 'small' | 'medium' | 'large';
-        collectibleRandomPosition: boolean;
-        mapTileVariantKey: string;
-        mapUseFlyAnimation: boolean;
-        mapVirtualZoom: number | null;
-        mapOrganisationFilter: Record<string, boolean>;
-        mapClusterPixelRadius: number;
-        foodoffersShowSeparatedMarkingsBreakdown: boolean | null;
+	primaryColor: string;
+	appSettings: DatabaseTypes.AppSettings;
+	language: string;
+	firstDayOfTheWeek: { id: string; name: string };
+	drawerPosition: 'left' | 'right' | 'system';
+	selectedCustomer: ConfigCustomerEnum | null;
+	wikisPagesDict: Record<string, any>;
+	wikisDict: Record<string, DatabaseTypes.Wikis>;
+	nickNameLocal: string;
+	amountColumnsForcard: number;
+	useWebpForAssets: boolean;
+	foodOffersNextDayThreshold: string | null;
+	debugMode: boolean;
+	simulateExpoUpdateAvailable: boolean;
+	collectibleItemSize: 'small' | 'medium' | 'large';
+	collectibleRandomPosition: boolean;
+	offlineMode: boolean;
+	mapTileVariantKey: string;
+	mapUseFlyAnimation: boolean;
+	mapVirtualZoom: number | null;
+	mapOrganisationFilter: Record<string, boolean>;
+	mapClusterPixelRadius: number;
+	foodoffersShowSeparatedMarkingsBreakdown: boolean | null;
+	osmVectorMapStyleKey: string;
+	osmVectorMapUseFlyAnimation: boolean;
+	osmVectorMapOrganisationFilter: Record<string, boolean>;
+	osmVectorMapPitch: string;
+	osmVectorMapClusterDistance: number;
+	osmVectorMapShowControlsHint: boolean;
+	osmVectorMapGameMode: boolean;
+	osmVectorMapAutoRotateMode: boolean;
+	osmVectorMapPeopleMode: boolean;
+	osmVectorMapIntelligentMovement: boolean;
+	osmVectorMapPeopleCount: number;
+	osmVectorMapCarMode: boolean;
+	osmVectorMapConsent: boolean;
+	osmVectorMapShowSettings: Record<string, boolean>;
+	osmVectorMapPoiSubSettings: Record<string, boolean>;
+	pirateLanguage: boolean;
+	funLanguageMode: string | null;
+	canteenVisits: {
+		visibility: 'all' | 'friends_only' | 'off';
+	};
 }
 
 export type FoodState = {
-	foodFeedbackLabels: DatabaseTypes.FoodsFeedbacksLabels[];
-	ownFoodFeedbacks: DatabaseTypes.FoodsFeedbacks[];
-	ownfoodFeedbackLabelEntries: DatabaseTypes.FoodsFeedbacksLabelsEntries[];
-	markings: DatabaseTypes.Markings[];
-	markingGroups: DatabaseTypes.MarkingsGroups[];
-	selectedFoodMarkings: DatabaseTypes.FoodoffersMarkings[];
-	foodCategories: DatabaseTypes.FoodsCategories[];
-	foodOfferCategories: DatabaseTypes.FoodoffersCategories[];
-	foodOffersInfoItems: DatabaseTypes.FoodoffersInfoItems[];
+	foodFeedbackLabelsDict: Record<string, DatabaseTypes.FoodsFeedbacksLabels>;
+	ownFoodFeedbacksDict: Record<string, DatabaseTypes.FoodsFeedbacks>;
+	ownfoodFeedbackLabelEntriesDict: Record<string, DatabaseTypes.FoodsFeedbacksLabelsEntries>;
+	markingsDict: Record<string, DatabaseTypes.Markings>;
+	markingGroupsDict: Record<string, DatabaseTypes.MarkingsGroups>;
+	selectedFoodMarkingsDict: Record<string, DatabaseTypes.FoodoffersMarkings>;
+	foodCategoriesDict: Record<string, DatabaseTypes.FoodsCategories>;
+	foodOfferCategoriesDict: Record<string, DatabaseTypes.FoodoffersCategories>;
+	foodOffersInfoItemsDict: Record<string, DatabaseTypes.FoodoffersInfoItems>;
 	markingDetails: DatabaseTypes.Markings;
-	mostLikedFoods: DatabaseTypes.Foods[];
-	mostDislikedFoods: DatabaseTypes.Foods[];
+	mostLikedFoodsDict: Record<string, DatabaseTypes.Foods>;
+	mostDislikedFoodsDict: Record<string, DatabaseTypes.Foods>;
 	foodCollection: Record<string, any>;
-	popupEvents: ExtendedPopUpEvents[];
+	popupEventsDict: Record<string, ExtendedPopUpEvents>;
 	selectedDate: string;
 }
 
@@ -96,7 +117,7 @@ type ExtendedPopUpEvents = {
 } & DatabaseTypes.PopupEvents;
 
 export type FoodAttributesState = {
-	foodAttributeGroups: DatabaseTypes.FoodsAttributesGroups[];
+	foodAttributeGroupsDict: Record<string, DatabaseTypes.FoodsAttributesGroups>;
 	foodAttributesDict: Record<string, DatabaseTypes.FoodsAttributes>;
 }
 
@@ -119,10 +140,10 @@ export type CachedFormEntry = {
 export type FormState = {
 	filterBy: string;
 	formSubmission: DatabaseTypes.FormSubmissions;
-	formQueue: FormQueueEntry[];
+	formQueueDict: Record<string, FormQueueEntry>;
 	cachedFormData: Record<string, CachedFormEntry>;
-	cachedFormCategories: DatabaseTypes.FormCategories[];
-	cachedForms: Record<string, DatabaseTypes.Forms[]>;
+	cachedFormCategoriesDict: Record<string, DatabaseTypes.FormCategories>;
+	cachedFormsDict: Record<string, Record<string, DatabaseTypes.Forms>>;
 }
 
 export type CampusState = {
@@ -133,11 +154,11 @@ export type CampusState = {
 }
 
 export type NewsState = {
-	news: DatabaseTypes.News[];
-}
+	newsDict: Record<string, DatabaseTypes.News>;
+};
 
 export type CollectibleEventsState = {
-        collectibleEvents: DatabaseTypes.CollectibleEvents[];
+        collectibleEventsItemsDict: Record<string, DatabaseTypes.CollectibleEvents>;
         collectibleEventsDict: Record<string, Record<string, boolean>>;
 };
 
@@ -187,10 +208,10 @@ export type PopupEventsHashState = {
 }
 
 export type ChatsState = {
-        chats: DatabaseTypes.Chats[];
+        chatsDict: Record<string, DatabaseTypes.Chats>;
         readStatus: Record<string, string>;
 }
 
 export type FriendshipsState = {
-        friendships: DatabaseTypes.Friendships[];
+	friendshipsDict: Record<string, DatabaseTypes.Friendships>;
 }

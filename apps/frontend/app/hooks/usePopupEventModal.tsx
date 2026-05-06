@@ -10,7 +10,7 @@ import useKioskMode from '@/hooks/useKioskMode';
 const usePopupEventModal = () => {
 	const dispatch = useDispatch();
 	const kioskMode = useKioskMode();
-	const popupEvents = useAppSelector((state) => state.food.popupEvents, shallowEqual);
+	const popupEventsDict = useAppSelector((state) => state.food.popupEventsDict || {}, shallowEqual);
 	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
 	const popupEventShownIdRef = useRef<string | null>(null);
 	const [currentPopupEvent, setCurrentPopupEvent] = useState<any | null>(null);
@@ -18,10 +18,10 @@ const usePopupEventModal = () => {
 	const markEventAsOpen = useCallback(
 		(event: any) => {
 			if (!event) return;
-			const updatedEvents = popupEvents.map((e: any) => (e.id === event.id ? { ...e, isOpen: true } : e));
+			const updatedEvents = Object.values(popupEventsDict).map((e: any) => (e.id === event.id ? { ...e, isOpen: true } : e));
 			dispatch({ type: SET_POPUP_EVENTS, payload: updatedEvents });
 		},
-		[dispatch, popupEvents]
+		[dispatch, popupEventsDict]
 	);
 
 	const closeEventSheet = useCallback(
@@ -53,7 +53,7 @@ const usePopupEventModal = () => {
 	const openActiveModal = useCallback(() => {
 		if (kioskMode) return;
 
-		const nextEvent = popupEvents?.find((e: any) => !e.isOpen && !PopupEventHelper.isDismissed(e.id));
+		const nextEvent = Object.values(popupEventsDict)?.find((e: any) => !e.isOpen && !PopupEventHelper.isDismissed(e.id));
 		if (!nextEvent) return;
 
 		const eventId = String(nextEvent.id ?? '');
@@ -75,9 +75,9 @@ const usePopupEventModal = () => {
 			},
 			{}
 		);
-	}, [closeEventSheet, closeEventSheetForSession, kioskMode, popupEvents, showScrollViewModal]);
+	}, [closeEventSheet, closeEventSheetForSession, kioskMode, popupEventsDict, showScrollViewModal]);
 
-	return { openActiveModal, activePopupEvent: currentPopupEvent, popupEvents };
+	return { openActiveModal, activePopupEvent: currentPopupEvent, popupEvents: Object.values(popupEventsDict) };
 };
 
 export default usePopupEventModal;

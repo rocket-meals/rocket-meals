@@ -52,13 +52,13 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const dispatch = useDispatch();
-	const { canteenFeedbackLabels, canteens } = useAppSelector((state) => state.canteenReducer);
+	const { canteenFeedbackLabelsDict = {}, canteensDict = {} } = useAppSelector((state) => state.canteenReducer);
 	const { sortBy, language, amountColumnsForcard, appSettings, primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
-	const { ownFoodFeedbacks, foodCategories, foodOfferCategories, foodOffersInfoItems } = useAppSelector((state) => state.food);
+	const { ownFoodFeedbacksDict = {}, foodCategoriesDict = {}, foodOfferCategoriesDict = {}, foodOffersInfoItemsDict = {} } = useAppSelector((state) => state.food);
 	const { profile, user, isDevMode } = useAppSelector((state) => state.authReducer);
-	const { appElements } = useAppSelector((state) => state.appElements);
+	const { appElementsDict = {} } = useAppSelector((state) => state.appElements);
 	
-	const selectedCanteen = canteens?.find(c => c.id === canteenId) as DatabaseTypes.Canteens | undefined;
+	const selectedCanteen = canteensDict[String(canteenId)] as DatabaseTypes.Canteens | undefined;
 	const flatListRef = useRef<FlatList<DayData>>(null);
 	const [days, setDays] = useState<DayData[]>([]);
 	const [loading, setLoading] = useState(false);
@@ -99,10 +99,10 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 	);
 
 	const appElementsMap = useMemo(() => {
-		if (!appElements) return new Map();
-		const map = new Map(appElements.map((el: any) => [el.id, el]));
+		if (!appElementsDict) return new Map();
+		const map = new Map(Object.values(appElementsDict).map((el: any) => [el.id, el]));
 		return map;
-	}, [appElements]);
+	}, [appElementsDict]);
 
 	const [beforeElement, setBeforeElement] = useState<any>(null);
 	const [afterElement, setAfterElement] = useState<any>(null);
@@ -149,7 +149,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 			'show_on_fridays',
 			'show_on_saturdays',
 		];
-		const infoItemsFiltered = (foodOffersInfoItems || []).filter(info => {
+		const infoItemsFiltered = Object.values(foodOffersInfoItemsDict || {}).filter(info => {
 			if (info.canteen && selectedCanteen && info.canteen !== selectedCanteen.id) {
 				return false;
 			}
@@ -174,7 +174,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		const endItems = endInfos.map(i => ({ foodoffer: null, foodofferInfoItem: i }));
 
 		return [...startItems, ...main, ...endItems] as DayItem[];
-	}, [foodOffersInfoItems, selectedCanteen, parseDateOnly]);
+	}, [foodOffersInfoItemsDict, selectedCanteen, parseDateOnly]);
 
 	const getInfoItemContent = useCallback(
 		(item: DatabaseTypes.FoodoffersInfoItems) => {
@@ -240,10 +240,10 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 
 	const ownFoodFeedbacksForSort = useMemo(() => {
 		if (sortBy === FoodSortOption.FAVORITE || sortBy === FoodSortOption.INTELLIGENT) {
-			return ownFoodFeedbacks;
+			return Object.values(ownFoodFeedbacksDict);
 		}
 		return EMPTY_FEEDBACKS;
-	}, [sortBy]);
+	}, [sortBy, ownFoodFeedbacksDict]);
 
 	const sortOffers = useCallback(
 		(foodOffers: DatabaseTypes.Foodoffers[]) =>
@@ -251,11 +251,11 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 				languageCode: language,
 				ownFoodFeedbacks: ownFoodFeedbacksForSort,
 				profile,
-				foodCategories,
-				foodOfferCategories,
+				foodCategories: Object.values(foodCategoriesDict),
+				foodOfferCategories: Object.values(foodOfferCategoriesDict),
 				useFoodOfferCategoryOnly: true,
 			}),
-		[sortBy, language, ownFoodFeedbacksForSort, profile, foodCategories, foodOfferCategories]
+		[sortBy, language, ownFoodFeedbacksForSort, profile, foodCategoriesDict, foodOfferCategoriesDict]
 	);
 
 	useEffect(() => {
@@ -366,8 +366,8 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 	};
 
 	const renderDay = ({ item }: { item: DayData }) => {
-		const feedbacks = canteenFeedbackLabels?.map((label, idx) => {
-			const total = canteenFeedbackLabels.length;
+		const feedbacks = Object.values(canteenFeedbackLabelsDict)?.map((label, idx, arr) => {
+			const total = arr.length;
 			const groupPosition = total === 1 ? 'single' : idx === 0 ? 'top' : idx === total - 1 ? 'bottom' : 'middle';
 			return <CanteenFeedbackLabels key={`fl-${idx}`} label={label} date={item.date} groupPosition={groupPosition} isAccountRequired={!user?.id} />;
 		});

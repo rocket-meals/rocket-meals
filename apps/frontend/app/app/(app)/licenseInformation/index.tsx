@@ -6,11 +6,13 @@ import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
 import { Entypo } from '@expo/vector-icons';
 import { TranslationKeys } from '@/locales/keys';
+import { useLanguage } from '@/hooks/useLanguage';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
 
 const LicenseInformation = () => {
+	const { translate } = useLanguage();
 	useSetPageTitle(TranslationKeys.license_information);
 	const { theme } = useTheme();
 	const [expanded, setExpanded] = useState(null);
@@ -33,7 +35,7 @@ const LicenseInformation = () => {
 
 	// Ensure packages is defined before calling map
 	if (!Array.isArray(packages)) {
-		return <Text>Packages data not available.</Text>;
+		return <Text style={{ color: theme.screen.text }}>{translate(TranslationKeys.packages_data_not_available)}</Text>;
 	}
 
 	return (
@@ -81,7 +83,7 @@ const LicenseInformation = () => {
 													fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
 												}}
 											>
-												Package
+												{translate(TranslationKeys.package)}
 											</Text>
 											<Text
 												style={{
@@ -99,7 +101,7 @@ const LicenseInformation = () => {
 													fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
 												}}
 											>
-												Version
+												{translate(TranslationKeys.version)}
 											</Text>
 											<Text
 												style={{
@@ -117,7 +119,7 @@ const LicenseInformation = () => {
 													fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
 												}}
 											>
-												License
+												{translate(TranslationKeys.license)}
 											</Text>
 											<Text
 												style={{
@@ -140,7 +142,7 @@ const LicenseInformation = () => {
 														fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
 													}}
 												>
-													Repository
+													{translate(TranslationKeys.repository)}
 												</Text>
 											</View>
 											<View
@@ -165,7 +167,7 @@ const LicenseInformation = () => {
 														fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
 													}}
 												>
-													License URL:
+													{translate(TranslationKeys.license_url)}
 												</Text>
 											</View>
 											<View

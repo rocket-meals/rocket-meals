@@ -13,6 +13,7 @@ import { CollectionHelper } from '@/helper/collectionHelper';
 import { useAppSelector } from '@/redux/hooks';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 import { ImagePickerMediaTypes } from '@/components/FileUpload/FileUpload';
@@ -20,6 +21,8 @@ import { ImagePickerMediaTypes } from '@/components/FileUpload/FileUpload';
 const ImageManagementSheet: React.FC<ImageManagementSheetProps> = ({ closeSheet, selectedFoodId, handleFetch, fileName }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const [loading, setLoading] = useState({
 		camera: false,
 		image: false,
@@ -243,7 +246,7 @@ const ImageManagementSheet: React.FC<ImageManagementSheetProps> = ({ closeSheet,
 						</TouchableOpacity>
 						<TouchableOpacity style={{ ...styles.row, backgroundColor: theme.background }} onPress={() => setIsDelete(false)}>
 							<View style={styles.col}>
-								<MaterialCommunityIcons name="keyboard-backspace" size={24} color={theme.screen.icon} />
+								<MaterialCommunityIcons name={isArabic ? 'keyboard-backspace' : 'keyboard-backspace'} size={24} color={theme.screen.icon} style={isArabic ? { transform: [{ scaleX: -1 }] } : undefined} />
 								<Text style={{ ...styles.label, color: theme.screen.text }}>{translate(TranslationKeys.navigate_back)}</Text>
 							</View>
 						</TouchableOpacity>
@@ -271,7 +274,7 @@ const ImageManagementSheet: React.FC<ImageManagementSheetProps> = ({ closeSheet,
 								<MaterialCommunityIcons name="delete" size={24} color={theme.screen.icon} />
 								<Text style={{ ...styles.label, color: theme.screen.text }}>{translate(TranslationKeys.delete)}</Text>
 							</View>
-							<MaterialCommunityIcons name="arrow-right" size={24} color={theme.screen.icon} />
+							<MaterialCommunityIcons name={isArabic ? 'arrow-left' : 'arrow-right'} size={24} color={theme.screen.icon} />
 						</TouchableOpacity>
 						<TouchableOpacity style={{ ...styles.row, backgroundColor: theme.background }} onPress={closeSheet}>
 							<View style={styles.col}>

@@ -7,6 +7,7 @@ import SettingsList from '@/components/SettingsList';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { CommonSystemActionHelper } from '@/helper/SystemActionHelper';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import useToast from '@/hooks/useToast';
 import { TranslationKeys } from '@/locales/keys';
@@ -24,6 +25,8 @@ const useLinkCoordinateModal = () => {
 	const { show, close } = useMyScrollViewModal();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const toast = useToast();
 
 	const closeModal = useCallback(() => {
@@ -98,7 +101,7 @@ const useLinkCoordinateModal = () => {
 										key={option.key}
 										label={option.label}
 										leftIcon={option.icon}
-										rightIcon={<Entypo name="chevron-small-right" size={26} color={theme.screen.icon} />}
+										rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={26} color={theme.screen.icon} />}
 										handleFunction={option.onPress}
 										groupPosition={groupPosition}
 										showSeparator={index !== options.length - 1}

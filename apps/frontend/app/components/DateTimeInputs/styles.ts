@@ -18,8 +18,8 @@ export default StyleSheet.create({
 		fontSize: 16,
 		borderWidth: 1,
 		borderColor: '#3A3A3A',
-		outline: 'none',
-		outlineColor: 'transparent',
+		// outline: 'none',
+		// outlineColor: 'transparent',
 	},
 	prefix: {
 		height: 50,

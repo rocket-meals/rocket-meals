@@ -43,7 +43,7 @@ export interface FoodOfferDetailsContentProps {
 }
 
 const selectFoodState = (state: RootState) => state.food;
-const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => foodState.ownFoodFeedbacks);
+const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => Object.values(foodState.ownFoodFeedbacksDict || {}));
 
 const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offerId, foodId: initialFoodId }) => {
     const { theme } = useTheme();

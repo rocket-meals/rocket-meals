@@ -176,10 +176,14 @@ export const useLanguage = () => {
 		};
 	}, [pirateLanguage, funLanguageMode]);
 
-	const specialLanguageOptions = useMemo(
-		() => ({ pirate_language: pirateLanguage, fun_language_mode: funLanguageMode }),
-		[pirateLanguage, funLanguageMode]
-	);
+	const specialLanguageOptions = useMemo(() => ({
+		pirateLanguage,
+		togglePirateLanguage,
+		funLanguageMode,
+		toggleFunLanguageMode,
+	}), [pirateLanguage, togglePirateLanguage, funLanguageMode, toggleFunLanguageMode]);
 
-	return { language, setLanguageMode, translate, translateDynamic, pirateLanguage, togglePirateLanguage, funLanguageMode, toggleFunLanguageMode, specialLanguageOptions };
+	const isLtrLanguage = useMemo(() => isLtrLanguageCode(language as any), [language]);
+
+	return { language, setLanguageMode, translate, translateDynamic, pirateLanguage, togglePirateLanguage, funLanguageMode, toggleFunLanguageMode, specialLanguageOptions, isLtrLanguage };
 };

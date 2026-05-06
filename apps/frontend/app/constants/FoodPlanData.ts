@@ -1,7 +1,9 @@
+import { TranslationKeys } from '../locales/keys';
+
 export const foodPlaneWeek = [
-	{ name: 'Canteen', showFeedIcon: true, showSwitch: false },
+	{ name: TranslationKeys.canteen, showFeedIcon: true, showSwitch: false },
 	{
-		name: 'Allergene Anzeigen',
+		name: TranslationKeys.show_allergens,
 		showFeedIcon: false,
 		showSwitch: true,
 		switchState: false,
@@ -9,37 +11,37 @@ export const foodPlaneWeek = [
 ];
 
 export const foodPlaneDay = [
-	{ name: 'Canteen', showFeedIcon: true, showSwitch: false },
+	{ name: TranslationKeys.canteen, showFeedIcon: true, showSwitch: false },
 	{
-		name: 'Speiseangebot Kategorie (optional)',
+		name: TranslationKeys.food_offer_category_optional,
 		showFeedIcon: false,
 		showSwitch: false,
 	},
 	{
-		name: 'Zeige Speiseangebot Kateogrie Name',
+		name: TranslationKeys.show_food_offer_category_name,
 		showFeedIcon: false,
 		showSwitch: true,
 		switchState: false,
 	},
-	{ name: 'Next Food Interval', showFeedIcon: false, showSwitch: false },
+	{ name: TranslationKeys.next_food_interval, showFeedIcon: false, showSwitch: false },
 	{
-		name: 'Refresh Food Offers Interval',
+		name: TranslationKeys.refresh_food_offers_interval,
 		showFeedIcon: false,
 		showSwitch: false,
 	},
 	{
-		name: 'Full Screen',
+		name: TranslationKeys.full_screen,
 		showFeedIcon: false,
 		showSwitch: true,
 		switchState: false,
 	},
 	{
-		name: 'Speise Kategorie (optional)',
+		name: TranslationKeys.food_category_optional,
 		showFeedIcon: false,
 		showSwitch: false,
 	},
 	{
-		name: 'Zeige Speiseangebot Kateogrie Name',
+		name: TranslationKeys.show_food_offer_category_name,
 		showFeedIcon: false,
 		showSwitch: true,
 		switchState: false,
@@ -47,15 +49,15 @@ export const foodPlaneDay = [
 ];
 
 export const foodPlaneList = [
-	{ name: 'Canteen', showFeedIcon: true, showSwitch: false },
+	{ name: TranslationKeys.canteen, showFeedIcon: true, showSwitch: false },
 	{
-		name: 'Optional: Zusätzliche Mensa/Cafeteria',
+		name: TranslationKeys.optional_additional_canteen,
 		showFeedIcon: true,
 		showSwitch: false,
 	},
-	{ name: 'Next Food Interval', showFeedIcon: false, showSwitch: false },
+	{ name: TranslationKeys.next_food_interval, showFeedIcon: false, showSwitch: false },
 	{
-		name: 'Refresh Data Interval (seconds)',
+		name: TranslationKeys.refresh_data_interval_seconds,
 		showFeedIcon: false,
 		showSwitch: false,
 	},

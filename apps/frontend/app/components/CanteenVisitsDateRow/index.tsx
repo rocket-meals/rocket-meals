@@ -18,7 +18,7 @@ import DebugView from '@/components/DebugView';
 import useCheckAppRateAsking from '@/hooks/useCheckAppRateAsking';
 import useCanteenVisitData from '@/hooks/useCanteenVisitData';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import { useIsLtrLanguage } from '../../hooks/useIsLtrLanguage';
 
 const canteenVisitsHelper = new CanteenVisitsHelper();
 
@@ -227,7 +227,8 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 	const { primaryColor, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
 	const canteenVisitsVisibility = useAppSelector((state) => (state.settings as any).canteenVisits?.visibility ?? 'all') as 'all' | 'friends_only' | 'public_only' | 'off';
 	const { profile, user, isDevMode } = useAppSelector((state) => state.authReducer);
-	const { friendships } = useAppSelector((state) => state.friendships);
+	const { friendshipsDict } = useAppSelector((state) => state.friendships);
+	const friendships = useMemo(() => Object.values(friendshipsDict ?? {}), [friendshipsDict]);
 	const isLtrLanguage = useIsLtrLanguage();
 	const isArabic = !isLtrLanguage;
 	const { show: showScrollViewModal } = useMyScrollViewModal();

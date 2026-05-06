@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Platform, View, Text, useWindowDimensions } from 'react-native';
+import { Platform, View, Text, useWindowDimensions, ListRenderItem } from 'react-native';
 import { BottomSheetFlatList, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useTheme } from '../../context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,10 +11,10 @@ export interface MyScrollViewModalProps {
 	children?: ReactNode;
 	useFlatList?: boolean;
 	data?: any[];
-	renderItem?: (info: { item: any; index: number }) => ReactNode;
+	renderItem?: ListRenderItem<any>;
 	keyExtractor?: (item: any, index: number) => string;
-	ListHeaderComponent?: ReactNode;
-	ListFooterComponent?: ReactNode;
+	ListHeaderComponent?: any;
+	ListFooterComponent?: any;
 	showsVerticalScrollIndicator?: boolean;
 	keyboardShouldPersistTaps?: 'always' | 'never' | 'handled';
 	onClose?: () => void;

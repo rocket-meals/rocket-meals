@@ -18,6 +18,7 @@ export type SettingsListCoordinateProps = React.PropsWithChildren<
 		leftIcon?: React.ReactElement;
 		rightIcon?: React.ReactElement;
 		mapsLabel?: string;
+		reverseLayout?: boolean;
 	} & Omit<SettingsListProps, 'label' | 'value' | 'leftIcon' | 'rightIcon' | 'handleFunction' | 'onPress'>
 >;
 
@@ -28,6 +29,7 @@ const SettingsListCoordinate: React.FC<SettingsListCoordinateProps> = ({
 	leftIcon,
 	rightIcon,
 	mapsLabel = 'Open in Maps',
+	reverseLayout = false,
 	...props
 }) => {
 	const { theme } = useTheme();
@@ -50,7 +52,7 @@ const SettingsListCoordinate: React.FC<SettingsListCoordinateProps> = ({
 		<Ionicons name="location-sharp" size={24} color={theme.screen.icon} />
 	);
 	const resolvedRightIcon = rightIcon ?? (
-		<Entypo name="chevron-small-right" size={26} color={theme.screen.icon} />
+		<Entypo name={reverseLayout ? 'chevron-small-left' : 'chevron-small-right'} size={26} color={theme.screen.icon} />
 	);
 
 	return (
@@ -61,6 +63,7 @@ const SettingsListCoordinate: React.FC<SettingsListCoordinateProps> = ({
 			leftIcon={resolvedLeftIcon}
 			rightIcon={resolvedRightIcon}
 			handleFunction={hasLocation ? handleOpenLocation : undefined}
+			reverseLayout={reverseLayout}
 		/>
 	);
 };

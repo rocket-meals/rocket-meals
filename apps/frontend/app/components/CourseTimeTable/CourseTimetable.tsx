@@ -10,10 +10,13 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import { TranslationKeys } from '@/locales/keys';
 import { useAppSelector } from '@/redux/hooks';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 
 const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, setIsUpdate, setTimeTableData, setSelectedEventId }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const [currentTimeOffset, setCurrentTimeOffset] = useState(0);
 	const [showCurrentTimeOffset, setShowCurrentTimeOffset] = useState(false);
@@ -86,7 +89,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 1,
 				leftIcon: <MaterialCommunityIcons name="tag-text-outline" size={24} color={theme.screen.icon} />,
-				label: 'title',
+				label: translate(TranslationKeys.title),
 				value: event.title,
 				rightIcon: <FontAwesome5 name="pen" size={16} color={theme.screen.icon} />,
 				handleFunction: () => {
@@ -96,7 +99,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 2,
 				leftIcon: <MaterialCommunityIcons name="map-marker-outline" size={24} color={theme.screen.icon} />,
-				label: 'location',
+				label: translate(TranslationKeys.location),
 				value: event.location,
 				rightIcon: <FontAwesome5 name="pen" size={16} color={theme.screen.icon} />,
 				handleFunction: () => {
@@ -106,7 +109,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 3,
 				leftIcon: <MaterialIcons name="color-lens" size={24} color={theme.screen.icon} />,
-				label: 'color',
+				label: translate(TranslationKeys.color),
 				value: event.color,
 				rightIcon: <FontAwesome5 name="pen" size={16} color={theme.screen.icon} />,
 				handleFunction: () => {
@@ -116,7 +119,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 4,
 				leftIcon: <MaterialCommunityIcons name="clock-start" size={24} color={theme.screen.icon} />,
-				label: 'startTime',
+				label: translate(TranslationKeys.startTime),
 				value: event.startTime,
 				rightIcon: <FontAwesome5 name="pen" size={16} color={theme.screen.icon} />,
 				handleFunction: () => {
@@ -126,7 +129,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 5,
 				leftIcon: <MaterialCommunityIcons name="clock-end" size={24} color={theme.screen.icon} />,
-				label: 'endTime',
+				label: translate(TranslationKeys.endTime),
 				value: event.endTime,
 				rightIcon: <FontAwesome5 name="pen" size={16} color={theme.screen.icon} />,
 				handleFunction: () => {
@@ -136,9 +139,9 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 6,
 				leftIcon: <Feather name="calendar" size={24} color={theme.screen.icon} />,
-				label: 'weekday',
+				label: translate(TranslationKeys.weekday),
 				value: filteredDay[0],
-				rightIcon: <Octicons name="chevron-right" size={24} color={theme.screen.icon} />,
+				rightIcon: <Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />,
 				handleFunction: () => {
 					console.log('Weekday clicked');
 				},
@@ -174,7 +177,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 							},
 						]}
 					>
-						<Text style={styles.currentTimeText}>Now</Text>
+						<Text style={styles.currentTimeText}>{translate(TranslationKeys.now)}</Text>
 					</View>
 				)}
 				<View

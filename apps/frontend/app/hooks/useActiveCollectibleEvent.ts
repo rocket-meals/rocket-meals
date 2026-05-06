@@ -34,11 +34,11 @@ export const isCollectibleEventActive = (
 };
 
 const useActiveCollectibleEvent = () => {
-        const { collectibleEvents = [] } = useAppSelector((state) => state.collectibleEvents ?? {});
+        const { collectibleEventsItemsDict = {} } = useAppSelector((state) => state.collectibleEvents ?? {});
 
         const activeCollectibleEvent = useMemo(
-                () => collectibleEvents.find(event => isCollectibleEventActive(event)),
-                [collectibleEvents]
+                () => Object.values(collectibleEventsItemsDict).find(event => isCollectibleEventActive(event)),
+                [collectibleEventsItemsDict]
         );
 
         return { activeCollectibleEvent, hasActiveCollectibleEvent: Boolean(activeCollectibleEvent) };

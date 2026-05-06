@@ -24,7 +24,8 @@ const ManagementCanteensSheet: React.FC<ManagementCanteensSheetProps> = ({ close
 	const buildingsHelper = new BuildingsHelper();
 	const { serverInfo } = useAppSelector((state) => state.settings);
 	const { isManagement } = useAppSelector((state) => state.authReducer);
-	const { canteens } = useAppSelector((state) => state.canteenReducer);
+	const { canteensDict = {} } = useAppSelector((state) => state.canteenReducer);
+	const canteens = Object.values(canteensDict);
 	const defaultImage = getImageUrl(serverInfo?.info?.project?.project_logo);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 

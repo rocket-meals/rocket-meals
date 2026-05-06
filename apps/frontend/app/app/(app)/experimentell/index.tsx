@@ -7,6 +7,7 @@ import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import SettingsList from '@/components/SettingsList';
@@ -18,6 +19,8 @@ const Index = () => {
     const { buildingsDict } = useAppSelector((state) => state.canteenReducer);
     const { primaryColor } = useAppSelector((state) => state.settings);
 	const selectedCanteen = useSelectedCanteen();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 
 	const buildingPosition = useMemo(() => {
 		if (selectedCanteen?.building) {
@@ -34,7 +37,7 @@ const Index = () => {
 		{
 			key: 'edge-speech',
 			label: translate(TranslationKeys.edge_speech_test),
-			leftIcon: <MaterialCommunityIcons name="text-to-speech" size={24} color={theme.screen.icon} />,
+			leftIcon: <MaterialCommunityIcons name="volume-high" size={24} color={theme.screen.icon} />,
 			onPress: () => router.push('/experimentell/edge-speech'),
 		},
 		{
@@ -167,7 +170,7 @@ const Index = () => {
 					const totalItems = listItems.length;
 					const groupPosition = totalItems === 1 ? 'single' : index === 0 ? 'top' : index === totalItems - 1 ? 'bottom' : 'middle';
 
-					return <SettingsList key={item.key} iconBgColor={primaryColor} leftIcon={item.leftIcon} label={item.label} rightIcon={<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />} handleFunction={item.onPress} groupPosition={groupPosition} />;
+					return <SettingsList key={item.key} iconBgColor={primaryColor} leftIcon={item.leftIcon} label={item.label} rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />} handleFunction={item.onPress} groupPosition={groupPosition} />;
 				})}
 			</View>
 		</ScrollView>

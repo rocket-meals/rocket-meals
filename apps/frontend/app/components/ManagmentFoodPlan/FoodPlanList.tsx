@@ -74,7 +74,7 @@ const FoodPlanList = ({
 								fontSize: windowWidth > 600 ? 18 : 14,
 							}}
 						>
-							{item.name}
+							{translate(item.name as any)}
 						</Text>
 					</View>
 					<View style={styles.iconTextContainer}>
@@ -90,7 +90,7 @@ const FoodPlanList = ({
 							/>
 						) : (
 							<>
-								{item.name === 'Canteen' && (
+								{item.name === TranslationKeys.canteen && (
 									<TextInput
 										style={[
 											styles.textInput,
@@ -107,7 +107,7 @@ const FoodPlanList = ({
 									/>
 								)}
 
-								{item.name === 'Next Food Interval' && (
+								{item.name === TranslationKeys.next_food_interval && (
 									<TextInput
 										style={[
 											styles.textInput,
@@ -124,7 +124,7 @@ const FoodPlanList = ({
 									/>
 								)}
 
-								{item.name === 'Refresh Data Interval (seconds)' && (
+								{item.name === TranslationKeys.refresh_data_interval_seconds && (
 									<TextInput
 										style={[
 											styles.textInput,

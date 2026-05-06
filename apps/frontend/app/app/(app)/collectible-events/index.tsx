@@ -12,9 +12,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { getTitleFromTranslation } from '@/helper/resourceHelper';
-import { RootState } from '@/redux/reducer';
 import useDebugMode from '@/hooks/useDebugMode';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import styles from './styles';
 
 const getGroupPosition = (index: number, length: number) => {
@@ -63,7 +62,7 @@ const CollectibleEventsScreen = () => {
         const { theme } = useTheme();
         const { translate, language } = useLanguage();
         const { primaryColor } = useAppSelector((state) => state.settings);
-        const { collectibleEvents, collectibleEventsDict = {} } = useAppSelector(
+        const { collectibleEventsItemsDict, collectibleEventsDict = {} } = useAppSelector(
                 (state) => state.collectibleEvents
         );
         const debugMode = useDebugMode();
@@ -71,8 +70,8 @@ const CollectibleEventsScreen = () => {
         const router = useRouter();
 
         const events = useMemo<DatabaseTypes.CollectibleEvents[]>(
-                () => collectibleEvents || [],
-                [collectibleEvents]
+                () => Object.values(collectibleEventsItemsDict || {}),
+                [collectibleEventsItemsDict]
         );
         const eventsWithProgress = useMemo(
                 () =>
@@ -109,7 +108,7 @@ const CollectibleEventsScreen = () => {
                                                                 color={theme.screen.icon}
                                                         />
                                                 }
-                                                label="Debug Collectible Event"
+                                                label={translate(TranslationKeys.debug_collectible_event)}
                                                 groupPosition="single"
                                                 handleFunction={() => router.navigate('/collectible-event')}
                                                 rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={20} color={theme.screen.icon} />}

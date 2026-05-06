@@ -6,6 +6,7 @@ import styles from '../styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import usePlatformHelper from '@/helper/platformHelper';
 import { isInExpoGo } from '@/helper/DeviceRuntimeHelper';
@@ -22,6 +23,8 @@ const ExpoUpdateTest = () => {
         useSetPageTitle(TranslationKeys.EXPO_UPDATE_TEST);
         const { theme } = useTheme();
         const { translate } = useLanguage();
+        const isLtrLanguage = useIsLtrLanguage();
+        const isArabic = !isLtrLanguage;
         const { isSmartPhone } = usePlatformHelper();
 
         const [logs, setLogs] = useState<string[]>([]);
@@ -136,7 +139,7 @@ const ExpoUpdateTest = () => {
                                                 <MaterialCommunityIcons name="playlist-check" color={theme.screen.icon} size={24} />
                                                 <Text style={{ ...styles.body, color: theme.screen.text }}>{translate(TranslationKeys.RUN_ALL_STEPS)}</Text>
                                         </View>
-                                        <Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+                                        <Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
                                 </TouchableOpacity>
 
                                 <View style={styles.section}>
@@ -155,7 +158,7 @@ const ExpoUpdateTest = () => {
                                                                 <MaterialCommunityIcons name={step.icon} color={theme.screen.icon} size={24} />
                                                                 <Text style={{ ...styles.body, color: theme.screen.text }}>{translate(step.key)}</Text>
                                                         </View>
-                                                        <Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+                                                        <Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
                                                 </TouchableOpacity>
                                         ))}
                                 </View>

@@ -4,6 +4,7 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { FontAwesome, FontAwesome6, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
@@ -164,6 +165,8 @@ const Index = () => {
 	const toast = useToast();
 	const scrollViewRef = useRef(null);
 	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const { theme } = useTheme();
 	const dispatch = useDispatch();
 	const { form_submission_id, queue_entry_id } = useLocalSearchParams();
@@ -179,7 +182,7 @@ const Index = () => {
 	const [collectionData, setCollectionData] = useState<any>([]);
 	const [selectedState, setSelectedState] = useState('submitted');
 	const [currentState, setCurrentState] = useState<string | null>(null);
-	const { formSubmission, formQueue, cachedFormData } = useAppSelector((state) => state.form);
+	const { formSubmission, formQueueDict, cachedFormData } = useAppSelector((state) => state.form);
 	const { user } = useAppSelector((state) => state.authReducer);
 	const [submissionLoading, setSubmissionLoading] = useState(false);
 	const [formData, setFormData] = useState<{
@@ -434,7 +437,7 @@ const Index = () => {
 
 			// If opened from queue, override with queued formData
 			if (queue_entry_id) {
-				const queueEntry = (formQueue || []).find((entry: any) => entry.id === queue_entry_id);
+				const queueEntry = (formQueueDict || {})[String(queue_entry_id)];
 				if (queueEntry) {
 					setFormData({ ...initialFormData, ...queueEntry.formData });
 					setSelectedState(queueEntry.targetState);
@@ -922,7 +925,7 @@ const Index = () => {
 								router.navigate('/form-categories');
 							}
 						}} style={{ padding: 10 }}>
-							<Ionicons name="arrow-back" size={26} color={theme.header.text} />
+							<Ionicons name={isArabic ? 'arrow-forward' : 'arrow-back'} size={26} color={theme.header.text} />
 						</TouchableOpacity>
 						<Text style={{ ...styles.heading, color: theme.header.text }}>{formSubmission ? excerpt(formSubmission?.alias as string, screenWidth > 900 ? 100 : screenWidth > 700 ? 80 : 22) : ''}</Text>
 					</View>
@@ -1082,7 +1085,7 @@ const Index = () => {
 										</View>
 									);
 								})}
-							<DebugView title="Form Data">
+							<DebugView title={translate(TranslationKeys.form_data)}>
 								<Text style={{ ...styles.body, color: theme.screen.text }}>{JSON.stringify(formData, null, 2)}</Text>
 							</DebugView>
 						</View>

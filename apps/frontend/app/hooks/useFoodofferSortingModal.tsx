@@ -39,9 +39,9 @@ export const SortSheet: React.FC<SortSheetProps> = ({ closeSheet }) => {
         const { translate } = useLanguage();
 
         const dispatch = useDispatch();
-        const { canteenFoodOffers } = useAppSelector((state) => state.canteenReducer);
+        const { canteenFoodOffersDict = {} } = useAppSelector((state) => state.canteenReducer);
         const { primaryColor, language: languageCode, sortBy, appSettings } = useAppSelector((state) => state.settings);
-        const { ownFoodFeedbacks, foodCategories, foodOfferCategories } = useAppSelector((state) => state.food);
+        const { ownFoodFeedbacksDict = {}, foodCategoriesDict = {}, foodOfferCategoriesDict = {} } = useAppSelector((state) => state.food);
         const { profile } = useAppSelector((state) => state.authReducer);
         const [selectedOption, setSelectedOption] = useState<FoodSortOption | null>(null);
         const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
@@ -103,23 +103,23 @@ export const SortSheet: React.FC<SortSheetProps> = ({ closeSheet }) => {
                 setSelectedOption(option.id);
                 dispatch({ type: SET_SORTING, payload: option.id });
 
-                let copiedFoodOffers = [...canteenFoodOffers];
+                let copiedFoodOffers = Object.values(canteenFoodOffersDict);
 
                 switch (option.id) {
                         case FoodSortOption.ALPHABETICAL:
                                 copiedFoodOffers = sortByFoodName(copiedFoodOffers, languageCode);
                                 break;
                         case FoodSortOption.FAVORITE:
-                                copiedFoodOffers = sortByOwnFavorite(copiedFoodOffers, ownFoodFeedbacks);
+                                copiedFoodOffers = sortByOwnFavorite(copiedFoodOffers, Object.values(ownFoodFeedbacksDict));
                                 break;
                         case FoodSortOption.EATING:
                                 copiedFoodOffers = sortByEatingHabits(copiedFoodOffers, profile.markings);
                                 break;
                         case FoodSortOption.FOOD_CATEGORY:
-                                copiedFoodOffers = sortByFoodCategory(copiedFoodOffers, foodCategories, languageCode);
+                                copiedFoodOffers = sortByFoodCategory(copiedFoodOffers, Object.values(foodCategoriesDict), languageCode);
                                 break;
                         case FoodSortOption.FOODOFFER_CATEGORY:
-                                copiedFoodOffers = sortByFoodOfferCategory(copiedFoodOffers, foodOfferCategories, languageCode);
+                                copiedFoodOffers = sortByFoodOfferCategory(copiedFoodOffers, Object.values(foodOfferCategoriesDict), languageCode);
                                 break;
                         case FoodSortOption.RATING:
                                 copiedFoodOffers = sortByPublicFavorite(copiedFoodOffers);
@@ -133,11 +133,11 @@ export const SortSheet: React.FC<SortSheetProps> = ({ closeSheet }) => {
                         case FoodSortOption.INTELLIGENT:
                                 copiedFoodOffers = intelligentSort(
                                         copiedFoodOffers,
-                                        ownFoodFeedbacks,
+                                        Object.values(ownFoodFeedbacksDict),
                                         profile.markings,
                                         languageCode,
-                                        foodCategories,
-                                        foodOfferCategories
+                                        Object.values(foodCategoriesDict),
+                                        Object.values(foodOfferCategoriesDict)
                                 );
                                 break;
                         default:

@@ -9,6 +9,7 @@ import CardWithText from '../CardWithText/CardWithText';
 import styles from '../CanteenSelectionSheet/styles';
 import { useAppSelector } from '@/redux/hooks';
 import CardDimensionHelper from '@/helper/CardDimensionHelper';
+import type { CanteenWithImage } from '@/redux/Types/stateTypes';
 
 interface CanteenSelectionProps {
 	onSelectCanteen: (canteen: DatabaseTypes.Canteens) => void;
@@ -17,7 +18,8 @@ interface CanteenSelectionProps {
 const CanteenSelection: React.FC<CanteenSelectionProps> = ({ onSelectCanteen }) => {
 	const { theme } = useTheme();
 	const { serverInfo, appSettings, primaryColor } = useAppSelector((state) => state.settings);
-	const { canteens, selectedCanteen } = useAppSelector((state) => state.canteenReducer);
+	const { canteensDict = {}, selectedCanteen } = useAppSelector((state) => state.canteenReducer);
+	const canteens = Object.values(canteensDict);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const [listWidth, setListWidth] = useState<number | null>(null);
 
@@ -62,7 +64,7 @@ const CanteenSelection: React.FC<CanteenSelectionProps> = ({ onSelectCanteen }) 
 				}
 			}}
 		>
-			{canteens.map((canteen, index: number) => {
+			{canteens.map((canteen: CanteenWithImage, index: number) => {
 				const isSelected = selectedCanteen && String(selectedCanteen.id) === String(canteen.id);
 				const imageUrl = canteen?.image_url || canteensData[index]?.image;
 				return (

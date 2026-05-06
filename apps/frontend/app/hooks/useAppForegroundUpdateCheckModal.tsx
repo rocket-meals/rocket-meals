@@ -10,6 +10,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import { SET_SIMULATE_EXPO_UPDATE_AVAILABLE } from '@/redux/Types/types';
+import { useLanguage } from '@/hooks/useLanguage';
+import { TranslationKeys } from '@/locales/keys';
 
 const useAppForegroundUpdateCheckModal = () => {
         const appState = useRef<AppStateStatus>(AppState.currentState);
@@ -17,6 +19,7 @@ const useAppForegroundUpdateCheckModal = () => {
         const { isSmartPhone } = usePlatformHelper();
         const { show, close } = useMyScrollViewModal();
         const { theme } = useTheme();
+        const { translate } = useLanguage();
         const dispatch = useDispatch();
         const { simulateExpoUpdateAvailable } = useAppSelector((state) => state.settings);
 
@@ -59,7 +62,7 @@ const useAppForegroundUpdateCheckModal = () => {
                                                                                         borderColor: theme.sheet.text,
                                                                                 }}
                                                                         >
-                                                                                <Text style={{ color: theme.screen.text }}>Schließen</Text>
+                                                                                <Text style={{ color: theme.screen.text }}>{translate(TranslationKeys.close_label)}</Text>
                                                                         </TouchableOpacity>
                                                                 )}
                                                                 {primaryAction && (
@@ -81,14 +84,14 @@ const useAppForegroundUpdateCheckModal = () => {
                                 ),
                         });
                 },
-                [close, debugMode, show, theme.screen.background, theme.screen.text, theme.sheet.text]
+                [close, debugMode, show, theme.screen.background, theme.screen.text, theme.sheet.text, translate]
         );
 
         const handleDownloadUpdate = useCallback(async () => {
                 showStatusModal(
                         {
-                                title: 'Update wird geladen',
-                                message: 'Update wird heruntergeladen ...',
+                                title: translate(TranslationKeys.update_downloading),
+                                message: translate(TranslationKeys.update_downloading_description),
                                 loading: true,
                         },
                         { force: true }
@@ -98,8 +101,8 @@ const useAppForegroundUpdateCheckModal = () => {
                         await Updates.fetchUpdateAsync();
                         showStatusModal(
                                 {
-                                        title: 'Update bereit',
-                                        message: 'App wird neu gestartet ...',
+                                        title: translate(TranslationKeys.update_ready),
+                                        message: translate(TranslationKeys.restarting_app),
                                         loading: true,
                                 },
                                 { force: true }
@@ -109,25 +112,25 @@ const useAppForegroundUpdateCheckModal = () => {
                         console.error('Error while fetching Expo updates', error);
                         showStatusModal(
                                 {
-                                        title: 'Update-Download fehlgeschlagen',
-                                        message: 'Das Update konnte nicht heruntergeladen werden.',
+                                        title: translate(TranslationKeys.update_download_failed),
+                                        message: translate(TranslationKeys.update_download_failed_description),
                                         allowClose: true,
                                 },
                                 { force: true }
                         );
                 }
-        }, [showStatusModal]);
+        }, [showStatusModal, translate]);
 
         const checkForUpdate = useCallback(async () => {
-                showStatusModal({ title: 'Update-Check', message: 'Suche nach Update ...', loading: true });
+                showStatusModal({ title: translate(TranslationKeys.update_check), message: translate(TranslationKeys.searching_for_update), loading: true });
 
                 if (simulateExpoUpdateAvailable) {
                         dispatch({ type: SET_SIMULATE_EXPO_UPDATE_AVAILABLE, payload: false });
                         showStatusModal(
                                 {
-                                        title: 'Update gefunden',
-                                        message: 'Ein neues Update ist verfügbar.',
-                                        primaryAction: { label: 'Herunterladen und aktualisieren', onPress: handleDownloadUpdate },
+                                        title: translate(TranslationKeys.update_found),
+                                        message: translate(TranslationKeys.new_update_available),
+                                        primaryAction: { label: translate(TranslationKeys.download_and_update), onPress: handleDownloadUpdate },
                                 },
                                 { force: true }
                         );
@@ -137,8 +140,8 @@ const useAppForegroundUpdateCheckModal = () => {
                 if (!isSmartPhone()) {
                         console.info('Update-Check blockiert: nur auf Smartphones verfügbar.');
                         showStatusModal({
-                                title: 'Update-Check',
-                                message: 'Update-Check ist nur auf Smartphones verfügbar.',
+                                title: translate(TranslationKeys.update_check),
+                                message: translate(TranslationKeys.update_check_smartphone_only),
                                 allowClose: true,
                         });
                         return false;
@@ -146,8 +149,8 @@ const useAppForegroundUpdateCheckModal = () => {
                 if (isInExpoGo()) {
                         console.info('Update-Check blockiert: Expo Go wird nicht unterstützt.');
                         showStatusModal({
-                                title: 'Update-Check',
-                                message: 'Expo Go wird nicht unterstützt.',
+                                title: translate(TranslationKeys.update_check),
+                                message: translate(TranslationKeys.expo_go_not_supported),
                                 allowClose: true,
                         });
                         return false;
@@ -158,16 +161,16 @@ const useAppForegroundUpdateCheckModal = () => {
                         if (update.isAvailable) {
                                 showStatusModal(
                                         {
-                                                title: 'Update gefunden',
-                                                message: 'Ein neues Update ist verfügbar.',
-                                                primaryAction: { label: 'Herunterladen und aktualisieren', onPress: handleDownloadUpdate },
+                                                title: translate(TranslationKeys.update_found),
+                                                message: translate(TranslationKeys.new_update_available),
+                                                primaryAction: { label: translate(TranslationKeys.download_and_update), onPress: handleDownloadUpdate },
                                         },
                                         { force: true }
                                 );
                         } else {
                                 showStatusModal({
-                                        title: 'Kein Update gefunden',
-                                        message: 'Du verwendest bereits die aktuelle Version.',
+                                        title: translate(TranslationKeys.no_update_found),
+                                        message: translate(TranslationKeys.up_to_date_description),
                                         allowClose: true,
                                 });
                         }
@@ -175,8 +178,8 @@ const useAppForegroundUpdateCheckModal = () => {
                 } catch (error) {
                         console.error('Error while checking Expo updates', error);
                         showStatusModal({
-                                title: 'Update-Check fehlgeschlagen',
-                                message: 'Es gab ein Problem bei der Update-Prüfung.',
+                                title: translate(TranslationKeys.update_check_failed),
+                                message: translate(TranslationKeys.update_check_problem_description),
                                 allowClose: true,
                         });
                         return false;

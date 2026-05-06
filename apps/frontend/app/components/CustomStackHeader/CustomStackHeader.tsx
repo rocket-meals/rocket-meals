@@ -11,6 +11,7 @@ import { excerpt } from '@/constants/HelperFunctions';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 
 import { AppScreens } from 'repo-depkit-common';
 import IconButton from '../UI/IconButton';
@@ -18,6 +19,8 @@ import IconButton from '../UI/IconButton';
 const CustomStackHeader: React.FC<CustomStackHeaderProps> = ({ label, rightElement }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const router = useRouter();
 	const pathname = usePathname();
 	const { loggedIn } = useAppSelector(state => state.authReducer);
@@ -87,7 +90,7 @@ const CustomStackHeader: React.FC<CustomStackHeaderProps> = ({ label, rightEleme
 						placement="top"
 						trigger={triggerProps => (
 							<TouchableOpacity activeOpacity={0.4} {...triggerProps} onPress={handleGoback} style={{ padding: 10 }}>
-								<Ionicons name="arrow-back" size={26} color={theme.header.text} />
+								<Ionicons name={isArabic ? 'arrow-forward' : 'arrow-back'} size={26} color={theme.header.text} />
 							</TouchableOpacity>
 						)}
 					>

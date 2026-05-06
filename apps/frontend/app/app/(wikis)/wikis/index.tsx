@@ -13,17 +13,21 @@ import { AppScreens, DatabaseTypes } from 'repo-depkit-common';
 import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 
 const Index = () => {
 	const { theme } = useTheme();
 	const { translate, translateDynamic } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const [wiki, setWiki] = useState<DatabaseTypes.Wikis>();
 	const [loading, setLoading] = useState(true);
-	const { wikis, language, primaryColor } = useAppSelector((state) => state.settings);
+	const { wikisDict = {}, language, primaryColor } = useAppSelector((state) => state.settings);
+	const wikis = Object.values(wikisDict);
 	const { deviceMock } = useGlobalSearchParams();
 	const { custom_id, id } = useLocalSearchParams();
 	//Set Page Title
-	const title = wiki?.translations ? translateDynamic(getTitleFromTranslation(wiki?.translations, language)) : 'Wikis';
+	const title = wiki?.translations ? translateDynamic(getTitleFromTranslation(wiki?.translations, language)) : translate(TranslationKeys.wikis);
 	useSetPageTitle(title);
 
 	const filterWiki = () => {
@@ -63,7 +67,7 @@ const Index = () => {
 				<View style={styles.row}>
 					<View style={styles.col1}>
 						<TouchableOpacity onPress={() => router.navigate(('/(app)/' + AppScreens.FOOD_OFFERS) as any)} style={{ padding: 10 }}>
-							<Ionicons name="arrow-back" size={24} color={theme.header.text} />
+							<Ionicons name={isArabic ? 'arrow-forward' : 'arrow-back'} size={24} color={theme.header.text} />
 						</TouchableOpacity>
 						<Text style={{ ...styles.heading, color: theme.header.text }}>{wiki?.translations && translateDynamic(getTitleFromTranslation(wiki?.translations, language))}</Text>
 					</View>

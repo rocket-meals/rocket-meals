@@ -1,5 +1,5 @@
 import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo, FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -17,6 +17,7 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { SET_CACHED_FORM_CATEGORIES, SET_CACHED_FORMS, SET_CACHED_FORM_DATA, SET_OFFLINE_MODE } from '@/redux/Types/types';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import useToast from '@/hooks/useToast';
 import SettingsListBoolean from '@/components/SettingsListBoolean/SettingsListBoolean';
 
@@ -24,6 +25,8 @@ const Index = () => {
 	useSetPageTitle(TranslationKeys.select_a_form_category);
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const toast = useToast();
 	const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
@@ -36,7 +39,10 @@ const Index = () => {
 	const formsHelper = new FormsHelper();
 	const formsSubmissionsHelper = new FormsSubmissionsHelper();
 	const formAnswersHelper = new FormAnswersHelper();
-	const { cachedFormCategories, cachedForms, formQueue } = useAppSelector((state) => state.form);
+	const { cachedFormCategoriesDict, cachedFormsDict, formQueueDict } = useAppSelector((state) => state.form);
+	const cachedFormCategories = useMemo(() => Object.values(cachedFormCategoriesDict ?? {}), [cachedFormCategoriesDict]);
+	const cachedForms = cachedFormsDict; // cachedForms is used as a dictionary anyway in line 189
+	const formQueue = useMemo(() => Object.values(formQueueDict ?? {}), [formQueueDict]);
 
 	const queueCount = (formQueue || []).length;
 
@@ -186,7 +192,7 @@ const Index = () => {
 
 	const isCategoryCached = (categoryId: string | number) => {
 		const key = String(categoryId);
-		return !!(cachedForms && cachedForms[key] && cachedForms[key].length > 0);
+		return !!(cachedForms && cachedForms[key] && Object.keys(cachedForms[key]).length > 0);
 	};
 
 	return (
@@ -320,7 +326,7 @@ const Index = () => {
 											{isShowingCachedData && (
 												<MaterialCommunityIcons name="cached" size={18} color={theme.screen.icon} />
 											)}
-											<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+											<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
 										</View>
 									</TouchableOpacity>
 								);

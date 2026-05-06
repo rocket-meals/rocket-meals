@@ -1,52 +1,52 @@
 // Themes
 export const themes = [
-        { id: 'light', name: 'color_scheme_light', icon: 'white-balance-sunny' },
+	{ id: 'light', name: 'color_scheme_light', icon: 'white-balance-sunny' },
 	{ id: 'dark', name: 'color_scheme_dark', icon: 'moon-waning-crescent' },
 	{ id: 'systematic', name: 'color_scheme_system', icon: 'theme-light-dark' },
 ];
 
 // Languages
 export const languages = [
-        {
-                label: 'English (English)',
-                emoji: '🇬🇧',
-                value: 'en',
-        },
-        {
-                label: 'Turkish (Türkçe)',
-                emoji: '🇹🇷',
-                value: 'tr',
-        },
-        {
-                label: 'Spanish (Español)',
-                emoji: '🇪🇸',
-                value: 'es',
-        },
-        {
-                label: 'French (Français)',
-                emoji: '🇫🇷',
-                value: 'fr',
-        },
-        {
-                label: 'German (Deutsch)',
-                emoji: '🇩🇪',
-                value: 'de',
-        },
-        {
-                label: 'Chinese (中文)',
-                emoji: '🇨🇳',
-                value: 'zh',
-        },
-        {
-                label: 'Arabic (العربية)',
-                emoji: '🇸🇦',
-                value: 'ar',
-        },
-        {
-                label: 'Russian (Русский)',
-                emoji: '🇷🇺',
-                value: 'ru',
-        },
+	{
+		label: 'English (English)',
+		emoji: '🇬🇧',
+		value: 'en',
+	},
+	{
+		label: 'Turkish (Türkçe)',
+		emoji: '🇹🇷',
+		value: 'tr',
+	},
+	{
+		label: 'Spanish (Español)',
+		emoji: '🇪🇸',
+		value: 'es',
+	},
+	{
+		label: 'French (Français)',
+		emoji: '🇫🇷',
+		value: 'fr',
+	},
+	{
+		label: 'German (Deutsch)',
+		emoji: '🇩🇪',
+		value: 'de',
+	},
+	{
+		label: 'Chinese (中文)',
+		emoji: '🇨🇳',
+		value: 'zh',
+	},
+	{
+		label: 'Arabic (العربية)',
+		emoji: '🇸🇦',
+		value: 'ar',
+	},
+	{
+		label: 'Russian (Русский)',
+		emoji: '🇷🇺',
+		value: 'ru',
+	},
 ];
 
 // Drawers

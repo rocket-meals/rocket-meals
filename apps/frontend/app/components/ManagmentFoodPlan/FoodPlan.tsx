@@ -62,7 +62,7 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 								fontSize: windowWidth > 600 ? 18 : 14,
 							}}
 						>
-							{item.name}
+							{translate(item.name as any)}
 						</Text>
 					</View>
 					<View style={styles.iconTextContainer}>
@@ -78,7 +78,7 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 							/>
 						) : (
 							<>
-								{item.name === 'Canteen' && (
+								{item.name === TranslationKeys.canteen && (
 									<TextInput
 										style={[
 											styles.textInput,
@@ -94,7 +94,7 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 										value={selectedCanteen?.alias || undefined}
 									/>
 								)}
-								{item.name === 'Speiseangebot Kategorie (optional)' && (
+								{item.name === TranslationKeys.food_offer_category_optional && (
 									<TextInput
 										style={[
 											styles.textInput,
@@ -110,7 +110,7 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 										value={selectedValue}
 									/>
 								)}
-								{item.name === 'Speise Kategorie (optional)' && (
+								{item.name === TranslationKeys.food_category_optional && (
 									<TextInput
 										style={{
 											backgroundColor: theme.screen.iconBg,
@@ -125,7 +125,7 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 										value={selectedValuNext}
 									/>
 								)}
-								{item.name === 'Next Food Interval' && (
+								{item.name === TranslationKeys.next_food_interval && (
 									<TextInput
 										style={[
 											styles.textInput,
@@ -141,7 +141,7 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 										value={nextFoodInterval}
 									/>
 								)}
-								{item.name === 'Refresh Food Offers Interval' && (
+								{item.name === TranslationKeys.refresh_food_offers_interval && (
 									<TextInput
 										style={[
 											styles.textInput,

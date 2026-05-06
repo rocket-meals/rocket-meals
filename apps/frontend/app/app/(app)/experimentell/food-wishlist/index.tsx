@@ -5,6 +5,7 @@ import { Octicons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import SettingsList from '@/components/SettingsList';
@@ -20,8 +21,11 @@ const FoodWishlist = () => {
 	useSetPageTitle(TranslationKeys.food_wishlist);
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const { language, primaryColor } = useAppSelector((state) => state.settings);
-	const { ownFoodFeedbacks } = useAppSelector((state) => state.food);
+	const { ownFoodFeedbacksDict } = useAppSelector((state) => state.food);
+	const ownFoodFeedbacks = useMemo(() => Object.values(ownFoodFeedbacksDict ?? {}), [ownFoodFeedbacksDict]);
 	const selectedCanteen = useSelectedCanteen();
 
 	const [foods, setFoods] = useState<DatabaseTypes.Foods[]>([]);
@@ -156,7 +160,7 @@ const FoodWishlist = () => {
 				value={dateLabel}
 				groupPosition={groupPosition}
 				showSeparator={groupPosition !== 'bottom' && groupPosition !== 'single'}
-				rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+				rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />}
 				onPress={() => {
 					router.push({
 						pathname: '/(app)/foodoffers/details',

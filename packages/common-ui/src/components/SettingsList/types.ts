@@ -55,6 +55,10 @@ type SettingsListPropsOwn = SettingsListItemBaseProps & {
 	 */
 	titleNumberOfLines?: number;
 	/**
+	 * Maximum number of lines for the value text. Defaults to 0 (unlimited).
+	 */
+	valueNumberOfLines?: number;
+	/**
 	 * When true the item is shown with a dashed border (using the primary
 	 * color) and a semi-transparent dim overlay with a centered lock icon to
 	 * indicate that an account is required. The original left icon is kept
@@ -71,6 +75,7 @@ type SettingsListPropsOwn = SettingsListItemBaseProps & {
 	 * true. Consuming apps can use this to open an account-required modal.
 	 */
 	onAccountRequired?: () => void;
+
 };
 
 export type SettingsListProps = PropsWithChildren<SettingsListPropsOwn>;

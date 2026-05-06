@@ -224,7 +224,7 @@ const FeedbackScreen = () => {
 				console.log('Set loading to false finished');
 				await fetchDeviceInfo();
 				console.log('Fetched device info after creating feedback');
-				toast('Feedback submitted successfully! Thank you for your input.', 'success');
+				toast(translate(TranslationKeys.feedback_submitted_success), 'success');
 				console.log('Navigating to support ticket or FAQ');
 				if (profile?.id) {
 					router.navigate('/support-ticket');
@@ -239,7 +239,7 @@ const FeedbackScreen = () => {
 				} catch (jsonError) {
 					setErrorJson(String(e));
 				}
-				toast(`Error: ${e?.message || e}`, 'error');
+				toast(`${translate(TranslationKeys.error)}: ${e?.message || e}`, 'error');
 			}
 		}
 	};
@@ -263,7 +263,7 @@ const FeedbackScreen = () => {
 				await appFeedback.updateAppFeedback(String(app_feedbacks_id), sanitizedInput);
 				setLoading(false);
 				fetchDeviceInfo();
-				toast('Feedback updated successfully! Thank you for your input.', 'success');
+				toast(translate(TranslationKeys.feedback_updated_success), 'success');
 				router.navigate('/support-ticket');
 			} catch (e: any) {
 				setLoading(false);
@@ -273,7 +273,7 @@ const FeedbackScreen = () => {
 				} catch (jsonError) {
 					setErrorJson(String(e));
 				}
-				toast(`Error: ${e?.message || e}`, 'error');
+				toast(`${translate(TranslationKeys.error)}: ${e?.message || e}`, 'error');
 			}
 		}
 	};
@@ -422,7 +422,7 @@ const FeedbackScreen = () => {
 											},
 										]}
 									>
-										Profile ID
+										{translate(TranslationKeys.profile_id)}
 									</Text>
 								</View>
 
@@ -461,7 +461,7 @@ const FeedbackScreen = () => {
 											},
 										]}
 									>
-										Profile ID
+										{translate(TranslationKeys.profile_id)}
 									</Text>
 								</View>
 

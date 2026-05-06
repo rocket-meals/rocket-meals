@@ -12,6 +12,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { MARK_ALL_CHATS_AS_READ, MARK_ALL_CHATS_AS_UNREAD } from '@/redux/Types/types';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { persistChatReadStatus } from '@/helper/chatReadStatus';
 import styles from './styles';
 import useChatUnreadStatus, { getChatTimestamp } from '@/hooks/useChatUnreadStatus';
@@ -24,6 +25,8 @@ const ChatsScreen = () => {
 
         const { chats, readStatus, hasUnreadChats, isChatUnread } = useChatUnreadStatus();
         const { primaryColor, selectedTheme } = useAppSelector((state) => state.settings);
+        const isLtrLanguage = useIsLtrLanguage();
+        const isArabic = !isLtrLanguage;
 
         const sortedChats = useMemo(() => {
                 return [...chats].sort((a, b) => {
@@ -128,7 +131,7 @@ const ChatsScreen = () => {
 
                 const rightElement = (
                         <View style={styles.rightIconWrapper}>
-                                <MaterialCommunityIcons name="chevron-right" size={24} color={theme.screen.icon} />
+                                <MaterialCommunityIcons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />
                                 {isUnread ? (
                                         <View
                                                 style={[

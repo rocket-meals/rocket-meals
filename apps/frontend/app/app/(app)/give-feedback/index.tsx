@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
@@ -38,6 +39,8 @@ const GiveFeedback = () => {
 	useSetPageTitle(TranslationKeys.rueckmeldung_geben);
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const { primaryColor } = useAppSelector((state) => state.settings);
 
 	return (
@@ -59,7 +62,7 @@ const GiveFeedback = () => {
 						iconBgColor={primaryColor}
 						leftIcon={<MaterialIcons name="feedback" size={24} color={theme.screen.icon} />}
 						label={translate(TranslationKeys.feedback_and_support)}
-						rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+						rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />}
 						handleFunction={() => router.navigate('/feedback-support')}
 						groupPosition="single"
 					/>

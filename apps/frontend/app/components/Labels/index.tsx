@@ -28,12 +28,12 @@ interface LabelsProps {
 	color: string;
 }
 
-const selectMarkings = (state: RootState) => state.food.markings;
-const selectMarkingGroups = (state: RootState) => state.food.markingGroups;
+const selectMarkingsDict = (state: RootState) => state.food.markingsDict || {};
+const selectMarkingGroupsDict = (state: RootState) => state.food.markingGroupsDict || {};
 
 export const selectFoodOffer = (offerId?: string) =>
-	createSelector([(state: RootState) => state.canteenReducer.selectedCanteenFoodOffers], foodOffers =>
-		offerId ? getFoodOffer(foodOffers, offerId) : undefined
+	createSelector([(state: RootState) => state.canteenReducer.selectedCanteenFoodOffersDict || {}], foodOffersDict =>
+		offerId ? foodOffersDict[String(offerId)] : undefined
 	);
 
 const Labels: React.FC<LabelsProps> = ({ foodDetails, offerId, foodOfferDetails, handleMenuSheet, color }) => {
@@ -52,8 +52,8 @@ const Labels: React.FC<LabelsProps> = ({ foodDetails, offerId, foodOfferDetails,
 		Linking.openURL(food_responsible_organization_link).catch(err => console.error('Failed to open URL:', err));
 	};
 
-	const markings = useSelector(selectMarkings);
-	const markingGroups = useSelector(selectMarkingGroups);
+	const markingsDict = useSelector(selectMarkingsDict);
+	const markingGroupsDict = useSelector(selectMarkingGroupsDict);
 	const foodOfferSelector = useMemo(
 		() => (offerId ? selectFoodOffer(offerId) : () => undefined),
 		[offerId]
@@ -85,13 +85,13 @@ const Labels: React.FC<LabelsProps> = ({ foodDetails, offerId, foodOfferDetails,
 		if (!offerMarkings) return [];
 
 		return offerMarkings
-			?.map((marking: DatabaseTypes.FoodoffersMarkings) => markings.find((mark: DatabaseTypes.Markings) => mark.id === marking?.markings_id))
+			?.map((marking: DatabaseTypes.FoodoffersMarkings) => markingsDict[String(marking?.markings_id)])
 			.filter((mark: any): mark is DatabaseTypes.Markings => Boolean(mark));
-	}, [foodOffer, foodOfferDetails, markings]);
+	}, [foodOffer, foodOfferDetails, markingsDict]);
 
 	const foodMarkings = useMemo(() => {
-		return sortMarkingsByGroup(mappedFoodOfferMarkings, markingGroups);
-	}, [mappedFoodOfferMarkings, markingGroups]);
+		return sortMarkingsByGroup(mappedFoodOfferMarkings, Object.values(markingGroupsDict));
+	}, [mappedFoodOfferMarkings, markingGroupsDict]);
 
 	const globalMarkingIds = useMemo(() => {
 		const allComponentMarkingIds = new Set<string>(

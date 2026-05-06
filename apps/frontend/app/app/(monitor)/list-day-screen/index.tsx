@@ -1,5 +1,5 @@
 import LabelHeader from '@/components/LabelHeader/LabelHeader';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Dimensions, DimensionValue, Easing, ScrollView, Text, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useDispatch } from 'react-redux';
@@ -33,7 +33,10 @@ const Index = () => {
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
 	const rowHeight = 80;
-	const { markings, foodCategories: localFoodCategories, foodOfferCategories: localFoodOfferCategories } = useAppSelector((state) => state.food);
+	const { markingsDict, foodCategoriesDict: localFoodCategoriesDict, foodOfferCategoriesDict: localFoodOfferCategoriesDict } = useAppSelector((state) => state.food);
+	const markings = useMemo(() => Object.values(markingsDict ?? {}), [markingsDict]);
+	const localFoodCategories = useMemo(() => Object.values(localFoodCategoriesDict ?? {}), [localFoodCategoriesDict]);
+	const localFoodOfferCategories = useMemo(() => Object.values(localFoodOfferCategoriesDict ?? {}), [localFoodOfferCategoriesDict]);
 	const canteenHelper = new CanteenHelper();
 	const buildingsHelper = new BuildingsHelper();
 	const foodAttributesHelper = new FoodAttributesHelper();
@@ -49,7 +52,8 @@ const Index = () => {
 	const [optionalFoodCategories, setOptionalFoodCategories] = useState<any>({});
 	const [selectedCanteen, setSelectedCanteen] = useState<any>(null);
 	const [selectedAdditionalCanteen, setSelectedAdditionalCanteen] = useState<DatabaseTypes.Canteens | null>(null);
-	const { canteens } = useAppSelector((state) => state.canteenReducer);
+	const { canteensDict } = useAppSelector((state) => state.canteenReducer);
+	const canteens = useMemo(() => Object.values(canteensDict ?? {}), [canteensDict]);
 	const { isManagement } = useAppSelector((state) => state.authReducer);
 	const { primaryColor: projectColor, language, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
 	const { foodAttributesDict } = useAppSelector((state) => state.foodAttributes);
@@ -66,7 +70,7 @@ const Index = () => {
 	const [footerHeight, setFooterHeight] = useState(0);
 	const [isConnected, setIsConnected] = useState<boolean | null>(true);
 	const [foodAttributesColumn, setFoodAttributesColumn] = useState<any>([]);
-	
+
 	const [foodAttributesDataFull, setFoodAttributesDataFull] = useState<any>(null);
 	const [mainFoodAttributes, setMainFoodAttributes] = useState<any>(null);
 	const [optionalFoodAttributes, setOptionalFoodAttributes] = useState<any>(null);
@@ -362,7 +366,7 @@ const Index = () => {
 		}
 	};
 
-	
+
 
 	useFocusEffect(
 		useCallback(() => {
@@ -374,7 +378,7 @@ const Index = () => {
 				const filteredAttributes = filterFoodAttributes(optionalFoods);
 				setOptionalFoodAttributes(filteredAttributes);
 			}
-			return () => {};
+			return () => { };
 		}, [foods, optionalFoods, foodAttributesDataFull])
 	);
 

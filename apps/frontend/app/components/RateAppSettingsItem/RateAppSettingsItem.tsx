@@ -95,10 +95,10 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 			children: (
 				<View style={{ padding: 16, gap: 8 }}>
 					<Text style={{ color: theme.screen.text, fontWeight: 'bold', fontSize: 16, marginBottom: 4 }}>
-						App Rating Debug Logs
+						{translate(TranslationKeys.app_rating_debug_logs)}
 					</Text>
 					{debugLogs.length === 0 ? (
-						<Text style={{ color: theme.screen.text, fontSize: 13 }}>No logs yet</Text>
+						<Text style={{ color: theme.screen.text, fontSize: 13 }}>{translate(TranslationKeys.no_logs_yet)}</Text>
 					) : (
 						debugLogs.map((log, i) => (
 							<Text key={i} style={{ color: theme.screen.text, fontSize: 13 }}>
@@ -109,7 +109,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 				</View>
 			),
 		});
-	}, [debugLogs, showModal, theme.screen.text]);
+	}, [debugLogs, showModal, theme.screen.text, translate]);
 
 	const rows = useMemo(
 		() => [
@@ -122,7 +122,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 	const debugSection = debug ? (
 		<>
 			<SettingsListBoolean
-				label="Was user asked for rating?"
+				label={translate(TranslationKeys.was_user_asked_for_rating)}
 				isEnabled={wasAskedForRating}
 				onToggle={() => { }}
 				disabled
@@ -130,7 +130,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 				showSeparator
 			/>
 			<SettingsList
-				label="Debug Logs for App Rating"
+				label={translate(TranslationKeys.debug_logs_for_app_rating)}
 				handleFunction={showDebugLogsModal}
 				groupPosition="bottom"
 				showSeparator={false}

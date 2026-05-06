@@ -12,11 +12,14 @@ import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useAppSelector } from '@/redux/hooks';
 import { DatabaseTypes } from 'repo-depkit-common';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.my_support_tickets);
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const { primaryColor } = useAppSelector((state) => state.settings);
 	const appFeedback = new AppFeedback();
 	const [loading, setLoading] = useState(false);
@@ -65,7 +68,7 @@ const Index = () => {
 			) : (
 				<>
 					<Text style={{ ...styles.groupHeading, color: theme.screen.text }}>{translate(TranslationKeys.my_support_tickets)}</Text>
-					<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '95%' }]}>{allTickets && allTickets?.map((item, index: number) => <SettingsList key={index} iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="bell" size={24} color={theme.screen.icon} />} label={item?.title ?? undefined} value={item?.date_created ? format(new Date(item.date_created), 'dd.MM.yyyy HH:mm') : 'N/A'} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.push(`/feedback-support?app_feedbacks_id=${item.id}`)} groupPosition={allTickets.length === 1 ? 'single' : index === 0 ? 'top' : index === allTickets.length - 1 ? 'bottom' : 'middle'} />)}</View>
+					<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '95%' }]}>{allTickets && allTickets?.map((item, index: number) => <SettingsList key={index} iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="bell" size={24} color={theme.screen.icon} />} label={item?.title ?? undefined} value={item?.date_created ? format(new Date(item.date_created), 'dd.MM.yyyy HH:mm') : 'N/A'} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={() => router.push(`/feedback-support?app_feedbacks_id=${item.id}`)} groupPosition={allTickets.length === 1 ? 'single' : index === 0 ? 'top' : index === allTickets.length - 1 ? 'bottom' : 'middle'} />)}</View>
 				</>
 			)}
 		</ScrollView>

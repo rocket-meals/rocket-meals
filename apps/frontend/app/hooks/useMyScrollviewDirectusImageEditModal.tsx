@@ -11,6 +11,7 @@ import { SettingsListItemBaseProps } from '@/components/SettingsList/types';
 import { ImagePickerMediaTypes } from '@/components/FileUpload/FileUpload';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb, settingsListSectionGap } from '@/constants/Constants';
 import { ServerAPI } from '@/redux/actions';
@@ -120,6 +121,8 @@ const useCollectionFields = (collection: CollectionNames) => {
 const DirectusImageEditModalContent: React.FC<DirectusImageEditModalContentProps> = ({ field, collection, itemId, onUpdated, onClose }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const { show: showScrollViewModal } = useMyScrollViewModal();
 	const [loading, setLoading] = useState({ camera: false, image: false, delete: false });
 	const [isDelete, setIsDelete] = useState(false);
@@ -355,7 +358,7 @@ const DirectusImageEditModalContent: React.FC<DirectusImageEditModalContentProps
 				{
 					key: 'delete-back',
 					label: translate(TranslationKeys.navigate_back),
-					icon: <MaterialCommunityIcons name="keyboard-backspace" size={24} />,
+					icon: <MaterialCommunityIcons name="keyboard-backspace" size={24} style={isArabic ? { transform: [{ scaleX: -1 }] } : undefined} />,
 					onPress: () => setIsDelete(false),
 				},
 			]);
@@ -384,7 +387,7 @@ const DirectusImageEditModalContent: React.FC<DirectusImageEditModalContentProps
 			key: 'delete',
 			label: translate(TranslationKeys.delete),
 			icon: <MaterialCommunityIcons name="delete" size={24} />,
-			rightIcon: <MaterialCommunityIcons name="arrow-right" size={24} color={theme.screen.icon} />,
+			rightIcon: <MaterialCommunityIcons name={isArabic ? 'arrow-left' : 'arrow-right'} size={24} color={theme.screen.icon} />,
 			onPress: () => setIsDelete(true),
 		});
 

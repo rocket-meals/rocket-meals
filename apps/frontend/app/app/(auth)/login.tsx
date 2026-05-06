@@ -14,6 +14,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { SET_APP_SETTINGS, SET_WIKIS, UPDATE_MANAGEMENT, UPDATE_PRIVACY_POLICY_DATE } from '@/redux/Types/types';
 import AttentionSheet from '@/components/Login/AttentionSheet';
 import useToast from '@/hooks/useToast';
+import { useLanguage } from '@/hooks/useLanguage';
 import { updateLoginStatus } from '@/constants/HelperFunctions';
 import { DatabaseTypes, EmailHelper } from 'repo-depkit-common';
 import { format } from 'date-fns';
@@ -29,6 +30,7 @@ export default function Login() {
 	useSetPageTitle(TranslationKeys.sign_in);
 	const toast = useToast();
 	const { theme } = useTheme();
+	const { translate } = useLanguage();
 	const dispatch = useDispatch();
 	const { deviceMock } = useGlobalSearchParams();
 	const appSettingsHelper = new AppSettingsHelper();
@@ -77,7 +79,7 @@ export default function Login() {
                                         trimmedEmail,
                                         password
                                 );
-                                if (!result) throw new Error('Invalid credentials');
+                                if (!result) throw new Error(translate(TranslationKeys.invalid_credentials));
                         }
 
 			// Fetch and process user data
@@ -109,7 +111,7 @@ export default function Login() {
 		} catch (error) {
 			console.error('Error during login: ', error);
 			if (!token) {
-				toast('Invalid credentials', 'error');
+				toast(translate(TranslationKeys.invalid_credentials), 'error');
 				setLoading(false);
 			}
 		}

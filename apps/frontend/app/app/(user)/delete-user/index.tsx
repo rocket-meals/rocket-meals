@@ -98,7 +98,7 @@ const Index = () => {
 				if (supported) {
 					await Linking.openURL(url);
 				} else {
-					toast(`Cannot open URL: ${url}`, 'error');
+					toast(`${translate(TranslationKeys.cannot_open_url)}: ${url}`, 'error');
 				}
 			}
 		} catch (error) {
@@ -198,7 +198,7 @@ const Index = () => {
 										},
 									]}
 								>
-									{projectName?.length > 0 ? projectName : 'SWOSY Test'}
+									{projectName?.length > 0 ? projectName : translate(TranslationKeys.swosy_test)}
 								</Text>
 							</View>
 						</View>

@@ -68,6 +68,10 @@ type ExtendedCollectibleEvent = DatabaseTypes.CollectibleEvents & {
         [key: string]: any;
 };
 
+type ExtendedParticipation = DatabaseTypes.CollectibleEventParticipants & {
+        data?: any;
+};
+
 const getGroupPosition = (index: number, length: number): GroupPosition => {
         if (length === 1) return 'single';
         if (index === 0) return 'top';
@@ -84,115 +88,116 @@ const formatCollectibleLabel = (key: string) =>
                 .join(' ');
 
 const DebugSection: React.FC<DebugSectionProps> = ({
-                                                           activeCollectibleEvent,
-                                                           theme,
-                                                           buttonColor,
-                                                           resetCurrentCollectibles,
-                                                           resetAllParticipations,
-                                                           simulateAllFound,
-                                                           simulateNextFound,
-                                                           nextCollectibleKey,
-                                                           debugSpotLabel,
-                                                   }) => {
+        activeCollectibleEvent,
+        theme,
+        buttonColor,
+        resetCurrentCollectibles,
+        resetAllParticipations,
+        simulateAllFound,
+        simulateNextFound,
+        nextCollectibleKey,
+        debugSpotLabel,
+}) => {
+        const { translate } = useLanguage();
         return (
-            <View style={{ marginTop: 16 }}>
-                    <Text style={{ ...styles.label, color: theme.screen.text, marginBottom: 8 }}>Debug</Text>
-                    <View style={{ marginTop: 12, gap: 8 }}>
-                            <TouchableOpacity
-                                style={{
-                                        ...styles.button,
-                                        backgroundColor: buttonColor,
-                                        opacity: 0.9,
-                                }}
-                                onPress={simulateAllFound}
-                            >
-                                    <Text style={{ ...styles.buttonText, color: theme.dark }}>
-                                            Simulate all collectibles found
-                                    </Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={{
-                                        ...styles.button,
-                                        backgroundColor: buttonColor,
-                                        opacity: nextCollectibleKey ? 0.9 : 0.4,
-                                }}
-                                disabled={!nextCollectibleKey}
-                                onPress={simulateNextFound}
-                            >
-                                    <Text style={{ ...styles.buttonText, color: theme.dark }}>
-                                            Simulate next collectible found
-                                    </Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={{
-                                        ...styles.button,
-                                        backgroundColor: buttonColor,
-                                        opacity: 0.9,
-                                }}
-                                onPress={resetCurrentCollectibles}
-                            >
-                                    <Text style={{ ...styles.buttonText, color: theme.dark }}>
-                                            Reset current event found collectible
-                                    </Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={{
-                                        ...styles.button,
-                                        backgroundColor: theme.accent,
-                                        opacity: 0.9,
-                                }}
-                                onPress={resetAllParticipations}
-                            >
-                                    <Text style={{ ...styles.buttonText, color: theme.dark }}>
-                                            Reset all event participations
-                                    </Text>
-                            </TouchableOpacity>
-                    </View>
-
-                    {nextCollectibleKey ? (
+                <View style={{ marginTop: 16 }}>
+                        <Text style={{ ...styles.label, color: theme.screen.text, marginBottom: 8 }}>{translate(TranslationKeys.debug)}</Text>
                         <View style={{ marginTop: 12, gap: 8 }}>
-                                <Text style={{ ...styles.label, color: theme.screen.text }}>{debugSpotLabel}</Text>
-                                <CollectibleSpot collectibleKey={nextCollectibleKey} />
-                        </View>
-                    ) : null}
+                                <TouchableOpacity
+                                        style={{
+                                                ...styles.button,
+                                                backgroundColor: buttonColor,
+                                                opacity: 0.9,
+                                        }}
+                                        onPress={simulateAllFound}
+                                >
+                                        <Text style={{ ...styles.buttonText, color: theme.dark }}>
+                                                {translate(TranslationKeys.simulate_all_collectibles_found)}
+                                        </Text>
+                                </TouchableOpacity>
 
-                    {activeCollectibleEvent ? (
-                        <View style={{ marginTop: 12 }}>
-                                <Text style={{ ...styles.info, color: theme.screen.text, marginBottom: 4 }}>
-                                        Event Details
-                                </Text>
-                                <SettingsList
-                                    key="event-id"
-                                    iconBgColor={theme.accent}
-                                    leftIcon={
-                                            <MaterialCommunityIcons
-                                                name="pound-box-outline"
-                                                size={22}
-                                                color={theme.screen.icon}
-                                            />
-                                    }
-                                    label={`ID: ${activeCollectibleEvent.id}`}
-                                    groupPosition={getGroupPosition(0, 2)}
-                                />
-                                <SettingsList
-                                    key="event-alias"
-                                    iconBgColor={theme.accent}
-                                    leftIcon={
-                                            <MaterialCommunityIcons
-                                                name="label-outline"
-                                                size={22}
-                                                color={theme.screen.icon}
-                                            />
-                                    }
-                                    label={`Alias: ${activeCollectibleEvent.alias || '-'}`}
-                                    groupPosition={getGroupPosition(1, 2)}
-                                />
+                                <TouchableOpacity
+                                        style={{
+                                                ...styles.button,
+                                                backgroundColor: buttonColor,
+                                                opacity: nextCollectibleKey ? 0.9 : 0.4,
+                                        }}
+                                        disabled={!nextCollectibleKey}
+                                        onPress={simulateNextFound}
+                                >
+                                        <Text style={{ ...styles.buttonText, color: theme.dark }}>
+                                                {translate(TranslationKeys.simulate_next_collectible_found)}
+                                        </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                        style={{
+                                                ...styles.button,
+                                                backgroundColor: buttonColor,
+                                                opacity: 0.9,
+                                        }}
+                                        onPress={resetCurrentCollectibles}
+                                >
+                                        <Text style={{ ...styles.buttonText, color: theme.dark }}>
+                                                {translate(TranslationKeys.reset_current_event_found_collectible)}
+                                        </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                        style={{
+                                                ...styles.button,
+                                                backgroundColor: theme.accent,
+                                                opacity: 0.9,
+                                        }}
+                                        onPress={resetAllParticipations}
+                                >
+                                        <Text style={{ ...styles.buttonText, color: theme.dark }}>
+                                                {translate(TranslationKeys.reset_all_event_participations)}
+                                        </Text>
+                                </TouchableOpacity>
                         </View>
-                    ) : null}
-            </View>
+
+                        {nextCollectibleKey ? (
+                                <View style={{ marginTop: 12, gap: 8 }}>
+                                        <Text style={{ ...styles.label, color: theme.screen.text }}>{debugSpotLabel}</Text>
+                                        <CollectibleSpot collectibleKey={nextCollectibleKey} />
+                                </View>
+                        ) : null}
+
+                        {activeCollectibleEvent ? (
+                                <View style={{ marginTop: 12 }}>
+                                        <Text style={{ ...styles.info, color: theme.screen.text, marginBottom: 4 }}>
+                                                {translate(TranslationKeys.event_details)}
+                                        </Text>
+                                        <SettingsList
+                                                key="event-id"
+                                                iconBgColor={theme.accent}
+                                                leftIcon={
+                                                        <MaterialCommunityIcons
+                                                                name="pound-box-outline"
+                                                                size={22}
+                                                                color={theme.screen.icon}
+                                                        />
+                                                }
+                                                label={`ID: ${activeCollectibleEvent.id}`}
+                                                groupPosition={getGroupPosition(0, 2)}
+                                        />
+                                        <SettingsList
+                                                key="event-alias"
+                                                iconBgColor={theme.accent}
+                                                leftIcon={
+                                                        <MaterialCommunityIcons
+                                                                name="label-outline"
+                                                                size={22}
+                                                                color={theme.screen.icon}
+                                                        />
+                                                }
+                                                label={`Alias: ${activeCollectibleEvent.alias || '-'}`}
+                                                groupPosition={getGroupPosition(1, 2)}
+                                        />
+                                </View>
+                        ) : null}
+                </View>
         );
 };
 
@@ -226,32 +231,32 @@ const CollectibleEventScreen = () => {
         const shouldAskForContactDetails = Boolean((activeCollectibleEvent as ExtendedCollectibleEvent)?.ask_for_contact_details);
 
         const activeCollectibleKeys = useMemo(
-            () =>
-                activeCollectibleEvent
-                    ? COLLECTABLE_AT_FIELDS.filter(key => (activeCollectibleEvent as ExtendedCollectibleEvent)?.[key])
-                    : [],
-            [activeCollectibleEvent]
+                () =>
+                        activeCollectibleEvent
+                                ? COLLECTABLE_AT_FIELDS.filter(key => (activeCollectibleEvent as ExtendedCollectibleEvent)?.[key])
+                                : [],
+                [activeCollectibleEvent]
         );
 
         const sampleCollectibleKey = useMemo(
-            () =>
-                activeCollectibleEvent
-                    ? COLLECTABLE_AT_FIELDS.find(key => (activeCollectibleEvent as ExtendedCollectibleEvent)?.[key])
-                    : undefined,
-            [activeCollectibleEvent]
+                () =>
+                        activeCollectibleEvent
+                                ? COLLECTABLE_AT_FIELDS.find(key => (activeCollectibleEvent as ExtendedCollectibleEvent)?.[key])
+                                : undefined,
+                [activeCollectibleEvent]
         );
 
         const nextCollectibleKey = useMemo(
-            () => activeCollectibleKeys.find(key => !collectibleDict?.[key]),
-            [activeCollectibleKeys, collectibleDict]
+                () => activeCollectibleKeys.find(key => !collectibleDict?.[key]),
+                [activeCollectibleKeys, collectibleDict]
         );
 
         const maxCollectibleKeys = useMemo(
-            () =>
-                activeCollectibleEvent
-                    ? COLLECTABLE_AT_FIELDS.filter(key => (activeCollectibleEvent as ExtendedCollectibleEvent)?.[key]).length
-                    : 0,
-            [activeCollectibleEvent]
+                () =>
+                        activeCollectibleEvent
+                                ? COLLECTABLE_AT_FIELDS.filter(key => (activeCollectibleEvent as ExtendedCollectibleEvent)?.[key]).length
+                                : 0,
+                [activeCollectibleEvent]
         );
 
         const [email, setEmail] = useState('');
@@ -259,17 +264,17 @@ const CollectibleEventScreen = () => {
         const [isLoading, setIsLoading] = useState(false);
         const [isSaving, setIsSaving] = useState(false);
         const [isPermissionModalVisible, setIsPermissionModalVisible] = useState(false);
-        const [participation, setParticipation] = useState<DatabaseTypes.CollectibleEventParticipants | null>(null);
+        const [participation, setParticipation] = useState<ExtendedParticipation | null>(null);
         const [visibleHints, setVisibleHints] = useState<Record<string, boolean>>({});
 
         const serverCollectedCount = useMemo(
-            () => Number(participation?.points ?? 0) || 0,
-            [participation?.points]
+                () => Number(participation?.points ?? 0) || 0,
+                [participation?.points]
         );
 
         const displayedCollectedCount = useMemo(
-            () => Math.max(collectedCount ?? 0, serverCollectedCount),
-            [collectedCount, serverCollectedCount]
+                () => Math.max(collectedCount ?? 0, serverCollectedCount),
+                [collectedCount, serverCollectedCount]
         );
 
         const formatEventDate = useCallback((dateString?: string | null) => {
@@ -388,15 +393,16 @@ const CollectibleEventScreen = () => {
                 setIsLoading(true);
                 try {
                         const existing = await participantsHelper.fetchParticipationByProfileAndEvent(
-                            profile.id,
-                            activeCollectibleEvent.id,
-                            { fields: ['*'] }
+                                profile.id,
+                                activeCollectibleEvent.id,
+                                { fields: ['*'] }
                         );
                         if (existing) {
-                                setParticipation(existing);
-                                setEmail(existing.email ?? '');
-                                setPhoneNumber(existing.phone_number ?? '');
-                                applyServerCollectibleData(existing.data);
+                                const extExisting = existing as ExtendedParticipation;
+                                setParticipation(extExisting);
+                                setEmail(extExisting.email ?? '');
+                                setPhoneNumber(extExisting.phone_number ?? '');
+                                applyServerCollectibleData(extExisting.data);
                         } else {
                                 setParticipation(null);
                                 setEmail('');
@@ -434,23 +440,23 @@ const CollectibleEventScreen = () => {
 
                 setIsSaving(true);
                 try {
-                const updatePayload: Partial<DatabaseTypes.CollectibleEventParticipants> = {
-                        points: pointsToSave,
-                        email: email?.trim() || null,
-                        phone_number: phoneNumber?.trim() || null,
-                        data: collectibleDict,
-                };
+                        const updatePayload: Partial<ExtendedParticipation> = {
+                                points: String(pointsToSave),
+                                email: email?.trim() || null,
+                                phone_number: phoneNumber?.trim() || null,
+                                data: collectibleDict,
+                        };
 
-                const createPayload: Partial<DatabaseTypes.CollectibleEventParticipants> = {
-                        ...updatePayload,
-                        profile: profile.id,
-                        collectible_event: activeCollectibleEvent.id,
-                        status: 'published',
-                };
+                        const createPayload: Partial<ExtendedParticipation> = {
+                                ...updatePayload,
+                                profile: profile.id,
+                                collectible_event: activeCollectibleEvent.id,
+                                status: 'published',
+                        };
 
-                const updated = participation?.id
-                    ? await participantsHelper.updateItem(participation.id, updatePayload)
-                    : await participantsHelper.createItem(createPayload);
+                        const updated = participation?.id
+                                ? await participantsHelper.updateItem(participation.id, updatePayload)
+                                : await participantsHelper.createItem(createPayload);
 
                         setParticipation(updated as DatabaseTypes.CollectibleEventParticipants);
                         setEmail((updated as DatabaseTypes.CollectibleEventParticipants)?.email || email);
@@ -484,14 +490,14 @@ const CollectibleEventScreen = () => {
                 if (loggedIn && profile?.id) {
                         try {
                                 const existing = await participantsHelper.fetchParticipationByProfileAndEvent(
-                                    profile.id,
-                                    activeCollectibleEvent.id,
-                                    { fields: ['id'] }
+                                        profile.id,
+                                        activeCollectibleEvent.id,
+                                        { fields: ['id'] }
                                 );
 
                                 if (existing?.id) {
-                                        await participantsHelper.updateItem(existing.id, { points: 0, data: {} });
-                                        setParticipation(prev => (prev ? { ...prev, points: 0, data: {} } : prev));
+                                        await participantsHelper.updateItem(existing.id, { points: '0', data: {} } as any);
+                                        setParticipation(prev => (prev ? { ...prev, points: '0', data: {} } : prev));
                                         toast(translate(TranslationKeys.reset), 'success');
                                 }
                         } catch (error) {
@@ -555,222 +561,222 @@ const CollectibleEventScreen = () => {
                 }
 
                 const title =
-                    getTitleFromTranslation(activeCollectibleEvent.translations as any, language) || activeCollectibleEvent.alias || '';
+                        getTitleFromTranslation(activeCollectibleEvent.translations as any, language) || activeCollectibleEvent.alias || '';
                 const description = getDescriptionFromTranslation(activeCollectibleEvent.translations as any, language);
                 const startDateLabel = formatEventDate(activeCollectibleEvent.date_start);
                 const endDateLabel = formatEventDate(activeCollectibleEvent.date_end);
 
                 return (
-                    <View style={styles.section}>
-                            <Text style={{ ...styles.title, color: theme.screen.text }}>{title}</Text>
-                            {description ? (
-                                <Text style={{ ...styles.description, color: theme.inactiveText }}>{description}</Text>
-                            ) : null}
+                        <View style={styles.section}>
+                                <Text style={{ ...styles.title, color: theme.screen.text }}>{title}</Text>
+                                {description ? (
+                                        <Text style={{ ...styles.description, color: theme.inactiveText }}>{description}</Text>
+                                ) : null}
 
-                            <View style={{ alignItems: 'center', marginTop: 16 }}>
-                                    {sampleCollectibleKey ? (
-                                        <CollectibleItem collectibleKey={sampleCollectibleKey} hideOnCollect={false} isPreview />
-                                    ) : null}
-                                    <Text style={{ color: theme.inactiveText, marginTop: 8 }}>
-                                            {translate(TranslationKeys.collectible_event_preview_label)}
-                                    </Text>
-                            </View>
-
-                            <View style={{ marginTop: 16, gap: 0 }}>
-                                    <SettingsList
-                                        leftIcon={<MaterialCommunityIcons name="counter" size={22} color={theme.screen.icon} />}
-                                        label={translate(TranslationKeys.collectible_event_points)}
-                                        groupPosition="top"
-                                        value={`${displayedCollectedCount}/${maxCollectibleKeys || '∞'}`}
-                                    />
-                                    <SettingsList
-                                        leftIcon={
-                                                <MaterialCommunityIcons name="calendar-start" size={22} color={theme.screen.icon} />
-                                        }
-                                        label={translate(TranslationKeys.collectible_event_start_date)}
-                                        value={startDateLabel}
-                                        groupPosition="middle"
-                                    />
-                                    <SettingsList
-                                        leftIcon={
-                                                <MaterialCommunityIcons name="calendar-end" size={22} color={theme.screen.icon} />
-                                        }
-                                        label={translate(TranslationKeys.collectible_event_end_date)}
-                                        value={endDateLabel}
-                                        groupPosition="bottom"
-                                    />
-                            </View>
-
-                            {shouldAskForContactDetails ? (
-                                <View style={{ marginTop: 16 }}>
-                                        <Text style={{ ...styles.label, color: theme.screen.text }}>
-                                                {translate(TranslationKeys.email)}
+                                <View style={{ alignItems: 'center', marginTop: 16 }}>
+                                        {sampleCollectibleKey ? (
+                                                <CollectibleItem collectibleKey={sampleCollectibleKey} hideOnCollect={false} isPreview />
+                                        ) : null}
+                                        <Text style={{ color: theme.inactiveText, marginTop: 8 }}>
+                                                {translate(TranslationKeys.collectible_event_preview_label)}
                                         </Text>
-                                        <TextInput
-                                            style={{
-                                                    ...styles.input,
-                                                    color: theme.screen.text,
-                                                    backgroundColor: theme.drawerBg,
-                                                    borderColor: theme.screen.icon,
-                                            }}
-                                            value={email}
-                                            onChangeText={setEmail}
-                                            placeholder={translate(TranslationKeys.email)}
-                                            placeholderTextColor={theme.screen.placeholder}
-                                            keyboardType="email-address"
-                                            autoCapitalize="none"
+                                </View>
+
+                                <View style={{ marginTop: 16, gap: 0 }}>
+                                        <SettingsList
+                                                leftIcon={<MaterialCommunityIcons name="counter" size={22} color={theme.screen.icon} />}
+                                                label={translate(TranslationKeys.collectible_event_points)}
+                                                groupPosition="top"
+                                                value={`${displayedCollectedCount}/${maxCollectibleKeys || '∞'}`}
                                         />
-
-                                        <Text style={{ ...styles.label, color: theme.screen.text, marginTop: 12 }}>
-                                                {translate(TranslationKeys.phone_number)}
-                                        </Text>
-                                        <TextInput
-                                            style={{
-                                                    ...styles.input,
-                                                    color: theme.screen.text,
-                                                    backgroundColor: theme.drawerBg,
-                                                    borderColor: theme.screen.icon,
-                                            }}
-                                            value={phoneNumber}
-                                            onChangeText={setPhoneNumber}
-                                            placeholder={translate(TranslationKeys.phone_number)}
-                                            placeholderTextColor={theme.screen.placeholder}
-                                            keyboardType="phone-pad"
+                                        <SettingsList
+                                                leftIcon={
+                                                        <MaterialCommunityIcons name="calendar-start" size={22} color={theme.screen.icon} />
+                                                }
+                                                label={translate(TranslationKeys.collectible_event_start_date)}
+                                                value={startDateLabel}
+                                                groupPosition="middle"
                                         />
+                                        <SettingsList
+                                                leftIcon={
+                                                        <MaterialCommunityIcons name="calendar-end" size={22} color={theme.screen.icon} />
+                                                }
+                                                label={translate(TranslationKeys.collectible_event_end_date)}
+                                                value={endDateLabel}
+                                                groupPosition="bottom"
+                                        />
+                                </View>
 
-                                        <Text style={{ ...styles.notice, color: theme.inactiveText }}>
-                                                {translate(TranslationKeys.collectible_event_data_notice)}
-                                        </Text>
-
-                                        <TouchableOpacity
-                                            style={{
-                                                    ...styles.button,
-                                                    backgroundColor: buttonColor,
-                                                    opacity: isSaving ? 0.6 : 1,
-                                            }}
-                                            disabled={isSaving}
-                                            onPress={handleSave}
-                                        >
-                                                <Text style={{ ...styles.buttonText, color: theme.dark }}>
-                                                        {isSaving
-                                                            ? translate(TranslationKeys.loading)
-                                                            : translate(TranslationKeys.save)}
+                                {shouldAskForContactDetails ? (
+                                        <View style={{ marginTop: 16 }}>
+                                                <Text style={{ ...styles.label, color: theme.screen.text }}>
+                                                        {translate(TranslationKeys.email)}
                                                 </Text>
-                                        </TouchableOpacity>
-                                </View>
-                            ) : null}
+                                                <TextInput
+                                                        style={{
+                                                                ...styles.input,
+                                                                color: theme.screen.text,
+                                                                backgroundColor: theme.drawerBg,
+                                                                borderColor: theme.screen.icon,
+                                                        }}
+                                                        value={email}
+                                                        onChangeText={setEmail}
+                                                        placeholder={translate(TranslationKeys.email)}
+                                                        placeholderTextColor={theme.screen.placeholder}
+                                                        keyboardType="email-address"
+                                                        autoCapitalize="none"
+                                                />
 
-                            {activeCollectibleKeys.length ? (
-                                <View style={{ marginTop: 16 }}>
-                                        <Text
-                                            style={{
-                                                    ...styles.label,
-                                                    color: theme.screen.text,
-                                                    marginBottom: 8,
-                                            }}
-                                        >
-                                                {translate(TranslationKeys.collectible_event_progress_title)}
-                                        </Text>
+                                                <Text style={{ ...styles.label, color: theme.screen.text, marginTop: 12 }}>
+                                                        {translate(TranslationKeys.phone_number)}
+                                                </Text>
+                                                <TextInput
+                                                        style={{
+                                                                ...styles.input,
+                                                                color: theme.screen.text,
+                                                                backgroundColor: theme.drawerBg,
+                                                                borderColor: theme.screen.icon,
+                                                        }}
+                                                        value={phoneNumber}
+                                                        onChangeText={setPhoneNumber}
+                                                        placeholder={translate(TranslationKeys.phone_number)}
+                                                        placeholderTextColor={theme.screen.placeholder}
+                                                        keyboardType="phone-pad"
+                                                />
 
-                                        <View style={{ gap: 0 }}>
-                                                {activeCollectibleKeys.map((key, index) => {
-                                                        const isCollected = Boolean(collectibleDict?.[key]);
-                                                        const isHintVisible = isCollected || visibleHints[key];
+                                                <Text style={{ ...styles.notice, color: theme.inactiveText }}>
+                                                        {translate(TranslationKeys.collectible_event_data_notice)}
+                                                </Text>
 
-                                                        const iconBgColor = isCollected ? '#2DBE62' : '#F7D21F';
-                                                        const labelText = isHintVisible
-                                                            ? formatCollectibleLabel(key)
-                                                            : translate(TranslationKeys.collectible_event_show_hint);
-
-                                                        return (
-                                                            <SettingsList
-                                                                key={`progress-${key}`}
-                                                                iconBgColor={iconBgColor}
-                                                                leftIcon={
-                                                                        <MaterialCommunityIcons
-                                                                            name={isCollected ? 'check' : 'lightbulb-on-outline'}
-                                                                            size={22}
-                                                                            color={theme.screen.icon}
-                                                                        />
-                                                                }
-                                                                label={labelText}
-                                                                value={undefined}
-                                                                onPress={
-                                                                        isCollected
-                                                                            ? undefined
-                                                                            : () => toggleCollectibleHint(key)
-                                                                }
-                                                                groupPosition={
-                                                                        getGroupPosition(index, activeCollectibleKeys.length)
-                                                                }
-                                                            />
-                                                        );
-                                                })}
-                                        </View>
-                                </View>
-                            ) : null}
-
-                            <DebugView>
-                                    <DebugSection
-                                        activeCollectibleEvent={activeCollectibleEvent}
-                                        buttonColor={buttonColor}
-                                        resetAllParticipations={resetAllParticipations}
-                                        resetCurrentCollectibles={resetCurrentCollectibles}
-                                        simulateAllFound={simulateAllFound}
-                                        simulateNextFound={simulateNextFound}
-                                        theme={theme}
-                                        nextCollectibleKey={nextCollectibleKey}
-                                        debugSpotLabel={translate(TranslationKeys.collectible_event_debug_spot)}
-                                    />
-                                    <View style={{ marginTop: 16 }}>
-                                            <Text
-                                                style={{
-                                                        ...styles.label,
-                                                        color: theme.screen.text,
-                                                        marginBottom: 8,
-                                                }}
-                                            >
-                                                    Debug Logs
-                                            </Text>
-                                            <View style={{ gap: 6 }}>
-                                                    {debugLogs.map((log, index) => (
-                                                        <Text
-                                                            // eslint-disable-next-line react/no-array-index-key
-                                                            key={`debug-log-${index}`}
-                                                            style={{ color: theme.inactiveText }}
-                                                        >
-                                                                {log}
+                                                <TouchableOpacity
+                                                        style={{
+                                                                ...styles.button,
+                                                                backgroundColor: buttonColor,
+                                                                opacity: isSaving ? 0.6 : 1,
+                                                        }}
+                                                        disabled={isSaving}
+                                                        onPress={handleSave}
+                                                >
+                                                        <Text style={{ ...styles.buttonText, color: theme.dark }}>
+                                                                {isSaving
+                                                                        ? translate(TranslationKeys.loading)
+                                                                        : translate(TranslationKeys.save)}
                                                         </Text>
-                                                    ))}
-                                            </View>
-                                    </View>
-                            </DebugView>
+                                                </TouchableOpacity>
+                                        </View>
+                                ) : null}
 
-                            {isLoading ? (
-                                <View style={[styles.inline, { justifyContent: 'flex-start' }]}>
-                                        <ActivityIndicator color={buttonColor} />
-                                        <Text style={{ color: theme.screen.text, marginLeft: 8 }}>
-                                                {translate(TranslationKeys.collectible_event_loading_participation)}
-                                        </Text>
-                                </View>
-                            ) : null}
-                    </View>
+                                {activeCollectibleKeys.length ? (
+                                        <View style={{ marginTop: 16 }}>
+                                                <Text
+                                                        style={{
+                                                                ...styles.label,
+                                                                color: theme.screen.text,
+                                                                marginBottom: 8,
+                                                        }}
+                                                >
+                                                        {translate(TranslationKeys.collectible_event_progress_title)}
+                                                </Text>
+
+                                                <View style={{ gap: 0 }}>
+                                                        {activeCollectibleKeys.map((key, index) => {
+                                                                const isCollected = Boolean(collectibleDict?.[key]);
+                                                                const isHintVisible = isCollected || visibleHints[key];
+
+                                                                const iconBgColor = isCollected ? '#2DBE62' : '#F7D21F';
+                                                                const labelText = isHintVisible
+                                                                        ? formatCollectibleLabel(key)
+                                                                        : translate(TranslationKeys.collectible_event_show_hint);
+
+                                                                return (
+                                                                        <SettingsList
+                                                                                key={`progress-${key}`}
+                                                                                iconBgColor={iconBgColor}
+                                                                                leftIcon={
+                                                                                        <MaterialCommunityIcons
+                                                                                                name={isCollected ? 'check' : 'lightbulb-on-outline'}
+                                                                                                size={22}
+                                                                                                color={theme.screen.icon}
+                                                                                        />
+                                                                                }
+                                                                                label={labelText}
+                                                                                value={undefined}
+                                                                                onPress={
+                                                                                        isCollected
+                                                                                                ? undefined
+                                                                                                : () => toggleCollectibleHint(key)
+                                                                                }
+                                                                                groupPosition={
+                                                                                        getGroupPosition(index, activeCollectibleKeys.length)
+                                                                                }
+                                                                        />
+                                                                );
+                                                        })}
+                                                </View>
+                                        </View>
+                                ) : null}
+
+                                <DebugView>
+                                        <DebugSection
+                                                activeCollectibleEvent={activeCollectibleEvent}
+                                                buttonColor={buttonColor}
+                                                resetAllParticipations={resetAllParticipations}
+                                                resetCurrentCollectibles={resetCurrentCollectibles}
+                                                simulateAllFound={simulateAllFound}
+                                                simulateNextFound={simulateNextFound}
+                                                theme={theme}
+                                                nextCollectibleKey={nextCollectibleKey}
+                                                debugSpotLabel={translate(TranslationKeys.collectible_event_debug_spot)}
+                                        />
+                                        <View style={{ marginTop: 16 }}>
+                                                <Text
+                                                        style={{
+                                                                ...styles.label,
+                                                                color: theme.screen.text,
+                                                                marginBottom: 8,
+                                                        }}
+                                                >
+                                                        {translate(TranslationKeys.debug_logs)}
+                                                </Text>
+                                                <View style={{ gap: 6 }}>
+                                                        {debugLogs.map((log, index) => (
+                                                                <Text
+                                                                        // eslint-disable-next-line react/no-array-index-key
+                                                                        key={`debug-log-${index}`}
+                                                                        style={{ color: theme.inactiveText }}
+                                                                >
+                                                                        {log}
+                                                                </Text>
+                                                        ))}
+                                                </View>
+                                        </View>
+                                </DebugView>
+
+                                {isLoading ? (
+                                        <View style={[styles.inline, { justifyContent: 'flex-start' }]}>
+                                                <ActivityIndicator color={buttonColor} />
+                                                <Text style={{ color: theme.screen.text, marginLeft: 8 }}>
+                                                        {translate(TranslationKeys.collectible_event_loading_participation)}
+                                                </Text>
+                                        </View>
+                                ) : null}
+                        </View>
                 );
         };
 
         return (
-            <SafeAreaView style={[styles.container, { backgroundColor: theme.screen.background }]}>
-                    <CustomMenuHeader label={translate(TranslationKeys.collectible_event_active)} />
-                    <View style={styles.container}>
-                            <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-                                    {renderContent()}
-                            </ScrollView>
-                    </View>
-                    <PermissionModal
-                        isVisible={isPermissionModalVisible}
-                        setIsVisible={setIsPermissionModalVisible}
-                    />
-            </SafeAreaView>
+                <SafeAreaView style={[styles.container, { backgroundColor: theme.screen.background }]}>
+                        <CustomMenuHeader label={translate(TranslationKeys.collectible_event_active)} />
+                        <View style={styles.container}>
+                                <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+                                        {renderContent()}
+                                </ScrollView>
+                        </View>
+                        <PermissionModal
+                                isVisible={isPermissionModalVisible}
+                                setIsVisible={setIsPermissionModalVisible}
+                        />
+                </SafeAreaView>
         );
 };
 

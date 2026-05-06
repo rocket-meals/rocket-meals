@@ -4,6 +4,7 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo, FontAwesome, FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { isWeb } from '@/constants/Constants';
@@ -38,6 +39,8 @@ const Index = () => {
 	useSetPageTitle(TranslationKeys.select_a_form_submission);
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const { form_id } = useLocalSearchParams();
 	const sortSheetRef = useRef<BottomSheet>(null);
 	const [loading, setLoading] = useState(false);
@@ -51,7 +54,8 @@ const Index = () => {
     const { drawerPosition, language, offlineMode } = useAppSelector((state) => state.settings);
     const [currentPath, setCurrentPath] = useState<string[]>([]);
 	const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
-	const { formQueue, cachedFormData } = useAppSelector((state) => state.form);
+	const { formQueueDict, cachedFormData } = useAppSelector((state) => state.form);
+	const formQueue = useMemo(() => Object.values(formQueueDict ?? {}), [formQueueDict]);
 	const [isShowingCachedData, setIsShowingCachedData] = useState(false);
 	const [hasLoadError, setHasLoadError] = useState(false);
 
@@ -390,7 +394,7 @@ const Index = () => {
 						}}
 					>
 						<Text style={{ ...styles.body, color: theme.screen.text }}>{item.title}</Text>
-						<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+						<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
 					</TouchableOpacity>
 				);
 			}
@@ -406,7 +410,7 @@ const Index = () => {
 					}}
 				>
 					<Text style={{ ...styles.body, color: theme.screen.text }}>{item.title || item.submission?.alias}</Text>
-					<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+					<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
 				</TouchableOpacity>
 			);
 		},
@@ -461,7 +465,7 @@ const Index = () => {
 							}}
 							style={{ padding: 10 }}
 						>
-							<Ionicons name="arrow-back" size={26} color={theme.header.text} />
+							<Ionicons name={isArabic ? 'arrow-forward' : 'arrow-back'} size={26} color={theme.header.text} />
 						</TouchableOpacity>
 						<Text style={{ ...styles.heading, color: theme.header.text }}>{excerpt(translate(TranslationKeys.select_a_form_submission), screenWidth > 900 ? 100 : screenWidth > 700 ? 80 : 22)}</Text>
 					</View>

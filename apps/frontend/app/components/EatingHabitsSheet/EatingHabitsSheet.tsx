@@ -14,7 +14,8 @@ import { DatabaseTypes } from 'repo-depkit-common';
 const EatingHabitsSheet: React.FC<EatingHabitsSheetProps> = ({ closeSheet }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const markings = useAppSelector(state => state.food.markings);
+	const markingsDict = useAppSelector(state => state.food.markingsDict || {});
+	const markings = Object.values(markingsDict);
 	return (
 		<BottomSheetScrollView style={{ ...styles.sheetView, backgroundColor: theme.sheet.sheetBg }} contentContainerStyle={styles.contentContainer}>
 			<View

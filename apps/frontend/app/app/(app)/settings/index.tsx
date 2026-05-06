@@ -56,8 +56,8 @@ import useCanteenVisitsVisibilityModal from '@/hooks/useCanteenVisitsVisibilityM
 import { ApartmentSortOption, CampusSortOption, FoodSortOption } from 'repo-depkit-common';
 import { MapStyleKey, SettingsListMyMapThemeSelection } from 'repo-depkit-common-ui';
 import { FriendsContent } from '@/components/FriendsContent';
-import { useIsLtrLanguage } from '../../../../hooks/useIsLtrLanguage';
-import { useLanguageTextAlign } from '../../../../hooks/useLanguageTextAlign';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
+import { useLanguageTextAlign } from '@/hooks/useLanguageTextAlign';
 
 type CollectibleItemSize = 'small' | 'medium' | 'large';
 
@@ -65,6 +65,7 @@ const Settings = () => {
 	useSetPageTitle(TranslationKeys.settings);
 	const { theme, setThemeMode } = useTheme();
 	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const dispatch = useDispatch();
 	const toast = useToast();
 	const [isActive, setIsActive] = useState(false);
@@ -93,7 +94,6 @@ const Settings = () => {
 	const openFriendsModal = useCallback(() => {
 		showScrollViewModal({
 			title: translate(TranslationKeys.friendships),
-			titleTextAlign: languageTextAlign,
 			children: <FriendsContent showHeading={false} />,
 			disableHorizontalPadding: true,
 		});
@@ -102,10 +102,10 @@ const Settings = () => {
 	const { primaryColor, drawerPosition, selectedTheme, nickNameLocal, firstDayOfTheWeek, amountColumnsForcard, serverInfo, appSettings, useWebpForAssets, foodOffersNextDayThreshold, debugMode, simulateExpoUpdateAvailable, collectibleItemSize, collectibleRandomPosition, selectedCustomer, sortBy, apartmentsSortBy, campusesSortBy } = useAppSelector((state) => state.settings);
 	const osmVectorMapStyleKey = useAppSelector((state) => ((state.settings as any).osmVectorMapStyleKey ?? MapStyleKey.DEFAULT) as MapStyleKey);
 	const canteenVisitsVisibility = useAppSelector((state) => (state.settings as any).canteenVisits?.visibility ?? 'all') as 'all' | 'friends_only' | 'off';
-	const { friendships } = useAppSelector((state) => state.friendships);
+	const { friendshipsDict } = useAppSelector((state) => state.friendships);
 	const acceptedFriendsCount = useMemo(
-		() => friendships.filter((f) => f.friendship_status === 'accepted').length,
-		[friendships]
+		() => Object.values(friendshipsDict ?? {}).filter((f) => f.friendship_status === 'accepted').length,
+		[friendshipsDict]
 	);
 	const currentNickname = useMemo(
 		() => (profile?.id ? profile?.nickname ?? '' : nickNameLocal ?? ''),
@@ -381,34 +381,10 @@ const Settings = () => {
 		},
 	};
 
-<<<<<<< HEAD
-        const openCollectibleSizeModal = useCallback(() => {
-                showScrollViewModal(
-                        {
-                                title: translate(TranslationKeys.collectible_event_item_size),
-                                onClose: () => {
-                                        if (isOpeningNestedCollectibleModal.current) {
-                                                isOpeningNestedCollectibleModal.current = false;
-                                                return;
-                                        }
-
-                                        setTimeout(() => collectibleSettingsModalRef.current?.(), 150);
-                                },
-                                children: (
-                                        <View style={{ gap: 16 }}>
-                                                <DropdownInput
-                                                        id="collectible_item_size"
-                                                        value={collectibleSizeLabel}
-                                                        onChange={handleSelectCollectibleSize}
-                                                        error={undefined}
-                                                        isDisabled={false}
-                                                        custom_type="collectible_item_size"
 	const openCollectibleSizeModal = useCallback(() => {
 		showScrollViewModal(
 			{
 				title: translate(TranslationKeys.collectible_event_item_size),
-				titleTextAlign: languageTextAlign,
-				titleWritingDirection: isLtrLanguage ? 'ltr' : 'rtl',
 				onClose: () => {
 					if (isOpeningNestedCollectibleModal.current) {
 						isOpeningNestedCollectibleModal.current = false;
@@ -447,8 +423,6 @@ const Settings = () => {
 		showScrollViewModal(
 			{
 				title: translate(TranslationKeys.collectible_event_settings),
-				titleTextAlign: languageTextAlign,
-				titleWritingDirection: isLtrLanguage ? 'ltr' : 'rtl',
 				children: (
 					<View style={{ gap: 0 }}>
 						<SettingsList
@@ -501,7 +475,7 @@ const Settings = () => {
 				<View style={sectionStyle}>
 					<SettingsGroupTitle>{translate(TranslationKeys.group_account_personalization)}</SettingsGroupTitle>
 					<View style={groupStyle}>
-						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="clipboard-account" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.account)} value={isRegisteredUser ? user?.id : translate(TranslationKeys.without_account)} handleFunction={() => { }} groupPosition="top" valueNumberOfLines={1} />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="clipboard-account" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.account)} value={isRegisteredUser ? user?.id : translate(TranslationKeys.without_account)} handleFunction={() => { }} groupPosition="top" titleNumberOfLines={1} />
 						<SettingsListEditable
 							iconBgColor={primaryColor}
 							leftIcon={<MaterialCommunityIcons name="account" size={24} color={theme.screen.icon} />}
@@ -567,10 +541,10 @@ const Settings = () => {
 				<View style={sectionStyle}>
 					<SettingsGroupTitle>{translate(TranslationKeys.group_app_settings)}</SettingsGroupTitle>
 					<View style={groupStyle}>
-						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="theme-light-dark" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.color_scheme)} value={selectedTheme === 'systematic' ? translate(TranslationKeys.color_scheme_system) : selectedTheme === 'dark' ? translate(TranslationKeys.color_scheme_dark) : translate(TranslationKeys.color_scheme_light)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => openColorSchemeSheet()} groupPosition="top" />
-						<SettingsList iconBgColor={primaryColor} leftIcon={<Entypo name="menu" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.drawer_config_position)} value={drawerPosition === 'left' ? translate(TranslationKeys.drawer_config_position_left) : drawerPosition === 'right' ? translate(TranslationKeys.drawer_config_position_right) : translate(TranslationKeys.drawer_config_position_system)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={openMenuPositionModal} groupPosition="middle" />
-						<SettingsList iconBgColor={primaryColor} leftIcon={<FontAwesome5 name="columns" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.amount_columns_for_cards)} value={amountColumnsForcard === 0 ? translate(TranslationKeys.automatic) : amountColumnsForcard} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={openCardColumnsModal} groupPosition="middle" />
-						<SettingsList iconBgColor={primaryColor} leftIcon={<Feather name="calendar" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.first_day_of_week)} value={translate(firstDayOfTheWeek?.name)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={openFirstDayOfWeekModal} groupPosition="bottom" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="theme-light-dark" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.color_scheme)} value={selectedTheme === 'systematic' ? translate(TranslationKeys.color_scheme_system) : selectedTheme === 'dark' ? translate(TranslationKeys.color_scheme_dark) : translate(TranslationKeys.color_scheme_light)} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={() => openColorSchemeSheet()} groupPosition="top" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<Entypo name="menu" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.drawer_config_position)} value={drawerPosition === 'left' ? translate(TranslationKeys.drawer_config_position_left) : drawerPosition === 'right' ? translate(TranslationKeys.drawer_config_position_right) : translate(TranslationKeys.drawer_config_position_system)} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={openMenuPositionModal} groupPosition="middle" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<FontAwesome5 name="columns" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.amount_columns_for_cards)} value={amountColumnsForcard === 0 ? translate(TranslationKeys.automatic) : amountColumnsForcard} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={openCardColumnsModal} groupPosition="middle" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<Feather name="calendar" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.first_day_of_week)} value={translate(firstDayOfTheWeek?.name)} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={openFirstDayOfWeekModal} groupPosition="bottom" />
 					</View>
 				</View>
 			),
@@ -581,16 +555,17 @@ const Settings = () => {
 			key: 'section-map-settings',
 			element: (
 				<View style={sectionStyle}>
-					<SettingsGroupTitle>Karte</SettingsGroupTitle>
+					<SettingsGroupTitle>{translate(TranslationKeys.map)}</SettingsGroupTitle>
 					<View style={groupStyle}>
 						<SettingsListMyMapThemeSelection
 							selectedMapStyleKey={osmVectorMapStyleKey}
 							onMapStyleKeyChange={(key) => dispatch({ type: SET_OSM_VECTOR_MAP_STYLE_KEY, payload: key })}
 							iconBgColor={primaryColor}
 							leftIcon={<MaterialCommunityIcons name="map-outline" size={24} color={theme.screen.icon} />}
-							label="Karten Material"
-							modalTitle="🗺️ Karten Material"
+							label={translate(TranslationKeys.map_material)}
+							modalTitle={`🗺️ ${translate(TranslationKeys.map_material)}`}
 							groupPosition="single"
+							reverseLayout={isArabic}
 						/>
 					</View>
 				</View>
@@ -610,7 +585,7 @@ const Settings = () => {
 								leftIcon={<MaterialIcons name="sort" size={24} color={theme.screen.icon} />}
 								label={translate(TranslationKeys.sort)}
 								value={housingSortingLabel}
-								rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+								rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />}
 								handleFunction={openHousingSortingModal}
 								groupPosition="single"
 							/>
@@ -633,7 +608,7 @@ const Settings = () => {
 								leftIcon={<MaterialIcons name="sort" size={24} color={theme.screen.icon} />}
 								label={translate(TranslationKeys.sort)}
 								value={campusSortingLabel}
-								rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+								rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />}
 								handleFunction={openCampusSortingModal}
 								groupPosition="single"
 							/>
@@ -650,14 +625,14 @@ const Settings = () => {
 				<View style={sectionStyle}>
 					<SettingsGroupTitle>{translate(TranslationKeys.group_app_management)}</SettingsGroupTitle>
 					<View style={groupStyle}>
-						<SettingsList iconBgColor={primaryColor} leftIcon={<Ionicons name="cloud-download-outline" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.CHECK_FOR_APP_UPDATES)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={handleCheckForUpdates} groupPosition="top" />
-						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.dataAccess)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/data-access')} groupPosition="middle" />
-						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialIcons name="event" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.events)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/events')} groupPosition="middle" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<Ionicons name="cloud-download-outline" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.CHECK_FOR_APP_UPDATES)} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={handleCheckForUpdates} groupPosition="top" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="database-eye" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.dataAccess)} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/data-access')} groupPosition="middle" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialIcons name="event" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.events)} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/events')} groupPosition="middle" />
 						<SettingsList
 							iconBgColor={primaryColor}
 							leftIcon={<MaterialCommunityIcons name="trophy-outline" size={24} color={theme.screen.icon} />}
 							label={translate(TranslationKeys.collectible_events)}
-							rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+							rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />}
 							handleFunction={() => router.navigate('/collectible-events')}
 							groupPosition="middle"
 						/>
@@ -665,12 +640,12 @@ const Settings = () => {
 							iconBgColor={primaryColor}
 							leftIcon={<MaterialCommunityIcons name="trophy-outline" size={24} color={theme.screen.icon} />}
 							label={translate(TranslationKeys.collectible_event_settings)}
-							rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+							rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />}
 							handleFunction={openCollectibleSettingsModal}
 							groupPosition="middle"
 						/>
-						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialIcons name="support-agent" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.feedback_support_faq)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/support-FAQ')} groupPosition="middle" />
-						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="license" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.license_information)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/licenseInformation')} groupPosition="middle" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialIcons name="support-agent" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.feedback_support_faq)} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/support-FAQ')} groupPosition="middle" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="license" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.license_information)} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/licenseInformation')} groupPosition="middle" />
 						{/* Terms & Conditions */}
 						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="file-document-check" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.terms_and_conditions_accepted_and_privacy_policy_read_at_date)} value={termsAndPrivacyConsentAcceptedDate ?? undefined} handleFunction={() => { }} groupPosition="bottom" />
 					</View>
@@ -731,12 +706,12 @@ const Settings = () => {
 				>
 					<Text style={{ ...styles.devModeText, color: theme.screen.text }}>{translate(TranslationKeys.developerModeActive)}</Text>
 					<View style={groupStyle}>
-						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="server" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.backend_server)} value={selectedCustomerDisplayName} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={openServerSheet} groupPosition="top" />
-						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="clock-outline" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.foodoffers_next_day_time)} value={(foodOffersNextDayThreshold || '18:00').toString()} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={openFoodOffersTimeSheet} groupPosition="middle" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="server" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.backend_server)} value={selectedCustomerDisplayName} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={openServerSheet} groupPosition="top" />
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialCommunityIcons name="clock-outline" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.foodoffers_next_day_time)} value={(foodOffersNextDayThreshold || '18:00').toString()} rightIcon={<Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />} handleFunction={openFoodOffersTimeSheet} groupPosition="middle" />
 						<SettingsListBoolean
 							iconBgColor={primaryColor}
 							leftIcon={<MaterialIcons name="image" size={24} color={theme.screen.icon} />}
-							label="Use WebP images"
+							label={translate(TranslationKeys.use_webp_images)}
 							isEnabled={useWebpForAssets}
 							onToggle={toggleWebpForAssets}
 							groupPosition="middle"
@@ -769,7 +744,7 @@ const Settings = () => {
 				<SettingsList
 					iconBgColor={primaryColor}
 					leftIcon={<MaterialCommunityIcons name="numeric" size={24} color={theme.screen.icon} />}
-					label="Version"
+					label={translate(TranslationKeys.version)}
 					value={getVersionInternalForAppsettingsScreen().toString()}
 					handleFunction={() => { }}
 					groupPosition="single"

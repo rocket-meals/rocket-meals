@@ -9,7 +9,7 @@ import { TranslationKeys } from '@/locales/keys';
 import SettingsList from '@/components/SettingsList';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import SettingsListNickname from '@/components/SettingsListNickname';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import { useIsLtrLanguage } from '../../hooks/useIsLtrLanguage';
 import { MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
 import { FriendshipsHelper } from '@/redux/actions/Friendships/Friendships';
@@ -425,7 +425,8 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 
 	const { profile } = useAppSelector((state) => state.authReducer);
 	const { primaryColor } = useAppSelector((state) => state.settings);
-	const { friendships } = useAppSelector((state) => state.friendships);
+	const { friendshipsDict } = useAppSelector((state) => state.friendships);
+	const friendships = useMemo(() => Object.values(friendshipsDict ?? {}), [friendshipsDict]);
 	const isLtrLanguage = useIsLtrLanguage();
 	const isArabic = !isLtrLanguage;
 
@@ -483,7 +484,6 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 		if (!profile?.id) return;
 		showScrollViewModal({
 			title: translate(TranslationKeys.friendships_generate_qr),
-			titleTextAlign: isArabic ? 'right' : 'left',
 			children: (
 				<QRGenerateModalContent
 					profileId={profile.id}
@@ -506,7 +506,6 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 	const openScanModal = useCallback((noCamera: boolean) => {
 		showScrollViewModal({
 			title: noCamera ? translate(TranslationKeys.friendships_add_manual) : translate(TranslationKeys.friendships_scan_qr),
-			titleTextAlign: isArabic ? 'right' : 'left',
 			children: (
 				<ScanModalContent
 					noCamera={noCamera}
@@ -519,7 +518,7 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 						if (!profile?.id) return;
 						const updated = await friendshipsHelper.updateFriendshipReceiver(friendshipId, profile.id);
 						if (updated) {
-							const exists = friendships.some((f) => f.id === updated.id);
+							const exists = updated.id != null && updated.id in friendshipsDict;
 							dispatch({ type: exists ? UPDATE_FRIENDSHIP : ADD_FRIENDSHIP, payload: updated });
 							showToast(translate(TranslationKeys.friendships_confirmed));
 							closeScrollViewModal();
@@ -528,7 +527,7 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 				/>
 			),
 		});
-	}, [profile?.id, friendshipsHelper, friendships, dispatch, showScrollViewModal, closeScrollViewModal, translate, showToast, getProfileIdFromField, isAlreadyFriendsWith]);
+	}, [profile?.id, friendshipsHelper, friendshipsDict, dispatch, showScrollViewModal, closeScrollViewModal, translate, showToast, getProfileIdFromField, isAlreadyFriendsWith]);
 
 	const handleScanQR = useCallback(() => {
 		openScanModal(false);
@@ -570,7 +569,6 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 		if (isPending) {
 			showScrollViewModal({
 				title: translate(TranslationKeys.friendships_details),
-				titleTextAlign: isArabic ? 'right' : 'left',
 				children: (
 					<PendingFriendshipContent
 						friendship={friendship}
@@ -590,7 +588,6 @@ export const FriendsContent: React.FC<FriendsContentProps> = ({ showHeading = tr
 
 		showScrollViewModal({
 			title: translate(TranslationKeys.friendships_details),
-			titleTextAlign: isArabic ? 'right' : 'left',
 			children: (
 				<View style={{ gap: 16 }}>
 					<View>

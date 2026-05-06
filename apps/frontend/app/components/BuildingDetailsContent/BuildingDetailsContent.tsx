@@ -42,24 +42,17 @@ const BuildingDetailsContent: React.FC<BuildingDetailsContentProps> = ({ id }) =
         return state.campus.campusesDict[String(id)] || null;
     }, shallowEqual);
 
-    const { buildingsOrganizations, organisations } = useAppSelector((state) => ({
-        buildingsOrganizations: state.canteenReducer.buildingsOrganizations as DatabaseTypes.BuildingsOrganizations[],
-        organisations: state.canteenReducer.organisations as DatabaseTypes.Organizations[],
+    const { buildingsOrganizationsDict, organisationsDict } = useAppSelector((state) => ({
+        buildingsOrganizationsDict: state.canteenReducer.buildingsOrganizationsDict,
+        organisationsDict: state.canteenReducer.organisationsDict,
     }), shallowEqual);
-
-    const organisationsDict = useMemo(
-        () => organisations.reduce<Record<string, DatabaseTypes.Organizations>>(
-            (acc, org) => { if (org.id) acc[org.id] = org; return acc; },
-            {}
-        ),
-        [organisations]
-    );
 
     const buildingOrganisations = useMemo(() => {
         if (!id) return [];
+        const buildingsOrganizations = Object.values(buildingsOrganizationsDict ?? {});
         const dict = BuildingsHelper.getBuildingIdToOrganizationsDict(buildingsOrganizations, organisationsDict);
         return dict[id] ?? [];
-    }, [id, buildingsOrganizations, organisationsDict]);
+    }, [id, buildingsOrganizationsDict, organisationsDict]);
 
     const { width: screenWidth } = useWindowDimensions();
 

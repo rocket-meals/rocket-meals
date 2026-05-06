@@ -1,5 +1,5 @@
 import { ActivityIndicator, Dimensions, Image, Platform, ScrollView, Text, View } from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import { useTheme } from '@/hooks/useTheme';
@@ -36,7 +36,8 @@ const Index = () => {
 	const [foods, setFoods] = useState<any>({});
 	const [categories, setCategories] = useState<Record<string, { alias: string; sort: number }>>({});
 	const [foodMarkings, setFoodMarkings] = useState<any>({});
-	const { markings } = useAppSelector((state) => state.food);
+	const { markingsDict } = useAppSelector((state) => state.food);
+	const markings = useMemo(() => Object.values(markingsDict ?? {}), [markingsDict]);
 	const [loading, setLoading] = useState(true);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 
@@ -131,7 +132,7 @@ const Index = () => {
 			return [
 				{
 					key: 'day',
-					title: 'Day',
+					title: TranslationKeys.day,
 					isFixed: true,
 					flex: dayFlexDesign,
 				},
@@ -190,7 +191,7 @@ const Index = () => {
 			// Day column with fixed flex
 			{
 				key: 'day',
-				title: 'Day',
+				title: TranslationKeys.day,
 				isFixed: true,
 				flex: dayFlexDynamic,
 			}, // <-- Ensure day column has its fixed flex
@@ -382,7 +383,7 @@ const Index = () => {
 							alignItems: 'center',
 						}}
 					>
-						<Text style={{ ...styles.noDataFound, color: theme.screen.text }}>Keine Angebote an diesem Tag gefunden.</Text>
+						<Text style={{ ...styles.noDataFound, color: theme.screen.text }}>{translate(TranslationKeys.no_offers_found_on_this_day)}</Text>
 					</View>
 				) : (
 					<ScrollView
@@ -421,7 +422,7 @@ const Index = () => {
 											{ flex: col.flex }, // Use col.flex here
 										]}
 									>
-										<Text style={{ ...styles.headerText, color: contrastColor }}>{col.key === 'day' ? translate(col.key) : col.title}</Text>
+										<Text style={{ ...styles.headerText, color: contrastColor }}>{translate(col.title as any)}</Text>
 									</View>
 								))}
 							</View>

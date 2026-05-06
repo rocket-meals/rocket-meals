@@ -48,9 +48,12 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 
 	// Optimized Selectors
 	const foodId = foodDetails?.id;
-	const labels = useAppSelector((state) => state.food.foodFeedbackLabels, shallowEqual);
-	const labelEntries = useAppSelector((state) => state.food.ownfoodFeedbackLabelEntries, shallowEqual);
-	const ownFoodFeedbacks = useAppSelector((state) => state.food.ownFoodFeedbacks, shallowEqual);
+	const labelsDict = useAppSelector((state) => state.food.foodFeedbackLabelsDict || {}, shallowEqual);
+	const labels = Object.values(labelsDict);
+	const labelEntriesDict = useAppSelector((state) => state.food.ownfoodFeedbackLabelEntriesDict || {}, shallowEqual);
+	const labelEntries = Object.values(labelEntriesDict);
+	const ownFoodFeedbacksDict = useAppSelector((state) => state.food.ownFoodFeedbacksDict || {}, shallowEqual);
+	const ownFoodFeedbacks = Object.values(ownFoodFeedbacksDict);
 	
 	const previousFeedback = useMemo(() => {
 		return getpreviousFeedback(ownFoodFeedbacks, foodId);
@@ -72,7 +75,7 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 		}
 
 		if (string !== null && !string.trim()) {
-			toast('Please write a comment', 'error');
+			toast(translate(TranslationKeys.please_write_a_comment), 'error');
 			return;
 		}
 
@@ -112,7 +115,7 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 		}
 
 		if (text.length > 120) {
-			toast('Comment should be less than 500 characters', 'error');
+			toast(translate(TranslationKeys.comment_length_error), 'error');
 			return;
 		}
 		setComment(text);

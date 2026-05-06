@@ -62,8 +62,10 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
         const wikisHelper = new WikisHelper();
         const activeIndex = state.index;
         const { isManagement, isDevMode } = useAppSelector((state) => state.authReducer);
-        const { chats } = useAppSelector((state) => state.chats);
-        const { serverInfo, primaryColor: projectColor, language, appSettings, wikis } = useAppSelector((state) => state.settings);
+        const { chatsDict = {} } = useAppSelector((state) => state.chats);
+        const { serverInfo, primaryColor: projectColor, language, appSettings, wikisDict = {} } = useAppSelector((state) => state.settings);
+        const chats = Object.values(chatsDict);
+        const wikis = Object.values(wikisDict);
         const customerConfig = useCustomerConfig();
         const { hasUnreadChats } = useChatUnreadStatus();
         const { hasActiveCollectibleEvent } = useActiveCollectibleEvent();

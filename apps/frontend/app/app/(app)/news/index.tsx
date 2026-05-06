@@ -21,7 +21,8 @@ const Index = () => {
 	const newsHelper = new NewsHelper();
 	const [refreshing, setRefreshing] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const { news } = useAppSelector((state) => state.news);
+	const { newsDict } = useAppSelector((state) => state.news);
+	const news = useMemo(() => Object.values(newsDict || {}), [newsDict]);
 
 	const onRefresh = useCallback(() => {
 		setRefreshing(true);

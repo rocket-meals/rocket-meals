@@ -8,7 +8,7 @@ import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { Redirect, useGlobalSearchParams } from 'expo-router';
 import useKioskMode from '@/hooks/useKioskMode';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
-import {AppScreens, DatabaseTypes, filterPopupEvents, sortBySortField, sortMarkingsByGroup} from 'repo-depkit-common';
+import { AppScreens, DatabaseTypes, filterPopupEvents, sortBySortField, sortMarkingsByGroup } from 'repo-depkit-common';
 import { SET_APP_ELEMENTS, SET_APP_SETTINGS, SET_BUILDINGS_DICT, SET_BUILDINGS_ORGANIZATIONS, SET_BUSINESS_HOURS, SET_BUSINESS_HOURS_GROUPS, SET_CAMPUSES, SET_CAMPUSES_DICT, SET_CANTEENS, SET_CHATS, SET_CHAT_READ_STATUS, SET_COLLECTION_DATES_LAST_UPDATED, SET_FOOD_ATTRIBUTE_GROUPS, SET_FOOD_ATTRIBUTES_DICT, SET_FOOD_CATEGORIES, SET_FOOD_COLLECTION, SET_FOOD_OFFERS_CATEGORIES, SET_FOODOFFERS_INFO_ITEMS, SET_FRIENDSHIPS, SET_NEWS, SET_COLLECTIBLE_EVENTS, SET_ORGANISATIONS, SET_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES, SET_POPUP_EVENTS, SET_POPUP_EVENTS_HASH, SET_SELECTED_CANTEEN, SET_SELECTED_DATE, SET_WIKIS, UPDATE_FOOD_FEEDBACK_LABELS, UPDATE_MARKING_GROUPS, UPDATE_MARKINGS, UPDATE_OWN_FOOD_FEEDBACK, UPDATE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES, UPDATE_PRIVACY_POLICY_DATE, UPDATE_PROFILE } from '@/redux/Types/types';
 import { FoodFeedbackLabelHelper } from '@/redux/actions/FoodFeedbacksLabel/FoodFeedbacksLabel';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
@@ -84,12 +84,12 @@ export default function Layout() {
 	const buildingsOrganizationsHelper = useMemo(() => new BuildingsOrganizationsHelper(), []);
 	const organizationsHelper = useMemo(() => new OrganizationsHelper(), []);
 	const friendshipsHelper = useMemo(() => new FriendshipsHelper(), []);
-	const { popupEvents } = useAppSelector((state) => state.food);
+	const { popupEventsDict } = useAppSelector((state) => state.food);
 	const { hashValue } = useAppSelector((state) => state.popup_events_hash);
 	const { lastUpdatedMap } = useAppSelector((state) => state.lastUpdated);
 	const { drawerPosition } = useAppSelector((state) => state.settings);
 	const { loggedIn, user } = useAppSelector((state) => state.authReducer);
-	const { canteens } = useAppSelector((state) => state.canteenReducer);
+	const { canteensDict } = useAppSelector((state) => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
 
 	useEffect(() => {
@@ -193,16 +193,16 @@ export default function Layout() {
 		}
 	};
 
-        const fetchChats = async () => {
-                try {
-                        const storedStatus = await loadChatReadStatus();
-                        dispatch({ type: SET_CHAT_READ_STATUS, payload: storedStatus });
+	const fetchChats = async () => {
+		try {
+			const storedStatus = await loadChatReadStatus();
+			dispatch({ type: SET_CHAT_READ_STATUS, payload: storedStatus });
 
-                        if (user?.profile) {
-                                const result = (await chatsHelper.fetchChatsByProfile(user.profile)) as DatabaseTypes.Chats[];
-                                if (result) {
-                                        dispatch({ type: SET_CHATS, payload: result });
-                                }
+			if (user?.profile) {
+				const result = (await chatsHelper.fetchChatsByProfile(user.profile)) as DatabaseTypes.Chats[];
+				if (result) {
+					dispatch({ type: SET_CHATS, payload: result });
+				}
 			}
 		} catch (error) {
 			console.error('Error fetching chats:', error);
@@ -264,11 +264,11 @@ export default function Layout() {
 		}
 	};
 
-        const getNews = async () => {
-                try {
-                        const result = (await newsHelper.fetchNews({})) as DatabaseTypes.News[];
-                        if (result) {
-                                const today = new Date().toISOString().split('T')[0];
+	const getNews = async () => {
+		try {
+			const result = (await newsHelper.fetchNews({})) as DatabaseTypes.News[];
+			if (result) {
+				const today = new Date().toISOString().split('T')[0];
 				const sortedNews = [...result].sort((a, b) => {
 					const dateA = a?.date;
 					const dateB = b?.date;
@@ -288,20 +288,20 @@ export default function Layout() {
 				dispatch({ type: SET_NEWS, payload: sortedNews });
 			}
 		} catch (error) {
-                        console.error('Error fetching news:', error);
-                }
-        };
+			console.error('Error fetching news:', error);
+		}
+	};
 
-        const getCollectibleEvents = async () => {
-                try {
-                        const result = (await collectibleEventsHelper.fetchCollectibleEvents({})) as DatabaseTypes.CollectibleEvents[];
-                        if (result) {
-                                dispatch({ type: SET_COLLECTIBLE_EVENTS, payload: sortBySortField(result) });
-                        }
-                } catch (error) {
-                        console.error('Error fetching collectible events:', error);
-                }
-        };
+	const getCollectibleEvents = async () => {
+		try {
+			const result = (await collectibleEventsHelper.fetchCollectibleEvents({})) as DatabaseTypes.CollectibleEvents[];
+			if (result) {
+				dispatch({ type: SET_COLLECTIBLE_EVENTS, payload: sortBySortField(result) });
+			}
+		} catch (error) {
+			console.error('Error fetching collectible events:', error);
+		}
+	};
 
 	const getFoodCategories = async () => {
 		try {
@@ -422,14 +422,14 @@ export default function Layout() {
 		}
 		try {
 			const response = (await popupEventsHelper.fetchAllPopupEvents()) as DatabaseTypes.PopupEvents[];
-                        if (response) {
-                                const platformKey = Platform.OS === 'ios' ? 'show_on_ios' : Platform.OS === 'android' ? 'show_on_android' : 'show_on_web';
+			if (response) {
+				const platformKey = Platform.OS === 'ios' ? 'show_on_ios' : Platform.OS === 'android' ? 'show_on_android' : 'show_on_web';
 
-                                const filteredEvents = filterPopupEvents(response, platformKey).map((event, index) => ({
-                                        ...event,
-                                        isOpen: false,
-                                        isCurrent: index === 0,
-                                }));
+				const filteredEvents = filterPopupEvents(response, platformKey).map((event, index) => ({
+					...event,
+					isOpen: false,
+					isCurrent: index === 0,
+				}));
 				const eventsHash = HashHelper.md5(JSON.stringify(filteredEvents));
 				if (eventsHash !== hashValue) {
 					dispatch({ type: SET_POPUP_EVENTS, payload: filteredEvents });
@@ -515,12 +515,12 @@ export default function Layout() {
 			key: CollectionKeys.FOODS_FEEDBACKS_LABELS,
 			action: getFoodFeedBackLabels,
 		},
-                { key: CollectionKeys.NEWS, action: getNews },
-                {
-                        key: [CollectionKeys.COLLECTIBLE_EVENTS, CollectionKeys.COLLECTIBLE_EVENTS_TRANSLATIONS],
-                        action: getCollectibleEvents,
-                },
-                { key: CollectionKeys.BUSINESSHOURS, action: getBusinessHours },
+		{ key: CollectionKeys.NEWS, action: getNews },
+		{
+			key: [CollectionKeys.COLLECTIBLE_EVENTS, CollectionKeys.COLLECTIBLE_EVENTS_TRANSLATIONS],
+			action: getCollectibleEvents,
+		},
+		{ key: CollectionKeys.BUSINESSHOURS, action: getBusinessHours },
 		{
 			key: CollectionKeys.BUSINESSHOURS_GROUPS,
 			action: getAllBusinessHoursGroups,
@@ -722,37 +722,37 @@ export default function Layout() {
 						title: translate(TranslationKeys.notification),
 					}}
 				/>
-                                <Drawer.Screen
-                                        name="events/index"
-                                        options={{
-                                                header: () => <CustomStackHeader label={translate(TranslationKeys.events)} key={'events'} />,
-                                                title: translate(TranslationKeys.events),
-                                        }}
-                                />
-                                <Drawer.Screen
-                                        name="collectible-events/index"
-                                        options={{
-                                                header: () => (
-                                                        <CustomStackHeader
-                                                                label={translate(TranslationKeys.collectible_events)}
-                                                                key={'collectible_events'}
-                                                        />
-                                                ),
-                                                title: translate(TranslationKeys.collectible_events),
-                                        }}
-                                />
-                                <Drawer.Screen
-                                        name="collectible-event/index"
-                                        options={{
-                                                title: translate(TranslationKeys.collectible_event_active),
-                                                headerShown: false,
-                                        }}
-                                />
-                                <Drawer.Screen
-                                        name="support-FAQ/index"
-                                        options={{
-                                                title: translate(TranslationKeys.feedback_support_faq),
-                                                header: () => <CustomStackHeader label={translate(TranslationKeys.feedback_support_faq)} key={'Feedback Support Faq'} />,
+				<Drawer.Screen
+					name="events/index"
+					options={{
+						header: () => <CustomStackHeader label={translate(TranslationKeys.events)} key={'events'} />,
+						title: translate(TranslationKeys.events),
+					}}
+				/>
+				<Drawer.Screen
+					name="collectible-events/index"
+					options={{
+						header: () => (
+							<CustomStackHeader
+								label={translate(TranslationKeys.collectible_events)}
+								key={'collectible_events'}
+							/>
+						),
+						title: translate(TranslationKeys.collectible_events),
+					}}
+				/>
+				<Drawer.Screen
+					name="collectible-event/index"
+					options={{
+						title: translate(TranslationKeys.collectible_event_active),
+						headerShown: false,
+					}}
+				/>
+				<Drawer.Screen
+					name="support-FAQ/index"
+					options={{
+						title: translate(TranslationKeys.feedback_support_faq),
+						header: () => <CustomStackHeader label={translate(TranslationKeys.feedback_support_faq)} key={'Feedback Support Faq'} />,
 					}}
 				/>
 

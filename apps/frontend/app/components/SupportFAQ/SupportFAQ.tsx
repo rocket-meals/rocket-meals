@@ -4,6 +4,7 @@ import { Entypo, FontAwesome6, Ionicons, MaterialIcons } from '@expo/vector-icon
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useTheme } from '@/hooks/useTheme';
 import styles from '../../app/(app)/support-FAQ/styles';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 
 type SupportFAQProps = {
 	icon?: string;
@@ -16,6 +17,8 @@ type SupportFAQProps = {
 
 const SupportFAQ: React.FC<SupportFAQProps> = ({ icon, label, text, onPress, isArrowRight = true, redirectIcon = true }) => {
 	const { theme } = useTheme();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 
 	const renderIcon = (icon: string | undefined) => {
 		if (icon === 'feedback') {
@@ -62,7 +65,7 @@ const SupportFAQ: React.FC<SupportFAQProps> = ({ icon, label, text, onPress, isA
 				)}
 				{redirectIcon && <FontAwesome6 name="arrow-up-right-from-square" size={windowWidth < 500 ? 17 : 20} color={theme.screen.icon} />}
 
-				{isArrowRight && <Entypo name="chevron-small-right" size={25} color={theme.screen.icon} />}
+				{isArrowRight && <Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={25} color={theme.screen.icon} />}
 			</View>
 		</TouchableOpacity>
 	);

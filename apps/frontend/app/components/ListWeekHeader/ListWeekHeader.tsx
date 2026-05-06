@@ -5,6 +5,7 @@ import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { useRouter } from 'expo-router';
 import { useAppSelector } from '@/redux/hooks';
 import { useLanguage } from '@/hooks/useLanguage';
+import { TranslationKeys } from '@/locales/keys';
 import { isWeb } from '@/constants/Constants';
 import { RootState } from '@/redux/reducer';
 
@@ -46,7 +47,7 @@ const FoodPlanHeader = ({ handlePrint }: any) => {
 							<TouchableOpacity onPress={() => router.navigate('/list-week-screen')}>
 								<Ionicons name="arrow-back" size={24} color={theme.screen.icon} />
 							</TouchableOpacity>
-							<Text style={[styles.title, { color: theme.header.text }]}>Food Plan: Week</Text>
+							<Text style={[styles.title, { color: theme.header.text }]}>{translate(TranslationKeys.food_plan_week)}</Text>
 						</View>
 						<View style={{ ...styles.icons, gap: isMobile ? 10 : 20 }}>
 							<TouchableOpacity onPress={() => router.navigate('/foodPlanWeek')}>

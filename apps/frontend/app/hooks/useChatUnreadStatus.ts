@@ -8,17 +8,17 @@ export const getChatTimestamp = (chat: DatabaseTypes.Chats): string | null => {
 };
 
 const useChatUnreadStatus = () => {
-        const { chats = [], readStatus = {} } = useAppSelector((state) => state.chats ?? {});
+        const { chatsDict = {}, readStatus = {} } = useAppSelector((state) => state.chats ?? {});
 
         const readStatusMap = readStatus ?? {};
 
         const hasUnreadChats = useMemo(() => {
-                return chats.some(chat => {
+                return Object.values(chatsDict).some(chat => {
                         if (!chat?.id) {
                                 return false;
                         }
 
-                        const latestTimestamp = getChatTimestamp(chat);
+                        const latestTimestamp = getChatTimestamp(chat as any);
                         if (!latestTimestamp) {
                                 return false;
                         }
@@ -30,7 +30,7 @@ const useChatUnreadStatus = () => {
 
                         return new Date(latestTimestamp).getTime() > new Date(lastRead).getTime();
                 });
-        }, [chats, readStatus]);
+        }, [chatsDict, readStatus]);
 
         const isChatUnread = useCallback(
                 (chat: DatabaseTypes.Chats) => {
@@ -53,7 +53,7 @@ const useChatUnreadStatus = () => {
                 [readStatus],
         );
 
-        return { chats, readStatus: readStatusMap, hasUnreadChats, isChatUnread };
+        return { chats: Object.values(chatsDict), readStatus: readStatusMap, hasUnreadChats, isChatUnread };
 };
 
 export default useChatUnreadStatus;

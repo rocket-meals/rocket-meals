@@ -81,7 +81,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 			if (selectedItem?.label !== 'title' && selectedItem?.label !== 'location') {
 				if (!validateTime(inputValue)) {
 					// Show a toast for invalid time
-					toast('Please enter time in HH:MM format (e.g., 08:30)', 'error');
+					toast(translate(TranslationKeys.time_format_error), 'error');
 
 					return; // Prevent saving if time is invalid
 				}
@@ -130,7 +130,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 
 		// Check if start time is greater than or equal to end time
 		if (!isBefore(startTimeParsed, endTimeParsed) || isEqual(startTimeParsed, endTimeParsed)) {
-			toast('Start time must be earlier than End time.', 'error');
+			toast(translate(TranslationKeys.start_time_earlier_error), 'error');
 
 			setLoading(false);
 			return; // Prevent saving if times are invalid
@@ -223,7 +223,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 
 		// Check if start time is greater than or equal to end time
 		if (!isBefore(startTimeParsed, endTimeParsed) || isEqual(startTimeParsed, endTimeParsed)) {
-			toast('Start time must be earlier than End time.', 'error');
+			toast(translate(TranslationKeys.start_time_earlier_error), 'error');
 
 			setLoading(false);
 			return; // Prevent saving if times are invalid
@@ -326,7 +326,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 						</View>
 					) : (
 						<View style={styles.titleBt}>
-							<TextInput style={styles.input} value={inputValue} onChangeText={setInputValue} placeholder={'Enter a value'} autoFocus />
+							<TextInput style={styles.input} value={inputValue} onChangeText={setInputValue} placeholder={translate(TranslationKeys.enter_a_value)} autoFocus />
 
 							<View style={[styles.buttonContainer]}>
 								<TouchableOpacity

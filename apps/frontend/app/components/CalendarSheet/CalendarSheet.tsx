@@ -10,6 +10,7 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { SET_SELECTED_DATE } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
@@ -21,6 +22,8 @@ import { format, isValid, parse } from 'date-fns';
 export const CalendarSheetContent: React.FC<CalendarSheetProps> = ({ closeSheet, onSelect, selectedDateProp, updateGlobal }) => {
     const { theme } = useTheme();
     const { translate } = useLanguage();
+    const isLtrLanguage = useIsLtrLanguage();
+    const isArabic = !isLtrLanguage;
     const dispatch = useDispatch();
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [manualDate, setManualDate] = useState('');
@@ -170,7 +173,7 @@ export const CalendarSheetContent: React.FC<CalendarSheetProps> = ({ closeSheet,
                             }}
                             onPress={() => navigateMonth(direction === 'left' ? 'prev' : 'next')}
                         >
-                            <Entypo name={direction === 'left' ? 'chevron-left' : 'chevron-right'} size={20} color={contrastColor} />
+                            <Entypo name={isArabic ? (direction === 'left' ? 'chevron-right' : 'chevron-left') : (direction === 'left' ? 'chevron-left' : 'chevron-right')} size={20} color={contrastColor} />
                         </TouchableOpacity>
                     )}
                     onMonthChange={(month: any) => {

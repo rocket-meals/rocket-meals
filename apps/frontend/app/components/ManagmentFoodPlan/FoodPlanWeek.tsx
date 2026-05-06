@@ -16,6 +16,7 @@ const FoodPlanWeek = ({ data, onPressItem }: { data: any[]; onPressItem: (item: 
 	const isArabic = !isLtrLanguage;
 
 	const [toggleStates, setToggleStates] = useState(data.map(item => item.switchState || false));
+	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
 
 	useEffect(() => {
 		const onChange = ({ window }: { window: any }) => {
@@ -59,7 +60,7 @@ const FoodPlanWeek = ({ data, onPressItem }: { data: any[]; onPressItem: (item: 
 								fontSize: windowWidth > 600 ? 18 : 14,
 							}}
 						>
-							{item.name}
+							{translate(item.name as any)}
 						</Text>
 					</View>
 					<View style={styles.iconTextContainer}>
@@ -75,7 +76,7 @@ const FoodPlanWeek = ({ data, onPressItem }: { data: any[]; onPressItem: (item: 
 							/>
 						) : (
 							<>
-								{item.name === 'Canteen' && (
+								{item.name === TranslationKeys.canteen && (
 									<TextInput
 										style={[
 											styles.textInput,

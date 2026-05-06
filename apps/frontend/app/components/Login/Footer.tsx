@@ -8,7 +8,8 @@ import { getTitleFromTranslation } from '@/helper/resourceHelper';
 
 const Footer = () => {
 	const { theme } = useTheme();
-	const { wikis, language } = useAppSelector(state => state.settings);
+	const { wikisDict = {}, language } = useAppSelector(state => state.settings);
+	const wikis = Object.values(wikisDict);
 
 	return (
 		<View style={styles.footer}>
