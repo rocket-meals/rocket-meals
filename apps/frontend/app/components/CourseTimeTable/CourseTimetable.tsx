@@ -89,7 +89,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 1,
 				leftIcon: <MaterialCommunityIcons name="tag-text-outline" size={24} color={theme.screen.icon} />,
-				label: translate(TranslationKeys.title),
+				label: 'title',
 				value: event.title,
 				rightIcon: <FontAwesome5 name="pen" size={16} color={theme.screen.icon} />,
 				handleFunction: () => {
@@ -99,7 +99,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 2,
 				leftIcon: <MaterialCommunityIcons name="map-marker-outline" size={24} color={theme.screen.icon} />,
-				label: translate(TranslationKeys.location),
+				label: 'location',
 				value: event.location,
 				rightIcon: <FontAwesome5 name="pen" size={16} color={theme.screen.icon} />,
 				handleFunction: () => {
@@ -109,7 +109,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 3,
 				leftIcon: <MaterialIcons name="color-lens" size={24} color={theme.screen.icon} />,
-				label: translate(TranslationKeys.color),
+				label: 'color',
 				value: event.color,
 				rightIcon: <FontAwesome5 name="pen" size={16} color={theme.screen.icon} />,
 				handleFunction: () => {
@@ -119,7 +119,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 4,
 				leftIcon: <MaterialCommunityIcons name="clock-start" size={24} color={theme.screen.icon} />,
-				label: translate(TranslationKeys.startTime),
+				label: 'startTime',
 				value: event.startTime,
 				rightIcon: <FontAwesome5 name="pen" size={16} color={theme.screen.icon} />,
 				handleFunction: () => {
@@ -129,7 +129,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 5,
 				leftIcon: <MaterialCommunityIcons name="clock-end" size={24} color={theme.screen.icon} />,
-				label: translate(TranslationKeys.endTime),
+				label: 'endTime',
 				value: event.endTime,
 				rightIcon: <FontAwesome5 name="pen" size={16} color={theme.screen.icon} />,
 				handleFunction: () => {
@@ -139,7 +139,7 @@ const CourseTimetable: React.FC<CourseTimetableProps> = ({ events, openSheet, se
 			{
 				id: 6,
 				leftIcon: <Feather name="calendar" size={24} color={theme.screen.icon} />,
-				label: translate(TranslationKeys.weekday),
+				label: 'weekday',
 				value: filteredDay[0],
 				rightIcon: <Octicons name={isArabic ? 'chevron-left' : 'chevron-right'} size={24} color={theme.screen.icon} />,
 				handleFunction: () => {

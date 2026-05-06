@@ -265,7 +265,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = ({ navigation
 						label: translateDynamic(getTitleFromTranslation(wiki?.translations, language)),
 						iconName,
 						iconLibName: iconLib,
-						activeKey: 'faq-food/index',
+						activeKey: wiki?.custom_id ? `wiki-${wiki.custom_id}` : `wiki-${wiki.id}`,
 						position: wiki.position ?? Number.MAX_SAFE_INTEGER,
 						action: wiki.url
 							? () => openInBrowser(wiki?.url)
