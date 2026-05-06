@@ -1,15 +1,22 @@
-import * as Notifications from 'expo-notifications';
-import { ExpoPushToken } from 'expo-notifications';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import usePlatformHelper from '@/helper/platformHelper';
-import { IosAuthorizationStatus } from 'expo-notifications/src/NotificationPermissions.types';
 import { getDeviceInformationWithoutPushToken } from './DeviceHelper';
 import { DatabaseTypes } from 'repo-depkit-common';
 // import {useSynchedDevices} from "@/states/SynchedDevices";
+import type { ExpoPushToken, NotificationPermissionsStatus } from 'expo-notifications';
+
+type NotificationsModule = typeof import('expo-notifications');
+
+async function getNotificationsModule(): Promise<NotificationsModule | null> {
+	if (Platform.OS === 'web') {
+		return null;
+	}
+	return await import('expo-notifications');
+}
 
 export type NotificationObjType = {
-	permission?: Notifications.NotificationPermissionsStatus;
+	permission?: NotificationPermissionsStatus;
 	pushtokenObj?: ExpoPushToken;
 };
 
@@ -56,11 +63,11 @@ export class NotificationHelper {
 	}
 
 	static getBadgeCountAsync() {
-		return Notifications.getBadgeCountAsync();
+		return getNotificationsModule().then(m => (m ? m.getBadgeCountAsync() : 0));
 	}
 
 	static setBadgeCountAsync(count: number) {
-		return Notifications.setBadgeCountAsync(count);
+		return getNotificationsModule().then(m => (m ? m.setBadgeCountAsync(count) : undefined));
 	}
 
 	static isDeviceNotificationPermissionDenied(notificationObj: NotificationObjType) {
@@ -74,7 +81,7 @@ export class NotificationHelper {
 	static isDeviceNotificationPermissionUndetermined(notificationObj: NotificationObjType) {
 		const { isIOS, isAndroid } = usePlatformHelper();
 		if (isIOS()) {
-			return notificationObj?.permission?.ios?.status === IosAuthorizationStatus.NOT_DETERMINED;
+			return notificationObj?.permission?.ios?.status === 0;
 		} else if (isAndroid()) {
 			return notificationObj?.permission?.android?.importance === undefined;
 		}
@@ -92,8 +99,12 @@ export class NotificationHelper {
 		};
 	}
 
-	static async getDeviceNotificationPermission(): Promise<Notifications.NotificationPermissionsStatus | undefined> {
+	static async getDeviceNotificationPermission(): Promise<NotificationPermissionsStatus | undefined> {
 		try {
+			const Notifications = await getNotificationsModule();
+			if (!Notifications) {
+				return undefined;
+			}
 			return await Notifications.getPermissionsAsync();
 		} catch (err) {
 			//TODO: handle emulator
@@ -101,8 +112,12 @@ export class NotificationHelper {
 		}
 	}
 
-	static async requestDeviceNotificationPermission(): Promise<Notifications.NotificationPermissionsStatus | undefined> {
+	static async requestDeviceNotificationPermission(): Promise<NotificationPermissionsStatus | undefined> {
 		try {
+			const Notifications = await getNotificationsModule();
+			if (!Notifications) {
+				return undefined;
+			}
 			const permission = await Notifications.requestPermissionsAsync({
 				android: {
 					// On Android, all available permissions are granted by default
@@ -124,6 +139,10 @@ export class NotificationHelper {
 
 	static async getExpoPushTokenAsync(): Promise<ExpoPushToken | undefined> {
 		try {
+			const Notifications = await getNotificationsModule();
+			if (!Notifications) {
+				return undefined;
+			}
 			const projectId = NotificationHelper.getProjectId();
 			return await Notifications.getExpoPushTokenAsync({
 				projectId: projectId,
@@ -136,6 +155,10 @@ export class NotificationHelper {
 	}
 
 	static async scheduleLocalNotification(title: string, body: string, secondsFromNow: number, customIdentifier?: string) {
+		const Notifications = await getNotificationsModule();
+		if (!Notifications) {
+			return null;
+		}
 		const notification_id = await Notifications.scheduleNotificationAsync({
 			content: {
 				title: title,
@@ -153,24 +176,37 @@ export class NotificationHelper {
 	}
 
 	static async cancelScheduledLocalNotification(notificationId: string) {
+		const Notifications = await getNotificationsModule();
+		if (!Notifications) {
+			return false;
+		}
 		await Notifications.cancelScheduledNotificationAsync(notificationId);
 		const foundNotification = await NotificationHelper.getScheduledLocalNotification(notificationId);
 		return !foundNotification;
 	}
 
 	static getNotificationChannelsAsync() {
-		return Notifications.getNotificationChannelsAsync();
+		return getNotificationsModule().then(m => (m ? m.getNotificationChannelsAsync() : []));
 	}
 
 	static setNotificationChannelAsync(channel: string) {
-		Notifications.setNotificationChannelAsync(channel, {
-			name: channel,
-			importance: Notifications.AndroidImportance.HIGH,
-			sound: 'default',
+		getNotificationsModule().then(Notifications => {
+			if (!Notifications) {
+				return;
+			}
+			Notifications.setNotificationChannelAsync(channel, {
+				name: channel,
+				importance: Notifications.AndroidImportance.HIGH,
+				sound: 'default',
+			});
 		});
 	}
 
 	static async getAllScheduledNotificationsAsync() {
+		const Notifications = await getNotificationsModule();
+		if (!Notifications) {
+			return [];
+		}
 		const notifications = await Notifications.getAllScheduledNotificationsAsync();
 		return notifications;
 	}

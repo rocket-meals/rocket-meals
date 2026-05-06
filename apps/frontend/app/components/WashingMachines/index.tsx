@@ -7,7 +7,6 @@ import { DatabaseTypes } from 'repo-depkit-common';
 import { differenceInSeconds, format, isAfter, isBefore } from 'date-fns';
 import washingmachine from '@/assets/animations/washingmachine/washingmachine.json';
 import washingmachineEmpty from '@/assets/animations/washingmachine/washingmachineEmpty.json';
-import * as Notifications from 'expo-notifications';
 import { useAppSelector } from '@/redux/hooks';
 import LottieView from 'lottie-react-native';
 import { useFocusEffect } from 'expo-router';
@@ -72,6 +71,10 @@ const WashingMachines: React.FC<any> = ({ campusDetails }) => {
 	// Check and request notification permissions
 	const checkPermissions = async () => {
 		try {
+			if (Platform.OS === 'web') {
+				return;
+			}
+			const Notifications = await import('expo-notifications');
 			const { status } = await Notifications.getPermissionsAsync();
 			if (status !== 'granted') {
 				await Notifications.requestPermissionsAsync();
@@ -84,6 +87,8 @@ const WashingMachines: React.FC<any> = ({ campusDetails }) => {
 	// Schedule notifications for washing machines
 	const scheduleNotifications = async () => {
 		if (!washingMachines) return;
+		if (Platform.OS === 'web') return;
+		const Notifications = await import('expo-notifications');
 		const now = new Date();
 
 		for (const machine of washingMachines) {

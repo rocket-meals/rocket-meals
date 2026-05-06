@@ -4,10 +4,11 @@ import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import { RootState } from '@/redux/reducer';
 import { registerForPushNotificationsAsync } from '@/helper/getPushToken';
-import * as Notifications from 'expo-notifications';
+import type { Subscription } from 'expo-notifications';
 import { UPDATE_PROFILE } from '@/redux/Types/types';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
+import { Platform } from 'react-native';
 
 const extractRawExpoToken = (token: string | null) => {
 	if (!token) return null;
@@ -77,8 +78,9 @@ const Index = () => {
 
 	useEffect(() => {
 		if (!loggedIn || !profile?.id) return;
+		if (Platform.OS === 'web') return;
 
-		let subscription: Notifications.Subscription | undefined;
+		let subscription: Subscription | undefined;
 
 		(async () => {
 
@@ -86,8 +88,8 @@ const Index = () => {
 
 			await savePushTokenToAPI({ token, profile, dispatch });
 
-			subscription = Notifications.addNotificationReceivedListener(notification => {
-			});
+			const Notifications = await import('expo-notifications');
+			subscription = Notifications.addNotificationReceivedListener(() => {});
 		})();
 
 		return () => {
