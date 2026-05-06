@@ -20,6 +20,8 @@ type SettingsListPropsOwn = SettingsListItemBaseProps & {
 	 */
 	title?: string;
 	value?: string;
+	titleTextAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';
+	reverseLayout?: boolean;
 	/**
 	 * Element rendered on the right side. "rightIcon" is kept for
 	 * backwards compatibility with the old `SettingList` component.

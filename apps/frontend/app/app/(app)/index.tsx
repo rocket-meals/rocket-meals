@@ -30,7 +30,7 @@ const Home = () => {
 	const organizationsHelper = new OrganizationsHelper();
 	const { isManagement, profile } = useAppSelector(state => state.authReducer);
 	const [loading, setLoading] = useState(false);
-	const { canteens } = useAppSelector(state => state.canteenReducer);
+	const canteens = useAppSelector(state => Object.values(state.canteenReducer.canteensDict ?? {})) as DatabaseTypes.Canteens[];
 	const selectedCanteen = useSelectedCanteen();
 
 	const checkCanteenSelection = () => {
@@ -125,7 +125,7 @@ const Home = () => {
 				: (profile.canteen as DatabaseTypes.Canteens)?.id
 			: null;
 		if (!profileCanteenId) return;
-		const canteen = canteens.find(c => String(c.id) === String(profileCanteenId));
+		const canteen = canteens.find((c: DatabaseTypes.Canteens) => String(c.id) === String(profileCanteenId));
 		if (canteen) {
 			dispatch({ type: SET_SELECTED_CANTEEN, payload: canteen });
 			router.push(('/(app)/' + AppScreens.FOOD_OFFERS) as any);

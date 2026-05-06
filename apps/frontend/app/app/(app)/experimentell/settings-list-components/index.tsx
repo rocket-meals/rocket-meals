@@ -13,11 +13,17 @@ import SettingsListTextInput from '@/components/SettingsListTextInput';
 import SettingsListNickname from '@/components/SettingsListNickname';
 import SettingsListCoordinate from '@/components/SettingsListCoordinate/SettingsListCoordinate';
 import SettingsListLikeDislike from '@/components/SettingsListLikeDislike';
+import { useLanguage } from '@/hooks/useLanguage';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
+import { TranslationKeys } from '@/locales/keys';
 import styles from './styles';
 
 const SettingsListComponents = () => {
 	useSetPageTitle('SettingsList Komponenten');
 	const { theme } = useTheme();
+	const { translate } = useLanguage();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isArabic = !isLtrLanguage;
 	const { primaryColor } = useAppSelector((state) => state.settings);
 	const [dateValue, setDateValue] = useState('01.01.2024');
 	const [dateError, setDateError] = useState('');
@@ -110,8 +116,8 @@ const SettingsListComponents = () => {
 					groupPosition="single"
 				/>
 
-				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>SettingsListNickname</Text>
-				<SettingsListNickname />
+				<Text style={{ ...styles.sectionTitle, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.settings_list_nickname)}</Text>
+				<SettingsListNickname groupPosition="single" />
 
 				<Text style={{ ...styles.sectionTitle, color: theme.screen.text }}>SettingsListCoordinate</Text>
 				<SettingsListCoordinate

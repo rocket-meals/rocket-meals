@@ -130,7 +130,10 @@ export class ServerAPI {
 
 		const client = this.getPublicClient();
 		const providers = await client.request(readProviders());
-		return providers.map(({ name, label, icon }) => ({ name, label, icon }));
+		return providers.map((provider) => {
+			const p = provider as any;
+			return { name: p.name, label: p.label ?? null, icon: p.icon ?? null } as AuthProvider;
+		});
 	}
 
 	static getDemoAuthProviders(): AuthProvider[] {

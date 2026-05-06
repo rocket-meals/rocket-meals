@@ -19,6 +19,8 @@ import { format, isValid, parse } from 'date-fns';
 import { uploadToDirectus, uploadToDirectusFromMobile } from '@/constants/HelperFunctions';
 import { Buffer } from 'buffer';
 import { fetchSpecificField } from '@/redux/actions/Fields/Fields';
+import AppButton from '@/components/AppButton';
+import { useIsLtrLanguage } from '@/hooks/useIsLtrLanguage';
 
 const Index = () => {
     useSetPageTitle(TranslationKeys.form_queue);
@@ -32,6 +34,8 @@ const Index = () => {
     const formAnswersHelper = new FormAnswersHelper();
     const { formQueue } = useAppSelector((state) => state.form);
     const { primaryColor } = useAppSelector((state) => state.settings);
+    const isLtrLanguage = useIsLtrLanguage();
+    const isArabic = !isLtrLanguage;
 
     const queueEntries: FormQueueEntry[] = formQueue || [];
 
@@ -263,7 +267,7 @@ const Index = () => {
                                         >
                                             <MaterialCommunityIcons name="trash-can-outline" size={22} color={theme.screen.icon} />
                                         </TouchableOpacity>
-                                        <Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
+                                         <Entypo name={isLtrLanguage ? 'chevron-small-right' : 'chevron-small-left'} color={theme.screen.icon} size={24} />
                                     </View>
                                 </TouchableOpacity>
                             )}

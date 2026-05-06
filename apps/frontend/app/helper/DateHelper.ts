@@ -6,7 +6,7 @@ import { TranslationKeys } from '@/locales/keys';
 
 export const useSmartReadableDateMethod = () => {
 	const { translate, language } = useLanguage();
-	const dateLocale = language || Localization.locale || 'en';
+	const dateLocale = language || Localization.getLocales()?.[0]?.languageTag || 'en';
 
 	const relativeDaysDiffTranslations = useMemo(
 		() => ({

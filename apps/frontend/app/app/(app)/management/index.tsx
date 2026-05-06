@@ -165,7 +165,7 @@ const Index = () => {
                                         <SettingsList
                                                 leftIcon={<MaterialCommunityIcons name="download" size={24} />}
                                                 label={translate(TranslationKeys.app_download)}
-                                                rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
                                                 onPress={() => {
                                                         router.navigate('/app-download-management');
                                                 }}
