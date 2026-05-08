@@ -9,6 +9,7 @@ on:
         type: choice
         default: 'test.rocket-meals.de'
         options:
+          - Alle
           - test.rocket-meals.de
           - swosy.rocket-meals.de
           - studi-futter.rocket-meals.de
@@ -20,8 +21,43 @@ on:
         default: ''
 
 jobs:
+  trigger-all:
+    name: "🔁 Trigger all deployments"
+    if: github.event.inputs.server_preset == 'Alle'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: "🚀 Trigger deploy for test.rocket-meals.de"
+        run: |
+          gh workflow run deploy-backend-manual.yml \
+            --ref "${{ github.ref_name }}" \
+            --field server_preset=test.rocket-meals.de
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: "🚀 Trigger deploy for swosy.rocket-meals.de"
+        run: |
+          gh workflow run deploy-backend-manual.yml \
+            --ref "${{ github.ref_name }}" \
+            --field server_preset=swosy.rocket-meals.de
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: "🚀 Trigger deploy for studi-futter.rocket-meals.de"
+        run: |
+          gh workflow run deploy-backend-manual.yml \
+            --ref "${{ github.ref_name }}" \
+            --field server_preset=studi-futter.rocket-meals.de
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
   deploy:
     name: "🚀 Deploy Backend Server"
+    if: github.event.inputs.server_preset != 'Alle'
     runs-on: ubuntu-latest
     permissions:
       contents: read
