@@ -1,5 +1,12 @@
 name: "🚀 Deploy Backend (Manual)"
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Single source of truth for the server list lives in the "setup" job below.
+# Adding a new server only requires two changes:
+#   1. Add it to the `options` list here (for the UI dropdown).
+#   2. Add it to the ALL_SERVERS list in the setup job.
+# ─────────────────────────────────────────────────────────────────────────────
+
 on:
   workflow_dispatch:
     inputs:
@@ -15,71 +22,52 @@ on:
           - studi-futter.rocket-meals.de
           - custom
       server_host:
-        description: 'Custom backend host (overrides preset when set)'
+        description: 'Custom backend host (only used when preset = custom)'
         required: false
         type: string
         default: ''
 
 jobs:
-  trigger-all:
-    name: "🔁 Trigger all deployments"
-    if: github.event.inputs.server_preset == 'Alle'
+  setup:
+    name: "🔍 Resolve target servers"
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
+    outputs:
+      servers: ${{ steps.resolve.outputs.servers }}
     steps:
-      - name: "🚀 Trigger deploy for test.rocket-meals.de"
+      - name: "📋 Build server matrix"
+        id: resolve
         run: |
-          gh workflow run deploy-backend-manual.yml \
-            --ref "${{ github.ref_name }}" \
-            --field server_preset=test.rocket-meals.de
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
+          ALL_SERVERS='["test.rocket-meals.de","swosy.rocket-meals.de","studi-futter.rocket-meals.de"]'
+          PRESET="${{ github.event.inputs.server_preset }}"
+          CUSTOM="${{ github.event.inputs.server_host }}"
 
-      - name: "🚀 Trigger deploy for swosy.rocket-meals.de"
-        run: |
-          gh workflow run deploy-backend-manual.yml \
-            --ref "${{ github.ref_name }}" \
-            --field server_preset=swosy.rocket-meals.de
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
+          if [ "$PRESET" = "Alle" ]; then
+            SERVERS="$ALL_SERVERS"
+          elif [ "$PRESET" = "custom" ]; then
+            SERVERS="[\"$CUSTOM\"]"
+          else
+            SERVERS="[\"$PRESET\"]"
+          fi
 
-      - name: "🚀 Trigger deploy for studi-futter.rocket-meals.de"
-        run: |
-          gh workflow run deploy-backend-manual.yml \
-            --ref "${{ github.ref_name }}" \
-            --field server_preset=studi-futter.rocket-meals.de
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
+          echo "servers=$SERVERS" >> $GITHUB_OUTPUT
+          echo "ℹ️ Target servers: $SERVERS"
 
   deploy:
-    name: "🚀 Deploy Backend Server"
-    if: github.event.inputs.server_preset != 'Alle'
+    name: "🚀 Deploy to ${{ matrix.server }}"
+    needs: setup
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        server: ${{ fromJSON(needs.setup.outputs.servers) }}
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
 
-      - name: "🔍 Resolve target host"
-        id: resolve-host
-        run: |
-          CUSTOM="${{ github.event.inputs.server_host }}"
-          PRESET="${{ github.event.inputs.server_preset }}"
-          if [ -n "$CUSTOM" ]; then
-            echo "host=$CUSTOM" >> $GITHUB_OUTPUT
-            echo "ℹ️ Using custom host: $CUSTOM"
-          else
-            echo "host=$PRESET" >> $GITHUB_OUTPUT
-            echo "ℹ️ Using preset host: $PRESET"
-          fi
-
-      - name: "🚀 Deploy to ${{ steps.resolve-host.outputs.host }}"
+      - name: "🚀 Deploy to ${{ matrix.server }}"
         uses: ./.github/actions/deploy-server
         with:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          DEPLOY_SERVER_HOST: ${{ steps.resolve-host.outputs.host }}
+          DEPLOY_SERVER_HOST: ${{ matrix.server }}
