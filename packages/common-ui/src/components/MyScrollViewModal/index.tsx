@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import { Platform, View, Text, useWindowDimensions } from 'react-native';
-import { BottomSheetFlatList, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import Animated from 'react-native-reanimated';
+import { BottomSheetFlatList, BottomSheetScrollView, useBottomSheetInternal } from '@gorhom/bottom-sheet';
 import { useTheme } from '../../context/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -65,14 +66,21 @@ const MyScrollViewModal: React.FC<MyScrollViewModalProps> = ({
 	const contentStyle = { paddingBottom: 24 + insets.bottom + extraBottomPadding, paddingHorizontal: disableHorizontalPadding ? 0 : 20 };
 	const scrollInsets = { bottom: insets.bottom };
 
+	const { animatedContainerHeight } = useBottomSheetInternal();
+
 	const containerStyle = { backgroundColor: resolvedBackgroundColor };
 
-	// SCROLL FIX (gorhom v5): Do NOT put flex:1 on the outer wrapper View or on the
-	// BottomSheetScrollView/BottomSheetFlatList's style prop.  When the wrapper carries
-	// flex:1 it expands unconstrained inside the BottomSheet content container, causing
-	// gorhom to calculate contentHeight == containerHeight and therefore disable
-	// scrolling entirely.  Letting gorhom manage the scroll-view height via its own
-	// BottomSheetContext is the correct pattern.
+	// SCROLL FIX (gorhom v5): Do NOT put flex:1 on the outer wrapper — it causes
+	// gorhom to calculate contentHeight == containerHeight (unconstrained expansion)
+	// and therefore disables scrolling entirely.
+	//
+	// WORKAROUND: Instead of flex:1 we use maxHeight:animatedContainerHeight on an
+	// Animated.View wrapper.  This is visually identical to flex:1 (the wrapper is
+	// capped to the sheet's container height) but the View's natural height is still
+	// driven by its content, so gorhom correctly measures contentHeight > maxHeight
+	// and enables scrolling.  useBottomSheetInternal() provides animatedContainerHeight
+	// as a Reanimated shared value that tracks the live sheet height.
+	//
 	// NOTE FOR INSIDERS: Every scroll-related change in this modal stack must be
 	// documented here (and in MyAvatarEditor's header comment) so future maintainers
 	// understand the full history of attempted fixes.
@@ -85,7 +93,7 @@ const MyScrollViewModal: React.FC<MyScrollViewModalProps> = ({
 			</>
 		);
 		return (
-			<View style={containerStyle}>
+			<Animated.View style={[containerStyle, { maxHeight: animatedContainerHeight }]}>
 				<BottomSheetFlatList
 					data={data}
 					keyExtractor={keyExtractor}
@@ -97,7 +105,7 @@ const MyScrollViewModal: React.FC<MyScrollViewModalProps> = ({
 					keyboardShouldPersistTaps={keyboardShouldPersistTaps}
 					scrollIndicatorInsets={scrollInsets}
 				/>
-			</View>
+			</Animated.View>
 		);
 	}
 
@@ -122,7 +130,7 @@ const MyScrollViewModal: React.FC<MyScrollViewModalProps> = ({
 	scrollParts.push(<View key="__footer">{footerComponent}</View>);
 
 	return (
-		<View style={containerStyle}>
+		<Animated.View style={[containerStyle, { maxHeight: animatedContainerHeight }]}>
 			<BottomSheetScrollView
 				contentContainerStyle={contentStyle}
 				showsVerticalScrollIndicator={showsVerticalScrollIndicator}
@@ -132,7 +140,7 @@ const MyScrollViewModal: React.FC<MyScrollViewModalProps> = ({
 			>
 				{scrollParts}
 			</BottomSheetScrollView>
-		</View>
+		</Animated.View>
 	);
 };
 
