@@ -9,6 +9,7 @@ export type ResultHandleWorkflowRunsWantToRun = {
 
 export enum WorkflowEnum {
   fileCleanup = 'file-cleanup',
+  foodTranslationCompletion = 'food-translation-completion',
 }
 
 export class WorkflowRunLogger {
