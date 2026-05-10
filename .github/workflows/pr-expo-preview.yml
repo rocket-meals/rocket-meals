@@ -25,6 +25,10 @@ jobs:
     name: "🚀 EAS Preview Update (PR #${{ github.event.pull_request.number }})"
     runs-on: ubuntu-latest
     needs: check-repository
+    # Security: pull_request_target runs with write access to secrets.
+    # The `head.repo.full_name == github.repository` guard ensures this job
+    # (and the subsequent PR-branch checkout) only runs for same-repo PRs,
+    # so no untrusted code from forks can access secrets.
     if: >-
       github.event.action != 'closed'
       && needs.check-repository.outputs.is-upstream == 'true'
