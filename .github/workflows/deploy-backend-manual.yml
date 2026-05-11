@@ -1,28 +1,24 @@
 name: "🚀 Deploy Backend (Manual)"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Single source of truth for the server list lives in the "setup" job below.
-# Adding a new server only requires two changes:
-#   1. Add it to the `options` list here (for the UI dropdown).
-#   2. Add it to the ALL_SERVERS list in the setup job.
+# Single source of truth for the server list: ALL_SERVERS in the "setup" job.
+# Adding a new server only requires ONE change: add it to ALL_SERVERS below.
+# To deploy to a single server, pick "custom" and enter the hostname.
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
   workflow_dispatch:
     inputs:
       server_preset:
-        description: 'Backend server (preset)'
+        description: 'Backend server – "Alle" deploys all servers; "custom" uses the host below'
         required: true
         type: choice
-        default: 'test.rocket-meals.de'
+        default: 'Alle'
         options:
           - Alle
-          - test.rocket-meals.de
-          - swosy.rocket-meals.de
-          - studi-futter.rocket-meals.de
           - custom
       server_host:
-        description: 'Custom backend host (only used when preset = custom)'
+        description: 'Custom backend host (only used when preset = custom, e.g. test.rocket-meals.de)'
         required: false
         type: string
         default: ''
@@ -41,12 +37,10 @@ jobs:
           PRESET="${{ github.event.inputs.server_preset }}"
           CUSTOM="${{ github.event.inputs.server_host }}"
 
-          if [ "$PRESET" = "Alle" ]; then
-            SERVERS="$ALL_SERVERS"
-          elif [ "$PRESET" = "custom" ]; then
+          if [ "$PRESET" = "custom" ]; then
             SERVERS="[\"$CUSTOM\"]"
           else
-            SERVERS="[\"$PRESET\"]"
+            SERVERS="$ALL_SERVERS"
           fi
 
           echo "servers=$SERVERS" >> $GITHUB_OUTPUT
