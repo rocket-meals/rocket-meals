@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, useWindowDimensions, type DimensionValue } from 'react-native';
 import { router } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme';
-import { runAfterInteractions } from '@/helper/interactionHelper';
 import { isWeb } from '@/constants/Constants';
 import Feedbacks from '@/components/Feedbacks';
 import Details from '@/components/Details';
@@ -18,8 +17,6 @@ import { MarkingContent } from '@/components/MarkingBottomSheet';
 import NotificationSheet from '@/components/NotificationSheet/NotificationSheet';
 import usePlatformHelper from '@/helper/platformHelper';
 import { NotificationHelper } from '@/helper/NotificationHelper';
-import { getCurrentDevice, getDeviceIdentifier, getDeviceInformationWithoutPushToken } from '@/helper/DeviceHelper';
-import { ProfileHelper } from '@/redux/actions/Profile/Profile';
 import { createSelector } from 'reselect';
 import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/ColorHelper';
@@ -68,7 +65,6 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
         return result;
     }, [ownFoodFeedbacks, initialFoodId]);
 
-    const profileHelper = useMemo(() => new ProfileHelper(), []);
     const foodfeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
     const [notificationGranted, pushTokenObj, _, requestDeviceNotificationPermission] = NotificationHelper.useNotificationPermission(profile);
 
@@ -234,58 +230,6 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
         }
         return containerWidth;
     }, [screenWidth]);
-
-    const updateDeviceInfo = useCallback(async () => {
-        try {
-            const deviceInformationsWithoutPushToken = getDeviceInformationWithoutPushToken();
-            const deviceInformationsId = getDeviceIdentifier(deviceInformationsWithoutPushToken);
-            const pushTokenObj = await NotificationHelper.loadDeviceNotificationPermission();
-            let deviceInformationsWithPushToken = {
-                ...deviceInformationsWithoutPushToken,
-                pushTokenObj: pushTokenObj,
-                display_group: '',
-            };
-
-            let newDevices = profile?.devices ? [...profile.devices] : [];
-            let foundDevice = getCurrentDevice(deviceInformationsId, newDevices);
-            if (!foundDevice) {
-                newDevices.push(deviceInformationsWithPushToken as any);
-            } else {
-                const deviceInformationsForUpdate = {
-                    ...foundDevice,
-                    ...deviceInformationsWithPushToken,
-                };
-                if (JSON.stringify(foundDevice) === JSON.stringify(deviceInformationsForUpdate)) {
-                    return;
-                }
-                const index = newDevices.indexOf(foundDevice);
-                newDevices[index] = deviceInformationsForUpdate;
-            }
-            const result = (await profileHelper.updateProfile({
-                ...profile,
-                devices: newDevices,
-            })) as DatabaseTypes.Profiles;
-            if (result) {
-                dispatch({
-                    type: UPDATE_PROFILE,
-                    payload: result,
-                });
-            }
-        } catch (e) {
-            console.error('Error updating device information:', e);
-        }
-    }, [profile, dispatch, profileHelper]);
-
-    const deviceInfoUpdatedRef = useRef(false);
-
-    useEffect(() => {
-        if (profile?.id && !deviceInfoUpdatedRef.current) {
-            runAfterInteractions(() => {
-                updateDeviceInfo();
-                deviceInfoUpdatedRef.current = true;
-            });
-        }
-    }, [profile?.id, updateDeviceInfo]);
 
     const updateNotification = useCallback(async () => {
         if (!user?.id) {
