@@ -2,7 +2,9 @@
 
 Diese Dokumentation beschreibt die Directus REST-API-Endpunkte zum Abrufen des Speiseplans, inklusive Mensen, Speiseangeboten, Allergenen/Markierungen und Übersetzungen.
 
-**Base-URL:** `https://studi-futter.rocket-meals.de/rocket-meals/api`
+**Base-URL (exemplarisch – Studi-futter):** `https://studi-futter.rocket-meals.de/rocket-meals/api`
+
+> **Hinweis:** Die oben angegebene Base-URL ist die exemplarische URL der Instanz [Studi-futter](https://studi-futter.rocket-meals.de). Alle Beispiel-Requests in dieser Dokumentation verwenden diese URL als Prefix, damit die Routen direkt im Browser oder in einem REST-Client getestet werden können. Für andere Rocket-Meals-Instanzen muss die Base-URL entsprechend angepasst werden.
 
 Alle Endpunkte verwenden die [Directus REST-API](https://docs.directus.io/reference/items.html). Für öffentliche Daten ist keine Authentifizierung nötig, sofern die Berechtigungen im Directus-Backend entsprechend konfiguriert sind.
 
@@ -44,7 +46,7 @@ GET /items/canteens
 ### Beispiel-Request
 
 ```
-GET /items/canteens?fields=*,foodservice_hours.*,foodservice_hours_during_semester_break.*&limit=-1
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/canteens?fields=*,foodservice_hours.*,foodservice_hours_during_semester_break.*&limit=-1
 ```
 
 ### Beispiel-Response
@@ -109,7 +111,7 @@ GET /items/markings
 ### Beispiel-Request
 
 ```
-GET /items/markings?fields=*,translations.*&limit=-1&filter={"_and":[{"status":{"_eq":"published"}}]}
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/markings?fields=*,translations.*&limit=-1&filter={"_and":[{"status":{"_eq":"published"}}]}
 ```
 
 ### Beispiel-Response
@@ -234,7 +236,7 @@ GET /items/foodoffers
 ### Beispiel-Request
 
 ```
-GET /items/foodoffers?fields=*,markings.*,food.*,food.translations.*,attribute_values.*,attribute_values.food_attribute.*,attribute_values.food_attribute.group.*,attribute_values.food_attribute.translations.*&limit=-1&filter={"_and":[{"canteen":{"_eq":"CANTEEN_ID"}},{"_or":[{"_and":[{"date":{"_gte":"2025-01-15"}},{"date":{"_lte":"2025-01-15"}}]},{"date":{"_null":true}}]}]}
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/foodoffers?fields=*,markings.*,food.*,food.translations.*,attribute_values.*,attribute_values.food_attribute.*,attribute_values.food_attribute.group.*,attribute_values.food_attribute.translations.*&limit=-1&filter={"_and":[{"canteen":{"_eq":"CANTEEN_ID"}},{"_or":[{"_and":[{"date":{"_gte":"2025-01-15"}},{"date":{"_lte":"2025-01-15"}}]},{"date":{"_null":true}}]}]}
 ```
 
 ### Beispiel-Response
@@ -358,7 +360,7 @@ GET /items/foodoffers/<FOODOFFER_ID>
 ### Beispiel-Request
 
 ```
-GET /items/foodoffers/FOODOFFER_UUID?fields=*,markings.*,feedbacks.*,food.*,food.translations.*,food.food_category.*,food.food_category.translations.*,foodoffer_category.*,foodoffer_category.translations.*,attribute_values.*,attribute_values.food_attribute.*,attribute_values.food_attribute.translations.*&deep={"feedbacks":{"_filter":{"comment":{"_nnull":true}},"_sort":"-date_updated"}}
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/foodoffers/FOODOFFER_UUID?fields=*,markings.*,feedbacks.*,food.*,food.translations.*,food.food_category.*,food.food_category.translations.*,foodoffer_category.*,foodoffer_category.translations.*,attribute_values.*,attribute_values.food_attribute.*,attribute_values.food_attribute.translations.*&deep={"feedbacks":{"_filter":{"comment":{"_nnull":true}},"_sort":"-date_updated"}}
 ```
 
 ### Komponenten eines Angebots abrufen
@@ -366,7 +368,7 @@ GET /items/foodoffers/FOODOFFER_UUID?fields=*,markings.*,feedbacks.*,food.*,food
 Manche Angebote bestehen aus mehreren Komponenten (z.B. Hauptgericht + Beilage).
 
 ```
-GET /items/foodoffers/<FOODOFFER_ID>?fields=foodoffer_components.component_foodoffers_id.*,foodoffer_components.component_foodoffers_id.markings.*
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/foodoffers/<FOODOFFER_ID>?fields=foodoffer_components.component_foodoffers_id.*,foodoffer_components.component_foodoffers_id.markings.*
 ```
 
 ---
@@ -453,7 +455,7 @@ const displayName = translation?.name || food.alias;
 ### Verfügbare Sprachen abrufen
 
 ```
-GET /items/languages?limit=-1
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/languages?limit=-1
 ```
 
 ### Übersetzungen mit dem Hauptobjekt laden
@@ -461,9 +463,9 @@ GET /items/languages?limit=-1
 Übersetzungen werden **nicht** separat abgefragt, sondern als verschachtelte Relation im `fields`-Parameter:
 
 ```
-GET /items/foods?fields=*,translations.*
-GET /items/markings?fields=*,translations.*
-GET /items/foodoffers_categories?fields=*,translations.*
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/foods?fields=*,translations.*
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/markings?fields=*,translations.*
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/foodoffers_categories?fields=*,translations.*
 ```
 
 ---
@@ -473,7 +475,7 @@ GET /items/foodoffers_categories?fields=*,translations.*
 ### Speiseangebots-Kategorien (Foodoffer Categories)
 
 ```
-GET /items/foodoffers_categories?fields=*,translations.*&limit=-1&filter={"status":{"_eq":"published"}}
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/foodoffers_categories?fields=*,translations.*&limit=-1&filter={"status":{"_eq":"published"}}
 ```
 
 ### Felder der Collection `foodoffers_categories`
@@ -490,7 +492,7 @@ GET /items/foodoffers_categories?fields=*,translations.*&limit=-1&filter={"statu
 ### Speise-Kategorien (Food Categories)
 
 ```
-GET /items/foods_categories?fields=*,translations.*&limit=-1
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/foods_categories?fields=*,translations.*&limit=-1
 ```
 
 ---
@@ -498,7 +500,7 @@ GET /items/foods_categories?fields=*,translations.*&limit=-1
 ## 8. Gebäude (Buildings) abrufen
 
 ```
-GET /items/buildings?fields=*&limit=-1
+GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/buildings?fields=*&limit=-1
 ```
 
 Gebäude sind optional über die `building`-Relation in `canteens` verknüpft und enthalten Standortinformationen.
@@ -573,23 +575,23 @@ Für eine vollständige Implementierung des Speiseplans wird folgender Ablauf em
 ### Schritt 1: Grunddaten laden (einmalig / beim App-Start)
 
 ```
-1. GET /items/canteens?fields=*,foodservice_hours.*,foodservice_hours_during_semester_break.*&limit=-1
+1. GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/canteens?fields=*,foodservice_hours.*,foodservice_hours_during_semester_break.*&limit=-1
    → Alle Mensen mit Öffnungszeiten laden
 
-2. GET /items/markings?fields=*,translations.*&limit=-1&filter={"_and":[{"status":{"_eq":"published"}}]}
+2. GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/markings?fields=*,translations.*&limit=-1&filter={"_and":[{"status":{"_eq":"published"}}]}
    → Alle Allergene/Markierungen mit Übersetzungen laden
 
-3. GET /items/languages?limit=-1
+3. GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/languages?limit=-1
    → Verfügbare Sprachen laden (für Übersetzungsauswahl)
 
-4. GET /items/foodoffers_categories?fields=*,translations.*&limit=-1&filter={"status":{"_eq":"published"}}
+4. GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/foodoffers_categories?fields=*,translations.*&limit=-1&filter={"status":{"_eq":"published"}}
    → Kategorien laden (z.B. "Menü 1", "Menü 2", "Beilage")
 ```
 
 ### Schritt 2: Speiseplan für Mensa + Datum laden
 
 ```
-5. GET /items/foodoffers?fields=*,markings.*,food.*,food.translations.*,attribute_values.*,attribute_values.food_attribute.*,attribute_values.food_attribute.group.*,attribute_values.food_attribute.translations.*&limit=-1&filter={"_and":[{"canteen":{"_eq":"<CANTEEN_ID>"}},{"_or":[{"_and":[{"date":{"_gte":"<DATUM>"}},{"date":{"_lte":"<DATUM>"}}]},{"date":{"_null":true}}]}]}
+5. GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/foodoffers?fields=*,markings.*,food.*,food.translations.*,attribute_values.*,attribute_values.food_attribute.*,attribute_values.food_attribute.group.*,attribute_values.food_attribute.translations.*&limit=-1&filter={"_and":[{"canteen":{"_eq":"<CANTEEN_ID>"}},{"_or":[{"_and":[{"date":{"_gte":"<DATUM>"}},{"date":{"_lte":"<DATUM>"}}]},{"date":{"_null":true}}]}]}
    → Alle Speiseangebote der gewählten Mensa für das gewählte Datum
    → <DATUM> im Format YYYY-MM-DD, z.B. "2025-01-15"
 ```
@@ -597,10 +599,10 @@ Für eine vollständige Implementierung des Speiseplans wird folgender Ablauf em
 ### Schritt 3: Detail-Ansicht (bei Klick auf ein Angebot)
 
 ```
-6. GET /items/foodoffers/<ID>?fields=*,markings.*,feedbacks.*,food.*,food.translations.*,food.food_category.*,food.food_category.translations.*,foodoffer_category.*,foodoffer_category.translations.*,attribute_values.*,attribute_values.food_attribute.*,attribute_values.food_attribute.translations.*&deep={"feedbacks":{"_filter":{"comment":{"_nnull":true}},"_sort":"-date_updated"}}
+6. GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/foodoffers/<ID>?fields=*,markings.*,feedbacks.*,food.*,food.translations.*,food.food_category.*,food.food_category.translations.*,foodoffer_category.*,foodoffer_category.translations.*,attribute_values.*,attribute_values.food_attribute.*,attribute_values.food_attribute.translations.*&deep={"feedbacks":{"_filter":{"comment":{"_nnull":true}},"_sort":"-date_updated"}}
    → Vollständige Details inkl. Feedbacks und Kategorien
 
-7. GET /items/foodoffers/<ID>?fields=foodoffer_components.component_foodoffers_id.*,foodoffer_components.component_foodoffers_id.markings.*
+7. GET https://studi-futter.rocket-meals.de/rocket-meals/api/items/foodoffers/<ID>?fields=foodoffer_components.component_foodoffers_id.*,foodoffer_components.component_foodoffers_id.markings.*
    → Komponenten des Angebots (falls vorhanden)
 ```
 
