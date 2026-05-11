@@ -4,6 +4,7 @@ import { DatabaseTypes } from 'repo-depkit-common';
 import * as DeviceInfo from 'expo-device';
 import { DeviceType } from 'expo-device';
 import usePlatformHelper from '@/helper/platformHelper';
+import { getVersion } from '@/config';
 
 /**
  * Defines the breakpoints for responsive design.
@@ -175,5 +176,6 @@ export function getDeviceInformationWithoutPushToken(): Partial<DatabaseTypes.De
 		is_ios: isIOS(),
 		is_android: isAndroid(),
 		is_web: isWeb(),
+		app_version: getVersion(),
 	};
 }
