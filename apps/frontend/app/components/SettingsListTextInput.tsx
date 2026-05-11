@@ -1,13 +1,8 @@
-// Hinweis: Wenn neue SettingsList-Komponenten entstehen, bitte auch im Experimental-Screen hinzufügen.
 import React, { useCallback, useMemo } from 'react';
-import { Keyboard, Platform, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, Platform, StyleSheet, View } from 'react-native';
 import type { KeyboardTypeOptions, TextInputProps } from 'react-native';
-import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
-const ResolvedTextInput = Platform.OS === 'web' ? TextInput : BottomSheetTextInput;
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useAppSelector } from '@/redux/hooks';
-
+import AppTextInput from '@/components/AppTextInput';
 import AppButton from '@/components/AppButton';
 import SettingsList from '@/components/SettingsList';
 import { useTheme } from '@/hooks/useTheme';
@@ -16,6 +11,9 @@ import useMyScrollviewTextInputModal from '@/hooks/useMyScrollviewTextInputModal
 import { RootState } from '@/redux/reducer';
 import type { SettingsListProps } from '@/components/SettingsList/types';
 import { TranslationKeys } from '@/locales/keys';
+import { useAppSelector } from '@/redux/hooks';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
@@ -91,23 +89,26 @@ export const SettingsListTextInputField: React.FC<SettingsListTextInputFieldProp
 }) => {
 	const { theme } = useTheme();
 	const languageTextAlign = useLanguageTextAlign();
-	const isLtrLanguage = useIsLtrLanguage();
-	const { primaryColor, language } = useAppSelector((state: RootState) => state.settings);
 
 	return (
-		<ResolvedTextInput
-			style={{
-				...styles.sheetInput,
-				color: theme.sheet.text,
+		<AppTextInput
+			containerStyle={{ marginTop: 12 }}
+			inputStyle={{
+				height: 56,
+				borderRadius: 20,
+				paddingHorizontal: 20,
 				backgroundColor: theme.sheet.inputBg,
-				borderColor: theme.sheet.inputBorder,
+			}}
+			borderColor={theme.sheet.inputBorder}
+			style={{
+				color: theme.sheet.text,
 				textAlign: languageTextAlign,
+				fontSize: 14,
 				...(inputStyle ?? {}),
 			}}
+			placeholderTextColor={theme.sheet.placeholder}
 			autoFocus={autoFocus}
 			placeholder={placeholder}
-			placeholderTextColor={theme.sheet.placeholder}
-			selectionColor={primaryColor}
 			value={value}
 			onChangeText={onChangeText}
 			keyboardType={keyboardType}
@@ -117,6 +118,7 @@ export const SettingsListTextInputField: React.FC<SettingsListTextInputFieldProp
 			textContentType={textContentType}
 			returnKeyType={returnKeyType}
 			onSubmitEditing={onSubmitEditing}
+			isBottomSheet={Platform.OS !== 'web'}
 		/>
 	);
 };
@@ -138,7 +140,6 @@ export const SettingsListTextInputSheet: React.FC<SettingsListTextInputSheetProp
 }) => {
 	const { theme } = useTheme();
 	const languageTextAlign = useLanguageTextAlign();
-	const { primaryColor, language } = useAppSelector((state) => state.settings);
 
 	const handleSubmitEditing = useCallback(() => {
 		if (multiline) return;
@@ -157,25 +158,26 @@ export const SettingsListTextInputSheet: React.FC<SettingsListTextInputSheetProp
 		onSave();
 	}, [allowSubmitWhenDisabled, disableSave, onSave]);
 
-	const Content = (
-		<View
-			style={{
-				...styles.sheetView,
-			}}
-		>
-			<ResolvedTextInput
-				style={{
-					...styles.sheetInput,
-					color: theme.sheet.text,
+	return (
+		<View style={styles.sheetView}>
+			<AppTextInput
+				containerStyle={{ marginTop: 12 }}
+				inputStyle={{
+					height: 56,
+					borderRadius: 20,
+					paddingHorizontal: 20,
 					backgroundColor: theme.sheet.inputBg,
-					borderColor: theme.sheet.inputBorder,
+				}}
+				borderColor={theme.sheet.inputBorder}
+				style={{
+					color: theme.sheet.text,
 					textAlign: languageTextAlign,
+					fontSize: 14,
 					...(inputStyle ?? {}),
 				}}
+				placeholderTextColor={theme.sheet.placeholder}
 				autoFocus={autoFocus}
 				placeholder={placeholder}
-				placeholderTextColor={theme.sheet.placeholder}
-				selectionColor={primaryColor}
 				value={value}
 				onChangeText={onChangeText}
 				keyboardType={keyboardType}
@@ -185,6 +187,7 @@ export const SettingsListTextInputSheet: React.FC<SettingsListTextInputSheetProp
 				blurOnSubmit={!multiline}
 				returnKeyType={multiline ? 'default' : 'done'}
 				onSubmitEditing={handleSubmitEditing}
+				isBottomSheet={Platform.OS !== 'web'}
 			/>
 
 			<View style={styles.buttonContainer}>
@@ -195,8 +198,6 @@ export const SettingsListTextInputSheet: React.FC<SettingsListTextInputSheetProp
 			</View>
 		</View>
 	);
-
-	return Content;
 };
 
 const SettingsListTextInput: React.FC<SettingsListTextInputProps> = ({

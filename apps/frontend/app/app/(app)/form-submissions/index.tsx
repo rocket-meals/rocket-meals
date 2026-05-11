@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -21,22 +21,23 @@ import { FormSubmissionSortOption } from '@/components/FormSubmissionSortSheet/t
 import { useAppSelector } from '@/redux/hooks';
 import { FormQueueEntry } from '@/redux/Types/stateTypes';
 import AppButton from '@/components/AppButton';
+import AppTextInput from '@/components/AppTextInput';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 type FormSubmissionListRow =
 	| {
-			type: 'folder';
-			id: string;
-			title: string;
-			path: string[];
-	  }
+		type: 'folder';
+		id: string;
+		title: string;
+		path: string[];
+	}
 	| {
-			type: 'submission';
-			id: string;
-			title: string;
-			submission: DatabaseTypes.FormSubmissions;
-	  };
+		type: 'submission';
+		id: string;
+		title: string;
+		submission: DatabaseTypes.FormSubmissions;
+	};
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.select_a_form_submission);
@@ -52,12 +53,12 @@ const Index = () => {
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const formsSubmissionsHelper = new FormsSubmissionsHelper();
 	const [formSubmissions, setFormSubmissions] = useState<DatabaseTypes.FormSubmissions[]>([]);
-    const [selectedOption, setSelectedOption] = useState<string>('draft');
-    const [sortOption, setSortOption] = useState<FormSubmissionSortOption>('alphabetical');
-    const { drawerPosition, language, offlineMode } = useAppSelector((state) => state.settings);
-    const resolvedDrawerPosition = drawerPosition === 'system' ? (isLtrLanguage ? 'left' : 'right') : drawerPosition;
-    const isArabicRight = !isLtrLanguage && resolvedDrawerPosition === 'right';
-    const [currentPath, setCurrentPath] = useState<string[]>([]);
+	const [selectedOption, setSelectedOption] = useState<string>('draft');
+	const [sortOption, setSortOption] = useState<FormSubmissionSortOption>('alphabetical');
+	const { drawerPosition, language, offlineMode } = useAppSelector((state) => state.settings);
+	const resolvedDrawerPosition = drawerPosition === 'system' ? (isLtrLanguage ? 'left' : 'right') : drawerPosition;
+	const isArabicRight = !isLtrLanguage && resolvedDrawerPosition === 'right';
+	const [currentPath, setCurrentPath] = useState<string[]>([]);
 	const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
 	const { formQueueDict, cachedFormData } = useAppSelector((state) => state.form);
 	const [isShowingCachedData, setIsShowingCachedData] = useState(false);
@@ -326,7 +327,7 @@ const Index = () => {
 			if (form_id) {
 				loadFormSubmissions(1, false);
 			}
-			return () => {};
+			return () => { };
 		}, [form_id, selectedOption, sortOption])
 	);
 
@@ -383,8 +384,7 @@ const Index = () => {
 
 	const renderItem = useCallback(
 		({ item }: { item: FormSubmissionListRow }) => {
-			const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
+			const isArabic = !isLtrLanguage;
 			const indentation = 10 + currentPath.length * 8;
 			const flexDirection: ViewStyle['flexDirection'] = isArabic ? 'row-reverse' : 'row';
 			const baseStyle = {
@@ -454,7 +454,7 @@ const Index = () => {
 				/>
 			);
 		},
-		[currentPath.length, language, router, theme.screen.icon, theme.screen.iconBg, theme.screen.text]
+		[currentPath.length, isLtrLanguage, language, router, theme.screen.icon, theme.screen.iconBg, theme.screen.text]
 	);
 
 	return (
@@ -543,92 +543,97 @@ const Index = () => {
 				</View>
 			</View>
 			<View style={styles.contentContainer}>
-			<>
-				<View style={styles.stateContainer}>
-					<Text
-						style={{
-							...styles.selectedState,
-							color: theme.screen.text,
-							fontSize: screenWidth > 600 ? 30 : 20,
-							marginBottom: screenWidth > 600 ? 0 : 10,
+				<>
+					<View style={styles.stateContainer}>
+						<Text
+							style={{
+								...styles.selectedState,
+								color: theme.screen.text,
+								fontSize: screenWidth > 600 ? 30 : 20,
+								marginBottom: screenWidth > 600 ? 0 : 10,
+							}}
+						>
+							{`${translate(TranslationKeys.state)}: ${translate(selectedOption)}`}
+						</Text>
+						{isShowingCachedData && (
+							<View style={styles.cachedRow}>
+								<MaterialCommunityIcons name="cached" size={18} color={theme.screen.icon} />
+							</View>
+						)}
+						{offlineMode && (
+							<View style={styles.cachedRow}>
+								<FontAwesome name="cloud-download" size={18} color="green" />
+							</View>
+						)}
+					</View>
+					<AppTextInput
+						containerStyle={{
+							width: screenWidth > 768 ? '60%' : '90%',
+							marginTop: screenWidth > 768 ? 20 : 0,
+							marginBottom: screenWidth > 768 ? 20 : 0,
 						}}
-					>
-						{`${translate(TranslationKeys.state)}: ${translate(selectedOption)}`}
-					</Text>
-					{isShowingCachedData && (
-						<View style={styles.cachedRow}>
-							<MaterialCommunityIcons name="cached" size={18} color={theme.screen.icon} />
-						</View>
-					)}
-					{offlineMode && (
-						<View style={styles.cachedRow}>
-							<FontAwesome name="cloud-download" size={18} color="green" />
-						</View>
-					)}
-				</View>
-				<View
-					style={{
-						...styles.searchContainer,
-						width: screenWidth > 768 ? '60%' : '90%',
-						marginTop: screenWidth > 768 ? 20 : 0,
-						marginBottom: screenWidth > 768 ? 20 : 0,
-					}}
-				>
-					<TextInput
-						style={{
+						inputStyle={{
 							...styles.searchInput,
-							width: screenWidth > 768 ? '90%' : '85%',
-							color: theme.screen.text,
-							textAlign: languageTextAlign,
+							width: '100%',
+							paddingHorizontal: 0,
+							paddingLeft: 20,
+							borderRadius: 50,
+							borderColor: '#3A3A3A',
+							backgroundColor: 'transparent', // container handles background if needed, or inputStyle does
 						}}
+						value={query}
+						onChangeText={setQuery}
+						placeholder={translate(TranslationKeys.search_with_alias)}
 						cursorColor={theme.screen.text}
 						placeholderTextColor={theme.screen.placeholder}
-						onChangeText={setQuery}
-						value={query}
-						placeholder={translate(TranslationKeys.search_with_alias)}
+						style={{ color: theme.screen.text }}
+						rightElement={
+							<TouchableOpacity
+								style={{
+									...styles.searchButton,
+									backgroundColor: theme.screen.iconBg,
+									width: screenWidth > 768 ? '10%' : '15%',
+									borderWidth: 0,
+									borderLeftWidth: 1,
+									borderColor: '#3A3A3A',
+								}}
+								onPress={handleSearchFilter}
+							>
+								<Ionicons name="search" color={theme.screen.icon} size={22} />
+							</TouchableOpacity>
+						}
 					/>
-					<TouchableOpacity
-						style={{
-							...styles.searchButton,
-							backgroundColor: theme.screen.iconBg,
-							width: screenWidth > 768 ? '10%' : '15%',
-						}}
-						onPress={handleSearchFilter}
-					>
-						<Ionicons name="search" color={theme.screen.icon} size={22} />
-					</TouchableOpacity>
-				</View>
-			</>
-		</View>
-		<View
-			style={{
-				flex: 1,
-				width: '100%',
-				marginTop: 10,
-				alignItems: 'center',
-			}}
-		>
-			<View style={{ flex: 1, width: screenWidth > 768 ? '70%' : '90%' }}>
-				{loading ? (
-					<View
-						style={{
-							height: 200,
-							width: '100%',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
-						<ActivityIndicator size={30} color={theme.screen.text} />
-					</View>
-				) : formSubmissions?.length > 0 ? (
-					<FlatList data={listData} keyExtractor={item => item.id} renderItem={renderItem} contentContainerStyle={{ paddingBottom: 10 }} />
-				) : (
-					<View style={{ padding: 20, alignItems: 'center' }}>
-						<Text style={{ color: theme.screen.text, fontSize: 16 }}>{translate(TranslationKeys.no_data_found)}</Text>
-					</View>
-				)}
+				</>
 			</View>
-		</View>
+			<View
+				style={{
+					flex: 1,
+					width: '100%',
+					marginTop: 10,
+					alignItems: 'center',
+				}}
+			>
+				<View style={{ flex: 1, width: screenWidth > 768 ? '70%' : '90%' }}>
+					{loading ? (
+						<View
+							style={{
+								height: 200,
+								width: '100%',
+								justifyContent: 'center',
+								alignItems: 'center',
+							}}
+						>
+							<ActivityIndicator size={30} color={theme.screen.text} />
+						</View>
+					) : formSubmissions?.length > 0 ? (
+						<FlatList data={listData} keyExtractor={item => item.id} renderItem={renderItem} contentContainerStyle={{ paddingBottom: 10 }} />
+					) : (
+						<View style={{ padding: 20, alignItems: 'center' }}>
+							<Text style={{ color: theme.screen.text, fontSize: 16 }}>{translate(TranslationKeys.no_data_found)}</Text>
+						</View>
+					)}
+				</View>
+			</View>
 			<FilterFormSheet isVisible={isFilterModalVisible} closeSheet={closeFilterSheet} isFormSubmission={true} setSelectedOption={setSelectedOption} selectedOption={selectedOption} options={filterOptions} />
 			{isActive && (
 				<>

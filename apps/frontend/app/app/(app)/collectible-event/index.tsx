@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import AppTextInput from '@/components/AppTextInput';
 import { COLLECTABLE_AT_FIELDS, CollectibleAt, DatabaseTypes, DateHelper } from 'repo-depkit-common';
 
 import useActiveCollectibleEvent from '@/hooks/useActiveCollectibleEvent';
@@ -104,32 +105,24 @@ const DebugSection: React.FC<DebugSectionProps> = ({
             <View style={{ marginTop: 16 }}>
                     <Text style={{ ...styles.label, color: theme.screen.text, marginBottom: 8 }}>{translate(TranslationKeys.debug)}</Text>
                     <View style={{ marginTop: 12, gap: 8 }}>
-                            <TouchableOpacity
-                                style={{
-                                        ...styles.button,
-                                        backgroundColor: buttonColor,
-                                        opacity: 0.9,
-                                }}
-                                onPress={simulateAllFound}
-                            >
-                                    <Text style={{ ...styles.buttonText, color: theme.dark }}>
-                                            Simulate all collectibles found
-                                    </Text>
-                            </TouchableOpacity>
+                             <AppButton
+                                 text="Simulate all collectibles found"
+                                 onPress={simulateAllFound}
+                                 style={{ ...styles.button, backgroundColor: buttonColor, opacity: 0.9, marginVertical: 0 }}
+                                 textStyle={{ ...styles.buttonText, color: theme.dark }}
+                                 usePlainText
+                                 variant="ghost"
+                             />
 
-                            <TouchableOpacity
-                                style={{
-                                        ...styles.button,
-                                        backgroundColor: buttonColor,
-                                        opacity: nextCollectibleKey ? 0.9 : 0.4,
-                                }}
-                                disabled={!nextCollectibleKey}
-                                onPress={simulateNextFound}
-                            >
-                                    <Text style={{ ...styles.buttonText, color: theme.dark }}>
-                                            Simulate next collectible found
-                                    </Text>
-                            </TouchableOpacity>
+                             <AppButton
+                                 text="Simulate next collectible found"
+                                 onPress={simulateNextFound}
+                                 disabled={!nextCollectibleKey}
+                                 style={{ ...styles.button, backgroundColor: buttonColor, opacity: nextCollectibleKey ? 0.9 : 0.4, marginVertical: 0 }}
+                                 textStyle={{ ...styles.buttonText, color: theme.dark }}
+                                 usePlainText
+                                 variant="ghost"
+                             />
 
                             <AppButton
                                 text={translate(TranslationKeys.reset_current_event_found_collectible)}
@@ -604,39 +597,37 @@ const CollectibleEventScreen = () => {
                                         <Text style={{ ...styles.label, color: theme.screen.text }}>
                                                 {translate(TranslationKeys.email)}
                                         </Text>
-                                        <TextInput
-                                            style={{
-                                                    ...styles.input,
-                                                    color: theme.screen.text,
-                                                    backgroundColor: theme.drawerBg,
-                                                    borderColor: theme.screen.icon,
-                                                    textAlign: languageTextAlign,
-                                            }}
-                                            value={email}
-                                            onChangeText={setEmail}
-                                            placeholder={translate(TranslationKeys.email)}
-                                            placeholderTextColor={theme.screen.placeholder}
-                                            keyboardType="email-address"
-                                            autoCapitalize="none"
-                                        />
+                                         <AppTextInput
+                                             style={{ color: theme.screen.text, fontSize: 16 }}
+                                             inputStyle={{ paddingVertical: 10 }}
+                                             containerStyle={{
+                                                     backgroundColor: theme.drawerBg,
+                                                     borderColor: theme.screen.icon,
+                                             }}
+                                             value={email}
+                                             onChangeText={setEmail}
+                                             placeholder={translate(TranslationKeys.email)}
+                                             placeholderTextColor={theme.screen.placeholder}
+                                             keyboardType="email-address"
+                                             autoCapitalize="none"
+                                         />
 
                                         <Text style={{ ...styles.label, color: theme.screen.text, marginTop: 12 }}>
                                                 {translate(TranslationKeys.phone_number)}
                                         </Text>
-                                        <TextInput
-                                            style={{
-                                                    ...styles.input,
-                                                    color: theme.screen.text,
-                                                    backgroundColor: theme.drawerBg,
-                                                    borderColor: theme.screen.icon,
-                                                    textAlign: languageTextAlign,
-                                            }}
-                                            value={phoneNumber}
-                                            onChangeText={setPhoneNumber}
-                                            placeholder={translate(TranslationKeys.phone_number)}
-                                            placeholderTextColor={theme.screen.placeholder}
-                                            keyboardType="phone-pad"
-                                        />
+                                         <AppTextInput
+                                             style={{ color: theme.screen.text, fontSize: 16 }}
+                                             inputStyle={{ paddingVertical: 10 }}
+                                             containerStyle={{
+                                                     backgroundColor: theme.drawerBg,
+                                                     borderColor: theme.screen.icon,
+                                             }}
+                                             value={phoneNumber}
+                                             onChangeText={setPhoneNumber}
+                                             placeholder={translate(TranslationKeys.phone_number)}
+                                             placeholderTextColor={theme.screen.placeholder}
+                                             keyboardType="phone-pad"
+                                         />
 
                                         <Text style={{ ...styles.notice, color: theme.inactiveText }}>
                                                 {translate(TranslationKeys.collectible_event_data_notice)}

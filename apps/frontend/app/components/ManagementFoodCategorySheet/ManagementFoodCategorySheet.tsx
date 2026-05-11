@@ -1,4 +1,4 @@
-import { Dimensions, Text, TextInput, View } from 'react-native';
+import { Dimensions, Text, View } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ManagementFoodCategorySheetProps } from './types';
 import styles from './styles';
@@ -15,6 +15,7 @@ import SettingsListBoolean from '@/components/SettingsListBoolean/SettingsListBo
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
 import AppButton from '@/components/AppButton';
+import AppTextInput from '@/components/AppTextInput';
 
 export const ManagementFoodCategoryContent: React.FC<ManagementFoodCategorySheetProps> = ({ closeSheet, selectedFoodCategory }) => {
 	const { theme } = useTheme();
@@ -117,15 +118,20 @@ export const ManagementFoodCategoryContent: React.FC<ManagementFoodCategorySheet
 			</View>
 			{isCustom ? (
 				<View style={styles.modalContent}>
-					<TextInput
+					<AppTextInput
 						style={{
 							...styles.input,
 							color: 'black',
 							backgroundColor: '#fff',
-							borderWidth: 1,
 							height: 60,
-							textAlignVertical: 'top',
 						}}
+						inputStyle={{
+							backgroundColor: 'transparent',
+							textAlignVertical: 'top',
+							height: 60,
+						}}
+						borderWidth={1}
+						borderColor={theme.screen.icon}
 						value={value}
 						onChangeText={setValue}
 					/>

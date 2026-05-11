@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Keyboard, Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Keyboard, Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import AppTextInput from '@/components/AppTextInput';
+import AppButton from '@/components/AppButton';
 import { useTheme } from '@/hooks/useTheme';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { TranslationKeys } from '@/locales/keys';
@@ -249,7 +251,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 				title={translate(TranslationKeys.cluster_distance_px)}
 				leftIcon={<MaterialCommunityIcons name="dots-grid" size={20} color={theme.screen.icon} />}
 				rightElement={
-					<TextInput
+					<AppTextInput
 						value={localClusterDistance}
 						onChangeText={(text) => {
 							setLocalClusterDistance(text);
@@ -259,7 +261,10 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 							}
 						}}
 						keyboardType="numeric"
-						style={{ color: theme.screen.text, textAlign: 'right', minWidth: 60, fontSize: 15 }}
+						containerStyle={{ width: 60 }}
+						inputStyle={{ paddingHorizontal: 0, backgroundColor: 'transparent' }}
+						style={{ color: theme.screen.text, textAlign: 'right', fontSize: 15 }}
+						borderWidth={0} // No border needed inside SettingsList
 					/>
 				}
 				groupPosition="middle"
@@ -377,7 +382,7 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 					title={translate(TranslationKeys.simulated_people_count)}
 					leftIcon={<MaterialIcons name="person-add" size={20} color={theme.screen.icon} />}
 					rightElement={
-						<TextInput
+						<AppTextInput
 							value={localPeopleCount}
 							onChangeText={(text) => {
 								setLocalPeopleCount(text);
@@ -387,7 +392,10 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 								}
 							}}
 							keyboardType="numeric"
-							style={{ color: theme.screen.text, textAlign: 'right', minWidth: 60, fontSize: 15 }}
+							containerStyle={{ width: 60 }}
+							inputStyle={{ paddingHorizontal: 0, backgroundColor: 'transparent' }}
+							style={{ color: theme.screen.text, textAlign: 'right', fontSize: 15 }}
+							borderWidth={0}
 						/>
 					}
 					groupPosition="middle"
@@ -466,17 +474,20 @@ const OsmControlsHintContent: React.FC<OsmControlsHintContentProps> = ({ onDontS
 			<Text style={infoTextStyle}>
 				{translate(TranslationKeys.controls_hint_info)}
 			</Text>
-			<TouchableOpacity
+			<AppButton
 				onPress={onDontShowAgain}
+				text={translate(TranslationKeys.dont_show_hint_again)}
 				style={{
 					backgroundColor: theme.screen.iconBg,
 					borderRadius: 8,
 					paddingVertical: 12,
 					alignItems: 'center',
+					marginVertical: 0,
 				}}
-			>
-				<Text style={{ color: theme.screen.text, fontSize: 15 }}>{translate(TranslationKeys.dont_show_hint_again)}</Text>
-			</TouchableOpacity>
+				textStyle={{ color: theme.screen.text, fontSize: 15 }}
+				usePlainText
+				variant="ghost"
+			/>
 		</View>
 	);
 };

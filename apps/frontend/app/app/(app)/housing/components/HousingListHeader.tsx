@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { View, TextInput } from 'react-native';
+import { View } from 'react-native';
+import AppTextInput from '@/components/AppTextInput';
 import { CollectibleAt } from 'repo-depkit-common';
 
 import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
@@ -60,8 +61,9 @@ const HousingListHeader: React.FC<HousingListHeaderProps> = ({
 					},
 				]}
 			>
-				<TextInput
-					style={[styles.searchInput, { color: theme.screen.text }, { textAlign: languageTextAlign }]}
+				<AppTextInput
+					inputStyle={styles.searchInput}
+					style={{ color: theme.screen.text }}
 					cursorColor={theme.screen.text}
 					placeholderTextColor={theme.screen.placeholder}
 					onChangeText={setQuery}

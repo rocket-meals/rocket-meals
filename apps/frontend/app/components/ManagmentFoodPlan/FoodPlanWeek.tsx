@@ -1,4 +1,4 @@
-import { Dimensions, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Switch, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import AppButton from '../AppButton';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppTextInput from '@/components/AppTextInput';
 
 const FoodPlanWeek = ({ data, onPressItem }: { data: any[]; onPressItem: (item: any) => void }) => {
 	const { theme } = useTheme();
@@ -79,7 +80,7 @@ const FoodPlanWeek = ({ data, onPressItem }: { data: any[]; onPressItem: (item: 
 						) : (
 							<>
 								{item.name === 'Canteen' && (
-									<TextInput
+									<AppTextInput
 										style={[
 											styles.textInput,
 											{
@@ -89,6 +90,11 @@ const FoodPlanWeek = ({ data, onPressItem }: { data: any[]; onPressItem: (item: 
 												width: windowWidth > 600 ? 200 : 120,
 											},
 										]}
+										inputStyle={{
+											backgroundColor: 'transparent',
+											paddingHorizontal: 0,
+										}}
+										borderWidth={0}
 										editable={false}
 										pointerEvents="none"
 										value={selectedCanteen?.alias || undefined}

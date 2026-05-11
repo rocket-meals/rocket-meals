@@ -1,4 +1,4 @@
-import { Dimensions, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Switch, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import AppButton from '../AppButton';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppTextInput from '@/components/AppTextInput';
 
 const FoodPlanList = ({
 	data,
@@ -24,7 +25,7 @@ const FoodPlanList = ({
 	refreshData: string;
 }) => {
 	const { theme } = useTheme();
-	const {translate} = useLanguage();
+	const { translate } = useLanguage();
 	const isLtrLanguage = useIsLtrLanguage();
 	const isArabic = !isLtrLanguage;
 
@@ -91,7 +92,7 @@ const FoodPlanList = ({
 						) : (
 							<>
 								{item.name === 'Canteen' && (
-									<TextInput
+									<AppTextInput
 										style={[
 											styles.textInput,
 											{
@@ -101,6 +102,11 @@ const FoodPlanList = ({
 												width: windowWidth > 600 ? 200 : 120,
 											},
 										]}
+										inputStyle={{
+											backgroundColor: 'transparent',
+											paddingHorizontal: 0,
+										}}
+										borderWidth={0}
 										editable={false}
 										pointerEvents="none"
 										value={selectedCanteen?.alias || undefined}
@@ -108,7 +114,7 @@ const FoodPlanList = ({
 								)}
 
 								{item.name === 'Next Food Interval' && (
-									<TextInput
+									<AppTextInput
 										style={[
 											styles.textInput,
 											{
@@ -118,6 +124,11 @@ const FoodPlanList = ({
 												width: windowWidth > 600 ? 200 : 120,
 											},
 										]}
+										inputStyle={{
+											backgroundColor: 'transparent',
+											paddingHorizontal: 0,
+										}}
+										borderWidth={0}
 										editable={false}
 										pointerEvents="none"
 										value={intervalNext}
@@ -125,7 +136,7 @@ const FoodPlanList = ({
 								)}
 
 								{item.name === 'Refresh Data Interval (seconds)' && (
-									<TextInput
+									<AppTextInput
 										style={[
 											styles.textInput,
 											{
@@ -135,6 +146,11 @@ const FoodPlanList = ({
 												width: windowWidth > 600 ? 200 : 120,
 											},
 										]}
+										inputStyle={{
+											backgroundColor: 'transparent',
+											paddingHorizontal: 0,
+										}}
+										borderWidth={0}
 										editable={false}
 										pointerEvents="none"
 										value={refreshData}

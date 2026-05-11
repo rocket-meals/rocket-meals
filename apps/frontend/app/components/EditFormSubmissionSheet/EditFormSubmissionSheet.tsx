@@ -1,4 +1,4 @@
-import { Text, TextInput, View } from 'react-native';
+import { Text, View } from 'react-native';
 import React, { useState } from 'react';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import styles from './styles';
@@ -15,6 +15,7 @@ import { useAppSelector } from '@/redux/hooks';
 import AppButton from '@/components/AppButton';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
+import AppTextInput from '@/components/AppTextInput';
 
 const EditFormSubmissionSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
 	const { theme } = useTheme();
@@ -71,7 +72,18 @@ const EditFormSubmissionSheet: React.FC<sheetProps> = ({ id, closeSheet }) => {
 						...styles.inputContainer,
 					}}
 				>
-					<TextInput style={[styles.input, { color: theme.screen.text }, { textAlign: languageTextAlign }]} cursorColor={theme.screen.text} placeholderTextColor={theme.screen.placeholder} onChangeText={setAlias} value={alias || ''} placeholder={translate(TranslationKeys.type_here)} />
+					<AppTextInput
+						style={[styles.input, { color: theme.screen.text }, { textAlign: languageTextAlign }]}
+						inputStyle={{
+							backgroundColor: 'transparent',
+							paddingHorizontal: 0,
+						}}
+						borderWidth={0}
+						isBottomSheet={!isWeb}
+						onChangeText={setAlias}
+						value={alias || ''}
+						placeholder={translate(TranslationKeys.type_here)}
+					/>
 				</View>
 				<View style={styles.actionContainer}>
 					<AppButton

@@ -1,7 +1,4 @@
-import { Keyboard, Platform, StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
-import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
-
-const InputComponent = Platform.OS === 'web' ? TextInput : BottomSheetTextInput;
+import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import React, { useRef, useState, useEffect } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -13,6 +10,7 @@ import { StringHelper } from 'repo-depkit-common';
 import { useAppSelector } from '@/redux/hooks';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
+import AppTextInput from '@/components/AppTextInput';
 
 const DateWithTimeInput = ({ id, value, onChange, onError, error, isDisabled, custom_type, prefix, suffix }: { id: string; value: string; onChange: (id: string, value: string, custom_type: string) => void; onError: (id: string, error: string) => void; error: string; isDisabled: boolean; custom_type: string; prefix: string | null | undefined; suffix: string | null | undefined }) => {
 	const { theme } = useTheme();
@@ -144,20 +142,29 @@ const DateWithTimeInput = ({ id, value, onChange, onError, error, isDisabled, cu
 				)}
 
 				{/* Editable TextInput */}
-				<InputComponent
-					style={[
-						styles.input,
+				<AppTextInput
+					containerStyle={
 						flag
 							? {
 								flex: 1,
-								borderRadius: 10,
+								width: undefined,
 							}
 						: {
 							width: isWeb ? '90%' : '80%',
-						},
+						}
+					}
+					style={[
+						styles.input,
 						{ color: theme.screen.text },
 						{ textAlign: languageTextAlign },
+						flag ? { borderRadius: 10 } : {},
 					]}
+					inputStyle={{
+						backgroundColor: 'transparent',
+						paddingHorizontal: 0,
+					}}
+					borderWidth={0}
+					isBottomSheet={Platform.OS !== 'web'}
 					placeholderTextColor={theme.screen.placeholder}
 					onChangeText={validateDateTime}
 					value={localValue}
@@ -269,20 +276,29 @@ const DateInput = ({ id, value, onChange, onError, error, isDisabled, custom_typ
 				)}
 
 				{/* Editable TextInput */}
-				<InputComponent
-					style={[
-						styles.input,
+				<AppTextInput
+					containerStyle={
 						flag
 							? {
 								flex: 1,
-								borderRadius: 10,
+								width: undefined,
 							}
 						: {
 							width: isWeb ? '80%' : '70%',
-						},
+						}
+					}
+					style={[
+						styles.input,
 						{ color: theme.screen.text },
 						{ textAlign: languageTextAlign },
+						flag ? { borderRadius: 10 } : {},
 					]}
+					inputStyle={{
+						backgroundColor: 'transparent',
+						paddingHorizontal: 0,
+					}}
+					borderWidth={0}
+					isBottomSheet={Platform.OS !== 'web'}
 					placeholderTextColor={theme.screen.placeholder}
 					onChangeText={onLocalTextChange}
 					value={localValue}
@@ -382,20 +398,28 @@ const TimeInput = ({ id, value, onChange, onError, error, isDisabled, custom_typ
 						<Text style={{ ...styles.label, color: theme.screen.text }}>{prefix}</Text>
 					</View>
 				)}
-				<InputComponent
-					style={[
-						styles.input,
+				<AppTextInput
+					containerStyle={
 						flag
 							? {
 									width: '100%',
-									borderRadius: 10,
 								}
 							: {
 									width: isWeb ? '90%' : '80%',
-								},
+								}
+					}
+					style={[
+						styles.input,
 						{ color: theme.screen.text },
 						{ textAlign: languageTextAlign },
+						flag ? { borderRadius: 10 } : {},
 					]}
+					inputStyle={{
+						backgroundColor: 'transparent',
+						paddingHorizontal: 0,
+					}}
+					borderWidth={0}
+					isBottomSheet={Platform.OS !== 'web'}
 					placeholderTextColor={theme.screen.placeholder}
 					onChangeText={text => validateTime(text)}
 					value={value}
@@ -457,7 +481,7 @@ const PreciseTimestampInput = ({ id, value, onChange, onError, error, isDisabled
 
 		// Ensure max length (`DD.MM.YYYY HH:MM:SS` = 19 characters)
 		if (cleanedText.length > 19) {
-		 cleanedText = cleanedText.slice(0, 19);
+			cleanedText = cleanedText.slice(0, 19);
 		}
 
 		previousValue.current = cleanedText;
@@ -521,20 +545,28 @@ const PreciseTimestampInput = ({ id, value, onChange, onError, error, isDisabled
 						<Text style={{ ...styles.label, color: theme.screen.text }}>{prefix}</Text>
 					</View>
 				)}
-				<InputComponent
-					style={[
-						styles.input,
+				<AppTextInput
+					containerStyle={
 						flag
 							? {
 									width: '100%',
-									borderRadius: 10,
 								}
 							: {
 									width: isWeb ? '90%' : '80%',
-								},
+								}
+					}
+					style={[
+						styles.input,
 						{ color: theme.screen.text },
 						{ textAlign: languageTextAlign },
+						flag ? { borderRadius: 10 } : {},
 					]}
+					inputStyle={{
+						backgroundColor: 'transparent',
+						paddingHorizontal: 0,
+					}}
+					borderWidth={0}
+					isBottomSheet={Platform.OS !== 'web'}
 					placeholderTextColor={theme.screen.placeholder}
 					onChangeText={validateTimestamp}
 					value={value}

@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Dimensions, Platform, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { AntDesign, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
@@ -36,7 +36,7 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 	const { width: screenWidth } = useWindowDimensions();
 	const isLtrLanguage = useIsLtrLanguage();
 	const isRtl = !isLtrLanguage;
-	
+
 	const user = useAppSelector((state) => state.authReducer.user, shallowEqual);
 	const profile = useAppSelector((state) => state.authReducer.profile, shallowEqual);
 	const primaryColor = useAppSelector((state) => state.settings.primaryColor);
@@ -57,7 +57,7 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 	const labels = useMemo(() => Object.values(labelsDict || {}), [labelsDict]);
 	const labelEntries = useMemo(() => Object.values(labelEntriesDict || {}), [labelEntriesDict]);
 	const ownFoodFeedbacks = useMemo(() => Object.values(ownFoodFeedbacksDict || {}), [ownFoodFeedbacksDict]);
-	
+
 	const previousFeedback = useMemo(() => {
 		return getpreviousFeedback(ownFoodFeedbacks, foodId);
 	}, [ownFoodFeedbacks, foodId]);
@@ -125,39 +125,39 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 	};
 
 	const resp = screenWidth > 800;
-	
-    const ratingSummaryItems = useMemo(() => {
-        const rating = foodDetails?.rating_average ?? foodDetails?.rating_average_legacy;
-        const ratingAmount = foodDetails?.rating_amount ?? foodDetails?.rating_amount_legacy;
-        const showRatingsAmount = appSettings?.foods_ratings_amount_display;
-        const showRatingsAverage = appSettings?.foods_ratings_average_display;
-        const items = [];
-        if (showRatingsAmount) {
-            items.push({
-                key: 'ratings-amount',
-                icon: <Ionicons name="bar-chart" size={20} />,
-                leftText: translate(TranslationKeys.amount_ratings),
-                rightText: ratingAmount !== null && ratingAmount !== undefined ? `${ratingAmount}` : '-',
-            });
-        }
-        if (showRatingsAverage) {
-            items.push({
-                key: 'ratings-average',
-                icon: <AntDesign name="star" size={20} />,
-                leftText: translate(TranslationKeys.average_rating),
-                rightText: typeof rating === 'number' && !Number.isNaN(rating) ? `${numToOneDecimal(rating)}` : '-',
-            });
-        }
-        return items;
-    }, [foodDetails?.rating_average, foodDetails?.rating_average_legacy, foodDetails?.rating_amount, foodDetails?.rating_amount_legacy, appSettings?.foods_ratings_amount_display, appSettings?.foods_ratings_average_display, translate]);
 
-    const showRatingsAmount = appSettings?.foods_ratings_amount_display;
-    const showRatingsAverage = appSettings?.foods_ratings_average_display;
+	const ratingSummaryItems = useMemo(() => {
+		const rating = foodDetails?.rating_average ?? foodDetails?.rating_average_legacy;
+		const ratingAmount = foodDetails?.rating_amount ?? foodDetails?.rating_amount_legacy;
+		const showRatingsAmount = appSettings?.foods_ratings_amount_display;
+		const showRatingsAverage = appSettings?.foods_ratings_average_display;
+		const items = [];
+		if (showRatingsAmount) {
+			items.push({
+				key: 'ratings-amount',
+				icon: <Ionicons name="bar-chart" size={20} />,
+				leftText: translate(TranslationKeys.amount_ratings),
+				rightText: ratingAmount !== null && ratingAmount !== undefined ? `${ratingAmount}` : '-',
+			});
+		}
+		if (showRatingsAverage) {
+			items.push({
+				key: 'ratings-average',
+				icon: <AntDesign name="star" size={20} />,
+				leftText: translate(TranslationKeys.average_rating),
+				rightText: typeof rating === 'number' && !Number.isNaN(rating) ? `${numToOneDecimal(rating)}` : '-',
+			});
+		}
+		return items;
+	}, [foodDetails?.rating_average, foodDetails?.rating_average_legacy, foodDetails?.rating_amount, foodDetails?.rating_amount_legacy, appSettings?.foods_ratings_amount_display, appSettings?.foods_ratings_average_display, translate]);
+
+	const showRatingsAmount = appSettings?.foods_ratings_amount_display;
+	const showRatingsAverage = appSettings?.foods_ratings_average_display;
 
 	const otherComments = useMemo(() => {
-        return foodDetails?.feedbacks?.filter((feedback: any) => feedback.profile !== profile?.id && feedback.comment)
-            .sort((a: any, b: any) => new Date(b.date_updated).getTime() - new Date(a.date_updated).getTime()) || [];
-    }, [foodDetails?.feedbacks, profile?.id]);
+		return foodDetails?.feedbacks?.filter((feedback: any) => feedback.profile !== profile?.id && feedback.comment)
+			.sort((a: any, b: any) => new Date(b.date_updated).getTime() - new Date(a.date_updated).getTime()) || [];
+	}, [foodDetails?.feedbacks, profile?.id]);
 
 	return (
 		<View style={styles.container}>
@@ -313,12 +313,12 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId }
 };
 
 export default memo(Feedbacks, (prevProps, nextProps) => {
-    return (
-        prevProps.offerId === nextProps.offerId &&
-        prevProps.canteenId === nextProps.canteenId &&
-        prevProps.foodDetails?.id === nextProps.foodDetails?.id &&
-        prevProps.foodDetails?.rating_average === nextProps.foodDetails?.rating_average &&
-        prevProps.foodDetails?.rating_amount === nextProps.foodDetails?.rating_amount &&
-        prevProps.foodDetails?.feedbacks === nextProps.foodDetails?.feedbacks
-    );
+	return (
+		prevProps.offerId === nextProps.offerId &&
+		prevProps.canteenId === nextProps.canteenId &&
+		prevProps.foodDetails?.id === nextProps.foodDetails?.id &&
+		prevProps.foodDetails?.rating_average === nextProps.foodDetails?.rating_average &&
+		prevProps.foodDetails?.rating_amount === nextProps.foodDetails?.rating_amount &&
+		prevProps.foodDetails?.feedbacks === nextProps.foodDetails?.feedbacks
+	);
 });

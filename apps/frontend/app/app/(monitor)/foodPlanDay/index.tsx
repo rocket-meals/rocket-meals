@@ -198,21 +198,21 @@ const Index = () => {
 						handleFunction={
 							canOpenBigScreen
 								? () => {
-										router.push({
-											pathname: '/bigScreen',
-											params: {
-												canteens_id: dayPlan?.selectedCanteen?.id || '',
-												foodCategoryIds: dayPlan?.mealOfferCategory?.id || '',
-												showFoodCategoryName: String(dayPlan?.isMenuCategory || false),
-												foodOfferCategoryIds: dayPlan?.foodCategory?.id || '',
-												showFoodofferCategoryName: String(dayPlan?.isMenuCategoryName || false),
-												nextFoodIntervalInSeconds: dayPlan?.nextFoodInterval || 0,
-												refreshFoodOffersIntervalInSeconds: dayPlan?.refreshInterval || 0,
-												fullscreen: String(dayPlan?.isFullScreen || false),
-												showMarkingsOnCard: String(dayPlan?.showMarkingsOnCard ?? bigScreenDefaultValues.showMarkingsOnCard),
-											},
-										});
-									}
+									router.push({
+										pathname: '/bigScreen',
+										params: {
+											canteens_id: dayPlan?.selectedCanteen?.id || '',
+											foodCategoryIds: dayPlan?.mealOfferCategory?.id || '',
+											showFoodCategoryName: String(dayPlan?.isMenuCategory || false),
+											foodOfferCategoryIds: dayPlan?.foodCategory?.id || '',
+											showFoodofferCategoryName: String(dayPlan?.isMenuCategoryName || false),
+											nextFoodIntervalInSeconds: dayPlan?.nextFoodInterval || 0,
+											refreshFoodOffersIntervalInSeconds: dayPlan?.refreshInterval || 0,
+											fullscreen: String(dayPlan?.isFullScreen || false),
+											showMarkingsOnCard: String(dayPlan?.showMarkingsOnCard ?? bigScreenDefaultValues.showMarkingsOnCard),
+										},
+									});
+								}
 								: undefined
 						}
 						groupPosition="single"

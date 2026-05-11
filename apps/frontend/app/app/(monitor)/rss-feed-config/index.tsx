@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import AppTextInput from '@/components/AppTextInput';
 import { router } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
@@ -44,16 +45,13 @@ const RssFeedConfig = () => {
 					{translate(TranslationKeys.rss_feed_urls)}
 				</Text>
 				{urls.map((url, index) => (
-					<TextInput
+					<AppTextInput
 						key={index}
-						style={[
+						inputStyle={[
 							styles.input,
 							{
-								color: theme.screen.text,
-								borderColor: theme.screen.icon,
 								marginBottom: 8,
 							},
-							{ textAlign: languageTextAlign },
 						]}
 						value={url}
 						onChangeText={text => updateUrl(index, text)}
@@ -95,7 +93,14 @@ const RssFeedConfig = () => {
 				>
 					{translate(TranslationKeys.switch_interval_seconds)}
 				</Text>
-				<TextInput style={[styles.input, { color: theme.screen.text, borderColor: theme.screen.icon }, { textAlign: languageTextAlign }]} value={interval} onChangeText={setInterval} keyboardType="number-pad" placeholder="10" placeholderTextColor={theme.screen.icon} />
+				<AppTextInput
+					inputStyle={styles.input}
+					value={interval}
+					onChangeText={setInterval}
+					keyboardType="number-pad"
+					placeholder="10"
+					placeholderTextColor={theme.screen.icon}
+				/>
 			</View>
 			<AppButton
 				variant="ghost"

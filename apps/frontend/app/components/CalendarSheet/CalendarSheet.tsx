@@ -1,4 +1,5 @@
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import AppTextInput from '@/components/AppTextInput';
 import React, { useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -111,18 +112,21 @@ export const CalendarSheetContent: React.FC<CalendarSheetProps> = ({ closeSheet,
     return (
         <>
             <View style={styles.manualInputWrapper}>
-                <TextInput
+                <AppTextInput
                     style={[
                         styles.manualInput,
                         {
                             color: theme.screen.text,
-                            backgroundColor: theme.sheet.inputBg,
-                            borderColor: manualError ? theme.sheet.inputBorderInvalid : theme.sheet.inputBg,
                         },
                         { textAlign: languageTextAlign },
                     ]}
-                    cursorColor={theme.screen.text}
-                    placeholderTextColor={theme.sheet.placeholder}
+                    inputStyle={{
+                        backgroundColor: theme.sheet.inputBg,
+                        height: 50,
+                    }}
+                    borderWidth={1}
+                    borderColor={manualError ? theme.sheet.inputBorderInvalid : theme.sheet.inputBg}
+                    placeholderTextColor={theme.screen.placeholder}
                     placeholder="DD.MM.YYYY"
                     value={manualDate}
                     onChangeText={text => {

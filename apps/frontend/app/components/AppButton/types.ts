@@ -15,4 +15,6 @@ export interface AppButtonProps {
 	loadingIndicatorSize?: number;
 	disabled?: boolean;
 	loading?: boolean;
+	children?: ReactNode;
+	[key: string]: any;
 }

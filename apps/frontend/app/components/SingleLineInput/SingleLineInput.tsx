@@ -1,13 +1,13 @@
 import { Text, View } from 'react-native';
 import React from 'react';
 import styles from './styles';
-import { TextInput } from 'react-native-gesture-handler';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { isWeb } from '@/constants/Constants';
 import { TranslationKeys } from '@/locales/keys';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
+import AppTextInput from '@/components/AppTextInput';
 
 const SingleLineInput = ({ id, value, onChange, error, isDisabled, custom_type, prefix, suffix, autoFocus }: { id: string; value: string; onChange: (id: string, value: string, custom_type: string) => void; error: string; isDisabled: boolean; custom_type: string; prefix: string | null | undefined; suffix: string | null | undefined; autoFocus?: boolean }) => {
 	const { theme } = useTheme();
@@ -33,11 +33,13 @@ const SingleLineInput = ({ id, value, onChange, error, isDisabled, custom_type, 
 						<Text style={{ ...styles.label, color: theme.screen.text }}>{prefix}</Text>
 					</View>
 				)}
-				<TextInput
+				<AppTextInput
+					containerStyle={{
+						flex: 1,
+					}}
 					style={[
 						styles.input,
 						{
-							width: '100%',
 							borderTopLeftRadius: prefix ? 0 : 10,
 							borderBottomLeftRadius: prefix ? 0 : 10,
 							borderTopRightRadius: suffix ? 0 : 10,
@@ -46,7 +48,12 @@ const SingleLineInput = ({ id, value, onChange, error, isDisabled, custom_type, 
 						{ color: theme.screen.text },
 						{ textAlign: languageTextAlign },
 					]}
-					cursorColor={theme.screen.text}
+					inputStyle={{
+						backgroundColor: 'transparent',
+						paddingHorizontal: 20,
+						height: 50,
+					}}
+					borderWidth={0}
 					placeholderTextColor={theme.screen.placeholder}
 					onChangeText={text => onChange(id, text, custom_type)}
 					value={value}
@@ -73,3 +80,4 @@ const SingleLineInput = ({ id, value, onChange, error, isDisabled, custom_type, 
 };
 
 export default SingleLineInput;
+

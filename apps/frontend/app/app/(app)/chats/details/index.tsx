@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Text, View } from 'react-native';
+import AppButton from '@/components/AppButton';
+import AppTextInput from '@/components/AppTextInput';
 import { router, useLocalSearchParams } from 'expo-router';
 import SupportFAQ from '../../../../components/SupportFAQ/SupportFAQ';
 import { useTheme } from '@/hooks/useTheme';
@@ -33,20 +35,20 @@ type LinkedFoodInfo = {
 };
 
 const ChatDetailsScreen = () => {
-	useSetPageTitle(TranslationKeys.chat);
-	const { theme } = useTheme();
-	const isLtrLanguage = useIsLtrLanguage();
+        useSetPageTitle(TranslationKeys.chat);
+        const { theme } = useTheme();
+        const isLtrLanguage = useIsLtrLanguage();
         const { chat_id, refreshKey } = useLocalSearchParams<{ chat_id?: string; refreshKey?: string }>();
         const { primaryColor: projectColor, selectedTheme: mode, appSettings, serverInfo } = useAppSelector((state) => state.settings);
 
         const dispatch = useDispatch();
         const { chatsDict, readStatus } = useAppSelector((state) => state.chats);
         const { profile } = useAppSelector((state) => state.authReducer);
-	const [messages, setMessages] = useState<DatabaseTypes.ChatMessages[]>([]);
+        const [messages, setMessages] = useState<DatabaseTypes.ChatMessages[]>([]);
         const [newMessage, setNewMessage] = useState('');
         const [sending, setSending] = useState(false);
         const { translate, language } = useLanguage();
-	const languageTextAlign = useLanguageTextAlign();
+        const languageTextAlign = useLanguageTextAlign();
         const [linkedFoodFeedback, setLinkedFoodFeedback] = useState<LinkedFoodInfo | null>(null);
         const [refreshing, setRefreshing] = useState(false);
         const listRef = useRef<FlatList<DatabaseTypes.ChatMessages> | null>(null);
@@ -55,12 +57,12 @@ const ChatDetailsScreen = () => {
         const foodFeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
         const { show: showModal, close: closeModal } = useMyScrollViewModal();
 
-    const foodsAreaColor = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
-    const placeholderImageId = appSettings?.foods_placeholder_image ? String(appSettings.foods_placeholder_image) : undefined;
-    const defaultFoodImage =
-            (placeholderImageId && getImageUrl(placeholderImageId)) ||
-            appSettings?.foods_placeholder_image_remote_url ||
-            getImageUrl(serverInfo?.info?.project?.project_logo);
+        const foodsAreaColor = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
+        const placeholderImageId = appSettings?.foods_placeholder_image ? String(appSettings.foods_placeholder_image) : undefined;
+        const defaultFoodImage =
+                (placeholderImageId && getImageUrl(placeholderImageId)) ||
+                appSettings?.foods_placeholder_image_remote_url ||
+                getImageUrl(serverInfo?.info?.project?.project_logo);
 
         const fetchMessages = useCallback(async () => {
                 if (!chat_id) {
@@ -171,7 +173,7 @@ const ChatDetailsScreen = () => {
                 lastMessageIndex >= 0
                         ? sortedMessages[lastMessageIndex]?.date_created || sortedMessages[lastMessageIndex]?.date_updated
                         : undefined;
-	let amountDaysForOldMessages = 7; // Default to 7 days
+        let amountDaysForOldMessages = 7; // Default to 7 days
 
         const showOldMessageNotice = lastMessageDate ? DateHelper.isDateOlderThan(new Date(lastMessageDate), amountDaysForOldMessages) : false;
         const scrollButtonOffset = showOldMessageNotice ? 180 : 80;
@@ -181,57 +183,57 @@ const ChatDetailsScreen = () => {
         );
         const renderFooter = useCallback(() => <View style={{ height: bottomSpacerHeight }} />, [bottomSpacerHeight]);
 
-	const handleSendMessage = async () => {
-		if (!newMessage.trim() || !chat_id || !profile?.id) {
-			return;
-		}
-		setSending(true);
-		try {
-			const helper = new ChatMessagesHelper();
-			const created = (await helper.createChatMessage({
-				chat: chat_id,
-				profile: profile.id,
-				message: newMessage.trim(),
-			})) as DatabaseTypes.ChatMessages;
+        const handleSendMessage = async () => {
+                if (!newMessage.trim() || !chat_id || !profile?.id) {
+                        return;
+                }
+                setSending(true);
+                try {
+                        const helper = new ChatMessagesHelper();
+                        const created = (await helper.createChatMessage({
+                                chat: chat_id,
+                                profile: profile.id,
+                                message: newMessage.trim(),
+                        })) as DatabaseTypes.ChatMessages;
                         if (created) {
                                 setMessages(prev => [...prev, created]);
                                 setNewMessage('');
                                 scrollToBottom();
                         }
-		} catch (e) {
-			console.error('Error creating chat message:', e);
-		} finally {
-			setSending(false);
-		}
-	};
+                } catch (e) {
+                        console.error('Error creating chat message:', e);
+                } finally {
+                        setSending(false);
+                }
+        };
 
-	const renderItem = ({ item }: { item: DatabaseTypes.ChatMessages }) => {
-		const profileId = typeof item.profile === 'object' ? item.profile?.id : item.profile;
-		const isMe = profileId === profile?.id;
-		const bgColor = isMe ? projectColor : theme.card.background;
-		const textColor = myContrastColor(bgColor, theme, mode === 'dark');
+        const renderItem = ({ item }: { item: DatabaseTypes.ChatMessages }) => {
+                const profileId = typeof item.profile === 'object' ? item.profile?.id : item.profile;
+                const isMe = profileId === profile?.id;
+                const bgColor = isMe ? projectColor : theme.card.background;
+                const textColor = myContrastColor(bgColor, theme, mode === 'dark');
 
-		if (!item.message) {
-			return null; // Skip rendering if message is empty
-		}
+                if (!item.message) {
+                        return null; // Skip rendering if message is empty
+                }
 
-		return (
-			<View style={[styles.messageItem, { alignSelf: isMe ? 'flex-end' : 'flex-start' }]}>
-				<View style={[styles.bubble, { backgroundColor: bgColor }]}>
-					<MyMarkdown content={item.message} textColor={textColor} />
-				</View>
-				<Text
-					style={{
-						...styles.timestamp,
-						color: theme.screen.text,
-						textAlign: isMe ? 'right' : 'left',
-					}}
-				>
-					{new Date(item.date_created + '').toLocaleString()}
-				</Text>
-			</View>
-		);
-	};
+                return (
+                        <View style={[styles.messageItem, { alignSelf: isMe ? 'flex-end' : 'flex-start' }]}>
+                                <View style={[styles.bubble, { backgroundColor: bgColor }]}>
+                                        <MyMarkdown content={item.message} textColor={textColor} />
+                                </View>
+                                <Text
+                                        style={{
+                                                ...styles.timestamp,
+                                                color: theme.screen.text,
+                                                textAlign: isMe ? 'right' : 'left',
+                                        }}
+                                >
+                                        {new Date(item.date_created + '').toLocaleString()}
+                                </Text>
+                        </View>
+                );
+        };
 
         const renderInitialMessage = () => {
                 if (!initialMessage) {
@@ -373,10 +375,10 @@ const ChatDetailsScreen = () => {
                         food?.image_remote_url
                                 ? { uri: food.image_remote_url }
                                 : food?.image
-                                ? { uri: getImageUrl(String(food.image)) }
-                                : defaultFoodImage
-                                ? { uri: defaultFoodImage }
-                                : undefined;
+                                        ? { uri: getImageUrl(String(food.image)) }
+                                        : defaultFoodImage
+                                                ? { uri: defaultFoodImage }
+                                                : undefined;
 
                 const handleFoodPress = () => {
                         if (food?.id) {
@@ -398,9 +400,9 @@ const ChatDetailsScreen = () => {
                 const ratingValueRaw = typeof feedback.rating === 'number' ? feedback.rating : Number(feedback.rating);
                 const ratingValue = Number.isFinite(ratingValueRaw)
                         ? ratingValueRaw.toLocaleString(language, {
-                                  maximumFractionDigits: 2,
-                                  minimumFractionDigits: 0,
-                          })
+                                maximumFractionDigits: 2,
+                                minimumFractionDigits: 0,
+                        })
                         : null;
                 const commentValue = typeof feedback.comment === 'string' && feedback.comment.trim().length
                         ? feedback.comment.trim()
@@ -436,8 +438,8 @@ const ChatDetailsScreen = () => {
                                                         onPress={food?.id ? handleFoodPress : undefined}
                                                         iconBackgroundColor={foodsAreaColor}
                                                         groupPosition="top"
-							reverseLayout={!isLtrLanguage}
-							titleTextAlign={isLtrLanguage ? 'left' : 'right'}
+                                                        reverseLayout={!isLtrLanguage}
+                                                        titleTextAlign={isLtrLanguage ? 'left' : 'right'}
                                                 />
                                                 <SettingsList
                                                         label={translate(TranslationKeys.linked_elements_rating)}
@@ -451,8 +453,8 @@ const ChatDetailsScreen = () => {
                                                         }
                                                         iconBackgroundColor={foodsAreaColor}
                                                         groupPosition="middle"
-							reverseLayout={!isLtrLanguage}
-							titleTextAlign={isLtrLanguage ? 'left' : 'right'}
+                                                        reverseLayout={!isLtrLanguage}
+                                                        titleTextAlign={isLtrLanguage ? 'left' : 'right'}
                                                 />
                                                 <SettingsList
                                                         label={translate(TranslationKeys.linked_elements_comment)}
@@ -467,8 +469,8 @@ const ChatDetailsScreen = () => {
                                                         iconBackgroundColor={foodsAreaColor}
                                                         groupPosition="bottom"
                                                         showSeparator={false}
-							reverseLayout={!isLtrLanguage}
-							titleTextAlign={isLtrLanguage ? 'left' : 'right'}
+                                                        reverseLayout={!isLtrLanguage}
+                                                        titleTextAlign={isLtrLanguage ? 'left' : 'right'}
                                                 />
                                         </View>
                                 ),
@@ -478,14 +480,14 @@ const ChatDetailsScreen = () => {
                 return (
                         <View style={styles.linkedElementsContainer}>
                                 <Text
-					style={[
-						styles.linkedElementsTitle,
-						{
-							color: theme.screen.text,
-							...(!isLtrLanguage ? { textAlign: 'right', writingDirection: 'rtl' } : {}),
-						},
-					]}
-				>
+                                        style={[
+                                                styles.linkedElementsTitle,
+                                                {
+                                                        color: theme.screen.text,
+                                                        ...(!isLtrLanguage ? { textAlign: 'right', writingDirection: 'rtl' } : {}),
+                                                },
+                                        ]}
+                                >
                                         {translate(TranslationKeys.linked_elements)}
                                 </Text>
                                 <View style={styles.linkedListWrapper}>
@@ -506,13 +508,13 @@ const ChatDetailsScreen = () => {
                                                 rightElement={
                                                         <View style={[styles.linkedMoreInfoWrapper, !isLtrLanguage ? { flexDirection: 'row-reverse' } : null]}>
                                                                 <Text
-									style={[
-										styles.linkedMoreInfoText,
-										{ color: theme.screen.placeholder },
-										!isLtrLanguage ? { textAlign: 'right', writingDirection: 'rtl' } : null,
-									]}
-									numberOfLines={1}
-								>
+                                                                        style={[
+                                                                                styles.linkedMoreInfoText,
+                                                                                { color: theme.screen.placeholder },
+                                                                                !isLtrLanguage ? { textAlign: 'right', writingDirection: 'rtl' } : null,
+                                                                        ]}
+                                                                        numberOfLines={1}
+                                                                >
                                                                         {translate(TranslationKeys.show_more_information)}
                                                                 </Text>
                                                                 <MaterialCommunityIcons
@@ -525,8 +527,8 @@ const ChatDetailsScreen = () => {
                                                 onPress={openDetailsModal}
                                                 iconBackgroundColor={foodsAreaColor}
                                                 groupPosition="single"
-						reverseLayout={!isLtrLanguage}
-						titleTextAlign={isLtrLanguage ? 'left' : 'right'}
+                                                reverseLayout={!isLtrLanguage}
+                                                titleTextAlign={isLtrLanguage ? 'left' : 'right'}
                                         />
                                 </View>
                         </View>
@@ -560,46 +562,55 @@ const ChatDetailsScreen = () => {
                                 scrollEventThrottle={16}
                         />
                         {sortedMessages.length > 0 && !isAtBottom && (
-                                <TouchableOpacity
+                                <AppButton
+                                        onPress={() => scrollToBottom()}
                                         style={[
                                                 styles.scrollToEndButton,
                                                 {
                                                         backgroundColor: theme.card.background,
                                                         borderColor: theme.screen.icon,
                                                         bottom: scrollButtonOffset,
+                                                        marginVertical: 0, // AppButton has marginVertical: 20
                                                 },
                                         ]}
-                                        onPress={() => scrollToBottom()}
-                                        accessibilityRole="button"
-                                        accessibilityLabel={translate(TranslationKeys.scroll_to_bottom)}
-                                >
-                                        <MaterialCommunityIcons name="chevron-down" size={24} color={theme.screen.icon} />
-                                </TouchableOpacity>
+                                        iconLeft={<MaterialCommunityIcons name="chevron-down" size={24} color={theme.screen.icon} />}
+                                />
                         )}
-			{showOldMessageNotice && (
-				<View style={styles.oldMessageContainer}>
-					<Text style={[styles.oldMessageText, { color: theme.screen.text }]}>{translate(TranslationKeys.chat_last_message_unanswered)}</Text>
-					<SupportFAQ label={translate(TranslationKeys.feedback_support_faq)} onPress={() => router.navigate('/support-FAQ')} />
-				</View>
-			)}
-			<View style={styles.inputContainer}>
-				<TextInput style={[styles.textInput, { color: theme.screen.text, borderColor: theme.screen.placeholder }, { textAlign: languageTextAlign }]} placeholder={translate(TranslationKeys.type_here)} placeholderTextColor={theme.screen.placeholder} multiline value={newMessage} onChangeText={setNewMessage} />
-				<TouchableOpacity
-					onPress={handleSendMessage}
-					disabled={!newMessage.trim() || sending}
-					style={[
-						styles.sendButton,
-						{
-							backgroundColor: projectColor,
-							opacity: newMessage.trim() ? 1 : 0.5,
-						},
-					]}
-				>
-					<MaterialCommunityIcons name="send" size={24} color={myContrastColor(projectColor, theme, mode === 'dark')} />
-				</TouchableOpacity>
-			</View>
-		</View>
-	);
+                        {showOldMessageNotice && (
+                                <View style={styles.oldMessageContainer}>
+                                        <Text style={[styles.oldMessageText, { color: theme.screen.text }]}>{translate(TranslationKeys.chat_last_message_unanswered)}</Text>
+                                        <SupportFAQ label={translate(TranslationKeys.feedback_support_faq)} onPress={() => router.navigate('/support-FAQ')} />
+                                </View>
+                        )}
+                        <View style={styles.inputContainer}>
+                                <AppTextInput
+                                        containerStyle={{ flex: 1, width: undefined }}
+                                        inputStyle={[styles.textInput, { height: undefined }]}
+                                        borderColor={theme.screen.placeholder}
+                                        placeholder={translate(TranslationKeys.type_here)}
+                                        multiline
+                                        value={newMessage}
+                                        onChangeText={setNewMessage}
+                                />
+                                <AppButton
+                                        onPress={handleSendMessage}
+                                        disabled={!newMessage.trim() || sending}
+                                        style={[
+                                                styles.sendButton,
+                                                {
+                                                        backgroundColor: projectColor,
+                                                        opacity: newMessage.trim() ? 1 : 0.5,
+                                                        marginVertical: 0,
+                                                        height: 40,
+                                                        paddingHorizontal: 10,
+                                                },
+                                        ]}
+                                        iconLeft={<MaterialCommunityIcons name="send" size={24} color={myContrastColor(projectColor, theme, mode === 'dark')} />}
+                                        loading={sending}
+                                />
+                        </View>
+                </View>
+        );
 };
 
 export default ChatDetailsScreen;

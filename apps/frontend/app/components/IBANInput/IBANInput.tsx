@@ -1,4 +1,4 @@
-import { Text, TextInput, View } from 'react-native';
+import { Text, View } from 'react-native';
 import React from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -8,6 +8,7 @@ import { TranslationKeys } from '@/locales/keys';
 import { StringHelper } from 'repo-depkit-common';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
+import AppTextInput from '@/components/AppTextInput';
 
 const IBANInput = ({ id, value, onChange, onError, error, isDisabled, custom_type, prefix, suffix }: { id: string; value: string; onChange: (id: string, value: string, custom_type: string) => void; onError: (id: string, error: string) => void; error: string; isDisabled: boolean; custom_type: string; prefix: string | null | undefined; suffix: string | null | undefined }) => {
 	const { theme } = useTheme();
@@ -46,21 +47,28 @@ const IBANInput = ({ id, value, onChange, onError, error, isDisabled, custom_typ
 						<Text style={{ ...styles.label, color: theme.screen.text }}>{prefix}</Text>
 					</View>
 				)}
-				<TextInput
-					style={[
-						styles.ibanInput,
+				<AppTextInput
+					containerStyle={
 						flag
 							? {
-									width: '100%',
-									borderRadius: 10,
+									flex: 1,
 								}
 							: {
 									width: isWeb ? '90%' : '80%',
-								},
+								}
+					}
+					style={[
+						styles.ibanInput,
 						{ color: theme.screen.text },
 						{ textAlign: languageTextAlign },
+						flag ? { borderRadius: 10 } : {},
 					]}
-					cursorColor={theme.screen.text}
+					inputStyle={{
+						backgroundColor: 'transparent',
+						paddingHorizontal: 20,
+						height: 50,
+					}}
+					borderWidth={0}
 					placeholderTextColor={theme.screen.placeholder}
 					onChangeText={handleChangeText}
 					value={value}

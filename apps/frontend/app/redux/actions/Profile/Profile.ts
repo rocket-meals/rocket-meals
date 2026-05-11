@@ -38,9 +38,9 @@ export class ProfileHelper extends CollectionHelper<DatabaseTypes.Profiles> {
 	async updateProfile(profileData: any) {
 		// Update profile data
 		// remove "foods_feedbacks" so that it doesn't get updated/overwritten
-		delete profileData.foods_feedbacks;
+		const { foods_feedbacks, ...dataToUpdate } = profileData;
 
-		await this.updateItem(profileData?.id, profileData);
+		await this.updateItem(dataToUpdate?.id, dataToUpdate);
 
 		// Fetch the updated profile with the required fields
 		const updatedProfile = await this.fetchProfileById(profileData?.id);

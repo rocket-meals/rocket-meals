@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Platform, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/ColorHelper';
@@ -21,6 +21,7 @@ import AppButton from '@/components/AppButton';
 import DebugView from '@/components/DebugView';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Clipboard from 'expo-clipboard';
+import AppTextInput from '../AppTextInput';
 
 const isWeb = Platform.OS === 'web';
 
@@ -142,15 +143,19 @@ const ScanModalContent: React.FC<ScanModalContentProps> = ({ onSubmit, checkAlre
 		// Manual-only input mode
 		return (
 			<View style={scanStyles.container}>
-				<TextInput
+				<AppTextInput
 					style={[
 						scanStyles.manualInput,
 						{
 							color: theme.screen.text,
-							backgroundColor: theme.screen.background,
-							borderColor: theme.screen.icon,
 						},
 					]}
+					inputStyle={{
+						backgroundColor: theme.screen.background,
+						height: 50,
+					}}
+					borderColor={theme.screen.icon}
+					borderWidth={1}
 					placeholder={translate(TranslationKeys.friendships_enter_id_placeholder)}
 					placeholderTextColor={theme.screen.icon}
 					selectionColor={primaryColor}

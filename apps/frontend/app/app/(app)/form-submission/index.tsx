@@ -1,7 +1,8 @@
-import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
+import AppButton from '@/components/AppButton';
 import { FontAwesome, FontAwesome6, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
@@ -45,7 +46,6 @@ import FilterFormSheet from '@/components/FilterFormSheet/FilterFormSheet';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import * as FileSystem from 'expo-file-system/legacy';
-import AppButton from '@/components/AppButton';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
@@ -114,15 +114,15 @@ const normalizeExpectedValue = (value: unknown): string => {
 };
 
 const normalizeCurrentValue = (value: unknown, customType?: string): string => {
-        if (customType === 'value_boolean') {
-                if (value === null || value === undefined) return 'false';
-                if (value === 1 || value === true) return 'true';
-                if (value === 0 || value === false) return 'false';
+	if (customType === 'value_boolean') {
+		if (value === null || value === undefined) return 'false';
+		if (value === 1 || value === true) return 'true';
+		if (value === 0 || value === false) return 'false';
 
-                return 'null';
-        }
+		return 'null';
+	}
 
-        if (value === null || value === undefined) return '';
+	if (value === null || value === undefined) return '';
 
 	if (typeof value === 'string') return value.trim().toLowerCase();
 	if (typeof value === 'number') return String(value);
@@ -845,7 +845,7 @@ const Index = () => {
 			if (form_submission_id) {
 				fetchAllFormAnswers();
 			}
-			return () => {};
+			return () => { };
 		}, [form_submission_id])
 	);
 
@@ -1068,17 +1068,17 @@ const Index = () => {
 											{custom_id === 'date' && showInForm && <SettingsListDate id={fieldId} value={formData[fieldId]?.value || ''} onChange={handleChange} onError={handleError} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} prefix={prefix} suffix={suffix} />}
 											{custom_id === 'hh_mm' && showInForm && <TimeInput id={fieldId} value={formData[fieldId]?.value || ''} onChange={handleChange} onError={handleError} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} prefix={prefix} suffix={suffix} />}
 											{custom_id === 'timestamp' && showInForm && <PreciseTimestampInput id={fieldId} value={formData[fieldId]?.value || ''} onChange={handleChange} onError={handleError} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} prefix={prefix} suffix={suffix} />}
-                                                                                        {custom_id === 'checkbox' &&
-                                                                                                showInForm && (
-                                                                                                        <TriStateCheckbox
-                                                                                                                id={fieldId}
-                                                                                                                value={formData[fieldId]?.value}
-                                                                                                                onChange={handleChange}
-                                                                                                                isDisabled={isDisabled}
-                                                                                                                custom_type={custom_type}
-                                                                                                                onlyTwo
-                                                                                                        />
-                                                                                                )}
+											{custom_id === 'checkbox' &&
+												showInForm && (
+													<TriStateCheckbox
+														id={fieldId}
+														value={formData[fieldId]?.value}
+														onChange={handleChange}
+														isDisabled={isDisabled}
+														custom_type={custom_type}
+														onlyTwo
+													/>
+												)}
 											{custom_id === 'files' && showInForm && <FileUpload id={fieldId} value={formData[fieldId]?.value} onChange={handleChange} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} offlineMode={offlineMode} folderHint={filesFolderIdState} />}
 											{custom_id === 'image' && showInForm && <ImageUpload id={fieldId} value={formData[fieldId]?.value} onChange={handleChange} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} offlineMode={offlineMode} folderHint={imageFolderIdState} />}
 											{custom_id === 'signature' && showInForm && <SignatureInterface id={fieldId} value={formData[fieldId]?.value} onChange={handleChange} error={formData[fieldId]?.error} isDisabled={isDisabled} custom_type={custom_type} scrollViewRef={scrollViewRef} folderHint={imageFolderIdState} />}
@@ -1099,54 +1099,58 @@ const Index = () => {
 					width: screenWidth > 768 ? '70%' : '90%',
 				}}
 			>
-			<View style={styles.pickerContainer}>
-				{/* Aktueller Zustand und Auswahl des nächsten Zustands */}
-				<Text
-					style={{
-						...styles.body,
-						marginBottom: 6,
-						color: theme.screen.text,
-						...(!isLtrLanguage ? { textAlign: 'right', writingDirection: 'rtl' } : null),
-					}}
-				>
-					{`${translate(TranslationKeys.state_current)}: ${translate(currentState || formSubmission?.state || 'draft')}`}
-				</Text>
-				<AppButton
-					variant="ghost"
-					usePlainText
-					onPress={openFilterSheet}
-					style={{
-						...styles.stateChangeButton,
-						backgroundColor: theme.screen.iconBg,
-						marginVertical: 0,
-					}}
-					textStyle={{ width: 0, height: 0 }}
-					iconLeft={
-						<View
-							style={{
-								flexDirection: 'row',
-								alignItems: 'center',
-								gap: 10,
-								width: '100%',
-							}}
-						>
-							<MaterialIcons name="edit" size={20} color={theme.screen.text} />
-							<Text
+				<View style={styles.pickerContainer}>
+					{/* Aktueller Zustand und Auswahl des nächsten Zustands */}
+					<Text
+						style={{
+							...styles.body,
+							marginBottom: 6,
+							color: theme.screen.text,
+							...(!isLtrLanguage ? { textAlign: 'right', writingDirection: 'rtl' } : null),
+						}}
+					>
+						{`${translate(TranslationKeys.state_current)}: ${translate(currentState || formSubmission?.state || 'draft')}`}
+					</Text>
+					<AppButton
+						variant="ghost"
+						usePlainText
+						onPress={openFilterSheet}
+						style={{
+							...styles.stateChangeButton,
+							backgroundColor: theme.screen.iconBg,
+							marginVertical: 0,
+						}}
+						textStyle={{ width: 0, height: 0 }}
+						iconLeft={
+							<View
 								style={{
-									...styles.state,
-									color: theme.screen.text,
-									...(!isLtrLanguage ? { textAlign: 'right', writingDirection: 'rtl' } : null),
+									flexDirection: 'row',
+									alignItems: 'center',
+									gap: 10,
+									width: '100%',
 								}}
 							>
-								{`${translate(TranslationKeys.state_next)}: ${translate(selectedState)}`}
-							</Text>
-						</View>
-					}
+								<MaterialIcons name="edit" size={20} color={theme.screen.text} />
+								<Text
+									style={{
+										...styles.state,
+										color: theme.screen.text,
+										...(!isLtrLanguage ? { textAlign: 'right', writingDirection: 'rtl' } : null),
+									}}
+								>
+									{`${translate(TranslationKeys.state_next)}: ${translate(selectedState)}`}
+								</Text>
+							</View>
+						}
+					/>
+				</View>
+				<AppButton
+					style={{ ...styles.button, backgroundColor: primaryColor, marginVertical: 0 }}
+					onPress={handleFormSubmission}
+					loading={submissionLoading}
+					text={translate(TranslationKeys.save)}
+					textStyle={{ ...styles.buttonLabel, color: theme.activeText }}
 				/>
-			</View>
-				<TouchableOpacity style={{ ...styles.button, backgroundColor: primaryColor }} onPress={handleFormSubmission}>
-					{submissionLoading ? <ActivityIndicator size={22} color={theme.screen.text} /> : <Text style={{ ...styles.buttonLabel, color: theme.activeText }}>{translate(TranslationKeys.save)}</Text>}
-				</TouchableOpacity>
 			</View>
 			<SubmissionWarningModal isVisible={isWarning} setIsVisible={setIsWarning} id={String(form_submission_id)} />
 			{isActive && (

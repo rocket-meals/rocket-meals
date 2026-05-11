@@ -1,4 +1,4 @@
-import { Text, TextInput, View } from 'react-native';
+import { Text, View } from 'react-native';
 import React from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -7,6 +7,7 @@ import { isWeb } from '@/constants/Constants';
 import { TranslationKeys } from '@/locales/keys';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
+import AppTextInput from '@/components/AppTextInput';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -61,21 +62,28 @@ const EmailInput = ({
 						<Text style={{ ...styles.label, color: theme.screen.text }}>{prefix}</Text>
 					</View>
 				)}
-				<TextInput
-					style={[
-						styles.input,
+				<AppTextInput
+					containerStyle={
 						flag
 							? {
-								width: '100%',
-								borderRadius: 10,
+								flex: 1,
 							}
 							: {
 								width: isWeb ? '90%' : '80%',
-							},
+							}
+					}
+					style={[
+						styles.input,
 						{ color: theme.screen.text },
 						{ textAlign: languageTextAlign },
+						flag ? { borderRadius: 10 } : {},
 					]}
-					cursorColor={theme.screen.text}
+					inputStyle={{
+						backgroundColor: 'transparent',
+						paddingHorizontal: 20,
+						height: 50,
+					}}
+					borderWidth={0}
 					placeholderTextColor={theme.screen.placeholder}
 					onChangeText={validateEmail}
 					value={value}
@@ -103,3 +111,4 @@ const EmailInput = ({
 };
 
 export default EmailInput;
+

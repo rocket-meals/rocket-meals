@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import AppTextInput from '@/components/AppTextInput';
 import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import IconButton from '@/components/UI/IconButton';
@@ -63,30 +64,23 @@ const MapHeader: React.FC<MapHeaderProps> = ({
 					</TooltipContent>
 				</CustomTooltip>
 
-				{/* Search Bar */}
-				<View style={[
-					styles.searchInputWrapper,
-					{
-						borderColor: theme.header.text + '55',
-						backgroundColor: theme.header.text + '15',
-					},
-				]}>
-					<MaterialIcons name="search" size={20} color={theme.header.text + '88'} style={styles.searchIcon} />
-					<TextInput
-						style={[
-							styles.searchInput,
-							{
-								color: theme.header.text,
-							},
-							{ textAlign: languageTextAlign },
-						]}
-						cursorColor={theme.header.text}
-						placeholderTextColor={theme.header.text + '88'}
-						value={query}
-						onChangeText={onQueryChange}
-						placeholder={translate(TranslationKeys.search)}
-					/>
-				</View>
+				<AppTextInput
+					containerStyle={{ flex: 1 }}
+					inputStyle={[
+						styles.searchInputWrapper,
+						{
+							borderColor: theme.header.text + '55',
+							backgroundColor: theme.header.text + '15',
+						},
+					]}
+					leftElement={<MaterialIcons name="search" size={20} color={theme.header.text + '88'} />}
+					value={query}
+					onChangeText={onQueryChange}
+					placeholder={translate(TranslationKeys.search)}
+					cursorColor={theme.header.text}
+					placeholderTextColor={theme.header.text + '88'}
+					style={{ color: theme.header.text }}
+				/>
 
 				{/* Filter Icon */}
 				<CustomTooltip

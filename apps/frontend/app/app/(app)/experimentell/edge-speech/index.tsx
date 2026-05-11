@@ -1,6 +1,8 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import AppButton from '@/components/AppButton';
+import AppTextInput from '@/components/AppTextInput';
 import { speak, stop } from 'expo-edge-speech';
 
 import { useTheme } from '@/hooks/useTheme';
@@ -74,8 +76,8 @@ const EdgeSpeechScreen = () => {
 				</View>
 
 				<View style={styles.section}>
-					<TextInput
-						style={[
+					<AppTextInput
+						inputStyle={[
 							styles.textInput,
 							{ color: theme.screen.text, borderColor: primaryColor, backgroundColor: theme.card.background },
 							{ textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' },
@@ -103,9 +105,11 @@ const EdgeSpeechScreen = () => {
 						{translate(TranslationKeys.edge_speech_voice_label)}
 					</Text>
 					{VOICES.map((voice) => (
-						<TouchableOpacity
+						<AppButton
 							key={voice.key}
 							onPress={() => setSelectedVoice(voice.key)}
+							variant="ghost"
+							usePlainText
 							style={[
 								styles.voiceItem,
 								{ backgroundColor: theme.card.background },
@@ -113,48 +117,53 @@ const EdgeSpeechScreen = () => {
 								isArabic ? { flexDirection: 'row-reverse' } : null,
 							]}
 						>
-							<View style={[styles.row, isArabic ? { flexDirection: 'row-reverse' } : null]}>
-								<View style={[styles.iconBox, { backgroundColor: selectedVoice === voice.key ? primaryColor : theme.card.background }]}>
-									<MaterialCommunityIcons
-										name="account-voice"
-										size={20}
-										color={selectedVoice === voice.key ? '#fff' : theme.screen.icon}
-									/>
+							<View style={[styles.row, isArabic ? { flexDirection: 'row-reverse' } : null, { flex: 1, justifyContent: 'space-between' }]}>
+								<View style={[styles.row, isArabic ? { flexDirection: 'row-reverse' } : null]}>
+									<View style={[styles.iconBox, { backgroundColor: selectedVoice === voice.key ? primaryColor : theme.card.background }]}>
+										<MaterialCommunityIcons
+											name="account-voice"
+											size={20}
+											color={selectedVoice === voice.key ? '#fff' : theme.screen.icon}
+										/>
+									</View>
+									<Text
+										style={[
+											styles.body,
+											{
+												color: theme.screen.text,
+												textAlign: isArabic ? 'right' : 'left',
+												writingDirection: isArabic ? 'rtl' : 'ltr',
+											},
+										]}
+									>
+										{voice.label}
+									</Text>
 								</View>
-								<Text
-									style={[
-										styles.body,
-										{
-											color: theme.screen.text,
-											textAlign: isArabic ? 'right' : 'left',
-											writingDirection: isArabic ? 'rtl' : 'ltr',
-										},
-									]}
-								>
-									{voice.label}
-								</Text>
+								{selectedVoice === voice.key && (
+									<MaterialCommunityIcons name="check-circle" size={20} color={primaryColor} />
+								)}
 							</View>
-							{selectedVoice === voice.key && (
-								<MaterialCommunityIcons name="check-circle" size={20} color={primaryColor} />
-							)}
-						</TouchableOpacity>
+						</AppButton>
 					))}
 				</View>
 
-				<TouchableOpacity
+				<AppButton
 					onPress={handleSpeak}
-					style={[styles.speakButton, { backgroundColor: primaryColor }, isArabic ? { flexDirection: 'row-reverse' } : null]}
-					activeOpacity={0.8}
+					variant="ghost"
+					usePlainText
+					style={[styles.speakButton, { backgroundColor: primaryColor }, isArabic ? { flexDirection: 'row-reverse' } : null, { marginVertical: 0 }]}
 				>
-					<MaterialCommunityIcons
-						name={isSpeaking ? 'stop-circle-outline' : 'play-circle-outline'}
-						size={24}
-						color="#fff"
-					/>
-					<Text style={styles.speakButtonLabel}>
-						{isSpeaking ? translate(TranslationKeys.edge_speech_stop) : translate(TranslationKeys.edge_speech_speak)}
-					</Text>
-				</TouchableOpacity>
+					<View style={[styles.row, isArabic ? { flexDirection: 'row-reverse' } : null]}>
+						<MaterialCommunityIcons
+							name={isSpeaking ? 'stop-circle-outline' : 'play-circle-outline'}
+							size={24}
+							color="#fff"
+						/>
+						<Text style={styles.speakButtonLabel}>
+							{isSpeaking ? translate(TranslationKeys.edge_speech_stop) : translate(TranslationKeys.edge_speech_speak)}
+						</Text>
+					</View>
+				</AppButton>
 
 				<View style={[styles.statusBox, { backgroundColor: theme.card.background }, isArabic ? { flexDirection: 'row-reverse' } : null]}>
 					<Text

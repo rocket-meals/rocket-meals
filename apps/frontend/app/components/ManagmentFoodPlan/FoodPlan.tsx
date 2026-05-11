@@ -1,4 +1,4 @@
-import { Dimensions, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Switch, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,10 +9,11 @@ import { router } from 'expo-router';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppTextInput from '@/components/AppTextInput';
 
 const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFoodInterval, foodOffer, intervalNext, refreshData }: { data: any[]; onPressItem: (item: any) => void; selectedValue: string; selectedValuNext: string; nextFoodInterval: string; foodOffer: string; intervalNext: string; refreshData: string }) => {
 	const { theme } = useTheme();
-	const {translate} = useLanguage();
+	const { translate } = useLanguage();
 	const isLtrLanguage = useIsLtrLanguage();
 	const isArabic = !isLtrLanguage;
 
@@ -79,7 +80,7 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 						) : (
 							<>
 								{item.name === 'Canteen' && (
-									<TextInput
+									<AppTextInput
 										style={[
 											styles.textInput,
 											{
@@ -89,13 +90,18 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 												width: windowWidth > 600 ? 200 : 120,
 											},
 										]}
+										inputStyle={{
+											backgroundColor: 'transparent',
+											paddingHorizontal: 0,
+										}}
+										borderWidth={0}
 										editable={false}
 										pointerEvents="none"
 										value={selectedCanteen?.alias || undefined}
 									/>
 								)}
 								{item.name === 'Speiseangebot Kategorie (optional)' && (
-									<TextInput
+									<AppTextInput
 										style={[
 											styles.textInput,
 											{
@@ -105,28 +111,38 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 												width: windowWidth > 600 ? 200 : 120,
 											},
 										]}
+										inputStyle={{
+											backgroundColor: 'transparent',
+											paddingHorizontal: 0,
+										}}
+										borderWidth={0}
 										editable={false}
 										pointerEvents="none"
 										value={selectedValue}
 									/>
 								)}
 								{item.name === 'Speise Kategorie (optional)' && (
-									<TextInput
+									<AppTextInput
 										style={{
 											backgroundColor: theme.screen.iconBg,
 											marginRight: 10,
-											textAlign: 'right',
 											color: theme.screen.text,
 											fontSize: windowWidth > 600 ? 18 : 16,
 											width: windowWidth > 600 ? 200 : 120,
 										}}
+										inputStyle={{
+											backgroundColor: 'transparent',
+											paddingHorizontal: 0,
+											textAlign: 'right',
+										}}
+										borderWidth={0}
 										editable={false}
 										pointerEvents="none"
 										value={selectedValuNext}
 									/>
 								)}
 								{item.name === 'Next Food Interval' && (
-									<TextInput
+									<AppTextInput
 										style={[
 											styles.textInput,
 											{
@@ -136,13 +152,18 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 												width: windowWidth > 600 ? 200 : 120,
 											},
 										]}
+										inputStyle={{
+											backgroundColor: 'transparent',
+											paddingHorizontal: 0,
+										}}
+										borderWidth={0}
 										editable={false}
 										pointerEvents="none"
 										value={nextFoodInterval}
 									/>
 								)}
 								{item.name === 'Refresh Food Offers Interval' && (
-									<TextInput
+									<AppTextInput
 										style={[
 											styles.textInput,
 											{
@@ -152,6 +173,11 @@ const FoodPlan = ({ data, onPressItem, selectedValue, selectedValuNext, nextFood
 												width: windowWidth > 600 ? 200 : 120,
 											},
 										]}
+										inputStyle={{
+											backgroundColor: 'transparent',
+											paddingHorizontal: 0,
+										}}
+										borderWidth={0}
 										editable={false}
 										pointerEvents="none"
 										value={foodOffer}

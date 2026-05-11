@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Dimensions, KeyboardTypeOptions, PixelRatio, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import AppButton from '@/components/AppButton';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
 import { isWeb } from '@/constants/Constants';
@@ -33,8 +34,8 @@ const FeedbackScreen = () => {
 	const toast = useToast();
 	const appFeedback = new AppFeedback();
 	const { app_feedbacks_id } = useLocalSearchParams();
-    const { profile } = useAppSelector((state) => state.authReducer);
-    const { primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
+	const { profile } = useAppSelector((state) => state.authReducer);
+	const { primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
 	const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
 	const [loading, setLoading] = useState(false);
 	const [inputValues, setInputValues] = useState<{
@@ -77,7 +78,7 @@ const FeedbackScreen = () => {
 			if (app_feedbacks_id && profile?.id) {
 				fetchFeedbackById();
 			}
-			return () => {};
+			return () => { };
 		}, [app_feedbacks_id, profile?.id])
 	);
 
@@ -190,13 +191,13 @@ const FeedbackScreen = () => {
 				inputStyle: multiline ? { height: 150 } : undefined,
 				checkTextInput: isEmailField
 					? value => {
-							const cleanedEmail = StringHelper.replaceAllWithOptions({ str: value, find: '\\s+', replace: '' });
-							if (cleanedEmail.trim().length === 0) {
-								return { isValid: true, value: '' };
-							}
-							const { trimmedEmail, isValid } = EmailHelper.sanitizeAndValidate(cleanedEmail);
-							return { isValid, value: trimmedEmail };
+						const cleanedEmail = StringHelper.replaceAllWithOptions({ str: value, find: '\\s+', replace: '' });
+						if (cleanedEmail.trim().length === 0) {
+							return { isValid: true, value: '' };
 						}
+						const { trimmedEmail, isValid } = EmailHelper.sanitizeAndValidate(cleanedEmail);
+						return { isValid, value: trimmedEmail };
+					}
 					: value => ({ isValid: true, value }),
 			});
 		},
@@ -363,7 +364,9 @@ const FeedbackScreen = () => {
 					</View>
 
 					<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '100%' }]}>
-						<TouchableOpacity
+						<AppButton
+							variant="ghost"
+							usePlainText
 							style={[
 								styles.row,
 								{
@@ -372,6 +375,7 @@ const FeedbackScreen = () => {
 									backgroundColor: primaryColor,
 									opacity: inputValues?.title?.length === 0 || inputValues?.content?.length === 0 ? 0.5 : 1,
 									flexDirection: isRtl ? 'row-reverse' : 'row',
+									marginVertical: 0,
 								},
 							]}
 							onPress={() => {
@@ -382,34 +386,27 @@ const FeedbackScreen = () => {
 								}
 							}}
 							disabled={inputValues?.title?.length === 0 || inputValues?.content?.length === 0}
+							loading={loading}
 						>
-							{loading ? (
-								<View style={{ width: '100%' }}>
-									<ActivityIndicator size={30} color={theme.screen.text} />
-								</View>
-							) : (
-								<>
-									<View style={[styles.leftView, { flex: 1, justifyContent: isRtl ? 'flex-end' : 'flex-start' }]}>
-										<Text
-											style={[
-												styles.linkText,
-												{
-													color: contrastColor,
-													fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
-													textAlign: isRtl ? 'right' : 'left',
-													writingDirection: isRtl ? 'rtl' : 'ltr',
-													marginLeft: isRtl ? 0 : 10,
-													marginRight: isRtl ? 10 : 0,
-												},
-											]}
-										>
-											{app_feedbacks_id ? translate(TranslationKeys.to_update) : translate(TranslationKeys.send)}
-										</Text>
-									</View>
-									<View>{app_feedbacks_id ? <FontAwesome5 name="save" size={24} color={contrastColor} /> : <MaterialCommunityIcons name="plus" size={24} color={contrastColor} />}</View>
-								</>
-							)}
-						</TouchableOpacity>
+							<View style={[styles.leftView, { flex: 1, justifyContent: isRtl ? 'flex-end' : 'flex-start' }]}>
+								<Text
+									style={[
+										styles.linkText,
+										{
+											color: contrastColor,
+											fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
+											textAlign: isRtl ? 'right' : 'left',
+											writingDirection: isRtl ? 'rtl' : 'ltr',
+											marginLeft: isRtl ? 0 : 10,
+											marginRight: isRtl ? 10 : 0,
+										},
+									]}
+								>
+									{app_feedbacks_id ? translate(TranslationKeys.to_update) : translate(TranslationKeys.send)}
+								</Text>
+							</View>
+							<View>{app_feedbacks_id ? <FontAwesome5 name="save" size={24} color={contrastColor} /> : <MaterialCommunityIcons name="plus" size={24} color={contrastColor} />}</View>
+						</AppButton>
 					</View>
 
 					<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '100%' }]}>

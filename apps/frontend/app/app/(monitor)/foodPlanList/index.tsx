@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Dimensions, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ScrollView, Text, View } from 'react-native';
+import AppTextInput from '@/components/AppTextInput';
 import { useTheme } from '@/hooks/useTheme';
 import { router, useFocusEffect } from 'expo-router';
 import { useDispatch } from 'react-redux';
@@ -163,133 +164,145 @@ const Index = () => {
 					backgroundColor: theme.screen.background,
 				}}
 			>
-				<TouchableOpacity
-					style={{
-						...styles.list,
-						backgroundColor: theme.screen.iconBg,
-						paddingHorizontal: windowWidth > 600 ? 20 : 10,
-						flexDirection: isArabic ? 'row-reverse' : 'row',
-					}}
-					onPress={() => openCanteenModal('canteen')}
-				>
-					<View style={[styles.col1, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
-						<Ionicons name="restaurant-sharp" size={24} color={theme.screen.icon} />
-						<Text
-							style={{
-								...styles.label,
-								color: theme.screen.text,
-								textAlign: isArabic ? 'right' : 'left',
-								writingDirection: isArabic ? 'rtl' : 'ltr',
-							}}
-						>
-							{translate(TranslationKeys.canteen)}
-						</Text>
-					</View>
-					<View style={[styles.col2, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
-						<Text
-							style={{
-								...styles.label,
-								color: theme.screen.text,
-								textAlign: isArabic ? 'right' : 'left',
-								writingDirection: isArabic ? 'rtl' : 'ltr',
-							}}
-						>
-							{foodPlan?.selectedCanteen?.alias}
-						</Text>
-						<MaterialCommunityIcons name="pencil" size={22} color={theme.screen.icon} />
-					</View>
-				</TouchableOpacity>
+                                 <AppButton
+                                         variant="ghost"
+                                         usePlainText
+                                         onPress={() => openCanteenModal('canteen')}
+                                         style={{
+                                                 ...styles.list,
+                                                 backgroundColor: theme.screen.iconBg,
+                                                 paddingHorizontal: windowWidth > 600 ? 20 : 10,
+                                                 marginVertical: 0,
+                                                 flexDirection: isArabic ? 'row-reverse' : 'row',
+                                         }}
+                                 >
+                                         <View style={[styles.col1, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+                                                 <Ionicons name="restaurant-sharp" size={24} color={theme.screen.icon} />
+                                                 <Text
+                                                         style={{
+                                                                 ...styles.label,
+                                                                 color: theme.screen.text,
+                                                                 textAlign: isArabic ? 'right' : 'left',
+                                                                 writingDirection: isArabic ? 'rtl' : 'ltr',
+                                                         }}
+                                                 >
+                                                         {translate(TranslationKeys.canteen)}
+                                                 </Text>
+                                         </View>
+                                         <View style={[styles.col2, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+                                                 <Text
+                                                         style={{
+                                                                 ...styles.label,
+                                                                 color: theme.screen.text,
+                                                                 textAlign: isArabic ? 'right' : 'left',
+                                                                 writingDirection: isArabic ? 'rtl' : 'ltr',
+                                                         }}
+                                                 >
+                                                         {foodPlan?.selectedCanteen?.alias}
+                                                 </Text>
+                                                 <MaterialCommunityIcons name="pencil" size={22} color={theme.screen.icon} />
+                                         </View>
+                                 </AppButton>
 
-				<TouchableOpacity
-					style={{
-						...styles.list,
-						backgroundColor: theme.screen.iconBg,
-						paddingHorizontal: windowWidth > 600 ? 20 : 10,
-						flexDirection: isArabic ? 'row-reverse' : 'row',
-					}}
-					onPress={() => openCanteenModal('additional')}
-				>
-					<View style={[styles.col1, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
-						<Ionicons name="restaurant-sharp" size={24} color={theme.screen.icon} />
-						<Text
-							style={{
-								...styles.label,
-								color: theme.screen.text,
-								textAlign: isArabic ? 'right' : 'left',
-								writingDirection: isArabic ? 'rtl' : 'ltr',
-							}}
-						>
-							{translate(TranslationKeys.optional_additional_canteen)}
-						</Text>
-					</View>
-					<View style={[styles.col2, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
-						<Text
-							style={{
-								...styles.label,
-								color: theme.screen.text,
-								textAlign: isArabic ? 'right' : 'left',
-								writingDirection: isArabic ? 'rtl' : 'ltr',
-							}}
-						>
-							{foodPlan?.additionalSelectedCanteen?.alias}
-						</Text>
-						<MaterialCommunityIcons name="pencil" size={22} color={theme.screen.icon} />
-					</View>
-				</TouchableOpacity>
+                                 <AppButton
+                                         variant="ghost"
+                                         usePlainText
+                                         onPress={() => openCanteenModal('additional')}
+                                         style={{
+                                                 ...styles.list,
+                                                 backgroundColor: theme.screen.iconBg,
+                                                 paddingHorizontal: windowWidth > 600 ? 20 : 10,
+                                                 marginVertical: 0,
+                                                 flexDirection: isArabic ? 'row-reverse' : 'row',
+                                         }}
+                                 >
+                                         <View style={[styles.col1, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+                                                 <Ionicons name="restaurant-sharp" size={24} color={theme.screen.icon} />
+                                                 <Text
+                                                         style={{
+                                                                 ...styles.label,
+                                                                 color: theme.screen.text,
+                                                                 textAlign: isArabic ? 'right' : 'left',
+                                                                 writingDirection: isArabic ? 'rtl' : 'ltr',
+                                                         }}
+                                                 >
+                                                         {translate(TranslationKeys.optional_additional_canteen)}
+                                                 </Text>
+                                         </View>
+                                         <View style={[styles.col2, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+                                                 <Text
+                                                         style={{
+                                                                 ...styles.label,
+                                                                 color: theme.screen.text,
+                                                                 textAlign: isArabic ? 'right' : 'left',
+                                                                 writingDirection: isArabic ? 'rtl' : 'ltr',
+                                                         }}
+                                                 >
+                                                         {foodPlan?.additionalSelectedCanteen?.alias}
+                                                 </Text>
+                                                 <MaterialCommunityIcons name="pencil" size={22} color={theme.screen.icon} />
+                                         </View>
+                                 </AppButton>
 
-				<TouchableOpacity
-					style={{
-						...styles.list,
-						backgroundColor: theme.screen.iconBg,
-						paddingHorizontal: windowWidth > 600 ? 20 : 10,
-						flexDirection: isArabic ? 'row-reverse' : 'row',
-					}}
-					onPress={() => openIntervalSheet('foodInterval', translate(TranslationKeys.next_food_interval))}
-				>
-					<View style={[styles.col1, isArabic ? { justifyContent: 'flex-end' } : undefined]}>
-						<Text
-							style={{
-								...styles.label,
-								color: theme.screen.text,
-								textAlign: isArabic ? 'right' : 'left',
-								writingDirection: isArabic ? 'rtl' : 'ltr',
-							}}
-						>
-							{translate(TranslationKeys.next_food_interval)}
-						</Text>
-					</View>
-					<View style={[styles.col2, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
-						<Text style={{ ...styles.label, color: theme.screen.text }}>{foodPlan?.nextFoodInterval}</Text>
-						<MaterialCommunityIcons name="pencil" size={22} color={theme.screen.icon} />
-					</View>
-				</TouchableOpacity>
+                                 <AppButton
+                                         variant="ghost"
+                                         usePlainText
+                                         onPress={() => openIntervalSheet('foodInterval', translate(TranslationKeys.next_food_interval))}
+                                         style={{
+                                                 ...styles.list,
+                                                 backgroundColor: theme.screen.iconBg,
+                                                 paddingHorizontal: windowWidth > 600 ? 20 : 10,
+                                                 marginVertical: 0,
+                                                 flexDirection: isArabic ? 'row-reverse' : 'row',
+                                         }}
+                                 >
+                                         <View style={[styles.col1, isArabic ? { justifyContent: 'flex-end' } : undefined]}>
+                                                 <Text
+                                                         style={{
+                                                                 ...styles.label,
+                                                                 color: theme.screen.text,
+                                                                 textAlign: isArabic ? 'right' : 'left',
+                                                                 writingDirection: isArabic ? 'rtl' : 'ltr',
+                                                         }}
+                                                 >
+                                                         {translate(TranslationKeys.next_food_interval)}
+                                                 </Text>
+                                         </View>
+                                         <View style={[styles.col2, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+                                                 <Text style={{ ...styles.label, color: theme.screen.text }}>{foodPlan?.nextFoodInterval}</Text>
+                                                 <MaterialCommunityIcons name="pencil" size={22} color={theme.screen.icon} />
+                                         </View>
+                                 </AppButton>
 
-				<TouchableOpacity
-					style={{
-						...styles.list,
-						backgroundColor: theme.screen.iconBg,
-						paddingHorizontal: windowWidth > 600 ? 20 : 10,
-						flexDirection: isArabic ? 'row-reverse' : 'row',
-					}}
-					onPress={() => openIntervalSheet('refreshFoodInterval', translate(TranslationKeys.refresh_food_offers_interval))}
-				>
-					<View style={[styles.col1, isArabic ? { justifyContent: 'flex-end' } : undefined]}>
-						<Text
-							style={{
-								...styles.label,
-								color: theme.screen.text,
-								textAlign: isArabic ? 'right' : 'left',
-								writingDirection: isArabic ? 'rtl' : 'ltr',
-							}}
-						>
-							{translate(TranslationKeys.refresh_data_interval_seconds)}
-						</Text>
-					</View>
-					<View style={[styles.col2, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
-						<Text style={{ ...styles.label, color: theme.screen.text }}>{foodPlan?.refreshInterval}</Text>
-						<MaterialCommunityIcons name="pencil" size={22} color={theme.screen.icon} />
-					</View>
-				</TouchableOpacity>
+                                 <AppButton
+                                         variant="ghost"
+                                         usePlainText
+                                         onPress={() => openIntervalSheet('refreshFoodInterval', translate(TranslationKeys.refresh_food_offers_interval))}
+                                         style={{
+                                                 ...styles.list,
+                                                 backgroundColor: theme.screen.iconBg,
+                                                 paddingHorizontal: windowWidth > 600 ? 20 : 10,
+                                                 marginVertical: 0,
+                                                 flexDirection: isArabic ? 'row-reverse' : 'row',
+                                         }}
+                                 >
+                                         <View style={[styles.col1, isArabic ? { justifyContent: 'flex-end' } : undefined]}>
+                                                 <Text
+                                                         style={{
+                                                                 ...styles.label,
+                                                                 color: theme.screen.text,
+                                                                 textAlign: isArabic ? 'right' : 'left',
+                                                                 writingDirection: isArabic ? 'rtl' : 'ltr',
+                                                         }}
+                                                 >
+                                                         {translate(TranslationKeys.refresh_data_interval_seconds)}
+                                                 </Text>
+                                         </View>
+                                         <View style={[styles.col2, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+                                                 <Text style={{ ...styles.label, color: theme.screen.text }}>{foodPlan?.refreshInterval}</Text>
+                                                 <MaterialCommunityIcons name="pencil" size={22} color={theme.screen.icon} />
+                                         </View>
+                                 </AppButton>
 
 				<View style={{ width: '100%' }}>
 					<CustomCollapsible headerText={translate(TranslationKeys.food_attributes)} customColor={theme.screen.iconBg}>
@@ -298,16 +311,14 @@ const Index = () => {
 								foodAttributes?.map((attribute: any) => {
 									return (
 										<View style={styles.attributeContainer} key={attribute?.id}>
-											<TextInput
+											<AppTextInput
+												containerStyle={{ width: 50 }}
 												value={attribute?.manualSort !== undefined ? String(attribute?.manualSort) : ''}
 												onChangeText={text => handleSortChange(attribute.id, text)}
 												keyboardType="numeric"
 												maxLength={2}
-												style={{
-													...styles.sortField,
-													color: theme.screen.text,
-													borderColor: theme.screen.iconBg,
-												}}
+												inputStyle={styles.sortField}
+												borderColor={theme.screen.iconBg}
 											/>
 											<AppButton
 												variant="ghost"
@@ -443,35 +454,38 @@ const Index = () => {
 								{selectedInterval?.label}
 							</Text>
 
-							<TouchableOpacity
-								style={{
-									...styles.closeButton,
-									backgroundColor: theme.modal.closeBg,
-									height: 40,
-									width: 40,
-								}}
-								onPress={closeIntervalSheet}
-							>
-								<AntDesign name="close" size={26} color={theme.modal.closeIcon} />
-							</TouchableOpacity>
+                                                         <AppButton
+                                                                 onPress={closeIntervalSheet}
+                                                                 style={{
+                                                                         ...styles.closeButton,
+                                                                         backgroundColor: theme.modal.closeBg,
+                                                                         height: 40,
+                                                                         width: 40,
+                                                                         borderRadius: 20,
+                                                                         paddingHorizontal: 0,
+                                                                         marginVertical: 0,
+                                                                 }}
+                                                                 iconLeft={<AntDesign name="close" size={26} color={theme.modal.closeIcon} />}
+                                                         />
 						</View>
 						<View style={[styles.modalContent, { paddingHorizontal: windowWidth < 600 ? 5 : 30 }]}>
-							<TextInput
-								style={{
-									...styles.input,
-									color: 'black',
-									backgroundColor: '#fff',
-									borderWidth: 1,
-									height: 60,
-									textAlignVertical: 'top',
-								}}
-								value={value}
-								onChangeText={text => {
-									const numericValue = StringHelper.replaceAllWithOptions({ str: text, find: '[^0-9]', replace: '' });
-									setValue(numericValue);
-								}}
-								keyboardType="number-pad"
-							/>
+                                                         <AppTextInput
+                                                                 inputStyle={{
+                                                                         ...styles.input,
+                                                                         backgroundColor: '#fff',
+                                                                         color: 'black',
+                                                                         height: 60,
+                                                                         textAlignVertical: 'top',
+                                                                 }}
+                                                                 borderColor="#000"
+                                                                 value={value}
+                                                                 onChangeText={text => {
+                                                                         const numericValue = StringHelper.replaceAllWithOptions({ str: text, find: '[^0-9]', replace: '' });
+                                                                         setValue(numericValue);
+                                                                 }}
+                                                                 keyboardType="number-pad"
+                                                                 isBottomSheet
+                                                         />
 
 							<View
 								style={[

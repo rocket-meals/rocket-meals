@@ -1,6 +1,7 @@
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './styles';
+import AppButton from '@/components/AppButton';
 import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
 import { getTextFromTranslation, getTitleFromTranslation } from '@/helper/resourceHelper';
@@ -67,9 +68,14 @@ const Index = () => {
 			>
 				<View style={[styles.row, isArabicRight ? { justifyContent: 'flex-end' } : undefined]}>
 					<View style={[styles.col1, isArabicRight ? { flexDirection: 'row-reverse' } : undefined]}>
-						<TouchableOpacity onPress={() => router.navigate(('/(app)/' + AppScreens.FOOD_OFFERS) as any)} style={{ padding: 10 }}>
+						<AppButton
+							variant="ghost"
+							usePlainText
+							onPress={() => router.navigate(('/(app)/' + AppScreens.FOOD_OFFERS) as any)}
+							style={{ padding: 10, minWidth: 0, minHeight: 0, marginVertical: 0 }}
+						>
 							<Ionicons name={isArabicRight ? 'arrow-forward' : 'arrow-back'} size={24} color={theme.header.text} />
-						</TouchableOpacity>
+						</AppButton>
 						<Text style={{ ...styles.heading, color: theme.header.text, ...(isArabicRight ? { textAlign: 'right' } : {}) }}>{wiki?.translations && translateDynamic(getTitleFromTranslation(wiki?.translations, language))}</Text>
 					</View>
 				</View>

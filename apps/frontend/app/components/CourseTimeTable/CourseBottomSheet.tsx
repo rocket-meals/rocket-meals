@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import AppTextInput from '@/components/AppTextInput';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
@@ -342,7 +343,20 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 						</View>
 					) : (
 						<View style={styles.titleBt}>
-							<TextInput style={styles.input} value={inputValue} onChangeText={setInputValue} placeholder={translate(TranslationKeys.enterAValue)} autoFocus />
+							<AppTextInput
+								style={styles.input}
+								inputStyle={{
+									backgroundColor: 'transparent',
+									paddingHorizontal: 0,
+								}}
+								borderWidth={1}
+								borderColor="#d14510"
+								isBottomSheet={!isWeb}
+								value={inputValue}
+								onChangeText={setInputValue}
+								placeholder={translate(TranslationKeys.enterAValue)}
+								autoFocus
+							/>
 
 							<View style={[styles.buttonContainer]}>
 								<AppButton
