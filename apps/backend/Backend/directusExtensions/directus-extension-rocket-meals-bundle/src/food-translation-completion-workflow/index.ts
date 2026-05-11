@@ -1,7 +1,6 @@
-import { MyDatabaseHelper } from '../helpers/MyDatabaseHelper';
-import { WorkflowScheduleHelper } from '../workflows-runs-hook';
+import { WorkflowScheduler } from '../workflows-runs-hook';
 import { SingleWorkflowRun, WorkflowEnum } from '../workflows-runs-hook/WorkflowRunJobInterface';
-import { CollectionNames, CronHelper, DatabaseTypes, LanguageCodes } from 'repo-depkit-common';
+import { CollectionNames, DatabaseTypes, LanguageCodes } from 'repo-depkit-common';
 import { WORKFLOW_RUN_STATE } from '../helpers/itemServiceHelpers/WorkflowsRunEnum';
 import { WorkflowRunContext } from '../helpers/WorkflowRunContext';
 import { MyDefineHook } from '../helpers/MyDefineHook';
@@ -257,14 +256,7 @@ class FoodTranslationCompletionWorkflow extends SingleWorkflowRun {
   }
 }
 
-export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async ({ schedule }, apiContext) => {
-  const myDatabaseHelper = new MyDatabaseHelper(apiContext);
-
-  // Register workflow - no automatic schedule, only manual triggering
-  WorkflowScheduleHelper.registerScheduleToRunWorkflowRuns({
-    workflowRunInterface: new FoodTranslationCompletionWorkflow(),
-    myDatabaseHelper: myDatabaseHelper,
-    schedule: schedule,
-    cronOject: CronHelper.EVERY_MONTH_AT_1AM,
-  });
+export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, async ({}, apiContext) => {
+  // Register workflow for manual triggering only - no automatic cron schedule
+  WorkflowScheduler.registerWorkflow(new FoodTranslationCompletionWorkflow());
 });
