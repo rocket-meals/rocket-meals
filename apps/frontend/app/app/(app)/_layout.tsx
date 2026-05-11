@@ -51,6 +51,9 @@ import { HashHelper } from '@/helper/hashHelper';
 import { CollectionKeys } from '@/constants/collectionKeys';
 import { loadChatReadStatus } from '@/helper/chatReadStatus';
 import { FriendshipsHelper } from '@/redux/actions/Friendships/Friendships';
+import { CollectionHelper } from '@/helper/collectionHelper';
+import { getDeviceIdentifier, getDeviceInformationWithoutPushToken } from '@/helper/DeviceHelper';
+import { getVersion } from '@/config';
 
 export default function Layout() {
 	const { theme } = useTheme();
@@ -84,6 +87,7 @@ export default function Layout() {
 	const buildingsOrganizationsHelper = useMemo(() => new BuildingsOrganizationsHelper(), []);
 	const organizationsHelper = useMemo(() => new OrganizationsHelper(), []);
 	const friendshipsHelper = useMemo(() => new FriendshipsHelper(), []);
+	const devicesHelper = useMemo(() => new CollectionHelper<DatabaseTypes.Devices>('devices'), []);
 	const { popupEvents } = useAppSelector((state) => state.food);
 	const { hashValue } = useAppSelector((state) => state.popup_events_hash);
 	const { lastUpdatedMap } = useAppSelector((state) => state.lastUpdated);
@@ -166,6 +170,21 @@ export default function Layout() {
 		}
 	};
 
+	const updateDeviceAppVersion = async (profile: DatabaseTypes.Profiles) => {
+		try {
+			const deviceInfo = getDeviceInformationWithoutPushToken();
+			const deviceIdentifier = getDeviceIdentifier(deviceInfo);
+			const currentVersion = getVersion();
+			const devices = (profile.devices as DatabaseTypes.Devices[]) || [];
+			const currentDevice = devices.find(d => getDeviceIdentifier(d) === deviceIdentifier);
+			if (currentDevice?.id && currentDevice.app_version !== currentVersion) {
+				await devicesHelper.updateItem(currentDevice.id, { app_version: currentVersion });
+			}
+		} catch (e) {
+			console.error('Error updating device app version:', e);
+		}
+	};
+
 	const fetchProfile = async () => {
 		try {
 			const profile = (await profileHelper.fetchProfileById(user?.profile, {})) as DatabaseTypes.Profiles;
@@ -176,6 +195,7 @@ export default function Layout() {
 				dispatch({ type: UPDATE_PROFILE, payload: profile });
 				fetchChats();
 				fetchFriendships(profile?.id);
+				updateDeviceAppVersion(profile);
 			}
 		} catch (error) {
 			console.error('Error fetching profiles:', error);
