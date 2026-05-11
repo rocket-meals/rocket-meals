@@ -21,7 +21,7 @@ export default function MonitorLayout() {
 	const appSettingsHelper = new AppSettingsHelper();
 	const markingGroupsHelper = new MarkingGroupsHelper();
 	const [loading, setLoading] = useState(true);
-	const { markingsDict } = useAppSelector((state) => state.food);
+	const { markings } = useAppSelector((state) => state.food);
 	const { appSettings } = useAppSelector((state) => state.settings);
 
 	const getMarkings = async () => {
@@ -45,7 +45,7 @@ export default function MonitorLayout() {
 	const getAllData = async () => {
 		const tasks: Promise<any>[] = [];
 
-		if (!Object.keys(markingsDict || {}).length) tasks.push(getMarkings());
+		if (!markings?.length) tasks.push(getMarkings());
 		if (!Object.keys(appSettings || {}).length) tasks.push(getAppSettings());
 
 		if (tasks.length === 0) {
@@ -91,21 +91,21 @@ export default function MonitorLayout() {
 			<Stack.Screen
 				name="statistics/index"
 				options={{
-					title: translate(TranslationKeys.statistics),
-					header: () => <CustomStackHeader label={translate(TranslationKeys.statistics)} key={'statistics'} />,
+					title: 'statistics',
+					header: () => <CustomStackHeader label={'Statistics'} key={'statistics'} />,
 				}}
 			/>
 			<Stack.Screen
 				name="foodPlanWeek/index"
 				options={{
-					title: translate(TranslationKeys.Food_Plan_Week),
+					title: 'FoodPlan:Week',
 					header: () => <CustomStackHeader label={translate(TranslationKeys.Food_Plan_Week)} key={'foodPlanWeek'} />,
 				}}
 			/>
 			<Stack.Screen
 				name="list-week-screen"
 				options={{
-					title: translate(TranslationKeys.list_week_screen),
+					title: 'list-week-screen',
 					headerShown: false,
 				}}
 			/>
@@ -124,7 +124,7 @@ export default function MonitorLayout() {
 			<Stack.Screen
 				name="foodPlanList/index"
 				options={{
-					title: translate(TranslationKeys.Food_Plan_List),
+					title: 'foodPlan:List',
 					header: () => <CustomStackHeader label={translate(TranslationKeys.Food_Plan_List)} key={'foodPlanList'} />,
 				}}
 			/>
@@ -143,15 +143,8 @@ export default function MonitorLayout() {
 			<Stack.Screen
 				name="labels/index"
 				options={{
-					title: translate(TranslationKeys.labels),
-					header: () => <CustomStackHeader label={translate(TranslationKeys.markings)} key={'labels'} />,
-				}}
-			/>
-			<Stack.Screen
-				name="rss-feed-config/index"
-				options={{
-					title: translate(TranslationKeys.rss_feed_config),
-					header: () => <CustomStackHeader label={`${translate(TranslationKeys.rss_feed)} ${translate(TranslationKeys.config)}`} key={'rss-feed-config'} />,
+					title: 'Labels',
+					headerShown: false,
 				}}
 			/>
 		</Stack>

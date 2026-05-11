@@ -321,6 +321,23 @@
     "_syncId": "05a1c237-a632-4d8c-a005-f1d4ad1628d6"
   },
   {
+    "show_header": false,
+    "position_x": 1,
+    "position_y": 13,
+    "width": 60,
+    "height": 4,
+    "note": null,
+    "options": {
+      "text": "Mensa Verabredungen"
+    },
+    "type": "label",
+    "color": null,
+    "icon": null,
+    "name": null,
+    "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
+    "_syncId": "06186e93-83d1-49f7-85d8-7cc41b61da73"
+  },
+  {
     "show_header": true,
     "position_x": 1,
     "position_y": 99,
@@ -404,7 +421,7 @@
   {
     "show_header": true,
     "position_x": 1,
-    "position_y": 76,
+    "position_y": 93,
     "width": 60,
     "height": 13,
     "note": null,
@@ -449,6 +466,26 @@
     "name": "Auslastung: Reale Werte: Y-Achse Max Fixiert",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
     "_syncId": "0f66d1a5-84ee-4def-be22-1a26555c4e18"
+  },
+  {
+    "show_header": true,
+    "position_x": 1,
+    "position_y": 23,
+    "width": 60,
+    "height": 7,
+    "note": null,
+    "options": {
+      "field": "CUSTOM_SELECTED_CANTEEN_ID",
+      "collection": "canteens",
+      "displayTemplate": "{{alias}} ({{id}})",
+      "limit": 100
+    },
+    "type": "relational-variable",
+    "color": null,
+    "icon": null,
+    "name": "Mensa: Auswahl",
+    "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
+    "_syncId": "102971c8-ec9b-4760-9c9d-11d7b8749da9"
   },
   {
     "show_header": true,
@@ -964,7 +1001,7 @@
   {
     "show_header": true,
     "position_x": 33,
-    "position_y": 51,
+    "position_y": 68,
     "width": 28,
     "height": 5,
     "note": null,
@@ -1522,6 +1559,48 @@
   },
   {
     "show_header": true,
+    "position_x": 1,
+    "position_y": 50,
+    "width": 60,
+    "height": 13,
+    "note": null,
+    "options": {
+      "collection": "canteen_visits",
+      "function": "countDistinct",
+      "dateField": "date",
+      "range": "auto",
+      "valueField": "id",
+      "filter": {
+        "_and": [
+          {
+            "_and": [
+              {
+                "date": {
+                  "_gte": "{{CUSTOM_SELECTED_DATE_START}}"
+                }
+              },
+              {
+                "date": {
+                  "_lte": "{{CUSTOM_SELECTED_DATE_END}}"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "precision": "{{CUSTOM_PRECISION}}",
+      "min": 0,
+      "missingData": "0"
+    },
+    "type": "time-series",
+    "color": null,
+    "icon": null,
+    "name": "Verabredungen (Ohne Mensa Filter)",
+    "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
+    "_syncId": "3237ad74-8861-4e01-bd14-7cd0c460341f"
+  },
+  {
+    "show_header": true,
     "position_x": 41,
     "position_y": 84,
     "width": 14,
@@ -1963,6 +2042,55 @@
   {
     "show_header": true,
     "position_x": 1,
+    "position_y": 37,
+    "width": 60,
+    "height": 13,
+    "note": null,
+    "options": {
+      "collection": "canteen_visits",
+      "function": "countDistinct",
+      "dateField": "date",
+      "range": "auto",
+      "valueField": "id",
+      "filter": {
+        "_and": [
+          {
+            "_and": [
+              {
+                "canteen": {
+                  "id": {
+                    "_eq": "{{CUSTOM_SELECTED_CANTEEN_ID}}"
+                  }
+                }
+              },
+              {
+                "date_": {
+                  "_gte": "{{CUSTOM_SELECTED_DATE_START}}"
+                }
+              },
+              {
+                "date": {
+                  "_lte": "{{CUSTOM_SELECTED_DATE_END}}"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "precision": "{{CUSTOM_PRECISION}}",
+      "min": 0,
+      "missingData": "0"
+    },
+    "type": "time-series",
+    "color": null,
+    "icon": null,
+    "name": "Verabredungen (Gefiltert)",
+    "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
+    "_syncId": "410b8f75-e209-43ce-88ae-d3ed4df2f50d"
+  },
+  {
+    "show_header": true,
+    "position_x": 1,
     "position_y": 164,
     "width": 61,
     "height": 12,
@@ -2102,7 +2230,7 @@
   {
     "show_header": true,
     "position_x": 33,
-    "position_y": 57,
+    "position_y": 74,
     "width": 28,
     "height": 6,
     "note": null,
@@ -2544,6 +2672,25 @@
     "name": "Waschmaschinen gestartet Monatgs",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
     "_syncId": "582f4221-1ae5-41b5-a02f-8ad91dc8d35b"
+  },
+  {
+    "show_header": true,
+    "position_x": 1,
+    "position_y": 1,
+    "width": 27,
+    "height": 7,
+    "note": null,
+    "options": {
+      "collection": "canteen_visits",
+      "field": "id",
+      "function": "countDistinct"
+    },
+    "type": "metric",
+    "color": null,
+    "icon": null,
+    "name": "Mensa Verabredungen (insgesamt)",
+    "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
+    "_syncId": "591a475a-a96c-4067-8667-ed8a49637631"
   },
   {
     "show_header": true,
@@ -3353,7 +3500,7 @@
   {
     "show_header": true,
     "position_x": 1,
-    "position_y": 57,
+    "position_y": 74,
     "width": 32,
     "height": 6,
     "note": null,
@@ -3617,6 +3764,38 @@
   },
   {
     "show_header": true,
+    "position_x": 1,
+    "position_y": 130,
+    "width": 16,
+    "height": 5,
+    "note": null,
+    "options": {
+      "collection": "friendships",
+      "field": "id",
+      "function": "countDistinct",
+      "filter": {
+        "_and": [
+          {
+            "_and": [
+              {
+                "friendship_status": {
+                  "_eq": "accepted"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "type": "metric",
+    "color": null,
+    "icon": null,
+    "name": "Anzahl Freundschaften (durch 2 teilen)",
+    "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
+    "_syncId": "802675de-f620-4548-8dd2-f6a8caba33c8"
+  },
+  {
+    "show_header": true,
     "position_x": 81,
     "position_y": 82,
     "width": 25,
@@ -3835,7 +4014,7 @@
   {
     "show_header": true,
     "position_x": 1,
-    "position_y": 63,
+    "position_y": 80,
     "width": 60,
     "height": 13,
     "note": null,
@@ -5019,6 +5198,55 @@
   {
     "show_header": true,
     "position_x": 1,
+    "position_y": 30,
+    "width": 60,
+    "height": 6,
+    "note": null,
+    "options": {
+      "field": "CUSTOM_PRECISION",
+      "type": "string",
+      "inter": "select-dropdown",
+      "defaultValue": "hour",
+      "options": {
+        "choices": [
+          {
+            "text": "Minute",
+            "value": "minute"
+          },
+          {
+            "text": "Hour",
+            "value": "hour"
+          },
+          {
+            "text": "Day",
+            "value": "day"
+          },
+          {
+            "text": "Week",
+            "value": "week"
+          },
+          {
+            "text": "Month",
+            "value": "month"
+          },
+          {
+            "text": "Year",
+            "value": "year"
+          }
+        ],
+        "allowOther": true
+      }
+    },
+    "type": "variable",
+    "color": null,
+    "icon": null,
+    "name": "Präzision",
+    "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
+    "_syncId": "aecbc534-6bfb-486b-903b-a82eba5fd501"
+  },
+  {
+    "show_header": true,
+    "position_x": 1,
     "position_y": 59,
     "width": 34,
     "height": 6,
@@ -5211,7 +5439,7 @@
   {
     "show_header": true,
     "position_x": 1,
-    "position_y": 38,
+    "position_y": 55,
     "width": 60,
     "height": 13,
     "note": null,
@@ -5368,6 +5596,28 @@
     "name": "Anzahl Speise Kommentare",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
     "_syncId": "ba217fdd-7194-4e86-851f-45659c093dce"
+  },
+  {
+    "show_header": true,
+    "position_x": 1,
+    "position_y": 17,
+    "width": 30,
+    "height": 6,
+    "note": null,
+    "options": {
+      "field": "CUSTOM_SELECTED_DATE_START",
+      "collection": "canteens_feedbacks_labels",
+      "displayTemplate": "{{alias}} ({{id}})",
+      "type": "dateTime",
+      "inter": "datetime",
+      "defaultValue": "$NOW(-8 hours)"
+    },
+    "type": "variable",
+    "color": null,
+    "icon": null,
+    "name": "Mensa Rückmeldungen: Start Zeit (Standart: Vor 1 Tag)",
+    "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
+    "_syncId": "bb75cc90-1c12-4633-8c20-e3680b5409d2"
   },
   {
     "show_header": true,
@@ -6013,7 +6263,7 @@
   {
     "show_header": true,
     "position_x": 1,
-    "position_y": 51,
+    "position_y": 68,
     "width": 32,
     "height": 5,
     "note": null,
@@ -6079,7 +6329,7 @@
   {
     "show_header": true,
     "position_x": 1,
-    "position_y": 50,
+    "position_y": 49,
     "width": 66,
     "height": 13,
     "note": null,
@@ -7026,6 +7276,28 @@
   },
   {
     "show_header": true,
+    "position_x": 31,
+    "position_y": 17,
+    "width": 30,
+    "height": 6,
+    "note": null,
+    "options": {
+      "field": "CUSTOM_SELECTED_DATE_END",
+      "collection": "canteens_feedbacks_labels",
+      "displayTemplate": "{{alias}} ({{id}})",
+      "type": "dateTime",
+      "inter": "datetime",
+      "defaultValue": "$NOW(+4 hours)"
+    },
+    "type": "variable",
+    "color": null,
+    "icon": null,
+    "name": "Mensa Rückmeldungen: Start Zeit (Standart: Heute)",
+    "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
+    "_syncId": "f4cebfd1-ae96-48f4-a28d-9d040889e95d"
+  },
+  {
+    "show_header": true,
     "position_x": 29,
     "position_y": 24,
     "width": 14,
@@ -7236,7 +7508,7 @@
   {
     "show_header": true,
     "position_x": 1,
-    "position_y": 36,
+    "position_y": 34,
     "width": 66,
     "height": 14,
     "note": null,
@@ -7292,7 +7564,7 @@
   {
     "show_header": true,
     "position_x": 1,
-    "position_y": 25,
+    "position_y": 42,
     "width": 60,
     "height": 13,
     "note": null,

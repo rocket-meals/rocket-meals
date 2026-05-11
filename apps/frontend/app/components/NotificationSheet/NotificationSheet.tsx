@@ -9,15 +9,13 @@ import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks'
 import { DELETE_FOOD_FEEDBACK_LOCAL, UPDATE_FOOD_FEEDBACK_LOCAL } from '@/redux/Types/types';
 import { useLanguage } from '@/hooks/useLanguage';
 import animation from '@/assets/animations/notificationBell.json';
-import type LottieView from 'lottie-react-native';
+import LottieView from 'lottie-react-native';
 import { useFocusEffect } from 'expo-router';
 import { replaceLottieColors } from '@/helper/animationHelper';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { useAppSelector } from '@/redux/hooks';
-import AppButton from '@/components/AppButton';
-import SafeLottieView from '@/components/SafeLottieView/SafeLottieView';
 
 const NotificationSheet: React.FC<NotificationSheetProps> = ({ closeSheet, previousFeedback, foodDetails }) => {
 	const { theme } = useTheme();
@@ -61,16 +59,7 @@ const NotificationSheet: React.FC<NotificationSheetProps> = ({ closeSheet, previ
 
 	const renderLottie = useMemo(() => {
 		if (animationJson) {
-			return (
-				<SafeLottieView
-					ref={animationRef}
-					source={animationJson}
-					resizeMode="contain"
-					style={isWeb() ? { width: 250, height: 250 } : { width: '100%', height: '100%' }}
-					autoPlay={autoPlay ?? false}
-					loop={false}
-				/>
-			);
+			return <LottieView ref={animationRef} source={animationJson} resizeMode="contain" style={{ width: '100%', height: '100%' }} autoPlay={autoPlay ?? false} loop={false} />;
 		}
 	}, [autoPlay, animationJson]);
 
@@ -139,19 +128,12 @@ const NotificationSheet: React.FC<NotificationSheetProps> = ({ closeSheet, previ
 				>
 					{translate(TranslationKeys.notification_please_notify_me_on_my_smartphones_if_they_allow_to_be_notified)}
 				</Text>
-				<AppButton
-					text={translate(TranslationKeys.confirm)}
-					onPress={updateFoodFeedbackNotification}
-					style={{ ...styles.button, backgroundColor: foods_area_color }}
-					textStyle={{ ...styles.buttonLabel, color: contrastColor }}
-				/>
-				<AppButton
-					text={translate(TranslationKeys.cancel)}
-					onPress={closeSheet}
-					variant="ghost"
-					style={{ ...styles.cancelButton, borderColor: foods_area_color }}
-					textStyle={{ ...styles.buttonLabel, color: theme.screen.text }}
-				/>
+				<TouchableOpacity style={{ ...styles.button, backgroundColor: foods_area_color }} onPress={updateFoodFeedbackNotification}>
+					<Text style={{ ...styles.buttonLabel, color: contrastColor }}>{translate(TranslationKeys.confirm)}</Text>
+				</TouchableOpacity>
+				<TouchableOpacity style={{ ...styles.cancelButton, borderColor: foods_area_color }} onPress={closeSheet}>
+					<Text style={{ ...styles.buttonLabel, color: theme.screen.text }}>{translate(TranslationKeys.cancel)}</Text>
+				</TouchableOpacity>
 			</View>
 		</View>
 	);

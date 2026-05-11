@@ -66,6 +66,13 @@
     "note": null,
     "icon": "space_dashboard",
     "color": null,
+    "name": "Mensa Verabredungen",
+    "_syncId": "a3d32433-5676-4bc7-8aaf-cef6425a78dd"
+  },
+  {
+    "note": null,
+    "icon": "space_dashboard",
+    "color": null,
     "name": "Mails",
     "_syncId": "b46df209-45f2-4a9e-ba1b-dfbc7d78602d"
   },

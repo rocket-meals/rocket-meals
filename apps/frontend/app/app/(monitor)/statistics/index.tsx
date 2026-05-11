@@ -1,5 +1,5 @@
 import { Dimensions, ScrollView, Text, View } from 'react-native';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import StatisticsCard from '@/components/StatisticsCard/StatisticsCard';
@@ -14,23 +14,16 @@ import ImageManagementSheet from '@/components/ImageManagementSheet/ImageManagem
 import { useFocusEffect } from 'expo-router';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { TranslationKeys } from '@/locales/keys';
-import { useLanguage } from '@/hooks/useLanguage';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const Index = () => {
-	useSetPageTitle(TranslationKeys.statistics);
+	useSetPageTitle(TranslationKeys.statistiken);
 	const { theme } = useTheme();
 	const dispatch = useDispatch();
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 	const [isActive, setIsActive] = useState(false);
 	const [selectedFoodId, setSelectedFoodId] = useState('');
 	const imageManagementSheetRef = useRef<BottomSheet>(null);
 
-	const { mostLikedFoodsDict, mostDislikedFoodsDict } = useAppSelector((state) => state.food);
-	const mostLikedFoods = useMemo(() => Object.values(mostLikedFoodsDict || {}) as DatabaseTypes.Foods[], [mostLikedFoodsDict]);
-	const mostDislikedFoods = useMemo(() => Object.values(mostDislikedFoodsDict || {}) as DatabaseTypes.Foods[], [mostDislikedFoodsDict]);
+	const { mostLikedFoods, mostDislikedFoods } = useAppSelector((state) => state.food);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 
 	const openImageManagementSheet = () => {
@@ -90,16 +83,15 @@ const Index = () => {
 					...styles.statisticsContainer,
 					padding: screenWidth > 600 ? 20 : 5,
 					gap: screenWidth > 600 ? 20 : 10,
-					flexDirection: isArabic ? 'row-reverse' : 'row',
 				}}
 			>
 				<View style={styles.topContainer}>
-					<Text style={{ ...styles.heading, color: theme.screen.text, ...(isArabic ? { textAlign: 'right', writingDirection: 'rtl' } : null) }}>{translate(TranslationKeys.top_10)}</Text>
+					<Text style={{ ...styles.heading, color: theme.screen.text }}>Top 10</Text>
 					<ScrollView>{mostLikedFoods && mostLikedFoods?.map((item: DatabaseTypes.Foods) => <StatisticsCard key={item.id} food={item} handleImageSheet={openImageManagementSheet} setSelectedFoodId={setSelectedFoodId} />)}</ScrollView>
 				</View>
 
 				<View style={styles.worstContainer}>
-					<Text style={{ ...styles.heading, color: theme.screen.text, ...(isArabic ? { textAlign: 'right', writingDirection: 'rtl' } : null) }}>{translate(TranslationKeys.worst_10)}</Text>
+					<Text style={{ ...styles.heading, color: theme.screen.text }}>Worst 10</Text>
 					<ScrollView>{mostDislikedFoods && mostDislikedFoods?.map((item: DatabaseTypes.Foods) => <StatisticsCard key={item.id} food={item} handleImageSheet={openImageManagementSheet} setSelectedFoodId={setSelectedFoodId} />)}</ScrollView>
 				</View>
 			</View>

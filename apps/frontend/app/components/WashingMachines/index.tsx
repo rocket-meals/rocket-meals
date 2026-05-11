@@ -8,19 +8,15 @@ import { differenceInSeconds, format, isAfter, isBefore } from 'date-fns';
 import washingmachine from '@/assets/animations/washingmachine/washingmachine.json';
 import washingmachineEmpty from '@/assets/animations/washingmachine/washingmachineEmpty.json';
 import { useAppSelector } from '@/redux/hooks';
-import type LottieView from 'lottie-react-native';
+import LottieView from 'lottie-react-native';
 import { useFocusEffect } from 'expo-router';
 import { replaceLottieColors } from '@/helper/animationHelper';
 import { TranslationKeys } from '@/locales/keys';
 import { ApartmentsHelper } from '@/redux/actions/Apartments/Apartments';
 import { RootState } from '@/redux/reducer';
-import SafeLottieView from '@/components/SafeLottieView/SafeLottieView';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const WashingMachines: React.FC<any> = ({ campusDetails }) => {
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isRtl = !isLtrLanguage;
+	const { translate } = useLanguage();
 	const { theme } = useTheme();
 	const apartmentsHelper = new ApartmentsHelper();
 	const [washingMachines, setWashingMachines] = useState<DatabaseTypes.Washingmachines[] | any[]>();
@@ -106,8 +102,8 @@ const WashingMachines: React.FC<any> = ({ campusDetails }) => {
 					// Schedule the notification
 					await Notifications.scheduleNotificationAsync({
 						content: {
-							title: translate(TranslationKeys.washingMachineNotificationTitle).replace('${alias}', String(alias ?? '')),
-							body: translate(TranslationKeys.washingMachineNotificationBody).replace('${date}', format(finishDate, 'dd.MM.yyyy HH:mm')),
+							title: `Washing Machine ${alias}`,
+							body: `Your washing will finish at ${format(finishDate, 'dd.MM.yyyy HH:mm')}.`,
 						},
 						trigger: {
 							type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
@@ -134,7 +130,7 @@ const WashingMachines: React.FC<any> = ({ campusDetails }) => {
 
 	const getStatusText = (date_finished: string | null) => {
 		if (!date_finished) {
-			return translate(TranslationKeys.statusUnknown);
+			return 'Status unknown';
 		}
 
 		const currentDate = new Date();
@@ -142,17 +138,17 @@ const WashingMachines: React.FC<any> = ({ campusDetails }) => {
 
 		// Determine the correct status based on the date
 		if (isAfter(finishedDate, currentDate)) {
-			return translate(TranslationKeys.finishesOnWithDate).replace('${date}', format(finishedDate, 'dd.MM.yyyy HH:mm'));
+			return `Finishes on ${format(finishedDate, 'dd.MM.yyyy HH:mm')}`;
 		} else if (isBefore(finishedDate, currentDate)) {
-			return translate(TranslationKeys.washingmachine_state_finished);
+			return 'Washing Finished';
 		}
 
-		return translate(TranslationKeys.statusUnknown);
+		return 'Status unknown';
 	};
 
 	return (
 		<View style={styles.container}>
-			<Text style={{ ...styles.heading, color: theme.screen.text, textAlign: isRtl ? 'right' : 'left', writingDirection: isRtl ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.washing_machines)}</Text>
+			<Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.washing_machines)}</Text>
 			<View style={styles.washingMachines}>
 				{loading ? (
 					<View
@@ -174,7 +170,7 @@ const WashingMachines: React.FC<any> = ({ campusDetails }) => {
 
 							const animationSource = isStatusUnknown || isWashingFinished ? washingmachineEmpty : washingmachine;
 							return (
-								<View style={{ ...styles.card, flexDirection: isRtl ? 'row-reverse' : 'row' }} key={item?.id}>
+								<View style={{ ...styles.card }} key={item?.id}>
 									<View
 										style={{
 											width: 150,
@@ -183,22 +179,14 @@ const WashingMachines: React.FC<any> = ({ campusDetails }) => {
 											alignItems: 'center',
 										}}
 									>
-										<SafeLottieView
-											source={replaceLottieColors(animationSource, primaryColor)}
-											autoPlay={autoPlay ?? false}
-											loop={!isWashingFinished}
-											resizeMode="contain"
-											style={Platform.OS === 'web' ? { width: 150, height: 150 } : { width: '100%', height: '100%' }}
-										/>
+										<LottieView source={replaceLottieColors(animationSource, primaryColor)} autoPlay={autoPlay ?? false} loop={!isWashingFinished} resizeMode="contain" style={{ width: '100%', height: '100%' }} />
 									</View>
-									<View style={{ ...styles.details, alignItems: isRtl ? 'flex-end' : 'flex-start' }}>
-										<Text style={{ ...styles.title, color: theme.screen.text, textAlign: isRtl ? 'right' : 'left', writingDirection: isRtl ? 'rtl' : 'ltr' }}>{item?.alias}</Text>
+									<View style={styles.details}>
+										<Text style={{ ...styles.title, color: theme.screen.text }}>{item?.alias}</Text>
 										<Text
 											style={{
 												...styles.description,
 												color: theme.screen.text,
-												textAlign: isRtl ? 'right' : 'left',
-												writingDirection: isRtl ? 'rtl' : 'ltr',
 											}}
 										>
 											{getStatusText(item?.date_finished)}

@@ -4,15 +4,15 @@
 
 | Category | Total Issues | Shown |
 |----------|-------------|-------|
-| 🔒 Security | 14 | 14 |
-| 🐛 Reliability | 6840 | 36 |
+| 🔒 Security | 17 | 17 |
+| 🐛 Reliability | 6846 | 33 |
 | 🔧 Maintainability | 10000 | 0 |
 
-**Total issues:** 16854 (showing top 50 prioritized by: Security > Reliability > Maintainability)
+**Total issues:** 16863 (showing top 50 prioritized by: Security > Reliability > Maintainability)
 
 ---
 
-## 🔒 Security (14/14)
+## 🔒 Security (17/17)
 
 - **inputs.previous-commit-sha is vulnerable to script injection: values of inputs are provided by whoever triggers the workflow. Change this action to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
   .github/actions/check-build-number/action.yml:34
@@ -42,6 +42,18 @@
   .github/actions/score-tracker-expo-update/action.yml:184
   https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/score-tracker-expo-update/action.yml#L184
 
+- **The expression github.event.pull_request.title can be set by an external actor to a specially crafted value, enabling script injection. Change this workflow to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
+  .github/workflows/pr-expo-preview.yml:49
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/pr-expo-preview.yml#L49
+
+- **The expression github.event.pull_request.title can be set by an external actor to a specially crafted value, enabling script injection. Change this workflow to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
+  .github/workflows/pr-expo-preview.yml:58
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/pr-expo-preview.yml#L58
+
+- **The expression github.event.pull_request.title can be set by an external actor to a specially crafted value, enabling script injection. Change this workflow to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
+  .github/workflows/pr-expo-preview.yml:67
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/pr-expo-preview.yml#L67
+
 - **Review this potentially hard-coded password.**
   apps/backend-sync/src/SyncDatabaseSchema.ts:45
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend-sync/src/SyncDatabaseSchema.ts#L45
@@ -70,7 +82,7 @@
   apps/geonexia/frontend/helpers/h3/libh3.js:147
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/helpers/h3/libh3.js#L147
 
-## 🐛 Reliability (36/6840)
+## 🐛 Reliability (33/6846)
 
 - **Prefer `Number.isFinite` over `isFinite`.**
   apps/frontend/app/app/(app)/map/components/JoggingOverlay.tsx:140
@@ -89,8 +101,8 @@
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/helper/DeviceHelper.ts#L144
 
 - **React Hook "usePlatformHelper" cannot be called in a class component. React Hooks must be called in a React function component or a custom React Hook function.**
-  apps/frontend/app/helper/NotificationHelper.ts:75
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/helper/NotificationHelper.ts#L75
+  apps/frontend/app/helper/NotificationHelper.ts:82
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/helper/NotificationHelper.ts#L82
 
 - **React Hook "usePlatformHelper" cannot be called at the top level. React Hooks must be called in a React function component or a custom React Hook function.**
   apps/frontend/app/helper/SystemActionHelper.ts:6
@@ -203,16 +215,4 @@
 - **Prefer `String#codePointAt()` over `String#charCodeAt()`.**
   apps/geonexia/frontend/helpers/ActivityMapRebuildHelper.ts:353
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/helpers/ActivityMapRebuildHelper.ts#L353
-
-- **Prefer `Number.isFinite` over `isFinite`.**
-  apps/geonexia/frontend/helpers/ActivityStatsHelper.ts:24
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/helpers/ActivityStatsHelper.ts#L24
-
-- **Prefer `Number.parseInt` over `parseInt`.**
-  apps/geonexia/frontend/helpers/h3/h3core.js:242
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/helpers/h3/h3core.js#L242
-
-- **Prefer `Number.parseInt` over `parseInt`.**
-  apps/geonexia/frontend/helpers/h3/h3core.js:243
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/helpers/h3/h3core.js#L243
 

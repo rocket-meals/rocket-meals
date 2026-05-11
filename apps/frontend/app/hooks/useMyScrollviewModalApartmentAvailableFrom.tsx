@@ -5,14 +5,10 @@ import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewMo
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { TranslationKeys } from '@/locales/keys';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
-import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
 const useMyScrollviewModalApartmentAvailableFrom = () => {
 	const { show, close } = useMyScrollViewModal();
-	const isLtrLanguage = useIsLtrLanguage();
 	const { translate, language } = useLanguage();
-	const languageTextAlign = useLanguageTextAlign();
 	const { theme } = useTheme();
 
 	const openApartmentAvailableFromModal = useCallback(
@@ -23,8 +19,6 @@ const useMyScrollviewModalApartmentAvailableFrom = () => {
 			show({
 				title: translate(TranslationKeys.free_rooms),
 				onClose: close,
-				titleTextAlign: languageTextAlign,
-				titleWritingDirection: isLtrLanguage ? 'ltr' : 'rtl',
 				children: (
 					<View>
 						<Text style={[styles.text, { color: theme.screen.text }]}>

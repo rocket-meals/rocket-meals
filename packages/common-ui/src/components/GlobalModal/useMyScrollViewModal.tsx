@@ -19,13 +19,11 @@ export const useMyScrollViewModal = () => {
 			? { backgroundColor, ...options?.backgroundStyle }
 			: options?.backgroundStyle;
 		const headerBackgroundColor = backgroundColor ?? options?.headerBackgroundColor;
-		const mergedOptions = options
-			? {
-					...options,
-					backgroundStyle,
-					headerBackgroundColor,
-			  }
-			: undefined;
+		const mergedOptions: ScrollViewModalOptions = {
+			...options,
+			backgroundStyle,
+			headerBackgroundColor,
+		};
 
 		const element = (
 			<MyScrollViewModal closeSheet={close} backgroundColor={backgroundColor} {...restProps}>

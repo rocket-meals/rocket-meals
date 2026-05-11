@@ -13,7 +13,6 @@ import { deleteDirectusFile } from '@/constants/HelperFunctions';
 import { TranslationKeys } from '@/locales/keys';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
-import AppButton from '@/components/AppButton';
 
 const ImageUpload = ({ id, value, onChange, error, isDisabled, custom_type, offlineMode, folderHint }: { id: string; value: any; onChange: (id: string, value: any, custom_type: string) => void; error: string; isDisabled: boolean; custom_type: string; offlineMode?: boolean; folderHint?: string | null }) => {
 	const { translate } = useLanguage();
@@ -138,32 +137,23 @@ const ImageUpload = ({ id, value, onChange, error, isDisabled, custom_type, offl
 	return (
 		<View style={styles.container}>
 			<View style={{ ...styles.uploadContainer }}>
-				<AppButton
-					variant="ghost"
-					usePlainText
-					text={translate(TranslationKeys.upload_image)}
-					onPress={() => pickImage(false)}
-					disabled={isDisabled}
+				<TouchableOpacity
 					style={{
 						...styles.uploadButton,
 						paddingVertical: isWeb ? 10 : 6,
 						backgroundColor: primaryColor,
-						marginVertical: 0,
 					}}
-					textStyle={{ ...styles.uploadText, color: contrastColor }}
-					iconLeft={<MaterialIcons name="image" size={24} color={contrastColor} />}
-				/>
+					onPress={() => pickImage(false)}
+					disabled={isDisabled}
+				>
+					<MaterialIcons name="image" size={24} color={contrastColor} />
+					<Text style={{ ...styles.uploadText, color: contrastColor }}>{translate(TranslationKeys.upload_image)}</Text>
+				</TouchableOpacity>
 				{!isWeb && (
-					<AppButton
-						variant="ghost"
-						usePlainText
-						text={translate(TranslationKeys.camera)}
-						onPress={() => pickImage(true)}
-						disabled={isDisabled}
-						style={{ ...styles.uploadButton, backgroundColor: primaryColor, marginVertical: 0 }}
-						textStyle={{ ...styles.uploadText, color: contrastColor }}
-						iconLeft={<Ionicons name="camera" size={24} color={contrastColor} />}
-					/>
+					<TouchableOpacity style={{ ...styles.uploadButton, backgroundColor: primaryColor }} onPress={() => pickImage(true)} disabled={isDisabled}>
+						<Ionicons name="camera" size={24} color={contrastColor} />
+						<Text style={{ ...styles.uploadText, color: contrastColor }}>{translate(TranslationKeys.camera)}</Text>
+					</TouchableOpacity>
 				)}
 			</View>
 			{value && authToken !== undefined && (

@@ -42,9 +42,8 @@ apps/geonexia/frontend/assets/notification-icon.png
 apps/geonexia/frontend/assets/splash.png
 apps/geonexia/frontend/assets/splash-icon.png
 apps/geonexia/frontend/assets/icons_hash.json
-# New location
-apps/geonexia/frontend/assets/generated/*
-!apps/geonexia/frontend/assets/generated/.keep
+# New location – commit all generated assets (like score-tracker) except the hash file
+apps/geonexia/frontend/assets/generated/icons_hash.json
 
 apps/screenshotGenerator/dist/
 apps/screenshotGenerator/.yarn/

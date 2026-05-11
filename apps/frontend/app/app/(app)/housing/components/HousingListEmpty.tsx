@@ -1,7 +1,5 @@
 import React, { memo } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
 
 interface HousingListEmptyProps {
 	loading: boolean;
@@ -9,7 +7,6 @@ interface HousingListEmptyProps {
 }
 
 const HousingListEmpty: React.FC<HousingListEmptyProps> = ({ loading, theme }) => {
-	const { translate } = useLanguage();
 	if (loading) {
 		return (
 			<View style={styles.container}>
@@ -27,7 +24,7 @@ const HousingListEmpty: React.FC<HousingListEmptyProps> = ({ loading, theme }) =
 					color: theme.screen.text,
 				}}
 			>
-				{translate(TranslationKeys.noApartmentFound)}
+				No Apartment Found
 			</Text>
 		</View>
 	);

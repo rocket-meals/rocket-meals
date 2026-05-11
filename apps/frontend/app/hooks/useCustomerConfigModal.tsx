@@ -8,8 +8,6 @@ import SettingsListSelectOption from '@/components/SettingsListSelectOption/Sett
 import { CustomerConfig, getCustomerConfigurations, getCustomerEnumForConfig } from '@/config';
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
-import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
 type CustomerConfigModalProps = {
         selectedServer: string;
@@ -18,9 +16,7 @@ type CustomerConfigModalProps = {
 
 const useCustomerConfigModal = () => {
         const { show, close } = useMyScrollViewModal();
-        const isLtrLanguage = useIsLtrLanguage();
-        const { translate, language } = useLanguage();
-	const languageTextAlign = useLanguageTextAlign();
+        const { translate } = useLanguage();
         const { primaryColor } = useAppSelector((state) => state.settings);
 
         const servers = useMemo(() => getCustomerConfigurations(), []);
@@ -35,7 +31,6 @@ const useCustomerConfigModal = () => {
                         show({
                                 title: translate(TranslationKeys.backend_server),
                                 onClose: close,
-                                titleTextAlign: languageTextAlign,
                                 children: (
                                         <View style={{ width: '100%' }}>
                                                 <SettingsListSelectOption

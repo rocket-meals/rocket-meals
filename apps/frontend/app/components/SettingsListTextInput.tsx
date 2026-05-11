@@ -8,7 +8,7 @@ const ResolvedTextInput = Platform.OS === 'web' ? TextInput : BottomSheetTextInp
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppSelector } from '@/redux/hooks';
 
-import AppButton from '@/components/AppButton';
+import ProjectButton from '@/components/ProjectButton';
 import SettingsList from '@/components/SettingsList';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -16,8 +16,6 @@ import useMyScrollviewTextInputModal from '@/hooks/useMyScrollviewTextInputModal
 import { RootState } from '@/redux/reducer';
 import type { SettingsListProps } from '@/components/SettingsList/types';
 import { TranslationKeys } from '@/locales/keys';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
-import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
 export type CheckTextInputResult = {
 	isValid: boolean;
@@ -90,9 +88,7 @@ export const SettingsListTextInputField: React.FC<SettingsListTextInputFieldProp
 	onSubmitEditing,
 }) => {
 	const { theme } = useTheme();
-	const languageTextAlign = useLanguageTextAlign();
-	const isLtrLanguage = useIsLtrLanguage();
-	const { primaryColor, language } = useAppSelector((state: RootState) => state.settings);
+	const { primaryColor } = useAppSelector((state: RootState) => state.settings);
 
 	return (
 		<ResolvedTextInput
@@ -101,7 +97,6 @@ export const SettingsListTextInputField: React.FC<SettingsListTextInputFieldProp
 				color: theme.sheet.text,
 				backgroundColor: theme.sheet.inputBg,
 				borderColor: theme.sheet.inputBorder,
-				textAlign: languageTextAlign,
 				...(inputStyle ?? {}),
 			}}
 			autoFocus={autoFocus}
@@ -137,23 +132,18 @@ export const SettingsListTextInputSheet: React.FC<SettingsListTextInputSheetProp
 	allowSubmitWhenDisabled = false,
 }) => {
 	const { theme } = useTheme();
-	const languageTextAlign = useLanguageTextAlign();
-	const { primaryColor, language } = useAppSelector((state) => state.settings);
+	const { primaryColor } = useAppSelector((state) => state.settings);
 
 	const handleSubmitEditing = useCallback(() => {
 		if (multiline) return;
 		if (disableSave && !allowSubmitWhenDisabled) return;
-		if (Platform.OS !== 'web') {
-			Keyboard.dismiss();
-		}
+		Keyboard.dismiss();
 		onSave();
 	}, [allowSubmitWhenDisabled, disableSave, multiline, onSave]);
 
 	const handlePressSave = useCallback(() => {
 		if (disableSave && !allowSubmitWhenDisabled) return;
-		if (Platform.OS !== 'web') {
-			Keyboard.dismiss();
-		}
+		Keyboard.dismiss();
 		onSave();
 	}, [allowSubmitWhenDisabled, disableSave, onSave]);
 
@@ -169,7 +159,6 @@ export const SettingsListTextInputSheet: React.FC<SettingsListTextInputSheetProp
 					color: theme.sheet.text,
 					backgroundColor: theme.sheet.inputBg,
 					borderColor: theme.sheet.inputBorder,
-					textAlign: languageTextAlign,
 					...(inputStyle ?? {}),
 				}}
 				autoFocus={autoFocus}
@@ -188,7 +177,7 @@ export const SettingsListTextInputSheet: React.FC<SettingsListTextInputSheetProp
 			/>
 
 			<View style={styles.buttonContainer}>
-				<AppButton
+				<ProjectButton
 					text={saveLabel}
 					onPress={handlePressSave}
 				/>
@@ -222,7 +211,6 @@ const SettingsListTextInput: React.FC<SettingsListTextInputProps> = ({
 }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const languageTextAlign = useLanguageTextAlign();
 	const { openTextInputModal } = useMyScrollviewTextInputModal();
 	const resolvedTitle = useMemo(() => modalTitle ?? title ?? label ?? '', [label, modalTitle, title]);
 	const resolvedInitialValue = initialValue ?? value ?? '';

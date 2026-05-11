@@ -11,11 +11,8 @@ interface UseFoodAttributesProps {
 
 export const useFoodAttributes = ({ foodAttributes, foodDetails }: UseFoodAttributesProps) => {
     const { language: languageCode, translate } = useLanguage();
-    const { foodAttributeGroupsDict } = useAppSelector((state) => state.foodAttributes);
-    const foodAttributeGroups = useMemo(() => Object.values(foodAttributeGroupsDict || {}), [foodAttributeGroupsDict]);
-    const { foodCategoriesDict, foodOfferCategoriesDict } = useAppSelector((state) => state.food);
-    const foodCategories = useMemo(() => Object.values(foodCategoriesDict || {}), [foodCategoriesDict]);
-    const foodOfferCategories = useMemo(() => Object.values(foodOfferCategoriesDict || {}), [foodOfferCategoriesDict]);
+    const { foodAttributeGroups } = useAppSelector((state) => state.foodAttributes);
+    const { foodCategories, foodOfferCategories } = useAppSelector((state) => state.food);
 
     const groupedAttributes = useMemo(() => {
         if (!foodAttributeGroups || !foodAttributes) return [];
@@ -83,7 +80,7 @@ export const useFoodAttributes = ({ foodAttributes, foodDetails }: UseFoodAttrib
         }
 
         return grouped;
-    }, [foodAttributeGroupsDict, foodAttributes, foodDetails, foodCategories, foodOfferCategories, languageCode, translate]);
+    }, [foodAttributeGroups, foodAttributes, foodDetails, foodCategories, foodOfferCategories, languageCode, translate]);
 
     return { groupedAttributes };
 };

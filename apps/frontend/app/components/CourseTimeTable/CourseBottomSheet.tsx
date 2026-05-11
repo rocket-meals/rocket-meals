@@ -20,8 +20,6 @@ import { myContrastColor } from '@/helper/ColorHelper';
 import { TranslationKeys } from '@/locales/keys';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { useAppSelector } from '@/redux/hooks';
-import AppButton from '@/components/AppButton';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, closeSheet, isUpdate, selectedEventId }) => {
 	const { theme } = useTheme();
@@ -32,9 +30,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 	const { profile } = useAppSelector((state) => state.authReducer);
 	const [loading, setLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
-	const { primaryColor, appSettings, selectedTheme: mode, language } = useAppSelector((state) => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
+	const { primaryColor, appSettings, selectedTheme: mode } = useAppSelector((state) => state.settings);
 
 	const [selectedFirstDay, setSelectedFirstDay] = useState({
 		id: 'Monday',
@@ -65,14 +61,6 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 
 	const course_timetable_area_color = appSettings?.course_timetable_area_color ? appSettings?.course_timetable_area_color : primaryColor;
 	const contrastColor = myContrastColor(course_timetable_area_color, theme, mode === 'dark');
-
-	const getRtlChevronName = (name: string | undefined) => {
-		if (!isArabic || !name) return name;
-		if (name === 'chevron-right') return 'chevron-left';
-		if (name === 'chevron-small-right') return 'chevron-small-left';
-		if (name === 'arrow-right') return 'arrow-left';
-		return name;
-	};
 	const SheetClose = () => {
 		closeSheet();
 		setSelectedItem(null);
@@ -93,7 +81,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 			if (selectedItem?.label !== 'title' && selectedItem?.label !== 'location') {
 				if (!validateTime(inputValue)) {
 					// Show a toast for invalid time
-					toast(translate(TranslationKeys.pleaseEnterTimeInHhMmFormat), 'error');
+					toast('Please enter time in HH:MM format (e.g., 08:30)', 'error');
 
 					return; // Prevent saving if time is invalid
 				}
@@ -142,7 +130,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 
 		// Check if start time is greater than or equal to end time
 		if (!isBefore(startTimeParsed, endTimeParsed) || isEqual(startTimeParsed, endTimeParsed)) {
-			toast(translate(TranslationKeys.startTimeMustBeEarlierThanEndTime), 'error');
+			toast('Start time must be earlier than End time.', 'error');
 
 			setLoading(false);
 			return; // Prevent saving if times are invalid
@@ -235,7 +223,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 
 		// Check if start time is greater than or equal to end time
 		if (!isBefore(startTimeParsed, endTimeParsed) || isEqual(startTimeParsed, endTimeParsed)) {
-			toast(translate(TranslationKeys.startTimeMustBeEarlierThanEndTime), 'error');
+			toast('Start time must be earlier than End time.', 'error');
 
 			setLoading(false);
 			return; // Prevent saving if times are invalid
@@ -299,11 +287,7 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 						color: theme.sheet.text,
 					}}
 				>
-					{selectedItem
-						? translate(selectedItem.label)
-						: isUpdate
-							? `${translate(TranslationKeys.event)}: ${translate(TranslationKeys.edit)}`
-							: `${translate(TranslationKeys.event)}: ${translate(TranslationKeys.create)}`}
+					{selectedItem ? selectedItem.label : isUpdate ? `${translate(TranslationKeys.event)}: ${translate(TranslationKeys.edit)}` : `${translate(TranslationKeys.event)}: ${translate(TranslationKeys.create)}`}
 				</Text>
 			</View>
 
@@ -342,24 +326,27 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 						</View>
 					) : (
 						<View style={styles.titleBt}>
-							<TextInput style={styles.input} value={inputValue} onChangeText={setInputValue} placeholder={translate(TranslationKeys.enterAValue)} autoFocus />
+							<TextInput style={styles.input} value={inputValue} onChangeText={setInputValue} placeholder={'Enter a value'} autoFocus />
 
 							<View style={[styles.buttonContainer]}>
-								<AppButton
-									text={translate(TranslationKeys.cancel)}
+								<TouchableOpacity
 									onPress={cancleSheet}
-									variant="outline"
-									style={{ ...styles.cancelButton, borderColor: course_timetable_area_color, marginVertical: 0, height: undefined, minHeight: 0, gap: 0 }}
-									textStyle={[styles.buttonText, { color: theme.screen.text }]}
-									usePlainText
-								/>
-								<AppButton
-									text={translate(TranslationKeys.save)}
+									style={{
+										...styles.cancelButton,
+										borderColor: course_timetable_area_color,
+									}}
+								>
+									<Text style={[styles.buttonText, { color: theme.screen.text }]}>{translate(TranslationKeys.cancel)}</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
 									onPress={handleSavePress}
-									style={{ ...styles.saveButton, backgroundColor: course_timetable_area_color, marginVertical: 0, height: undefined, minHeight: 0, gap: 0 }}
-									textStyle={[styles.buttonText, { color: contrastColor }]}
-									usePlainText
-								/>
+									style={{
+										...styles.saveButton,
+										backgroundColor: course_timetable_area_color,
+									}}
+								>
+									<Text style={[styles.buttonText, { color: contrastColor }]}>{translate(TranslationKeys.save)}</Text>
+								</TouchableOpacity>
 							</View>
 						</View>
 					)
@@ -371,17 +358,10 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 								style={{
 									...styles.list,
 									paddingHorizontal: isWeb ? 20 : 10,
-									flexDirection: isArabic ? 'row-reverse' : 'row',
 								}}
 								onPress={() => handleItemPress(item)}
 							>
-								<View
-									style={{
-										...styles.col,
-										gap: isWeb ? 10 : 5,
-										flexDirection: isArabic ? 'row-reverse' : 'row',
-									}}
-								>
+								<View style={{ ...styles.col, gap: isWeb ? 10 : 5 }}>
 									{React.cloneElement(item.leftIcon, {
 										color: theme.screen.text,
 									})}
@@ -391,8 +371,6 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 											color: theme.screen.text,
 											fontSize: windowWidth > 500 ? 16 : 13,
 											marginTop: isWeb ? 0 : 2,
-											textAlign: isArabic ? 'right' : 'left',
-											writingDirection: isArabic ? 'rtl' : 'ltr',
 										}}
 									>
 										{translate(item.label)}
@@ -403,128 +381,80 @@ const CourseBottomSheet: React.FC<CourseBottomSheetProps> = ({ timeTableData, cl
 										...styles.col,
 										gap: isWeb ? 10 : 5,
 										alignItems: 'center',
-										justifyContent: isArabic ? 'flex-start' : 'flex-end',
-										flexDirection: isArabic ? 'row' : 'row',
+										justifyContent: 'flex-end',
 									}}
 								>
-									{isArabic ? (
-										<>
-											{React.isValidElement(item.rightIcon)
-												? React.cloneElement(item.rightIcon, {
-														color: theme.screen.text,
-														name: getRtlChevronName((item.rightIcon as any).props?.name),
-													})
-												: item.rightIcon}
-											{item.value && (
-												<Text
-													style={{
-														...styles.value,
-														color: theme.screen.text,
-														fontSize: windowWidth > 500 ? 16 : 13,
-														marginTop: isWeb ? 0 : 2,
-														textAlign: 'left',
-														writingDirection: 'ltr',
-													}}
-												>
-													{item.label === 'weekday' ? translate(item?.value?.name) : item.value}
-												</Text>
-											)}
-										</>
-									) : (
-										<>
-											{item.value && (
-												<Text
-													style={{
-														...styles.value,
-														color: theme.screen.text,
-														fontSize: windowWidth > 500 ? 16 : 13,
-														marginTop: isWeb ? 0 : 2,
-														textAlign: 'right',
-														writingDirection: 'ltr',
-													}}
-												>
-													{item.label === 'weekday' ? translate(item?.value?.name) : item.value}
-												</Text>
-											)}
-											{React.isValidElement(item.rightIcon)
-												? React.cloneElement(item.rightIcon, {
-														color: theme.screen.text,
-													})
-												: item.rightIcon}
-										</>
+									{item.value && (
+										<Text
+											style={{
+												...styles.value,
+												color: theme.screen.text,
+												fontSize: windowWidth > 500 ? 16 : 13,
+												marginTop: isWeb ? 0 : 2,
+											}}
+										>
+											{item.label === 'weekday' ? translate(item?.value?.name) : item.value}
+										</Text>
 									)}
+									{React.cloneElement(item.rightIcon, {
+										color: theme.screen.text,
+									})}
 								</View>
 							</TouchableOpacity>
 						))}
 						<View style={styles.saveButtons}>
 							{isUpdate && (
-								<AppButton
-									variant="ghost"
-									usePlainText
-									text={isDeleting ? '' : translate(TranslationKeys.delete)}
-									onPress={handleDeleteTimeTable}
+								<TouchableOpacity
 									style={{
 										...styles.createButton,
 										backgroundColor: 'red',
-										marginVertical: 0,
 									}}
-									textStyle={
-										isDeleting
-											? { width: 0, height: 0 }
-											: {
-													...styles.createButtonText,
-													color: theme.activeText,
-												}
-									}
-									iconLeft={
-										isArabic
-											? undefined
-											: isDeleting
-												? <ActivityIndicator size="small" color={theme.screen.text} />
-												: <MaterialCommunityIcons name="delete" size={20} color={theme.activeText} />
-									}
-									iconRight={
-										isArabic
-											? isDeleting
-												? <ActivityIndicator size="small" color={theme.screen.text} />
-												: <MaterialCommunityIcons name="delete" size={20} color={theme.activeText} />
-											: undefined
-									}
-								/>
+									onPress={handleDeleteTimeTable}
+								>
+									{isDeleting ? (
+										<ActivityIndicator size="small" color={theme.screen.text} />
+									) : (
+										<>
+											<MaterialCommunityIcons name="delete" size={20} color={theme.activeText} />
+											<View>
+												<Text
+													style={{
+														...styles.createButtonText,
+														color: theme.activeText,
+													}}
+												>
+													{translate(TranslationKeys.delete)}
+												</Text>
+											</View>
+										</>
+									)}
+								</TouchableOpacity>
 							)}
-							<AppButton
-								variant="ghost"
-								usePlainText
-								text={loading ? '' : translate(TranslationKeys.save)}
-								onPress={isUpdate ? handleUpdateTimeTable : handleSaveTimeTable}
+							<TouchableOpacity
 								style={{
 									...styles.createButton,
 									backgroundColor: course_timetable_area_color,
-									marginVertical: 0,
 								}}
-								textStyle={
-									loading
-										? { width: 0, height: 0 }
-										: {
-												...styles.createButtonText,
-												color: contrastColor,
-											}
-								}
-								iconLeft={
-									isArabic
-										? undefined
-										: loading
-											? <ActivityIndicator size="small" color={theme.screen.text} />
-											: <FontAwesome5 name="save" size={20} color={contrastColor} />
-								}
-								iconRight={
-									isArabic
-										? loading
-											? <ActivityIndicator size="small" color={theme.screen.text} />
-											: <FontAwesome5 name="save" size={20} color={contrastColor} />
-										: undefined
-								}
-							/>
+								onPress={isUpdate ? handleUpdateTimeTable : handleSaveTimeTable}
+							>
+								{loading ? (
+									<ActivityIndicator size="small" color={theme.screen.text} />
+								) : (
+									<>
+										<FontAwesome5 name="save" size={20} color={contrastColor} />
+										<View>
+											<Text
+												style={{
+													...styles.createButtonText,
+													color: contrastColor,
+												}}
+											>
+												{translate(TranslationKeys.save)}
+											</Text>
+										</View>
+									</>
+								)}
+							</TouchableOpacity>
 						</View>
 					</View>
 				)}

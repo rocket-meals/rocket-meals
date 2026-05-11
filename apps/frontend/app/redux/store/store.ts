@@ -1,7 +1,7 @@
 import { configureStore as rtkConfigureStore } from '@reduxjs/toolkit';
 import promise from 'redux-promise';
 import { createMigrate, persistReducer, persistStore } from 'redux-persist';
-import AsyncStorage from '@/constants/AsyncStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { reducer } from '@/redux/reducer';
 
 const migrations = {

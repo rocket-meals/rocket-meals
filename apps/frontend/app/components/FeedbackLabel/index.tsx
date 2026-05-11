@@ -15,15 +15,12 @@ import { TranslationKeys } from '@/locales/keys';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
 import SettingsList from '@/components/SettingsList';
 import SettingsListLikeDislike from '@/components/SettingsListLikeDislike';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const FeedbackLabel: React.FC<FeedbackLabelProps> = ({ label, icon, imageUrl, labelEntries, foodId, offerId, groupPosition, isAccountRequired }) => {
 	const { theme } = useTheme();
 	const dispatch = useDispatch();
 	const { translate } = useLanguage();
 	const { language } = useAppSelector((state) => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 	const [showTooltip, setShowTooltip] = useState(false);
 	const { user, profile } = useAppSelector((state) => state.authReducer);
 	const selectedCanteen = useSelectedCanteen();
@@ -61,7 +58,7 @@ const FeedbackLabel: React.FC<FeedbackLabelProps> = ({ label, icon, imageUrl, la
 	const labelText = getTextFromTranslation(label, language);
 
 	const leftIconComponent = (
-		<View style={[styles.leftIconWrapper, isArabic ? styles.leftIconWrapperReverse : undefined]}>
+		<View style={styles.leftIconWrapper}>
 			<CustomTooltip
 				placement="top"
 				isOpen={showTooltip}
@@ -112,10 +109,6 @@ export default FeedbackLabel;
 const styles = StyleSheet.create({
 	leftIconWrapper: {
 		marginRight: 10,
-	},
-	leftIconWrapperReverse: {
-		marginRight: 0,
-		marginLeft: 10,
 	},
 	icon: {
 		width: 30,

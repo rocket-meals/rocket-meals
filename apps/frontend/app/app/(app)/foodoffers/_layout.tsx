@@ -18,7 +18,7 @@ export default function FoodOfferLayout() {
 			<Stack.Screen
 				name="index"
 				options={{
-					title: translate(TranslationKeys.food_offers),
+					title: 'Food Offers',
 					headerShown: false,
 				}}
 			/>

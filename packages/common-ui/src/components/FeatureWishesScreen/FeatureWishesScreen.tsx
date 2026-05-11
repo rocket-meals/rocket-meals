@@ -11,8 +11,6 @@ import type { Theme } from '../../themes';
 import SettingsList from '../SettingsList';
 import SettingsListLikeButton from '../SettingsListLikeButton';
 import { useMyScrollViewModal } from '../GlobalModal/useMyScrollViewModal';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
 
 export type FeatureWishItem = Partial<DatabaseTypes.FeatureWhishes>;
 
@@ -28,96 +26,87 @@ export interface FeatureWishesScreenTexts {
 	createModalConfirmLabel?: string;
 	pendingReviewTitle?: string;
 	pendingReviewMessage?: string;
-	closeLabel?: string;
 }
 
 export interface FeatureWishesScreenProps {
 	isAdmin?: boolean;
 	primaryColor?: string;
-	isArabic?: boolean;
 	texts?: FeatureWishesScreenTexts;
 }
+
+const DEFAULT_ITEMS: FeatureWishItem[] = [
+	{
+		id: '1',
+		title: 'Dark Mode',
+		description: 'Add a dark mode for the entire app to reduce eye strain and save battery life.',
+		likes: 42,
+		status: 'published',
+	},
+	{
+		id: '2',
+		title: 'Weekly Plan Widget',
+		description: 'Show the weekly meal plan as a home screen widget so users can see what is available at a glance.',
+		likes: 31,
+		status: 'published',
+	},
+	{
+		id: '3',
+		title: 'Calorie Counter',
+		description: 'Add a feature to track daily calorie intake based on the meals consumed in the canteen.',
+		likes: 28,
+		status: 'draft',
+	},
+	{
+		id: '4',
+		title: 'Favorites List',
+		description: 'Allow users to mark dishes as favorites and create a personal list of favorite meals.',
+		likes: 19,
+		status: 'draft',
+	},
+	{
+		id: '5',
+		title: 'Push Notifications for Favorite Meals',
+		description: 'Receive notifications when a specific favorite dish is available on the menu.',
+		likes: 15,
+		status: 'published',
+	},
+];
 
 const STATUS_PUBLISHED = 'published';
 const STATUS_DRAFT = 'draft';
 
-const getDefaultItems = (translate: (key: TranslationKeys) => string): FeatureWishItem[] => [
-	{
-		id: '1',
-		title: translate(TranslationKeys.featureWishSampleDarkModeTitle),
-		description: translate(TranslationKeys.featureWishSampleDarkModeDescription),
-		likes: 42,
-		status: STATUS_PUBLISHED,
-	},
-	{
-		id: '2',
-		title: translate(TranslationKeys.featureWishSampleWeeklyPlanWidgetTitle),
-		description: translate(TranslationKeys.featureWishSampleWeeklyPlanWidgetDescription),
-		likes: 31,
-		status: STATUS_PUBLISHED,
-	},
-	{
-		id: '3',
-		title: translate(TranslationKeys.featureWishSampleCalorieCounterTitle),
-		description: translate(TranslationKeys.featureWishSampleCalorieCounterDescription),
-		likes: 28,
-		status: STATUS_DRAFT,
-	},
-	{
-		id: '4',
-		title: translate(TranslationKeys.featureWishSampleFavoritesListTitle),
-		description: translate(TranslationKeys.featureWishSampleFavoritesListDescription),
-		likes: 19,
-		status: STATUS_DRAFT,
-	},
-	{
-		id: '5',
-		title: translate(TranslationKeys.featureWishSamplePushNotificationsTitle),
-		description: translate(TranslationKeys.featureWishSamplePushNotificationsDescription),
-		likes: 15,
-		status: STATUS_PUBLISHED,
-	},
-];
-
 const FeatureWishesScreen: React.FC<FeatureWishesScreenProps> = ({
 	isAdmin = false,
 	primaryColor,
-	isArabic = false,
 	texts,
 }) => {
 	const { theme, isDark } = useTheme();
-	const { translate } = useLanguage();
 	const settingsCtx = useSettingsContext();
 	const resolvedPrimaryColor = primaryColor ?? settingsCtx?.primaryColor ?? lightTheme.primary;
 	const contrastColor = myContrastColor(resolvedPrimaryColor, theme, isDark);
 
-	const [items, setItems] = useState<FeatureWishItem[]>(() => getDefaultItems(translate));
+	const [items, setItems] = useState<FeatureWishItem[]>(DEFAULT_ITEMS);
 	const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
 	const [activeFilter, setActiveFilter] = useState<string>(STATUS_PUBLISHED);
 	const [searchText, setSearchText] = useState('');
 
 	const { show, showAndDiscardOthers } = useMyScrollViewModal();
 
-	const introText = texts?.introText ?? translate(TranslationKeys.feature_wishes_intro);
-	const filterPublishedLabel =
-		texts?.filterPublishedLabel ?? translate(TranslationKeys.feature_wishes_filter_published);
-	const filterDraftLabel =
-		texts?.filterDraftLabel ?? translate(TranslationKeys.feature_wishes_filter_draft);
-	const approveLabel = texts?.approveLabel ?? translate(TranslationKeys.feature_wishes_approve);
-	const approvedLabel = texts?.approvedLabel ?? translate(TranslationKeys.feature_wishes_approved);
-	const searchPlaceholder =
-		texts?.searchPlaceholder ?? translate(TranslationKeys.feature_wishes_search_placeholder);
-	const createButtonLabel =
-		texts?.createButtonLabel ?? translate(TranslationKeys.feature_wishes_create_button);
+	const introText =
+		texts?.introText ?? 'Here you can wish for features. Like suggestions you find good!';
+	const filterPublishedLabel = texts?.filterPublishedLabel ?? 'Veröffentlichte Wünsche';
+	const filterDraftLabel = texts?.filterDraftLabel ?? 'Neue Wünsche';
+	const approveLabel = texts?.approveLabel ?? 'Genehmigen';
+	const approvedLabel = texts?.approvedLabel ?? 'Genehmigt';
+	const searchPlaceholder = texts?.searchPlaceholder ?? 'Feature Wunsch suchen oder erstellen …';
+	const createButtonLabel = texts?.createButtonLabel ?? 'Feature Wunsch erstellen';
 	const createModalDescriptionPlaceholder =
-		texts?.createModalDescriptionPlaceholder ??
-		translate(TranslationKeys.feature_wishes_create_description_placeholder);
-	const createModalConfirmLabel =
-		texts?.createModalConfirmLabel ?? translate(TranslationKeys.feature_wishes_create_confirm);
-	const pendingReviewTitle =
-		texts?.pendingReviewTitle ?? translate(TranslationKeys.feature_wishes_pending_review_title);
+		texts?.createModalDescriptionPlaceholder ?? 'Beschreibe deinen Feature Wunsch …';
+	const createModalConfirmLabel = texts?.createModalConfirmLabel ?? 'Erstellen';
+	const pendingReviewTitle = texts?.pendingReviewTitle ?? 'Wunsch eingereicht';
 	const pendingReviewMessage =
-		texts?.pendingReviewMessage ?? translate(TranslationKeys.feature_wishes_pending_review_message);
+		texts?.pendingReviewMessage ??
+		'Dein Feature Wunsch wird nun geprüft (z. B. auf Verstöße oder unangemessene Sprache) und danach veröffentlicht.';
 
 	const visibleItems = useMemo(() => {
 		let filtered = items.filter((i) => i.status === activeFilter);
@@ -262,18 +251,15 @@ const FeatureWishesScreen: React.FC<FeatureWishesScreenProps> = ({
 							likeCount={item.likes ?? 0}
 							onPressLike={() => handleLike(item.id ?? '')}
 							primaryColor={resolvedPrimaryColor}
-							isArabic={isArabic}
 						/>
 					}
 					groupPosition={groupPosition}
 					showSeparator={groupPosition !== 'bottom' && groupPosition !== 'single'}
 					onPress={() => openDetail(item)}
-					reverseLayout={isArabic}
-					titleTextAlign={isArabic ? 'right' : 'left'}
 				/>
 			);
 		},
-		[visibleItems.length, resolvedPrimaryColor, contrastColor, likedIds, handleLike, openDetail, isArabic]
+		[visibleItems.length, resolvedPrimaryColor, contrastColor, likedIds, handleLike, openDetail]
 	);
 
 	const keyExtractor = useCallback((item: FeatureWishItem) => item.id ?? '', []);
@@ -297,21 +283,21 @@ const FeatureWishesScreen: React.FC<FeatureWishesScreenProps> = ({
 	return (
 		<View style={[styles.container, { backgroundColor: theme.screen.background }]}>
 			<View style={styles.header}>
-				<Text style={[styles.introText, { color: theme.screen.text, textAlign: isArabic ? 'right' : 'left' }]}>{introText}</Text>
+				<Text style={[styles.introText, { color: theme.screen.text }]}>{introText}</Text>
 				<View
 					style={[
 						styles.searchInputContainer,
-						{ backgroundColor: theme.screen.iconBg, flexDirection: isArabic ? 'row-reverse' : 'row' },
+						{ backgroundColor: theme.screen.iconBg },
 					]}
 				>
 					<MaterialCommunityIcons
 						name="magnify"
 						size={20}
 						color={theme.screen.icon}
-						style={isArabic ? { marginLeft: 6 } : styles.searchIcon}
+						style={styles.searchIcon}
 					/>
 					<TextInput
-						style={[styles.searchInput, { color: theme.screen.text, textAlign: isArabic ? 'right' : 'left' }]}
+						style={[styles.searchInput, { color: theme.screen.text }]}
 						value={searchText}
 						onChangeText={setSearchText}
 						placeholder={searchPlaceholder}
@@ -319,14 +305,14 @@ const FeatureWishesScreen: React.FC<FeatureWishesScreenProps> = ({
 						returnKeyType="search"
 					/>
 					{showCreateButton && (
-						<Pressable onPress={() => setSearchText('')} style={isArabic ? { paddingRight: 6 } : styles.clearButton}>
+						<Pressable onPress={() => setSearchText('')} style={styles.clearButton}>
 							<MaterialCommunityIcons name="close-circle" size={18} color={theme.screen.icon} />
 						</Pressable>
 					)}
 				</View>
 				{showCreateButton && (
 					<Pressable
-						style={[styles.createButton, { backgroundColor: resolvedPrimaryColor, flexDirection: isArabic ? 'row-reverse' : 'row' }]}
+						style={[styles.createButton, { backgroundColor: resolvedPrimaryColor }]}
 						onPress={showCreateModal}
 					>
 						<MaterialCommunityIcons name="plus-circle-outline" size={18} color={contrastColor} />
@@ -335,7 +321,7 @@ const FeatureWishesScreen: React.FC<FeatureWishesScreenProps> = ({
 						</Text>
 					</Pressable>
 				)}
-				<View style={[styles.filterRow, isArabic ? { flexDirection: 'row-reverse' } : null]}>
+				<View style={styles.filterRow}>
 					<Pressable
 						style={filterButtonStyle(activeFilter === STATUS_PUBLISHED)}
 						onPress={() => setActiveFilter(STATUS_PUBLISHED)}
@@ -458,7 +444,6 @@ const DetailContent: React.FC<DetailContentProps> = ({
 	theme,
 }) => {
 	const { isDark } = useTheme();
-	const {language} = useLanguage();
 	const contrastOnPrimary = myContrastColor(primaryColor, theme, isDark);
 	const isDraft = item.status === STATUS_DRAFT;
 
@@ -479,15 +464,7 @@ const DetailContent: React.FC<DetailContentProps> = ({
 				</Pressable>
 			)}
 			{isAdmin && !isDraft && (
-				<View
-					style={[
-						detailStyles.approvedBadge,
-						{
-							borderColor: primaryColor,
-							alignSelf: language === 'ar' ? 'flex-end' : 'flex-start',
-						},
-					]}
-				>
+				<View style={[detailStyles.approvedBadge, { borderColor: primaryColor }]}>
 					<MaterialCommunityIcons name="check-circle" size={16} color={primaryColor} />
 					<Text style={[detailStyles.approvedText, { color: primaryColor }]}>
 						{approvedLabel}

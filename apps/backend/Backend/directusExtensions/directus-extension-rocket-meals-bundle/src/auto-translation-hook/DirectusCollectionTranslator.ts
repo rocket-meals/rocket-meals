@@ -352,6 +352,8 @@ export class DirectusCollectionTranslator {
 
     const primaryFieldKey = translationCollectionInformations?.primary || 'id'; //we need to know the primary field key
 
+    const translationCollectionName = DirectusCollectionTranslator.getTranslationCollectionName(context);
+
     const fieldsToTranslateDict: any = {};
     for (const field of collectionFields) {
       if (field !== primaryFieldKey) {
@@ -363,10 +365,12 @@ export class DirectusCollectionTranslator {
       }
     }
 
-    // remove all relation fields from translation candidates
+    // remove relation fields that belong to the translation collection from translation candidates
     const relations = schema?.relations || [];
     for (const relation of relations) {
-      delete fieldsToTranslateDict[relation?.field];
+      if (relation?.collection === translationCollectionName) {
+        delete fieldsToTranslateDict[relation?.field];
+      }
     }
 
     return Object.keys(fieldsToTranslateDict);

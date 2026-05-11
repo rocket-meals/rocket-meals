@@ -4,31 +4,21 @@ import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
 import CompanyImage from '@/components/CompanyImage';
 import { StringHelper } from 'repo-depkit-common';
-import { useLanguage } from '@/hooks/useLanguage';
-import { TranslationKeys } from '@/locales/keys';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 
 const LabelHeader: React.FC<{ Label: any; isConnected?: Boolean }> = ({ Label, isConnected = true }) => {
 	const { theme } = useTheme();
-	const { translate } = useLanguage();
 	const [currentTime, setCurrentTime] = useState('');
-	const [logoStyle, setLogoStyle] = useState(() => ({
-		width: styles.logo.width,
-		height: 75,
-		marginRight: styles.logo.marginRight,
-	}));
+	const [logoStyle, setLogoStyle] = useState(styles.logo);
 	const { width } = Dimensions.get('window');
 	const { appSettings } = useAppSelector(state => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 	const updateLogoStyle = useCallback(() => {
 		setLogoStyle({
 			width: width < 600 ? 150 : 300,
 			height: 75,
-			marginRight: isArabic ? 0 : width > 600 ? 20 : 10,
+			marginRight: width > 600 ? 20 : 10,
 		});
-	}, [isArabic, width]);
+	}, [width]);
 
 	useEffect(() => {
 		updateLogoStyle();
@@ -55,16 +45,15 @@ const LabelHeader: React.FC<{ Label: any; isConnected?: Boolean }> = ({ Label, i
 			style={{
 				...styles.headerContainer,
 				backgroundColor: theme.screen.background,
-				flexDirection: isArabic ? 'row-reverse' : 'row',
 			}}
 		>
 			<View style={styles.logoContainer}>
 				<CompanyImage appSettings={appSettings} style={logoStyle} />
 			</View>
-			<View style={{ ...styles.row, flexDirection: isArabic ? 'row-reverse' : 'row' }}>
-				<View style={[styles.labelText, isArabic ? { marginLeft: 0, marginRight: 10, alignItems: 'flex-end' } : undefined]}>
-					<Text style={{ ...styles.label, color: theme.screen.text, ...(isArabic ? { textAlign: 'right', writingDirection: 'rtl' } : {}) }}>{Label}</Text>
-					<Text style={{ ...styles.timestamp, color: theme.screen.text, ...(isArabic ? { textAlign: 'right', writingDirection: 'rtl' } : {}) }}>{currentTime}</Text>
+			<View style={{ ...styles.row }}>
+				<View style={styles.labelText}>
+					<Text style={{ ...styles.label, color: theme.screen.text }}>{Label}</Text>
+					<Text style={{ ...styles.timestamp, color: theme.screen.text }}>{currentTime}</Text>
 				</View>
 				{!isConnected && (
 					<View style={styles.offlineChip}>
@@ -75,7 +64,7 @@ const LabelHeader: React.FC<{ Label: any; isConnected?: Boolean }> = ({ Label, i
 								fontSize: 12,
 							}}
 						>
-							{translate(TranslationKeys.offline)}
+							{'Offline'}
 						</Text>
 					</View>
 				)}

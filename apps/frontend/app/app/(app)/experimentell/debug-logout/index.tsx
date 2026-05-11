@@ -1,23 +1,19 @@
 import React from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { CLEAR_ANONYMOUSLY, CLEAR_APARTMENTS, CLEAR_CAMPUSES, CLEAR_CANTEENS, CLEAR_CHATS, CLEAR_COLLECTION_DATES_LAST_UPDATED, CLEAR_FOODS, CLEAR_MANAGEMENT, CLEAR_NEWS, CLEAR_POPUP_EVENTS_HASH, CLEAR_PROFILE, CLEAR_SETTINGS, ON_LOGOUT } from '@/redux/Types/types';
-import AsyncStorage from '@/constants/AsyncStorage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { persistor } from '@/redux/store';
 import { router } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import styles from './styles';
-import AppButton from '@/components/AppButton';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 const DebugLogout = () => {
 	const dispatch = useDispatch();
 	const { theme } = useTheme();
-	const { translate, language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
+	const { translate } = useLanguage();
 
 	const steps = [
 		{
@@ -112,24 +108,15 @@ const DebugLogout = () => {
 			}}
 		>
 			<View style={{ ...styles.content }}>
-				<Text style={{ ...styles.heading, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>
-					{translate(TranslationKeys.debug_logout)}
-				</Text>
+				<Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.debug_logout)}</Text>
 				{steps.map((step, index) => (
-					<AppButton
-						key={index}
-						text={step.label}
-						onPress={step.action}
-						style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-						textStyle={{ ...styles.body, color: theme.screen.text }}
-					/>
+					<TouchableOpacity key={index} style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }} onPress={step.action}>
+						<Text style={{ ...styles.body, color: theme.screen.text }}>{step.label}</Text>
+					</TouchableOpacity>
 				))}
-				<AppButton
-					text="MY_TEST_LOGOUT"
-					onPress={myTestLogout}
-					style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
-					textStyle={{ ...styles.body, color: theme.screen.text }}
-				/>
+				<TouchableOpacity style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }} onPress={myTestLogout}>
+					<Text style={{ ...styles.body, color: theme.screen.text }}>MY_TEST_LOGOUT</Text>
+				</TouchableOpacity>
 			</View>
 		</ScrollView>
 	);

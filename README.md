@@ -25,6 +25,12 @@ Speiseplänen für Mensen, Kantinen und gastronomische Einrichtungen.
 Mit einem modernen Technologie-Stack ermöglicht Rocket Meals eine effiziente und benutzerfreundliche
 Darstellung von Menüs, die sowohl für Betreiber als auch für Gäste von Vorteil ist.
 
+## 📖 API-Dokumentation
+
+Eine vollständige Dokumentation der Directus REST-API-Endpunkte für den Speiseplan (Mensen, Speiseangebote, Allergene, Übersetzungen) ist hier verfügbar:
+
+👉 [Speiseplan API-Dokumentation](apps/frontend/app/redux/actions/FoodOffers/API_DOCUMENTATION.md)
+
 ## 🧩 Features
 
 - **Digitale Speiseplanverwaltung**: Erfasse und verwalte Menüs zentralisiert.

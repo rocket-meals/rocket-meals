@@ -9,7 +9,6 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import usePlatformHelper from '@/helper/platformHelper';
 import { isInExpoGo } from '@/helper/DeviceRuntimeHelper';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 type StepKey = TranslationKeys.CHECK_FOR_APP_UPDATES | TranslationKeys.DOWNLOAD_NEW_APP_UPDATE | TranslationKeys.RELOAD_APP;
 
@@ -22,9 +21,7 @@ interface StepConfig {
 const ExpoUpdateTest = () => {
         useSetPageTitle(TranslationKeys.EXPO_UPDATE_TEST);
         const { theme } = useTheme();
-        const { translate, language } = useLanguage();
-        const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
+        const { translate } = useLanguage();
         const { isSmartPhone } = usePlatformHelper();
 
         const [logs, setLogs] = useState<string[]>([]);
@@ -36,62 +33,62 @@ const ExpoUpdateTest = () => {
 
         const guardMobileRuntime = useCallback(() => {
                 if (!isSmartPhone()) {
-                        appendLog(translate(TranslationKeys.skipped_not_running_on_smartphone));
+                        appendLog('Skipped: not running on a smartphone.');
                         return false;
                 }
 
                 if (isInExpoGo()) {
-                        appendLog(translate(TranslationKeys.skipped_not_available_inside_expo_go));
+                        appendLog('Skipped: not available inside Expo Go.');
                         return false;
                 }
 
                 return true;
-        }, [appendLog, isSmartPhone, translate]);
+        }, [appendLog, isSmartPhone]);
 
         const runCheckForUpdates = useCallback(async () => {
                 if (!guardMobileRuntime()) return;
                 setRunning(TranslationKeys.CHECK_FOR_APP_UPDATES);
                 try {
-                        appendLog(translate(TranslationKeys.checking_for_updates));
+                        appendLog('Checking for updates…');
                         const update = await Updates.checkForUpdateAsync();
-                        appendLog(update.isAvailable ? translate(TranslationKeys.update_available) : translate(TranslationKeys.no_update_available));
+                        appendLog(update.isAvailable ? 'Update available' : 'No update available');
                 } catch (error) {
                         appendLog(`Check failed: ${(error as Error).message}`);
                 } finally {
                         setRunning(null);
                 }
-        }, [appendLog, guardMobileRuntime, translate]);
+        }, [appendLog, guardMobileRuntime]);
 
         const runDownloadUpdate = useCallback(async () => {
                 if (!guardMobileRuntime()) return;
                 setRunning(TranslationKeys.DOWNLOAD_NEW_APP_UPDATE);
                 try {
-                        appendLog(translate(TranslationKeys.downloading_available_update));
+                        appendLog('Downloading available update…');
                         const result = await Updates.fetchUpdateAsync();
                         if (result?.isNew) {
-                                appendLog(translate(TranslationKeys.download_finished_new_update_fetched));
+                                appendLog('Download finished: new update fetched');
                         } else {
-                                appendLog(translate(TranslationKeys.no_update_downloaded));
+                                appendLog('No update downloaded');
                         }
                 } catch (error) {
                         appendLog(`Download failed: ${(error as Error).message}`);
                 } finally {
                         setRunning(null);
                 }
-        }, [appendLog, guardMobileRuntime, translate]);
+        }, [appendLog, guardMobileRuntime]);
 
         const runReloadApp = useCallback(async () => {
                 if (!guardMobileRuntime()) return;
                 setRunning(TranslationKeys.RELOAD_APP);
                 try {
-                        appendLog(translate(TranslationKeys.reloading_app_with_newest_update));
+                        appendLog('Reloading app with newest update…');
                         await Updates.reloadAsync();
                 } catch (error) {
                         appendLog(`Reload failed: ${(error as Error).message}`);
                 } finally {
                         setRunning(null);
                 }
-        }, [appendLog, guardMobileRuntime, translate]);
+        }, [appendLog, guardMobileRuntime]);
 
         const steps: StepConfig[] = useMemo(
                 () => [
@@ -129,19 +126,17 @@ const ExpoUpdateTest = () => {
                         }}
                 >
                         <View style={{ ...styles.content }}>
-                                <Text style={{ ...styles.heading, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>
-                                        {translate(TranslationKeys.EXPO_UPDATE_TEST)}
-                                </Text>
+                                <Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.EXPO_UPDATE_TEST)}</Text>
                                 <TouchableOpacity
-                                        style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg, flexDirection: isArabic ? 'row-reverse' : 'row' }}
+                                        style={{ ...styles.listItem, backgroundColor: theme.screen.iconBg }}
                                         onPress={runAllSteps}
                                         disabled={!!running}
                                 >
-                                        <View style={[styles.col, isArabic ? { flexDirection: 'row-reverse' } : null]}>
+                                        <View style={styles.col}>
                                                 <MaterialCommunityIcons name="playlist-check" color={theme.screen.icon} size={24} />
-                                                <Text style={{ ...styles.body, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.RUN_ALL_STEPS)}</Text>
+                                                <Text style={{ ...styles.body, color: theme.screen.text }}>{translate(TranslationKeys.RUN_ALL_STEPS)}</Text>
                                         </View>
-                                        <Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
+                                        <Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
                                 </TouchableOpacity>
 
                                 <View style={styles.section}>
@@ -152,16 +147,15 @@ const ExpoUpdateTest = () => {
                                                                 ...styles.listItem,
                                                                 backgroundColor: theme.screen.iconBg,
                                                                 opacity: running && running !== step.key ? 0.6 : 1,
-                                                                flexDirection: isArabic ? 'row-reverse' : 'row',
                                                         }}
                                                         onPress={step.action}
                                                         disabled={!!running && running !== step.key}
                                                 >
-                                                        <View style={[styles.col, isArabic ? { flexDirection: 'row-reverse' } : null]}>
+                                                        <View style={styles.col}>
                                                                 <MaterialCommunityIcons name={step.icon} color={theme.screen.icon} size={24} />
-                                                                <Text style={{ ...styles.body, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>{translate(step.key)}</Text>
+                                                                <Text style={{ ...styles.body, color: theme.screen.text }}>{translate(step.key)}</Text>
                                                         </View>
-                                                        <Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
+                                                        <Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />
                                                 </TouchableOpacity>
                                         ))}
                                 </View>
@@ -174,14 +168,14 @@ const ExpoUpdateTest = () => {
                                                 borderWidth: 1,
                                         }}
                                 >
-                                        <View style={[styles.col, isArabic ? { flexDirection: 'row-reverse' } : null]}>
+                                        <View style={styles.col}>
                                                 <MaterialCommunityIcons name="bug" color={theme.screen.icon} size={20} />
-                                                <Text style={{ ...styles.body, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>
+                                                <Text style={{ ...styles.body, color: theme.screen.text }}>
                                                         {translate(TranslationKeys.EXPO_UPDATE_LOGS)}
                                                 </Text>
                                         </View>
                                         {logs.length === 0 ? (
-                                                <Text style={{ ...styles.logEntry, color: theme.screen.text }}>{translate(TranslationKeys.no_logs_yet)}</Text>
+                                                <Text style={{ ...styles.logEntry, color: theme.screen.text }}>No logs yet</Text>
                                         ) : (
                                                 logs.map((log, index) => (
                                                         <Text key={index} style={{ ...styles.logEntry, color: theme.screen.text }}>

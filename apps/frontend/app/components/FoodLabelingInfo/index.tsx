@@ -7,7 +7,6 @@ import RedirectButton from '../RedirectButton';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 import styles from './styles';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 interface FoodLabelingInfoProps {
 	textStyle?: TextStyle;
@@ -17,8 +16,7 @@ interface FoodLabelingInfoProps {
 
 const FoodLabelingInfo: React.FC<FoodLabelingInfoProps> = ({ textStyle, containerStyle, backgroundColor }) => {
 	const { theme } = useTheme();
-	const isLtrLanguage = useIsLtrLanguage();
-	const { translate, language } = useLanguage();
+	const { translate } = useLanguage();
 	const primaryColor = useAppSelector(state => state.settings.primaryColor);
 	const appSettings = useAppSelector(state => state.settings.appSettings);
 
@@ -33,19 +31,8 @@ const FoodLabelingInfo: React.FC<FoodLabelingInfoProps> = ({ textStyle, containe
 
 	return (
 		<View style={containerStyle}>
-			<Text
-				style={[
-					styles.text,
-					{ color: theme.screen.text },
-					!isLtrLanguage ? { textAlign: 'right', alignSelf: 'flex-end', writingDirection: 'rtl' } : undefined,
-					textStyle,
-				]}
-			>
-				{translate(TranslationKeys.FOOD_LABELING_INFO)}
-			</Text>
-			<View style={!isLtrLanguage ? { alignItems: 'flex-end', marginTop: 20, marginBottom: 20 } : undefined}>
-				<RedirectButton type="link" onClick={handleRedirect} label={food_responsible_organization_name} backgroundColor={foods_area_color} />
-			</View>
+			<Text style={[styles.text, { color: theme.screen.text }, textStyle]}>{translate(TranslationKeys.FOOD_LABELING_INFO)}</Text>
+			<RedirectButton type="link" onClick={handleRedirect} label={food_responsible_organization_name} backgroundColor={foods_area_color} />
 		</View>
 	);
 };

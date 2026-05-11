@@ -17,7 +17,6 @@ import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { fetchFoodofferComponentsById } from '@/redux/actions/FoodOffers/FoodOffers';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import { getTextFromTranslation } from '@/helper/resourceHelper';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import useSeperatedMarkingsForFood from '@/hooks/useSeperatedMarkingsForFood';
 import useCustomerConfigSeperateMarkingsForFood from '@/hooks/useCustomerConfigSeperateMarkingsForFood';
 
@@ -29,21 +28,18 @@ interface LabelsProps {
 	color: string;
 }
 
-const selectMarkingsDict = (state: RootState) => state.food.markingsDict;
-const selectMarkingGroupsDict = (state: RootState) => state.food.markingGroupsDict;
+const selectMarkings = (state: RootState) => state.food.markings;
+const selectMarkingGroups = (state: RootState) => state.food.markingGroups;
 
 export const selectFoodOffer = (offerId?: string) =>
-	createSelector([(state: RootState) => state.canteenReducer.selectedCanteenFoodOffersDict], foodOffersDict => {
-	const foodOffers = Object.values(foodOffersDict || {});
-	return offerId ? getFoodOffer(foodOffers, offerId) : undefined;
-});
+	createSelector([(state: RootState) => state.canteenReducer.selectedCanteenFoodOffers], foodOffers =>
+		offerId ? getFoodOffer(foodOffers, offerId) : undefined
+	);
 
 const Labels: React.FC<LabelsProps> = ({ foodDetails, offerId, foodOfferDetails, handleMenuSheet, color }) => {
 	const { theme } = useTheme();
 	const { translate, language } = useLanguage();
 	const { primaryColor, appSettings } = useSelector((state: RootState) => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isRtl = !isLtrLanguage;
 	const seperatedMarkingsReduxValue = useSeperatedMarkingsForFood();
 	const customerConfigSeperate = useCustomerConfigSeperateMarkingsForFood();
 	const showSeparatedMarkingsBreakdown = seperatedMarkingsReduxValue ?? customerConfigSeperate;
@@ -56,10 +52,8 @@ const Labels: React.FC<LabelsProps> = ({ foodDetails, offerId, foodOfferDetails,
 		Linking.openURL(food_responsible_organization_link).catch(err => console.error('Failed to open URL:', err));
 	};
 
-	const markingsDict = useSelector(selectMarkingsDict);
-	const markingGroupsDict = useSelector(selectMarkingGroupsDict);
-	const markings = useMemo(() => Object.values(markingsDict || {}), [markingsDict]);
-	const markingGroups = useMemo(() => Object.values(markingGroupsDict || {}), [markingGroupsDict]);
+	const markings = useSelector(selectMarkings);
+	const markingGroups = useSelector(selectMarkingGroups);
 	const foodOfferSelector = useMemo(
 		() => (offerId ? selectFoodOffer(offerId) : () => undefined),
 		[offerId]
@@ -113,16 +107,7 @@ const Labels: React.FC<LabelsProps> = ({ foodDetails, offerId, foodOfferDetails,
 
 	return (
 		<View style={styles.container}>
-			<Text
-				style={{
-					...styles.heading,
-					color: theme.screen.text,
-					textAlign: isRtl ? 'right' : 'left',
-					writingDirection: isRtl ? 'rtl' : 'ltr',
-				}}
-			>
-				{translate(TranslationKeys.markings)}
-			</Text>
+			<Text style={{ ...styles.heading, color: theme.screen.text }}>{translate(TranslationKeys.markings)}</Text>
 			<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_foodoffers_details_markings} />
 			{showSeparatedMarkingsBreakdown ? (
 				<View>
@@ -158,7 +143,7 @@ const Labels: React.FC<LabelsProps> = ({ foodDetails, offerId, foodOfferDetails,
 				<SettingsListMarkingLabels markingIds={foodMarkings.map((m: DatabaseTypes.Markings) => m.id)} handleMenuSheet={handleMenuSheet} />
 			)}
 
-			<DebugView title={translate(TranslationKeys.foodofferComponents)}>
+			<DebugView title="Foodoffer Components">
 				{foodofferComponents.map((component: any) => {
 					const componentFoodoffer = component?.component_foodoffers_id;
 					if (!componentFoodoffer) return null;
@@ -188,7 +173,7 @@ const Labels: React.FC<LabelsProps> = ({ foodDetails, offerId, foodOfferDetails,
 				)}
 			</DebugView>
 
-			<DebugView title={translate(TranslationKeys.foodofferMarkingsData)}>
+			<DebugView title="Foodoffer Markings Data">
 				<Text style={{ ...styles.body, color: theme.screen.text }}>
 					{JSON.stringify(
 						{
@@ -202,7 +187,7 @@ const Labels: React.FC<LabelsProps> = ({ foodDetails, offerId, foodOfferDetails,
 				</Text>
 			</DebugView>
 
-			<DebugView title={translate(TranslationKeys.foodofferMarkingsCount)}>
+			<DebugView title="Foodoffer Markings Count">
 				<Text style={{ ...styles.body, color: theme.screen.text }}>{foodOfferDetails?.markings?.length ?? foodOffer?.markings?.length ?? 0}</Text>
 			</DebugView>
 

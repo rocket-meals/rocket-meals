@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet, useWindowDimensions} from 'react-native';
+import {Image, Linking, SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet, useWindowDimensions} from 'react-native';
 import {useAppSelector} from '@/redux/hooks';
 import {useTheme} from '@/hooks/useTheme';
 import {TranslationKeys} from '@/locales/keys';
@@ -41,7 +41,7 @@ const AppDownloadManagement = () => {
 
 	const projectName = ServerInfoHelper.getServerName(serverInfo || {}, customerConfig);
 	const projectDescriptor = serverInfo?.info?.project?.project_descriptor || '';
-	const appDownloadUrl = `https://rocket-meals.de${baseUrl}/experimentell/app-download`;
+	const appDownloadUrl = `https://rocket-meals.de${baseUrl}/experimentell/app-download${isFullscreen ? '?fullscreen=true' : ''}`;
 
 	const qrSize = Math.min(screenWidth * 0.6, 280);
 
@@ -94,7 +94,11 @@ const AppDownloadManagement = () => {
 					{projectDescriptor ? (
 						<Text style={[styles.projectDescriptor, {color: contrastColor}]}>{projectDescriptor}</Text>
 					) : null}
-					<View style={styles.qrContainer}>
+					<TouchableOpacity
+						style={styles.qrContainer}
+						onPress={() => Linking.openURL(appDownloadUrl)}
+						activeOpacity={0.8}
+					>
 						<QrCode
 							value={appDownloadUrl}
 							size={qrSize}
@@ -102,7 +106,7 @@ const AppDownloadManagement = () => {
 							innerSize={21}
 							backgroundColor="white"
 						/>
-					</View>
+					</TouchableOpacity>
 					{isDebugMode ? (
 						<Text style={[styles.debugLink, {color: contrastColor}]} selectable>{appDownloadUrl}</Text>
 					) : null}

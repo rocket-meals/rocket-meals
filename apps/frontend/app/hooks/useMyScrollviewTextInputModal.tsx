@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Keyboard, Platform } from 'react-native';
+import { Keyboard } from 'react-native';
 
 import { SettingsListTextInputSheet } from '@/components/SettingsListTextInput';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import type { CheckTextInput, TextInputSharedProps } from '@/components/SettingsListTextInput';
 import { borderRadiusContainer } from '@/constants/Constants';
-import { useLanguage } from '@/hooks/useLanguage';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 type ModalTextInputExtraProps = {
 	initialValue?: string;
@@ -86,14 +84,9 @@ type OpenTextInputOptions = TextInputSharedProps & ModalTextInputExtraProps & {
 
 const useMyScrollviewTextInputModal = () => {
 	const { show, close } = useMyScrollViewModal();
-	const { language } = useLanguage();
-	const isLtrLanguage = useIsLtrLanguage();
-	const isRtl = !isLtrLanguage;
 
 	const closeModal = useCallback(() => {
-		if (Platform.OS !== 'web') {
-			Keyboard.dismiss();
-		}
+		Keyboard.dismiss();
 		close();
 	}, [close]);
 
@@ -115,8 +108,6 @@ const useMyScrollviewTextInputModal = () => {
 		}: OpenTextInputOptions) => {
 			show({
 				title,
-				titleTextAlign: isRtl ? 'right' : 'left',
-				titleWritingDirection: isRtl ? 'rtl' : 'ltr',
 				onClose: closeModal,
 				children: (
 					<ModalTextInputSheet
@@ -139,7 +130,7 @@ const useMyScrollviewTextInputModal = () => {
 				),
 			});
 		},
-		[closeModal, isRtl, show]
+		[closeModal, show]
 	);
 
 	return { openTextInputModal, closeTextInputModal: closeModal };

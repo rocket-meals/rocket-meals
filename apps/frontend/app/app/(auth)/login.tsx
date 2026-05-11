@@ -24,14 +24,11 @@ import { getDetailedDescriptionTranslation, getIntroDescriptionTranslation } fro
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
-import { useLanguage } from '@/hooks/useLanguage';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
 export default function Login() {
 	useSetPageTitle(TranslationKeys.sign_in);
 	const toast = useToast();
 	const { theme } = useTheme();
-	const {translate} = useLanguage();
 	const dispatch = useDispatch();
 	const { deviceMock } = useGlobalSearchParams();
 	const appSettingsHelper = new AppSettingsHelper();
@@ -40,8 +37,6 @@ export default function Login() {
 	const [providers, setProviders] = useState<any>([]);
 	const [isWebVisible, setIsWebVisible] = useState(Dimensions.get('window').width > 500);
 	const { appSettings, language } = useAppSelector((state) => state.settings);
-	const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
 	const intro_description = appSettings?.login_screen_translations && getIntroDescriptionTranslation(appSettings?.login_screen_translations, language);
 	const detailed_description = appSettings?.login_screen_translations && getDetailedDescriptionTranslation(appSettings?.login_screen_translations, language);
 	const [heading, subHeading] = intro_description?.split('-') || ['', ''];
@@ -114,7 +109,7 @@ export default function Login() {
 		} catch (error) {
 			console.error('Error during login: ', error);
 			if (!token) {
-				toast(translate(TranslationKeys.invalidCredentials), 'error');
+				toast('Invalid credentials', 'error');
 				setLoading(false);
 			}
 		}
@@ -193,38 +188,13 @@ export default function Login() {
 	const extractDescriptionAndImage = (content: string): [string, string] => {
 		if (!content) return ['', ''];
 
-		const cleanDescription = (text: string) =>
-			text
-				.replace(/!\[[^\]]*?\]\s*\([\s\S]*?\)/g, '')
-				.replace(/!\[[^\]]*?\]\s*\(/g, '')
-				.replace(/^\s*[\(\)]\s*$/gm, '')
-				.replace(/\n{3,}/g, '\n\n')
-				.trim();
+		const imageRegex = /!\[.*?\]\((.*?)\)/;
+		const imageMatch = content.match(imageRegex);
+		const imageUrl = imageMatch ? imageMatch[1] : '';
 
-		const markdownImageRegex = /!\[[^\]]*?\]\(([\s\S]*?)\)/;
-		const markdownImageMatch = content.match(markdownImageRegex);
-		const markdownImageRaw = markdownImageMatch?.[1] || '';
+		const description = content.replace(imageRegex, '').trim();
 
-		if (markdownImageMatch) {
-			const candidateUrl = markdownImageRaw.match(/https?:\/\/\S+/)?.[0] || '';
-			const markdownImageUrl = candidateUrl
-				.replace(/[)\]}>,.!|؛،!?]+$/g, '')
-				.trim();
-			const description = content
-				.replace(markdownImageRegex, '')
-				.replace(/!\[[^\]]*?\]\(\s*/g, '')
-				.trim();
-
-			return [cleanDescription(description), markdownImageUrl];
-		}
-
-		const urlRegex = /(https?:\/\/\S+)/;
-		const urlMatch = content.match(urlRegex);
-		const rawUrl = urlMatch?.[1] || '';
-		const imageUrl = rawUrl.replace(/[)\]}>,.!|؛،!?]+$/g, '').trim();
-		const description = (imageUrl ? content.replace(rawUrl, '').trim() : content.trim()).replace(/!\[[^\]]*?\]\(\s*/g, '').trim();
-
-		return [cleanDescription(description), imageUrl];
+		return [description, imageUrl];
 	};
 
 	const renderContent = () => {
@@ -244,17 +214,7 @@ export default function Login() {
 						}}
 					/>
 				)}
-				{!!description && (
-					<Text
-						style={{
-							...styles.subTitle,
-							color: theme.login.text,
-							...(isArabic ? { textAlign: 'center', writingDirection: 'rtl' as const, width: '95%' } : {}),
-						}}
-					>
-						{description}
-					</Text>
-				)}
+				{!!description && <Text style={{ ...styles.subTitle, color: theme.login.text }}>{description}</Text>}
 			</View>
 		);
 	};
@@ -291,29 +251,9 @@ export default function Login() {
 							backgroundColor: theme.login.webContainerBg,
 						}}
 					>
-						<View style={[styles.webTitleContainer, isArabic ? { alignItems: 'flex-end' } : null]}>
-							{heading && (
-								<Text
-									style={{
-										...styles.title,
-										color: theme.login.text,
-										...(isArabic ? { textAlign: 'center', writingDirection: 'rtl' as const, width: '95%' } : {}),
-									}}
-								>
-									{heading}
-								</Text>
-							)}
-							{subHeading && (
-								<Text
-									style={{
-										...styles.subTitle,
-										color: theme.login.text,
-										...(isArabic ? { textAlign: 'center', writingDirection: 'rtl' as const, width: '95%' } : {}),
-									}}
-								>
-									{subHeading}
-								</Text>
-							)}
+						<View style={styles.webTitleContainer}>
+							{heading && <Text style={{ ...styles.title, color: theme.login.text }}>{heading}</Text>}
+							{subHeading && <Text style={{ ...styles.subTitle, color: theme.login.text }}>{subHeading}</Text>}
 						</View>
 						{renderContent()}
 					</View>

@@ -33,8 +33,8 @@ const MarkingLabels: React.FC<MarkingLabelProps> = ({ markingId, handleMenuSheet
 	const user = useAppSelector(state => state.authReducer.user);
 	const profile = useAppSelector(state => state.authReducer.profile);
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
-	const markingsDict = useAppSelector(state => state.food.markingsDict);
-	const marking = (markingsDict as any)?.[String(markingId)];
+	const markings = useAppSelector(state => state.food.markings);
+	const marking = markings?.find((mark: any) => mark.id === markingId);
 	const ownMarking = profile?.markings?.find((mark: any) => mark.markings_id === markingId);
 	const [likeLoading, setLikeLoading] = useState(false);
 	const [dislikeLoading, setDislikeLoading] = useState(false);
@@ -89,6 +89,7 @@ const MarkingLabels: React.FC<MarkingLabelProps> = ({ markingId, handleMenuSheet
 				dispatch({ type: UPDATE_PROFILE, payload: profile });
 			}
 		} catch (error) {
+			console.error('Error fetching profiles:', error);
 		}
 	};
 

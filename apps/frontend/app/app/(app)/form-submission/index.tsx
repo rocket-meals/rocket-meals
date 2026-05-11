@@ -45,9 +45,6 @@ import FilterFormSheet from '@/components/FilterFormSheet/FilterFormSheet';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import * as FileSystem from 'expo-file-system/legacy';
-import AppButton from '@/components/AppButton';
-import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
-import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
 /**
  * Convert a file data object (from signature capture) to a base64 data URI.
@@ -165,10 +162,8 @@ const isAnswerVisible = (
 
 const Index = () => {
 	const toast = useToast();
-	const isLtrLanguage = useIsLtrLanguage();
 	const scrollViewRef = useRef(null);
 	const { translate } = useLanguage();
-	const languageTextAlign = useLanguageTextAlign();
 	const { theme } = useTheme();
 	const dispatch = useDispatch();
 	const { form_submission_id, queue_entry_id } = useLocalSearchParams();
@@ -184,14 +179,14 @@ const Index = () => {
 	const [collectionData, setCollectionData] = useState<any>([]);
 	const [selectedState, setSelectedState] = useState('submitted');
 	const [currentState, setCurrentState] = useState<string | null>(null);
-	const { formSubmission, formQueueDict, cachedFormData } = useAppSelector((state) => state.form);
+	const { formSubmission, formQueue, cachedFormData } = useAppSelector((state) => state.form);
 	const { user } = useAppSelector((state) => state.authReducer);
 	const [submissionLoading, setSubmissionLoading] = useState(false);
 	const [formData, setFormData] = useState<{
 		[key: string]: { value: any; error: string; custom_type?: string };
 	}>({});
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
-	const { language, primaryColor, offlineMode } = useAppSelector((state) => state.settings);
+	const { language, drawerPosition, primaryColor, offlineMode } = useAppSelector((state) => state.settings);
 	const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
 	const [imageFolderIdState, setImageFolderIdState] = useState<string | null>(null);
 	const [filesFolderIdState, setFilesFolderIdState] = useState<string | null>(null);
@@ -439,7 +434,7 @@ const Index = () => {
 
 			// If opened from queue, override with queued formData
 			if (queue_entry_id) {
-				const queueEntry = Object.values(formQueueDict || {}).find((entry: any) => String(entry?.id) === String(queue_entry_id));
+				const queueEntry = (formQueue || []).find((entry: any) => entry.id === queue_entry_id);
 				if (queueEntry) {
 					setFormData({ ...initialFormData, ...queueEntry.formData });
 					setSelectedState(queueEntry.targetState);
@@ -666,7 +661,7 @@ const Index = () => {
 			if (!value || (typeof value === 'string' && value.trim() === '')) {
 				hasError = true;
 				const fieldName = formField?.translations?.length > 0 ? getFromCategoryTranslation(formField.translations, language) : formField?.alias;
-				toast(translate(TranslationKeys.fieldIsRequired).replace('${fieldName}', String(fieldName ?? '')), 'error');
+				toast(`Field "${fieldName}" is required`, 'error');
 			}
 		}
 
@@ -814,7 +809,7 @@ const Index = () => {
 			} catch (error) {
 				console.error('Error updating form answers:', error);
 				const errorMessage = error instanceof Error ? error.message : String(error);
-				toast(errorMessage || translate(TranslationKeys.errorUpdatingFormAnswers), 'error');
+				toast(errorMessage || 'An error occurred while updating form answers', 'error');
 				setSubmissionLoading(false);
 				handleAddToQueue();
 			}
@@ -900,25 +895,37 @@ const Index = () => {
 				<View
 					style={[
 						styles.row,
-						{ flexDirection: !isLtrLanguage ? 'row-reverse' : 'row' },
+						{
+							flexDirection: drawerPosition === 'right' ? 'row-reverse' : 'row',
+						},
 					]}
 				>
-					<TouchableOpacity
-						onPress={() => {
+					<View
+						style={[
+							styles.col1,
+							screenWidth > 768
+								? {
+										gap: 20,
+									}
+								: {
+										gap: 10,
+									},
+							{
+								flexDirection: drawerPosition === 'right' ? 'row-reverse' : 'row',
+							},
+						]}
+					>
+						<TouchableOpacity onPress={() => {
 							if (router.canGoBack()) {
 								router.back();
 							} else {
 								router.navigate('/form-categories');
 							}
-						}}
-						style={{ padding: 10 }}
-					>
-						<Ionicons name={isLtrLanguage ? 'arrow-back' : 'arrow-forward'} size={26} color={theme.header.text} />
-					</TouchableOpacity>
-
-					<Text style={{ ...styles.heading, color: theme.header.text, flex: 1, textAlign: languageTextAlign }}>
-						{formSubmission ? excerpt(formSubmission?.alias as string, screenWidth > 900 ? 100 : screenWidth > 700 ? 80 : 22) : ''}
-					</Text>
+						}} style={{ padding: 10 }}>
+							<Ionicons name="arrow-back" size={26} color={theme.header.text} />
+						</TouchableOpacity>
+						<Text style={{ ...styles.heading, color: theme.header.text }}>{formSubmission ? excerpt(formSubmission?.alias as string, screenWidth > 900 ? 100 : screenWidth > 700 ? 80 : 22) : ''}</Text>
+					</View>
 					<View style={{ ...styles.col2, gap: isWeb ? 30 : 15 }}>
 						<TouchableOpacity onPress={openEditSheet} style={{ padding: 10 }}>
 							<FontAwesome name="edit" size={24} color={theme.header.text} />
@@ -1012,33 +1019,23 @@ const Index = () => {
 											key={answer?.id + index}
 										>
 											<View
-												style={[
-													{
-														...styles.formNameContainer,
-														backgroundColor: theme.screen.iconBg,
-													},
-													!isLtrLanguage ? { justifyContent: 'flex-start' } : null,
-												]}
+												style={{
+													...styles.formNameContainer,
+													backgroundColor: theme.screen.iconBg,
+												}}
 											>
 												{IconComponent && <IconComponent name={iconName} size={20} color={theme.screen.icon} />}
-												{!isLtrLanguage && (answer?.form_field as DatabaseTypes.FormFields)?.is_required && (
-													<FontAwesome6 name="star-of-life" size={12} color={'red'} />
-												)}
+
 												<Text
 													style={{
 														...styles.body,
 														color: theme.screen.text,
-														...(!isLtrLanguage ? { flex: 1, textAlign: 'right', writingDirection: 'rtl' } : null),
 													}}
 												>
 													{`${index + 1}. `}
-													{(answer?.form_field as DatabaseTypes.FormFields)?.translations?.length > 0
-														? getFromCategoryTranslation((answer?.form_field as DatabaseTypes.FormFields)?.translations, language)
-														: (answer?.form_field as DatabaseTypes.FormFields)?.alias}
+													{(answer?.form_field as DatabaseTypes.FormFields)?.translations?.length > 0 ? getFromCategoryTranslation((answer?.form_field as DatabaseTypes.FormFields)?.translations, language) : (answer?.form_field as DatabaseTypes.FormFields)?.alias}
 												</Text>
-												{language !== 'ar' && (answer?.form_field as DatabaseTypes.FormFields)?.is_required && (
-													<FontAwesome6 name="star-of-life" size={12} color={'red'} />
-												)}
+												{(answer?.form_field as DatabaseTypes.FormFields)?.is_required && <FontAwesome6 name="star-of-life" size={12} color={'red'} />}
 											</View>
 											{Boolean(description) && (
 												<View
@@ -1051,7 +1048,6 @@ const Index = () => {
 														style={{
 															...styles.body,
 															color: theme.screen.text,
-															...(!isLtrLanguage ? { textAlign: 'right', writingDirection: 'rtl' } : null),
 														}}
 													>
 														{description}
@@ -1086,7 +1082,7 @@ const Index = () => {
 										</View>
 									);
 								})}
-							<DebugView title={translate(TranslationKeys.formData)}>
+							<DebugView title="Form Data">
 								<Text style={{ ...styles.body, color: theme.screen.text }}>{JSON.stringify(formData, null, 2)}</Text>
 							</DebugView>
 						</View>
@@ -1101,48 +1097,28 @@ const Index = () => {
 			>
 			<View style={styles.pickerContainer}>
 				{/* Aktueller Zustand und Auswahl des nächsten Zustands */}
-				<Text
-					style={{
-						...styles.body,
-						marginBottom: 6,
-						color: theme.screen.text,
-						...(!isLtrLanguage ? { textAlign: 'right', writingDirection: 'rtl' } : null),
-					}}
-				>
+				<Text style={{ ...styles.body, marginBottom: 6, color: theme.screen.text }}>
 					{`${translate(TranslationKeys.state_current)}: ${translate(currentState || formSubmission?.state || 'draft')}`}
 				</Text>
-				<AppButton
-					variant="ghost"
-					usePlainText
-					onPress={openFilterSheet}
+				<TouchableOpacity
 					style={{
 						...styles.stateChangeButton,
 						backgroundColor: theme.screen.iconBg,
-						marginVertical: 0,
 					}}
-					textStyle={{ width: 0, height: 0 }}
-					iconLeft={
-						<View
-							style={{
-								flexDirection: 'row',
-								alignItems: 'center',
-								gap: 10,
-								width: '100%',
-							}}
-						>
-							<MaterialIcons name="edit" size={20} color={theme.screen.text} />
-							<Text
-								style={{
-									...styles.state,
-									color: theme.screen.text,
-									...(!isLtrLanguage ? { textAlign: 'right', writingDirection: 'rtl' } : null),
-								}}
-							>
-								{`${translate(TranslationKeys.state_next)}: ${translate(selectedState)}`}
-							</Text>
-						</View>
-					}
-				/>
+					onPress={openFilterSheet}
+				>
+					<View
+						style={{
+							marginLeft: -34,
+							flexDirection: 'row',
+							alignItems: 'center',
+							gap: 10,
+						}}
+					>
+						<MaterialIcons name="edit" size={20} color={theme.screen.text} />
+						<Text style={{ ...styles.state, color: theme.screen.text }}>{`${translate(TranslationKeys.state_next)}: ${translate(selectedState)}`}</Text>
+					</View>
+				</TouchableOpacity>
 			</View>
 				<TouchableOpacity style={{ ...styles.button, backgroundColor: primaryColor }} onPress={handleFormSubmission}>
 					{submissionLoading ? <ActivityIndicator size={22} color={theme.screen.text} /> : <Text style={{ ...styles.buttonLabel, color: theme.activeText }}>{translate(TranslationKeys.save)}</Text>}
