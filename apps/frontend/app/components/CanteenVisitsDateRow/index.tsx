@@ -16,23 +16,17 @@ import { CanteenVisitsHelper, getFriendProfileIds } from '@/redux/actions/Cantee
 import { FriendsContent } from '@/components/FriendsContent';
 import DebugView from '@/components/DebugView';
 import useCheckAppRateAsking from '@/hooks/useCheckAppRateAsking';
-import useCanteenVisitData from '@/hooks/useCanteenVisitData';
+import useCanteenVisitData, { CanteenVisitBaseProps } from '@/hooks/useCanteenVisitData';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
 
 const canteenVisitsHelper = new CanteenVisitsHelper();
 
 /* ─────────────────── CanteenVisitDetailsModalContent ─────────────────── */
 
-export interface CanteenVisitDetailsModalContentProps {
-	canteenId: string;
-	date: string;
-	initialCounts: { total: number; friends: number };
+export interface CanteenVisitDetailsModalContentProps extends Required<CanteenVisitBaseProps> {
 	primaryColor: string;
 	foods_area_color: string;
-	isRegistered: boolean;
-	friendProfileIds: string[];
 	friendsDict: Record<string, DatabaseTypes.Profiles>;
-	profileId: string | undefined;
 	translate: (key: TranslationKeys) => string;
 	theme: any;
 	showFriendsModal: () => void;

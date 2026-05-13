@@ -1,6 +1,7 @@
 import React from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SettingsList } from 'repo-depkit-common-ui';
+import type { SettingsListProps } from 'repo-depkit-common-ui';
 
 import { SavedRoute } from '../../helpers/RouteStorage';
 import { computeRouteLengthKm, formatDistanceKm } from '../../helpers/H3Helper';
@@ -9,13 +10,10 @@ const PRIMARY_COLOR = '#2563eb';
 const ICON_COLOR = '#ffffff';
 const CHEVRON_COLOR = '#9ca3af';
 
-type Props = {
+type Props = Pick<SettingsListProps, 'groupPosition' | 'showSeparator' | 'onPress'> & {
 	route: SavedRoute;
 	/** Overrides the activity count derived from route.activityIds when provided. */
 	activityCount?: number;
-	groupPosition?: 'top' | 'middle' | 'bottom' | 'single';
-	showSeparator?: boolean;
-	onPress?: () => void;
 };
 
 const SettingsListRoute: React.FC<Props> = ({ route, activityCount, groupPosition, showSeparator, onPress }) => {

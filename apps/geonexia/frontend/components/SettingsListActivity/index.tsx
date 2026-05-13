@@ -1,6 +1,7 @@
 import React from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SettingsList } from 'repo-depkit-common-ui';
+import type { SettingsListProps } from 'repo-depkit-common-ui';
 
 import { SavedActivity } from '../../helpers/ActivityStorage';
 import { TimeHelper } from '../../helpers/TimeHelper';
@@ -20,11 +21,8 @@ function formatDistance(km: number): string {
 	return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(2)} km`;
 }
 
-type Props = {
+type Props = Pick<SettingsListProps, 'groupPosition' | 'showSeparator' | 'onPress'> & {
 	activity: SavedActivity;
-	groupPosition?: 'top' | 'middle' | 'bottom' | 'single';
-	showSeparator?: boolean;
-	onPress?: () => void;
 };
 
 const SettingsListActivity: React.FC<Props> = ({ activity, groupPosition, showSeparator, onPress }) => {

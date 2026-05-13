@@ -71,27 +71,37 @@ export type RunStats = {
 	fluidNeedsMl: number;
 };
 
-export type SavedActivity = {
-	id: string;
+/**
+ * Fields shared between a completed activity and an in-progress recording snapshot.
+ */
+export type RecordingBaseFields = {
+	/** Unix timestamp (ms) when the recording was started */
 	startedAt: number;
-	endedAt: number;
+	/** All GPS route points collected */
 	routePoints: RoutePoint[];
-	stats: RunStats;
-	/** Sport type recorded for this activity. Optional for backward-compat with older saves. */
-	sportType?: SportType;
-	/** H3 resolution used during recording. Optional for backward-compat with older saves. */
+	/** Ordered sequence of H3 hex tile indices visited */
+	hexTilesOrdered?: string[];
+	/** The H3 resolution used during recording */
 	h3Resolution?: number;
+	/** The sport type for the recording */
+	sportType?: SportType;
+	/**
+	 * ID of the saved route this activity was matched or assigned to.
+	 * - `undefined` (field absent): the user has not yet been asked to assign a route.
+	 * - `null`: the user explicitly chose not to assign any route.
+	 * - `string`: the ID of the assigned `SavedRoute`.
+	 */
+	routeId?: string | null;
+};
+
+export type SavedActivity = RecordingBaseFields & {
+	id: string;
+	endedAt: number;
+	stats: RunStats;
 	/** Number of hex tiles visited (walked on) during the activity. Optional for backward-compat. */
 	visitedTileCount?: number;
 	/** Number of hex tiles enclosed by the activity route. Optional for backward-compat. */
 	enclosedTileCount?: number;
-	/**
-	 * Ordered sequence of H3 hex tile indices visited during the activity.
-	 * This is a coarser representation of the route (not the raw GPS data).
-	 * Each tile appears only once, in the order it was first entered.
-	 * Optional for backward-compat with older saves.
-	 */
-	hexTilesOrdered?: string[];
 	/**
 	 * H3 cell indices that were enclosed by the completed route loop but were
 	 * not physically walked on during the activity.
@@ -103,13 +113,6 @@ export type SavedActivity = {
 	 * Kept for reading activities saved by older app versions.
 	 */
 	hexTilesEnclosed?: string[];
-	/**
-	 * ID of the saved route this activity was matched or assigned to.
-	 * - `undefined` (field absent): the user has not yet been asked to assign a route.
-	 * - `null`: the user explicitly chose not to assign any route.
-	 * - `string`: the ID of the assigned `SavedRoute`.
-	 */
-	routeId?: string | null;
 	/**
 	 * Device battery level at the start of the activity (0–1, where 1 = 100%).
 	 * Optional for backward-compat with older saves.

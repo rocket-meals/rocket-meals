@@ -36,7 +36,7 @@ export { default as SettingsListSelectOption } from './src/components/SettingsLi
 export type { SettingsListSelectOptionProps, SettingsListSelectOptionItem } from './src/components/SettingsListSelectOption';
 
 export { default as SettingsListLikeDislikeFast } from './src/components/SettingsListLikeDislikeFast';
-export type { SettingsListLikeDislikeFastProps } from './src/components/SettingsListLikeDislikeFast';
+export type { SettingsListLikeDislikeFastProps, LikeDislikeBaseProps } from './src/components/SettingsListLikeDislikeFast';
 
 export { default as SettingsListLikeButton } from './src/components/SettingsListLikeButton';
 export type { SettingsListLikeButtonProps } from './src/components/SettingsListLikeButton';

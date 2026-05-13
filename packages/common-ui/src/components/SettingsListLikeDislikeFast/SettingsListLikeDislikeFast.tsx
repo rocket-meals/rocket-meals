@@ -5,14 +5,17 @@ import { useTheme } from '../../context/ThemeContext';
 import { useSettingsContext } from '../../context/SettingsContext';
 import { myContrastColor } from '../../helpers/ColorHelper';
 
-export interface SettingsListLikeDislikeFastProps {
+export interface LikeDislikeBaseProps {
 	like: boolean | null | undefined;
-	onPressLike: () => void;
-	onPressDislike: () => void;
 	likeLoading?: boolean;
 	dislikeLoading?: boolean;
 	likeCount?: number;
 	dislikeCount?: number;
+}
+
+export interface SettingsListLikeDislikeFastProps extends LikeDislikeBaseProps {
+	onPressLike: () => void;
+	onPressDislike: () => void;
 	primaryColor?: string;
 }
 

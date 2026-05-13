@@ -35,6 +35,11 @@ type SchemaRelationScanParams = {
   dict: FileReferenceDict;
 };
 
+type FileCleanupContext = {
+  context: WorkflowRunContext;
+  filesHelper: ReturnType<MyDatabaseHelper['getFilesHelper']>;
+};
+
 export class FileCleanupWorkflow extends SingleWorkflowRun {
   private static readonly PARAM_DELETE_UNREFERENCED_FILES_WHEN_OLDER_THAN_MS_DONT_DELETE = -1;
   private static readonly PARAM_DELETE_UNREFERENCED_FILES_WHEN_OLDER_THAN_MS_30_DAYS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -173,12 +178,11 @@ export class FileCleanupWorkflow extends SingleWorkflowRun {
   }
 
   private async syncNoLongerUnreferencedFiles(
-    context: WorkflowRunContext,
-    filesHelper: ReturnType<MyDatabaseHelper['getFilesHelper']>,
+    cleanup: FileCleanupContext,
     dict: FileReferenceDict,
     fieldName: string
   ): Promise<void> {
-    const filesPreviouslyUnreferenced = await filesHelper.readByQuery({
+    const filesPreviouslyUnreferenced = await cleanup.filesHelper.readByQuery({
       filter: { _and: [{ [fieldName]: { _eq: true } }] },
       limit: -1,
       fields: ['id'],
@@ -187,23 +191,22 @@ export class FileCleanupWorkflow extends SingleWorkflowRun {
     for (const file of filesPreviouslyUnreferenced) {
       if (dict[file.id]) {
         fileIdsNoLongerUnreferenced.push(file.id);
-        await filesHelper.updateOne(file.id, { [fieldName]: false });
+        await cleanup.filesHelper.updateOne(file.id, { [fieldName]: false });
       }
     }
     if (fileIdsNoLongerUnreferenced.length > 0) {
-      await context.logger.appendLog(`Found ${fileIdsNoLongerUnreferenced.length} files that are no longer unereferenced.`);
+      await cleanup.context.logger.appendLog(`Found ${fileIdsNoLongerUnreferenced.length} files that are no longer unereferenced.`);
     }
   }
 
   private async collectFileSizeStats(
-    context: WorkflowRunContext,
-    filesHelper: ReturnType<MyDatabaseHelper['getFilesHelper']>,
+    cleanup: FileCleanupContext,
     dict: FileReferenceDict,
     diskSpaceDict: FileDiskSpaceDict
   ): Promise<string[]> {
     const unreferencedFiles: string[] = [];
     for (const fileId in dict) {
-      const file = await filesHelper.readOne(fileId);
+      const file = await cleanup.filesHelper.readOne(fileId);
       const fileSize = file.filesize;
       const fileSizeAsNumber = typeof fileSize === 'number' && !Number.isNaN(fileSize) ? fileSize : 0;
       this.statistics.filesTotalDiskSpace += fileSizeAsNumber;
@@ -216,12 +219,11 @@ export class FileCleanupWorkflow extends SingleWorkflowRun {
   }
 
   private async tryDeleteOldUnreferencedFile(
-    context: WorkflowRunContext,
-    filesHelper: ReturnType<MyDatabaseHelper['getFilesHelper']>,
+    cleanup: FileCleanupContext,
     fileId: string,
     fileSizeAsNumber: number
   ): Promise<void> {
-    const file = await filesHelper.readOne(fileId);
+    const file = await cleanup.filesHelper.readOne(fileId);
     if (!file) {
       return;
     }
@@ -229,20 +231,19 @@ export class FileCleanupWorkflow extends SingleWorkflowRun {
     if (fileAge < this.config[FileCleanupWorkflowConfigEnum.delete_unreferenced_files_when_older_than_ms]) {
       return;
     }
-    await context.logger.appendLog('Deleting file: ' + fileId);
+    await cleanup.context.logger.appendLog('Deleting file: ' + fileId);
     try {
-      await filesHelper.deleteOne(fileId);
+      await cleanup.filesHelper.deleteOne(fileId);
       this.statistics.filesDeletedAmount++;
       this.statistics.filesDeletedDiskSpace += fileSizeAsNumber;
     } catch (deleteError) {
       this.statistics.filesDeletedErrorAmount++;
-      await context.logger.appendLog(`Error deleting file: ${fileId} - ${deleteError instanceof Error ? deleteError.message : String(deleteError)}`);
+      await cleanup.context.logger.appendLog(`Error deleting file: ${fileId} - ${deleteError instanceof Error ? deleteError.message : String(deleteError)}`);
     }
   }
 
   private async processUnreferencedFiles(
-    context: WorkflowRunContext,
-    filesHelper: ReturnType<MyDatabaseHelper['getFilesHelper']>,
+    cleanup: FileCleanupContext,
     unreferencedFiles: string[],
     diskSpaceDict: FileDiskSpaceDict,
     fieldName: string
@@ -250,9 +251,9 @@ export class FileCleanupWorkflow extends SingleWorkflowRun {
     for (const fileId of unreferencedFiles) {
       const fileSizeAsNumber = diskSpaceDict[fileId] || 0;
       this.statistics.filesUnreferencedDiskSpace += fileSizeAsNumber;
-      await filesHelper.updateOne(fileId, { [fieldName]: true });
+      await cleanup.filesHelper.updateOne(fileId, { [fieldName]: true });
       if (this.config[FileCleanupWorkflowConfigEnum.delete_unreferenced_files_when_older_than_ms] >= 0) {
-        await this.tryDeleteOldUnreferencedFile(context, filesHelper, fileId, fileSizeAsNumber);
+        await this.tryDeleteOldUnreferencedFile(cleanup, fileId, fileSizeAsNumber);
       }
     }
   }
@@ -283,6 +284,7 @@ export class FileCleanupWorkflow extends SingleWorkflowRun {
     const dictFileIdsDiskSpace: FileDiskSpaceDict = {};
 
     const filesHelper = context.myDatabaseHelper.getFilesHelper();
+    const cleanup: FileCleanupContext = { context, filesHelper };
     const allFiles = await filesHelper.readByQuery({ limit: -1, fields: ['id'] });
     this.statistics.filesTotalAmount = allFiles.length;
     await context.logger.appendLog(`Found ${allFiles.length} files in the database.`);
@@ -294,15 +296,15 @@ export class FileCleanupWorkflow extends SingleWorkflowRun {
 
     const hasDirectusFilesFieldIsUnreferenced = this.checkHasUnreferencedField(schema, directusFiles_fieldname_is_unreferenced);
     if (hasDirectusFilesFieldIsUnreferenced) {
-      await this.syncNoLongerUnreferencedFiles(context, filesHelper, dictFileIdsUsedInDatabase, directusFiles_fieldname_is_unreferenced);
+      await this.syncNoLongerUnreferencedFiles(cleanup, dictFileIdsUsedInDatabase, directusFiles_fieldname_is_unreferenced);
     } else {
       await context.logger.appendLog(`The directus_files collection does not have the field "${directusFiles_fieldname_is_unreferenced}". Otherwise, we would have updated the field, to mark the files that are no longer orphaned.`);
     }
 
-    const unreferencedFiles = await this.collectFileSizeStats(context, filesHelper, dictFileIdsUsedInDatabase, dictFileIdsDiskSpace);
+    const unreferencedFiles = await this.collectFileSizeStats(cleanup, dictFileIdsUsedInDatabase, dictFileIdsDiskSpace);
     this.statistics.filesUnreferencedAmount = unreferencedFiles.length;
 
-    await this.processUnreferencedFiles(context, filesHelper, unreferencedFiles, dictFileIdsDiskSpace, directusFiles_fieldname_is_unreferenced);
+    await this.processUnreferencedFiles(cleanup, unreferencedFiles, dictFileIdsDiskSpace, directusFiles_fieldname_is_unreferenced);
     await this.logSummary(context);
 
     return context.logger.getFinalLogWithStateAndParams({

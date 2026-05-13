@@ -1,16 +1,14 @@
 import React from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { SettingsList } from 'repo-depkit-common-ui';
+import type { SettingsListProps } from 'repo-depkit-common-ui';
 
 import type { MapFeatureInfo } from '../../helpers/RouteNameSuggestionHelper';
 import { translateLayerId, translateClass, translateSubclass } from '../../hooks/useTranslation';
 
-type Props = {
+type Props = Pick<SettingsListProps, 'groupPosition' | 'showSeparator' | 'onPress'> & {
 	feature: MapFeatureInfo;
 	count: number;
-	groupPosition?: 'top' | 'middle' | 'bottom' | 'single';
-	showSeparator?: boolean;
-	onPress?: () => void;
 	iconBackgroundColor?: string;
 };
 

@@ -3,22 +3,28 @@ import { File, Paths } from 'expo-file-system';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 /**
- * A single TTS log entry capturing what was spoken (or attempted) and whether
- * it succeeded.
+ * Common fields shared between TTS log entries and audio queue items.
  */
-export type TTSLogEntry = {
-	/** Unix timestamp (ms) when the speech attempt occurred */
-	timestamp: number;
+export type TTSBaseFields = {
 	/** The text that was to be spoken */
 	text: string;
 	/** Language code passed to expo-speech */
 	languageCode: string;
+	/** Label describing the source of the announcement (e.g. "km_milestone", "periodic", "pace_hint", "background") */
+	source: string;
+};
+
+/**
+ * A single TTS log entry capturing what was spoken (or attempted) and whether
+ * it succeeded.
+ */
+export type TTSLogEntry = TTSBaseFields & {
+	/** Unix timestamp (ms) when the speech attempt occurred */
+	timestamp: number;
 	/** Whether the speech call succeeded */
 	success: boolean;
 	/** Error message if the speech call failed */
 	error?: string;
-	/** Label describing the source of the announcement (e.g. "km_milestone", "periodic", "pace_hint", "background") */
-	source: string;
 };
 
 // ─── Storage ──────────────────────────────────────────────────────────────────

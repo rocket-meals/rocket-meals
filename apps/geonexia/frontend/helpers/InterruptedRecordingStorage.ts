@@ -1,5 +1,5 @@
 import { File, Paths } from 'expo-file-system';
-import type { RoutePoint } from './ActivityStorage';
+import type { RecordingBaseFields, RoutePoint } from './ActivityStorage';
 import type { SportType } from '../store/sportTypeSlice';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -8,13 +8,9 @@ import type { SportType } from '../store/sportTypeSlice';
  * Snapshot of an in-progress recording session, periodically persisted to disk
  * so that the recording can be recovered after an unexpected app crash.
  */
-export type InterruptedRecordingSnapshot = {
+export type InterruptedRecordingSnapshot = RecordingBaseFields & {
 	/** Unix timestamp (ms) when the recording was started */
 	startedAt: number;
-	/** Accumulated seconds before the most recent segment start */
-	accumulatedSeconds: number;
-	/** Unix timestamp (ms) of the current segment start */
-	segmentStart: number;
 	/** All GPS route points collected so far */
 	routePoints: RoutePoint[];
 	/** Ordered sequence of H3 hex tile indices visited so far */
@@ -23,8 +19,10 @@ export type InterruptedRecordingSnapshot = {
 	h3Resolution: number;
 	/** The sport type selected for this recording */
 	sportType: SportType;
-	/** ID of the pre-selected route (if any) */
-	routeId?: string | null;
+	/** Accumulated seconds before the most recent segment start */
+	accumulatedSeconds: number;
+	/** Unix timestamp (ms) of the current segment start */
+	segmentStart: number;
 	/** Timestamp when this snapshot was written */
 	savedAt: number;
 };

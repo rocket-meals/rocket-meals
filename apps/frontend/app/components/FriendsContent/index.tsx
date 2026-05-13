@@ -192,13 +192,17 @@ const ScanModalContent: React.FC<ScanModalContentProps> = ({ onSubmit, checkAlre
 	);
 };
 
-/* ────────────── Shared Pending Friendship Content ────────────────────── */
-type PendingFriendshipContentProps = {
-	friendship: DatabaseTypes.Friendships;
+/* ────────────── Shared base props for friendship modals ──────────────── */
+type FriendshipModalBaseProps = {
 	friendshipsHelper: FriendshipsHelper;
 	onAccepted: (friendship: DatabaseTypes.Friendships) => void;
-	onDeleted: () => void;
 	closeModal: () => void;
+};
+
+/* ────────────── Shared Pending Friendship Content ────────────────────── */
+type PendingFriendshipContentProps = FriendshipModalBaseProps & {
+	friendship: DatabaseTypes.Friendships;
+	onDeleted: () => void;
 };
 
 const PendingFriendshipContent: React.FC<PendingFriendshipContentProps> = ({ friendship, friendshipsHelper, onAccepted, onDeleted, closeModal }) => {
@@ -307,13 +311,10 @@ const PendingFriendshipContent: React.FC<PendingFriendshipContentProps> = ({ fri
 /* ───────────────────── QR Generate Modal Content ──────────────────────── */
 type QRGenPhase = 'generating' | 'success' | 'error';
 
-type QRGenerateModalContentProps = {
+type QRGenerateModalContentProps = FriendshipModalBaseProps & {
 	profileId: string;
-	friendshipsHelper: FriendshipsHelper;
 	onCreated: (friendship: DatabaseTypes.Friendships) => void;
-	onAccepted: (friendship: DatabaseTypes.Friendships) => void;
 	onDeleted: (friendshipId: string) => void;
-	closeModal: () => void;
 };
 
 const QRGenerateModalContent: React.FC<QRGenerateModalContentProps> = ({ profileId, friendshipsHelper, onCreated, onAccepted, onDeleted, closeModal }) => {

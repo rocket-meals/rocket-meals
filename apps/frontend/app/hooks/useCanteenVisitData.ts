@@ -6,15 +6,18 @@ const canteenVisitsHelper = new CanteenVisitsHelper();
 
 export type CanteenVisitsVisibility = 'all' | 'friends_only' | 'public_only' | 'off';
 
-interface UseCanteenVisitDataOptions {
+export type CanteenVisitBaseProps = {
 	canteenId: string;
 	date: string;
 	profileId: string | undefined;
 	friendProfileIds: string[];
 	isRegistered: boolean;
+	initialCounts?: { total: number; friends: number };
+};
+
+interface UseCanteenVisitDataOptions extends CanteenVisitBaseProps {
 	visibility?: CanteenVisitsVisibility;
 	enabled?: boolean;
-	initialCounts?: { total: number; friends: number };
 }
 
 const useCanteenVisitData = ({
