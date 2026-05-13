@@ -7,10 +7,9 @@ const PASSWORD_INPUT_SELECTOR = 'input[type="password"], input[name="password"],
 const SUBMIT_BUTTON_SELECTOR = 'button[type="submit"], [type="submit"], button:has-text("Sign In"), button:has-text("Login"), button:has-text("Anmelden")';
 const DOWNLOAD_BUTTON_SELECTOR = 'button:has-text("Download"), a:has-text("Download"), [data-test="download"], .download-button';
 
-export interface DirectusTypeDownloaderOptions {
-  directusInstanceUrl: string;
-  adminEmail: string;
-  adminPassword: string;
+import { DirectusCredentials } from './DirectusDatabaseSync';
+
+export interface DirectusTypeDownloaderOptions extends DirectusCredentials {
   targetTypesFilePath: string;
 }
 

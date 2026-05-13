@@ -18,9 +18,8 @@ import { translateClass, translateSubclass } from '../hooks/useTranslation';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-/** Single map-feature record as returned by the map's queryRenderedFeatures. */
-export type MapFeatureInfo = {
-	layerId: string | null;
+/** Common map-feature properties shared by MapFeatureInfo and AreaInfoEntry. */
+type MapFeatureBaseFields = {
 	name: string | null;
 	class: string | null;
 	subclass: string | null;
@@ -30,26 +29,20 @@ export type MapFeatureInfo = {
 	natural: string | null;
 	landuse: string | null;
 	amenity: string | null;
-	/** Number of times this feature appeared in the source vector tiles (after deduplication by class|subclass|name). */
 	count: number;
+};
+
+/** Single map-feature record as returned by the map's queryRenderedFeatures. */
+export type MapFeatureInfo = MapFeatureBaseFields & {
+	layerId: string | null;
 };
 
 /**
  * Aggregated entry inside an area-info dictionary.
  * The key of the dict is `layerId + '::' + (name ?? '')`.
  */
-export type AreaInfoEntry = {
+export type AreaInfoEntry = MapFeatureBaseFields & {
 	layerId: string;
-	name: string | null;
-	count: number;
-	class: string | null;
-	subclass: string | null;
-	highway: string | null;
-	waterway: string | null;
-	building: string | null;
-	natural: string | null;
-	landuse: string | null;
-	amenity: string | null;
 };
 
 /** Dict keyed by `layerId::name` holding aggregated feature counts. */

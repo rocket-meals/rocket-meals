@@ -15,10 +15,13 @@ const { version } = require(pkgPath);
 
 console.log('Directus Sync Version:', version);
 
-export interface DirectusDatabaseSyncOptions {
+export interface DirectusCredentials {
   directusInstanceUrl: string;
   adminEmail: string;
   adminPassword: string;
+}
+
+export interface DirectusDatabaseSyncOptions extends DirectusCredentials {
   pathToDataDirectusSyncData: string;
 }
 

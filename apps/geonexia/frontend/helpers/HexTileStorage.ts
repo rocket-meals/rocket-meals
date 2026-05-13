@@ -95,6 +95,22 @@ export type ActivityReference = {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 /**
+ * Billboard customization fields shared between HexTileRecord and
+ * HexTileCustomizationPayload (in hexTileSlice).
+ */
+export type HexTileBillboardFields = {
+	tileImage?: string | null;
+	/** @deprecated Use `billboards` instead. */
+	billboard?: string | null;
+	/** @deprecated Use `billboards` instead. */
+	billboardAnchorColor?: string | null;
+	billboards?: Record<string, string | null>;
+	/** @deprecated Use `billboardsTexture` for flat anchor-positioned sprites. */
+	billboardsFlat?: Record<string, boolean>;
+	billboardsTexture?: Record<string, string | null>;
+};
+
+/**
  * Persistent record for a single H3 hex tile, tracking visit and enclosure history.
  *
  * `level` is a computed 0–10 score that drives the map colour gradient:
@@ -104,7 +120,7 @@ export type ActivityReference = {
  *
  * Formula: level = min(10, visitCount * 2 + enclosedCount)
  */
-export type HexTileRecord = {
+export type HexTileRecord = HexTileBillboardFields & {
 	/** H3 cell index (e.g. "89283082813ffff") */
 	h3Index: string;
 	/** Unix timestamp (ms) of the last time the user passed through this tile */
@@ -129,47 +145,6 @@ export type HexTileRecord = {
 	 * Tiles that are only enclosed (but not walked on) remain false.
 	 */
 	walkedOn: boolean;
-	/**
-	 * Key of the selected terrain tile image (e.g. "Grass/grass_01").
-	 * Null or undefined means no custom tile image.
-	 */
-	tileImage?: string | null;
-	/**
-	 * Key of the selected billboard placed on this tile (e.g. "tree").
-	 * Billboards are upright 2-D sprites rendered as map markers.
-	 * Null or undefined means no billboard.
-	 */
-	billboard?: string | null;
-	/**
-	 * Anchor position for billboard placement within the hex cell.
-	 * Should be a `BillboardAnchorPosition` value.
-	 * @deprecated Use `billboards` instead. Kept for backward compatibility.
-	 */
-	billboardAnchorColor?: string | null;
-	/**
-	 * Per-anchor billboard map. Keys are BillboardAnchorPosition values.
-	 * Each key maps to a billboard key (e.g. "objects:47") or null.
-	 * When present, this field takes precedence over the legacy `billboard` and
-	 * `billboardAnchorColor` fields, allowing multiple billboards on one tile.
-	 */
-	billboards?: Record<string, string | null>;
-	/**
-	 * Per-anchor flat-rendering flag. Keys are BillboardAnchorPosition values.
-	 * When `true` for an anchor, the billboard at that position is rendered flat
-	 * on the map surface (pitch-alignment = 'map') instead of facing the camera
-	 * (pitch-alignment = 'viewport').  Defaults to false when absent.
-	 * @deprecated Use `billboardsTexture` for flat anchor-positioned sprites.
-	 */
-	billboardsFlat?: Record<string, boolean>;
-	/**
-	 * Per-anchor texture adaption map. Keys are BillboardAnchorPosition values.
-	 * Each key maps to a billboard/sprite key (e.g. "objects:47") or null.
-	 * Unlike `billboards` (Hex Objects, always face-camera), texture adaptions
-	 * are always rendered flat on the map surface (pitch-alignment = 'map').
-	 * This is the "Hex Texture Adaption" layer, sitting between the Hex Textur
-	 * fill and the Hex Objects in the render stack.
-	 */
-	billboardsTexture?: Record<string, string | null>;
 	/**
 	 * Back-references to the activities that contributed to this tile's
 	 * visit/enclosure counts.  There is at most one entry per activity.

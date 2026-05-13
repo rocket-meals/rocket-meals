@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { HexTileRecord, BillboardAnchorPosition, computeHexTileLevel } from '../helpers/HexTileStorage';
+import { HexTileRecord, HexTileBillboardFields, BillboardAnchorPosition, computeHexTileLevel } from '../helpers/HexTileStorage';
 
 // ─── Supporting types ─────────────────────────────────────────────────────────
 
@@ -7,17 +7,7 @@ import { HexTileRecord, BillboardAnchorPosition, computeHexTileLevel } from '../
  * Per-tile customization data accepted by `applyMapCustomizations`.
  * Includes all mutable fields that can be imported/exported.
  */
-export type HexTileCustomizationPayload = {
-	tileImage?: string | null;
-	/** @deprecated Use `billboards` instead. */
-	billboard?: string | null;
-	/** @deprecated Use `billboards` instead. */
-	billboardAnchorColor?: string | null;
-	billboards?: Record<string, string | null>;
-	/** @deprecated Use `billboardsTexture` for flat anchor-positioned sprites. */
-	billboardsFlat?: Record<string, boolean>;
-	billboardsTexture?: Record<string, string | null>;
-};
+export type HexTileCustomizationPayload = HexTileBillboardFields;
 
 // ─── State type ───────────────────────────────────────────────────────────────
 

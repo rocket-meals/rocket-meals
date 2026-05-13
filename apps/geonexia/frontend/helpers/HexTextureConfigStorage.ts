@@ -1,21 +1,9 @@
 import { File, Paths } from 'expo-file-system';
+import type { SpriteAnchorOverride } from './BillboardConfigStorage';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type TextureSpriteAnchorOverride = {
-	/**
-	 * Horizontal anchor as a fraction of image width (0 = left, 1 = right).
-	 * Falls back to the sprite's default anchorX when undefined.
-	 */
-	anchorX?: number;
-	/**
-	 * Vertical anchor as a fraction of image height (0 = top, 1 = bottom).
-	 * Falls back to the sprite's default anchorY when undefined.
-	 */
-	anchorY?: number;
-	/** Per-sprite scale multiplier applied on top of the global billboard scale (default 1.0). */
-	scaleMultiplier?: number;
-};
+export type TextureSpriteAnchorOverride = SpriteAnchorOverride;
 
 export type HexTextureConfigState = Record<string, TextureSpriteAnchorOverride>;
 

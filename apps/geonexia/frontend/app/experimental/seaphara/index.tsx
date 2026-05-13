@@ -22,6 +22,7 @@ import {
 import { useFocusEffect } from 'expo-router';
 
 import { HEX_TILE_SCRIPT } from '../../../assets/hexTileScript';
+import type { ViewportBounds } from '../../../helpers/TileFeatureHelper';
 import {
 	isAvailable as isH3Available,
 	latLngToCell,
@@ -98,8 +99,6 @@ const BOAT_TRANSFORM_SCRIPT = `
 const SEAPHARA_INJECT_SCRIPT = HEX_TILE_SCRIPT + '\n' + BOAT_TRANSFORM_SCRIPT;
 
 // ─── H3 grid GeoJSON builder (resolution 4) ───────────────────────────────────
-
-type ViewportBounds = { north: number; south: number; east: number; west: number };
 
 function buildSeapharaH3GeoJson(bounds: ViewportBounds) {
 	if (!isH3Available()) return { type: 'FeatureCollection', features: [] };

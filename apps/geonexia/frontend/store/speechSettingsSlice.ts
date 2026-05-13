@@ -2,10 +2,27 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 // ─── State type ───────────────────────────────────────────────────────────────
 
+/**
+ * Announcement content toggles shared between SpeechSettingsState and
+ * PeriodicAnnouncementContent in TTSHelper.
+ */
+export type AnnouncementFlags = {
+	announceDistance: boolean;
+	announcePace: boolean;
+	announceDuration: boolean;
+	announceSpeed: boolean;
+	announceCalories: boolean;
+	announceHeartRate: boolean;
+	/** Announce average pace (min/km) in periodic updates */
+	announcePaceAvg: boolean;
+	/** Announce average speed (km/h, derived from avg pace) in periodic updates */
+	announceSpeedAvg: boolean;
+};
+
 /** Speech rate preset for TTS announcements. */
 export type SpeechRate = 'slow' | 'normal' | 'fast';
 
-export type SpeechSettingsState = {
+export type SpeechSettingsState = AnnouncementFlags & {
 	/** Master toggle for speech announcements */
 	enabled: boolean;
 	/** Volume level 0.0 – 1.0 */
@@ -39,17 +56,6 @@ export type SpeechSettingsState = {
 	/** Vibrate at the specified distance interval */
 	vibrationAtDistance: boolean;
 
-	// ─── Announcement content toggles ─────────────────────────────────────────
-	announceDistance: boolean;
-	announcePace: boolean;
-	announceDuration: boolean;
-	announceSpeed: boolean;
-	announceCalories: boolean;
-	announceHeartRate: boolean;
-	/** Announce average pace (min/km) in periodic updates */
-	announcePaceAvg: boolean;
-	/** Announce average speed (km/h, derived from avg pace) in periodic updates */
-	announceSpeedAvg: boolean;
 	/** Announce when the app moves to the background during a recording */
 	announceAppInBackground: boolean;
 };

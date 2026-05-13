@@ -7,12 +7,9 @@ import { myContrastColor } from '../../helpers/ColorHelper';
 import { lightTheme } from '../../themes';
 import SettingsList from '../SettingsList';
 import type { SettingsListItemBaseProps, SettingsListProps } from '../SettingsList/types';
+import type { SettingsListSelectOptionItem } from '../SettingsListSelectOption/SettingsListSelectOption';
 
-export type SettingsListLeftRightItem<T> = {
-	id: T;
-	label: string;
-	icon?: React.ReactNode;
-};
+export type SettingsListLeftRightItem<T> = SettingsListSelectOptionItem<T>;
 
 export type SettingsListLeftRightProps<T extends string | number> = Pick<
 	SettingsListItemBaseProps,

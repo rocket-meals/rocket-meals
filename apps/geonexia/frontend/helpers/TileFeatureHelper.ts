@@ -211,6 +211,11 @@ export type LatLngBounds = {
 };
 
 /**
+ * Viewport bounding box using cardinal directions.
+ */
+export type ViewportBounds = { north: number; south: number; east: number; west: number };
+
+/**
  * Convert an H3 hex-cell index to its axis-aligned lat/lng bounding box.
  *
  * This is a convenience helper that computes the boundary polygon of the cell
@@ -424,15 +429,7 @@ export function calculateOptimalZoom(
 
 // ─── Main public API ────────────────────────────────────────────────────────
 
-export type TileFeatureQueryParams = {
-	/** Southern boundary latitude. */
-	minLat: number;
-	/** Western boundary longitude. */
-	minLng: number;
-	/** Northern boundary latitude. */
-	maxLat: number;
-	/** Eastern boundary longitude. */
-	maxLng: number;
+export type TileFeatureQueryParams = LatLngBounds & {
 	/** Zoom level (typically 14 for street-level detail). */
 	zoom: number;
 	/** Optional style URL override (default: OpenFreeMap Liberty). */
@@ -532,15 +529,7 @@ export async function queryTileFeaturesForHexCell(
 
 // ─── Area-based convenience API (auto-zoom) ─────────────────────────────────
 
-export type AreaFeatureQueryParams = {
-	/** Southern boundary latitude. */
-	minLat: number;
-	/** Western boundary longitude. */
-	minLng: number;
-	/** Northern boundary latitude. */
-	maxLat: number;
-	/** Eastern boundary longitude. */
-	maxLng: number;
+export type AreaFeatureQueryParams = LatLngBounds & {
 	/** Optional style URL override (default: OpenFreeMap Liberty). */
 	styleUrl?: string;
 	/** Optional filter for features with `name === null`. */
