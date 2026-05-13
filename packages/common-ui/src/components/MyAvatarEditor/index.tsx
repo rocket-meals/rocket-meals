@@ -490,9 +490,17 @@ function stripHashPrefix(color: string): string {
 /** Size used for avatar previews inside selection modals. */
 const PREVIEW_AVATAR_SIZE = 100;
 
-type AvatarEditorModalContentProps = {
-	initialConfig: AvatarConfig;
+/** Common appearance props forwarded to avatar previews. */
+type AvatarAppearanceProps = {
 	accentColor?: string;
+	/** When true (default), previews are circles. */
+	rounded?: boolean;
+	/** Background colour shown behind previews. */
+	backgroundColor?: string;
+};
+
+type AvatarEditorModalContentProps = AvatarAppearanceProps & {
+	initialConfig: AvatarConfig;
 	configObservable: ConfigObservable;
 	configRef: React.MutableRefObject<AvatarConfig>;
 	debugMode?: boolean;
@@ -507,17 +515,10 @@ type AvatarEditorModalContentProps = {
 	 * and are hidden from the editor UI. Use values from the `AvatarPropKey` namespace.
 	 */
 	hiddenProps?: Record<string, string>;
-	/** Forwarded from the caller's MyAvatar: when true (default), previews are circles. */
-	rounded?: boolean;
-	/** Forwarded from the caller's MyAvatar: background colour shown behind previews. */
-	backgroundColor?: string;
 };
 
-type AvatarStickyHeaderProps = {
+type AvatarStickyHeaderProps = AvatarAppearanceProps & {
 	configObservable: ConfigObservable;
-	accentColor?: string;
-	rounded?: boolean;
-	backgroundColor?: string;
 };
 
 const AvatarStickyHeader: React.FC<AvatarStickyHeaderProps> = ({ configObservable, accentColor, rounded, backgroundColor }) => {
@@ -549,12 +550,9 @@ const AvatarStickyHeader: React.FC<AvatarStickyHeaderProps> = ({ configObservabl
 	);
 };
 
-type AvatarStickyHeaderConditionalProps = {
+type AvatarStickyHeaderConditionalProps = AvatarAppearanceProps & {
 	modeObservable: ModeObservable;
 	configObservable: ConfigObservable;
-	accentColor?: string;
-	rounded?: boolean;
-	backgroundColor?: string;
 };
 
 const AvatarStickyHeaderConditional: React.FC<AvatarStickyHeaderConditionalProps> = ({
@@ -575,15 +573,12 @@ const AvatarStickyHeaderConditional: React.FC<AvatarStickyHeaderConditionalProps
 	return <AvatarStickyHeader configObservable={configObservable} accentColor={accentColor} rounded={rounded} backgroundColor={backgroundColor} />;
 };
 
-type ColorPickerModalContentProps = {
+type ColorPickerModalContentProps = AvatarAppearanceProps & {
 	colors: string[];
 	initialSelectedColor: string | null;
 	onSelectAndClose: (color: string) => void;
-	accentColor?: string;
 	config: AvatarConfig;
 	colorKey: string;
-	rounded?: boolean;
-	backgroundColor?: string;
 };
 
 const ColorPickerModalContent: React.FC<ColorPickerModalContentProps> = ({
@@ -637,13 +632,10 @@ const ColorPickerModalContent: React.FC<ColorPickerModalContentProps> = ({
 	);
 };
 
-type StylePickerModalContentProps = {
+type StylePickerModalContentProps = AvatarAppearanceProps & {
 	currentStyle: AvatarStyle;
 	onSelectAndClose: (style: AvatarStyle) => void;
-	accentColor?: string;
 	allowedStyles?: AvatarStyle[];
-	rounded?: boolean;
-	backgroundColor?: string;
 };
 
 const StylePickerModalContent: React.FC<StylePickerModalContentProps> = ({
@@ -694,15 +686,12 @@ const StylePickerModalContent: React.FC<StylePickerModalContentProps> = ({
 	);
 };
 
-type ComponentPickerModalContentProps = {
+type ComponentPickerModalContentProps = AvatarAppearanceProps & {
 	categoryKey: string;
 	values: string[];
 	currentValue: string | null;
 	config: AvatarConfig;
 	onSelectAndClose: (value: string) => void;
-	accentColor?: string;
-	rounded?: boolean;
-	backgroundColor?: string;
 };
 
 const ComponentPickerModalContent: React.FC<ComponentPickerModalContentProps> = ({
@@ -1617,14 +1606,11 @@ function getPresetsForStyle(style: AvatarStyle, size: AvatarSize): AvatarConfig[
 /** Size used for preset grid avatars. */
 const PRESET_AVATAR_SIZE = 72;
 
-type PresetSelectionModalContentProps = {
+type PresetSelectionModalContentProps = AvatarAppearanceProps & {
 	allowedStyles: AvatarStyle[];
 	size: AvatarSize;
-	accentColor?: string;
 	onSelectPreset: (config: AvatarConfig) => void;
 	onCustomize: () => void;
-	rounded?: boolean;
-	backgroundColor?: string;
 };
 
 const PresetSelectionModalContent: React.FC<PresetSelectionModalContentProps> = ({
@@ -1674,9 +1660,8 @@ const PresetSelectionModalContent: React.FC<PresetSelectionModalContentProps> = 
 	);
 };
 
-export type UseAvatarEditorModalOptions = {
+export type UseAvatarEditorModalOptions = AvatarAppearanceProps & {
 	title?: string;
-	accentColor?: string;
 	debugMode?: boolean;
 	/** Restrict which avatar styles are available. If only one style is provided, the style selector is hidden. */
 	allowedStyles?: AvatarStyle[];
@@ -1688,10 +1673,6 @@ export type UseAvatarEditorModalOptions = {
 	 * @example `{ [AvatarPropKey.OpenPeeps.SCALE]: '100' }` hides the scale and pins it to 100.
 	 */
 	hiddenProps?: Record<string, string>;
-	/** Forwarded to all avatar previews inside the editor. When true (default), avatars are rendered as circles. */
-	rounded?: boolean;
-	/** Forwarded to all avatar previews inside the editor. Background colour shown behind each avatar. */
-	backgroundColor?: string;
 };
 
 export type OpenAvatarEditorProps = {
@@ -1701,18 +1682,15 @@ export type OpenAvatarEditorProps = {
 	options?: UseAvatarEditorModalOptions;
 };
 
-type AvatarEditorUnifiedContentProps = {
+type AvatarEditorUnifiedContentProps = AvatarAppearanceProps & {
 	modeObservable: ModeObservable;
 	configObservable: ConfigObservable;
 	configRef: React.MutableRefObject<AvatarConfig>;
 	onApply: () => void;
 	allowedStyles: AvatarStyle[];
 	size: AvatarSize;
-	accentColor?: string;
 	debugMode?: boolean;
 	hiddenProps?: Record<string, string>;
-	rounded?: boolean;
-	backgroundColor?: string;
 };
 
 const AvatarEditorUnifiedContent: React.FC<AvatarEditorUnifiedContentProps> = ({
