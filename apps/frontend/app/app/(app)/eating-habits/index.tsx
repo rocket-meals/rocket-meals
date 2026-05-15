@@ -31,6 +31,8 @@ import SettingsListSelectOption from '@/components/SettingsListSelectOption/Sett
 import useCustomerConfigSeperateMarkingsForFood from '@/hooks/useCustomerConfigSeperateMarkingsForFood';
 import useSeperatedMarkingsForFood from '@/hooks/useSeperatedMarkingsForFood';
 
+import AppScreen from '@/components/AppScreen';
+
 const Index = () => {
 	useSetPageTitle(TranslationKeys.eating_habits);
 	const { theme } = useTheme();
@@ -274,18 +276,20 @@ const Index = () => {
 	), []);
 
 	return (
-		<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.background }}>
-			<FlatList
-				data={markingIds}
-				renderItem={renderItem}
-				keyExtractor={keyExtractor}
-				ListHeaderComponent={ListHeaderComponent}
-				ListFooterComponent={ListFooterComponent}
-				contentContainerStyle={[styles.flatListContent, { backgroundColor: theme.screen.background }]}
-				style={{ backgroundColor: theme.screen.background }}
-			/>
+		<>
+			<AppScreen scrollable={false} fullWidth={true}>
+				<FlatList
+					data={markingIds}
+					renderItem={renderItem}
+					keyExtractor={keyExtractor}
+					ListHeaderComponent={ListHeaderComponent}
+					ListFooterComponent={ListFooterComponent}
+					contentContainerStyle={[styles.flatListContent, { backgroundColor: theme.screen.background }]}
+					style={{ backgroundColor: theme.screen.background, width: '100%' }}
+				/>
+			</AppScreen>
 			{isActive && <MarkingBottomSheet ref={menuSheetRef} onClose={closeMenuSheet} />}
-		</SafeAreaView>
+		</>
 	);
 };
 

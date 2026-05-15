@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Dimensions, FlatList, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Text, TouchableOpacity, View } from 'react-native';
 import MyImage from '@/components/MyImage';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
@@ -58,6 +58,7 @@ import { MapStyleKey, SettingsListMyMapThemeSelection } from 'repo-depkit-common
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 import { FriendsContent } from '@/components/FriendsContent';
+import AppScreen from '@/components/AppScreen';
 
 type CollectibleItemSize = 'small' | 'medium' | 'large';
 
@@ -788,7 +789,7 @@ const Settings = () => {
 	]);
 
 	return (
-		<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.background }}>
+		<AppScreen scrollable={false} fullWidth={true}>
 			<FlatList
 				data={listData}
 				keyExtractor={(item) => item.key}
@@ -806,6 +807,7 @@ const Settings = () => {
 					backgroundColor: theme.screen.background,
 				}}
 				ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+				showsVerticalScrollIndicator={false}
 			/>
 			{isActive && (
 				<BaseBottomSheet
@@ -832,7 +834,8 @@ const Settings = () => {
 					/>
 				</BaseBottomSheet>
 			)}
-		</SafeAreaView>
+		</AppScreen>
 	);
 };
+
 export default Settings;

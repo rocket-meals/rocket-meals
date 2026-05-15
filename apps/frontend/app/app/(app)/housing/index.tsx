@@ -38,6 +38,8 @@ import CardDimensionHelper, { MIN_CARD_WIDTH } from '@/helper/CardDimensionHelpe
 const apartmentsHelper = new ApartmentsHelper();
 const buildingsHelper = new BuildingsHelper();
 
+import AppScreen from '@/components/AppScreen';
+
 const Index: React.FC = () => {
 	useSetPageTitle(TranslationKeys.housing);
 	const toast = useToast();
@@ -121,7 +123,7 @@ const Index: React.FC = () => {
 			);
 
 			const apartmentsDict = apartmentWithBuilding.reduce((acc, apt: any) => {
-				if (apt.id) {
+				if (acc && apt.id) {
 					acc[apt.id] = apt;
 				}
 				return acc;
@@ -313,61 +315,59 @@ const Index: React.FC = () => {
 	]), [cardWidth, housingAreaColor, defaultImage, theme, translate, isManagement, selectedTheme, itemGap]);
 
 	return (
-		<SafeAreaView style={[styles.container, { backgroundColor: theme.screen.background }]}>
-			<View style={styles.container}>
-				<HousingHeader
-					theme={theme}
-					translate={translate}
-					drawerPosition={drawerPosition === 'system' ? (isLtrLanguage ? 'left' : 'right') : drawerPosition}
-					openHousingSortingModal={openHousingSortingModal}
-				/>
+		<AppScreen scrollable={false} fullWidth={true}>
+			<HousingHeader
+				theme={theme}
+				translate={translate}
+				drawerPosition={drawerPosition === 'system' ? (isLtrLanguage ? 'left' : 'right') : drawerPosition}
+				openHousingSortingModal={openHousingSortingModal}
+			/>
 
-				<View style={{ flex: 1, alignItems: 'center' }}>
-					<View
-						style={{
-							width: '100%',
-							maxWidth: 1420,
-							flex: 1,
+			<View style={{ flex: 1, alignItems: 'center', width: '100%' }}>
+				<View
+					style={{
+						width: '100%',
+						maxWidth: 1420,
+						flex: 1,
+					}}
+					onLayout={(e) => {
+						const w = e.nativeEvent.layout.width;
+						if (w && (!listWidth || Math.abs(w - listWidth) > 10)) {
+							setListWidth(w);
+						}
+					}}
+				>
+					<FlashList
+						key={numColumns}
+						data={visibleApartments}
+						extraData={extraData}
+						renderItem={renderItem}
+						keyExtractor={keyExtractor}
+						numColumns={numColumns}
+						// @ts-ignore
+						estimatedItemSize={300}
+						contentContainerStyle={{
+							paddingBottom: 20,
 						}}
-						onLayout={(e) => {
-							const w = e.nativeEvent.layout.width;
-							if (w && (!listWidth || Math.abs(w - listWidth) > 10)) {
-								setListWidth(w);
-							}
-						}}
-					>
-						<FlashList
-							key={numColumns}
-							data={visibleApartments}
-							extraData={extraData}
-							renderItem={renderItem}
-							keyExtractor={keyExtractor}
-							numColumns={numColumns}
-							// @ts-ignore
-							estimatedItemSize={300}
-							contentContainerStyle={{
-								paddingBottom: 20,
-							}}
-							ListHeaderComponent={ListHeader}
-							ListEmptyComponent={ListEmpty}
-							refreshControl={
-								<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-							}
-							removeClippedSubviews={true}
-							showsVerticalScrollIndicator={false}
-							onEndReachedThreshold={0.4}
-						/>
-					</View>
-				</View>
-				{distanceModalVisible && (
-					<DistanceModal
-						visible={distanceModalVisible}
-						onClose={closeDistanceSheet}
-						onUseCurrentPosition={useCurrentLocationForDistance}
+						ListHeaderComponent={ListHeader}
+						ListEmptyComponent={ListEmpty}
+						refreshControl={
+							<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+						}
+						removeClippedSubviews={true}
+						showsVerticalScrollIndicator={false}
+						onEndReachedThreshold={0.4}
 					/>
-				)}
+				</View>
 			</View>
-		</SafeAreaView>
+			{distanceModalVisible && (
+				<DistanceModal
+					visible={distanceModalVisible}
+					onClose={closeDistanceSheet}
+					onUseCurrentPosition={useCurrentLocationForDistance}
+				/>
+			)}
+		</AppScreen>
 	);
 };
 

@@ -21,6 +21,8 @@ import useToast from '@/hooks/useToast';
 import SettingsListBoolean from '@/components/SettingsListBoolean/SettingsListBoolean';
 import AppButton from '@/components/AppButton';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppScreen from '@/components/AppScreen';
+import AppListItem from '@/components/AppListItem';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.select_a_form_category);
@@ -28,11 +30,11 @@ const Index = () => {
 	const { translate } = useLanguage();
 	const toast = useToast();
 	const dispatch = useDispatch();
-    const [loading, setLoading] = useState(false);
-    const [isShowingCachedData, setIsShowingCachedData] = useState(false);
-    const [isDownloadingAll, setIsDownloadingAll] = useState(false);
-    const { language, offlineMode } = useAppSelector((state) => state.settings);
-    const [formCategories, setFormCategories] = useState<DatabaseTypes.FormCategories[]>([]);
+	const [loading, setLoading] = useState(false);
+	const [isShowingCachedData, setIsShowingCachedData] = useState(false);
+	const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+	const { language, offlineMode } = useAppSelector((state) => state.settings);
+	const [formCategories, setFormCategories] = useState<DatabaseTypes.FormCategories[]>([]);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
 	const formCategoriesHelper = new FormCategoriesHelper();
 	const formsHelper = new FormsHelper();
@@ -179,7 +181,7 @@ const Index = () => {
 	useFocusEffect(
 		useCallback(() => {
 			getAllCategories();
-			return () => {};
+			return () => { };
 		}, [offlineMode])
 	);
 
@@ -195,83 +197,79 @@ const Index = () => {
 	};
 
 	return (
-		<ScrollView style={{ ...styles.container, backgroundColor: theme.screen.background }} contentContainerStyle={{ ...styles.contentContainer }}>
+		<AppScreen>
+			{/* Top action row: download button + queue button */}
 			<View
 				style={{
-					...styles.formCategories,
-					width: screenWidth > 600 ? '80%' : '90%',
+					flexDirection: isArabic ? 'row-reverse' : 'row',
+					alignItems: 'center',
+					justifyContent: isArabic ? 'flex-start' : 'flex-end',
+					gap: 8,
+					marginBottom: 6,
+					width: '100%',
 				}}
 			>
-				{/* Top action row: download button + queue button */}
-				<View
+				<AppButton
+					variant="ghost"
+					usePlainText
+					text={isDownloadingAll ? translate(TranslationKeys.form_cache_downloading) : translate(TranslationKeys.form_download_all)}
+					onPress={downloadAllData}
+					disabled={isDownloadingAll || loading}
 					style={{
 						flexDirection: isArabic ? 'row-reverse' : 'row',
 						alignItems: 'center',
-						justifyContent: isArabic ? 'flex-start' : 'flex-end',
-						gap: 8,
-						marginBottom: 6,
+						gap: 6,
+						paddingVertical: 8,
+						paddingHorizontal: 14,
+						borderRadius: 20,
+						backgroundColor: theme.screen.iconBg,
+						marginVertical: 0,
+					}}
+					textStyle={{ color: theme.screen.text, fontFamily: 'Poppins_400Regular', fontSize: 14 }}
+					iconLeft={
+						isDownloadingAll ? <ActivityIndicator size={18} color={theme.screen.icon} /> : <FontAwesome name="cloud-download" size={20} color={theme.screen.icon} />
+					}
+				/>
+
+				{/* Queue button */}
+				<TouchableOpacity
+					onPress={() => router.push('/form-queue')}
+					style={{
+						padding: 10,
+						borderRadius: 20,
+						backgroundColor: theme.screen.iconBg,
 					}}
 				>
-					<AppButton
-						variant="ghost"
-						usePlainText
-						text={isDownloadingAll ? translate(TranslationKeys.form_cache_downloading) : translate(TranslationKeys.form_download_all)}
-						onPress={downloadAllData}
-						disabled={isDownloadingAll || loading}
-						style={{
-							flexDirection: isArabic ? 'row-reverse' : 'row',
-							alignItems: 'center',
-							gap: 6,
-							paddingVertical: 8,
-							paddingHorizontal: 14,
-							borderRadius: 20,
-							backgroundColor: theme.screen.iconBg,
-							marginVertical: 0,
-						}}
-						textStyle={{ color: theme.screen.text, fontFamily: 'Poppins_400Regular', fontSize: 14 }}
-						iconLeft={
-							isDownloadingAll ? <ActivityIndicator size={18} color={theme.screen.icon} /> : <FontAwesome name="cloud-download" size={20} color={theme.screen.icon} />
-						}
-					/>
+					<View>
+						<MaterialCommunityIcons
+							name="clock-outline"
+							size={22}
+							color={theme.screen.icon}
+						/>
+						{queueCount > 0 && (
+							<View
+								style={{
+									position: 'absolute',
+									top: -4,
+									right: -4,
+									backgroundColor: 'red',
+									borderRadius: 8,
+									minWidth: 16,
+									height: 16,
+									justifyContent: 'center',
+									alignItems: 'center',
+									paddingHorizontal: 2,
+								}}
+							>
+								<Text style={{ color: 'white', fontSize: 10, fontFamily: 'Poppins_700Bold' }}>{queueCount}</Text>
+							</View>
+						)}
+					</View>
+				</TouchableOpacity>
+			</View>
 
-					{/* Queue button */}
-					<TouchableOpacity
-						onPress={() => router.push('/form-queue')}
-						style={{
-							padding: 10,
-							borderRadius: 20,
-							backgroundColor: theme.screen.iconBg,
-						}}
-					>
-						<View>
-							<MaterialCommunityIcons
-								name="clock-outline"
-								size={22}
-								color={theme.screen.icon}
-							/>
-							{queueCount > 0 && (
-								<View
-									style={{
-										position: 'absolute',
-										top: -4,
-										right: -4,
-										backgroundColor: 'red',
-										borderRadius: 8,
-										minWidth: 16,
-										height: 16,
-										justifyContent: 'center',
-										alignItems: 'center',
-										paddingHorizontal: 2,
-									}}
-								>
-									<Text style={{ color: 'white', fontSize: 10, fontFamily: 'Poppins_700Bold' }}>{queueCount}</Text>
-								</View>
-							)}
-						</View>
-					</TouchableOpacity>
-				</View>
-
-				{/* Offline mode toggle */}
+			{/* Offline mode toggle */}
+			<View style={{ marginBottom: 16, width: '100%' }}>
 				<SettingsListBoolean
 					isEnabled={!!offlineMode}
 					onToggle={toggleOfflineMode}
@@ -280,77 +278,61 @@ const Index = () => {
 					title={translate(TranslationKeys.form_offline_mode)}
 					groupPosition="single"
 				/>
+			</View>
 
-				{/* Category list */}
-				{loading ? (
-					<View
-						style={{
-							height: 200,
-							width: '100%',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
-						<ActivityIndicator size={30} color={theme.screen.text} />
-					</View>
-				) : (
-					<>
-						{formCategories &&
-							formCategories?.map((category) => {
-								let IconComponent: any = null;
-								let iconName = '';
-								if (category?.icon_expo) {
-									const [library, name] = category?.icon_expo?.split(':') ?? [];
-									if (iconLibraries[library]) {
-										IconComponent = iconLibraries[library];
-										iconName = name;
-									}
+			{/* Category list */}
+			{loading ? (
+				<View
+					style={{
+						height: 200,
+						width: '100%',
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}
+				>
+					<ActivityIndicator size={30} color={theme.screen.text} />
+				</View>
+			) : (
+				<>
+					{formCategories &&
+						formCategories?.map((category) => {
+							let IconComponent: any = null;
+							let iconName = '';
+							if (category?.icon_expo) {
+								const [library, name] = category?.icon_expo?.split(':') ?? [];
+								if (iconLibraries[library]) {
+									IconComponent = iconLibraries[library];
+									iconName = name;
 								}
-								const cached = isCategoryCached(category.id);
-								return (
-									<TouchableOpacity
-										style={{
-											...styles.formCategory,
-											backgroundColor: theme.screen.iconBg,
-											flexDirection: isArabic ? 'row-reverse' : 'row',
-										}}
-										key={category?.id}
-										onPress={() => {
-											router.push({
-												pathname: '/forms',
-												params: { category_id: category?.id },
-											});
-										}}
-									>
-										<View style={[styles.col, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
-											{IconComponent && <IconComponent name={iconName} size={20} color={theme.screen.icon} />}
-											<Text
-												style={{
-													...styles.body,
-													color: theme.screen.text,
-													textAlign: isArabic ? 'right' : 'left',
-													writingDirection: isArabic ? 'rtl' : 'ltr',
-												}}
-											>
-												{category?.translations ? getFromCategoryTranslation(category?.translations, language) : category?.alias}
-											</Text>
-										</View>
-										<View style={[styles.rowEnd, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
+							}
+							const cached = isCategoryCached(category.id);
+							return (
+								<AppListItem
+									key={category?.id}
+									title={(category?.translations ? getFromCategoryTranslation(category?.translations, language) : category?.alias) || ''}
+									onPress={() => {
+										router.push({
+											pathname: '/forms',
+											params: { category_id: category?.id },
+										});
+									}}
+									leftIcon={IconComponent && <IconComponent name={iconName} size={20} color={theme.screen.icon} />}
+									rightElement={
+										<>
 											{cached && (
 												<FontAwesome name="cloud-download" size={16} color={offlineMode ? 'green' : theme.screen.icon} />
 											)}
 											{isShowingCachedData && (
 												<MaterialCommunityIcons name="cached" size={18} color={theme.screen.icon} />
 											)}
-											<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
-										</View>
-									</TouchableOpacity>
-								);
-							})}
-					</>
-				)}
-			</View>
-		</ScrollView>
+										</>
+									}
+								/>
+							);
+						})}
+				</>
+			)}
+		</AppScreen>
 	);
 };
 

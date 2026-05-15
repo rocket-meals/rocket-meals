@@ -16,6 +16,7 @@ import { RootState } from '@/redux/reducer';
 import useDebugMode from '@/hooks/useDebugMode';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import styles from './styles';
+import AppScreen from '@/components/AppScreen';
 
 const getGroupPosition = (index: number, length: number) => {
         if (length === 1) return 'single';
@@ -96,55 +97,53 @@ const CollectibleEventsScreen = () => {
         const hasEvents = eventsWithProgress.length > 0;
 
         return (
-                <SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.background }}>
-                        <ScrollView contentContainerStyle={styles.container}>
-                                {debugMode ? (
+                <AppScreen>
+                        {debugMode ? (
+                                <SettingsList
+                                        key="debug-collectible-event"
+                                        iconBgColor={primaryColor}
+                                        leftIcon={
+                                                <MaterialCommunityIcons
+                                                        name="bug-outline"
+                                                        size={24}
+                                                        color={theme.screen.icon}
+                                                />
+                                        }
+                                        label="Debug Collectible Event"
+                                        groupPosition="single"
+                                        handleFunction={() => router.navigate('/collectible-event')}
+                                        rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={20} color={theme.screen.icon} />}
+                                />
+                        ) : null}
+                        {hasEvents ? (
+                                eventsWithProgress.map(({ event, collectedCount, totalCollectibles, dateRange }, index) => (
                                         <SettingsList
-                                                key="debug-collectible-event"
+                                                key={event.id || index}
                                                 iconBgColor={primaryColor}
                                                 leftIcon={
                                                         <MaterialCommunityIcons
-                                                                name="bug-outline"
+                                                                name="trophy-outline"
                                                                 size={24}
                                                                 color={theme.screen.icon}
                                                         />
                                                 }
-                                                label="Debug Collectible Event"
-                                                groupPosition="single"
-                                                handleFunction={() => router.navigate('/collectible-event')}
-                                                rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={20} color={theme.screen.icon} />}
+                                                label={
+                                                        event?.translations
+                                                                ? getTitleFromTranslation(event.translations as any, language)
+                                                                : event?.alias || translate(TranslationKeys.collectible_event)
+                                                }
+                                                value={formatEventValue(collectedCount, totalCollectibles, dateRange)}
+                                                groupPosition={getGroupPosition(index, eventsWithProgress.length) as any}
+                                                handleFunction={debugMode ? () => router.navigate('/collectible-event') : undefined}
+                                                rightIcon={debugMode ? <Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={20} color={theme.screen.icon} /> : undefined}
                                         />
-                                ) : null}
-                                {hasEvents ? (
-                                        eventsWithProgress.map(({ event, collectedCount, totalCollectibles, dateRange }, index) => (
-                                                <SettingsList
-                                                        key={event.id || index}
-                                                        iconBgColor={primaryColor}
-                                                        leftIcon={
-                                                                <MaterialCommunityIcons
-                                                                        name="trophy-outline"
-                                                                        size={24}
-                                                                        color={theme.screen.icon}
-                                                                />
-                                                        }
-                                                        label={
-                                                                event?.translations
-                                                                        ? getTitleFromTranslation(event.translations as any, language)
-                                                                        : event?.alias || translate(TranslationKeys.collectible_event)
-                                                        }
-                                                        value={formatEventValue(collectedCount, totalCollectibles, dateRange)}
-                                                        groupPosition={getGroupPosition(index, eventsWithProgress.length) as any}
-                                                        handleFunction={debugMode ? () => router.navigate('/collectible-event') : undefined}
-                                                        rightIcon={debugMode ? <Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={20} color={theme.screen.icon} /> : undefined}
-                                                />
-                                        ))
-                                ) : (
-                                        <Text style={{ ...styles.emptyText, color: theme.screen.text }}>
-                                                {translate(TranslationKeys.nothing_found)}
-                                        </Text>
-                                )}
-                        </ScrollView>
-                </SafeAreaView>
+                                ))
+                        ) : (
+                                <Text style={{ ...styles.emptyText, color: theme.screen.text }}>
+                                        {translate(TranslationKeys.nothing_found)}
+                                </Text>
+                        )}
+                </AppScreen>
         );
 };
 

@@ -39,6 +39,8 @@ import CardDimensionHelper from '@/helper/CardDimensionHelper';
 // Types
 type BuildingWithDistance = DatabaseTypes.Buildings & { distance?: number };
 
+import AppScreen from '@/components/AppScreen';
+
 const Index: React.FC = () => {
 	useSetPageTitle(TranslationKeys.campus);
 	const { theme } = useTheme();
@@ -175,9 +177,9 @@ const Index: React.FC = () => {
 						// Note: JSON.stringify is expensive but safer than missing updates.
 						// Given the severe performance issues, we prioritize stability.
 						const isDateMatch = newCampus.date_updated && oldCampus.date_updated && newCampus.date_updated === oldCampus.date_updated;
-						
+
 						if (isDateMatch) return oldCampus;
-						
+
 						// Fallback deep compare
 						if (JSON.stringify(newCampus) === JSON.stringify(oldCampus)) {
 							return oldCampus;
@@ -206,7 +208,7 @@ const Index: React.FC = () => {
 				setHasLoaded(true);
 			} catch (e) {
 				console.error('fetchAllCampuses error', e);
-			toast(translate(TranslationKeys.failedToLoadCampuses), 'error');
+				toast(translate(TranslationKeys.failedToLoadCampuses), 'error');
 			} finally {
 				if (showLoading) setLoading(false);
 			}
@@ -230,13 +232,13 @@ const Index: React.FC = () => {
 
 	// Sorting Logic
 	const sortCampuses = useCallback((list: BuildingWithDistance[], sortBy: CampusSortOption) => {
-		 const newList = [...list];
-		 if (sortBy === CampusSortOption.ALPHABETICAL) {
-			 return newList.sort((a, b) => (a?.alias ?? '').localeCompare(b?.alias ?? ''));
-		 } else if (sortBy === CampusSortOption.DISTANCE || sortBy === CampusSortOption.INTELLIGENT) {
-			 return newList.sort((a, b) => (a?.distance || 0) - (b?.distance || 0));
-		 }
-		 return newList;
+		const newList = [...list];
+		if (sortBy === CampusSortOption.ALPHABETICAL) {
+			return newList.sort((a, b) => (a?.alias ?? '').localeCompare(b?.alias ?? ''));
+		} else if (sortBy === CampusSortOption.DISTANCE || sortBy === CampusSortOption.INTELLIGENT) {
+			return newList.sort((a, b) => (a?.distance || 0) - (b?.distance || 0));
+		}
+		return newList;
 	}, []);
 
 	// Memoized Processing Pipeline
@@ -342,14 +344,14 @@ const Index: React.FC = () => {
 			);
 		},
 		[
-			openImageManagementModal, 
-			openDistanceSheet, 
-			amountColumnsForcard, 
-			primaryColor, 
-			projectLogo, 
-			campusAreaColor, 
-			selectedTheme, 
-			windowWidth, 
+			openImageManagementModal,
+			openDistanceSheet,
+			amountColumnsForcard,
+			primaryColor,
+			projectLogo,
+			campusAreaColor,
+			selectedTheme,
+			windowWidth,
 			isManagement,
 			buildingsLastOpenedIds,
 			itemGap,
@@ -377,64 +379,62 @@ const Index: React.FC = () => {
 	), [loading, theme, translate]);
 
 	return (
-		<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.background }}>
-			<View style={styles.container}>
-				<CampusHeader
-					theme={theme}
-					translate={translate}
-					onToggleDrawer={toggleDrawer}
-					onSort={openCampusSortingModal}
-					drawerPosition={drawerPosition === 'system' ? (isLtrLanguage ? 'left' : 'right') : drawerPosition}
-				/>
+		<AppScreen scrollable={false} fullWidth={true}>
+			<CampusHeader
+				theme={theme}
+				translate={translate}
+				onToggleDrawer={toggleDrawer}
+				onSort={openCampusSortingModal}
+				drawerPosition={drawerPosition === 'system' ? (isLtrLanguage ? 'left' : 'right') : drawerPosition}
+			/>
 
-				<View style={{ flex: 1, alignItems: 'center' }}>
-					<View
-						style={{
-							width: '100%',
-							maxWidth: 1420,
-							flex: 1,
-						}}
-						onLayout={e => {
-							const w = e.nativeEvent.layout.width;
-							// Only update if difference is significant to avoid jitter
-							if (w && Math.abs(w - listWidth) > 1) {
-								setListWidth(w);
-							}
-						}}
-					>
-						<FlashList
-							key={`list-${numColumns}`}
-							data={visibleCampuses}
-							extraData={[
-								amountColumnsForcard,
-								primaryColor,
-								projectLogo,
-								campusAreaColor,
-								selectedTheme,
-								windowWidth,
-								isManagement,
-								buildingsLastOpenedIds,
-								itemGap,
-							]}
-							renderItem={renderItem}
-							keyExtractor={keyExtractor}
-							numColumns={numColumns}
-							contentContainerStyle={{ paddingBottom: 20 }}
-							ListHeaderComponent={headerComponent}
-							ListEmptyComponent={emptyComponent}
-							refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-							removeClippedSubviews={true}
-							showsVerticalScrollIndicator={false}
-							// @ts-ignore: estimatedItemSize is missing in the type definition but required for performance
-							estimatedItemSize={250}
-							onEndReachedThreshold={0.4}
-						/>
-					</View>
+			<View style={{ flex: 1, alignItems: 'center', width: '100%' }}>
+				<View
+					style={{
+						width: '100%',
+						maxWidth: 1420,
+						flex: 1,
+					}}
+					onLayout={e => {
+						const w = e.nativeEvent.layout.width;
+						// Only update if difference is significant to avoid jitter
+						if (w && Math.abs(w - listWidth) > 1) {
+							setListWidth(w);
+						}
+					}}
+				>
+					<FlashList
+						key={`list-${numColumns}`}
+						data={visibleCampuses}
+						extraData={[
+							amountColumnsForcard,
+							primaryColor,
+							projectLogo,
+							campusAreaColor,
+							selectedTheme,
+							windowWidth,
+							isManagement,
+							buildingsLastOpenedIds,
+							itemGap,
+						]}
+						renderItem={renderItem}
+						keyExtractor={keyExtractor}
+						numColumns={numColumns}
+						contentContainerStyle={{ paddingBottom: 20 }}
+						ListHeaderComponent={headerComponent}
+						ListEmptyComponent={emptyComponent}
+						refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+						removeClippedSubviews={true}
+						showsVerticalScrollIndicator={false}
+						// @ts-ignore: estimatedItemSize is missing in the type definition but required for performance
+						estimatedItemSize={250}
+						onEndReachedThreshold={0.4}
+					/>
 				</View>
-
-				<DistanceModal visible={distanceModalVisible} onClose={closeDistanceSheet} onUseCurrentPosition={useCurrentLocationForDistance} />
 			</View>
-		</SafeAreaView>
+
+			<DistanceModal visible={distanceModalVisible} onClose={closeDistanceSheet} onUseCurrentPosition={useCurrentLocationForDistance} />
+		</AppScreen>
 	);
 };
 

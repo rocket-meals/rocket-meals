@@ -44,6 +44,8 @@ enum BalanceStateLowerBound {
 	CONFUSED = -0.01,
 }
 
+import AppScreen from '@/components/AppScreen';
+
 const AccountBalanceScreen = () => {
 	useSetPageTitle(TranslationKeys.accountbalance);
 	const toast = useToast();
@@ -59,21 +61,21 @@ const AccountBalanceScreen = () => {
 	const [isNfcSupported, setIsNfcSupported] = useState(false);
 	const [isNfcEnabled, setIsNfcEnabled] = useState(false);
 	const [isActive, setIsActive] = useState(false);
-        const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
-        const animationRef = useRef<LottieView>(null);
-        const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
-        const [animationJson, setAmimationJson] = useState<any>(null);
-        const [debugErrors, setDebugErrors] = useState<Array<{ timestamp: Date; error: string; source: string }>>([]);
-        const { show: showModal, close: closeModal } = useMyScrollViewModal();
-        const closeInstructionRef = useRef(closeModal);
+	const [autoPlay, setAutoPlay] = useState(appSettings?.animations_auto_start);
+	const animationRef = useRef<LottieView>(null);
+	const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
+	const [animationJson, setAmimationJson] = useState<any>(null);
+	const [debugErrors, setDebugErrors] = useState<Array<{ timestamp: Date; error: string; source: string }>>([]);
+	const { show: showModal, close: closeModal } = useMyScrollViewModal();
+	const closeInstructionRef = useRef(closeModal);
 
-        const debugLogMessages = useMemo(
-                () =>
-                        debugErrors.map(errorItem =>
-                                `${format(errorItem.timestamp, 'dd.MM.yyyy HH:mm:ss')} - ${errorItem.source}: ${errorItem.error}`
-                        ),
-                [debugErrors]
-        );
+	const debugLogMessages = useMemo(
+		() =>
+			debugErrors.map(errorItem =>
+				`${format(errorItem.timestamp, 'dd.MM.yyyy HH:mm:ss')} - ${errorItem.source}: ${errorItem.error}`
+			),
+		[debugErrors]
+	);
 	const contrastColor = useMemo(() => myContrastColor(primaryColor, theme, mode === 'dark'), [mode, primaryColor, theme]);
 
 	// Helper function to add errors to debug list
@@ -89,7 +91,7 @@ const AccountBalanceScreen = () => {
 		]);
 	}, []);
 
-        useFocusEffect(
+	useFocusEffect(
 		useCallback(() => {
 			if (profile?.credit_balance) {
 				if (Number(profile?.credit_balance) >= BalanceStateLowerBound.CONFIDENT) {
@@ -124,15 +126,6 @@ const AccountBalanceScreen = () => {
 		const credit_balance = nextBalanceDefined ? Number.parseFloat(nextBalanceAsString as string) : null;
 		const credit_balance_last_transaction = lastTransactionDefined ? Number.parseFloat(lastTransactionAsString as string) : null;
 		const credit_balance_date_updated = answer.readTime ? answer.readTime.toISOString() : new Date().toISOString();
-
-		// dispatch({
-		// 	type: UPDATE_PROFILE,
-		// 	payload: {
-		// 		credit_balance: nextBalanceDefined ? parseFloat(nextBalanceAsString) : null,
-		// 		credit_balance_last_transaction: lastTransactionDefined ? parseFloat(lastTransactionAsString) : null,
-		// 		credit_balance_date_updated: answer?.readTime?.toISOString(),
-		// 	},
-		// });
 
 		dispatch({
 			type: UPDATE_PROFILE,
@@ -182,47 +175,47 @@ const AccountBalanceScreen = () => {
 		}
 	};
 
-        const showInstruction = useCallback(() => {
-                if (!isActive) return;
+	const showInstruction = useCallback(() => {
+		if (!isActive) return;
 
-                showModal(
-                        {
-                                title: 'NFC',
-								titleTextAlign: 'center',
-                                showsVerticalScrollIndicator: false,
-                                children: (
-                                        <View style={styles.sheetView}>
-                                                <Text
-                                                        style={{
-                                                                ...styles.nfcInstructionRead,
-                                                                color: theme.screen.text,
-                                                        }}
-                                                >
-                                                        {translate(TranslationKeys.nfcInstructionRead)}
-                                                </Text>
-                                                <View style={styles.nfcAnimationContainer}>
-                                                        <SafeLottieView
-                                                                source={require('@/assets/gifs/nfc.json')}
-                                                                resizeMode="contain"
-                                                                style={styles.nfcAnimation}
-                                                                autoPlay
-                                                                loop
-                                                        />
-                                                </View>
-                                        </View>
-                                ),
-                        },
-                        {}
-                );
-        }, [isActive, showModal, theme.screen.text, translate]);
+		showModal(
+			{
+				title: 'NFC',
+				titleTextAlign: 'center',
+				showsVerticalScrollIndicator: false,
+				children: (
+					<View style={styles.sheetView}>
+						<Text
+							style={{
+								...styles.nfcInstructionRead,
+								color: theme.screen.text,
+							}}
+						>
+							{translate(TranslationKeys.nfcInstructionRead)}
+						</Text>
+						<View style={styles.nfcAnimationContainer}>
+							<SafeLottieView
+								source={require('@/assets/gifs/nfc.json')}
+								resizeMode="contain"
+								style={styles.nfcAnimation}
+								autoPlay
+								loop
+							/>
+						</View>
+					</View>
+				),
+			},
+			{}
+		);
+	}, [isActive, showModal, theme.screen.text, translate]);
 
-        useEffect(() => {
-                closeInstructionRef.current = closeModal;
-        }, [closeModal]);
+	useEffect(() => {
+		closeInstructionRef.current = closeModal;
+	}, [closeModal]);
 
-        const hideInstruction = useCallback(() => {
-                closeInstructionRef.current();
-        }, []);
+	const hideInstruction = useCallback(() => {
+		closeInstructionRef.current();
+	}, []);
 
 	const onReadNfcPress = async () => {
 		await myCardReader.readCard(callBack, showInstruction, hideInstruction, translate(TranslationKeys.nfcInstructionRead));
@@ -240,11 +233,11 @@ const AccountBalanceScreen = () => {
 		};
 	}, []);
 
-        useFocusEffect(
-                useCallback(() => {
-                        setIsActive(true);
-                        return () => {
-                                setIsActive(false);
+	useFocusEffect(
+		useCallback(() => {
+			setIsActive(true);
+			return () => {
+				setIsActive(false);
 			};
 		}, [])
 	);
@@ -285,17 +278,17 @@ const AccountBalanceScreen = () => {
 		}, [appSettings?.animations_auto_start])
 	);
 
-        useEffect(() => {
-                if (animationJson && autoPlay && animationRef.current) {
-                        animationRef?.current?.play(); // Reset animation to ensure it starts fresh
-                }
-        }, [animationJson, autoPlay]);
+	useEffect(() => {
+		if (animationJson && autoPlay && animationRef.current) {
+			animationRef?.current?.play(); // Reset animation to ensure it starts fresh
+		}
+	}, [animationJson, autoPlay]);
 
-        useEffect(() => {
-                if (!isActive) {
-                        closeInstructionRef.current();
-                }
-        }, [isActive]);
+	useEffect(() => {
+		if (!isActive) {
+			closeInstructionRef.current();
+		}
+	}, [isActive]);
 
 	const renderLottie = useMemo(() => {
 		if (animationJson) {
@@ -313,9 +306,9 @@ const AccountBalanceScreen = () => {
 	}, [autoPlay, animationJson]);
 
 	return (
-		<ScrollView style={{ ...styles.container, backgroundColor: theme.screen.background }} contentContainerStyle={{ alignItems: 'center' }}>
+		<AppScreen fullWidth={true}>
 			<View style={styles.imageContainer}>{renderLottie}</View>
-			
+
 			<Text style={{ ...styles.balanceTitle, color: theme.header.text }}>{translate(TranslationKeys.accountbalance)}</Text>
 			<Text style={{ ...styles.balance, color: theme.header.text }}>{profile?.credit_balance ? showFormatedPrice(formatPrice(profile?.credit_balance)) : '? €'}</Text>
 			{(isWeb || !isNfcSupported) && <Text style={{ ...styles.subText, color: theme.header.text }}>{translate(TranslationKeys.nfcNotSupported)}</Text>}
@@ -417,9 +410,9 @@ const AccountBalanceScreen = () => {
 					</View>
 				</DebugView>
 			</View>
-                        <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_card_balance} />
-                </ScrollView>
-        );
+			<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_card_balance} />
+		</AppScreen>
+	);
 };
 
 export default AccountBalanceScreen;

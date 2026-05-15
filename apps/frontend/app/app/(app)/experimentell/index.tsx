@@ -1,6 +1,5 @@
-import { ScrollView, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import React, { useMemo } from 'react';
-import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
 import { Entypo, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
@@ -12,12 +11,14 @@ import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import SettingsList from '@/components/SettingsList';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 
+import AppScreen from '@/components/AppScreen';
+
 const Index = () => {
 	useSetPageTitle(TranslationKeys.experimentell);
-	const { translate, language } = useLanguage();
-    const { theme } = useTheme();
-    const { buildingsDict } = useAppSelector((state) => state.canteenReducer);
-    const { primaryColor } = useAppSelector((state) => state.settings);
+	const { translate } = useLanguage();
+	const { theme } = useTheme();
+	const { buildingsDict } = useAppSelector((state) => state.canteenReducer);
+	const { primaryColor } = useAppSelector((state) => state.settings);
 	const selectedCanteen = useSelectedCanteen();
 	const isLtrLanguage = useIsLtrLanguage();
 	const isArabic = !isLtrLanguage;
@@ -106,7 +107,6 @@ const Index = () => {
 			leftIcon: <MaterialCommunityIcons name="language-markdown-outline" size={24} color={theme.screen.icon} />,
 			onPress: () => router.push('/experimentell/markdown-test'),
 		},
-
 		{
 			key: 'settings-list-components',
 			label: translate(TranslationKeys.settings_list_components),
@@ -145,40 +145,54 @@ const Index = () => {
 		},
 	];
 
-	return (
-		<ScrollView
-			style={{ ...styles.container, backgroundColor: theme.screen.background }}
-			contentContainerStyle={{
-				...styles.contentContainer,
-				backgroundColor: theme.screen.background,
-			}}
-		>
-			<View style={{ ...styles.content }}>
-				<Text style={{ ...styles.heading, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.experimentell)}</Text>
-				{buildingPosition && (
-					<Text style={{ ...styles.body, color: theme.screen.text, textAlign: isArabic ? 'right' : 'left', writingDirection: isArabic ? 'rtl' : 'ltr' }}>
-						{translate(TranslationKeys.coordinates)}: {buildingPosition.lat}, {buildingPosition.lng}
-					</Text>
-				)}
-				{listItems.map((item, index) => {
-					const totalItems = listItems.length;
-					const groupPosition = totalItems === 1 ? 'single' : index === 0 ? 'top' : index === totalItems - 1 ? 'bottom' : 'middle';
+	const alignment = isArabic ? 'right' : 'left';
 
-					return (
-						<SettingsList
-							key={item.key}
-							iconBgColor={primaryColor}
-							leftIcon={item.leftIcon}
-							label={item.label}
-							rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
-							handleFunction={item.onPress}
-							groupPosition={groupPosition}
-						/>
-					);
-				})}
-			</View>
-		</ScrollView>
+	return (
+		<AppScreen>
+			<Text style={[styles.heading, { color: theme.screen.text, textAlign: alignment, writingDirection: isArabic ? 'rtl' : 'ltr' }]}>
+				{translate(TranslationKeys.experimentell)}
+			</Text>
+			{buildingPosition && (
+				<Text style={[styles.body, { color: theme.screen.text, textAlign: alignment, writingDirection: isArabic ? 'rtl' : 'ltr' }]}>
+					{translate(TranslationKeys.coordinates)}: {buildingPosition.lat}, {buildingPosition.lng}
+				</Text>
+			)}
+			{listItems.map((item, index) => {
+				const totalItems = listItems.length;
+				const groupPosition = totalItems === 1 ? 'single' : index === 0 ? 'top' : index === totalItems - 1 ? 'bottom' : 'middle';
+
+				return (
+					<SettingsList
+						key={item.key}
+						iconBgColor={primaryColor}
+						leftIcon={item.leftIcon}
+						label={item.label}
+						rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
+						handleFunction={item.onPress}
+						groupPosition={groupPosition}
+					/>
+				);
+			})}
+		</AppScreen>
 	);
 };
+
+const styles = StyleSheet.create({
+	heading: {
+		fontSize: 24,
+		fontFamily: 'Poppins_700Bold',
+		marginVertical: 10,
+		width: '100%',
+	},
+	body: {
+		fontSize: 16,
+		fontFamily: 'Poppins_400Regular',
+		width: '100%',
+		marginBottom: 10,
+	},
+	groupContainer: {
+		width: '100%',
+	},
+});
 
 export default Index;

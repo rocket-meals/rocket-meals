@@ -41,6 +41,7 @@ export const store = rtkConfigureStore({
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({
 			serializableCheck: false,
+			immutableCheck: false,
 		}).concat(promise as any),
 });
 

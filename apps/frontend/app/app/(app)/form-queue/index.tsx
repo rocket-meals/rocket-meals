@@ -21,6 +21,8 @@ import { Buffer } from 'buffer';
 import { fetchSpecificField } from '@/redux/actions/Fields/Fields';
 import AppButton from '@/components/AppButton';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppScreen from '@/components/AppScreen';
+import AppListItem from '@/components/AppListItem';
 
 const Index = () => {
     useSetPageTitle(TranslationKeys.form_queue);
@@ -184,9 +186,7 @@ const Index = () => {
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.screen.background }}>
-            <View style={{ flex: 1, alignItems: 'center', paddingTop: 20 }}>
-                <View style={{ width: isWeb ? '70%' : '90%' }}>
+        <AppScreen scrollable={false}>
                     {/* Sync All button */}
                     {queueEntries.length > 0 && (
                         <AppButton
@@ -275,9 +275,7 @@ const Index = () => {
                             contentContainerStyle={{ paddingBottom: 20 }}
                         />
                     )}
-                </View>
-            </View>
-        </View>
+        </AppScreen>
     );
 };
 

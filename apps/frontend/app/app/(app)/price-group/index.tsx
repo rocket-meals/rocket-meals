@@ -29,6 +29,8 @@ import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 let _cachedAnimationJson: any = null;
 let _cachedPrimaryColor: string | null = null;
 
+import AppScreen from '@/components/AppScreen';
+
 const Index = () => {
 	useSetPageTitle(TranslationKeys.price_group);
 	const { theme } = useTheme();
@@ -140,7 +142,7 @@ const Index = () => {
 	}, [profile]);
 
 	return (
-		<View style={{ ...styles.container, backgroundColor: theme.screen.background }}>
+		<AppScreen>
 			<View style={styles.gifContainer}>{renderLottie}</View>
 			<View style={{ ...styles.priceGroupContainer, width: isWeb ? '80%' : '100%' }}>
 				{sortingOptions.map((option, index) => {
@@ -177,7 +179,7 @@ const Index = () => {
 				})}
 				<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_price_group_selection} />
 			</View>
-		</View>
+		</AppScreen>
 	);
 };
 

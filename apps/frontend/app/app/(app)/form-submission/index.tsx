@@ -1,5 +1,6 @@
 import { ActivityIndicator, Dimensions, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import AppScreen from '@/components/AppScreen';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import AppButton from '@/components/AppButton';
@@ -883,12 +884,7 @@ const Index = () => {
 	}, []);
 
 	return (
-		<View
-			style={{
-				...styles.container,
-				backgroundColor: theme.screen.background,
-			}}
-		>
+		<AppScreen>
 			<View
 				style={{
 					...styles.header,
@@ -926,7 +922,7 @@ const Index = () => {
 					</View>
 				</View>
 			</View>
-			<ScrollView style={{ flex: 1, width: '100%', marginTop: 10 }} contentContainerStyle={{ alignItems: 'center' }} ref={scrollViewRef} keyboardShouldPersistTaps="handled">
+			<View style={{ flex: 1, width: '100%', marginTop: 10 }}>
 				<View style={{ flex: 1, width: screenWidth > 768 ? '70%' : '90%' }}>
 					{loading ? (
 						<View
@@ -1092,11 +1088,12 @@ const Index = () => {
 						</View>
 					)}
 				</View>
-			</ScrollView>
+			</View>
 			<View
 				style={{
 					...styles.actionContainer,
 					width: screenWidth > 768 ? '70%' : '90%',
+					alignSelf: 'center',
 				}}
 			>
 				<View style={styles.pickerContainer}>
@@ -1183,7 +1180,7 @@ const Index = () => {
 				</BaseBottomSheet>
 			)}
 			<FilterFormSheet isVisible={isFilterModalVisible} closeSheet={closeFilterSheet} isFormSubmission={true} setSelectedOption={setSelectedState} selectedOption={selectedState} options={filterOptions} isEditMode={isEditMode} />
-		</View>
+		</AppScreen>
 	);
 };
 

@@ -24,6 +24,8 @@ import AppButton from '@/components/AppButton';
 import AppTextInput from '@/components/AppTextInput';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppScreen from '@/components/AppScreen';
+import AppListItem from '@/components/AppListItem';
 
 type FormSubmissionListRow =
 	| {
@@ -397,60 +399,24 @@ const Index = () => {
 
 			if (item.type === 'folder') {
 				return (
-					<AppButton
-						variant="ghost"
-						usePlainText
+					<AppListItem
+						title={item.title}
 						onPress={() => {
 							setCurrentPath(item.path);
 						}}
-						style={[baseStyle, { marginVertical: 0 }]}
-						textStyle={{ width: 0, height: 0 }}
-						iconLeft={
-							<View style={{ flex: 1 }}>
-								<Text
-									style={{
-										...styles.body,
-										color: theme.screen.text,
-										maxWidth: '100%',
-										textAlign: isArabic ? 'right' : 'left',
-										writingDirection: isArabic ? 'rtl' : 'ltr',
-									}}
-								>
-									{item.title}
-								</Text>
-							</View>
-						}
-						iconRight={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
 					/>
 				);
 			}
 
 			return (
-				<AppButton
+				<AppListItem
+					title={item.title || item.submission?.alias || ''}
 					onPress={() => {
 						router.push({
 							pathname: '/form-submission',
 							params: { form_submission_id: item?.submission?.id },
 						});
 					}}
-					style={[baseStyle, { marginVertical: 0 }]}
-					textStyle={{ width: 0, height: 0 }}
-					iconLeft={
-						<View style={{ flex: 1 }}>
-							<Text
-								style={{
-									...styles.body,
-									color: theme.screen.text,
-									maxWidth: '100%',
-									textAlign: isArabic ? 'right' : 'left',
-									writingDirection: isArabic ? 'rtl' : 'ltr',
-								}}
-							>
-								{item.title || item.submission?.alias}
-							</Text>
-						</View>
-					}
-					iconRight={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />}
 				/>
 			);
 		},
@@ -458,12 +424,7 @@ const Index = () => {
 	);
 
 	return (
-		<View
-			style={{
-				...styles.container,
-				backgroundColor: theme.screen.background,
-			}}
-		>
+		<AppScreen scrollable={false} fullWidth={true}>
 			<View
 				style={{
 					...styles.header,
@@ -652,7 +613,7 @@ const Index = () => {
 					</BaseBottomSheet>
 				</>
 			)}
-		</View>
+		</AppScreen>
 	);
 };
 

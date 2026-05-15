@@ -15,136 +15,113 @@ import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { useLanguage } from '@/hooks/useLanguage';
 import { SET_CACHED_FORMS } from '@/redux/Types/types';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppScreen from '@/components/AppScreen';
+import AppListItem from '@/components/AppListItem';
 
 const CACHED_COLOR = '#22c55e';
 
 const Index = () => {
-useSetPageTitle(TranslationKeys.select_a_form);
-const { theme } = useTheme();
-const { translate } = useLanguage();
-const dispatch = useDispatch();
-const [loading, setLoading] = useState(false);
-const [isShowingCachedData, setIsShowingCachedData] = useState(false);
-    const { category_id } = useLocalSearchParams();
-    const { language } = useAppSelector((state) => state.settings);
-    const isLtrLanguage = useIsLtrLanguage();
+	useSetPageTitle(TranslationKeys.select_a_form);
+	const { theme } = useTheme();
+	const { translate } = useLanguage();
+	const dispatch = useDispatch();
+	const [loading, setLoading] = useState(false);
+	const [isShowingCachedData, setIsShowingCachedData] = useState(false);
+	const { category_id } = useLocalSearchParams();
+	const { language } = useAppSelector((state) => state.settings);
+	const isLtrLanguage = useIsLtrLanguage();
 	const isArabic = !isLtrLanguage;
-    const [forms, setForms] = useState<DatabaseTypes.Forms[]>([]);
-const formsHelper = new FormsHelper();
-const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
-const { cachedFormData, cachedFormsDict } = useAppSelector((state) => state.form);
+	const [forms, setForms] = useState<DatabaseTypes.Forms[]>([]);
+	const formsHelper = new FormsHelper();
+	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+	const { cachedFormData, cachedFormsDict } = useAppSelector((state) => state.form);
 
-const getAllForms = async () => {
-setLoading(true);
-setIsShowingCachedData(false);
-try {
-const result = (await formsHelper.fetchForms({
-filter: { category: { _eq: category_id }, status: { _eq: 'published' } },
-})) as DatabaseTypes.Forms[];
-if (result) {
-setForms(result);
-dispatch({ type: SET_CACHED_FORMS, payload: { category_id: String(category_id), forms: result } });
-}
-} catch {
-const cached = Object.values((cachedFormsDict || {})[String(category_id)] || {}) as DatabaseTypes.Forms[];
-if (cached.length > 0) {
-setForms(cached);
-setIsShowingCachedData(true);
-}
-} finally {
-setLoading(false);
-}
-};
+	const getAllForms = async () => {
+		setLoading(true);
+		setIsShowingCachedData(false);
+		try {
+			const result = (await formsHelper.fetchForms({
+				filter: { category: { _eq: category_id }, status: { _eq: 'published' } },
+			})) as DatabaseTypes.Forms[];
+			if (result) {
+				setForms(result);
+				dispatch({ type: SET_CACHED_FORMS, payload: { category_id: String(category_id), forms: result } });
+			}
+		} catch {
+			const cached = Object.values((cachedFormsDict || {})[String(category_id)] || {}) as DatabaseTypes.Forms[];
+			if (cached.length > 0) {
+				setForms(cached);
+				setIsShowingCachedData(true);
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
 
-useFocusEffect(
-useCallback(() => {
-if (category_id) {
-getAllForms();
-}
-return () => {};
-}, [category_id])
-);
+	useFocusEffect(
+		useCallback(() => {
+			if (category_id) {
+				getAllForms();
+			}
+			return () => { };
+		}, [category_id])
+	);
 
-useEffect(() => {
-const handleResize = () => setScreenWidth(Dimensions.get('window').width);
-const subscription = Dimensions.addEventListener('change', handleResize);
-return () => subscription?.remove();
-}, []);
+	useEffect(() => {
+		const handleResize = () => setScreenWidth(Dimensions.get('window').width);
+		const subscription = Dimensions.addEventListener('change', handleResize);
+		return () => subscription?.remove();
+	}, []);
 
-return (
-<ScrollView style={{ ...styles.container, backgroundColor: theme.screen.background }} contentContainerStyle={{ ...styles.contentContainer }}>
-<View
-style={{
-...styles.formCategories,
-width: screenWidth > 600 ? '80%' : '90%',
-}}
->
-{loading ? (
-<View
-style={{
-height: 200,
-width: '100%',
-justifyContent: 'center',
-alignItems: 'center',
-}}
->
-<ActivityIndicator size={30} color={theme.screen.text} />
-</View>
-) : (
-<>
-{forms &&
-forms?.map((form, index) => {
-let IconComponent: any = null;
-let iconName = '';
-if (form?.icon_expo) {
-const [library, name] = form?.icon_expo?.split(':') ?? [];
-if (iconLibraries[library]) {
-IconComponent = iconLibraries[library];
-iconName = name;
-}
-}
-const formId = String(form?.id);
-const isCached = !!(cachedFormData && cachedFormData[formId]);
-return (
-<TouchableOpacity
-style={{
-...styles.formCategory,
-backgroundColor: theme.screen.iconBg,
-flexDirection: isArabic ? 'row-reverse' : 'row',
-}}
-key={form?.id}
-onPress={() => {
-router.push({
-pathname: '/form-submissions',
-params: { form_id: form?.id },
-});
-}}
->
-<View style={[styles.col, isArabic ? { flexDirection: 'row-reverse' } : undefined]}>
-{IconComponent && <IconComponent name={iconName} size={20} color={theme.screen.icon} />}
-<Text
-	style={{
-		...styles.body,
-		color: theme.screen.text,
-		textAlign: isArabic ? 'right' : 'left',
-		writingDirection: isArabic ? 'rtl' : 'ltr',
-	}}
->
-	{form?.translations ? getFromCategoryTranslation(form?.translations, language) : form?.alias}
-</Text>
-</View>
-<View style={{ flexDirection: isArabic ? 'row-reverse' : 'row', alignItems: 'center', gap: 4 }}>
-	{isCached ? <FontAwesome name="cloud-download" size={18} color={CACHED_COLOR} /> : null}
-	<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} color={theme.screen.icon} size={24} />
-</View>
-</TouchableOpacity>
-);
-})}
-</>
-)}
-</View>
-</ScrollView>
-);
+	return (
+		<AppScreen>
+			{loading ? (
+				<View
+					style={{
+						height: 200,
+						width: '100%',
+						justifyContent: 'center',
+						alignItems: 'center',
+					}}
+				>
+					<ActivityIndicator size={30} color={theme.screen.text} />
+				</View>
+			) : (
+				<>
+					{forms &&
+						forms?.map((form, index) => {
+							let IconComponent: any = null;
+							let iconName = '';
+							if (form?.icon_expo) {
+								const [library, name] = form?.icon_expo?.split(':') ?? [];
+								if (iconLibraries[library]) {
+									IconComponent = iconLibraries[library];
+									iconName = name;
+								}
+							}
+							const formId = String(form?.id);
+							const isCached = !!(cachedFormData && cachedFormData[formId]);
+							return (
+								<AppListItem
+									key={form?.id}
+									title={(form?.translations ? getFromCategoryTranslation(form?.translations, language) : form?.alias) || ''}
+									onPress={() => {
+										router.push({
+											pathname: '/form-submissions',
+											params: { form_id: form?.id },
+										});
+									}}
+									leftIcon={IconComponent && <IconComponent name={iconName} size={20} color={theme.screen.icon} />}
+									rightElement={
+										isCached ? <FontAwesome name="cloud-download" size={18} color={CACHED_COLOR} /> : null
+									}
+								/>
+							);
+						})}
+				</>
+			)}
+		</AppScreen>
+	);
 };
 
 export default Index;

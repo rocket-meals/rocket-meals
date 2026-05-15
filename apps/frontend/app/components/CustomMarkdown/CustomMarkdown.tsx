@@ -200,7 +200,7 @@ const CustomMarkdown: React.FC<CustomMarkdownProps> = ({ content, backgroundColo
 			const calculateMarginLeft = (level: number, indent = 0) => level * 16 + indent * 4;
 			const calculateMarginRight = (level: number, indent = 0) => level * 16 + indent * 4;
 			const isLtrLanguage = useIsLtrLanguage();
-	const isArabic = !isLtrLanguage;
+			const isArabic = !isLtrLanguage;
 
 			// Component for rendering text with proper formatting
 			const TextContent = ({ text, level, indent }: { text: string; level: number; indent: number }) => (

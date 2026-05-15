@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Keyboard, Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Keyboard, Platform, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import AppScreen from '@/components/AppScreen';
 import AppTextInput from '@/components/AppTextInput';
 import AppButton from '@/components/AppButton';
 import { useTheme } from '@/hooks/useTheme';
@@ -634,7 +635,7 @@ const BUILDING_MARKER_COLOR = '#1565c0';
 const MAX_BUILDING_LABEL_CHARS = 8;
 const MAX_SEARCH_RESULTS = 3;
 
-const noop = () => {};
+const noop = () => { };
 
 function getContrastColor(hexColor: string): string {
 	const hex = hexColor.replace('#', '');
@@ -805,8 +806,8 @@ const OsmVectorMapScreen: React.FC = () => {
 	const poiSubSettingsRef = useRef(poiSubSettings);
 	poiSubSettingsRef.current = poiSubSettings;
 
-	const handleOrganisationLikeChangeRef = useRef<(orgId: string, like: boolean) => void>(() => {});
-	const handleResetAllFiltersRef = useRef<() => void>(() => {});
+	const handleOrganisationLikeChangeRef = useRef<(orgId: string, like: boolean) => void>(() => { });
+	const handleResetAllFiltersRef = useRef<() => void>(() => { });
 
 	const addLog = useCallback((entry: string) => {
 		setLogEntries((prev) => {
@@ -1596,7 +1597,7 @@ const OsmVectorMapScreen: React.FC = () => {
 	}, [locationWatcher]);
 
 	return (
-		<SafeAreaView style={[styles.safeArea, { backgroundColor: isFullscreen ? 'transparent' : theme.header.background }]}>
+		<AppScreen scrollable={false} fullWidth={true}>
 			{!isFullscreen && (
 				<MapHeader
 					drawerPosition={drawerPosition === 'system' ? (isLtrLanguage ? 'left' : 'right') : drawerPosition}
@@ -1769,10 +1770,10 @@ const OsmVectorMapScreen: React.FC = () => {
 									searchResults.length === 1
 										? 'single'
 										: index === 0
-										? 'top'
-										: index === searchResults.length - 1
-										? 'bottom'
-										: 'middle'
+											? 'top'
+											: index === searchResults.length - 1
+												? 'bottom'
+												: 'middle'
 								}
 								noIconIndent
 							/>
@@ -1780,7 +1781,7 @@ const OsmVectorMapScreen: React.FC = () => {
 					</View>
 				)}
 			</View>
-		</SafeAreaView>
+		</AppScreen>
 	);
 };
 

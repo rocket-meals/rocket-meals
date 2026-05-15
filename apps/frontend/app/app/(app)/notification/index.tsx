@@ -23,6 +23,8 @@ import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
 import SafeLottieView from '@/components/SafeLottieView/SafeLottieView';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppScreen from '@/components/AppScreen';
+import AppListItem from '@/components/AppListItem';
 
 const NotificationScreen = () => {
 	useSetPageTitle(TranslationKeys.notification);
@@ -139,94 +141,70 @@ const NotificationScreen = () => {
 	}, []);
 
 	return (
-		<ScrollView style={{ flex: 1, backgroundColor: theme.screen.background }}>
-			<View
-				style={{
-					...styles.container,
-					backgroundColor: theme.screen.background,
-				}}
-			>
-				<View style={styles.imageContainer}>{renderLottie}</View>
-				<View style={[styles.infoContainer, { width: windowWidth > 600 ? '90%' : '100%' }]}>
-					<Text
-						style={{
-							...styles.label,
-							color: theme.header.text,
-							fontSize: windowWidth < 500 ? 16 : 18,
-							textAlign: isRtl ? 'right' : 'left',
-							writingDirection: isRtl ? 'rtl' : 'ltr',
-							alignSelf: 'stretch',
-						}}
-					>
-						{translate(TranslationKeys.notification_index_introduction)}
-					</Text>
-					<View style={styles.infoRow}></View>
-					<Text
-						style={{
-							...styles.value,
-							color: theme.header.text,
-							fontSize: windowWidth < 500 ? 16 : 18,
-							textAlign: isRtl ? 'right' : 'left',
-							writingDirection: isRtl ? 'rtl' : 'ltr',
-							alignSelf: 'stretch',
-						}}
-					>
-						{translate(TranslationKeys.foods)}
-					</Text>
-					{foodWithFeedback &&
-						foodWithFeedback?.map((item, index) => (
-							<View
-								style={{
-									...styles.infoRow,
-									backgroundColor: theme.screen.iconBg,
-									...(isRtl ? { flexDirection: 'row-reverse' } : null),
-								}}
-								key={index}
-							>
-								<View style={[styles.iconLabelContainer, isRtl ? { flexDirection: 'row-reverse', justifyContent: 'flex-end' } : null]}>
-									<Text
-										style={{
-											...styles.label,
-											color: theme.screen.text,
-											fontSize: windowWidth < 500 ? 16 : 18,
-											textAlign: isRtl ? 'right' : 'left',
-											writingDirection: isRtl ? 'rtl' : 'ltr',
-											alignSelf: 'stretch',
-										}}
-									>
-										{excerpt(getTextFromTranslation(item.data?.translations, language), 90)}
-									</Text>
-								</View>
-								{item?.feedback?.notify ? (
-									<TouchableOpacity
+		<AppScreen fullWidth={windowWidth < 600}>
+			<View style={styles.imageContainer}>{renderLottie}</View>
+			<View style={[styles.infoContainer, { width: '100%' }]}>
+				<Text
+					style={{
+						...styles.label,
+						color: theme.header.text,
+						fontSize: windowWidth < 500 ? 16 : 18,
+						textAlign: 'center',
+						writingDirection: isRtl ? 'rtl' : 'ltr',
+						alignSelf: 'stretch',
+					}}
+				>
+					{translate(TranslationKeys.notification_index_introduction)}
+				</Text>
+				<View style={styles.infoRow}></View>
+				<Text
+					style={{
+						...styles.value,
+						color: theme.header.text,
+						fontSize: windowWidth < 500 ? 16 : 18,
+						textAlign: isRtl ? 'right' : 'left',
+						writingDirection: isRtl ? 'rtl' : 'ltr',
+						alignSelf: 'stretch',
+					}}
+				>
+					{translate(TranslationKeys.foods)}
+				</Text>
+				{foodWithFeedback &&
+					foodWithFeedback?.map((item, index) => (
+						<AppListItem
+							key={index}
+							title={excerpt(getTextFromTranslation(item.data?.translations, language), 90)}
+							onPress={() => updateFoodFeedbackNotification(item.feedback)}
+							showChevron={false}
+							rightElement={
+								item?.feedback?.notify ? (
+									<View
 										style={{
 											...styles.bellIconAtiveContainer,
 											backgroundColor: primaryColor,
 											padding: isWeb ? 12 : 8,
 										}}
-										onPress={() => updateFoodFeedbackNotification(item.feedback)}
 									>
 										<MaterialIcons name="notifications-active" size={24} color={theme.light} />
-									</TouchableOpacity>
+									</View>
 								) : (
-									<TouchableOpacity
+									<View
 										style={{
 											...styles.bellIconContainer,
 											borderColor: primaryColor,
 											padding: isWeb ? 12 : 8,
 										}}
-										onPress={() => updateFoodFeedbackNotification(item.feedback)}
 									>
 										<MaterialIcons name="notifications" size={24} color={theme.screen.icon} />
-									</TouchableOpacity>
-								)}
-							</View>
-                                                ))}
-                                </View>
-                                <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_notification} />
-                        </View>
-                </ScrollView>
-        );
+									</View>
+								)
+							}
+						/>
+					))}
+			</View>
+			<CollectibleSpot collectibleKey={CollectibleAt.collectible_at_notification} />
+		</AppScreen>
+	);
 };
 
 export default NotificationScreen;

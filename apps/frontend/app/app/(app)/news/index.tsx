@@ -13,6 +13,7 @@ import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { TranslationKeys } from '@/locales/keys';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt } from 'repo-depkit-common';
+import AppScreen from '@/components/AppScreen';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.news);
@@ -67,13 +68,6 @@ const Index = () => {
 		[news]
 	);
 
-	const renderItem = useCallback(({ item }: { item: DatabaseTypes.News }) => {
-		return <NewsItem news={item} />;
-	}, []);
-
-	const keyExtractor = useCallback((item: DatabaseTypes.News) => String(item?.id ?? ''), []);
-
-	const ItemSeparatorComponent = useCallback(() => <View style={{ height: 20 }} />, []);
 
 	const ListHeaderComponent = useMemo(
 		() => <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_news} />,
@@ -91,20 +85,18 @@ const Index = () => {
 	);
 
 	return (
-		<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.background }}>
-			<FlatList
-				data={filteredNews}
-				renderItem={renderItem}
-				keyExtractor={keyExtractor}
-				ListHeaderComponent={ListHeaderComponent}
-				ListEmptyComponent={ListEmptyComponent}
-				ItemSeparatorComponent={ItemSeparatorComponent}
-				contentContainerStyle={[styles.flatListContent, { paddingHorizontal: isWeb ? 30 : 5 }]}
-				style={[styles.newsContainer, { backgroundColor: theme.screen.background }]}
-				refreshing={refreshing}
-				onRefresh={onRefresh}
-			/>
-		</SafeAreaView>
+		<AppScreen scrollable={true} fullWidth={true} refreshing={refreshing} onRefresh={onRefresh}>
+			{ListHeaderComponent}
+			{loading && ListEmptyComponent}
+			<View style={[styles.newsContainer, { paddingHorizontal: isWeb ? 30 : 5 }]}>
+				{filteredNews.map((item, index) => (
+					<React.Fragment key={item.id || index}>
+						<NewsItem news={item} />
+						{index < filteredNews.length - 1 && <View style={{ height: 20 }} />}
+					</React.Fragment>
+				))}
+			</View>
+		</AppScreen>
 	);
 };
 

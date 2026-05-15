@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Dimensions, KeyboardTypeOptions, PixelRatio, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, KeyboardTypeOptions, PixelRatio, Platform, ScrollView, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import AppButton from '@/components/AppButton';
 import { useTheme } from '@/hooks/useTheme';
-import styles from './styles';
 import { isWeb } from '@/constants/Constants';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { deviceData, feedbackData } from '../../../constants/FeedbackSupportData';
@@ -24,6 +23,7 @@ import { excerpt } from '@/constants/HelperFunctions';
 import SettingsListLikeDislike from '@/components/SettingsListLikeDislike';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppScreen from '@/components/AppScreen';
 
 const FeedbackScreen = () => {
 	useSetPageTitle(TranslationKeys.feedback_and_support);
@@ -221,15 +221,10 @@ const FeedbackScreen = () => {
 				})
 			);
 			try {
-				console.log('Creating app feedback with input:');
 				await appFeedback.createAppFeedback(sanitizedInput);
-				console.log('App feedback created successfully');
 				setLoading(false);
-				console.log('Set loading to false finished');
 				await fetchDeviceInfo();
-				console.log('Fetched device info after creating feedback');
 				toast(translate(TranslationKeys.feedbackSubmittedSuccessMessage), 'success');
-				console.log('Navigating to support ticket or FAQ');
 				if (profile?.id) {
 					router.navigate('/support-ticket');
 				} else {
@@ -283,242 +278,259 @@ const FeedbackScreen = () => {
 	};
 
 	return (
-		<View
-			style={{
-				flex: 1,
-				paddingHorizontal: 10,
-				backgroundColor: theme.screen.background,
-			}}
-		>
-			<ScrollView>
-				<View style={{ alignItems: 'center' }}>
-					<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '100%' }]}>
-						<Text
-							style={{
-								fontSize: windowWidth > 600 ? (isWeb ? 20 : 24) : 24,
-								color: theme.screen.text,
-								padding: 15,
-								textAlign: isRtl ? 'right' : 'left',
-								writingDirection: isRtl ? 'rtl' : 'ltr',
+		<AppScreen fullWidth={true} contentContainerStyle={{ justifyContent: 'flex-start' }}>
+			<View style={{ alignItems: 'center', width: '100%', paddingHorizontal: 10 }}>
+				<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '100%' }]}>
+					<Text
+						style={{
+							fontSize: windowWidth > 600 ? (isWeb ? 20 : 24) : 24,
+							color: theme.screen.text,
+							padding: 15,
+							textAlign: isRtl ? 'right' : 'left',
+							writingDirection: isRtl ? 'rtl' : 'ltr',
+						}}
+					>
+						{translate(TranslationKeys.your_request)}
+					</Text>
+					{feedbackSettingsItems.map((item, index) => (
+						<SettingsListEditable
+							key={item.key}
+							iconBgColor={primaryColor}
+							leftIcon={getFeedbackIcon(item.icon)}
+							label={translate(item.title as any)}
+							value={excerpt(String(inputValues[item.key] ?? ''), windowWidth > 850 ? 50 : 20)}
+							handleFunction={() => {
+								openFeedbackSheet({
+									key: item.key,
+									title: item.title,
+									multiline: item.multiline,
+									keyboardType: item.keyboardType,
+								});
 							}}
-						>
-							{translate(TranslationKeys.your_request)}
-						</Text>
-						{feedbackSettingsItems.map((item, index) => (
-							<SettingsListEditable
+							groupPosition={index === 0 ? 'top' : index === feedbackSettingsItems.length - 1 ? 'bottom' : 'middle'}
+						/>
+					))}
+					{feedbackData
+						.filter(item => item.key === 'positive')
+						.map(item => (
+							<SettingsList
 								key={item.key}
 								iconBgColor={primaryColor}
-								leftIcon={getFeedbackIcon(item.icon)}
+								leftIcon={<MaterialCommunityIcons name="thumb-up-outline" size={24} color={theme.screen.icon} />}
 								label={translate(item.title as any)}
-								value={excerpt(String(inputValues[item.key] ?? ''), windowWidth > 850 ? 50 : 20)}
-								handleFunction={() => {
-									openFeedbackSheet({
-										key: item.key,
-										title: item.title,
-										multiline: item.multiline,
-										keyboardType: item.keyboardType,
-									});
-								}}
-								groupPosition={index === 0 ? 'top' : index === feedbackSettingsItems.length - 1 ? 'bottom' : 'middle'}
+								rightElement={
+									<SettingsListLikeDislike
+										like={inputValues.positive}
+										onPressLike={() =>
+											setInputValues((prev: any) => ({
+												...prev,
+												positive: prev.positive === true ? null : true,
+											}))
+										}
+										onPressDislike={() =>
+											setInputValues((prev: any) => ({
+												...prev,
+												positive: prev.positive === false ? null : false,
+											}))
+										}
+									/>
+								}
+								groupPosition="single"
 							/>
 						))}
-						{feedbackData
-							.filter(item => item.key === 'positive')
-							.map(item => (
-								<SettingsList
-									key={item.key}
-									iconBgColor={primaryColor}
-									leftIcon={<MaterialCommunityIcons name="thumb-up-outline" size={24} color={theme.screen.icon} />}
-									label={translate(item.title as any)}
-									rightElement={
-										<SettingsListLikeDislike
-											like={inputValues.positive}
-											onPressLike={() =>
-												setInputValues((prev: any) => ({
-													...prev,
-													positive: prev.positive === true ? null : true,
-												}))
-											}
-											onPressDislike={() =>
-												setInputValues((prev: any) => ({
-													...prev,
-													positive: prev.positive === false ? null : false,
-												}))
-											}
-										/>
-									}
-									groupPosition="single"
-								/>
-							))}
-						{!profile?.id && (
-							<Text
-								style={{
-									fontSize: windowWidth > 600 ? (isWeb ? 17 : 20) : 20,
-									color: theme.screen.text,
-									padding: 15,
-								}}
-							>
-								{translate(TranslationKeys.support_warning_no_account_or_mail_provided_therefore_we_cannot_answer_your_request)}
-							</Text>
-						)}
-					</View>
-
-					<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '100%' }]}>
-						<AppButton
-							variant="ghost"
-							usePlainText
-							style={[
-								styles.row,
-								{
-									padding: 15,
-									borderRadius: 10,
-									backgroundColor: primaryColor,
-									opacity: inputValues?.title?.length === 0 || inputValues?.content?.length === 0 ? 0.5 : 1,
-									flexDirection: isRtl ? 'row-reverse' : 'row',
-									marginVertical: 0,
-								},
-							]}
-							onPress={() => {
-								if (app_feedbacks_id) {
-									handleUpdateAppFeedback();
-								} else {
-									handleCreateAppFeedback();
-								}
+					{!profile?.id && (
+						<Text
+							style={{
+								fontSize: windowWidth > 600 ? (isWeb ? 17 : 20) : 20,
+								color: theme.screen.text,
+								padding: 15,
 							}}
-							disabled={inputValues?.title?.length === 0 || inputValues?.content?.length === 0}
-							loading={loading}
 						>
-							<View style={[styles.leftView, { flex: 1, justifyContent: isRtl ? 'flex-end' : 'flex-start' }]}>
+							{translate(TranslationKeys.support_warning_no_account_or_mail_provided_therefore_we_cannot_answer_your_request)}
+						</Text>
+					)}
+				</View>
+
+				<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '100%' }]}>
+					<AppButton
+						variant="ghost"
+						usePlainText
+						style={[
+							styles.row,
+							{
+								padding: 15,
+								borderRadius: 10,
+								backgroundColor: primaryColor,
+								opacity: inputValues?.title?.length === 0 || inputValues?.content?.length === 0 ? 0.5 : 1,
+								flexDirection: isRtl ? 'row-reverse' : 'row',
+								marginVertical: 0,
+								width: '100%',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+							},
+						]}
+						onPress={() => {
+							if (app_feedbacks_id) {
+								handleUpdateAppFeedback();
+							} else {
+								handleCreateAppFeedback();
+							}
+						}}
+						disabled={inputValues?.title?.length === 0 || inputValues?.content?.length === 0}
+						loading={loading}
+					>
+						<View style={[styles.leftView, { flex: 1, justifyContent: isRtl ? 'flex-end' : 'flex-start' }]}>
+							<Text
+								style={[
+									styles.linkText,
+									{
+										color: contrastColor,
+										fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
+										textAlign: isRtl ? 'right' : 'left',
+										writingDirection: isRtl ? 'rtl' : 'ltr',
+										marginLeft: isRtl ? 0 : 10,
+										marginRight: isRtl ? 10 : 0,
+									},
+								]}
+							>
+								{app_feedbacks_id ? translate(TranslationKeys.to_update) : translate(TranslationKeys.send)}
+							</Text>
+						</View>
+						<View>{app_feedbacks_id ? <FontAwesome5 name="save" size={24} color={contrastColor} /> : <MaterialCommunityIcons name="plus" size={24} color={contrastColor} />}</View>
+					</AppButton>
+				</View>
+
+				<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '100%' }]}>
+					{!app_feedbacks_id && profile?.id && (
+						<View
+							style={{
+								...styles.row,
+								padding: 15,
+								borderRadius: 10,
+								backgroundColor: theme.screen.iconBg,
+								flexDirection: isRtl ? 'row-reverse' : 'row',
+								width: '100%',
+							}}
+						>
+							<View style={styles.leftView}>
 								<Text
 									style={[
 										styles.linkText,
 										{
-											color: contrastColor,
+											color: theme.screen.text,
 											fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
-											textAlign: isRtl ? 'right' : 'left',
-											writingDirection: isRtl ? 'rtl' : 'ltr',
-											marginLeft: isRtl ? 0 : 10,
-											marginRight: isRtl ? 10 : 0,
 										},
 									]}
 								>
-									{app_feedbacks_id ? translate(TranslationKeys.to_update) : translate(TranslationKeys.send)}
+									{translate(TranslationKeys.profileId)}
 								</Text>
 							</View>
-							<View>{app_feedbacks_id ? <FontAwesome5 name="save" size={24} color={contrastColor} /> : <MaterialCommunityIcons name="plus" size={24} color={contrastColor} />}</View>
-						</AppButton>
-					</View>
 
-					<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '100%' }]}>
-						{!app_feedbacks_id && profile?.id && (
-							<View
-								style={{
-									...styles.row,
-									padding: 15,
-									borderRadius: 10,
-									backgroundColor: theme.screen.iconBg,
-									flexDirection: isRtl ? 'row-reverse' : 'row',
-								}}
-							>
-								<View style={styles.leftView}>
-									<Text
-										style={[
-											styles.linkText,
-											{
-												color: theme.screen.text,
-												fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
-											},
-										]}
-									>
-										{translate(TranslationKeys.profileId)}
-									</Text>
-								</View>
-
-								<View style={{ maxWidth: '70%' }}>
-									<Text
-										style={[
-											styles.linkText,
-											{
-												color: theme.screen.text,
-												fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
-											},
-										]}
-									>
-										{profile?.id}
-									</Text>
-								</View>
+							<View style={{ maxWidth: '70%' }}>
+								<Text
+									style={[
+										styles.linkText,
+										{
+											color: theme.screen.text,
+											fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
+										},
+									]}
+								>
+									{profile?.id}
+								</Text>
 							</View>
-						)}
+						</View>
+					)}
 
-						{app_feedbacks_id && inputValues?.profile && (
-							<View
-								style={{
-									...styles.row,
-									padding: 15,
-									borderRadius: 10,
-									backgroundColor: theme.screen.iconBg,
-								}}
-							>
-								<View style={styles.leftView}>
-									<Text
-										style={[
-											styles.linkText,
-											{
-												color: theme.screen.text,
-												fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
-											},
-										]}
-									>
-										{translate(TranslationKeys.profileId)}
-									</Text>
-								</View>
-
-								<View style={{ maxWidth: '70%' }}>
-									<Text
-										style={[
-											styles.linkText,
-											{
-												color: theme.screen.text,
-												fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
-											},
-										]}
-									>
-										{inputValues?.profile}
-									</Text>
-								</View>
+					{app_feedbacks_id && inputValues?.profile && (
+						<View
+							style={{
+								...styles.row,
+								padding: 15,
+								borderRadius: 10,
+								backgroundColor: theme.screen.iconBg,
+								width: '100%',
+							}}
+						>
+							<View style={styles.leftView}>
+								<Text
+									style={[
+										styles.linkText,
+										{
+											color: theme.screen.text,
+											fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
+										},
+									]}
+								>
+									{translate(TranslationKeys.profileId)}
+								</Text>
 							</View>
-						)}
-						<SettingsGroupTitle fontSize={14}>
-							{translate(TranslationKeys.optional_device_data_description)}
-						</SettingsGroupTitle>
-						{deviceSettingsItems.map((item, index) => (
-							<SettingsList
-								key={item.key}
-								iconBgColor={primaryColor}
-								label={translate(item.title as any)}
-								value={excerpt(String(item.key === 'device_brand' ? (inputValues[item.key] ? inputValues[item.key] : 'unknown') : inputValues[item.key] || ''), windowWidth > 850 ? 50 : 20)}
-								rightIcon={<MaterialCommunityIcons name="pencil" size={24} color={theme.screen.icon} />}
-								handleFunction={() => {
-									openFeedbackSheet({
-										key: item.key,
-										title: item.title,
-										keyboardType: item.keyboardType,
-									});
-								}}
-								groupPosition={index === 0 ? 'top' : index === deviceSettingsItems.length - 1 ? 'bottom' : 'middle'}
-								noIconIndent
-								reverseLayout={false}
-								titleTextAlign="left"
-							/>
-						))}
 
-						{errorJson && <Text style={{ color: 'red', marginVertical: 10 }}>{errorJson}</Text>}
-						{errorMessage && <Text style={{ color: 'red', marginBottom: 10 }}>{errorMessage}</Text>}
-					</View>
+							<View style={{ maxWidth: '70%' }}>
+								<Text
+									style={[
+										styles.linkText,
+										{
+											color: theme.screen.text,
+											fontSize: windowWidth > 600 ? (isWeb ? 18 : 16) : 16,
+										},
+									]}
+								>
+									{inputValues?.profile}
+								</Text>
+							</View>
+						</View>
+					)}
+					<SettingsGroupTitle fontSize={14}>
+						{translate(TranslationKeys.optional_device_data_description)}
+					</SettingsGroupTitle>
+					{deviceSettingsItems.map((item, index) => (
+						<SettingsList
+							key={item.key}
+							iconBgColor={primaryColor}
+							label={translate(item.title as any)}
+							value={excerpt(String(item.key === 'device_brand' ? (inputValues[item.key] ? inputValues[item.key] : 'unknown') : inputValues[item.key] || ''), windowWidth > 850 ? 50 : 20)}
+							rightIcon={<MaterialCommunityIcons name="pencil" size={24} color={theme.screen.icon} />}
+							handleFunction={() => {
+								openFeedbackSheet({
+									key: item.key,
+									title: item.title,
+									keyboardType: item.keyboardType,
+								});
+							}}
+							groupPosition={index === 0 ? 'top' : index === deviceSettingsItems.length - 1 ? 'bottom' : 'middle'}
+							noIconIndent
+							reverseLayout={false}
+							titleTextAlign="left"
+						/>
+					))}
+
+					{errorJson && <Text style={{ color: 'red', marginVertical: 10 }}>{errorJson}</Text>}
+					{errorMessage && <Text style={{ color: 'red', marginBottom: 10 }}>{errorMessage}</Text>}
 				</View>
-			</ScrollView>
-		</View>
+			</View>
+		</AppScreen>
 	);
 };
+
+const styles = StyleSheet.create({
+	section: {
+		marginTop: 20,
+		marginBottom: 20,
+	},
+	row: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		marginBottom: 15,
+		justifyContent: 'space-between',
+	},
+	leftView: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	linkText: {
+		marginLeft: 10,
+	},
+});
 
 export default FeedbackScreen;

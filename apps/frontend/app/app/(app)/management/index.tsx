@@ -1,4 +1,4 @@
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import React from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -11,175 +11,164 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import SettingsList from '@/components/SettingsList';
-import { useAppSelector } from '@/redux/hooks';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppScreen from '@/components/AppScreen';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.role_management);
 	const { translate } = useLanguage();
-        const { theme } = useTheme();
-        const dispatch = useDispatch();
-        const isLtrLanguage = useIsLtrLanguage();
+	const { theme } = useTheme();
+	const dispatch = useDispatch();
+	const isLtrLanguage = useIsLtrLanguage();
 	const isArabic = !isLtrLanguage;
-        const chevronName: React.ComponentProps<typeof Octicons>['name'] = isArabic ? 'chevron-left' : 'chevron-right';
+	const chevronName: React.ComponentProps<typeof Octicons>['name'] = isArabic ? 'chevron-left' : 'chevron-right';
 
-        return (
-                <ScrollView
-			style={{
-				...styles.container,
-				backgroundColor: theme.screen.background,
-			}}
-			contentContainerStyle={{
-                                ...styles.contentContainer,
-                                backgroundColor: theme.screen.background,
-                        }}
-                >
-                        <View style={{ ...styles.content }}>
-                                <SettingsGroupTitle>{translate(TranslationKeys.meal_guidance_system)}</SettingsGroupTitle>
-                                <View style={styles.groupContainer}>
-                                        <SettingsList
-                                                leftIcon={<MaterialCommunityIcons name="calendar" size={24} />}
-                                                label={translate(TranslationKeys.foodweekplan)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
-                                                onPress={() => {
-                                                        dispatch({
-                                                                type: SET_WEEK_PLAN,
-                                                                payload: {
-                                                                        selectedCanteen: {},
-                                                                        isAllergene: true,
-                                                                },
-                                                        });
-                                                        router.navigate('/foodPlanWeek');
-                                                }}
-                                                groupPosition="top"
-                                        />
-                                        <SettingsList
-                                                leftIcon={<MaterialCommunityIcons name="folder-image" size={24} />}
-                                                label={translate(TranslationKeys.foodBigScreen)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
-                                                onPress={() => {
-                                                        dispatch({
-                                                                type: SET_DAY_PLAN,
-                                                                payload: {
-                                                                        selectedCanteen: {},
-                                                                        mealOfferCategory: '',
-                                                                        isMenuCategory: true,
-                                                                        nextFoodInterval: 10,
-                                                                        refreshInterval: 300,
-                                                                        isFullScreen: true,
-                                                                        foodCategory: '',
-                                                                        isMenuCategoryName: true,
-                                                                },
-                                                        });
-                                                        router.navigate('/foodPlanDay');
-                                                }}
-                                                groupPosition="middle"
-                                        />
-                                        <SettingsList
-                                                leftIcon={<MaterialCommunityIcons name="view-list" size={24} />}
-                                                label={translate(TranslationKeys.monitorDayPlan)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
-                                                onPress={() => {
-                                                        dispatch({
-                                                                type: SET_FOOD_PLAN,
-                                                                payload: {
-                                                                        selectedCanteen: {},
-                                                                        additionalSelectedCanteen: {},
-                                                                        nextFoodInterval: 10,
-                                                                        refreshInterval: 300,
-                                                                },
-                                                        });
-                                                        router.navigate('/foodPlanList');
-                                                }}
-                                                groupPosition="middle"
-                                        />
-                                        <SettingsList
-                                                leftIcon={<Ionicons name="bag-add" size={24} />}
-                                                label={translate(TranslationKeys.markings)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
-                                                onPress={() => {
-                                                        router.navigate('/labels');
-                                                }}
-                                                groupPosition="bottom"
-                                        />
-                                </View>
+	return (
+		<AppScreen>
+			<SettingsGroupTitle>{translate(TranslationKeys.meal_guidance_system)}</SettingsGroupTitle>
+			<View style={styles.groupContainer}>
+				<SettingsList
+					leftIcon={<MaterialCommunityIcons name="calendar" size={24} />}
+					label={translate(TranslationKeys.foodweekplan)}
+					rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+					onPress={() => {
+						dispatch({
+							type: SET_WEEK_PLAN,
+							payload: {
+								selectedCanteen: {},
+								isAllergene: true,
+							},
+						});
+						router.navigate('/foodPlanWeek');
+					}}
+					groupPosition="top"
+				/>
+				<SettingsList
+					leftIcon={<MaterialCommunityIcons name="folder-image" size={24} />}
+					label={translate(TranslationKeys.foodBigScreen)}
+					rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+					onPress={() => {
+						dispatch({
+							type: SET_DAY_PLAN,
+							payload: {
+								selectedCanteen: {},
+								mealOfferCategory: '',
+								isMenuCategory: true,
+								nextFoodInterval: 10,
+								refreshInterval: 300,
+								isFullScreen: true,
+								foodCategory: '',
+								isMenuCategoryName: true,
+							},
+						});
+						router.navigate('/foodPlanDay');
+					}}
+					groupPosition="middle"
+				/>
+				<SettingsList
+					leftIcon={<MaterialCommunityIcons name="view-list" size={24} />}
+					label={translate(TranslationKeys.monitorDayPlan)}
+					rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+					onPress={() => {
+						dispatch({
+							type: SET_FOOD_PLAN,
+							payload: {
+								selectedCanteen: {},
+								additionalSelectedCanteen: {},
+								nextFoodInterval: 10,
+								refreshInterval: 300,
+							},
+						});
+						router.navigate('/foodPlanList');
+					}}
+					groupPosition="middle"
+				/>
+				<SettingsList
+					leftIcon={<Ionicons name="bag-add" size={24} />}
+					label={translate(TranslationKeys.markings)}
+					rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+					onPress={() => {
+						router.navigate('/labels');
+					}}
+					groupPosition="bottom"
+				/>
+			</View>
 
-                                <SettingsGroupTitle>{translate(TranslationKeys.forms)}</SettingsGroupTitle>
-                                <View style={styles.groupContainer}>
-                                        <SettingsList
-                                                leftIcon={<FontAwesome name="list-alt" size={22} />}
-                                                label={translate(TranslationKeys.form_categories)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
-                                                onPress={() => {
-                                                        router.navigate('/form-categories');
-                                                }}
-                                                groupPosition="single"
-                                        />
-                                </View>
+			<SettingsGroupTitle>{translate(TranslationKeys.forms)}</SettingsGroupTitle>
+			<View style={styles.groupContainer}>
+				<SettingsList
+					leftIcon={<FontAwesome name="list-alt" size={22} />}
+					label={translate(TranslationKeys.form_categories)}
+					rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+					onPress={() => {
+						router.navigate('/form-categories');
+					}}
+					groupPosition="single"
+				/>
+			</View>
 
-                                <SettingsGroupTitle>{translate(TranslationKeys.event_monitors)}</SettingsGroupTitle>
-                                <View style={styles.groupContainer}>
-                                        <SettingsList
-                                                leftIcon={<MaterialCommunityIcons name="trophy" size={24} />}
-                                                label={translate(TranslationKeys.collectible_event_monitor)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
-                                                onPress={() => {
-                                                        router.navigate('/collectible-event-monitor');
-                                                }}
-                                                groupPosition="single"
-                                        />
-                                </View>
+			<SettingsGroupTitle>{translate(TranslationKeys.event_monitors)}</SettingsGroupTitle>
+			<View style={styles.groupContainer}>
+				<SettingsList
+					leftIcon={<MaterialCommunityIcons name="trophy" size={24} />}
+					label={translate(TranslationKeys.collectible_event_monitor)}
+					rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+					onPress={() => {
+						router.navigate('/collectible-event-monitor');
+					}}
+					groupPosition="single"
+				/>
+			</View>
 
-                                <SettingsGroupTitle>{translate(TranslationKeys.rss_feed)}</SettingsGroupTitle>
-                                <View style={styles.groupContainer}>
-                                        <SettingsList
-                                                leftIcon={<FontAwesome name="rss-square" size={22} />}
-                                                label={translate(TranslationKeys.rss_feed)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
-                                                onPress={() => {
-                                                        router.navigate('/rss-feed-config');
-                                                }}
-                                                groupPosition="single"
-                                        />
-                                </View>
+			<SettingsGroupTitle>{translate(TranslationKeys.rss_feed)}</SettingsGroupTitle>
+			<View style={styles.groupContainer}>
+				<SettingsList
+					leftIcon={<FontAwesome name="rss-square" size={22} />}
+					label={translate(TranslationKeys.rss_feed)}
+					rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+					onPress={() => {
+						router.navigate('/rss-feed-config');
+					}}
+					groupPosition="single"
+				/>
+			</View>
 
-                                <SettingsGroupTitle>{translate(TranslationKeys.statistics)}</SettingsGroupTitle>
-                                <View style={styles.groupContainer}>
-                                        <SettingsList
-                                                leftIcon={<MaterialCommunityIcons name="calendar" size={24} />}
-                                                label={translate(TranslationKeys.test_statistik)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
-                                                onPress={() => {
-                                                        router.navigate('/statistics');
-                                                }}
-                                                groupPosition="single"
-                                        />
-                                </View>
+			<SettingsGroupTitle>{translate(TranslationKeys.statistics)}</SettingsGroupTitle>
+			<View style={styles.groupContainer}>
+				<SettingsList
+					leftIcon={<MaterialCommunityIcons name="calendar" size={24} />}
+					label={translate(TranslationKeys.test_statistik)}
+					rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+					onPress={() => {
+						router.navigate('/statistics');
+					}}
+					groupPosition="single"
+				/>
+			</View>
 
-                                <SettingsGroupTitle>{translate(TranslationKeys.public_links)}</SettingsGroupTitle>
-                                <View style={styles.groupContainer}>
-                                        <SettingsList
-                                                leftIcon={<MaterialCommunityIcons name="comment-edit" size={24} />}
-                                                label={translate(TranslationKeys.rueckmeldung_geben)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
-                                                onPress={() => {
-                                                        router.navigate('/give-feedback');
-                                                }}
-                                                groupPosition="top"
-                                        />
-                                        <SettingsList
-                                                leftIcon={<MaterialCommunityIcons name="download" size={24} />}
-                                                label={translate(TranslationKeys.app_download)}
-                                                rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
-                                                onPress={() => {
-                                                        router.navigate('/app-download-management');
-                                                }}
-                                                groupPosition="bottom"
-                                        />
-                                </View>
-                        </View>
-                </ScrollView>
-        );
+			<SettingsGroupTitle>{translate(TranslationKeys.public_links)}</SettingsGroupTitle>
+			<View style={styles.groupContainer}>
+				<SettingsList
+					leftIcon={<MaterialCommunityIcons name="comment-edit" size={24} />}
+					label={translate(TranslationKeys.rueckmeldung_geben)}
+					rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+					onPress={() => {
+						router.navigate('/give-feedback');
+					}}
+					groupPosition="top"
+				/>
+				<SettingsList
+					leftIcon={<MaterialCommunityIcons name="download" size={24} />}
+					label={translate(TranslationKeys.app_download)}
+					rightIcon={<Octicons name={chevronName} size={24} color={theme.screen.icon} />}
+					onPress={() => {
+						router.navigate('/app-download-management');
+					}}
+					groupPosition="bottom"
+				/>
+			</View>
+		</AppScreen>
+	);
 };
 
 export default Index;

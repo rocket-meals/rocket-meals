@@ -1,32 +1,33 @@
 import React from 'react';
-import {Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet, useWindowDimensions} from 'react-native';
-import {useAppSelector} from '@/redux/hooks';
-import {useTheme} from '@/hooks/useTheme';
-import {TranslationKeys} from '@/locales/keys';
+import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet, useWindowDimensions } from 'react-native';
+import { useAppSelector } from '@/redux/hooks';
+import { useTheme } from '@/hooks/useTheme';
+import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import {getImageUrl} from '@/constants/HelperFunctions';
-import {getAppIconInsideExpoLocalSaved} from '@/config';
+import { getImageUrl } from '@/constants/HelperFunctions';
+import { getAppIconInsideExpoLocalSaved } from '@/config';
 import useCustomerConfig from '@/hooks/useCustomerConfig';
 import QrCode from '@/components/QrCode';
 import useDebugMode from '@/hooks/useDebugMode';
-import {myContrastColor} from '@/helper/ColorHelper';
-import {ServerInfoHelper} from '@/helper/ServerInfoHelper';
-import {MaterialCommunityIcons} from '@expo/vector-icons';
-import {useLocalSearchParams, useRouter} from 'expo-router';
-import {useLanguage} from '@/hooks/useLanguage';
+import { myContrastColor } from '@/helper/ColorHelper';
+import { ServerInfoHelper } from '@/helper/ServerInfoHelper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLanguage } from '@/hooks/useLanguage';
 import CustomStackHeader from '@/components/CustomStackHeader/CustomStackHeader';
+import AppScreen from '@/components/AppScreen';
 
 const ROUTE_PATH = '/app-download-management';
 
 const AppDownloadManagement = () => {
 	useSetPageTitle(TranslationKeys.app_download);
-	const {theme} = useTheme();
-	const {translate} = useLanguage();
+	const { theme } = useTheme();
+	const { translate } = useLanguage();
 	const router = useRouter();
-	const {fullscreen} = useLocalSearchParams();
-	const {serverInfo, primaryColor, selectedTheme: mode} = useAppSelector((state) => state.settings);
+	const { fullscreen } = useLocalSearchParams();
+	const { serverInfo, primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
 	const isDebugMode = useDebugMode();
-	const {width: screenWidth} = useWindowDimensions();
+	const { width: screenWidth } = useWindowDimensions();
 
 	// useLocalSearchParams may return a string or string[] depending on the router
 	const isFullscreen = Array.isArray(fullscreen) ? fullscreen.includes('true') : fullscreen === 'true';
@@ -34,7 +35,7 @@ const AppDownloadManagement = () => {
 	const contrastColor = myContrastColor(primaryColor, theme, mode === 'dark');
 
 	const projectLogo = serverInfo?.info?.project?.project_logo ? getImageUrl(serverInfo.info.project.project_logo) : null;
-	const iconSource = projectLogo ? {uri: projectLogo} : getAppIconInsideExpoLocalSaved();
+	const iconSource = projectLogo ? { uri: projectLogo } : getAppIconInsideExpoLocalSaved();
 
 	const customerConfig = useCustomerConfig();
 	const baseUrl = customerConfig.baseUrl;
@@ -52,7 +53,7 @@ const AppDownloadManagement = () => {
 		}
 		router.replace({
 			pathname: ROUTE_PATH,
-			params: {fullscreen: 'true'},
+			params: { fullscreen: 'true' },
 		});
 	};
 
@@ -65,7 +66,7 @@ const AppDownloadManagement = () => {
 	const fullscreenButton = (
 		<TouchableOpacity
 			onPress={toggleFullscreen}
-			style={[styles.actionButton, {backgroundColor: theme.screen.iconBg, borderColor: theme.screen.icon}]}
+			style={[styles.actionButton, { backgroundColor: theme.screen.iconBg, borderColor: theme.screen.icon }]}
 		>
 			<MaterialCommunityIcons
 				name={isFullscreen ? 'fullscreen-exit' : 'fullscreen'}
@@ -76,7 +77,7 @@ const AppDownloadManagement = () => {
 	);
 
 	return (
-		<SafeAreaView style={[styles.safeArea, {backgroundColor: theme.screen.background}]}>
+		<AppScreen scrollable={false} fullWidth={true}>
 			{!isFullscreen && (
 				<CustomStackHeader label={translate(TranslationKeys.app_download)} rightElement={fullscreenButton} />
 			)}
@@ -87,12 +88,12 @@ const AppDownloadManagement = () => {
 				<TouchableOpacity
 					activeOpacity={1}
 					onPress={exitFullscreen}
-					style={[styles.heroSection, {backgroundColor: primaryColor}]}
+					style={[styles.heroSection, { backgroundColor: primaryColor }]}
 				>
 					<Image source={iconSource} style={styles.projectLogo} />
-					<Text style={[styles.projectName, {color: contrastColor}]}>{projectName}</Text>
+					<Text style={[styles.projectName, { color: contrastColor }]}>{projectName}</Text>
 					{projectDescriptor ? (
-						<Text style={[styles.projectDescriptor, {color: contrastColor}]}>{projectDescriptor}</Text>
+						<Text style={[styles.projectDescriptor, { color: contrastColor }]}>{projectDescriptor}</Text>
 					) : null}
 					<View style={styles.qrContainer}>
 						<QrCode
@@ -104,11 +105,11 @@ const AppDownloadManagement = () => {
 						/>
 					</View>
 					{isDebugMode ? (
-						<Text style={[styles.debugLink, {color: contrastColor}]} selectable>{appDownloadUrl}</Text>
+						<Text style={[styles.debugLink, { color: contrastColor }]} selectable>{appDownloadUrl}</Text>
 					) : null}
 				</TouchableOpacity>
 			</ScrollView>
-		</SafeAreaView>
+		</AppScreen>
 	);
 };
 
@@ -118,6 +119,7 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
+		width: '100%',
 	},
 	contentContainer: {
 		flexGrow: 1,
