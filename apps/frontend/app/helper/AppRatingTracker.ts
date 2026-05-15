@@ -3,13 +3,19 @@ import { getValue, setValue } from '@/constants/AsyncStorageHelper';
 const STORAGE_KEY = 'appRatingTracker';
 
 const SCORE_WEIGHTS = {
+	/** App opens contribute minimally since they require no active engagement. */
 	appOpen: 1,
+	/** Food feedback counts 3× because rating food shows active engagement. */
 	feedback: 3,
+	/** Canteen visits count 2× as a moderate engagement signal. */
 	visit: 2,
 };
 
+/** Minimum engagement score before the user is eligible for a rating prompt. */
 const SCORE_THRESHOLD = 15;
+/** User must have used the app for at least this many days before prompting. */
 const MIN_DAYS_SINCE_FIRST_USE = 7;
+/** Minimum days between rating prompts to avoid annoyance. */
 const COOLDOWN_DAYS = 90;
 
 export type AppRatingTrackerData = {

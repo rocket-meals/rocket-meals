@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
-import { StringHelper } from 'repo-depkit-common';
+import { AppFeedbackSourceIdentifier, DatabaseTypes, StringHelper } from 'repo-depkit-common';
 
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
@@ -10,9 +10,7 @@ import useNativeQuickRateApp from '@/hooks/useNativeQuickRateApp';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import { AppRatingTracker } from '@/helper/AppRatingTracker';
-import { useAppSelector } from '@/redux/hooks';
 import { AppFeedback } from '@/redux/actions/AppFeedback/AppFeedback';
-import { AppFeedbackSourceIdentifier } from 'repo-depkit-common';
 
 /**
  * Compute the average store rating from app_feedbacks that originate from
@@ -30,22 +28,22 @@ async function fetchAverageStoreRating(): Promise<number | null> {
 				},
 				source_rating_raw: { _nnull: true },
 			},
-			limit: -1,
-		});
+			limit: 500,
+		}) as DatabaseTypes.AppFeedbacks[];
 
 		if (!feedbacks || !Array.isArray(feedbacks) || feedbacks.length === 0) {
 			return null;
 		}
 
 		const ratings = feedbacks
-			.map((f: any) => f.source_rating_raw)
-			.filter((r: any) => typeof r === 'number');
+			.map((f) => f.source_rating_raw)
+			.filter((r): r is number => typeof r === 'number');
 
 		if (ratings.length === 0) {
 			return null;
 		}
 
-		const sum = ratings.reduce((a: number, b: number) => a + b, 0);
+		const sum = ratings.reduce((a, b) => a + b, 0);
 		return Math.round((sum / ratings.length) * 10) / 10;
 	} catch {
 		return null;
