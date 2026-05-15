@@ -18,6 +18,7 @@ import DebugView from '@/components/DebugView';
 import useCheckAppRateAsking from '@/hooks/useCheckAppRateAsking';
 import useCanteenVisitData from '@/hooks/useCanteenVisitData';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
+import { AppRatingTracker } from '@/helper/AppRatingTracker';
 
 const canteenVisitsHelper = new CanteenVisitsHelper();
 
@@ -106,6 +107,7 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 				await canteenVisitsHelper.deleteOwnVisitsForDate(canteenId, date, profileId);
 			} else {
 				await canteenVisitsHelper.createVisitForDate(canteenId, date, profileId);
+				AppRatingTracker.recordVisit();
 				checkAndShowAppRating();
 			}
 			await fetchData();
@@ -283,6 +285,7 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 				await canteenVisitsHelper.deleteOwnVisitsForDate(canteenId, date, profile.id);
 			} else {
 				await canteenVisitsHelper.createVisitForDate(canteenId, date, profile.id);
+				AppRatingTracker.recordVisit();
 				checkAndShowAppRating();
 			}
 			await fetchData();

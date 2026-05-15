@@ -3223,6 +3223,16 @@
     "tr": "Uygulamayı değerlendir",
     "zh": "为应用评分"
   },
+  "rate_app_average_prompt": {
+    "de": "Die App hat aktuell {{rating}} von 5 Sternen. Findest du das angemessen? Deine Bewertung hilft uns, die App zu verbessern!",
+    "en": "The app currently has {{rating}} out of 5 stars. Do you think that's fair? Your rating helps us improve!",
+    "ar": "يحتوي التطبيق حاليًا على {{rating}} من 5 نجوم. هل تعتقد أن هذا عادل؟ تقييمك يساعدنا على التحسين!",
+    "es": "La app tiene actualmente {{rating}} de 5 estrellas. ¿Te parece justo? ¡Tu valoración nos ayuda a mejorar!",
+    "fr": "L'application a actuellement {{rating}} étoiles sur 5. Trouvez-vous cela juste ? Votre avis nous aide à nous améliorer !",
+    "ru": "У приложения сейчас {{rating}} из 5 звёзд. Считаете ли вы это справедливым? Ваша оценка помогает нам стать лучше!",
+    "tr": "Uygulama şu anda 5 üzerinden {{rating}} yıldıza sahip. Bunu adil buluyor musun? Değerlendirmen bize yardımcı olur!",
+    "zh": "该应用目前获得 {{rating}}/5 星评价。你觉得公平吗？你的评价帮助我们改进！"
+  },
   "rate_now": {
     "de": "Jetzt bewerten",
     "en": "Rate now",

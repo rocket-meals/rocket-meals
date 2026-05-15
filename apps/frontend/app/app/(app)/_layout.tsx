@@ -51,6 +51,7 @@ import { HashHelper } from '@/helper/hashHelper';
 import { CollectionKeys } from '@/constants/collectionKeys';
 import { loadChatReadStatus } from '@/helper/chatReadStatus';
 import { FriendshipsHelper } from '@/redux/actions/Friendships/Friendships';
+import { AppRatingTracker } from '@/helper/AppRatingTracker';
 
 export default function Layout() {
 	const { theme } = useTheme();
@@ -148,6 +149,10 @@ export default function Layout() {
 
 	useEffect(() => {
 		fetchFields();
+	}, []);
+
+	useEffect(() => {
+		AppRatingTracker.recordAppOpen();
 	}, []);
 
 	const getFoodFeedBackLabels = async () => {
