@@ -1,4 +1,5 @@
-import { ActivityIndicator, Platform, Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -155,16 +156,7 @@ const WashingMachines: React.FC<any> = ({ campusDetails }) => {
 			<Text style={{ ...styles.heading, color: theme.screen.text, textAlign: isRtl ? 'right' : 'left', writingDirection: isRtl ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.washing_machines)}</Text>
 			<View style={styles.washingMachines}>
 				{loading ? (
-					<View
-						style={{
-							width: '100%',
-							height: 120,
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
-						<ActivityIndicator size="large" color={theme.screen.text} />
-					</View>
+					<AppLoadingView height={120} size="large" />
 				) : (
 					washingMachines &&
 					washingMachines?.map((item: any) => {

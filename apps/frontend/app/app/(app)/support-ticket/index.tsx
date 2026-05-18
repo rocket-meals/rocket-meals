@@ -1,4 +1,5 @@
-import { ActivityIndicator, Dimensions, ScrollView, Text, View } from 'react-native';
+import { Dimensions, Text, View } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import React, { useCallback, useEffect, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -56,16 +57,7 @@ const Index = () => {
 	return (
 		<AppScreen>
 			{loading ? (
-				<View
-					style={{
-						width: '100%',
-						height: 400,
-						justifyContent: 'center',
-						alignItems: 'center',
-					}}
-				>
-					<ActivityIndicator size="large" color={theme.screen.text} />
-				</View>
+				<AppLoadingView size="large" height={400} />
 			) : (
 				<View style={{ alignItems: 'center' }}>
 					<Text style={{ ...styles.groupHeading, color: theme.screen.text, alignSelf: 'flex-start', marginLeft: windowWidth > 600 ? '7.5%' : '2.5%' }}>{translate(TranslationKeys.my_support_tickets)}</Text>

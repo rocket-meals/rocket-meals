@@ -1,6 +1,6 @@
-import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo, FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { FormCategoriesHelper } from '@/redux/actions/Forms/FormCategories';
@@ -282,16 +282,7 @@ const Index = () => {
 
 			{/* Category list */}
 			{loading ? (
-				<View
-					style={{
-						height: 200,
-						width: '100%',
-						justifyContent: 'center',
-						alignItems: 'center',
-					}}
-				>
-					<ActivityIndicator size={30} color={theme.screen.text} />
-				</View>
+				<AppLoadingView size={30} height={200} />
 			) : (
 				<>
 					{formCategories &&

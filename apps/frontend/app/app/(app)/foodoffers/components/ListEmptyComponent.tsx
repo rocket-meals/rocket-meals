@@ -1,9 +1,11 @@
 import React, { memo } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import styles from '../styles';
 import { TranslationKeys } from '@/locales/keys';
 import { SET_SELECTED_DATE } from '@/redux/Types/types';
 import AppButton from '@/components/AppButton';
+
+import AppLoadingView from '@/components/AppLoadingView';
 
 interface ListEmptyComponentProps {
     loading: boolean;
@@ -30,9 +32,7 @@ const ListEmptyComponent: React.FC<ListEmptyComponentProps> = ({
 }) => {
     if (loading) {
         return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size={'large'} color={theme.screen.icon} />
-            </View>
+            <AppLoadingView color={theme.screen.icon} size="large" />
         );
     }
     return (

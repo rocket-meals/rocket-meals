@@ -1,4 +1,5 @@
-import { ActivityIndicator, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import React from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -41,9 +42,7 @@ const Details: React.FC<DetailsProps> = ({ groupedAttributes, loading }) => {
 			</Text>
 
 			{loading ? (
-				<View style={styles.loadingContainer}>
-					<ActivityIndicator size={30} color={theme.screen.text} />
-				</View>
+				<AppLoadingView height={80} />
 			) : (
 				groupedAttributes &&
 				groupedAttributes?.map((item: any) => {

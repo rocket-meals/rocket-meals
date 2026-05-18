@@ -9,7 +9,7 @@ import { MarkingGroupsHelper } from '@/redux/actions/MarkingGroups/MarkingGroups
 import { MarkingHelper } from '@/redux/actions/Markings/Markings';
 import { useDispatch } from 'react-redux';
 import { SET_APP_SETTINGS, UPDATE_MARKING_GROUPS, UPDATE_MARKINGS } from '@/redux/Types/types';
-import { ActivityIndicator, View } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import { AppSettingsHelper } from '@/redux/actions/AppSettings/AppSettings';
 import { useAppSelector } from '@/redux/hooks';
 
@@ -68,16 +68,7 @@ export default function MonitorLayout() {
 
 	if (loading) {
 		return (
-			<View
-				style={{
-					height: 200,
-					width: '100%',
-					justifyContent: 'center',
-					alignItems: 'center',
-				}}
-			>
-				<ActivityIndicator size={30} color={theme.screen.text} />
-			</View>
+			<AppLoadingView size={30} height={200} />
 		);
 	}
 

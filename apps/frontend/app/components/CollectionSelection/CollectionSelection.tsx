@@ -1,4 +1,5 @@
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import React from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -16,16 +17,7 @@ const CollectionSelection = ({ id, value, onChange, error, isDisabled, loading, 
 	return (
 		<View style={{ ...styles.container, borderColor: theme.screen.iconBg }}>
 			{loading ? (
-				<View
-					style={{
-						height: 100,
-						width: '100%',
-						justifyContent: 'center',
-						alignItems: 'center',
-					}}
-				>
-					<ActivityIndicator size={30} color={theme.screen.text} />
-				</View>
+				<AppLoadingView height={100} />
 			) : (
 				<ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="handled" scrollEventThrottle={16} contentContainerStyle={styles.scrollViewContent}>
 					{data &&

@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { SafeAreaView, ScrollView, Text } from 'react-native';
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { useAppSelector } from '@/redux/hooks';
 import { COLLECTABLE_AT_FIELDS, DateHelper } from 'repo-depkit-common';
@@ -12,11 +11,10 @@ import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { getTitleFromTranslation } from '@/helper/resourceHelper';
-import { RootState } from '@/redux/reducer';
 import useDebugMode from '@/hooks/useDebugMode';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
-import styles from './styles';
 import AppScreen from '@/components/AppScreen';
+import AppEmptyState from '@/components/AppEmptyState';
 
 const getGroupPosition = (index: number, length: number) => {
         if (length === 1) return 'single';
@@ -139,9 +137,7 @@ const CollectibleEventsScreen = () => {
                                         />
                                 ))
                         ) : (
-                                <Text style={{ ...styles.emptyText, color: theme.screen.text }}>
-                                        {translate(TranslationKeys.nothing_found)}
-                                </Text>
+                                <AppEmptyState message={translate(TranslationKeys.nothing_found)} />
                         )}
                 </AppScreen>
         );

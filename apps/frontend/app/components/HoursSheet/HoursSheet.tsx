@@ -3,6 +3,8 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import MyScrollViewModal from '@/components/MyScrollViewModal';
 import styles from './styles';
+import AppEmptyState from '@/components/AppEmptyState';
+import AppLoadingView from '@/components/AppLoadingView';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
@@ -413,16 +415,7 @@ export const HoursSheetContent: React.FC = () => {
 	return (
 		<>
 			{loading ? (
-				<View
-					style={{
-						height: 200,
-						width: '100%',
-						justifyContent: 'center',
-						alignItems: 'center',
-					}}
-				>
-					<ActivityIndicator size={30} color={theme.screen.text} />
-				</View>
+				<AppLoadingView height={200} />
 			) : (
 				<View
 					style={{
@@ -450,16 +443,11 @@ export const HoursSheetContent: React.FC = () => {
 								})}
 						</View>
 					) : (
-						<View
-							style={{
-								height: 200,
-								width: '100%',
-								justifyContent: 'center',
-								alignItems: 'center',
-							}}
-						>
-							<Text style={{ ...styles.empty, color: theme.screen.text }}>{translate(TranslationKeys.no_business_hours_available)}</Text>
-						</View>
+						<AppEmptyState
+							iconName={null}
+							message={translate(TranslationKeys.no_business_hours_available)}
+							style={{ height: 200, justifyContent: 'center', paddingVertical: 0 }}
+						/>
 					)}
 				</View>
 			)}

@@ -1,4 +1,5 @@
-import { ActivityIndicator, Dimensions, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AppScreen from '@/components/AppScreen';
 import styles from './styles';
@@ -925,16 +926,7 @@ const Index = () => {
 			<View style={{ flex: 1, width: '100%', marginTop: 10 }}>
 				<View style={{ flex: 1, width: screenWidth > 768 ? '70%' : '90%' }}>
 					{loading ? (
-						<View
-							style={{
-								height: 200,
-								width: '100%',
-								justifyContent: 'center',
-								alignItems: 'center',
-							}}
-						>
-							<ActivityIndicator size={30} color={theme.screen.text} />
-						</View>
+						<AppLoadingView size={30} height={200} />
 					) : (
 						<View style={styles.content}>
 							<View

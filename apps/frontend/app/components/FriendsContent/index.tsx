@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/ColorHelper';
@@ -89,14 +90,12 @@ const ScanModalContent: React.FC<ScanModalContentProps> = ({ onSubmit, checkAlre
 
 	if (phase === 'confirming') {
 		return (
-			<View style={scanStyles.container}>
-				<View style={scanStyles.statusSection}>
-					<ActivityIndicator size="large" color={primaryColor} />
-					<Text style={[scanStyles.statusText, { color: theme.screen.text }]}>
-						{translate(TranslationKeys.friendships_confirming)}
-					</Text>
-				</View>
-			</View>
+			<AppLoadingView 
+				size="large" 
+				color={primaryColor} 
+				message={translate(TranslationKeys.friendships_confirming)} 
+				height={150} 
+			/>
 		);
 	}
 
@@ -360,15 +359,12 @@ const QRGenerateModalContent: React.FC<QRGenerateModalContentProps> = ({ profile
 
 	if (phase === 'generating') {
 		return (
-			<View style={styles.qrContainer}>
-				<ActivityIndicator size="large" color={primaryColor} />
-				<Text style={[styles.qrHint, { color: theme.screen.text }]}>
-					{translate(TranslationKeys.friendships_generating_qr)}
-				</Text>
-				<Text style={[styles.qrId, { color: theme.screen.text }]}>
-					{translate(TranslationKeys.friendships_generating_qr_hint)}
-				</Text>
-			</View>
+			<AppLoadingView 
+				size="large" 
+				color={primaryColor} 
+				message={translate(TranslationKeys.friendships_generating_qr)} 
+				height={150} 
+			/>
 		);
 	}
 

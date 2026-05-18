@@ -1,4 +1,5 @@
-import { ActivityIndicator, Dimensions, Image, Platform, ScrollView, Text, View } from 'react-native';
+import { Dimensions, Image, Platform, ScrollView, Text, View } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
@@ -364,16 +365,7 @@ const Index = () => {
 
 			<View style={{ flex: 1 }}>
 				{loading ? (
-					<View
-						style={{
-							height: 200,
-							width: '100%',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
-						<ActivityIndicator size={30} color={foods_area_color} />
-					</View>
+					<AppLoadingView size={30} color={foods_area_color} height={200} />
 				) : Object.entries(categories)?.length < 1 ? (
 					<View
 						style={{

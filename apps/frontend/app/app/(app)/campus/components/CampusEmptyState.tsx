@@ -1,38 +1,26 @@
 import React, { memo } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { TranslationKeys } from '@/locales/keys';
+import AppEmptyState from '@/components/AppEmptyState';
+import AppLoadingView from '@/components/AppLoadingView';
 
 interface CampusEmptyStateProps {
-    loading: boolean;
-    theme: any;
-    translate: (key: string) => string;
+	loading: boolean;
+	theme: any;
+	translate: (key: string) => string;
 }
 
 const CampusEmptyState: React.FC<CampusEmptyStateProps> = ({ loading, theme, translate }) => {
-    if (loading) {
-        return (
-            <View style={emptyStyles.container}>
-                <ActivityIndicator size={30} color={theme.screen.text} />
-            </View>
-        );
-    }
+	if (loading) {
+		return <AppLoadingView color={theme.screen.text} height={200} />;
+	}
 
-    return (
-        <View style={emptyStyles.container}>
-            <Text style={{ fontSize: 16, fontFamily: 'Poppins_400Regular', color: theme.screen.text }}>
-                {translate(TranslationKeys.no_campus_found)}
-            </Text>
-        </View>
-    );
+	return (
+		<AppEmptyState
+			iconName={null}
+			message={translate(TranslationKeys.no_campus_found)}
+			style={{ height: 200, justifyContent: 'center', paddingVertical: 0 }}
+		/>
+	);
 };
-
-const emptyStyles = StyleSheet.create({
-    container: {
-        height: 200,
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-});
 
 export default memo(CampusEmptyState);

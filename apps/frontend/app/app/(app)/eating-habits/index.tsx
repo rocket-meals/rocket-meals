@@ -16,7 +16,7 @@ import MarkingBottomSheet from '@/components/MarkingBottomSheet';
 import type BottomSheet from '@gorhom/bottom-sheet';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { CollectibleAt, DatabaseTypes } from 'repo-depkit-common';
-import SettingsGroupTitle from '@/components/SettingsGroupTitle';
+import AppSection from '@/components/AppSection';
 import SettingsList from '@/components/SettingsList';
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
@@ -249,24 +249,25 @@ const Index = () => {
 					}}
 				/>
 			</View>
-			<SettingsGroupTitle>{translate(TranslationKeys.settings)}</SettingsGroupTitle>
-			<SettingsList
-				iconBgColor={primaryColor}
-				leftIcon={<MaterialCommunityIcons name="layers-outline" size={22} color={theme.screen.icon} />}
-				label={translate(TranslationKeys.foodoffers_show_separated_markings_breakdown)}
-				value={markingsBreakdownLabel}
-				rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
-				handleFunction={openMarkingsBreakdownModal}
-				groupPosition="top"
-			/>
-			<SettingsList
-				iconBgColor={primaryColor}
-				leftIcon={<MaterialCommunityIcons name="broom" size={22} color={theme.screen.icon} />}
-				label={translate(TranslationKeys.clear_markings_selection)}
-				titleTextAlign={!isLtrLanguage ? 'right' : undefined}
-				handleFunction={handleClearMarkingsWithConfirmation}
-				groupPosition="bottom"
-			/>
+			<AppSection title={translate(TranslationKeys.settings)}>
+				<SettingsList
+					iconBgColor={primaryColor}
+					leftIcon={<MaterialCommunityIcons name="layers-outline" size={22} color={theme.screen.icon} />}
+					label={translate(TranslationKeys.foodoffers_show_separated_markings_breakdown)}
+					value={markingsBreakdownLabel}
+					rightIcon={<Octicons name={isLtrLanguage ? 'chevron-right' : 'chevron-left'} size={24} color={theme.screen.icon} />}
+					handleFunction={openMarkingsBreakdownModal}
+					groupPosition="top"
+				/>
+				<SettingsList
+					iconBgColor={primaryColor}
+					leftIcon={<MaterialCommunityIcons name="broom" size={22} color={theme.screen.icon} />}
+					label={translate(TranslationKeys.clear_markings_selection)}
+					titleTextAlign={!isLtrLanguage ? 'right' : undefined}
+					handleFunction={handleClearMarkingsWithConfirmation}
+					groupPosition="bottom"
+				/>
+			</AppSection>
 			<View style={styles.markingsTopSpacer} />
 		</View>
 	), [readMore, screenWidth, theme, translate, primaryColor, contrastColor, handleReadMore, handleClearMarkingsWithConfirmation, markingsBreakdownLabel, openMarkingsBreakdownModal]);

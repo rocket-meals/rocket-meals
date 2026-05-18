@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -84,18 +85,11 @@ const RssFeed: React.FC<RssFeedProps> = ({ urls, switchIntervalInSeconds }) => {
 
 	if (loading) {
 		return (
-			<View
-				style={[
-					styles.container,
-					{
-						backgroundColor: theme.screen.background,
-						justifyContent: 'center',
-						alignItems: 'center',
-					},
-				]}
-			>
-				<ActivityIndicator size={30} color={theme.screen.text} />
-			</View>
+			<AppLoadingView
+				style={{
+					backgroundColor: theme.screen.background,
+				}}
+			/>
 		);
 	}
 

@@ -1,6 +1,4 @@
-import { View } from 'react-native';
 import React from 'react';
-import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { FontAwesome, Ionicons, MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -9,10 +7,10 @@ import { SET_DAY_PLAN, SET_FOOD_PLAN, SET_WEEK_PLAN } from '@/redux/Types/types'
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import SettingsList from '@/components/SettingsList';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import AppScreen from '@/components/AppScreen';
+import AppSection from '@/components/AppSection';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.role_management);
@@ -25,8 +23,7 @@ const Index = () => {
 
 	return (
 		<AppScreen>
-			<SettingsGroupTitle>{translate(TranslationKeys.meal_guidance_system)}</SettingsGroupTitle>
-			<View style={styles.groupContainer}>
+			<AppSection title={translate(TranslationKeys.meal_guidance_system)}>
 				<SettingsList
 					leftIcon={<MaterialCommunityIcons name="calendar" size={24} />}
 					label={translate(TranslationKeys.foodweekplan)}
@@ -92,10 +89,9 @@ const Index = () => {
 					}}
 					groupPosition="bottom"
 				/>
-			</View>
+			</AppSection>
 
-			<SettingsGroupTitle>{translate(TranslationKeys.forms)}</SettingsGroupTitle>
-			<View style={styles.groupContainer}>
+			<AppSection title={translate(TranslationKeys.forms)}>
 				<SettingsList
 					leftIcon={<FontAwesome name="list-alt" size={22} />}
 					label={translate(TranslationKeys.form_categories)}
@@ -105,10 +101,9 @@ const Index = () => {
 					}}
 					groupPosition="single"
 				/>
-			</View>
+			</AppSection>
 
-			<SettingsGroupTitle>{translate(TranslationKeys.event_monitors)}</SettingsGroupTitle>
-			<View style={styles.groupContainer}>
+			<AppSection title={translate(TranslationKeys.event_monitors)}>
 				<SettingsList
 					leftIcon={<MaterialCommunityIcons name="trophy" size={24} />}
 					label={translate(TranslationKeys.collectible_event_monitor)}
@@ -118,10 +113,9 @@ const Index = () => {
 					}}
 					groupPosition="single"
 				/>
-			</View>
+			</AppSection>
 
-			<SettingsGroupTitle>{translate(TranslationKeys.rss_feed)}</SettingsGroupTitle>
-			<View style={styles.groupContainer}>
+			<AppSection title={translate(TranslationKeys.rss_feed)}>
 				<SettingsList
 					leftIcon={<FontAwesome name="rss-square" size={22} />}
 					label={translate(TranslationKeys.rss_feed)}
@@ -131,10 +125,9 @@ const Index = () => {
 					}}
 					groupPosition="single"
 				/>
-			</View>
+			</AppSection>
 
-			<SettingsGroupTitle>{translate(TranslationKeys.statistics)}</SettingsGroupTitle>
-			<View style={styles.groupContainer}>
+			<AppSection title={translate(TranslationKeys.statistics)}>
 				<SettingsList
 					leftIcon={<MaterialCommunityIcons name="calendar" size={24} />}
 					label={translate(TranslationKeys.test_statistik)}
@@ -144,10 +137,9 @@ const Index = () => {
 					}}
 					groupPosition="single"
 				/>
-			</View>
+			</AppSection>
 
-			<SettingsGroupTitle>{translate(TranslationKeys.public_links)}</SettingsGroupTitle>
-			<View style={styles.groupContainer}>
+			<AppSection title={translate(TranslationKeys.public_links)}>
 				<SettingsList
 					leftIcon={<MaterialCommunityIcons name="comment-edit" size={24} />}
 					label={translate(TranslationKeys.rueckmeldung_geben)}
@@ -166,7 +158,7 @@ const Index = () => {
 					}}
 					groupPosition="bottom"
 				/>
-			</View>
+			</AppSection>
 		</AppScreen>
 	);
 };

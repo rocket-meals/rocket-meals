@@ -36,6 +36,7 @@ import AppButton from '@/components/AppButton';
 import { myContrastColor } from '@/helper/ColorHelper';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
+import AppInfoRow from '@/components/AppInfoRow';
 
 enum BalanceStateLowerBound {
 	CONFIDENT = 10,
@@ -342,28 +343,26 @@ const AccountBalanceScreen = () => {
 
 			{/* Additional Information */}
 			<View style={[styles.infoContainer, { width: windowWidth > 600 ? '90%' : '100%' }]}>
-				<View style={[styles.infoRow, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-					<View style={[styles.iconLabelContainer, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-						<MaterialCommunityIcons name="credit-card" size={24} color={theme.screen.icon} style={[styles.icon, isRtlLanguage ? { marginRight: 0, marginLeft: 8 } : undefined]} />
-						<Text style={{ ...styles.label, color: theme.header.text, textAlign: languageTextAlign, writingDirection: isRtlLanguage ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.accountbalance)}</Text>
-					</View>
-
-					<Text style={{ ...styles.value, color: theme.header.text, ...(isRtlLanguage ? { textAlign: 'left', writingDirection: 'ltr' } : {}) }}>{profile?.credit_balance ? showFormatedPrice(formatPrice(profile?.credit_balance)) : '? €'}</Text>
-				</View>
-				<View style={[styles.infoRow, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-					<View style={[styles.iconLabelContainer, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-						<MaterialCommunityIcons name="transfer" size={24} color={theme.screen.icon} style={[styles.icon, isRtlLanguage ? { marginRight: 0, marginLeft: 8 } : undefined]} />
-						<Text style={{ ...styles.label, color: theme.header.text, textAlign: languageTextAlign, writingDirection: isRtlLanguage ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.accountbalanceLastTransaction)}</Text>
-					</View>
-					<Text style={{ ...styles.value, color: theme.header.text, ...(isRtlLanguage ? { textAlign: 'left', writingDirection: 'ltr' } : {}) }}>{profile?.credit_balance_last_transaction ? showFormatedPrice(formatPrice(profile?.credit_balance_last_transaction)) : '? €'}</Text>
-				</View>
-				<View style={[styles.infoRow, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-					<View style={[styles.iconLabelContainer, isRtlLanguage ? { flexDirection: 'row-reverse' as const } : undefined]}>
-						<FontAwesome5 name="calendar-alt" size={24} color={theme.screen.icon} style={[styles.icon, isRtlLanguage ? { marginRight: 0, marginLeft: 8 } : undefined]} />
-						<Text style={{ ...styles.label, color: theme.header.text, textAlign: languageTextAlign, writingDirection: isRtlLanguage ? 'rtl' : 'ltr' }}>{translate(TranslationKeys.accountbalanceDateUpdated)}</Text>
-					</View>
-					<Text style={{ ...styles.value, color: theme.header.text, ...(isRtlLanguage ? { textAlign: 'left', writingDirection: 'ltr' } : {}) }}>{profile?.credit_balance_date_updated ? format(profile?.credit_balance_date_updated, 'dd.MM.yyyy HH:mm') : ''}</Text>
-				</View>
+				<AppInfoRow
+					icon={<MaterialCommunityIcons name="credit-card" size={24} color={theme.screen.icon} />}
+					label={translate(TranslationKeys.accountbalance)}
+					value={profile?.credit_balance ? showFormatedPrice(formatPrice(profile?.credit_balance)) : '? €'}
+					textColor={theme.header.text}
+				/>
+				<AppInfoRow
+					icon={<MaterialCommunityIcons name="transfer" size={24} color={theme.screen.icon} />}
+					label={translate(TranslationKeys.accountbalanceLastTransaction)}
+					value={profile?.credit_balance_last_transaction ? showFormatedPrice(formatPrice(profile?.credit_balance_last_transaction)) : '? €'}
+					textColor={theme.header.text}
+					style={{ marginTop: 10 }}
+				/>
+				<AppInfoRow
+					icon={<FontAwesome5 name="calendar-alt" size={24} color={theme.screen.icon} />}
+					label={translate(TranslationKeys.accountbalanceDateUpdated)}
+					value={profile?.credit_balance_date_updated ? format(profile?.credit_balance_date_updated, 'dd.MM.yyyy HH:mm') : ''}
+					textColor={theme.header.text}
+					style={{ marginTop: 10 }}
+				/>
 				<View style={styles.additionalInfoContainer}>{appSettings && appSettings?.balance_translations && <CustomMarkdown content={getTextFromTranslation(appSettings?.balance_translations, language) || ''} backgroundColor={balance_area_color} imageWidth={'100%'} imageHeight={400} />}</View>
 				<DebugView
 					title={translate(TranslationKeys.debugErrors)}

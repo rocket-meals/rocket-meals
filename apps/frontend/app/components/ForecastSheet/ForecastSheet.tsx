@@ -1,14 +1,16 @@
-import {ActivityIndicator, Text, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {useTheme} from '@/hooks/useTheme';
+import { ActivityIndicator, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
-import {ForecastSheetProps} from './types';
-import {format, parseISO} from 'date-fns';
-import {UtilizationEntryHelper} from '@/redux/actions/UtilizationEntries/UtilizationEntries';
-import {useLanguage} from '@/hooks/useLanguage';
-import {TranslationKeys} from '@/locales/keys';
-import {DatabaseTypes} from 'repo-depkit-common';
+import { ForecastSheetProps } from './types';
+import { format, parseISO } from 'date-fns';
+import { UtilizationEntryHelper } from '@/redux/actions/UtilizationEntries/UtilizationEntries';
+import { useLanguage } from '@/hooks/useLanguage';
+import { TranslationKeys } from '@/locales/keys';
+import { DatabaseTypes } from 'repo-depkit-common';
 import SettingsList from '@/components/SettingsList/SettingsList';
+import AppEmptyState from '@/components/AppEmptyState';
+import AppLoadingView from '@/components/AppLoadingView';
 
 type ForecastEntry = {
         time: string;
@@ -44,9 +46,9 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ forDate, canteen }) => {
                 const thresholdUntilHigh = utilizationGroup?.threshold_until_high ?? 80; // Default high threshold
 
                 const intervals = [];
-		for (let i = 0; i < 24; i++) {
-			intervals.push(`${i}:00`, `${i}:15`, `${i}:30`, `${i}:45`);
-		}
+                for (let i = 0; i < 24; i++) {
+                        intervals.push(`${i}:00`, `${i}:15`, `${i}:30`, `${i}:45`);
+                }
 
                 const entries = intervals.map(label => {
                         const matchingData = data?.find((entry: DatabaseTypes.UtilizationsEntries) => {
@@ -69,9 +71,9 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ forDate, canteen }) => {
 
                         // Round to nearest 10 and enforce a minimum of 10 for any value > 0
                         if (percentage > 0) {
-                            percentage = Math.max(10, Math.round(percentage / 10) * 10);
+                                percentage = Math.max(10, Math.round(percentage / 10) * 10);
                         } else {
-                            percentage = 0;
+                                percentage = 0;
                         }
 
                         let color = '#93c34b';
@@ -83,7 +85,7 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ forDate, canteen }) => {
 
                         return {
                                 time: label,
-                                percentage:percentage,
+                                percentage: percentage,
                                 color: color,
                                 value_real: matchingData?.value_real,
                                 value_forecast_current: matchingData?.value_forecast_current,
@@ -101,7 +103,7 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ forDate, canteen }) => {
 
                         if (!utlizationGroupId) {
                                 setForecastEntries([]);
-                            setCurrentUtilizationGroup(null);
+                                setCurrentUtilizationGroup(null);
                                 return;
                         }
 
@@ -110,10 +112,10 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ forDate, canteen }) => {
                         let utilizationGroup: DatabaseTypes.UtilizationsGroups | undefined;
 
                         if (utilizationData && utilizationData.length > 0) {
-                            utilizationGroup = utilizationData[0]?.utilization_group as DatabaseTypes.UtilizationsGroups | undefined;
-                            const processedData = processData(utilizationData, utilizationGroup);
-                            setForecastEntries(processedData);
-                            setCurrentUtilizationGroup(utilizationGroup ?? null);
+                                utilizationGroup = utilizationData[0]?.utilization_group as DatabaseTypes.UtilizationsGroups | undefined;
+                                const processedData = processData(utilizationData, utilizationGroup);
+                                setForecastEntries(processedData);
+                                setCurrentUtilizationGroup(utilizationGroup ?? null);
                         } else {
                                 setForecastEntries([]);
                                 setCurrentUtilizationGroup(null);
@@ -137,8 +139,8 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ forDate, canteen }) => {
         }, [canteen, forDate]);
 
         let debugInformationInTitle = '';
-        if(showDebugInformation) {
-            debugInformationInTitle = `all_time_high ${currentUtilizationGroup?.all_time_high ?? 'N/A'}, threshold_until_max ${currentUtilizationGroup?.threshold_until_max ?? 'N/A'}`;
+        if (showDebugInformation) {
+                debugInformationInTitle = `all_time_high ${currentUtilizationGroup?.all_time_high ?? 'N/A'}, threshold_until_max ${currentUtilizationGroup?.threshold_until_max ?? 'N/A'}`;
         }
 
         return (
@@ -150,9 +152,7 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ forDate, canteen }) => {
                         )}
                         <View style={styles.forecastContainer}>
                                 {loading ? (
-                                        <View style={styles.loadingContainer}>
-                                                <ActivityIndicator size={40} color={theme.screen.icon} />
-                                        </View>
+                                        <AppLoadingView color={theme.screen.icon} size={40} height={150} />
                                 ) : forecastEntries.length > 0 ? (
                                         forecastEntries.map((entry, index) => {
                                                 const isSingle = forecastEntries.length === 1;
@@ -162,14 +162,14 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ forDate, canteen }) => {
                                                 const groupPosition = isSingle
                                                         ? 'single'
                                                         : isFirst
-                                                        ? 'top'
-                                                        : isLast
-                                                        ? 'bottom'
-                                                        : 'middle';
+                                                                ? 'top'
+                                                                : isLast
+                                                                        ? 'bottom'
+                                                                        : 'middle';
 
-                                                let valueToShow = entry.percentage+'%'
-                                                if(showDebugInformation) {
-                                                    valueToShow += " (" + (entry.value_real ?? entry.value_forecast_current) + ")";
+                                                let valueToShow = entry.percentage + '%'
+                                                if (showDebugInformation) {
+                                                        valueToShow += " (" + (entry.value_real ?? entry.value_forecast_current) + ")";
                                                 }
 
                                                 return (
@@ -185,9 +185,11 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ forDate, canteen }) => {
                                                 );
                                         })
                                 ) : (
-                                        <Text style={[styles.noDataText, { color: theme.sheet.text }]}>
-                                                {translate(TranslationKeys.no_data_found)}
-                                        </Text>
+                                        <AppEmptyState
+                                                iconName={null}
+                                                message={translate(TranslationKeys.no_data_found)}
+                                                style={{ height: 150, justifyContent: 'center', paddingVertical: 0 }}
+                                        />
                                 )}
                         </View>
                 </View>

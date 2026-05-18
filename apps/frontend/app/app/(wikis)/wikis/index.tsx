@@ -15,6 +15,8 @@ import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppEmptyState from '@/components/AppEmptyState';
+import AppLoadingView from '@/components/AppLoadingView';
 
 const Index = () => {
 	const { theme } = useTheme();
@@ -82,20 +84,11 @@ const Index = () => {
 			</View>
 			<View style={styles.content}>
 				{loading ? (
-					<View
-						style={{
-							height: 200,
-							width: '100%',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
-						<ActivityIndicator size={30} color={theme.screen.text} />
-					</View>
+					<AppLoadingView />
 				) : wiki?.translations && getTextFromTranslation(wiki.translations, language)?.trim() ? (
 					<CustomMarkdown content={translateDynamic(getTextFromTranslation(wiki.translations, language))} backgroundColor={wiki?.color || primaryColor} imageWidth={'100%'} imageHeight={400} />
 				) : (
-					<Text style={{ color: theme.screen.text, padding: 16 }}>{translate(TranslationKeys.no_data_found)}</Text>
+					<AppEmptyState message={translate(TranslationKeys.no_data_found)} />
 				)}
 			</View>
 		</ScrollView>

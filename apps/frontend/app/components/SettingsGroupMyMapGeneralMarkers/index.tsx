@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import { SET_OSM_VECTOR_MAP_POI_SUB_SETTINGS, SET_OSM_VECTOR_MAP_SHOW_SETTINGS } from '@/redux/Types/types';
-import SettingsGroupTitle from '@/components/SettingsGroupTitle';
+import AppSection from '@/components/AppSection';
 import SettingsListBoolean from '@/components/SettingsListBoolean';
 import { POI_SUBTYPES } from '@/components/MyMap/poiSubtypes';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -34,8 +34,7 @@ const SettingsGroupMyMapGeneralMarkers: React.FC = () => {
         dispatch({ type: SET_OSM_VECTOR_MAP_POI_SUB_SETTINGS, payload: { [key]: !(poiSubSettings[key] ?? true) } });
 
     return (
-        <>
-            <SettingsGroupTitle>{translate(TranslationKeys.mapLayers)}</SettingsGroupTitle>
+        <AppSection title={translate(TranslationKeys.mapLayers)}>
             <SettingsListBoolean
                 title={translate(TranslationKeys.shops_poi)}
                 leftIcon={<EmojiIcon emoji="🏪" />}
@@ -91,7 +90,7 @@ const SettingsGroupMyMapGeneralMarkers: React.FC = () => {
                 onToggle={() => toggle('roadNames')}
                 groupPosition="bottom"
             />
-        </>
+        </AppSection>
     );
 };
 

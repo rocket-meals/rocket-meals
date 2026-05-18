@@ -26,6 +26,8 @@ import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import AppScreen from '@/components/AppScreen';
 import AppListItem from '@/components/AppListItem';
+import AppEmptyState from '@/components/AppEmptyState';
+import AppLoadingView from '@/components/AppLoadingView';
 
 type FormSubmissionListRow =
 	| {
@@ -576,22 +578,11 @@ const Index = () => {
 			>
 				<View style={{ flex: 1, width: screenWidth > 768 ? '70%' : '90%' }}>
 					{loading ? (
-						<View
-							style={{
-								height: 200,
-								width: '100%',
-								justifyContent: 'center',
-								alignItems: 'center',
-							}}
-						>
-							<ActivityIndicator size={30} color={theme.screen.text} />
-						</View>
+						<AppLoadingView />
 					) : formSubmissions?.length > 0 ? (
 						<FlatList data={listData} keyExtractor={item => item.id} renderItem={renderItem} contentContainerStyle={{ paddingBottom: 10 }} />
 					) : (
-						<View style={{ padding: 20, alignItems: 'center' }}>
-							<Text style={{ color: theme.screen.text, fontSize: 16 }}>{translate(TranslationKeys.no_data_found)}</Text>
-						</View>
+						<AppEmptyState message={translate(TranslationKeys.no_data_found)} />
 					)}
 				</View>
 			</View>

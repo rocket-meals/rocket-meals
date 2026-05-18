@@ -22,7 +22,7 @@ import { fetchSpecificField } from '@/redux/actions/Fields/Fields';
 import AppButton from '@/components/AppButton';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import AppScreen from '@/components/AppScreen';
-import AppListItem from '@/components/AppListItem';
+import AppEmptyState from '@/components/AppEmptyState';
 
 const Index = () => {
     useSetPageTitle(TranslationKeys.form_queue);
@@ -187,94 +187,93 @@ const Index = () => {
 
     return (
         <AppScreen scrollable={false}>
-                    {/* Sync All button */}
-                    {queueEntries.length > 0 && (
-                        <AppButton
-                            variant="ghost"
-                            usePlainText
-                            text={translate(TranslationKeys.form_queue_sync_all)}
-                            onPress={syncAllQueueEntries}
-                            disabled={isSyncingAll || syncingId !== null}
+            {/* Sync All button */}
+            {queueEntries.length > 0 && (
+                <AppButton
+                    variant="ghost"
+                    usePlainText
+                    text={translate(TranslationKeys.form_queue_sync_all)}
+                    onPress={syncAllQueueEntries}
+                    disabled={isSyncingAll || syncingId !== null}
+                    style={{
+                        marginBottom: 16,
+                        paddingHorizontal: 20,
+                        paddingVertical: 10,
+                        borderRadius: 20,
+                        backgroundColor: primaryColor,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                        marginVertical: 0,
+                    }}
+                    textStyle={{ color: '#fff', fontFamily: 'Poppins_700Bold', fontSize: 15 }}
+                    iconLeft={<MaterialCommunityIcons name="sync" size={20} color="#fff" />}
+                />
+            )}
+
+            {/* Queue list */}
+            {queueEntries.length === 0 ? (
+                <AppEmptyState
+                    iconName="clock-check-outline"
+                    message={translate(TranslationKeys.form_queue_empty)}
+                    style={{ padding: 40, flex: 0 }}
+                />
+            ) : (
+                <FlatList
+                    data={queueEntries}
+                    keyExtractor={(item: FormQueueEntry) => item.id}
+                    renderItem={({ item }: { item: FormQueueEntry }) => (
+                        <TouchableOpacity
                             style={{
-                                marginBottom: 16,
-                                paddingHorizontal: 20,
-                                paddingVertical: 10,
-                                borderRadius: 20,
-                                backgroundColor: primaryColor,
+                                width: '100%',
                                 flexDirection: 'row',
                                 alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: 8,
-                                marginVertical: 0,
+                                justifyContent: 'space-between',
+                                borderRadius: 10,
+                                padding: 10,
+                                marginBottom: 10,
+                                backgroundColor: theme.screen.iconBg,
                             }}
-                            textStyle={{ color: '#fff', fontFamily: 'Poppins_700Bold', fontSize: 15 }}
-                            iconLeft={<MaterialCommunityIcons name="sync" size={20} color="#fff" />}
-                        />
-                    )}
-
-                    {/* Queue list */}
-                    {queueEntries.length === 0 ? (
-                        <View style={{ padding: 40, alignItems: 'center' }}>
-                            <MaterialCommunityIcons name="clock-check-outline" size={48} color={theme.screen.icon} />
-                            <Text style={{ color: theme.screen.text, fontSize: 16, fontFamily: 'Poppins_400Regular', marginTop: 12, textAlign: 'center' }}>
-                                {translate(TranslationKeys.form_queue_empty)}
-                            </Text>
-                        </View>
-                    ) : (
-                        <FlatList
-                            data={queueEntries}
-                            keyExtractor={(item: FormQueueEntry) => item.id}
-                            renderItem={({ item }: { item: FormQueueEntry }) => (
+                            onPress={() => {
+                                router.push({
+                                    pathname: '/form-submission',
+                                    params: { form_submission_id: item.form_submission_id, queue_entry_id: item.id },
+                                });
+                            }}
+                        >
+                            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                <MaterialCommunityIcons name="clock-outline" size={18} color={theme.screen.icon} />
+                                <Text style={{ color: theme.screen.text, fontSize: 16, fontFamily: 'Poppins_400Regular', flex: 1 }} numberOfLines={1}>
+                                    {item.alias || item.form_submission_id}
+                                </Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                                 <TouchableOpacity
-                                    style={{
-                                        width: '100%',
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        borderRadius: 10,
-                                        padding: 10,
-                                        marginBottom: 10,
-                                        backgroundColor: theme.screen.iconBg,
-                                    }}
-                                    onPress={() => {
-                                        router.push({
-                                            pathname: '/form-submission',
-                                            params: { form_submission_id: item.form_submission_id, queue_entry_id: item.id },
-                                        });
-                                    }}
+                                    onPress={() => syncQueueEntry(item)}
+                                    style={{ padding: 8 }}
+                                    disabled={isSyncingAll || syncingId !== null}
                                 >
-                                    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                                        <MaterialCommunityIcons name="clock-outline" size={18} color={theme.screen.icon} />
-                                        <Text style={{ color: theme.screen.text, fontSize: 16, fontFamily: 'Poppins_400Regular', flex: 1 }} numberOfLines={1}>
-                                            {item.alias || item.form_submission_id}
-                                        </Text>
-                                    </View>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                                        <TouchableOpacity
-                                            onPress={() => syncQueueEntry(item)}
-                                            style={{ padding: 8 }}
-                                            disabled={isSyncingAll || syncingId !== null}
-                                        >
-                                            {syncingId === item.id ? (
-                                                <ActivityIndicator size={20} color={theme.screen.icon} />
-                                            ) : (
-                                                <MaterialCommunityIcons name="sync" size={22} color={theme.screen.icon} />
-                                            )}
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            onPress={() => dispatch({ type: REMOVE_FORM_QUEUE_ENTRY, payload: item.id })}
-                                            style={{ padding: 8 }}
-                                            disabled={isSyncingAll || syncingId !== null}
-                                        >
-                                            <MaterialCommunityIcons name="trash-can-outline" size={22} color={theme.screen.icon} />
-                                        </TouchableOpacity>
-                                         <Entypo name={isLtrLanguage ? 'chevron-small-right' : 'chevron-small-left'} color={theme.screen.icon} size={24} />
-                                    </View>
+                                    {syncingId === item.id ? (
+                                        <ActivityIndicator size={20} color={theme.screen.icon} />
+                                    ) : (
+                                        <MaterialCommunityIcons name="sync" size={22} color={theme.screen.icon} />
+                                    )}
                                 </TouchableOpacity>
-                            )}
-                            contentContainerStyle={{ paddingBottom: 20 }}
-                        />
+                                <TouchableOpacity
+                                    onPress={() => dispatch({ type: REMOVE_FORM_QUEUE_ENTRY, payload: item.id })}
+                                    style={{ padding: 8 }}
+                                    disabled={isSyncingAll || syncingId !== null}
+                                >
+                                    <MaterialCommunityIcons name="trash-can-outline" size={22} color={theme.screen.icon} />
+                                </TouchableOpacity>
+                                <Entypo name={isLtrLanguage ? 'chevron-small-right' : 'chevron-small-left'} color={theme.screen.icon} size={24} />
+                            </View>
+                        </TouchableOpacity>
                     )}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                />
+            )}
         </AppScreen>
     );
 };

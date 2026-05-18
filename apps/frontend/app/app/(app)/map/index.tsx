@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Keyboard, Platform, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import AppScreen from '@/components/AppScreen';
+import AppEmptyState from '@/components/AppEmptyState';
 import AppTextInput from '@/components/AppTextInput';
 import AppButton from '@/components/AppButton';
 import { useTheme } from '@/hooks/useTheme';
@@ -21,7 +22,7 @@ import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
 import MapHeader from '@/app/(app)/map/components/MapHeader';
 import DebugView from '@/components/DebugView';
 import SettingsList from '@/components/SettingsList/SettingsList';
-import SettingsGroupTitle from '@/components/SettingsGroupTitle';
+import AppSection from '@/components/AppSection';
 import SettingsListOrganisationFast from '@/components/SettingsListOrganisationFast';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -238,186 +239,189 @@ const OsmSettingsContent: React.FC<OsmSettingsContentProps> = ({
 
 	return (
 		<>
-			<SettingsGroupTitle>{translate(TranslationKeys.map_settings)}</SettingsGroupTitle>
-			<SettingsListMyMapThemeSelection
-				selectedMapStyleKey={selectedStyleKey}
-				onMapStyleKeyChange={(key) => {
-					setSelectedStyleKey(key);
-					onSelectedStyleChange(key);
-				}}
-				leftIcon={<MaterialIcons name="layers" size={20} color={theme.screen.icon} />}
-				groupPosition="top"
-			/>
-			<SettingsList
-				title={translate(TranslationKeys.cluster_distance_px)}
-				leftIcon={<MaterialCommunityIcons name="dots-grid" size={20} color={theme.screen.icon} />}
-				rightElement={
-					<AppTextInput
-						value={localClusterDistance}
-						onChangeText={(text) => {
-							setLocalClusterDistance(text);
-							const num = Number.parseInt(text, 10);
-							if (!Number.isNaN(num) && num >= 10) {
-								onClusterDistanceChange(num);
-							}
-						}}
-						keyboardType="numeric"
-						containerStyle={{ width: 60 }}
-						inputStyle={{ paddingHorizontal: 0, backgroundColor: 'transparent' }}
-						style={{ color: theme.screen.text, textAlign: 'right', fontSize: 15 }}
-						borderWidth={0} // No border needed inside SettingsList
-					/>
-				}
-				groupPosition="middle"
-			/>
-			<SettingsList
-				title={translate(TranslationKeys.smooth_camera_movement)}
-				leftIcon={<MaterialIcons name="animation" size={20} color={theme.screen.icon} />}
-				rightElement={
-					<Switch
-						value={localFlyAnimation}
-						onValueChange={(value) => {
-							setLocalFlyAnimation(value);
-							onFlyAnimationChange(value);
-						}}
-					/>
-				}
-				groupPosition="middle"
-				showSeparator={true}
-			/>
-			<SettingsList
-				title={translate(TranslationKeys.fullscreen)}
-				leftIcon={<MaterialIcons name={isFullscreen ? 'fullscreen-exit' : 'fullscreen'} size={20} color={theme.screen.icon} />}
-				rightElement={
-					<Switch
-						value={isFullscreen}
-						onValueChange={onToggleFullscreen}
-					/>
-				}
-				groupPosition="middle"
-				showSeparator={true}
-			/>
-			<SettingsList
-				title={translate(TranslationKeys.map_controls)}
-				leftIcon={<MaterialIcons name="touch-app" size={20} color={theme.screen.icon} />}
-				rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
-				onPress={onShowControlsHint}
-				groupPosition="bottom"
-				showSeparator={false}
-			/>
-			<SettingsGroupMyMapGeneralMarkers />
-			<SettingsGroupTitle>{translate(TranslationKeys.privacy)}</SettingsGroupTitle>
-			<SettingsList
-				title={translate(TranslationKeys.revoke_osm_consent)}
-				value={translate(TranslationKeys.map_not_loaded_afterwards)}
-				leftIcon={<MaterialCommunityIcons name="map-marker-off-outline" size={20} color={theme.screen.icon} />}
-				rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
-				onPress={onRevokeConsent}
-				groupPosition="single"
-			/>
-			<SettingsGroupTitle>{translate(TranslationKeys.fun_settings)}</SettingsGroupTitle>
-			<SettingsList
-				title={translate(TranslationKeys.game_mode)}
-				leftIcon={<MaterialIcons name="sports-esports" size={20} color={theme.screen.icon} />}
-				rightElement={
-					<Switch
-						value={localGameMode}
-						onValueChange={(value) => {
-							setLocalGameMode(value);
-							onGameModeChange(value);
-						}}
-					/>
-				}
-				groupPosition="top"
-				showSeparator={true}
-			/>
-			<SettingsList
-				title={translate(TranslationKeys.auto_rotate_mode)}
-				leftIcon={<MaterialIcons name="360" size={20} color={theme.screen.icon} />}
-				rightElement={
-					<Switch
-						value={localAutoRotateMode}
-						onValueChange={(value) => {
-							setLocalAutoRotateMode(value);
-							onAutoRotateModeChange(value);
-						}}
-					/>
-				}
-				groupPosition="middle"
-				showSeparator={true}
-			/>
-			<SettingsList
-				title={translate(TranslationKeys.fictional_person_mode)}
-				leftIcon={<MaterialIcons name="people" size={20} color={theme.screen.icon} />}
-				rightElement={
-					<Switch
-						value={localPeopleMode}
-						onValueChange={(value) => {
-							setLocalPeopleMode(value);
-							onPeopleModeChange(value);
-						}}
-					/>
-				}
-				groupPosition="middle"
-				showSeparator={true}
-			/>
-			{localPeopleMode && (
-				<SettingsList
-					title={translate(TranslationKeys.intelligent_movement)}
-					leftIcon={<MaterialIcons name="directions-walk" size={20} color={theme.screen.icon} />}
-					rightElement={
-						<Switch
-							value={localIntelligentMovement}
-							onValueChange={(value) => {
-								setLocalIntelligentMovement(value);
-								onIntelligentMovementChange(value);
-							}}
-						/>
-					}
-					groupPosition="middle"
-					showSeparator={true}
+			<AppSection title={translate(TranslationKeys.map_settings)}>
+				<SettingsListMyMapThemeSelection
+					selectedMapStyleKey={selectedStyleKey}
+					onMapStyleKeyChange={(key) => {
+						setSelectedStyleKey(key);
+						onSelectedStyleChange(key);
+					}}
+					leftIcon={<MaterialIcons name="layers" size={20} color={theme.screen.icon} />}
+					groupPosition="top"
 				/>
-			)}
-			{localPeopleMode && (
 				<SettingsList
-					title={translate(TranslationKeys.simulated_people_count)}
-					leftIcon={<MaterialIcons name="person-add" size={20} color={theme.screen.icon} />}
+					title={translate(TranslationKeys.cluster_distance_px)}
+					leftIcon={<MaterialCommunityIcons name="dots-grid" size={20} color={theme.screen.icon} />}
 					rightElement={
 						<AppTextInput
-							value={localPeopleCount}
+							value={localClusterDistance}
 							onChangeText={(text) => {
-								setLocalPeopleCount(text);
+								setLocalClusterDistance(text);
 								const num = Number.parseInt(text, 10);
-								if (!Number.isNaN(num) && num >= 1) {
-									onPeopleCountChange(num);
+								if (!Number.isNaN(num) && num >= 10) {
+									onClusterDistanceChange(num);
 								}
 							}}
 							keyboardType="numeric"
 							containerStyle={{ width: 60 }}
 							inputStyle={{ paddingHorizontal: 0, backgroundColor: 'transparent' }}
 							style={{ color: theme.screen.text, textAlign: 'right', fontSize: 15 }}
-							borderWidth={0}
+							borderWidth={0} // No border needed inside SettingsList
+						/>
+					}
+					groupPosition="middle"
+				/>
+				<SettingsList
+					title={translate(TranslationKeys.smooth_camera_movement)}
+					leftIcon={<MaterialIcons name="animation" size={20} color={theme.screen.icon} />}
+					rightElement={
+						<Switch
+							value={localFlyAnimation}
+							onValueChange={(value) => {
+								setLocalFlyAnimation(value);
+								onFlyAnimationChange(value);
+							}}
 						/>
 					}
 					groupPosition="middle"
 					showSeparator={true}
 				/>
-			)}
-			<SettingsList
-				title={translate(TranslationKeys.fictional_driver_mode)}
-				leftIcon={<MaterialIcons name="directions-car" size={20} color={theme.screen.icon} />}
-				rightElement={
-					<Switch
-						value={localCarMode}
-						onValueChange={(value) => {
-							setLocalCarMode(value);
-							onCarModeChange(value);
-						}}
+				<SettingsList
+					title={translate(TranslationKeys.fullscreen)}
+					leftIcon={<MaterialIcons name={isFullscreen ? 'fullscreen-exit' : 'fullscreen'} size={20} color={theme.screen.icon} />}
+					rightElement={
+						<Switch
+							value={isFullscreen}
+							onValueChange={onToggleFullscreen}
+						/>
+					}
+					groupPosition="middle"
+					showSeparator={true}
+				/>
+				<SettingsList
+					title={translate(TranslationKeys.map_controls)}
+					leftIcon={<MaterialIcons name="touch-app" size={20} color={theme.screen.icon} />}
+					rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
+					onPress={onShowControlsHint}
+					groupPosition="bottom"
+					showSeparator={false}
+				/>
+			</AppSection>
+			<SettingsGroupMyMapGeneralMarkers />
+			<AppSection title={translate(TranslationKeys.privacy)}>
+				<SettingsList
+					title={translate(TranslationKeys.revoke_osm_consent)}
+					value={translate(TranslationKeys.map_not_loaded_afterwards)}
+					leftIcon={<MaterialCommunityIcons name="map-marker-off-outline" size={20} color={theme.screen.icon} />}
+					rightIcon={<Entypo name={isArabic ? 'chevron-small-left' : 'chevron-small-right'} size={24} color={theme.screen.icon} />}
+					onPress={onRevokeConsent}
+					groupPosition="single"
+				/>
+			</AppSection>
+			<AppSection title={translate(TranslationKeys.fun_settings)}>
+				<SettingsList
+					title={translate(TranslationKeys.game_mode)}
+					leftIcon={<MaterialIcons name="sports-esports" size={20} color={theme.screen.icon} />}
+					rightElement={
+						<Switch
+							value={localGameMode}
+							onValueChange={(value) => {
+								setLocalGameMode(value);
+								onGameModeChange(value);
+							}}
+						/>
+					}
+					groupPosition="top"
+					showSeparator={true}
+				/>
+				<SettingsList
+					title={translate(TranslationKeys.auto_rotate_mode)}
+					leftIcon={<MaterialIcons name="360" size={20} color={theme.screen.icon} />}
+					rightElement={
+						<Switch
+							value={localAutoRotateMode}
+							onValueChange={(value) => {
+								setLocalAutoRotateMode(value);
+								onAutoRotateModeChange(value);
+							}}
+						/>
+					}
+					groupPosition="middle"
+					showSeparator={true}
+				/>
+				<SettingsList
+					title={translate(TranslationKeys.fictional_person_mode)}
+					leftIcon={<MaterialIcons name="people" size={20} color={theme.screen.icon} />}
+					rightElement={
+						<Switch
+							value={localPeopleMode}
+							onValueChange={(value) => {
+								setLocalPeopleMode(value);
+								onPeopleModeChange(value);
+							}}
+						/>
+					}
+					groupPosition="middle"
+					showSeparator={true}
+				/>
+				{localPeopleMode && (
+					<SettingsList
+						title={translate(TranslationKeys.intelligent_movement)}
+						leftIcon={<MaterialIcons name="directions-walk" size={20} color={theme.screen.icon} />}
+						rightElement={
+							<Switch
+								value={localIntelligentMovement}
+								onValueChange={(value) => {
+									setLocalIntelligentMovement(value);
+									onIntelligentMovementChange(value);
+								}}
+							/>
+						}
+						groupPosition="middle"
+						showSeparator={true}
 					/>
-				}
-				groupPosition="bottom"
-				showSeparator={false}
-			/>
+				)}
+				{localPeopleMode && (
+					<SettingsList
+						title={translate(TranslationKeys.simulated_people_count)}
+						leftIcon={<MaterialIcons name="person-add" size={20} color={theme.screen.icon} />}
+						rightElement={
+							<AppTextInput
+								value={localPeopleCount}
+								onChangeText={(text) => {
+									setLocalPeopleCount(text);
+									const num = Number.parseInt(text, 10);
+									if (!Number.isNaN(num) && num >= 1) {
+										onPeopleCountChange(num);
+									}
+								}}
+								keyboardType="numeric"
+								containerStyle={{ width: 60 }}
+								inputStyle={{ paddingHorizontal: 0, backgroundColor: 'transparent' }}
+								style={{ color: theme.screen.text, textAlign: 'right', fontSize: 15 }}
+								borderWidth={0}
+							/>
+						}
+						groupPosition="middle"
+						showSeparator={true}
+					/>
+				)}
+				<SettingsList
+					title={translate(TranslationKeys.fictional_driver_mode)}
+					leftIcon={<MaterialIcons name="directions-car" size={20} color={theme.screen.icon} />}
+					rightElement={
+						<Switch
+							value={localCarMode}
+							onValueChange={(value) => {
+								setLocalCarMode(value);
+								onCarModeChange(value);
+							}}
+						/>
+					}
+					groupPosition="bottom"
+					showSeparator={false}
+				/>
+			</AppSection>
 		</>
 	);
 };
@@ -587,9 +591,7 @@ const OsmFilterContent: React.FC<OsmFilterContentProps> = ({
 
 	if (organisations.length === 0) {
 		return (
-			<View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
-				<Text style={{ color: '#888' }}>{translate(TranslationKeys.no_data_found)}</Text>
-			</View>
+			<AppEmptyState message={translate(TranslationKeys.no_data_found)} />
 		);
 	}
 
@@ -1468,9 +1470,6 @@ const OsmVectorMapScreen: React.FC = () => {
 
 	const openSettingsModal = useCallback(() => {
 		show({
-			title: translate(TranslationKeys.map_settings),
-			titleTextAlign: isRtl ? 'right' : 'left',
-			titleWritingDirection: isRtl ? 'rtl' : 'ltr',
 			children: (
 				<OsmSettingsContent
 					initialSelectedStyleKey={selectedStyleKey}

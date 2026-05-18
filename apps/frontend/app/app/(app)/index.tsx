@@ -1,4 +1,5 @@
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
@@ -164,16 +165,7 @@ const Home = () => {
 		>
 			<ScrollView>
 				{loading ? (
-					<View
-						style={{
-							height: 200,
-							width: '100%',
-							justifyContent: 'center',
-							alignItems: 'center',
-						}}
-					>
-						<ActivityIndicator size={30} color={theme.screen.text} />
-					</View>
+					<AppLoadingView height={200} size={30} />
 				) : (
 					<CanteenSelection onSelectCanteen={handleSelectCanteen} />
 				)}

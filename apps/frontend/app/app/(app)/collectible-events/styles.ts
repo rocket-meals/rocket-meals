@@ -5,9 +5,4 @@ export default StyleSheet.create({
                 width: '100%',
                 padding: 20,
         },
-        emptyText: {
-                textAlign: 'center',
-                marginTop: 20,
-                fontSize: 16,
-        },
 });

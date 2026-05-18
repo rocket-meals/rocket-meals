@@ -1,8 +1,8 @@
-import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions } from 'react-native';
+import AppLoadingView from '@/components/AppLoadingView';
 import React, { useCallback, useEffect, useState } from 'react';
-import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { Entypo, FontAwesome } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useAppSelector } from '@/redux/hooks';
@@ -76,16 +76,7 @@ const Index = () => {
 	return (
 		<AppScreen>
 			{loading ? (
-				<View
-					style={{
-						height: 200,
-						width: '100%',
-						justifyContent: 'center',
-						alignItems: 'center',
-					}}
-				>
-					<ActivityIndicator size={30} color={theme.screen.text} />
-				</View>
+				<AppLoadingView size={30} height={200} />
 			) : (
 				<>
 					{forms &&

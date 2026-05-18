@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import AppEmptyState from '@/components/AppEmptyState';
+import AppLoadingView from '@/components/AppLoadingView';
 
 interface HousingListEmptyProps {
 	loading: boolean;
@@ -10,36 +11,18 @@ interface HousingListEmptyProps {
 
 const HousingListEmpty: React.FC<HousingListEmptyProps> = ({ loading, theme }) => {
 	const { translate } = useLanguage();
+
 	if (loading) {
-		return (
-			<View style={styles.container}>
-				<ActivityIndicator size={30} color={theme.screen.text} />
-			</View>
-		);
+		return <AppLoadingView color={theme.screen.text} height={200} />;
 	}
 
 	return (
-		<View style={styles.container}>
-			<Text
-				style={{
-					fontSize: 16,
-					fontFamily: 'Poppins_400Regular',
-					color: theme.screen.text,
-				}}
-			>
-				{translate(TranslationKeys.noApartmentFound)}
-			</Text>
-		</View>
+		<AppEmptyState
+			iconName={null}
+			message={translate(TranslationKeys.noApartmentFound)}
+			style={{ height: 200, justifyContent: 'center', paddingVertical: 0 }}
+		/>
 	);
 };
-
-const styles = StyleSheet.create({
-	container: {
-		height: 200,
-		width: '100%',
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-});
 
 export default memo(HousingListEmpty);

@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-native-modal';
 import { styles } from './styles';
@@ -11,7 +11,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { FormsSubmissionsHelper } from '@/redux/actions/Forms/FormSubmitions';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { TranslationKeys } from '@/locales/keys';
-import { RootState } from '@/redux/reducer';
 import AppButton from '@/components/AppButton';
 
 const SubmissionWarningModal: React.FC<SubmissionWarningModalProps> = ({ isVisible, setIsVisible, id }) => {
