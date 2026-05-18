@@ -5,7 +5,7 @@ import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 
 export interface AppInfoRowProps {
-	icon: React.ReactNode;
+	icon?: React.ReactNode;
 	label: string;
 	value: string;
 	textColor?: string;
@@ -34,9 +34,11 @@ const AppInfoRow: React.FC<AppInfoRowProps> = ({
 			]}
 		>
 			<View style={[styles.iconLabel, isRtl ? styles.iconLabelRtl : undefined]}>
-				<View style={[styles.iconWrap, isRtl ? styles.iconWrapRtl : undefined]}>
-					{icon}
-				</View>
+				{icon ? (
+					<View style={[styles.iconWrap, isRtl ? styles.iconWrapRtl : undefined]}>
+						{icon}
+					</View>
+				) : null}
 				<Text
 					style={[
 						styles.label,

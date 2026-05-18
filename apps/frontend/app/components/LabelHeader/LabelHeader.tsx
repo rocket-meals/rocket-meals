@@ -7,6 +7,7 @@ import { StringHelper } from 'repo-depkit-common';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppOfflineChip from '@/components/AppOfflineChip';
 
 
 const LabelHeader: React.FC<{ Label: any; isConnected?: Boolean }> = ({ Label, isConnected = true }) => {
@@ -66,19 +67,7 @@ const LabelHeader: React.FC<{ Label: any; isConnected?: Boolean }> = ({ Label, i
 					<Text style={{ ...styles.label, color: theme.screen.text, ...(isArabic ? { textAlign: 'right', writingDirection: 'rtl' } : {}) }}>{Label}</Text>
 					<Text style={{ ...styles.timestamp, color: theme.screen.text, ...(isArabic ? { textAlign: 'right', writingDirection: 'rtl' } : {}) }}>{currentTime}</Text>
 				</View>
-				{!isConnected && (
-					<View style={styles.offlineChip}>
-						<Text
-							style={{
-								...styles.timestamp,
-								color: '#ffffff',
-								fontSize: 12,
-							}}
-						>
-							{translate(TranslationKeys.offline)}
-						</Text>
-					</View>
-				)}
+				{!isConnected && <AppOfflineChip />}
 			</View>
 		</View>
 	);

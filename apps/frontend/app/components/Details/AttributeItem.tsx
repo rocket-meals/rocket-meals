@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import SettingsList from '@/components/SettingsList';
-import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
+import AppExpoIcon from '@/components/AppExpoIcon';
 import { formatFoodInformationValue, getImageUrl } from '@/constants/HelperFunctions';
 import { getFoodAttributesTranslation } from '@/helper/resourceHelper';
 import { useMyContrastColor } from '@/helper/ColorHelper';
@@ -41,20 +41,13 @@ const AttributeItem: React.FC<AttributeItemProps> = ({ attr, groupPosition }) =>
 		return null;
 	}
 
-	const iconParts = attr?.food_attribute?.icon_expo?.split(':') || [];
-	const [library, name] = iconParts;
-	const Icon = library && iconLibraries[library];
-
 	const imageUri = attr?.food_attribute?.image_remote_url || getImageUrl(attr?.food_attribute?.image);
 	const imageSource = imageUri ? { uri: imageUri } : null;
 
-	const attributeIconParts = attr?.icon_value?.split(':') || [];
-	const [attributeIconLibrary, attributeIconName] = attributeIconParts;
-	const AttributeIcon = attributeIconLibrary && iconLibraries[attributeIconLibrary];
 	const attributeIconColor = attr?.color_value || theme.screen.text;
 
 	const leftIconComponent =
-		!Icon && imageSource ? (
+		!attr?.food_attribute?.icon_expo && imageSource ? (
 			<View style={[styles.attributeIconWrapper, backgroundColor ? { backgroundColor } : null]}>
 				<Image source={imageSource} style={styles.attributeImage} />
 			</View>
@@ -64,9 +57,17 @@ const AttributeItem: React.FC<AttributeItemProps> = ({ attr, groupPosition }) =>
 		<SettingsList
 			label={label || undefined}
 			value={value}
-			leftIcon={Icon ? <Icon name={name} size={18} color={iconColor} /> : undefined}
+			leftIcon={
+				attr?.food_attribute?.icon_expo ? (
+					<AppExpoIcon iconString={attr.food_attribute.icon_expo} size={18} color={iconColor} />
+				) : undefined
+			}
 			leftIconComponent={leftIconComponent}
-			rightIcon={AttributeIcon ? <AttributeIcon name={attributeIconName} size={20} color={attributeIconColor} /> : undefined}
+			rightIcon={
+				attr?.icon_value ? (
+					<AppExpoIcon iconString={attr.icon_value} size={20} color={attributeIconColor} />
+				) : undefined
+			}
 			iconBgColor={backgroundColor}
 			groupPosition={groupPosition}
 		/>

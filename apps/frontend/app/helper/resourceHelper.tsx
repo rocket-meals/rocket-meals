@@ -1,6 +1,6 @@
 import React from 'react';
-import { FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { DatabaseTypes, StringHelper } from 'repo-depkit-common';
+import AppExpoIcon from '@/components/AppExpoIcon';
 
 export type TranslationEntry = {
 	languages_code: string;
@@ -9,20 +9,7 @@ export type TranslationEntry = {
 
 const getIconComponent = (iconString: string, iconColor: string): JSX.Element | null => {
 	if (!iconString) return null;
-
-	const [library, iconName] = iconString.split(':') as [string, string];
-
-	switch (library) {
-		case 'MaterialCommunityIcons':
-			return <MaterialCommunityIcons name={iconName as any} size={24} color={iconColor} />;
-		case 'MaterialIcons':
-			return <MaterialIcons name={iconName as any} size={24} color={iconColor} />;
-		case 'FontAwesome':
-			return <FontAwesome name={iconName as any} size={24} color={iconColor} />;
-		default:
-			console.warn(`Icon library "${library}" is not supported`);
-			return null;
-	}
+	return <AppExpoIcon iconString={iconString} size={24} color={iconColor} />;
 };
 
 interface Translation {

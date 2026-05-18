@@ -12,7 +12,6 @@ import { router, useFocusEffect } from 'expo-router';
 import { useAppSelector } from '@/redux/hooks';
 import { useDispatch } from 'react-redux';
 import { getFromCategoryTranslation } from '@/helper/resourceHelper';
-import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { SET_CACHED_FORM_CATEGORIES, SET_CACHED_FORMS, SET_CACHED_FORM_DATA, SET_OFFLINE_MODE } from '@/redux/Types/types';
@@ -23,6 +22,8 @@ import AppButton from '@/components/AppButton';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import AppScreen from '@/components/AppScreen';
 import AppListItem from '@/components/AppListItem';
+import AppExpoIcon from '@/components/AppExpoIcon';
+import AppFormQueueButton from '@/components/AppFormQueueButton';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.select_a_form_category);
@@ -231,41 +232,7 @@ const Index = () => {
 					}
 				/>
 
-				{/* Queue button */}
-				<TouchableOpacity
-					onPress={() => router.push('/form-queue')}
-					style={{
-						padding: 10,
-						borderRadius: 20,
-						backgroundColor: theme.screen.iconBg,
-					}}
-				>
-					<View>
-						<MaterialCommunityIcons
-							name="clock-outline"
-							size={22}
-							color={theme.screen.icon}
-						/>
-						{queueCount > 0 && (
-							<View
-								style={{
-									position: 'absolute',
-									top: -4,
-									right: -4,
-									backgroundColor: 'red',
-									borderRadius: 8,
-									minWidth: 16,
-									height: 16,
-									justifyContent: 'center',
-									alignItems: 'center',
-									paddingHorizontal: 2,
-								}}
-							>
-								<Text style={{ color: 'white', fontSize: 10, fontFamily: 'Poppins_700Bold' }}>{queueCount}</Text>
-							</View>
-						)}
-					</View>
-				</TouchableOpacity>
+				<AppFormQueueButton count={queueCount} />
 			</View>
 
 			{/* Offline mode toggle */}
@@ -287,15 +254,6 @@ const Index = () => {
 				<>
 					{formCategories &&
 						formCategories?.map((category) => {
-							let IconComponent: any = null;
-							let iconName = '';
-							if (category?.icon_expo) {
-								const [library, name] = category?.icon_expo?.split(':') ?? [];
-								if (iconLibraries[library]) {
-									IconComponent = iconLibraries[library];
-									iconName = name;
-								}
-							}
 							const cached = isCategoryCached(category.id);
 							return (
 								<AppListItem
@@ -307,7 +265,7 @@ const Index = () => {
 											params: { category_id: category?.id },
 										});
 									}}
-									leftIcon={IconComponent && <IconComponent name={iconName} size={20} color={theme.screen.icon} />}
+									leftIcon={category?.icon_expo ? <AppExpoIcon iconString={category.icon_expo} size={20} color={theme.screen.icon} /> : undefined}
 									rightElement={
 										<>
 											{cached && (

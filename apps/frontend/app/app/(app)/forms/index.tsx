@@ -8,7 +8,6 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useAppSelector } from '@/redux/hooks';
 import { useDispatch } from 'react-redux';
 import { getFromCategoryTranslation } from '@/helper/resourceHelper';
-import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
 import { FormsHelper } from '@/redux/actions/Forms/Forms';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
@@ -17,6 +16,7 @@ import { SET_CACHED_FORMS } from '@/redux/Types/types';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
 import AppScreen from '@/components/AppScreen';
 import AppListItem from '@/components/AppListItem';
+import AppExpoIcon from '@/components/AppExpoIcon';
 
 const CACHED_COLOR = '#22c55e';
 
@@ -80,16 +80,7 @@ const Index = () => {
 			) : (
 				<>
 					{forms &&
-						forms?.map((form, index) => {
-							let IconComponent: any = null;
-							let iconName = '';
-							if (form?.icon_expo) {
-								const [library, name] = form?.icon_expo?.split(':') ?? [];
-								if (iconLibraries[library]) {
-									IconComponent = iconLibraries[library];
-									iconName = name;
-								}
-							}
+						forms.map((form) => {
 							const formId = String(form?.id);
 							const isCached = !!(cachedFormData && cachedFormData[formId]);
 							return (
@@ -102,7 +93,7 @@ const Index = () => {
 											params: { form_id: form?.id },
 										});
 									}}
-									leftIcon={IconComponent && <IconComponent name={iconName} size={20} color={theme.screen.icon} />}
+									leftIcon={form?.icon_expo ? <AppExpoIcon iconString={form.icon_expo} size={20} color={theme.screen.icon} /> : undefined}
 									rightElement={
 										isCached ? <FontAwesome name="cloud-download" size={18} color={CACHED_COLOR} /> : null
 									}

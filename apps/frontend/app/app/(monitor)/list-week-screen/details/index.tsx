@@ -14,7 +14,7 @@ import { myContrastColor } from '@/helper/ColorHelper';
 import { useLocalSearchParams } from 'expo-router';
 import moment from 'moment';
 import { useLanguage } from '@/hooks/useLanguage';
-import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
+import AppExpoIcon from '@/components/AppExpoIcon';
 import { DatabaseTypes, sortMarkingsByGroup } from 'repo-depkit-common';
 import { MarkingGroupsHelper } from '@/redux/actions/MarkingGroups/MarkingGroups';
 import { MarkingHelper } from '@/redux/actions/Markings/Markings';
@@ -498,9 +498,6 @@ const Index = () => {
 																		>
 																			{foodMarkings[filteredFood.id] &&
 																				foodMarkings[filteredFood.id].map((marking: any, idx: number) => {
-																					const iconParts = marking?.icon?.split(':') || [];
-																					const [library, name] = iconParts;
-																					const Icon = library && iconLibraries[library];
 																					return marking?.icon ? (
 																						<View
 																							key={idx}
@@ -511,7 +508,7 @@ const Index = () => {
 																								borderRadius: 5,
 																							}}
 																						>
-																							<Icon name={name} size={14} color={marking.color} />
+																							<AppExpoIcon iconString={marking.icon} size={14} color={marking.color} />
 																						</View>
 																					) : !marking?.image?.uri && marking?.shortCode ? (
 																						<View

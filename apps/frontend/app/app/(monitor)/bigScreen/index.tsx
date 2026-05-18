@@ -11,6 +11,7 @@ import { useLocalSearchParams } from 'expo-router';
 import NetInfo from '@react-native-community/netinfo';
 import MarkingIcon from '@/components/MarkingIcon';
 import CompanyImage from '@/components/CompanyImage';
+import AppOfflineChip from '@/components/AppOfflineChip';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { FoodCategoriesHelper } from '@/redux/actions/FoodCategories/FoodCategories';
@@ -373,17 +374,9 @@ const Index = () => {
 									{selectedCanteen?.alias}
 								</Text>
 								{!isConnected && (
-									<View style={styles.offlineChip}>
-										<Text
-											style={{
-												...styles.timestamp,
-												color: '#ffffff',
-												fontSize: screenWidth > 600 ? 14 : 12,
-											}}
-										>
-											{translate(TranslationKeys.offline)}
-										</Text>
-									</View>
+									<AppOfflineChip
+										textStyle={{ fontSize: screenWidth > 600 ? 14 : 12 }}
+									/>
 								)}
 							</View>
 

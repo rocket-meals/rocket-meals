@@ -32,7 +32,7 @@ import ImageUpload from '@/components/ImageUpload/ImageUpload';
 import SignatureInterface from '@/components/SignatureInterface/SignatureInterface';
 import DropdownInput from '@/components/DropdownInput/DropdownInput';
 import { getFromCategoryTranslation, getFromDescriptionTranslation } from '@/helper/resourceHelper';
-import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
+import AppExpoIcon from '@/components/AppExpoIcon';
 import { DynamicCollectionHelper } from '@/redux/actions/DynamicCollection/DynamicCollection';
 import CollectionSelection from '@/components/CollectionSelection/CollectionSelection';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
@@ -980,15 +980,6 @@ const Index = () => {
 									}
 
 									const isDisabled = (answer?.form_field as DatabaseTypes.FormFields)?.is_disabled || false;
-									let IconComponent: any = null;
-									let iconName = '';
-									if ((answer?.form_field as DatabaseTypes.FormFields)?.icon_expo) {
-										const [library, name] = (answer?.form_field as DatabaseTypes.FormFields)?.icon_expo?.split(':') ?? [];
-										if (iconLibraries[library]) {
-											IconComponent = iconLibraries[library];
-											iconName = name;
-										}
-									}
 
 									return (
 										<View
@@ -1008,7 +999,9 @@ const Index = () => {
 													!isLtrLanguage ? { justifyContent: 'flex-start' } : null,
 												]}
 											>
-												{IconComponent && <IconComponent name={iconName} size={20} color={theme.screen.icon} />}
+												{(answer?.form_field as DatabaseTypes.FormFields)?.icon_expo ? (
+													<AppExpoIcon iconString={(answer?.form_field as DatabaseTypes.FormFields)?.icon_expo} size={20} color={theme.screen.icon} />
+												) : null}
 												{!isLtrLanguage && (answer?.form_field as DatabaseTypes.FormFields)?.is_required && (
 													<FontAwesome6 name="star-of-life" size={12} color={'red'} />
 												)}

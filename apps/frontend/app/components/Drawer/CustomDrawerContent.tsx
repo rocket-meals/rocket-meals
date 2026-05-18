@@ -1,6 +1,6 @@
 import { Image, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import React, { useEffect, useMemo } from 'react';
-import { AntDesign, Entypo, EvilIcons, Feather, FontAwesome, FontAwesome5, FontAwesome6, Foundation, Ionicons, MaterialCommunityIcons, Octicons, SimpleLineIcons, Zocial } from '@expo/vector-icons';
+import { AntDesign, Entypo, EvilIcons, Feather, FontAwesome, FontAwesome5, FontAwesome6, Foundation, Ionicons, MaterialCommunityIcons, MaterialIcons, Octicons, SimpleLineIcons, Zocial } from '@expo/vector-icons';
 import { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useTheme } from '@/hooks/useTheme';
 import { useDispatch } from 'react-redux';
@@ -31,6 +31,7 @@ import useCustomerConfig from '@/hooks/useCustomerConfig';
 export const iconLibraries: Record<string, any> = {
 	Ionicons,
 	MaterialCommunityIcons,
+	MaterialIcons,
 	FontAwesome5,
 	FontAwesome6,
 	FontAwesome,

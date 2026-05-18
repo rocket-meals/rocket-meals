@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, Text, View } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useMyContrastColor } from '@/helper/ColorHelper';
-import { iconLibraries } from '../Drawer/CustomDrawerContent';
+import AppExpoIcon from '@/components/AppExpoIcon';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import styles from './styles';
 import { DatabaseTypes } from 'repo-depkit-common';
@@ -32,11 +32,9 @@ const MarkingIcon: React.FC<MarkingIconProps> = ({ marking, size = 24, color, co
 		: null;
 	const textColor = color || contrast;
 
-	const iconParts = marking.icon?.split(':') || [];
-	const [library, iconName] = iconParts;
-	const Icon = library && iconLibraries[library];
+	const hasIcon = !!(marking.icon && marking.icon.includes(':'));
 
-	const isTextOnly = !!marking.short_code && !markingImage?.uri && !Icon;
+	const isTextOnly = !!marking.short_code && !markingImage?.uri && !hasIcon;
 
 	const hasImage = !!markingImage?.uri;
 	const showBorder = !hasImage && !marking.hide_border;
@@ -76,10 +74,10 @@ const MarkingIcon: React.FC<MarkingIconProps> = ({ marking, size = 24, color, co
 		);
 	}
 
-	if (Icon) {
+	if (hasIcon) {
 		return (
 			<View style={containerStyle}>
-				<Icon name={iconName} size={size * iconScale} color={textColor} />
+				<AppExpoIcon iconString={marking.icon} size={size * iconScale} color={textColor} />
 			</View>
 		);
 	}

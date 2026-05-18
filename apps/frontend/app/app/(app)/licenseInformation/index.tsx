@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './styles';
-import { Dimensions, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Linking, ScrollView, Text, TouchableOpacity, View, StyleSheet, ViewStyle } from 'react-native';
 import packages from '../../../constants/LicenseData';
 import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
@@ -12,7 +12,89 @@ import { CollectibleAt } from 'repo-depkit-common';
 
 import { useLanguage } from '@/hooks/useLanguage';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import useLanguageTextAlign from '@/hooks/useLanguageTextAlign';
 import AppScreen from '@/components/AppScreen';
+import AppInfoRow from '@/components/AppInfoRow';
+
+export interface AppInfoLinkRowProps {
+	icon?: React.ReactNode;
+	label: string;
+	value: string;
+	url: string;
+	textColor?: string;
+	style?: ViewStyle;
+}
+
+const AppInfoLinkRow: React.FC<AppInfoLinkRowProps> = ({
+	icon,
+	label,
+	value,
+	url,
+	textColor,
+	style,
+}) => {
+	const { theme } = useTheme();
+	const isLtrLanguage = useIsLtrLanguage();
+	const isRtl = !isLtrLanguage;
+	const textAlign = useLanguageTextAlign();
+	const resolvedTextColor = textColor ?? theme.screen.text;
+
+	const handlePress = () => {
+		if (url) {
+			Linking.openURL(url).catch((err) => console.error('Failed to open URL:', err));
+		}
+	};
+
+	return (
+		<View
+			style={[
+				styles.linkRow,
+				isRtl ? styles.linkRowRtl : undefined,
+				style,
+			]}
+		>
+			<View style={[styles.linkIconLabel, isRtl ? styles.linkIconLabelRtl : undefined]}>
+				{icon ? (
+					<View style={[styles.linkIconWrap, isRtl ? styles.linkIconWrapRtl : undefined]}>
+						{icon}
+					</View>
+				) : null}
+				<Text
+					style={[
+						styles.linkLabel,
+						{
+							color: resolvedTextColor,
+							textAlign,
+							writingDirection: isRtl ? 'rtl' : 'ltr',
+						},
+					]}
+				>
+					{label}
+				</Text>
+			</View>
+
+			<TouchableOpacity onPress={handlePress} activeOpacity={0.7} style={styles.linkValueWrap}>
+				<Text
+					style={[
+						styles.linkValue,
+						{
+							color: '#3b82f6', // Premium link blue
+							textDecorationLine: 'underline',
+							...(isRtl
+								? { textAlign: 'left', writingDirection: 'ltr' as const }
+								: {}),
+						},
+					]}
+					numberOfLines={1}
+					ellipsizeMode="tail"
+				>
+					{value}
+				</Text>
+			</TouchableOpacity>
+		</View>
+	);
+};
+
 
 const LicenseInformation = () => {
 	useSetPageTitle(TranslationKeys.license_information);
@@ -79,139 +161,33 @@ const LicenseInformation = () => {
 						</TouchableOpacity>
 						{expanded === index && (
 							<View style={styles.extandContainer}>
-								<View style={[styles.detailText, isRtl ? { flexDirection: 'row-reverse' } : null]}>
-									<Text
-										style={{
-											color: theme.screen.text,
-											fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
-											textAlign: isRtl ? 'right' : 'left',
-											writingDirection: isRtl ? 'rtl' : 'ltr',
-										}}
-									>
-										{translate(TranslationKeys.package)}
-									</Text>
-									<Text
-										style={{
-											color: theme.screen.text,
-											fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
-											textAlign: isRtl ? 'left' : 'right',
-											writingDirection: 'ltr',
-										}}
-									>
-										{pkg.name}
-									</Text>
-								</View>
-								<View style={[styles.detailText, isRtl ? { flexDirection: 'row-reverse' } : null]}>
-									<Text
-										style={{
-											color: theme.screen.text,
-											fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
-											textAlign: isRtl ? 'right' : 'left',
-											writingDirection: isRtl ? 'rtl' : 'ltr',
-										}}
-									>
-										{translate(TranslationKeys.version)}
-									</Text>
-									<Text
-										style={{
-											color: theme.screen.text,
-											fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
-											textAlign: isRtl ? 'left' : 'right',
-											writingDirection: 'ltr',
-										}}
-									>
-										{pkg.version}
-									</Text>
-								</View>
-								<View style={[styles.detailText, isRtl ? { flexDirection: 'row-reverse' } : null]}>
-									<Text
-										style={{
-											color: theme.screen.text,
-											fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
-											textAlign: isRtl ? 'right' : 'left',
-											writingDirection: isRtl ? 'rtl' : 'ltr',
-										}}
-									>
-										{translate(TranslationKeys.license)}
-									</Text>
-									<Text
-										style={{
-											color: theme.screen.text,
-											fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
-											textAlign: isRtl ? 'left' : 'right',
-											writingDirection: 'ltr',
-										}}
-									>
-										{pkg.license}
-									</Text>
-								</View>
-								<View style={[styles.detailText, isRtl ? { flexDirection: 'row-reverse' } : null]}>
-									<View
-										style={{
-											width: '48%',
-										}}
-									>
-										<Text
-											style={{
-												color: theme.screen.text,
-												fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
-												textAlign: isRtl ? 'right' : 'left',
-												writingDirection: isRtl ? 'rtl' : 'ltr',
-											}}
-										>
-											{translate(TranslationKeys.repository)}
-										</Text>
-									</View>
-									<View
-										style={{
-											width: '48%',
-											...(isRtl ? { alignItems: 'flex-start' } : {}),
-										}}
-									>
-										<Text
-											style={{ color: 'blue', textAlign: isRtl ? 'left' : 'right', writingDirection: 'ltr' }}
-											onPress={() => Linking.openURL(pkg.repository)}
-										>
-											{pkg.repository}
-										</Text>
-									</View>
-								</View>
-								<View style={[styles.detailText, isRtl ? { flexDirection: 'row-reverse' } : null]}>
-									<View
-										style={{
-											width: '48%',
-										}}
-									>
-										<Text
-											style={{
-												color: theme.screen.text,
-												fontSize: windowWidth > 600 ? (isWeb ? 14 : 12) : 12,
-												textAlign: isRtl ? 'right' : 'left',
-												writingDirection: isRtl ? 'rtl' : 'ltr',
-											}}
-										>
-											{translate(TranslationKeys.license_url)}
-										</Text>
-									</View>
-									<View
-										style={{
-											width: '48%',
-											justifyContent: 'flex-end',
-											...(isRtl ? { alignItems: 'flex-start' } : {}),
-										}}
-									>
-										<Text
-											style={{
-												color: 'blue',
-												textAlign: isRtl ? 'left' : 'right',
-												writingDirection: 'ltr',
-											}}
-											onPress={() => Linking.openURL(pkg.licenseUrl)}
-										>
-											{pkg.licenseUrl}
-										</Text>
-									</View>
-								</View>
+								<AppInfoRow
+									label={translate(TranslationKeys.package)}
+									value={pkg.name}
+									style={styles.detailText}
+								/>
+								<AppInfoRow
+									label={translate(TranslationKeys.version)}
+									value={pkg.version}
+									style={styles.detailText}
+								/>
+								<AppInfoRow
+									label={translate(TranslationKeys.license)}
+									value={pkg.license}
+									style={styles.detailText}
+								/>
+								<AppInfoLinkRow
+									label={translate(TranslationKeys.repository)}
+									value={pkg.repository}
+									url={pkg.repository}
+									style={styles.detailText}
+								/>
+								<AppInfoLinkRow
+									label={translate(TranslationKeys.license_url)}
+									value={pkg.licenseUrl}
+									url={pkg.licenseUrl}
+									style={styles.detailText}
+								/>
 							</View>
 						)}
 					</View>

@@ -28,6 +28,7 @@ import AppScreen from '@/components/AppScreen';
 import AppListItem from '@/components/AppListItem';
 import AppEmptyState from '@/components/AppEmptyState';
 import AppLoadingView from '@/components/AppLoadingView';
+import AppFormQueueButton from '@/components/AppFormQueueButton';
 
 type FormSubmissionListRow =
 	| {
@@ -472,36 +473,11 @@ const Index = () => {
 						<TouchableOpacity onPress={openFilterSheet} style={{ padding: 10 }}>
 							<FontAwesome name="filter" size={24} color={theme.header.text} />
 						</TouchableOpacity>
-						<TouchableOpacity
-							onPress={() => router.push('/form-queue')}
-							style={{ padding: 10 }}
-						>
-							<View>
-								<MaterialCommunityIcons
-									name="clock-outline"
-									size={24}
-									color={theme.header.text}
-								/>
-								{queueEntries.length > 0 && (
-									<View
-										style={{
-											position: 'absolute',
-											top: -4,
-											right: -4,
-											backgroundColor: 'red',
-											borderRadius: 8,
-											minWidth: 16,
-											height: 16,
-											justifyContent: 'center',
-											alignItems: 'center',
-											paddingHorizontal: 2,
-										}}
-									>
-										<Text style={{ color: 'white', fontSize: 10, fontFamily: 'Poppins_700Bold' }}>{queueEntries.length}</Text>
-									</View>
-								)}
-							</View>
-						</TouchableOpacity>
+						<AppFormQueueButton
+							count={queueEntries.length}
+							iconColor={theme.header.text}
+							buttonStyle={{ backgroundColor: 'transparent', borderRadius: 0 }}
+						/>
 					</View>
 				</View>
 			</View>
