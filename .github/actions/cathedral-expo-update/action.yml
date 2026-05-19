@@ -1,0 +1,193 @@
+name: "Cathedral EAS Update"
+description: "Publishes an EAS OTA update for the Cathedral frontend"
+
+inputs:
+  EXPO_TOKEN:
+    required: true
+    description: "Expo Access Token for EAS CLI"
+  GITHUB_TOKEN:
+    required: true
+    description: "GitHub Token for committing EAS project config changes"
+  ref_name:
+    required: true
+    description: "Git branch name (determines the update channel: production or preview)"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "⚙️ Setup Node.js"
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22.16.0"
+
+    - name: "⚙️ Enable Corepack"
+      run: corepack enable
+      shell: bash
+
+    - name: "📦 Get Yarn cache directory path"
+      id: yarn-cache-dir-path
+      run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: "📦 Cache Yarn dependencies"
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+
+    - name: "⚙️ Setup EAS CLI"
+      uses: expo/expo-github-action@v8
+      with:
+        eas-version: latest
+        token: ${{ inputs.EXPO_TOKEN }}
+
+    - name: "📦 Install dependencies"
+      run: yarn install --immutable
+      shell: bash
+
+    - name: "🖼️ Generate Cathedral app icons"
+      shell: bash
+      run: |
+        set -euxo pipefail
+
+        sudo apt-get update
+        sudo apt-get install -y imagemagick
+
+        ICON_SOURCE="./apps/cathedral/frontend/assets/icons/app_icon_source.png"
+        COMPANY_LOGO="./customers/BaumgartnerSoftware/company.png"
+
+        ./scripts/generateIcons.sh "$ICON_SOURCE" "$COMPANY_LOGO" "./apps/cathedral/frontend/assets/generated/"
+
+    - name: "🔧 Initialize EAS project if not configured"
+      run: |
+        if grep -q 'projectId' app.config.ts 2>/dev/null || grep -q '"projectId"' app.json 2>/dev/null; then
+          echo "EAS project already configured"
+        else
+          echo "EAS project not yet configured, running eas init..."
+          eas init --non-interactive --force
+        fi
+      working-directory: ./apps/cathedral/frontend
+      shell: bash
+      env:
+        EXPO_TOKEN: ${{ inputs.EXPO_TOKEN }}
+
+    - name: "🔧 Configure EAS Update settings (loop until complete)"
+      run: |
+        # Helper script: injects missing top-level keys from MISSING_CONFIG env var into app.config.ts
+        cat > /tmp/patch-eas-config.js << 'NODEEOF'
+        const fs = require('fs');
+        let content = fs.readFileSync('./app.config.ts', 'utf8');
+        const missing = JSON.parse(process.env.MISSING_CONFIG);
+
+        function escapeRegex(s) {
+          return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function toTsLiteral(v, depth) {
+          if (typeof v === 'string') return "'" + v.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+          if (typeof v !== 'object' || v === null) return JSON.stringify(v);
+          const indent = '\t'.repeat(depth + 3);
+          const closing = '\t'.repeat(depth + 2);
+          const inner = Object.entries(v)
+            .map(([k, val]) => indent + k + ': ' + toTsLiteral(val, depth + 1))
+            .join(',\n');
+          return '{\n' + inner + ',\n' + closing + '}';
+        }
+
+        let patched = false;
+        for (const [key, rawValue] of Object.entries(missing)) {
+          if (new RegExp('\\b' + escapeRegex(key) + '\\s*:').test(content)) continue;
+          console.log('Injecting missing key:', key);
+          const block = '\t\t' + key + ': ' + toTsLiteral(rawValue, 0) + ',\n';
+          const updated = content.replace(/([ \t]+extra\s*:)/, block + '$1');
+          // Fallback: insert before the closing brace of the return object if extra: was not found
+          content = updated !== content ? updated : content.replace(/(\n\t};\n};?\s*)$/, '\n' + block + '$1');
+          patched = true;
+        }
+
+        if (patched) {
+          fs.writeFileSync('./app.config.ts', content);
+          console.log('app.config.ts patched successfully');
+        } else {
+          console.log('No changes needed');
+        }
+        NODEEOF
+
+        MAX_RETRIES=5
+        retry=0
+        while [ $retry -lt $MAX_RETRIES ]; do
+          set +e
+          OUTPUT=$(eas update:configure --non-interactive 2>&1)
+          EXIT_CODE=$?
+          set -e
+
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "EAS Update configuration complete"
+            break
+          fi
+
+          if echo "$OUTPUT" | grep -q "Cannot automatically write to dynamic config"; then
+            echo "Detected missing EAS Update config fields, patching app.config.ts (attempt $((retry + 1)))..."
+            MISSING_CONFIG=$(echo "$OUTPUT" | node -e "
+              let s = '';
+              process.stdin.on('data', d => s += d);
+              process.stdin.on('end', () => {
+                const m = s.match(/\{[\s\S]*?\}/);
+                if (m) process.stdout.write(m[0]);
+              });
+            ")
+            if [ -z "$MISSING_CONFIG" ]; then
+              echo "ERROR: Could not extract missing config JSON from EAS output."
+              echo "Full output:"
+              echo "$OUTPUT"
+              exit 1
+            fi
+            MISSING_CONFIG="$MISSING_CONFIG" node /tmp/patch-eas-config.js
+            retry=$((retry + 1))
+          else
+            echo "EAS update:configure failed with unexpected error:"
+            echo "$OUTPUT"
+            exit 1
+          fi
+        done
+
+        if [ $retry -ge $MAX_RETRIES ]; then
+          echo "EAS Update configure failed after $MAX_RETRIES attempts"
+          exit 1
+        fi
+      working-directory: ./apps/cathedral/frontend
+      shell: bash
+      env:
+        EXPO_TOKEN: ${{ inputs.EXPO_TOKEN }}
+
+    - name: "💾 Commit EAS config changes"
+      run: |
+        git config --global user.name 'Rocket Meals'
+        git config --global user.email 'nils@baumgartner-software.de'
+        git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+        if ! git diff --quiet; then
+          git add -A && git commit -m "chore: update cathedral EAS config [skip ci]"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin "$(git rev-parse --abbrev-ref HEAD)" && git push && break
+            echo "Push attempt $i failed, retrying..."
+            sleep 5
+          done
+        fi
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+
+    - name: "🚀 Publish OTA update"
+      run: |
+        if [ "${{ inputs.ref_name }}" = "main" ] || [ "${{ inputs.ref_name }}" = "master" ]; then
+          CHANNEL="production"
+        else
+          CHANNEL="preview"
+        fi
+        eas update --auto --platform all --non-interactive --channel "$CHANNEL"
+      working-directory: ./apps/cathedral/frontend
+      shell: bash
+      env:
+        EXPO_TOKEN: ${{ inputs.EXPO_TOKEN }}
