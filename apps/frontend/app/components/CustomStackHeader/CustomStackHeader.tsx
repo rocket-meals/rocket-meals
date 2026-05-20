@@ -55,13 +55,13 @@ const CustomStackHeader: React.FC<CustomStackHeaderProps> = ({ label, rightEleme
 			router.navigate(`/${AppScreens.MANAGEMENT}`);
 		} else if (pathname.includes(`/${AppScreens.FORMS}`)) {
 			router.navigate(`/${AppScreens.FORM_CATEGORIES}`);
-                } else if (pathname.includes(`/${AppScreens.FORM_CATEGORIES}`)) {
-                        router.navigate(`/${AppScreens.MANAGEMENT}`);
-                } else if (pathname.includes('/chats/details')) {
-                        router.navigate('/chats');
-                } else if (router.canGoBack()) {
-                        router.back();
-                } else if (loggedIn) {
+		} else if (pathname.includes(`/${AppScreens.FORM_CATEGORIES}`)) {
+			router.navigate(`/${AppScreens.MANAGEMENT}`);
+		} else if (pathname.includes('/chats/details')) {
+			router.navigate('/chats');
+		} else if (router.canGoBack()) {
+			router.back();
+		} else if (loggedIn) {
 			router.navigate(`/${AppScreens.FOOD_OFFERS}`);
 		} else {
 			router.navigate(`/${AppScreens.LOGIN}`);
@@ -86,14 +86,14 @@ const CustomStackHeader: React.FC<CustomStackHeaderProps> = ({ label, rightEleme
 				paddingHorizontal: isWeb ? 20 : 10,
 			}}
 		>
-                        <View
-                                style={[
-                                        styles.row,
-                                        isArabicRight && rightElement ? { flexDirection: 'row-reverse' } : undefined,
-                                        isArabicRight && !rightElement ? { justifyContent: 'flex-end' } : undefined,
-                                ]}
-                        >
-                                <View style={[styles.col1, isArabicRight ? { flexDirection: 'row-reverse' } : undefined]}>
+			<View
+				style={[
+					styles.row,
+					isArabicRight && rightElement ? { flexDirection: 'row-reverse' } : undefined,
+					isArabicRight && !rightElement ? { justifyContent: 'flex-end' } : undefined,
+				]}
+			>
+				<View style={[styles.col1, isArabicRight ? { flexDirection: 'row-reverse' } : undefined]}>
 					<CustomTooltip
 						placement="top"
 						trigger={triggerProps => (
@@ -110,11 +110,11 @@ const CustomStackHeader: React.FC<CustomStackHeaderProps> = ({ label, rightEleme
 					</CustomTooltip>
 
 					<Text style={{ ...styles.heading, color: theme.header.text, ...(isArabicRight ? { textAlign: 'right' } : {}) }}>{excerpt(label, screenWidth > 900 ? 100 : screenWidth > 700 ? 80 : 22)}</Text>
-                                </View>
-                                {rightElement ? <View style={styles.col2}>{rightElement}</View> : null}
-                        </View>
-                </View>
-        );
+				</View>
+				{rightElement ? <View style={styles.col2}>{rightElement}</View> : null}
+			</View>
+		</View>
+	);
 };
 
 export default CustomStackHeader;

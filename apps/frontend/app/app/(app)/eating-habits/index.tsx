@@ -26,6 +26,7 @@ import SettingsListMarkingLabelFast from '@/components/SettingsListMarkingLabelF
 import { SettingsListProps } from '@/components/SettingsList/types';
 import AppButton from '@/components/AppButton';
 import useIsLtrLanguage from '@/hooks/useIsLtrLanguage';
+import AppConfirmationDialog from '@/components/AppConfirmationDialog';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import SettingsListSelectOption from '@/components/SettingsListSelectOption/SettingsListSelectOption';
 import useCustomerConfigSeperateMarkingsForFood from '@/hooks/useCustomerConfigSeperateMarkingsForFood';
@@ -128,27 +129,19 @@ const Index = () => {
 		showModal(
 			{
 				children: (
-					<View style={{ gap: 12 }}>
-						<Text style={{ fontSize: 18, fontWeight: '600', color: theme.screen.text }}>
-							{translate(TranslationKeys.clear_markings_selection)}
-						</Text>
-						<AppButton
-							text={translate(TranslationKeys.confirm)}
-							onPress={() => {
-								closeModal();
-								void handleClearMarkings();
-							}}
-							style={{ marginVertical: 0 }}
-						/>
-						<TouchableOpacity onPress={closeModal} style={{ alignSelf: 'center', paddingVertical: 6 }}>
-							<Text style={{ color: theme.screen.text }}>{translate(TranslationKeys.cancel)}</Text>
-						</TouchableOpacity>
-					</View>
+					<AppConfirmationDialog
+						title={translate(TranslationKeys.clear_markings_selection)}
+						onConfirm={() => {
+							closeModal();
+							void handleClearMarkings();
+						}}
+						onCancel={closeModal}
+					/>
 				),
 			},
 			{}
 		);
-	}, [showModal, closeModal, translate, theme.screen.text, handleClearMarkings]);
+	}, [showModal, closeModal, translate, handleClearMarkings]);
 
 	const customerConfigValueLabel = useMemo(
 		() => customerConfigDefaultBreakdown
