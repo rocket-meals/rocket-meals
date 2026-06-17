@@ -79,7 +79,8 @@ const CanteenSelection: React.FC<CanteenSelectionProps> = ({ onSelectCanteen }) 
 							onPress={() => {
 								onSelectCanteen(canteen);
 							}}
-							imageSource={{ uri: imageUrl || defaultImage || '' }}
+							remote_image_url={imageUrl}
+							defaultImageUrl={defaultImage}
 							containerStyle={{
 								width: '100%',
 								backgroundColor: theme.card.background,

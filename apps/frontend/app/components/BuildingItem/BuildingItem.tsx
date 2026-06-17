@@ -89,13 +89,6 @@ const BuildingItem: React.FC<BuildingItemPropsOptimized> = ({
 		return amountColumnsForcard === 0 ? CardDimensionHelper.getCardDimension(screenWidth) : CardDimensionHelper.getCardWidth(screenWidth, amountColumnsForcard);
 	}, [amountColumnsForcard, screenWidth]);
 
-	const imageSource = useMemo(() => {
-		if (campus?.image || campus?.image_remote_url) {
-			return { uri: campus?.image_remote_url || getImageUrl(campus?.image) };
-		}
-		return { uri: defaultImage };
-	}, [campus, defaultImage]);
-
 	const cardSize =
 		amountColumnsForcard === 0
 		  ? CardDimensionHelper.getCardDimension(screenWidth)
@@ -106,7 +99,9 @@ const BuildingItem: React.FC<BuildingItemPropsOptimized> = ({
 			{...triggerProps}
 			aspectRatio={false}
 			onPress={() => handleNavigation(campus?.id)}
-			imageSource={imageSource}
+			directus_asset_id={campus?.image}
+			remote_image_url={campus?.image_remote_url}
+			defaultImageUrl={defaultImage}
 			containerStyle={{
 				width: '100%',
 				backgroundColor: theme.card.background,

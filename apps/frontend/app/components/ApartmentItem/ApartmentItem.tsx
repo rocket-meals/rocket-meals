@@ -2,7 +2,7 @@ import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
 import React, { memo } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { isWeb } from '@/constants/Constants';
-import { excerpt, getImageUrl } from '@/constants/HelperFunctions';
+import { excerpt } from '@/constants/HelperFunctions';
 import { getDistanceUnit } from '@/helper/distanceHelper';
 import { BuildingItemProps } from './types';
 import styles from './styles';
@@ -44,13 +44,9 @@ const ApartmentItem: React.FC<BuildingItemProps> = ({
 			<CardWithText
 				{...{}}
 				onPress={() => handleNavigation(apartment?.id)}
-				imageSource={
-					apartment?.image || apartment?.image_remote_url
-						? {
-							uri: apartment?.image_remote_url || getImageUrl(apartment?.image),
-						}
-						: { uri: defaultImage }
-				}
+				directus_asset_id={apartment?.image}
+				remote_image_url={apartment?.image_remote_url}
+				defaultImageUrl={defaultImage}
 				containerStyle={{
 					...styles.card,
 					width: '100%',

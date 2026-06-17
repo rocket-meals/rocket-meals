@@ -279,10 +279,6 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
 
     const priceLabel = useMemo(() => showFormatedPrice(showPrice(item, profile)), [item, profile]);
 
-    const imageUri = useMemo(() => {
-      return foodItem?.image_remote_url || getImageUrl(foodItem?.image as string) || defaultImage;
-    }, [foodItem?.image_remote_url, foodItem?.image, defaultImage]);
-
     const handleDescriptionModal = useCallback(() => {
       if (!foodDescription) return;
       showScrollViewModal(
@@ -311,9 +307,9 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
                   ? openInBrowser(item.redirect_url)
                   : openFoodOfferDetailsModal(item?.id, foodItem?.id || '')
               }
-              imageSource={{
-                uri: imageUri as string,
-              }}
+              directus_asset_id={foodItem?.image}
+              remote_image_url={foodItem?.image_remote_url}
+              defaultImageUrl={defaultImage}
               containerStyle={[
                 containerStyle,
                 cardWidth ? { width: '100%' } : { flex: 1 },
