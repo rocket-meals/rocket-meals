@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import {
-	Image,
 	ImageSourcePropType,
 	ImageStyle,
 	LayoutChangeEvent,
@@ -11,6 +10,7 @@ import {
 	View,
 	ViewStyle,
 } from 'react-native';
+import { Image } from 'expo-image';
 
 export interface CardWithTextProps extends TouchableOpacityProps {
 	/**
@@ -107,7 +107,7 @@ const CardWithText: React.FC<CardWithTextProps> = ({
 			>
 				<View style={[{ borderTopLeftRadius: topRadius, borderTopRightRadius: topRadius }, ...resolvedImageContainerStyle]}>
 					{imageSource ? (
-						<Image source={imageSource} style={[styles.image, imageStyle]} resizeMode="cover" />
+						<Image source={imageSource} style={[styles.image, imageStyle]} contentFit="cover" cachePolicy="memory-disk" />
 					) : null}
 					{imageChildren}
 				</View>

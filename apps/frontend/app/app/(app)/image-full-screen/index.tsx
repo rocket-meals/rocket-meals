@@ -248,8 +248,8 @@ export default function ImageFullScreen() {
 				<Animated.View style={styles.flex}>
 					<TouchableWithoutFeedback onPress={toggleControls} onLongPress={() => setModalVisible(true)}>
 						<Animated.View style={[styles.imageWrapper, animatedStyle]}>
-							<Image source={{ uri: lowResUri || undefined }} style={styles.image} contentFit="contain" />
-							<Image source={{ uri: highResUri || undefined }} style={[styles.image, StyleSheet.absoluteFill]} contentFit="contain" />
+							<Image source={{ uri: lowResUri || undefined }} style={styles.image} contentFit="contain" cachePolicy="memory-disk" />
+							<Image source={{ uri: highResUri || undefined }} style={[styles.image, StyleSheet.absoluteFill]} contentFit="contain" cachePolicy="memory-disk" />
 						</Animated.View>
 					</TouchableWithoutFeedback>
 				</Animated.View>

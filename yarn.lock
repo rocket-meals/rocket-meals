@@ -26601,6 +26601,7 @@ __metadata:
     expo-asset: "*"
     expo-clipboard: "*"
     expo-file-system: "*"
+    expo-image: "*"
     expo-location: "*"
     react: "*"
     react-native: "*"

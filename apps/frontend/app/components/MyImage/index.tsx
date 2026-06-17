@@ -106,7 +106,7 @@ const MyImage: React.FC<MyImageProps> = ({
              else if (resizeMode === 'center') contentFit = 'none';
         }
 
-        return <Image source={source} contentFit={contentFit} {...rest} />;
+        return <Image source={source} contentFit={contentFit} cachePolicy="memory-disk" {...rest} />;
 };
 
 export default React.memo(MyImage);

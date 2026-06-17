@@ -67,7 +67,7 @@ const AutoImageScroller: React.FC<AutoImageScrollerProps> = ({ images, numColumn
 		const offset = (columnIndex % 3) * (size / 3);
 		return (
 			<View style={{ transform: [{ translateY: offset }] }}>
-				<Image source={{ uri: item }} style={[styles.image, { width: size, height: size }]} contentFit="cover" />
+				<Image source={{ uri: item }} style={[styles.image, { width: size, height: size }]} contentFit="cover" cachePolicy="memory-disk" />
 			</View>
 		);
 	};
