@@ -45,11 +45,6 @@ module.exports = function ({ config }: ConfigContext): ExpoConfig {
 			output: 'static',
 			favicon: './assets/icons/app_icon_source.png',
 		},
-		updates: {
-			enabled: true,
-			url: 'https://u.expo.dev/cathedral',
-			fallbackToCacheTimeout: 10 * 1000,
-		},
 		runtimeVersion: {
 			policy: 'appVersion',
 		},
@@ -71,10 +66,5 @@ module.exports = function ({ config }: ConfigContext): ExpoConfig {
 		experiments: {
 			typedRoutes: true,
 		},
-		extra: {
-			eas: {
-				projectId: 'cathedral',
-			},
-		}
 	};
 };

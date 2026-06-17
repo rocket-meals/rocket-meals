@@ -60,14 +60,10 @@ runs:
 
         ./scripts/generateIcons.sh "$ICON_SOURCE" "$COMPANY_LOGO" "./apps/cathedral/frontend/assets/generated/"
 
-    - name: "🔧 Initialize EAS project if not configured"
+    - name: "🔧 Initialize EAS project"
       run: |
-        if grep -q 'projectId' app.config.ts 2>/dev/null || grep -q '"projectId"' app.json 2>/dev/null; then
-          echo "EAS project already configured"
-        else
-          echo "EAS project not yet configured, running eas init..."
-          eas init --non-interactive --force
-        fi
+        echo "Running eas init to ensure project exists on expo.dev..."
+        eas init --non-interactive --force
       working-directory: ./apps/cathedral/frontend
       shell: bash
       env:
