@@ -32,9 +32,9 @@ const CardWithText: React.FC<CardWithTextProps> = ({
 	imageChildren,
 	...rest
 }) => {
-	const useMyImage = !!(directus_asset_id || remote_image_url || defaultImageUrl);
+	const hasImageData = !!(directus_asset_id || remote_image_url || defaultImageUrl);
 
-	if (useMyImage) {
+	if (hasImageData) {
 		return (
 			<BaseCardWithText
 				{...rest}
