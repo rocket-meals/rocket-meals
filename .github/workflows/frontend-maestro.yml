@@ -55,35 +55,6 @@ jobs:
         working-directory: apps/frontend/app
 
       - name: "▶️ Run Maestro tests"
-        run: maestro test apps/frontend/maestro-tests/generated/ --platform web --headless --debug-output /tmp/maestro-debug
+        run: maestro test apps/frontend/maestro-tests/generated/ --platform web --headless
         env:
           APP_URL: "http://localhost:8081/rocket-meals/"
-
-      - name: "📸 Show failure screenshots in summary"
-        if: failure()
-        run: |
-          echo "## 🎭 Maestro Test Failure Screenshots" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          shopt -s globstar nullglob
-          files=(/tmp/maestro-debug/**/*.png)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "No failure screenshots found in debug output." >> "$GITHUB_STEP_SUMMARY"
-          else
-            for img in "${files[@]}"; do
-              name=$(basename "$img")
-              echo "### $name" >> "$GITHUB_STEP_SUMMARY"
-              echo "![${name}](data:image/png;base64,$(base64 -w 0 < "$img"))" >> "$GITHUB_STEP_SUMMARY"
-              echo "" >> "$GITHUB_STEP_SUMMARY"
-            done
-          fi
-
-      - name: "📸 Upload screenshots"
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: maestro-screenshots
-          path: |
-            ~/.maestro/tests/**/*.png
-            /tmp/maestro-debug/**/*.png
-          if-no-files-found: ignore
-          retention-days: 30
