@@ -10,6 +10,7 @@ import { TranslationKeys } from '@/locales/keys';
 import { isWeb } from '@/constants/Constants';
 import { RootDrawerParamList } from '../types';
 import styles from '../styles';
+import { TestIds } from '@/constants/TestIds';
 
 interface HousingHeaderProps {
 	theme: any;
@@ -59,6 +60,7 @@ const HousingHeader: React.FC<HousingHeaderProps> = ({
 								{...triggerProps}
 								onPress={() => navigation.toggleDrawer()}
 								style={{ padding: 10 }}
+								testID={TestIds.OPEN_DRAWER_BUTTON}
 							>
 								<Ionicons name="menu" size={24} color={theme.header.text} />
 							</IconButton>

@@ -9,6 +9,7 @@ import { useNavigation } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { isWeb } from '@/constants/Constants';
+import { TestIds } from '@/constants/TestIds';
 
 type RootDrawerParamList = Record<string, undefined>;
 
@@ -47,6 +48,7 @@ const MapHeader: React.FC<MapHeaderProps> = ({
 							{...triggerProps}
 							onPress={() => drawerNavigation.toggleDrawer()}
 							style={styles.iconButton}
+							testID={TestIds.OPEN_DRAWER_BUTTON}
 						>
 							<Ionicons name="menu" size={24} color={theme.header.text} />
 						</IconButton>

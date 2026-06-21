@@ -6,14 +6,14 @@
  * SCREEN ELEMENTS AND EXPECTED TEXT STRINGS:
  * - Uses translation keys from TranslationKeys enum, never hardcoded strings
  * - Key screen texts (via t() function):
- *   - open_drawer: Opens side navigation menu
+ *   - open_drawer: Opens side navigation menu (via stable testID)
  *   - news: "News" navigation option
  *   - All lookups use t() to fetch German translations by default
  */
 
 import { MaestroTestCase } from '../framework/MaestroTestCase';
 import { TranslationKeys } from '../../../app/locales/keys';
-import { t, performAnonymousLogin, selectFirstCanteen } from '../framework/loginHelper';
+import { t, performAnonymousLogin, selectFirstCanteen, openDrawer } from '../framework/loginHelper';
 
 const test = new MaestroTestCase({
 	appId: 'com.rocketmeals.web',
@@ -25,10 +25,9 @@ const test = new MaestroTestCase({
 performAnonymousLogin(test);
 selectFirstCanteen(test);
 
+// Navigate to News
+openDrawer(test);
 test
-	// Navigate to News
-	.tapOn(t(TranslationKeys.open_drawer))
-	.waitForAnimationToEnd()
 	.tapOn(t(TranslationKeys.news))
 	.waitForAnimationToEnd()
 	.takeScreenshot('news-screen-loaded')

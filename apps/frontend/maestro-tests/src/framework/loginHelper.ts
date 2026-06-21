@@ -9,6 +9,7 @@
 import { MaestroTestCase } from './MaestroTestCase';
 import { TranslationKeys } from '../../../app/locales/keys';
 import translations from '../../../app/locales/translations.json';
+import { TestIds } from '../../../app/constants/TestIds';
 
 /** Return the translation for the given key (defaults to German). */
 export function t(key: TranslationKeys, lang: string = 'de'): string {
@@ -54,4 +55,13 @@ export function selectFirstCanteen(test: MaestroTestCase): MaestroTestCase {
 		.scroll()
 		.tapOnId(`${t(TranslationKeys.select)}.*`)
 		.waitForAnimationToEnd();
+}
+
+/**
+ * Tap the side-navigation (hamburger) button.
+ * Uses the stable testID instead of a localised text string so the step
+ * does not break when the app language changes.
+ */
+export function openDrawer(test: MaestroTestCase): MaestroTestCase {
+	return test.tapOnId(TestIds.OPEN_DRAWER_BUTTON).waitForAnimationToEnd();
 }

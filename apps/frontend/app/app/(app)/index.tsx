@@ -17,6 +17,7 @@ import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
 import CanteenSelection from '@/components/CanteenSelection/CanteenSelection';
+import { TestIds } from '@/constants/TestIds';
 
 const Home = () => {
 	const dispatch = useDispatch();
@@ -147,6 +148,7 @@ const Home = () => {
 						backgroundColor: theme.screen.iconBg,
 					}}
 					onPress={() => drawerNavigation.toggleDrawer()}
+					testID={TestIds.OPEN_DRAWER_BUTTON}
 				>
 					<Ionicons name="menu" size={24} color={theme.screen.icon} />
 					<Text style={{ ...styles.continueLabel, color: theme.screen.text }}>{translate(TranslationKeys.open_drawer)}</Text>

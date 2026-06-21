@@ -7,7 +7,7 @@
  * SCREEN ELEMENTS AND EXPECTED TEXT STRINGS:
  * - Uses translation keys from TranslationKeys enum, never hardcoded strings
  * - Key screen texts (via t() function):
- *   - open_drawer: Opens side navigation menu
+ *   - open_drawer: Opens side navigation menu (via stable testID)
  *   - settings: Enters settings screen
  *   - color_scheme: Color scheme setting option
  *   - color_scheme_dark: "Dark Mode" option
@@ -17,7 +17,7 @@
 
 import { MaestroTestCase } from '../framework/MaestroTestCase';
 import { TranslationKeys } from '../../../app/locales/keys';
-import { t, performAnonymousLogin, selectFirstCanteen } from '../framework/loginHelper';
+import { t, performAnonymousLogin, selectFirstCanteen, openDrawer } from '../framework/loginHelper';
 
 const test = new MaestroTestCase({
 	appId: 'com.rocketmeals.web',
@@ -29,10 +29,9 @@ const test = new MaestroTestCase({
 performAnonymousLogin(test);
 selectFirstCanteen(test);
 
+// Navigate to Settings
+openDrawer(test);
 test
-	// Navigate to Settings
-	.tapOn(t(TranslationKeys.open_drawer))
-	.waitForAnimationToEnd()
 	.tapOn(t(TranslationKeys.settings))
 	.waitForAnimationToEnd()
 	.takeScreenshot('dark-mode-before-light')
@@ -44,19 +43,19 @@ test
 	// Select dark mode
 	.tapOn(t(TranslationKeys.color_scheme_dark))
 	.waitForAnimationToEnd()
-	.takeScreenshot('dark-mode-settings-dark')
+	.takeScreenshot('dark-mode-settings-dark');
 
-	// Go back to main screen to see dark mode in effect
-	.tapOn(t(TranslationKeys.open_drawer))
-	.waitForAnimationToEnd()
+// Go back to main screen to see dark mode in effect
+openDrawer(test);
+test
 	.takeScreenshot('dark-mode-drawer-dark')
 	.tapOn(t(TranslationKeys.food_offers))
 	.waitForAnimationToEnd()
-	.takeScreenshot('dark-mode-food-offers-dark')
+	.takeScreenshot('dark-mode-food-offers-dark');
 
-	// Switch back to light for comparison
-	.tapOn(t(TranslationKeys.open_drawer))
-	.waitForAnimationToEnd()
+// Switch back to light for comparison
+openDrawer(test);
+test
 	.tapOn(t(TranslationKeys.settings))
 	.waitForAnimationToEnd()
 	.tapOn(t(TranslationKeys.color_scheme))

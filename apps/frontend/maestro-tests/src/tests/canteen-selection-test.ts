@@ -10,7 +10,7 @@
  *   - please_select_your_canteen: "Please select your canteen" title
  *   - no_canteens_found: "No canteens found" message (should NOT be visible initially)
  *   - select: "Select" button for choosing a canteen
- *   - open_drawer: Opens side navigation menu
+ *   - open_drawer: Opens side navigation menu (via stable testID)
  *   - settings: Enters settings screen
  *   - group_canteen_usage: Canteen settings group
  *   - canteen: Canteen selection setting option
@@ -19,7 +19,7 @@
 
 import { MaestroTestCase } from '../framework/MaestroTestCase';
 import { TranslationKeys } from '../../../app/locales/keys';
-import { t, performAnonymousLogin } from '../framework/loginHelper';
+import { t, performAnonymousLogin, openDrawer } from '../framework/loginHelper';
 
 const test = new MaestroTestCase({
 	appId: 'com.rocketmeals.web',
@@ -43,11 +43,11 @@ test
 	// Select a canteen
 	.tapOnId(`${t(TranslationKeys.select)}.*`)
 	.waitForAnimationToEnd()
-	.takeScreenshot('canteen-selected-main-app')
+	.takeScreenshot('canteen-selected-main-app');
 
-	// Navigate to settings to verify selected canteen is remembered
-	.tapOn(t(TranslationKeys.open_drawer))
-	.waitForAnimationToEnd()
+// Navigate to settings to verify selected canteen is remembered
+openDrawer(test);
+test
 	.tapOn(t(TranslationKeys.settings))
 	.waitForAnimationToEnd()
 

@@ -11,6 +11,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import { TestIds } from '@/constants/TestIds';
 import useChatUnreadStatus from '@/hooks/useChatUnreadStatus';
 import useActiveCollectibleEvent from '@/hooks/useActiveCollectibleEvent';
 
@@ -51,6 +52,7 @@ const CustomMenuHeader: React.FC<CustomMenuHeaderProps> = ({ label }) => {
                                                                 {...triggerProps}
                                                                 onPress={() => navigation.toggleDrawer()}
                                                                 style={styles.menuButton}
+                                                                testID={TestIds.OPEN_DRAWER_BUTTON}
                                                         >
                                                                 <View style={styles.menuIconWrapper}>
                                                                         <Ionicons name="menu" size={24} color={theme.header.text} />

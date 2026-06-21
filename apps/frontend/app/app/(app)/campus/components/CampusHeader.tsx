@@ -6,6 +6,7 @@ import IconButton from '@/components/UI/IconButton';
 import { TranslationKeys } from '@/locales/keys';
 import styles from '../styles';
 import { isWeb } from '@/constants/Constants';
+import { TestIds } from '@/constants/TestIds';
 
 interface CampusHeaderProps {
     theme: any;
@@ -33,7 +34,7 @@ const CampusHeader: React.FC<CampusHeaderProps> = ({
                     <CustomTooltip
                         placement="top"
                         trigger={triggerProps => (
-                            <IconButton {...triggerProps} onPress={onToggleDrawer} style={{ padding: 10 }}>
+                            <IconButton {...triggerProps} onPress={onToggleDrawer} style={{ padding: 10 }} testID={TestIds.OPEN_DRAWER_BUTTON}>
                                 <Ionicons name="menu" size={24} color={theme.header.text} />
                             </IconButton>
                         )}

@@ -6,7 +6,7 @@
  * SCREEN ELEMENTS AND EXPECTED TEXT STRINGS:
  * - Uses translation keys from TranslationKeys enum, never hardcoded strings
  * - Key screen texts (via t() function):
- *   - open_drawer: Opens side navigation menu
+ *   - open_drawer: Opens side navigation menu (via stable testID)
  *   - settings: Enters settings screen
  *   - feedback_and_support: "Feedback & Support" section
  *   - feedback_support_faq: "FAQ" option within Feedback & Support
@@ -15,7 +15,7 @@
 
 import { MaestroTestCase } from '../framework/MaestroTestCase';
 import { TranslationKeys } from '../../../app/locales/keys';
-import { t, performAnonymousLogin, selectFirstCanteen } from '../framework/loginHelper';
+import { t, performAnonymousLogin, selectFirstCanteen, openDrawer } from '../framework/loginHelper';
 
 const test = new MaestroTestCase({
 	appId: 'com.rocketmeals.web',
@@ -27,10 +27,9 @@ const test = new MaestroTestCase({
 performAnonymousLogin(test);
 selectFirstCanteen(test);
 
+// Navigate to Settings → Feedback & Support → FAQ
+openDrawer(test);
 test
-	// Navigate to Settings → Feedback & Support → FAQ
-	.tapOn(t(TranslationKeys.open_drawer))
-	.waitForAnimationToEnd()
 	.tapOn(t(TranslationKeys.settings))
 	.waitForAnimationToEnd()
 

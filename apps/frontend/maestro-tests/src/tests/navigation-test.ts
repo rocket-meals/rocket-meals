@@ -7,7 +7,7 @@
  * SCREEN ELEMENTS AND EXPECTED TEXT STRINGS:
  * - Uses translation keys from TranslationKeys enum, never hardcoded strings
  * - Key screen texts (via t() function):
- *   - open_drawer: Opens side navigation menu
+ *   - open_drawer: Opens side navigation menu (via stable testID)
  *   - food_offers: "Food Offers" navigation option
  *   - settings: "Settings" navigation option
  *   - group_app_settings: "App Settings" section header
@@ -17,7 +17,7 @@
 
 import { MaestroTestCase } from '../framework/MaestroTestCase';
 import { TranslationKeys } from '../../../app/locales/keys';
-import { t, performAnonymousLogin, selectFirstCanteen } from '../framework/loginHelper';
+import { t, performAnonymousLogin, selectFirstCanteen, openDrawer } from '../framework/loginHelper';
 
 const test = new MaestroTestCase({
 	appId: 'com.rocketmeals.web',
@@ -29,12 +29,11 @@ const test = new MaestroTestCase({
 performAnonymousLogin(test);
 selectFirstCanteen(test);
 
-test
-	.takeScreenshot('navigation-main-screen')
+test.takeScreenshot('navigation-main-screen');
 
-	// Open the drawer
-	.tapOn(t(TranslationKeys.open_drawer))
-	.waitForAnimationToEnd()
+// Open the drawer
+openDrawer(test);
+test
 	.takeScreenshot('navigation-drawer-open')
 
 	// Verify key navigation items are visible in the drawer
@@ -45,18 +44,18 @@ test
 	.tapOn(t(TranslationKeys.settings))
 	.waitForAnimationToEnd()
 	.takeScreenshot('navigation-settings-screen')
-	.assertVisible(t(TranslationKeys.group_app_settings))
+	.assertVisible(t(TranslationKeys.group_app_settings));
 
-	// Open drawer again and navigate to News
-	.tapOn(t(TranslationKeys.open_drawer))
-	.waitForAnimationToEnd()
+// Open drawer again and navigate to News
+openDrawer(test);
+test
 	.tapOn(t(TranslationKeys.news))
 	.waitForAnimationToEnd()
-	.takeScreenshot('navigation-news-screen')
+	.takeScreenshot('navigation-news-screen');
 
-	// Open drawer again and navigate to Food Offers
-	.tapOn(t(TranslationKeys.open_drawer))
-	.waitForAnimationToEnd()
+// Open drawer again and navigate to Food Offers
+openDrawer(test);
+test
 	.tapOn(t(TranslationKeys.food_offers))
 	.waitForAnimationToEnd()
 	.takeScreenshot('navigation-food-offers-screen');

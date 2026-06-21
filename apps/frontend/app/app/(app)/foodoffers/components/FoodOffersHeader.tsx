@@ -13,6 +13,7 @@ import { isWeb } from '@/constants/Constants';
 import styles from '../styles';
 import { RootDrawerParamList } from '../types';
 import { DatabaseTypes } from 'repo-depkit-common';
+import { TestIds } from '@/constants/TestIds';
 
 interface FoodOffersHeaderProps {
     drawerPosition: 'left' | 'right';
@@ -68,7 +69,7 @@ const FoodOffersHeader: React.FC<FoodOffersHeaderProps> = ({
                     <CustomTooltip
                         placement="top"
                         trigger={triggerProps => (
-                            <IconButton {...triggerProps} onPress={() => drawerNavigation.toggleDrawer()} style={iconPaddingStyle}>
+                            <IconButton {...triggerProps} onPress={() => drawerNavigation.toggleDrawer()} style={iconPaddingStyle} testID={TestIds.OPEN_DRAWER_BUTTON}>
                                 <Ionicons name="menu" size={24} color={theme.header.text} />
                                 {hasUnreadChats ? (
                                     <View
