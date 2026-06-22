@@ -39,6 +39,12 @@ const argv = yargs(hideBin(process.argv))
     type: 'boolean',
     demandOption: false,
   })
+  .option('baseUrl', {
+    alias: 'u',
+    description: 'Override base URL (defaults to GitHub Pages URL)',
+    type: 'string',
+    demandOption: false,
+  })
   .help()
   .alias('help', 'h').argv as any;
 
@@ -48,6 +54,7 @@ const repositoryName = argv.repositoryName || process.env.REPOSITORY_NAME;
 const screenshotDir = argv.screenshotDir || process.env.SCREENSHOT_DIR;
 const skipExisting = argv.skipExisting || process.env.SKIP_EXISTING;
 const browserLang = argv.browserLang || process.env.BROWSER_LANG || 'de';
+const baseUrlOverride = argv.baseUrl || process.env.BASE_URL;
 
 // check if all required environment variables are set
 if (!repositoryOwner || !repositoryName || !screenshotDir) {
@@ -66,13 +73,18 @@ console.log(`Generating screenshots for ${repositoryOwner}/${repositoryName}`);
 
 const screens: string[] = APP_ROUTES;
 
-const baseUrl = AppLinks.getGithubPagesBaseUrl(repositoryOwner, repositoryName);
+const baseUrl = baseUrlOverride || AppLinks.getGithubPagesBaseUrl(repositoryOwner, repositoryName);
 
 const urls = screens.map((screen: string) =>
-  AppLinks.getGithubPagesUrl(repositoryOwner, repositoryName, screen, [
-    { key: GlobalParams.kioskMode, value: true },
-    { key: GlobalParams.deviceMock, value: 'iphone' },
-  ])
+  baseUrlOverride
+    ? `${baseUrlOverride}/${AppLinks.build(screen, [
+        { key: GlobalParams.kioskMode, value: true },
+        { key: GlobalParams.deviceMock, value: 'iphone' },
+      ])}`
+    : AppLinks.getGithubPagesUrl(repositoryOwner, repositoryName, screen, [
+        { key: GlobalParams.kioskMode, value: true },
+        { key: GlobalParams.deviceMock, value: 'iphone' },
+      ])
 );
 
 (async () => {

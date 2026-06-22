@@ -27,6 +27,18 @@ jobs:
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
+      - name: 🏗️ Export Frontend for Web
+        run: yarn workspace rocket-meals-dev export:web
+
+      - name: 🌐 Serve Frontend Locally
+        run: |
+          mkdir -p apps/frontend/app/serveDist/rocket-meals
+          cp -r apps/frontend/app/dist/* apps/frontend/app/serveDist/rocket-meals/
+          python3 -m http.server 4173 --directory apps/frontend/app/serveDist &
+          echo "Waiting for local server to be ready..."
+          timeout 30 bash -c 'until curl -sf http://127.0.0.1:4173/rocket-meals > /dev/null; do sleep 1; done'
+          echo "Local server is ready."
+
       - name: 🚀 Generate Screenshots
         run: yarn start
         working-directory: apps/screenshotGenerator
@@ -34,6 +46,7 @@ jobs:
           REPOSITORY_OWNER: ${{ github.repository_owner }}
           REPOSITORY_NAME: ${{ github.event.repository.name }}
           SCREENSHOT_DIR: ${{ github.workspace }}/screenshots
+          BASE_URL: "http://127.0.0.1:4173/rocket-meals"
 
       - name: ☁️ Upload Screenshots
         uses: actions/upload-artifact@v4
