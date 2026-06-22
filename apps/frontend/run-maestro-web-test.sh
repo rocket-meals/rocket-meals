@@ -5,9 +5,13 @@
 # Usage (from apps/frontend/ or via `yarn maestro` in apps/frontend/app/):
 #   ./run-maestro-web-test.sh
 #
-# Starts the Expo web dev server (`yarn web`) on http://localhost:8081/,
+# Builds the Expo web app statically, serves it on http://localhost:8081/,
 # generates Maestro YAML files from TypeScript, runs all tests, then shuts
 # down the server automatically.
+#
+# Using a static export + serve (instead of `expo start --web`) avoids
+# server-side rendering in Node.js, which causes `window is not defined`
+# errors from libraries such as AsyncStorage.
 # =============================================================================
 
 set -e
@@ -33,31 +37,36 @@ if ! command -v maestro &> /dev/null; then
     exit 1
 fi
 
-# ── Start Expo web dev server on port 8081 ───────────────────────────────────
-echo "Starting Expo web dev server on http://localhost:8081/ ..."
-# CI=true forces non-interactive mode in Expo (no terminal UI, no prompts)
-(cd "$APP_DIR" && CI=true yarn web) &
+# ── Build the web app ────────────────────────────────────────────────────────
+echo "Building web app..."
+(cd "$APP_DIR" && yarn export:web:dev)
+echo "Build complete."
+echo ""
+
+# ── Start static file server on port 8081 ───────────────────────────────────
+echo "Starting static server on http://localhost:8081/ ..."
+npx --yes serve "$APP_DIR/dist" --listen 8081 --single &
 SERVER_PID=$!
 
 cleanup() {
     echo ""
-    echo "Stopping Expo server (PID $SERVER_PID)..."
+    echo "Stopping server (PID $SERVER_PID)..."
     kill "$SERVER_PID" 2>/dev/null || true
 }
 trap cleanup EXIT
 
-# ── Wait for the dev server to be ready ─────────────────────────────────────
+# ── Wait for server to be ready ──────────────────────────────────────────────
 echo "Waiting for http://localhost:8081/ ..."
-for i in $(seq 1 60); do
+for i in $(seq 1 30); do
     if curl -sf http://localhost:8081/ > /dev/null 2>&1; then
         echo "Server is ready."
         break
     fi
-    if [ "$i" -eq 60 ]; then
-        echo "ERROR: Expo web server did not become ready in time."
+    if [ "$i" -eq 30 ]; then
+        echo "ERROR: Server did not become ready in time."
         exit 1
     fi
-    echo "  Waiting... ($i/60)"
+    echo "  Waiting... ($i/30)"
     sleep 2
 done
 echo ""
