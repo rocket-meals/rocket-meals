@@ -21,7 +21,7 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: "🏗️ Export Expo Web (dev build for E2E tests)"
-        run: EXPO_WEB_BASE_URL= yarn export:web:dev
+        run: yarn export:web:dev
         working-directory: apps/frontend/app
 
       - name: "🌐 Serve exported web app"

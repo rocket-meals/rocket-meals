@@ -33,7 +33,7 @@ echo ""
 # ---------------------------------------------------------------------------
 echo "Exporting Expo web app (this may take a minute)..."
 EXPO_EXPORT_LOG="/tmp/expo-export-$$.log"
-if ! (cd "$SCRIPT_DIR/app" && EXPO_WEB_BASE_URL= yarn export:web:dev) > "$EXPO_EXPORT_LOG" 2>&1; then
+if ! (cd "$SCRIPT_DIR/app" && yarn export:web:dev) > "$EXPO_EXPORT_LOG" 2>&1; then
     echo "ERROR: Expo web export failed. See log:"
     cat "$EXPO_EXPORT_LOG"
     rm -f "$EXPO_EXPORT_LOG"

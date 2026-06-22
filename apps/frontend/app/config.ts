@@ -355,10 +355,7 @@ export function getFinalConfig(config?: any) {
 			],
 			experiments: {
 				typedRoutes: true,
-				// EXPO_WEB_BASE_URL overrides the customer baseUrl for local/CI testing.
-				// Set EXPO_WEB_BASE_URL= (empty string) to serve from the root path,
-				// avoiding the /rocket-meals subpath during Maestro E2E tests.
-				baseUrl: 'EXPO_WEB_BASE_URL' in process.env ? (process.env.EXPO_WEB_BASE_URL || '') : customerConfig.baseUrl,
+				baseUrl: customerConfig.baseUrl,
 			},
 			extra: {
 				router: {
