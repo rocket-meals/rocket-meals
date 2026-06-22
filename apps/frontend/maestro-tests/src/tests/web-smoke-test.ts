@@ -20,7 +20,7 @@ const test = new MaestroTestCase({
 
 test
 	// Open the app
-	.openPage('http://localhost:8081/rocket-meals/')
+	.openPage('http://localhost:3000/rocket-meals/')
 	.waitForAnimationToEnd()
 	.takeScreenshot('app-loaded')
 

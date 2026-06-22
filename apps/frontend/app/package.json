@@ -16,11 +16,11 @@
     "copy-assets": "cpx \"node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/**/*\" \"dist/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts\"",
     "deploy:gh:pages": "yarn run predeploy && yarn run deploy",
     "eas-build-post-install": "node ./scripts/eas-build-post-install.js",
-    "deploy:local": "yarn run export:web:dev && mkdir -p ./serveDist/rocket-meals && cp -r ./dist/* ./serveDist/rocket-meals/ && npx serve serveDist",
+    "deploy:local": "yarn run export:web:dev && mkdir -p ./serveDist/rocket-meals && cp -r ./dist/* ./serveDist/rocket-meals/ && serve serveDist",
     "export:web": "expo export --platform web",
     "export:web:dev": "expo export --platform web",
     "maestro:generate": "ts-node --project ../maestro-tests/tsconfig.json ../maestro-tests/src/framework/generate.ts",
-    "maestro": "yarn maestro:generate && maestro test ../maestro-tests/generated/"
+    "maestro": "bash ../run-maestro-web-test.sh"
   },
   "jest": {
     "preset": "jest-expo"
@@ -150,6 +150,7 @@
     "prop-types": "^15.8.1",
     "react-test-renderer": "18.3.1",
     "redux-logger": "3.0.6",
+    "serve": "^14.2.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
