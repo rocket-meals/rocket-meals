@@ -47,7 +47,7 @@ echo ""
 
 # ── Start static file server on port 3000 ───────────────────────────────────
 echo "Starting serve on http://localhost:3000/ ..."
-"$APP_DIR/node_modules/.bin/serve" "$SERVE_DIR" &
+(cd "$APP_DIR" && yarn maestro:serve) &
 SERVER_PID=$!
 
 cleanup() {
@@ -85,7 +85,7 @@ echo ""
 MAESTRO_FLAGS="--platform web"
 
 # In CI (GitHub Actions sets CI=true), run headless
-if [ -n "$CI" ]; then
+if [ "$CI" = "true" ]; then
     MAESTRO_FLAGS="$MAESTRO_FLAGS --headless"
 fi
 

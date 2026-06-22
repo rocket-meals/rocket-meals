@@ -20,6 +20,7 @@
     "export:web": "expo export --platform web",
     "export:web:dev": "expo export --platform web",
     "maestro:generate": "ts-node --project ../maestro-tests/tsconfig.json ../maestro-tests/src/framework/generate.ts",
+    "maestro:serve": "serve serveDist",
     "maestro": "bash ../run-maestro-web-test.sh"
   },
   "jest": {
