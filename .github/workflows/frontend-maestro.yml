@@ -21,18 +21,18 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: "🏗️ Export Expo Web (dev build for E2E tests)"
-        run: yarn export:web:dev
+        run: EXPO_WEB_BASE_URL= yarn export:web:dev
         working-directory: apps/frontend/app
 
       - name: "🌐 Serve exported web app"
         run: |
-          mkdir -p /tmp/webroot/rocket-meals
-          cp -r apps/frontend/app/dist/* /tmp/webroot/rocket-meals/
+          mkdir -p /tmp/webroot
+          cp -r apps/frontend/app/dist/* /tmp/webroot/
           python3 -m http.server 8081 --directory /tmp/webroot &
           echo "Web server started on port 8081"
           # Wait until the server is ready
           for i in {1..15}; do
-            if curl -sf http://localhost:8081/rocket-meals/ > /dev/null; then
+            if curl -sf http://localhost:8081/ > /dev/null; then
               echo "Server is ready"
               break
             fi
@@ -59,7 +59,7 @@ jobs:
           mkdir -p /tmp/maestro-screenshots
           maestro test apps/frontend/maestro-tests/generated/ --platform web --headless --debug-output /tmp/maestro-debug --output /tmp/maestro-screenshots
         env:
-          APP_URL: "http://localhost:8081/rocket-meals/"
+          APP_URL: "http://localhost:8081/"
 
       - name: "📂 List screenshot locations"
         if: always()
