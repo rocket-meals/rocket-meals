@@ -20,7 +20,7 @@ import { ComponentIds } from '../../../app/constants/ComponentIds';
  */
 export function performAnonymousLogin(test: MaestroTestCase): MaestroTestCase {
 	return test
-		.openPage('http://localhost:3000/rocket-meals/')
+		.openPage('http://localhost:8081/')
 		.waitForAnimationToEnd()
 		// Accept privacy policy
 		.tapOnId(ComponentIds.LOGIN_ACCEPT_PRIVACY)

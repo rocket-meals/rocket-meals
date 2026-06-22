@@ -5,12 +5,9 @@
 # Usage (from apps/frontend/ or via `yarn maestro` in apps/frontend/app/):
 #   ./run-maestro-web-test.sh
 #
-# In CI (CI=true, set automatically by GitHub Actions), --headless is added.
-#
-# Individual steps (from apps/frontend/app/):
-#   yarn deploy:local     # build + serve on http://localhost:3000/rocket-meals
-#   yarn maestro:generate # compile TS tests → maestro-tests/generated/*.yaml
-#   yarn maestro          # full flow: build, serve, generate YAMLs, run tests
+# Starts the Expo web dev server (`yarn web`) on http://localhost:8081/,
+# generates Maestro YAML files from TypeScript, runs all tests, then shuts
+# down the server automatically.
 # =============================================================================
 
 set -e
@@ -18,7 +15,6 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="$SCRIPT_DIR/app"
 GENERATED_DIR="$SCRIPT_DIR/maestro-tests/generated"
-SERVE_DIR="$APP_DIR/serveDist"
 export PATH="$HOME/.maestro/bin:$PATH"
 
 echo "=== Maestro Web Smoke Test ==="
@@ -37,38 +33,31 @@ if ! command -v maestro &> /dev/null; then
     exit 1
 fi
 
-# ── Build the web app ────────────────────────────────────────────────────────
-echo "Building web app..."
-(cd "$APP_DIR" && yarn export:web:dev)
-mkdir -p "$SERVE_DIR/rocket-meals"
-cp -r "$APP_DIR/dist/"* "$SERVE_DIR/rocket-meals/"
-echo "Build complete."
-echo ""
-
-# ── Start static file server on port 3000 ───────────────────────────────────
-echo "Starting serve on http://localhost:3000/ ..."
-(cd "$APP_DIR" && yarn maestro:serve) &
+# ── Start Expo web dev server on port 8081 ───────────────────────────────────
+echo "Starting Expo web dev server on http://localhost:8081/ ..."
+# CI=true forces non-interactive mode in Expo (no terminal UI, no prompts)
+(cd "$APP_DIR" && CI=true yarn web) &
 SERVER_PID=$!
 
 cleanup() {
     echo ""
-    echo "Stopping server (PID $SERVER_PID)..."
+    echo "Stopping Expo server (PID $SERVER_PID)..."
     kill "$SERVER_PID" 2>/dev/null || true
 }
 trap cleanup EXIT
 
-# ── Wait for server to be ready ──────────────────────────────────────────────
-echo "Waiting for http://localhost:3000/rocket-meals/ ..."
-for i in $(seq 1 30); do
-    if curl -sf http://localhost:3000/rocket-meals/ > /dev/null 2>&1; then
+# ── Wait for the dev server to be ready ─────────────────────────────────────
+echo "Waiting for http://localhost:8081/ ..."
+for i in $(seq 1 60); do
+    if curl -sf http://localhost:8081/ > /dev/null 2>&1; then
         echo "Server is ready."
         break
     fi
-    if [ "$i" -eq 30 ]; then
-        echo "ERROR: Server did not become ready in time."
+    if [ "$i" -eq 60 ]; then
+        echo "ERROR: Expo web server did not become ready in time."
         exit 1
     fi
-    echo "  Waiting... ($i/30)"
+    echo "  Waiting... ($i/60)"
     sleep 2
 done
 echo ""
@@ -82,12 +71,5 @@ echo ""
 echo "Running Maestro tests..."
 echo ""
 
-MAESTRO_FLAGS="--platform web"
-
-# In CI (GitHub Actions sets CI=true), run headless
-if [ "$CI" = "true" ]; then
-    MAESTRO_FLAGS="$MAESTRO_FLAGS --headless"
-fi
-
 # shellcheck disable=SC2086
-maestro test "$GENERATED_DIR" $MAESTRO_FLAGS "$@"
+maestro test "$GENERATED_DIR" --platform web --headless "$@"

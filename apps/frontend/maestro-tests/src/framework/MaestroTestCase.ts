@@ -10,7 +10,7 @@
  * -------
  * ```ts
  * const test = new MaestroTestCase({ appId: 'com.example', outputFileName: 'login' });
- * test.openPage('http://localhost:3000/').waitForAnimationToEnd().tapOn('Sign in');
+ * test.openPage('http://localhost:8081/').waitForAnimationToEnd().tapOn('Sign in');
  * export default test;
  * ```
  */
