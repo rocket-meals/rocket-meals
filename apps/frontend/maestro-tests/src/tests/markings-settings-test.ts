@@ -68,7 +68,7 @@ test
 	.waitForAnimationToEnd()
 	.takeScreenshot('food-offer-allergen-disliked')
 
-	// Like the first allergen marking (toggle or like a different one)
+	// Like the first allergen marking (toggles the same allergen from dislike to like)
 	.tapOnIdIndex(ComponentIds.MARKING_LIKE_BUTTON, 0)
 	.waitForAnimationToEnd()
 	.takeScreenshot('food-offer-allergen-liked')
