@@ -1,9 +1,10 @@
 /**
  * food-offers-test.ts – Tests the food offers flow.
  *
- * After login: select a canteen → verify food offers load → open a detail view.
- * IMPORTANT: Always use ComponentIds (from app/constants/ComponentIds.ts) with testID
- * for element targeting. Components must set testID={ComponentIds.XXX} so that
+ * After login: select a canteen → verify food offers load → open a detail view
+ * → switch between the three detail tabs → close the modal.
+ * IMPORTANT: Always use ComponentIds (from app/constants/ComponentIds.ts) with nativeID
+ * for element targeting. Components must set nativeID={ComponentIds.XXX} so that
  * Maestro web tests can locate elements by their id attribute.
  */
 
@@ -35,18 +36,33 @@ test
 	.waitForAnimationToEnd()
 	.takeScreenshot('food-offers-list')
 
-	// Verify that either food offers are displayed or a "no offers" message is shown
-	// (depends on the test backend data)
-	.waitForAnimationToEnd()
-
 	// Scroll through the food offers list
 	.scroll()
 	.takeScreenshot('food-offers-scrolled')
 
-	// Try to tap on the first food offer to open the detail view
-	.scroll()
-	.swipe('UP')
+	// Tap on the first food offer to open the detail modal
+	.tapOnIdIndex(ComponentIds.FOOD_OFFER_ITEM, 0)
 	.waitForAnimationToEnd()
-	.takeScreenshot('food-offers-detail');
+	.takeScreenshot('food-offer-detail-feedbacks')
+
+	// Switch to the Details tab
+	.tapOnId(ComponentIds.FOOD_OFFER_TAB_DETAILS)
+	.waitForAnimationToEnd()
+	.takeScreenshot('food-offer-detail-details')
+
+	// Switch to the Labels/Markings tab
+	.tapOnId(ComponentIds.FOOD_OFFER_TAB_LABELS)
+	.waitForAnimationToEnd()
+	.takeScreenshot('food-offer-detail-labels')
+
+	// Switch back to Feedbacks tab
+	.tapOnId(ComponentIds.FOOD_OFFER_TAB_FEEDBACKS)
+	.waitForAnimationToEnd()
+	.takeScreenshot('food-offer-detail-back-to-feedbacks')
+
+	// Close the food offer detail modal
+	.tapOnId(ComponentIds.MODAL_CLOSE_BUTTON)
+	.waitForAnimationToEnd()
+	.takeScreenshot('food-offers-after-detail-closed');
 
 export default test;

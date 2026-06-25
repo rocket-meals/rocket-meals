@@ -7,6 +7,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { isWeb } from '@/constants/Constants';
 import { SettingsListLikeDislikeProps } from './types';
+import { ComponentIds } from '@/constants/ComponentIds';
 
 const SettingsListLikeDislike: React.FC<SettingsListLikeDislikeProps> = ({
 	like,
@@ -32,6 +33,7 @@ const SettingsListLikeDislike: React.FC<SettingsListLikeDislikeProps> = ({
 				trigger={triggerProps => (
 					<Pressable
 						{...triggerProps}
+						nativeID={ComponentIds.MARKING_LIKE_BUTTON}
 						style={{
 							...styles.likeButton,
 							backgroundColor: like ? foods_area_color : undefined,
@@ -67,6 +69,7 @@ const SettingsListLikeDislike: React.FC<SettingsListLikeDislikeProps> = ({
 				trigger={triggerProps => (
 					<Pressable
 						{...triggerProps}
+						nativeID={ComponentIds.MARKING_DISLIKE_BUTTON}
 						style={{
 							...styles.dislikeButton,
 							backgroundColor: like === false ? foods_area_color : undefined,

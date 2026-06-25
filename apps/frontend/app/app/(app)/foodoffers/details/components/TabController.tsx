@@ -8,6 +8,7 @@ import styles from '../styles';
 import { isWeb } from '@/constants/Constants';
 import { FoodAreaDisplayProps } from './types';
 import { FoodOfferDetailTab } from '@/constants/TabEnums';
+import { ComponentIds } from '@/constants/ComponentIds';
 
 interface TabControllerProps extends FoodAreaDisplayProps {
     activeTab: FoodOfferDetailTab;
@@ -33,12 +34,19 @@ const TabController = ({
             : { backgroundColor: theme.screen.iconBg }
     ], [activeTab, foodsAreaColor, theme.screen.iconBg]);
 
+    const getTabNativeId = (tabName: FoodOfferDetailTab): string => {
+        if (tabName === FoodOfferDetailTab.FEEDBACKS) return ComponentIds.FOOD_OFFER_TAB_FEEDBACKS;
+        if (tabName === FoodOfferDetailTab.DETAILS) return ComponentIds.FOOD_OFFER_TAB_DETAILS;
+        return ComponentIds.FOOD_OFFER_TAB_LABELS;
+    };
+
     const renderTab = (tabName: FoodOfferDetailTab, iconName: any, labelKey: string) => (
         <CustomTooltip
             placement="top"
             trigger={(triggerProps) => (
                 <IconButton
                     {...triggerProps}
+                    nativeID={getTabNativeId(tabName)}
                     style={getTabStyle(tabName)}
                     activeOpacity={1}
                     onPress={(e: any) => {

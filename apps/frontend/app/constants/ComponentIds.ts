@@ -87,6 +87,18 @@ export enum AppComponentIds {
 
 	// Feedback
 	FEEDBACK_AND_SUPPORT_TITLE = 'feedback-and-support-title',
+
+	// Food offer list item
+	FOOD_OFFER_ITEM = 'food-offer-item',
+
+	// Food offer detail tabs
+	FOOD_OFFER_TAB_FEEDBACKS = 'food-offer-tab-feedbacks',
+	FOOD_OFFER_TAB_DETAILS = 'food-offer-tab-details',
+	FOOD_OFFER_TAB_LABELS = 'food-offer-tab-labels',
+
+	// Marking like / dislike buttons (used in SettingsListLikeDislike)
+	MARKING_LIKE_BUTTON = 'marking-like-button',
+	MARKING_DISLIKE_BUTTON = 'marking-dislike-button',
 }
 
 /**

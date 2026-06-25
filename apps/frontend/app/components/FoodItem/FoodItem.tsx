@@ -33,6 +33,7 @@ import Labels from '@/components/Labels';
 import { useMyContrastColor } from '@/helper/ColorHelper';
 import MyMarkdown from '@/components/MyMarkdown/MyMarkdown';
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
+import { ComponentIds } from '@/constants/ComponentIds';
 
 
 const selectFoodState = (state: RootState) => state.food;
@@ -306,6 +307,7 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
           trigger={triggerProps => (
             <CardWithText
               {...triggerProps}
+              nativeID={ComponentIds.FOOD_OFFER_ITEM}
               onPress={() =>
                 item.redirect_url
                   ? openInBrowser(item.redirect_url)
