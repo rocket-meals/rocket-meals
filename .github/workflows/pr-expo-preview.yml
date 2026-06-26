@@ -53,6 +53,7 @@ jobs:
         working-directory: ./apps/frontend/app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_PUBLIC_PR_BRANCH_NAME: pr-${{ github.event.pull_request.number }}
 
       - name: "🌍 EAS Update – Geonexia"
         run: |
@@ -178,6 +179,7 @@ jobs:
         working-directory: ./apps/frontend/app
         env:
           EXPO_PUBLIC_BASE_URL_SUFFIX: /pr-${{ github.event.pull_request.number }}
+          EXPO_PUBLIC_PR_BRANCH_NAME: pr-${{ github.event.pull_request.number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "💬 Comment on PR"

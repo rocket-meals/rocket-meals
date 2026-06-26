@@ -742,6 +742,24 @@ const Settings = () => {
 			),
 		});
 
+		// === Development PR-Branch ===
+		const prBranchName = process.env.EXPO_PUBLIC_PR_BRANCH_NAME;
+		if (prBranchName) {
+			rows.push({
+				key: 'pr-branch',
+				element: (
+					<SettingsList
+						iconBgColor={primaryColor}
+						leftIcon={<MaterialCommunityIcons name="source-branch" size={24} color={theme.screen.icon} />}
+						label="Development PR-Branch"
+						value={prBranchName}
+						handleFunction={() => {}}
+						groupPosition="single"
+					/>
+				),
+			});
+		}
+
 		// === Collectible Spot ===
 		rows.push({
 			key: 'collectible-spot',
