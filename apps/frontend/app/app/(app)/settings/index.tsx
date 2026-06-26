@@ -785,6 +785,7 @@ const Settings = () => {
 
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.background }}>
+			<Text style={{ textAlign: 'center', padding: 8, color: theme.screen.text }}>Testtext für PR-Web-Branch</Text>
 			<FlatList
 				data={listData}
 				keyExtractor={(item) => item.key}
