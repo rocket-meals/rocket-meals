@@ -9,6 +9,8 @@ const POST_CLOSE_DELAY_MS = 400;
 const useFoodOfferDetailsModal = () => {
     const { show, close, debug } = useMyScrollViewModal();
     const { checkAndShowAppRating } = useCheckAppRateAsking();
+    // Keep a ref to the latest modal debug state so the delayed onClose callback
+    // can read the current value. debug.contentSet indicates if any modal is open.
     const debugRef = useRef(debug);
     debugRef.current = debug;
 
