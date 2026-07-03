@@ -28,7 +28,7 @@ const CustomStackHeader: React.FC<CustomStackHeaderProps> = ({ label, rightEleme
 	const handleGoback = () => {
 		if (pathname.includes(`/${AppScreens.FOOD_OFFERS}/details`)) {
 			checkAndShowAppRating();
-			router.navigate(`/${AppScreens.FOOD_OFFERS}`);
+			setTimeout(() => router.navigate(`/${AppScreens.FOOD_OFFERS}`), 50);
 		} else if (pathname.includes(`/${AppScreens.HOUSING}/details`)) {
 			router.navigate(`/${AppScreens.HOUSING}`);
 		} else if (pathname.includes(`/${AppScreens.STATISTICS}`)) {

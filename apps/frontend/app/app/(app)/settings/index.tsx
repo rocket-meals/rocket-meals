@@ -51,6 +51,7 @@ import useHousingSortingModal from '@/hooks/useHousingSortingModal';
 import useCampusSortingModal from '@/hooks/useCampusSortingModal';
 import useMyScrollviewModalChangeMyCanteenSelection from '@/hooks/useMyScrollviewModalChangeMyCanteenSelection';
 import useCanteenVisitsVisibilityModal from '@/hooks/useCanteenVisitsVisibilityModal';
+import useRatingDebugLog from '@/hooks/useRatingDebugLog';
 import { ApartmentSortOption, CampusSortOption, FoodSortOption } from 'repo-depkit-common';
 import { MapStyleKey, SettingsListMyMapThemeSelection } from 'repo-depkit-common-ui';
 import { FriendsContent } from '@/components/FriendsContent';
@@ -82,6 +83,7 @@ const Settings = () => {
         const { openCampusSortingModal } = useCampusSortingModal();
         const { openChangeMyCanteenSelectionModal } = useMyScrollviewModalChangeMyCanteenSelection();
         const { openCanteenVisitsVisibilityModal } = useCanteenVisitsVisibilityModal();
+        const { logs: ratingDebugLogs, clearLogs: clearRatingDebugLogs } = useRatingDebugLog();
 
         const openFriendsModal = useCallback(() => {
                 showScrollViewModal({
@@ -728,6 +730,25 @@ const Settings = () => {
 			),
 		});
 
+		// === Rating Debug Logs ===
+		rows.push({
+			key: 'rating-debug-logs',
+			element: (
+				<DebugView
+					title="Rating Debug Log"
+					showInDevMode={true}
+					logs={ratingDebugLogs}
+					actions={[
+						{
+							label: 'Clear Logs',
+							icon: 'delete-outline',
+							onPress: clearRatingDebugLogs,
+						},
+					]}
+				/>
+			),
+		});
+
 		// === Version ===
 		rows.push({
 			key: 'version',
@@ -764,6 +785,7 @@ const Settings = () => {
 		debugMode, simulateExpoUpdateAvailable, openServerSheet, openFoodOffersTimeSheet,
 		toggleWebpForAssets, toggleDebugMode, toggleSimulateExpoUpdate, osmVectorMapStyleKey,
 		acceptedFriendsCount, showFriendsInSettings, canteenVisitsVisibilityLabel, openCanteenVisitsVisibilityModal, openFriendsModal,
+		ratingDebugLogs, clearRatingDebugLogs,
 	]);
 
 	return (

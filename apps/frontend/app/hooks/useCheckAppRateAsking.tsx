@@ -6,13 +6,14 @@ import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSet
 import { TranslationKeys } from '@/locales/keys';
 import useDebugMode from '@/hooks/useDebugMode';
 import useNativeQuickRateApp from '@/hooks/useNativeQuickRateApp';
+import useRatingDebugLog from '@/hooks/useRatingDebugLog';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
-import DebugView from '@/components/DebugView';
 
 const useCheckAppRateAsking = () => {
 	const debugMode = useDebugMode();
 	const { requestNativeReview, canBeAskedForRating, lastAskedForRatingAt, updateLastAskedTimestamp } = useNativeQuickRateApp();
+	const { appendLog } = useRatingDebugLog();
 	const { show } = useMyScrollViewModal();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
@@ -34,44 +35,35 @@ const useCheckAppRateAsking = () => {
 		if (Platform.OS !== 'web') {
 			const shown = await requestNativeReview();
 			if (!shown) {
+				appendLog('Native review not shown, falling back to web modal');
 				showWebRatingModal();
+			} else {
+				appendLog('Native review dialog shown');
 			}
 		} else {
+			appendLog('Web platform: showing web rating modal');
 			showWebRatingModal();
 		}
-		// Update timestamp when we showed the rating prompt (native or web)
 		await updateLastAskedTimestamp();
-	}, [requestNativeReview, showWebRatingModal, updateLastAskedTimestamp]);
-
-	const showDebugRatingModal = useCallback(() => {
-		const canAsk = canBeAskedForRating();
-		const logs = [
-			`Can be asked for rating: ${canAsk ? 'Yes' : 'No'}`,
-			`Last asked at: ${lastAskedForRatingAt ?? 'Never'}`,
-			`Platform: ${Platform.OS}`,
-			`Debug mode: ${debugMode ? 'Yes' : 'No'}`,
-		];
-
-		show({
-			children: (
-				<View style={styles.container}>
-					<DebugView title="Rating Debug" isVisible={true} logs={logs} />
-				</View>
-			),
-		});
-	}, [canBeAskedForRating, lastAskedForRatingAt, debugMode, show]);
+	}, [requestNativeReview, showWebRatingModal, updateLastAskedTimestamp, appendLog]);
 
 	const checkAndShowAppRating = useCallback(() => {
+		const canAsk = canBeAskedForRating();
+		appendLog(`checkAndShowAppRating called | canAsk=${canAsk} | debugMode=${debugMode} | lastAsked=${lastAskedForRatingAt ?? 'Never'} | platform=${Platform.OS}`);
+
 		if (debugMode) {
-			showDebugRatingModal();
+			appendLog('Debug mode: showing rating modal for testing');
+			showAppRating();
 			return;
 		}
 
-		const canAsk = canBeAskedForRating();
 		if (canAsk) {
+			appendLog('Cooldown elapsed: showing rating prompt');
 			showAppRating();
+		} else {
+			appendLog('Cooldown not elapsed: skipping rating prompt');
 		}
-	}, [debugMode, canBeAskedForRating, showAppRating, showDebugRatingModal]);
+	}, [debugMode, canBeAskedForRating, showAppRating, appendLog, lastAskedForRatingAt]);
 
 	return { checkAndShowAppRating, showAppRating };
 };
