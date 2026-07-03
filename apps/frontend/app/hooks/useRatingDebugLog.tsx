@@ -9,32 +9,35 @@ export type RatingDebugLogEntry = {
 	timestamp: string;
 };
 
+const logsRef: { current: RatingDebugLogEntry[] } = { current: [] };
+
 const useRatingDebugLog = () => {
-	const [logs, setLogs] = useState<RatingDebugLogEntry[]>([]);
+	const [logs, setLogs] = useState<RatingDebugLogEntry[]>(logsRef.current);
 
 	useEffect(() => {
 		getValue(ASYNC_STORAGE_KEY_RATING_DEBUG_LOGS)
 			.then((stored) => {
 				if (Array.isArray(stored)) {
+					logsRef.current = stored;
 					setLogs(stored);
 				}
 			})
 			.catch(() => {});
 	}, []);
 
-	const appendLog = useCallback(async (message: string) => {
+	const appendLog = useCallback((message: string) => {
 		const entry: RatingDebugLogEntry = {
 			message,
 			timestamp: new Date().toISOString(),
 		};
-		setLogs((prev) => {
-			const updated = [...prev, entry].slice(-MAX_LOG_ENTRIES);
-			setValue(ASYNC_STORAGE_KEY_RATING_DEBUG_LOGS, updated);
-			return updated;
-		});
+		const updated = [...logsRef.current, entry].slice(-MAX_LOG_ENTRIES);
+		logsRef.current = updated;
+		setLogs(updated);
+		setValue(ASYNC_STORAGE_KEY_RATING_DEBUG_LOGS, updated).catch(() => {});
 	}, []);
 
 	const clearLogs = useCallback(async () => {
+		logsRef.current = [];
 		setLogs([]);
 		await setValue(ASYNC_STORAGE_KEY_RATING_DEBUG_LOGS, []);
 	}, []);

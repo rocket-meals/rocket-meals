@@ -19,6 +19,7 @@ const useCheckAppRateAsking = () => {
 	const { theme } = useTheme();
 
 	const showWebRatingModal = useCallback(() => {
+		appendLog('Showing web rating modal');
 		show({
 			children: (
 				<View style={styles.container}>
@@ -29,43 +30,30 @@ const useCheckAppRateAsking = () => {
 				</View>
 			),
 		});
-	}, [show, theme.screen.text, translate]);
-
-	const showAppRating = useCallback(async () => {
-		if (Platform.OS !== 'web') {
-			const shown = await requestNativeReview();
-			if (!shown) {
-				appendLog('Native review not shown, falling back to web modal');
-				showWebRatingModal();
-			} else {
-				appendLog('Native review dialog shown');
-			}
-		} else {
-			appendLog('Web platform: showing web rating modal');
-			showWebRatingModal();
-		}
-		await updateLastAskedTimestamp();
-	}, [requestNativeReview, showWebRatingModal, updateLastAskedTimestamp, appendLog]);
+	}, [show, theme.screen.text, translate, appendLog]);
 
 	const checkAndShowAppRating = useCallback(() => {
 		const canAsk = canBeAskedForRating();
-		appendLog(`checkAndShowAppRating called | canAsk=${canAsk} | debugMode=${debugMode} | lastAsked=${lastAskedForRatingAt ?? 'Never'} | platform=${Platform.OS}`);
+		appendLog(`checkAndShowAppRating | canAsk=${canAsk} | debug=${debugMode} | lastAsked=${lastAskedForRatingAt ?? 'Never'} | platform=${Platform.OS}`);
 
-		if (debugMode) {
-			appendLog('Debug mode: showing rating modal for testing');
-			showAppRating();
+		if (!debugMode && !canAsk) {
+			appendLog('Cooldown not elapsed: skipping rating prompt');
 			return;
 		}
 
-		if (canAsk) {
-			appendLog('Cooldown elapsed: showing rating prompt');
-			showAppRating();
-		} else {
-			appendLog('Cooldown not elapsed: skipping rating prompt');
-		}
-	}, [debugMode, canBeAskedForRating, showAppRating, appendLog, lastAskedForRatingAt]);
+		// Always show the web rating modal synchronously so it appears before navigation
+		showWebRatingModal();
+		updateLastAskedTimestamp();
 
-	return { checkAndShowAppRating, showAppRating };
+		// On native, also try the native review dialog in the background
+		if (Platform.OS !== 'web') {
+			requestNativeReview().then((shown) => {
+				appendLog(shown ? 'Native review dialog also shown' : 'Native review not available');
+			}).catch(() => {});
+		}
+	}, [debugMode, canBeAskedForRating, showWebRatingModal, appendLog, lastAskedForRatingAt, updateLastAskedTimestamp, requestNativeReview]);
+
+	return { checkAndShowAppRating };
 };
 
 const styles = StyleSheet.create({

@@ -16,9 +16,6 @@ import { AppScreens } from 'repo-depkit-common';
 import IconButton from '../UI/IconButton';
 import useCheckAppRateAsking from '@/hooks/useCheckAppRateAsking';
 
-/** Delay before navigating away to allow the rating modal to mount */
-const RATING_MODAL_MOUNT_DELAY_MS = 50;
-
 const CustomStackHeader: React.FC<CustomStackHeaderProps> = ({ label, rightElement }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
@@ -31,7 +28,7 @@ const CustomStackHeader: React.FC<CustomStackHeaderProps> = ({ label, rightEleme
 	const handleGoback = () => {
 		if (pathname.includes(`/${AppScreens.FOOD_OFFERS}/details`)) {
 			checkAndShowAppRating();
-			setTimeout(() => router.navigate(`/${AppScreens.FOOD_OFFERS}`), RATING_MODAL_MOUNT_DELAY_MS);
+			router.navigate(`/${AppScreens.FOOD_OFFERS}`);
 		} else if (pathname.includes(`/${AppScreens.HOUSING}/details`)) {
 			router.navigate(`/${AppScreens.HOUSING}`);
 		} else if (pathname.includes(`/${AppScreens.STATISTICS}`)) {
