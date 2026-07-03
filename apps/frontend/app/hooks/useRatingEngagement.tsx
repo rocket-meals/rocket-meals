@@ -19,6 +19,29 @@ const scoreRef: { current: number } = { current: 0 };
 let storageLoaded = false;
 /** Queue of point additions that happened before storage was loaded */
 let pendingPoints = 0;
+/** Single initialization promise to prevent parallel loads */
+let initPromise: Promise<void> | null = null;
+
+function initFromStorage(): Promise<void> {
+	if (initPromise) return initPromise;
+	initPromise = getValue(ASYNC_STORAGE_KEY_RATING_ENGAGEMENT_SCORE)
+		.then((stored) => {
+			const parsed = typeof stored === 'number' ? stored : 0;
+			const resolved = parsed + pendingPoints;
+			pendingPoints = 0;
+			scoreRef.current = resolved;
+			storageLoaded = true;
+			if (resolved !== parsed) {
+				setValue(ASYNC_STORAGE_KEY_RATING_ENGAGEMENT_SCORE, resolved).catch(() => {});
+			}
+		})
+		.catch(() => {
+			storageLoaded = true;
+			scoreRef.current = pendingPoints;
+			pendingPoints = 0;
+		});
+	return initPromise;
+}
 
 const useRatingEngagement = () => {
 	const [score, setScore] = useState<number>(scoreRef.current);
@@ -26,33 +49,14 @@ const useRatingEngagement = () => {
 
 	useEffect(() => {
 		if (storageLoaded) {
-			// Already loaded by another hook instance – just sync local state
 			setScore(scoreRef.current);
 			setIsLoaded(true);
 			return;
 		}
-		getValue(ASYNC_STORAGE_KEY_RATING_ENGAGEMENT_SCORE)
-			.then((stored) => {
-				const parsed = typeof stored === 'number' ? stored : 0;
-				// Apply any points that were added before storage finished loading
-				const resolved = parsed + pendingPoints;
-				pendingPoints = 0;
-				scoreRef.current = resolved;
-				storageLoaded = true;
-				setScore(resolved);
-				if (resolved !== parsed) {
-					// Persist the resolved value (includes pending points)
-					setValue(ASYNC_STORAGE_KEY_RATING_ENGAGEMENT_SCORE, resolved).catch(() => {});
-				}
-			})
-			.catch(() => {
-				storageLoaded = true;
-				// Even on error, apply pending points
-				scoreRef.current = pendingPoints;
-				pendingPoints = 0;
-				setScore(scoreRef.current);
-			})
-			.finally(() => setIsLoaded(true));
+		initFromStorage().finally(() => {
+			setScore(scoreRef.current);
+			setIsLoaded(true);
+		});
 	}, []);
 
 	const addPoints = useCallback((points: number) => {
@@ -99,5 +103,6 @@ export const resetRatingEngagementOnLogout = async () => {
 	scoreRef.current = 0;
 	pendingPoints = 0;
 	storageLoaded = false;
+	initPromise = null;
 	await removeValue(ASYNC_STORAGE_KEY_RATING_ENGAGEMENT_SCORE);
 };
