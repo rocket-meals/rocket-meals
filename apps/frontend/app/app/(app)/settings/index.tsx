@@ -85,7 +85,7 @@ const Settings = () => {
         const { openChangeMyCanteenSelectionModal } = useMyScrollviewModalChangeMyCanteenSelection();
         const { openCanteenVisitsVisibilityModal } = useCanteenVisitsVisibilityModal();
         const { logs: ratingDebugLogs, clearLogs: clearRatingDebugLogs } = useRatingDebugLog();
-        const { score: ratingEngagementScore, resetScore: resetRatingEngagementScore, setScoreTo: setRatingEngagementScore } = useRatingEngagement();
+        const { score: ratingEngagementScore, resetScore: resetRatingEngagementScore, setScoreTo: setRatingEngagementScore, shouldAttemptRating } = useRatingEngagement();
 
         const openFriendsModal = useCallback(() => {
                 showScrollViewModal({
@@ -762,7 +762,7 @@ const Settings = () => {
 			element: (
 				<DebugView showInDevMode={true}>
 					<SettingsListNumberInput
-						label="Rating Engagement Score"
+						label={`Rating Engagement Score (Flag: ${shouldAttemptRating ? 'YES' : 'NO'})`}
 						value={String(ratingEngagementScore)}
 						initialValue={ratingEngagementScore}
 						onSave={(val) => setRatingEngagementScore(val)}
@@ -810,7 +810,7 @@ const Settings = () => {
 		debugMode, simulateExpoUpdateAvailable, openServerSheet, openFoodOffersTimeSheet,
 		toggleWebpForAssets, toggleDebugMode, toggleSimulateExpoUpdate, osmVectorMapStyleKey,
 		acceptedFriendsCount, showFriendsInSettings, canteenVisitsVisibilityLabel, openCanteenVisitsVisibilityModal, openFriendsModal,
-		ratingDebugLogs, clearRatingDebugLogs, ratingEngagementScore, resetRatingEngagementScore, setRatingEngagementScore,
+		ratingDebugLogs, clearRatingDebugLogs, ratingEngagementScore, resetRatingEngagementScore, setRatingEngagementScore, shouldAttemptRating,
 	]);
 
 	return (

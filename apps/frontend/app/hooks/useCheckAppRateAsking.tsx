@@ -15,24 +15,10 @@ const useCheckAppRateAsking = () => {
 	const debugMode = useDebugMode();
 	const { requestNativeReview, canBeAskedForRating, lastAskedForRatingAt, updateLastAskedTimestamp } = useNativeQuickRateApp();
 	const { appendLog } = useRatingDebugLog();
-	const { score, hasReachedThreshold, resetScore } = useRatingEngagement();
+	const { score, hasReachedThreshold, resetScore, shouldAttemptRating, clearShouldAttemptRating } = useRatingEngagement();
 	const { show } = useMyScrollViewModal();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
-
-	/**
-	 * Returns true if the rating prompt should be shown based on:
-	 * - Engagement score >= threshold (100 points)
-	 * - Cooldown elapsed (7 days)
-	 * In debug mode: requires threshold but skips cooldown check,
-	 * so the developer can see the prompt would fire without waiting 7 days.
-	 */
-	const shouldShowRating = useCallback((): boolean => {
-		if (debugMode) {
-			return hasReachedThreshold();
-		}
-		return hasReachedThreshold() && canBeAskedForRating();
-	}, [debugMode, hasReachedThreshold, canBeAskedForRating]);
 
 	/**
 	 * Shows the rating modal and updates state (timestamp, score reset).
@@ -64,22 +50,33 @@ const useCheckAppRateAsking = () => {
 	}, [show, theme.screen.text, translate, appendLog, score, debugMode, lastAskedForRatingAt, updateLastAskedTimestamp, resetScore, requestNativeReview]);
 
 	/**
-	 * Checks conditions and shows the rating if appropriate.
+	 * Attempts to show the rating prompt if the shouldAttemptRating flag is set.
+	 * The flag is always cleared on attempt.
+	 * In debug mode: cooldown is skipped (so developer can test without waiting 7 days).
+	 * In production: cooldown must be elapsed.
 	 * Returns true if the rating was shown.
 	 */
 	const checkAndShowAppRating = useCallback((): boolean => {
-		const shouldShow = shouldShowRating();
-		appendLog(`checkAndShowAppRating | shouldShow=${shouldShow} | score=${score} | threshold=${hasReachedThreshold()} | cooldown=${canBeAskedForRating()} | debug=${debugMode}`);
+		if (!shouldAttemptRating) {
+			appendLog(`checkAndShowAppRating | skipped (flag not set) | score=${score} | threshold=${hasReachedThreshold()}`);
+			return false;
+		}
 
-		if (!shouldShow) {
+		// Clear the flag regardless of whether we actually show the rating
+		clearShouldAttemptRating();
+
+		const cooldownOk = debugMode ? true : canBeAskedForRating();
+		appendLog(`checkAndShowAppRating | flagSet=true | cooldown=${cooldownOk} | score=${score} | debug=${debugMode}`);
+
+		if (!cooldownOk) {
 			return false;
 		}
 
 		showAppRating();
 		return true;
-	}, [shouldShowRating, showAppRating, appendLog, score, hasReachedThreshold, canBeAskedForRating, debugMode]);
+	}, [shouldAttemptRating, clearShouldAttemptRating, showAppRating, appendLog, score, hasReachedThreshold, canBeAskedForRating, debugMode]);
 
-	return { shouldShowRating, showAppRating, checkAndShowAppRating };
+	return { shouldAttemptRating, showAppRating, checkAndShowAppRating };
 };
 
 const styles = StyleSheet.create({

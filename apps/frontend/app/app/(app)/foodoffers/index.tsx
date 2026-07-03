@@ -37,6 +37,8 @@ import { useNotifications } from './hooks';
 import useFoodOffersDefaultDate from '@/hooks/useFoodOffersDefaultDate';
 import useMyScrollviewDirectusImageEditModal from '@/hooks/useMyScrollviewDirectusImageEditModal';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
+import useCheckAppRateAsking from '@/hooks/useCheckAppRateAsking';
+import { useFocusEffect } from 'expo-router';
 
 export const SHEET_COMPONENTS = {
 	hours: HourSheet,
@@ -70,6 +72,14 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 	useNotifications();
 
 	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
+	const { checkAndShowAppRating } = useCheckAppRateAsking();
+
+	// Attempt to show rating prompt when the foodoffer screen gains focus
+	useFocusEffect(
+		useCallback(() => {
+			checkAndShowAppRating();
+		}, [checkAndShowAppRating])
+	);
 
 	const { openChangeMyCanteenSelectionModal } = useMyScrollviewModalChangeMyCanteenSelection();
 	const { openBusinessHoursModal } = useMyScrollviewModalBusinessHours();
