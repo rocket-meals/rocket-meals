@@ -49,7 +49,9 @@ const useCheckAppRateAsking = () => {
 		if (Platform.OS !== 'web') {
 			requestNativeReview().then((shown) => {
 				appendLog(shown ? 'Native review dialog also shown' : 'Native review not available');
-			}).catch(() => {});
+			}).catch((err) => {
+				appendLog(`Native review error: ${err}`);
+			});
 		}
 	}, [debugMode, canBeAskedForRating, showWebRatingModal, appendLog, lastAskedForRatingAt, updateLastAskedTimestamp, requestNativeReview]);
 
