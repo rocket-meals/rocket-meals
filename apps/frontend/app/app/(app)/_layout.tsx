@@ -152,7 +152,7 @@ export default function Layout() {
 	}, []);
 
 	useEffect(() => {
-		AppRatingTracker.recordAppOpen();
+		AppRatingTracker.addPoints(5);
 	}, []);
 
 	const getFoodFeedBackLabels = async () => {

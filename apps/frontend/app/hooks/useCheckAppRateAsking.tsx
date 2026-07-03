@@ -81,32 +81,56 @@ const useCheckAppRateAsking = () => {
 		});
 	}, [show, theme.screen.text, translate]);
 
-	const showAppRating = useCallback(async (averageRating: number | null = null) => {
-		await AppRatingTracker.recordAsked();
-
+	/**
+	 * Attempt to show the native store review dialog.
+	 * If native review is not possible, falls back to a web modal.
+	 * Records the ask and resets the score on success.
+	 * Returns true if the rating was shown, false otherwise.
+	 */
+	const showAppRating = useCallback(async (averageRating: number | null = null): Promise<boolean> => {
 		if (Platform.OS !== 'web') {
 			const shown = await requestNativeReview();
-			if (!shown) {
-				showWebRatingModal(averageRating);
+			if (shown) {
+				await AppRatingTracker.recordAsked();
+				return true;
 			}
+			// Native not available — fall back to web modal
+			showWebRatingModal(averageRating);
+			await AppRatingTracker.recordAsked();
+			return true;
 		} else {
 			showWebRatingModal(averageRating);
+			await AppRatingTracker.recordAsked();
+			return true;
 		}
 	}, [requestNativeReview, showWebRatingModal]);
 
+	/**
+	 * Check eligibility and show app rating if possible.
+	 *
+	 * Logic:
+	 * - If score >= 100 and no cooldown → show native review, reset score
+	 * - If score >= 100 but cooldown active or not possible → skip (unless debug mode)
+	 * - In debug mode: if threshold reached but can't ask normally, show modal for testing
+	 */
 	const checkAndShowAppRating = useCallback(async () => {
-		if (debugMode) {
+		const eligible = await AppRatingTracker.isEligible();
+
+		if (eligible) {
 			const avgRating = await fetchAverageStoreRating();
-			showAppRating(avgRating);
+			await showAppRating(avgRating);
 			return;
 		}
 
-		const shouldAsk = await AppRatingTracker.shouldAskForRating();
-		if (shouldAsk) {
-			const avgRating = await fetchAverageStoreRating();
-			showAppRating(avgRating);
+		// Not eligible — in debug mode, show modal if threshold was reached (for testing logic)
+		if (debugMode) {
+			const thresholdReached = await AppRatingTracker.hasReachedThreshold();
+			if (thresholdReached) {
+				const avgRating = await fetchAverageStoreRating();
+				showWebRatingModal(avgRating);
+			}
 		}
-	}, [debugMode, showAppRating]);
+	}, [debugMode, showAppRating, showWebRatingModal]);
 
 	return { checkAndShowAppRating, showAppRating };
 };

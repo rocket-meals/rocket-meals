@@ -15,10 +15,8 @@ import { TranslationKeys } from '@/locales/keys';
 import { CanteenVisitsHelper, getFriendProfileIds } from '@/redux/actions/CanteenVisits/CanteenVisits';
 import { FriendsContent } from '@/components/FriendsContent';
 import DebugView from '@/components/DebugView';
-import useCheckAppRateAsking from '@/hooks/useCheckAppRateAsking';
 import useCanteenVisitData from '@/hooks/useCanteenVisitData';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
-import { AppRatingTracker } from '@/helper/AppRatingTracker';
 
 const canteenVisitsHelper = new CanteenVisitsHelper();
 
@@ -58,7 +56,6 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 	onRefresh,
 }) => {
 	const [toggling, setToggling] = useState(false);
-	const { checkAndShowAppRating } = useCheckAppRateAsking();
 
 	const { counts, ownVisit, setOwnVisit, fetchData } = useCanteenVisitData({
 		canteenId,
@@ -107,8 +104,6 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 				await canteenVisitsHelper.deleteOwnVisitsForDate(canteenId, date, profileId);
 			} else {
 				await canteenVisitsHelper.createVisitForDate(canteenId, date, profileId);
-				AppRatingTracker.recordVisit();
-				checkAndShowAppRating();
 			}
 			await fetchData();
 			onRefresh?.();
@@ -118,7 +113,7 @@ export const CanteenVisitDetailsModalContent: React.FC<CanteenVisitDetailsModalC
 		} finally {
 			setToggling(false);
 		}
-	}, [isRegistered, profileId, toggling, ownVisit, canteenId, date, showLoginModal, fetchData, onRefresh, fetchDebugData, checkAndShowAppRating]);
+	}, [isRegistered, profileId, toggling, ownVisit, canteenId, date, showLoginModal, fetchData, onRefresh, fetchDebugData]);
 
 	return (
 		<View>
@@ -228,7 +223,6 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 	const { profile, user, isDevMode } = useAppSelector((state) => state.authReducer);
 	const { friendships } = useAppSelector((state) => state.friendships);
 	const { show: showScrollViewModal } = useMyScrollViewModal();
-	const { checkAndShowAppRating } = useCheckAppRateAsking();
 	const { openAccountRequiredModal } = useAccountRequiredModal();
 
 	const isRegistered = UserHelper.isRegisteredUser(user);
@@ -285,8 +279,6 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 				await canteenVisitsHelper.deleteOwnVisitsForDate(canteenId, date, profile.id);
 			} else {
 				await canteenVisitsHelper.createVisitForDate(canteenId, date, profile.id);
-				AppRatingTracker.recordVisit();
-				checkAndShowAppRating();
 			}
 			await fetchData();
 		} catch (e) {
@@ -294,7 +286,7 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 		} finally {
 			setToggling(false);
 		}
-	}, [isRegistered, profile?.id, toggling, ownVisit, canteenId, date, openAccountRequiredModal, fetchData, checkAndShowAppRating]);
+	}, [isRegistered, profile?.id, toggling, ownVisit, canteenId, date, openAccountRequiredModal, fetchData]);
 
 	const openDetailsModal = useCallback(() => {
 		showScrollViewModal({

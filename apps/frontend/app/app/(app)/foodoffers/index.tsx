@@ -37,6 +37,8 @@ import FoodOffersHeader from './components/FoodOffersHeader';
 import { useSheetHandling, useNotifications } from './hooks';
 import useFoodOffersDefaultDate from '@/hooks/useFoodOffersDefaultDate';
 import useMyScrollviewDirectusImageEditModal from '@/hooks/useMyScrollviewDirectusImageEditModal';
+import useCheckAppRateAsking from '@/hooks/useCheckAppRateAsking';
+import { useFocusEffect } from 'expo-router';
 
 export const SHEET_COMPONENTS = {
 	hours: HourSheet,
@@ -68,6 +70,14 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 	const { openFoodofferSortingModal } = useFoodofferSortingModal();
 	useAppForegroundUpdateCheckModal();
 	useNotifications();
+
+	const { checkAndShowAppRating } = useCheckAppRateAsking();
+
+	useFocusEffect(
+		useCallback(() => {
+			checkAndShowAppRating();
+		}, [checkAndShowAppRating])
+	);
 
 	const {
 		bottomSheetRef,

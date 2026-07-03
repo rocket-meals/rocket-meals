@@ -2,7 +2,6 @@ import { DatabaseTypes } from 'repo-depkit-common';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
 import { DELETE_FOOD_FEEDBACK_LOCAL, UPDATE_FOOD_FEEDBACK_LOCAL } from '@/redux/Types/types';
 import { Dispatch } from 'react';
-import { AppRatingTracker } from '@/helper/AppRatingTracker';
 
 type FeedbackPayload = {
 	foodId: string;
@@ -30,11 +29,6 @@ export const handleFoodRating = async ({ foodId, profileId, userId, rating, cant
 			type: updateFeedbackResult?.id ? UPDATE_FOOD_FEEDBACK_LOCAL : DELETE_FOOD_FEEDBACK_LOCAL,
 			payload: updateFeedbackResult || previousFeedback?.id,
 		});
-
-		// Track the feedback event for smart rating prompt eligibility
-		if (rating !== null) {
-			AppRatingTracker.recordFeedback();
-		}
 	} catch (e) {
 		console.error('Error creating feedback:', e);
 	}

@@ -36,6 +36,7 @@ import { useFoodAttributes } from '@/app/(app)/foodoffers/details/hooks/useFoodA
 import { fetchFoodDetailsById, fetchFoodOffersDetailsById } from '@/redux/actions/FoodOffers/FoodOffers';
 import styles from '@/app/(app)/foodoffers/details/styles';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
+import { AppRatingTracker } from '@/helper/AppRatingTracker';
 
 export interface FoodOfferDetailsContentProps {
     offerId?: string;
@@ -85,6 +86,13 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
     const { openAccountRequiredModal } = useAccountRequiredModal();
 
     const [activeTab, setActiveTab] = useState('feedbacks');
+
+    const handleSetActiveTab = useCallback((tab: string) => {
+        if (tab !== activeTab) {
+            AppRatingTracker.addPoints(5);
+        }
+        setActiveTab(tab);
+    }, [activeTab]);
 
     const getFoodDetails = useCallback(async () => {
         try {
@@ -370,7 +378,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
 
                     <TabController
                         activeTab={activeTab}
-                        setActiveTab={setActiveTab}
+                        setActiveTab={handleSetActiveTab}
                         theme={theme}
                         contrastColor={contrastColor}
                         translate={translate}
