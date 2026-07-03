@@ -39,6 +39,7 @@ const useCheckAppRateAsking = () => {
 		} else {
 			showWebRatingModal();
 		}
+		// Update timestamp when we showed the rating prompt (native or web)
 		await updateLastAskedTimestamp();
 	}, [requestNativeReview, showWebRatingModal, updateLastAskedTimestamp]);
 
