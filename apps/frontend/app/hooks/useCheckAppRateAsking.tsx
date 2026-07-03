@@ -7,6 +7,7 @@ import { TranslationKeys } from '@/locales/keys';
 import useDebugMode from '@/hooks/useDebugMode';
 import useNativeQuickRateApp from '@/hooks/useNativeQuickRateApp';
 import useRatingDebugLog from '@/hooks/useRatingDebugLog';
+import useRatingEngagement from '@/hooks/useRatingEngagement';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -14,12 +15,30 @@ const useCheckAppRateAsking = () => {
 	const debugMode = useDebugMode();
 	const { requestNativeReview, canBeAskedForRating, lastAskedForRatingAt, updateLastAskedTimestamp } = useNativeQuickRateApp();
 	const { appendLog } = useRatingDebugLog();
+	const { score, hasReachedThreshold, resetScore } = useRatingEngagement();
 	const { show } = useMyScrollViewModal();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
 
-	const showWebRatingModal = useCallback(() => {
-		appendLog('Showing web rating modal');
+	/**
+	 * Returns true if the rating prompt should be shown based on:
+	 * - Engagement score >= threshold (100 points)
+	 * - Cooldown elapsed (7 days)
+	 * In debug mode, always returns true.
+	 */
+	const shouldShowRating = useCallback((): boolean => {
+		if (debugMode) {
+			return true;
+		}
+		return hasReachedThreshold() && canBeAskedForRating();
+	}, [debugMode, hasReachedThreshold, canBeAskedForRating]);
+
+	/**
+	 * Shows the rating modal and updates state (timestamp, score reset).
+	 */
+	const showAppRating = useCallback(() => {
+		appendLog(`showAppRating | score=${score} | debug=${debugMode} | lastAsked=${lastAskedForRatingAt ?? 'Never'} | platform=${Platform.OS}`);
+
 		show({
 			children: (
 				<View style={styles.container}>
@@ -30,22 +49,10 @@ const useCheckAppRateAsking = () => {
 				</View>
 			),
 		});
-	}, [show, theme.screen.text, translate, appendLog]);
 
-	const checkAndShowAppRating = useCallback(() => {
-		const canAsk = canBeAskedForRating();
-		appendLog(`checkAndShowAppRating | canAsk=${canAsk} | debug=${debugMode} | lastAsked=${lastAskedForRatingAt ?? 'Never'} | platform=${Platform.OS}`);
-
-		if (!debugMode && !canAsk) {
-			appendLog('Cooldown not elapsed: skipping rating prompt');
-			return;
-		}
-
-		// Always show the web rating modal synchronously so it appears before navigation
-		showWebRatingModal();
 		updateLastAskedTimestamp();
+		resetScore();
 
-		// On native, also try the native review dialog in the background
 		if (Platform.OS !== 'web') {
 			requestNativeReview().then((shown) => {
 				appendLog(shown ? 'Native review dialog also shown' : 'Native review not available');
@@ -53,9 +60,25 @@ const useCheckAppRateAsking = () => {
 				appendLog(`Native review error: ${err}`);
 			});
 		}
-	}, [debugMode, canBeAskedForRating, showWebRatingModal, appendLog, lastAskedForRatingAt, updateLastAskedTimestamp, requestNativeReview]);
+	}, [show, theme.screen.text, translate, appendLog, score, debugMode, lastAskedForRatingAt, updateLastAskedTimestamp, resetScore, requestNativeReview]);
 
-	return { checkAndShowAppRating };
+	/**
+	 * Checks conditions and shows the rating if appropriate.
+	 * Returns true if the rating was shown.
+	 */
+	const checkAndShowAppRating = useCallback((): boolean => {
+		const shouldShow = shouldShowRating();
+		appendLog(`checkAndShowAppRating | shouldShow=${shouldShow} | score=${score} | threshold=${hasReachedThreshold()} | cooldown=${canBeAskedForRating()} | debug=${debugMode}`);
+
+		if (!shouldShow) {
+			return false;
+		}
+
+		showAppRating();
+		return true;
+	}, [shouldShowRating, showAppRating, appendLog, score, hasReachedThreshold, canBeAskedForRating, debugMode]);
+
+	return { shouldShowRating, showAppRating, checkAndShowAppRating };
 };
 
 const styles = StyleSheet.create({

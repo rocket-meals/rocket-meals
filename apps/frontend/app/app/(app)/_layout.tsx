@@ -37,6 +37,7 @@ import { BusinessHoursGroupsHelper } from '@/redux/actions/BusinessHours/Busines
 import { PopupEventsHelper } from '@/redux/actions/PopupEvents/PopupEvents';
 import { Platform } from 'react-native';
 import { AppElementsHelper } from '@/redux/actions/AppElements/AppElements';
+import useRatingEngagement, { RatingEngagementPoints } from '@/hooks/useRatingEngagement';
 import { TranslationKeys } from '@/locales/keys';
 import { CollectionLastUpdateHelper } from '@/redux/actions/CollectionLastUpdate/CollectionLastUpdate';
 import { transformUpdateDatesToMap } from '@/helper/dateMap';
@@ -91,6 +92,12 @@ export default function Layout() {
 	const { loggedIn, user } = useAppSelector((state) => state.authReducer);
 	const { canteens } = useAppSelector((state) => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
+	const { addPoints: addRatingEngagementPoints } = useRatingEngagement();
+
+	// Award engagement points when the app layout mounts (app open)
+	useEffect(() => {
+		addRatingEngagementPoints(RatingEngagementPoints.APP_OPENED);
+	}, []);
 
 	useEffect(() => {
 		const autoLogin = async () => {

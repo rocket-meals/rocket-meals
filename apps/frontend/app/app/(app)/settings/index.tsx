@@ -52,6 +52,7 @@ import useCampusSortingModal from '@/hooks/useCampusSortingModal';
 import useMyScrollviewModalChangeMyCanteenSelection from '@/hooks/useMyScrollviewModalChangeMyCanteenSelection';
 import useCanteenVisitsVisibilityModal from '@/hooks/useCanteenVisitsVisibilityModal';
 import useRatingDebugLog from '@/hooks/useRatingDebugLog';
+import useRatingEngagement from '@/hooks/useRatingEngagement';
 import { ApartmentSortOption, CampusSortOption, FoodSortOption } from 'repo-depkit-common';
 import { MapStyleKey, SettingsListMyMapThemeSelection } from 'repo-depkit-common-ui';
 import { FriendsContent } from '@/components/FriendsContent';
@@ -84,6 +85,7 @@ const Settings = () => {
         const { openChangeMyCanteenSelectionModal } = useMyScrollviewModalChangeMyCanteenSelection();
         const { openCanteenVisitsVisibilityModal } = useCanteenVisitsVisibilityModal();
         const { logs: ratingDebugLogs, clearLogs: clearRatingDebugLogs } = useRatingDebugLog();
+        const { score: ratingEngagementScore, resetScore: resetRatingEngagementScore } = useRatingEngagement();
 
         const openFriendsModal = useCallback(() => {
                 showScrollViewModal({
@@ -735,7 +737,7 @@ const Settings = () => {
 			key: 'rating-debug-logs',
 			element: (
 				<DebugView
-					title="Rating Debug Log"
+					title={`Rating Debug Log (Score: ${ratingEngagementScore})`}
 					showInDevMode={true}
 					logs={ratingDebugLogs}
 					actions={[
@@ -743,6 +745,11 @@ const Settings = () => {
 							label: 'Clear Logs',
 							icon: 'delete-outline',
 							onPress: clearRatingDebugLogs,
+						},
+						{
+							label: 'Reset Score',
+							icon: 'refresh',
+							onPress: resetRatingEngagementScore,
 						},
 					]}
 				/>
@@ -785,7 +792,7 @@ const Settings = () => {
 		debugMode, simulateExpoUpdateAvailable, openServerSheet, openFoodOffersTimeSheet,
 		toggleWebpForAssets, toggleDebugMode, toggleSimulateExpoUpdate, osmVectorMapStyleKey,
 		acceptedFriendsCount, showFriendsInSettings, canteenVisitsVisibilityLabel, openCanteenVisitsVisibilityModal, openFriendsModal,
-		ratingDebugLogs, clearRatingDebugLogs,
+		ratingDebugLogs, clearRatingDebugLogs, ratingEngagementScore, resetRatingEngagementScore,
 	]);
 
 	return (

@@ -36,6 +36,7 @@ import { useFoodDetails } from '@/app/(app)/foodoffers/details/hooks/useFoodDeta
 import { useFoodAttributes } from '@/app/(app)/foodoffers/details/hooks/useFoodAttributes';
 import { fetchFoodDetailsById, fetchFoodOffersDetailsById } from '@/redux/actions/FoodOffers/FoodOffers';
 import styles from '@/app/(app)/foodoffers/details/styles';
+import useRatingEngagement, { RatingEngagementPoints } from '@/hooks/useRatingEngagement';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 
 export interface FoodOfferDetailsContentProps {
@@ -57,6 +58,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
     const { width: screenWidth } = useWindowDimensions();
 
     const { show: showModal, close: closeModal } = useMyScrollViewModal();
+    const { addPoints } = useRatingEngagement();
 
     const { isSmartPhone, isAndroid, isIOS } = usePlatformHelper();
     const user = useAppSelector((state) => state.authReducer.user, shallowEqual);
@@ -104,7 +106,8 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
     const handleSetActiveTab = useCallback((tab: FoodOfferDetailTab) => {
         setActiveTab(tab);
         dispatch({ type: SET_FOOD_DETAILS_LAST_TAB, payload: tab });
-    }, [dispatch]);
+        addPoints(RatingEngagementPoints.TAB_SWITCHED);
+    }, [dispatch, addPoints]);
 
     const getFoodDetails = useCallback(async () => {
         try {
