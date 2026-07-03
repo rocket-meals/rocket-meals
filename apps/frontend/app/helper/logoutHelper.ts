@@ -22,6 +22,7 @@ import {
 import { persistor } from '@/redux/store';
 import { clearChatReadStatus } from '@/helper/chatReadStatus';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
+import { resetRatingEngagementOnLogout } from '@/hooks/useRatingEngagement';
 
 export const performLogout = async (
 	dispatch: Dispatch,
@@ -45,6 +46,7 @@ export const performLogout = async (
                 dispatch({ type: CLEAR_PROFILE });
                 dispatch({ type: CLEAR_CHATS });
                 await clearChatReadStatus();
+                await resetRatingEngagementOnLogout();
                 dispatch({ type: CLEAR_SETTINGS });
 		dispatch({ type: CLEAR_POPUP_EVENTS_HASH });
 		await AsyncStorage.multiRemove(['auth_data', 'persist:root']);
