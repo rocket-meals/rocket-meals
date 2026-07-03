@@ -24,11 +24,12 @@ const useCheckAppRateAsking = () => {
 	 * Returns true if the rating prompt should be shown based on:
 	 * - Engagement score >= threshold (100 points)
 	 * - Cooldown elapsed (7 days)
-	 * In debug mode, always returns true.
+	 * In debug mode: requires threshold but skips cooldown check,
+	 * so the developer can see the prompt would fire without waiting 7 days.
 	 */
 	const shouldShowRating = useCallback((): boolean => {
 		if (debugMode) {
-			return true;
+			return hasReachedThreshold();
 		}
 		return hasReachedThreshold() && canBeAskedForRating();
 	}, [debugMode, hasReachedThreshold, canBeAskedForRating]);

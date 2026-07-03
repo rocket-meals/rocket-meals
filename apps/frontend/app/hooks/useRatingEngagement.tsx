@@ -43,11 +43,17 @@ const useRatingEngagement = () => {
 		setValue(ASYNC_STORAGE_KEY_RATING_ENGAGEMENT_SCORE, 0).catch(() => {});
 	}, []);
 
+	const setScoreTo = useCallback((value: number) => {
+		scoreRef.current = value;
+		setScore(value);
+		setValue(ASYNC_STORAGE_KEY_RATING_ENGAGEMENT_SCORE, value).catch(() => {});
+	}, []);
+
 	const hasReachedThreshold = useCallback((): boolean => {
 		return scoreRef.current >= RATING_ENGAGEMENT_THRESHOLD;
 	}, []);
 
-	return { score, isLoaded, addPoints, resetScore, hasReachedThreshold };
+	return { score, isLoaded, addPoints, resetScore, setScoreTo, hasReachedThreshold };
 };
 
 export default useRatingEngagement;

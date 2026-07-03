@@ -54,7 +54,7 @@ import useCanteenVisitsVisibilityModal from '@/hooks/useCanteenVisitsVisibilityM
 import useRatingDebugLog from '@/hooks/useRatingDebugLog';
 import useRatingEngagement from '@/hooks/useRatingEngagement';
 import { ApartmentSortOption, CampusSortOption, FoodSortOption } from 'repo-depkit-common';
-import { MapStyleKey, SettingsListMyMapThemeSelection } from 'repo-depkit-common-ui';
+import { MapStyleKey, SettingsListMyMapThemeSelection, SettingsListNumberInput } from 'repo-depkit-common-ui';
 import { FriendsContent } from '@/components/FriendsContent';
 import { ComponentIds } from '@/constants/ComponentIds';
 
@@ -85,7 +85,7 @@ const Settings = () => {
         const { openChangeMyCanteenSelectionModal } = useMyScrollviewModalChangeMyCanteenSelection();
         const { openCanteenVisitsVisibilityModal } = useCanteenVisitsVisibilityModal();
         const { logs: ratingDebugLogs, clearLogs: clearRatingDebugLogs } = useRatingDebugLog();
-        const { score: ratingEngagementScore, resetScore: resetRatingEngagementScore } = useRatingEngagement();
+        const { score: ratingEngagementScore, resetScore: resetRatingEngagementScore, setScoreTo: setRatingEngagementScore } = useRatingEngagement();
 
         const openFriendsModal = useCallback(() => {
                 showScrollViewModal({
@@ -737,7 +737,7 @@ const Settings = () => {
 			key: 'rating-debug-logs',
 			element: (
 				<DebugView
-					title={`Rating Debug Log (Score: ${ratingEngagementScore})`}
+					title={`Rating Debug Log`}
 					showInDevMode={true}
 					logs={ratingDebugLogs}
 					actions={[
@@ -753,6 +753,24 @@ const Settings = () => {
 						},
 					]}
 				/>
+			),
+		});
+
+		// === Rating Engagement Score (editable) ===
+		rows.push({
+			key: 'rating-engagement-score',
+			element: (
+				<DebugView showInDevMode={true}>
+					<SettingsListNumberInput
+						label="Rating Engagement Score"
+						value={String(ratingEngagementScore)}
+						initialValue={ratingEngagementScore}
+						onSave={(val) => setRatingEngagementScore(val)}
+						min={0}
+						step={10}
+						groupPosition="single"
+					/>
+				</DebugView>
 			),
 		});
 
@@ -792,7 +810,7 @@ const Settings = () => {
 		debugMode, simulateExpoUpdateAvailable, openServerSheet, openFoodOffersTimeSheet,
 		toggleWebpForAssets, toggleDebugMode, toggleSimulateExpoUpdate, osmVectorMapStyleKey,
 		acceptedFriendsCount, showFriendsInSettings, canteenVisitsVisibilityLabel, openCanteenVisitsVisibilityModal, openFriendsModal,
-		ratingDebugLogs, clearRatingDebugLogs, ratingEngagementScore, resetRatingEngagementScore,
+		ratingDebugLogs, clearRatingDebugLogs, ratingEngagementScore, resetRatingEngagementScore, setRatingEngagementScore,
 	]);
 
 	return (
