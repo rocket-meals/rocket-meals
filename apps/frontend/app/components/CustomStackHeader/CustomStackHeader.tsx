@@ -14,6 +14,7 @@ import { TranslationKeys } from '@/locales/keys';
 
 import { AppScreens } from 'repo-depkit-common';
 import IconButton from '../UI/IconButton';
+import useCheckAppRateAsking from '@/hooks/useCheckAppRateAsking';
 
 const CustomStackHeader: React.FC<CustomStackHeaderProps> = ({ label, rightElement }) => {
 	const { theme } = useTheme();
@@ -22,9 +23,11 @@ const CustomStackHeader: React.FC<CustomStackHeaderProps> = ({ label, rightEleme
 	const pathname = usePathname();
 	const { loggedIn } = useAppSelector(state => state.authReducer);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+	const { checkAndShowAppRating } = useCheckAppRateAsking();
 
 	const handleGoback = () => {
 		if (pathname.includes(`/${AppScreens.FOOD_OFFERS}/details`)) {
+			checkAndShowAppRating();
 			router.navigate(`/${AppScreens.FOOD_OFFERS}`);
 		} else if (pathname.includes(`/${AppScreens.HOUSING}/details`)) {
 			router.navigate(`/${AppScreens.HOUSING}`);

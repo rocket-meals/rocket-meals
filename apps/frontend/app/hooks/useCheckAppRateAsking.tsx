@@ -8,10 +8,11 @@ import useDebugMode from '@/hooks/useDebugMode';
 import useNativeQuickRateApp from '@/hooks/useNativeQuickRateApp';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
+import DebugView from '@/components/DebugView';
 
 const useCheckAppRateAsking = () => {
 	const debugMode = useDebugMode();
-	const { requestNativeReview } = useNativeQuickRateApp();
+	const { requestNativeReview, canBeAskedForRating, lastAskedForRatingAt, updateLastAskedTimestamp } = useNativeQuickRateApp();
 	const { show } = useMyScrollViewModal();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
@@ -38,13 +39,38 @@ const useCheckAppRateAsking = () => {
 		} else {
 			showWebRatingModal();
 		}
-	}, [requestNativeReview, showWebRatingModal]);
+		await updateLastAskedTimestamp();
+	}, [requestNativeReview, showWebRatingModal, updateLastAskedTimestamp]);
+
+	const showDebugRatingModal = useCallback(() => {
+		const canAsk = canBeAskedForRating();
+		const logs = [
+			`Can be asked for rating: ${canAsk ? 'Yes' : 'No'}`,
+			`Last asked at: ${lastAskedForRatingAt ?? 'Never'}`,
+			`Platform: ${Platform.OS}`,
+			`Debug mode: ${debugMode ? 'Yes' : 'No'}`,
+		];
+
+		show({
+			children: (
+				<View style={styles.container}>
+					<DebugView title="Rating Debug" isVisible={true} logs={logs} />
+				</View>
+			),
+		});
+	}, [canBeAskedForRating, lastAskedForRatingAt, debugMode, show]);
 
 	const checkAndShowAppRating = useCallback(() => {
 		if (debugMode) {
+			showDebugRatingModal();
+			return;
+		}
+
+		const canAsk = canBeAskedForRating();
+		if (canAsk) {
 			showAppRating();
 		}
-	}, [debugMode, showAppRating]);
+	}, [debugMode, canBeAskedForRating, showAppRating, showDebugRatingModal]);
 
 	return { checkAndShowAppRating, showAppRating };
 };
