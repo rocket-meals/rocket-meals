@@ -12,6 +12,7 @@ import { UserHelper } from '@/helper/UserHelper';
 import { UPDATE_PROFILE } from '@/redux/Types/types';
 import { DatabaseTypes } from 'repo-depkit-common';
 import SettingsList from '@/components/SettingsList';
+import { ComponentIds } from '@/constants/ComponentIds';
 
 interface PriceGroupSettingsListProps {
 	onSelect?: (priceGroup: string) => void;
@@ -49,6 +50,11 @@ const PriceGroupSettingsList = ({ onSelect }: PriceGroupSettingsListProps) => {
 			icon: <FontAwesome5 name="users" size={24} color={theme.screen.icon} />,
 		},
 	];
+	const optionComponentIds: Record<string, string> = {
+		[PriceGroupKey.student]: ComponentIds.PRICE_GROUP_OPTION_STUDENT,
+		[PriceGroupKey.employee]: ComponentIds.PRICE_GROUP_OPTION_EMPLOYEE,
+		[PriceGroupKey.guest]: ComponentIds.PRICE_GROUP_OPTION_GUEST,
+	};
 
 	const handleSelect = useCallback(async (option: string) => {
 		try {
@@ -90,6 +96,7 @@ const PriceGroupSettingsList = ({ onSelect }: PriceGroupSettingsListProps) => {
 						iconBgColor={primaryColor}
 						groupPosition={groupPosition}
 						showSeparator={index !== options.length - 1}
+						nativeID={optionComponentIds[option.id]}
 						rightIcon={
 							<MaterialCommunityIcons
 								name={isSelected ? 'radiobox-marked' : 'radiobox-blank'}

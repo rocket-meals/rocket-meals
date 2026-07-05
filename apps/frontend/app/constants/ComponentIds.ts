@@ -42,11 +42,19 @@ export enum AppComponentIds {
 	LOGIN_CONTINUE_WITHOUT_ACCOUNT = 'login-continue-without-account',
 	LOGIN_ATTENTION_TITLE = 'login-attention-title',
 	LOGIN_ATTENTION_CONFIRM = 'login-attention-confirm',
+	ONBOARDING_BACK_BUTTON = 'onboarding-back-button',
+	ONBOARDING_NEXT_BUTTON = 'onboarding-next-button',
+	ONBOARDING_START_BUTTON = 'onboarding-start-button',
 
 	// Canteen selection
 	CANTEEN_SELECTION_TITLE = 'canteen-selection-title',
 	CANTEEN_SELECTION_EMPTY = 'canteen-selection-empty',
 	CANTEEN_SELECT_BUTTON = 'canteen-select-button',
+
+	// Price group
+	PRICE_GROUP_OPTION_STUDENT = 'price-group-option-student',
+	PRICE_GROUP_OPTION_EMPLOYEE = 'price-group-option-employee',
+	PRICE_GROUP_OPTION_GUEST = 'price-group-option-guest',
 
 	// Settings groups
 	SETTINGS_GROUP_APP_SETTINGS = 'settings-group-app-settings',

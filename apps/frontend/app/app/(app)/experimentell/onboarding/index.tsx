@@ -16,6 +16,7 @@ import { AppScreens, DatabaseTypes } from 'repo-depkit-common';
 import { CanteenHelper } from '@/redux/actions';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
 import { getImageUrl } from '@/constants/HelperFunctions';
+import { ComponentIds } from '@/constants/ComponentIds';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import LottieView from 'lottie-react-native';
@@ -338,6 +339,7 @@ const OnboardingScreen = () => {
 					<TouchableOpacity
 						onPress={handleBack}
 						style={[styles.navButtonPrimary, { backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.screen.iconBg }]}
+						nativeID={ComponentIds.ONBOARDING_BACK_BUTTON}
 					>
 						<MaterialCommunityIcons name="chevron-left" size={24} color={theme.screen.text} />
 						<Text style={[styles.navButtonPrimaryText, { color: theme.screen.text }]}>
@@ -351,6 +353,7 @@ const OnboardingScreen = () => {
 					<TouchableOpacity
 						onPress={handleNext}
 						style={[styles.navButtonPrimary, { backgroundColor: primaryColor }]}
+						nativeID={ComponentIds.ONBOARDING_NEXT_BUTTON}
 					>
 						<Text style={[styles.navButtonPrimaryText, { color: contrastColor }]}>
 							{translate(TranslationKeys.onboarding_next)}
@@ -362,6 +365,7 @@ const OnboardingScreen = () => {
 						onPress={handleStart}
 						style={[styles.navButtonPrimary, { backgroundColor: primaryColor }]}
 						activeOpacity={0.8}
+						nativeID={ComponentIds.ONBOARDING_START_BUTTON}
 					>
 						<MaterialCommunityIcons name="rocket-launch" size={24} color={contrastColor} />
 						<Text style={[styles.navButtonPrimaryText, { color: contrastColor }]}>

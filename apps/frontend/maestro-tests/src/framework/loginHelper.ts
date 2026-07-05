@@ -20,7 +20,7 @@ import { ComponentIds } from '../../../app/constants/ComponentIds';
 
 /**
  * Perform anonymous login: accept privacy policy, tap "Continue without account",
- * confirm the attention dialog, and wait for the canteen selection screen.
+ * confirm the attention dialog, and wait for the onboarding flow.
  */
 export function performAnonymousLogin(test: MaestroTestCase): MaestroTestCase {
 	return test
@@ -34,17 +34,25 @@ export function performAnonymousLogin(test: MaestroTestCase): MaestroTestCase {
 		.waitForAnimationToEnd()
 		.assertVisibleId(ComponentIds.LOGIN_ATTENTION_TITLE)
 		.tapOnId(ComponentIds.LOGIN_ATTENTION_CONFIRM)
-		// Wait for canteen selection screen
-		.waitForAnimationToEnd();
+		// Wait for onboarding flow
+		.waitForAnimationToEnd()
+		.assertVisibleId(ComponentIds.ONBOARDING_NEXT_BUTTON);
 }
 
 /**
- * After login, select the first available canteen to proceed past the
- * canteen selection screen into the main app.
+ * Complete onboarding after anonymous login and land in the main app.
  */
 export function selectFirstCanteen(test: MaestroTestCase): MaestroTestCase {
 	return test
-		.assertVisibleId(ComponentIds.CANTEEN_SELECTION_TITLE)
+		.tapOnId(ComponentIds.ONBOARDING_NEXT_BUTTON)
+		.waitForAnimationToEnd()
+		.assertVisibleId(ComponentIds.CANTEEN_SELECT_BUTTON)
 		.tapOnId(ComponentIds.CANTEEN_SELECT_BUTTON)
+		.waitForAnimationToEnd()
+		.assertVisibleId(ComponentIds.PRICE_GROUP_OPTION_STUDENT)
+		.tapOnId(ComponentIds.PRICE_GROUP_OPTION_STUDENT)
+		.waitForAnimationToEnd()
+		.assertVisibleId(ComponentIds.ONBOARDING_START_BUTTON)
+		.tapOnId(ComponentIds.ONBOARDING_START_BUTTON)
 		.waitForAnimationToEnd();
 }
