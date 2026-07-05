@@ -15,6 +15,7 @@ import { TranslationKeys } from '@/locales/keys';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
 import SettingsList from '@/components/SettingsList';
 import SettingsListLikeDislike from '@/components/SettingsListLikeDislike';
+import useAppRatingScore from '@/hooks/useAppRatingScore';
 
 const FeedbackLabel: React.FC<FeedbackLabelProps> = ({ label, icon, imageUrl, labelEntries, foodId, offerId, groupPosition, isAccountRequired }) => {
 	const { theme } = useTheme();
@@ -26,6 +27,7 @@ const FeedbackLabel: React.FC<FeedbackLabelProps> = ({ label, icon, imageUrl, la
 	const selectedCanteen = useSelectedCanteen();
 	const { openAccountRequiredModal } = useAccountRequiredModal();
 	const foodFeedbackLabelEntryHelper = new FoodFeedbackLabelEntryHelper();
+	const { addPointsForLabelPositive } = useAppRatingScore();
 
 	// Use useMemo to optimize the filtering process
 	const labelData = useMemo(() => {
@@ -45,6 +47,10 @@ const FeedbackLabel: React.FC<FeedbackLabelProps> = ({ label, icon, imageUrl, la
 			likeStats = null;
 		} else {
 			likeStats = isLike;
+		}
+		// Award points for positive feedback (like)
+		if (likeStats === true) {
+			addPointsForLabelPositive();
 		}
 		// Update the entry
 		const result = (await foodFeedbackLabelEntryHelper.updateFoodFeedbackLabelEntry(foodId, profile.id, labelEntries, String(label[0]?.foods_feedbacks_labels_id), likeStats, selectedCanteen?.id, offerId)) as DatabaseTypes.FoodsFeedbacksLabelsEntries;

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -13,26 +13,50 @@ import {
 	useMyScrollViewModal,
 	useTheme,
 } from 'repo-depkit-common-ui';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { SavedRoute, loadRoute, saveRoute, deleteRoute } from '../../helpers/RouteStorage';
-import { loadActivities, SavedActivity } from '../../helpers/ActivityStorage';
+import { loadActivities, saveActivity, SavedActivity, RoutePoint } from '../../helpers/ActivityStorage';
 import SettingsListActivity from '../../components/SettingsListActivity';
 import ActivityAggregateStatsSection from '../../components/ActivityAggregateStatsSection';
 import SettingsListMapFeature from '../../components/SettingsListMapFeature';
+import CalendarDatePickerContent from '../../components/CalendarDatePicker';
 import { HEX_TILE_SCRIPT } from '../../assets/hexTileScript';
 import { isAvailable as isH3Available, computeRouteLengthKm, formatDistanceKm, gridDisk, cellToLatLng, cellToBoundary, getResolution, polygonToCells, areNeighborCells, type CoordPair } from '../../helpers/H3Helper';
-import { buildRouteDisplayData, computeHexBounds, computeEdgesFromHexTiles } from '../../helpers/RouteDisplayHelper';
+import { buildRouteDisplayData, computeHexBounds, computeEdgesFromHexTiles, computeEdgesFromRoutePoints } from '../../helpers/RouteDisplayHelper';
 import type { MapFeatureInfo } from '../../helpers/RouteNameSuggestionHelper';
 import { suggestRouteNamesForHexTiles } from '../../helpers/RouteNameSuggestionHelper';
 import { queryTileFeaturesForHexCell } from '../../helpers/TileFeatureHelper';
 import { ROUTE_NAME_LANDMARK_NAME_NULL_ALLOW } from '../../helpers/OpenMapTilesSchema';
-import type { RootState } from '../../store/store';
+import { computeActivityData, findEnclosedCellsFromHexTiles, RED_LINE_GRID_RESOLUTION, MIN_TILES_FOR_ENCLOSED_POLYGON, synthesizeManualActivityRoutePoints } from '../../helpers/ActivityMapRebuildHelper';
+import type { AppDispatch, RootState } from '../../store/store';
+import { startRun, markVisited, markEnclosed, addWalkedEdges } from '../../store/hexTileSlice';
 import { useDebugMode } from '../../hooks/useDebugMode';
 import useGeonexiaAlert from '../../hooks/useGeonexiaAlert';
 
+const DEFAULT_RUNNER_WEIGHT_KG = 75;
+const KCAL_PER_KG_PER_KM = 0.9;
+const AVERAGE_STRIDE_LENGTH_METERS = 0.77;
+const FLUID_BASELINE_DURATION_SECONDS = 3600;
+const FLUID_BASELINE_ML = 600;
+
 const AUTO_ROTATE_SPEED_DEG_PER_S = 5;
 const PRIMARY_COLOR = '#2563eb';
+
+function todayString(): string {
+	const d = new Date();
+	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function dateStringToStartOfDay(dateStr: string): number {
+	const [year, month, day] = dateStr.split('-').map(Number);
+	return new Date(year, month - 1, day, 0, 0, 0, 0).getTime();
+}
+
+function formatDateDisplay(dateStr: string): string {
+	const [year, month, day] = dateStr.split('-');
+	return `${day}.${month}.${year}`;
+}
 
 type MapEditSubMode = 'add' | 'remove';
 
@@ -71,6 +95,173 @@ function formatDate(timestamp: number): string {
 	});
 }
 
+// ─── Manual Activity Modal Content ───────────────────────────────────────────
+
+function ManualActivityContent({
+	route,
+	onSave,
+	onClose,
+	theme,
+}: {
+	route: SavedRoute;
+	onSave: (activity: SavedActivity) => void;
+	onClose: () => void;
+	theme: ReturnType<typeof useTheme>['theme'];
+}) {
+	const [hours, setHours] = useState('');
+	const [minutes, setMinutes] = useState('');
+	const [seconds, setSeconds] = useState('');
+	const [selectedDate, setSelectedDate] = useState(todayString());
+	const { show: showCalendarModal, close: closeCalendarModal } = useMyScrollViewModal();
+
+	const openCalendar = () => {
+		showCalendarModal({
+			title: 'Datum auswählen',
+			children: (
+				<CalendarDatePickerContent
+					selectedDate={selectedDate}
+					onSelect={(dateString) => {
+						setSelectedDate(dateString);
+						closeCalendarModal();
+					}}
+				/>
+			),
+		});
+	};
+
+	const handleSave = () => {
+		const h = parseInt(hours, 10) || 0;
+		const m = parseInt(minutes, 10) || 0;
+		const s = parseInt(seconds, 10) || 0;
+		const totalSeconds = h * 3600 + m * 60 + s;
+		if (totalSeconds <= 0) return;
+
+		const startedAt = dateStringToStartOfDay(selectedDate);
+		const hexTilesOrdered = route.hexTiles;
+		const distanceKm = isH3Available() ? computeRouteLengthKm(hexTilesOrdered) : 0;
+		const paceMinPerKm = distanceKm > 0 ? totalSeconds / 60 / distanceKm : 0;
+		const kcal = Math.round(distanceKm * DEFAULT_RUNNER_WEIGHT_KG * KCAL_PER_KG_PER_KM);
+		const steps = Math.round((distanceKm * 1000) / AVERAGE_STRIDE_LENGTH_METERS);
+		const fluidNeedsMl = Math.round((totalSeconds / FLUID_BASELINE_DURATION_SECONDS) * FLUID_BASELINE_ML);
+
+		// Synthesize route points from hex tile centers with evenly-distributed
+		// timestamps so that rebuild / recalculate flows derive correct distance
+		// and per-tile speed metrics. Each point is marked interpolated: true so
+		// it is treated the same way as gap-filling points added to incomplete
+		// recorded routes.
+		const routePoints: RoutePoint[] = synthesizeManualActivityRoutePoints(
+			hexTilesOrdered,
+			startedAt,
+			totalSeconds * 1000,
+			distanceKm,
+		);
+
+		// Pre-compute enclosed tiles from the route hex tiles so they are stored
+		// on the activity and used by the map rebuild / activity detail screen.
+		let enclosedHexTiles: string[] = [];
+		if (isH3Available() && hexTilesOrdered.length >= MIN_TILES_FOR_ENCLOSED_POLYGON) {
+			try {
+				enclosedHexTiles = findEnclosedCellsFromHexTiles(hexTilesOrdered, route.h3Resolution);
+			} catch {
+				// ignore – enclosed tiles remain empty if detection fails
+			}
+		}
+
+		const activity: SavedActivity = {
+			id: `${startedAt}-${Math.random().toString(36).substring(2, 9)}`,
+			startedAt,
+			endedAt: startedAt + totalSeconds * 1000,
+			routePoints,
+			stats: {
+				distanceKm,
+				durationSeconds: totalSeconds,
+				paceMinPerKm,
+				maxSpeedKmh: 0,
+				minSpeedKmh: 0,
+				avgSpeedKmh: distanceKm > 0 && totalSeconds > 0 ? (distanceKm / totalSeconds) * 3600 : 0,
+				medianSpeedKmh: 0,
+				kcal,
+				steps,
+				elevationGainM: 0,
+				elevationLossM: 0,
+				fluidNeedsMl,
+			},
+			routeId: route.id,
+			h3Resolution: route.h3Resolution,
+			hexTilesOrdered,
+			visitedTileCount: hexTilesOrdered.length,
+			enclosedTileCount: enclosedHexTiles.length,
+			enclosedHexTiles,
+			isManual: true,
+		};
+		activity.computed = computeActivityData(activity, enclosedHexTiles);
+		onSave(activity);
+	};
+
+	const totalSeconds = (parseInt(hours, 10) || 0) * 3600 + (parseInt(minutes, 10) || 0) * 60 + (parseInt(seconds, 10) || 0);
+
+	return (
+		<View style={{ paddingTop: 4, gap: 12 }}>
+			<SettingsList
+				leftIcon={<MaterialIcons name="calendar-today" size={20} color="#ffffff" />}
+				iconBackgroundColor={PRIMARY_COLOR}
+				title="Datum"
+				value={formatDateDisplay(selectedDate)}
+				groupPosition="single"
+				onPress={openCalendar}
+				rightIcon={<MaterialIcons name="chevron-right" size={20} color={theme.screen.icon} />}
+			/>
+			<Text style={{ fontSize: 14, lineHeight: 20, color: theme.screen.text }}>
+				Dauer der Aktivität eingeben:
+			</Text>
+			<View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+				<TextInput
+					style={{ flex: 1, borderWidth: 1, borderRadius: 8, padding: 10, fontSize: 16, color: theme.screen.text, borderColor: theme.screen.text + '33', backgroundColor: theme.screen.background, textAlign: 'center' }}
+					placeholder="Std"
+					placeholderTextColor={theme.screen.icon}
+					value={hours}
+					onChangeText={setHours}
+					keyboardType="numeric"
+					maxLength={2}
+				/>
+				<Text style={{ fontSize: 20, color: theme.screen.text, fontWeight: '700' }}>:</Text>
+				<TextInput
+					style={{ flex: 1, borderWidth: 1, borderRadius: 8, padding: 10, fontSize: 16, color: theme.screen.text, borderColor: theme.screen.text + '33', backgroundColor: theme.screen.background, textAlign: 'center' }}
+					placeholder="Min"
+					placeholderTextColor={theme.screen.icon}
+					value={minutes}
+					onChangeText={setMinutes}
+					keyboardType="numeric"
+					maxLength={2}
+					autoFocus
+				/>
+				<Text style={{ fontSize: 20, color: theme.screen.text, fontWeight: '700' }}>:</Text>
+				<TextInput
+					style={{ flex: 1, borderWidth: 1, borderRadius: 8, padding: 10, fontSize: 16, color: theme.screen.text, borderColor: theme.screen.text + '33', backgroundColor: theme.screen.background, textAlign: 'center' }}
+					placeholder="Sek"
+					placeholderTextColor={theme.screen.icon}
+					value={seconds}
+					onChangeText={setSeconds}
+					keyboardType="numeric"
+					maxLength={2}
+				/>
+			</View>
+			<TouchableOpacity
+				style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 10, backgroundColor: '#2563eb', gap: 8, opacity: totalSeconds <= 0 ? 0.4 : 1 }}
+				onPress={handleSave}
+				disabled={totalSeconds <= 0}
+				activeOpacity={0.8}
+			>
+				<MaterialIcons name="check" size={18} color="#ffffff" />
+				<Text style={{ color: '#ffffff', fontSize: 15, fontWeight: '600' }}>Aktivität speichern</Text>
+			</TouchableOpacity>
+			<TouchableOpacity style={{ alignItems: 'center', paddingVertical: 10 }} onPress={onClose} activeOpacity={0.8}>
+				<Text style={{ fontSize: 15, fontWeight: '500', color: theme.screen.text }}>Abbrechen</Text>
+			</TouchableOpacity>
+		</View>
+	);
+}
+
 export default function RouteDetailScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
 	const { theme } = useTheme();
@@ -89,6 +280,7 @@ export default function RouteDetailScreen() {
 	const [addAnchorTileIndex, setAddAnchorTileIndex] = useState<number | null>(null);
 	const [routeActivities, setRouteActivities] = useState<SavedActivity[]>([]);
 	const hexTileRecords = useSelector((state: RootState) => state.hexTiles.records);
+	const dispatch = useDispatch<AppDispatch>();
 	const isDebugMode = useDebugMode();
 	const { showAlert } = useGeonexiaAlert();
 	const { show: showActivitiesModal, close: closeActivitiesModal } = useMyScrollViewModal();
@@ -203,6 +395,32 @@ export default function RouteDetailScreen() {
 			setRouteActivities(filtered);
 		}).catch(() => setRouteActivities([]));
 	}, [id]);
+
+	// Migration: compute walkedEdgesRedLine from the first activity's routePoints
+	// when the field is absent (older saves that pre-date this feature).
+	useEffect(() => {
+		if (!route || !isH3Available()) return;
+		if (route.walkedEdgesRedLine !== undefined) return;
+		// Find the oldest activity with routePoints to use as the reference path.
+		// routeActivities is sorted newest-first, so iterate backwards.
+		let reference: SavedActivity | undefined;
+		for (let i = routeActivities.length - 1; i >= 0; i--) {
+			const a = routeActivities[i];
+			if (a.routePoints && a.routePoints.length > 0) {
+				reference = a;
+				break;
+			}
+		}
+		if (!reference) return;
+		const redLineEdges = computeEdgesFromRoutePoints(reference.routePoints, RED_LINE_GRID_RESOLUTION);
+		const updatedRoute: SavedRoute = { ...route, walkedEdgesRedLine: redLineEdges, walkedEdgesRedLineResolution: RED_LINE_GRID_RESOLUTION };
+		try {
+			saveRoute(updatedRoute);
+			setRoute(updatedRoute);
+		} catch {
+			// Non-critical: display will fall back to walkedEdges
+		}
+	}, [route, routeActivities]);
 
 	// Once both route and map are ready, send hex tiles and fit bounds
 	useEffect(() => {
@@ -572,6 +790,9 @@ export default function RouteDetailScreen() {
 			walkedEdges: computeEdgesFromHexTiles(editedHexTiles),
 			// Clear cached enclosed tiles so they are recomputed for the new tile set.
 			enclosedTiles: undefined,
+			// Clear the red-line path so it is recomputed from activities after saving.
+			walkedEdgesRedLine: undefined,
+			walkedEdgesRedLineResolution: undefined,
 		};
 		try {
 			saveRoute(updatedRoute);
@@ -647,6 +868,49 @@ export default function RouteDetailScreen() {
 			mapRef.current.sendToMap({ routeEditNeighbors: null });
 		}
 	}, [isEditing, editedHexTiles, mapEditSubMode, addAnchorTileIndex, mapMounted]);
+
+	// ── Add manual (duration-only) activity ──────────────────────────────
+	const { show: showManualActivityModal, close: closeManualActivityModal } = useMyScrollViewModal();
+
+	const handleAddManualActivity = useCallback(() => {
+		if (!route) return;
+		showManualActivityModal({
+			title: '⏱️ Manuelle Aktivität',
+			keyboardShouldPersistTaps: 'handled',
+			children: (
+				<ManualActivityContent
+					route={route}
+					onSave={(activity) => {
+						saveActivity(activity);
+						// Also add activity ID to route.activityIds
+						const updatedIds = [...new Set([...(route.activityIds ?? []), activity.id])];
+						saveRoute({ ...route, activityIds: updatedIds });
+						setRoute({ ...route, activityIds: updatedIds });
+						setRouteActivities((prev) => [activity, ...prev]);
+						// Apply the route's hex tiles and edges to the in-memory map state
+						if (isH3Available() && route.hexTiles.length > 0) {
+							dispatch(startRun());
+							dispatch(markVisited({ h3Indices: route.hexTiles, timestamp: activity.startedAt }));
+							// Apply enclosed tiles so the map rebuild produces the correct terrain
+							const enclosed = activity.computed?.enclosedHexTiles ?? activity.enclosedHexTiles ?? [];
+							if (enclosed.length > 0) {
+								dispatch(markEnclosed({ h3Indices: enclosed, timestamp: activity.startedAt }));
+							}
+							// Record hex-to-hex transitions so walk path spokes are drawn
+							const edges = computeEdgesFromHexTiles(activity.hexTilesOrdered ?? route.hexTiles);
+							if (edges.length > 0) {
+								dispatch(addWalkedEdges(edges));
+							}
+						}
+						closeManualActivityModal();
+						router.push(`/activities/${activity.id}`);
+					}}
+					onClose={closeManualActivityModal}
+					theme={theme}
+				/>
+			),
+		});
+	}, [route, showManualActivityModal, closeManualActivityModal, theme, router, dispatch]);
 
 	const handleDelete = useCallback(() => {
 		if (!route) return;
@@ -849,7 +1113,8 @@ export default function RouteDetailScreen() {
 					title="Aktivitäten"
 					value={String(routeActivities.length)}
 					rightIcon={<MaterialIcons name="chevron-right" size={20} color={theme.screen.icon} />}
-					groupPosition="single"
+					groupPosition="top"
+					showSeparator
 					onPress={() => {
 						showActivitiesModal({
 							title: '🏃 Aktivitäten',
@@ -872,6 +1137,13 @@ export default function RouteDetailScreen() {
 							),
 						});
 					}}
+				/>
+				<SettingsList
+					leftIcon={<MaterialIcons name="add" size={20} color="#ffffff" />}
+					iconBackgroundColor="#22c55e"
+					title="Manuelle Aktivität hinzufügen"
+					groupPosition="bottom"
+					onPress={handleAddManualActivity}
 				/>
 
 				{/* ── Route Statistics ────────────────────────────────────── */}

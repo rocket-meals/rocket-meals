@@ -238,6 +238,14 @@ function getDevWalkedEdgesFile(): File {
 	return new File(Paths.document, 'geonexia-dev-walked-edges.json');
 }
 
+function getWalkedEdgesRedLineFile(): File {
+	return new File(Paths.document, 'geonexia-walked-edges-h11.json');
+}
+
+function getDevWalkedEdgesRedLineFile(): File {
+	return new File(Paths.document, 'geonexia-dev-walked-edges-h11.json');
+}
+
 /**
  * Persist the full hex tile record map to disk (synchronous write).
  * Silently ignores write errors to avoid crashing on storage failures.
@@ -340,6 +348,61 @@ export function saveDevWalkedEdges(edges: string[]): void {
 export async function loadDevWalkedEdges(): Promise<string[]> {
 	try {
 		const file = getDevWalkedEdgesFile();
+		if (!file.exists) return [];
+		const content = await file.text();
+		return JSON.parse(content) as string[];
+	} catch {
+		return [];
+	}
+}
+
+/**
+ * Persist the red-line walked edges array to disk (synchronous write).
+ * Each edge is stored as "cellA:cellB" with the lexicographically smaller
+ * index first. Silently ignores write errors.
+ */
+export function saveWalkedEdgesRedLine(edges: string[]): void {
+	try {
+		getWalkedEdgesRedLineFile().write(JSON.stringify(edges));
+	} catch (err) {
+		console.warn('[HexTileStorage] Failed to save red-line walked edges:', err);
+	}
+}
+
+/**
+ * Load red-line walked edges from disk. Returns an empty array when the
+ * file does not yet exist or cannot be parsed.
+ */
+export async function loadWalkedEdgesRedLine(): Promise<string[]> {
+	try {
+		const file = getWalkedEdgesRedLineFile();
+		if (!file.exists) return [];
+		const content = await file.text();
+		return JSON.parse(content) as string[];
+	} catch {
+		return [];
+	}
+}
+
+/**
+ * Persist the dev-mode red-line walked edges array to disk.
+ * Silently ignores write errors.
+ */
+export function saveDevWalkedEdgesRedLine(edges: string[]): void {
+	try {
+		getDevWalkedEdgesRedLineFile().write(JSON.stringify(edges));
+	} catch (err) {
+		console.warn('[HexTileStorage] Failed to save dev red-line walked edges:', err);
+	}
+}
+
+/**
+ * Load dev-mode red-line walked edges from disk. Returns an empty array
+ * when the file does not yet exist or cannot be parsed.
+ */
+export async function loadDevWalkedEdgesRedLine(): Promise<string[]> {
+	try {
+		const file = getDevWalkedEdgesRedLineFile();
 		if (!file.exists) return [];
 		const content = await file.text();
 		return JSON.parse(content) as string[];

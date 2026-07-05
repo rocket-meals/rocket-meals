@@ -1,6 +1,6 @@
 {
   "report_version": "^0.1.103",
-  "report_timestamp": "2026-06-25T21:05:24.412Z",
+  "report_timestamp": "2026-07-05T16:56:38.953Z",
   "target_language": "typescript",
   "report_summary": {
     "additional": {
@@ -8,36 +8,36 @@
         "invertedFieldToClasses": {
           "median": 1,
           "maximum": 99,
-          "average": 1.6244725738396624,
-          "amountSavedValuesForKeys": 4235,
+          "average": 1.6233269598470363,
+          "amountSavedValuesForKeys": 4245,
           "amountKeys": 28
         },
         "invertedParameterToMethods": {
-          "median": 1,
+          "median": 1.5,
           "maximum": 77,
-          "average": 2.3755656108597285,
-          "amountSavedValuesForKeys": 1575,
+          "average": 2.3704819277108435,
+          "amountSavedValuesForKeys": 1574,
           "amountKeys": 21
         },
         "invertedParameterToClasses": {
           "median": 1,
           "maximum": 99,
-          "average": 1.6408368849283224,
-          "amountSavedValuesForKeys": 4235,
+          "average": 1.6396292004634994,
+          "amountSavedValuesForKeys": 4245,
           "amountKeys": 27
         }
       },
       "timer_information": {
-        "ast_generation_time_ms": 4306,
-        "detection_time_ms": 93,
+        "ast_generation_time_ms": 4533,
+        "detection_time_ms": 105,
         "machine_information": {
           "os": "Linux",
           "os_release": "6.17.0-1018-azure",
           "os_platform": "linux",
           "os_arch": "x64",
-          "os_uptime": 117.34,
-          "os_memory_free": 14932721664,
-          "os_memory_total": 16770756608,
+          "os_uptime": 176.84,
+          "os_memory_free": 14938779648,
+          "os_memory_total": 16766423040,
           "os_cpu_cores": 4,
           "os_cpu_model": "AMD EPYC 7763 64-Core Processor",
           "os_cpu_speed": 0
@@ -55,18 +55,18 @@
   "project_info": {
     "project_url": "https://github.com/rocket-meals/rocket-meals",
     "project_name": "rocket-meals",
-    "project_version": "b0af25684460eb036deecfa40fc96f7a6bfba4e1",
-    "project_commit_hash": "b0af25684460eb036deecfa40fc96f7a6bfba4e1",
+    "project_version": "c39115ac8d70dc64593f4e649a9c78881972518f",
+    "project_commit_hash": "c39115ac8d70dc64593f4e649a9c78881972518f",
     "project_tag": null,
-    "project_commit_date": "1782421416",
+    "project_commit_date": "1783270497",
     "additional": {
       "relative_path_to_source_folder_in_project": ""
     },
-    "number_of_files": 522,
-    "number_of_classes_or_interfaces": 1076,
-    "number_of_methods": 1410,
-    "number_of_data_fields": 4235,
-    "number_of_method_parameters": 1575
+    "number_of_files": 525,
+    "number_of_classes_or_interfaces": 1082,
+    "number_of_methods": 1426,
+    "number_of_data_fields": 4245,
+    "number_of_method_parameters": 1574
   },
   "detector": {
     "name": "data-clumps-doctor",
@@ -1139,9 +1139,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 46,
+              "startLine": 75,
               "startColumn": 2,
-              "endLine": 46,
+              "endLine": 75,
               "endColumn": 14
             }
           },
@@ -1164,9 +1164,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 47,
+              "startLine": 76,
               "startColumn": 2,
-              "endLine": 47,
+              "endLine": 76,
               "endColumn": 14
             }
           },
@@ -1189,9 +1189,9 @@
             "type": "number | null",
             "modifiers": [],
             "position": {
-              "startLine": 48,
+              "startLine": 77,
               "startColumn": 2,
-              "endLine": 48,
+              "endLine": 77,
               "endColumn": 26
             }
           },
@@ -1214,9 +1214,9 @@
             "type": "number | null",
             "modifiers": [],
             "position": {
-              "startLine": 49,
+              "startLine": 78,
               "startColumn": 2,
-              "endLine": 49,
+              "endLine": 78,
               "endColumn": 23
             }
           },
@@ -1239,9 +1239,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 50,
+              "startLine": 79,
               "startColumn": 2,
-              "endLine": 50,
+              "endLine": 79,
               "endColumn": 20
             }
           },
@@ -1286,9 +1286,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 60,
+              "startLine": 89,
               "startColumn": 2,
-              "endLine": 60,
+              "endLine": 89,
               "endColumn": 21
             }
           },
@@ -1311,9 +1311,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 61,
+              "startLine": 90,
               "startColumn": 2,
-              "endLine": 61,
+              "endLine": 90,
               "endColumn": 26
             }
           },
@@ -1336,9 +1336,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 62,
+              "startLine": 91,
               "startColumn": 2,
-              "endLine": 62,
+              "endLine": 91,
               "endColumn": 23
             }
           },
@@ -1361,9 +1361,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 63,
+              "startLine": 92,
               "startColumn": 2,
-              "endLine": 63,
+              "endLine": 92,
               "endColumn": 22
             }
           },
@@ -1386,9 +1386,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 64,
+              "startLine": 93,
               "startColumn": 2,
-              "endLine": 64,
+              "endLine": 93,
               "endColumn": 22
             }
           },
@@ -1411,9 +1411,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 65,
+              "startLine": 94,
               "startColumn": 2,
-              "endLine": 65,
+              "endLine": 94,
               "endColumn": 22
             }
           },
@@ -1436,9 +1436,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 67,
+              "startLine": 96,
               "startColumn": 2,
-              "endLine": 67,
+              "endLine": 96,
               "endColumn": 15
             }
           },
@@ -1461,9 +1461,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 68,
+              "startLine": 97,
               "startColumn": 2,
-              "endLine": 68,
+              "endLine": 97,
               "endColumn": 16
             }
           },
@@ -1486,9 +1486,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 69,
+              "startLine": 98,
               "startColumn": 2,
-              "endLine": 69,
+              "endLine": 98,
               "endColumn": 25
             }
           },
@@ -1511,9 +1511,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 70,
+              "startLine": 99,
               "startColumn": 2,
-              "endLine": 70,
+              "endLine": 99,
               "endColumn": 25
             }
           },
@@ -1536,9 +1536,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 71,
+              "startLine": 100,
               "startColumn": 2,
-              "endLine": 71,
+              "endLine": 100,
               "endColumn": 23
             }
           },
@@ -1583,9 +1583,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 27,
+              "startLine": 56,
               "startColumn": 2,
-              "endLine": 27,
+              "endLine": 56,
               "endColumn": 22
             }
           },
@@ -1608,9 +1608,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 29,
+              "startLine": 58,
               "startColumn": 2,
-              "endLine": 29,
+              "endLine": 58,
               "endColumn": 22
             }
           },
@@ -1633,9 +1633,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 31,
+              "startLine": 60,
               "startColumn": 2,
-              "endLine": 31,
+              "endLine": 60,
               "endColumn": 22
             }
           },
@@ -3473,9 +3473,9 @@
             }
           },
           "position": {
-            "startLine": 1815,
+            "startLine": 1835,
             "startColumn": 2,
-            "endLine": 1815,
+            "endLine": 1835,
             "endColumn": 25
           }
         },
@@ -3498,9 +3498,9 @@
             }
           },
           "position": {
-            "startLine": 1816,
+            "startLine": 1836,
             "startColumn": 2,
-            "endLine": 1816,
+            "endLine": 1836,
             "endColumn": 22
           }
         },
@@ -3523,9 +3523,9 @@
             }
           },
           "position": {
-            "startLine": 1817,
+            "startLine": 1837,
             "startColumn": 2,
-            "endLine": 1817,
+            "endLine": 1837,
             "endColumn": 23
           }
         },
@@ -3548,9 +3548,9 @@
             }
           },
           "position": {
-            "startLine": 1818,
+            "startLine": 1838,
             "startColumn": 2,
-            "endLine": 1818,
+            "endLine": 1838,
             "endColumn": 26
           }
         },
@@ -3573,9 +3573,9 @@
             }
           },
           "position": {
-            "startLine": 1819,
+            "startLine": 1839,
             "startColumn": 2,
-            "endLine": 1819,
+            "endLine": 1839,
             "endColumn": 25
           }
         },
@@ -3598,9 +3598,9 @@
             }
           },
           "position": {
-            "startLine": 1820,
+            "startLine": 1840,
             "startColumn": 2,
-            "endLine": 1820,
+            "endLine": 1840,
             "endColumn": 26
           }
         },
@@ -3623,9 +3623,9 @@
             }
           },
           "position": {
-            "startLine": 1821,
+            "startLine": 1841,
             "startColumn": 2,
-            "endLine": 1821,
+            "endLine": 1841,
             "endColumn": 26
           }
         },
@@ -3648,9 +3648,9 @@
             }
           },
           "position": {
-            "startLine": 1822,
+            "startLine": 1842,
             "startColumn": 2,
-            "endLine": 1822,
+            "endLine": 1842,
             "endColumn": 25
           }
         },
@@ -3673,9 +3673,9 @@
             }
           },
           "position": {
-            "startLine": 1823,
+            "startLine": 1843,
             "startColumn": 2,
-            "endLine": 1823,
+            "endLine": 1843,
             "endColumn": 25
           }
         },
@@ -3698,9 +3698,9 @@
             }
           },
           "position": {
-            "startLine": 1824,
+            "startLine": 1844,
             "startColumn": 2,
-            "endLine": 1824,
+            "endLine": 1844,
             "endColumn": 25
           }
         },
@@ -3723,9 +3723,9 @@
             }
           },
           "position": {
-            "startLine": 1825,
+            "startLine": 1845,
             "startColumn": 2,
-            "endLine": 1825,
+            "endLine": 1845,
             "endColumn": 16
           }
         }
@@ -3770,9 +3770,9 @@
             }
           },
           "position": {
-            "startLine": 1816,
+            "startLine": 1836,
             "startColumn": 2,
-            "endLine": 1816,
+            "endLine": 1836,
             "endColumn": 22
           }
         },
@@ -3795,9 +3795,9 @@
             }
           },
           "position": {
-            "startLine": 1817,
+            "startLine": 1837,
             "startColumn": 2,
-            "endLine": 1817,
+            "endLine": 1837,
             "endColumn": 23
           }
         },
@@ -3820,9 +3820,9 @@
             }
           },
           "position": {
-            "startLine": 1818,
+            "startLine": 1838,
             "startColumn": 2,
-            "endLine": 1818,
+            "endLine": 1838,
             "endColumn": 26
           }
         },
@@ -3845,9 +3845,9 @@
             }
           },
           "position": {
-            "startLine": 1819,
+            "startLine": 1839,
             "startColumn": 2,
-            "endLine": 1819,
+            "endLine": 1839,
             "endColumn": 25
           }
         },
@@ -3870,9 +3870,9 @@
             }
           },
           "position": {
-            "startLine": 1820,
+            "startLine": 1840,
             "startColumn": 2,
-            "endLine": 1820,
+            "endLine": 1840,
             "endColumn": 26
           }
         },
@@ -3895,9 +3895,9 @@
             }
           },
           "position": {
-            "startLine": 1821,
+            "startLine": 1841,
             "startColumn": 2,
-            "endLine": 1821,
+            "endLine": 1841,
             "endColumn": 26
           }
         },
@@ -3920,9 +3920,9 @@
             }
           },
           "position": {
-            "startLine": 1822,
+            "startLine": 1842,
             "startColumn": 2,
-            "endLine": 1822,
+            "endLine": 1842,
             "endColumn": 25
           }
         },
@@ -3945,9 +3945,9 @@
             }
           },
           "position": {
-            "startLine": 1823,
+            "startLine": 1843,
             "startColumn": 2,
-            "endLine": 1823,
+            "endLine": 1843,
             "endColumn": 25
           }
         },
@@ -3970,9 +3970,9 @@
             }
           },
           "position": {
-            "startLine": 1824,
+            "startLine": 1844,
             "startColumn": 2,
-            "endLine": 1824,
+            "endLine": 1844,
             "endColumn": 25
           }
         },
@@ -3995,9 +3995,9 @@
             }
           },
           "position": {
-            "startLine": 1825,
+            "startLine": 1845,
             "startColumn": 2,
-            "endLine": 1825,
+            "endLine": 1845,
             "endColumn": 16
           }
         }
@@ -5550,9 +5550,9 @@
             }
           },
           "position": {
-            "startLine": 27,
+            "startLine": 56,
             "startColumn": 2,
-            "endLine": 27,
+            "endLine": 56,
             "endColumn": 22
           }
         },
@@ -5575,9 +5575,9 @@
             }
           },
           "position": {
-            "startLine": 29,
+            "startLine": 58,
             "startColumn": 2,
-            "endLine": 29,
+            "endLine": 58,
             "endColumn": 22
           }
         },
@@ -5600,9 +5600,9 @@
             }
           },
           "position": {
-            "startLine": 31,
+            "startLine": 60,
             "startColumn": 2,
-            "endLine": 31,
+            "endLine": 60,
             "endColumn": 22
           }
         }
@@ -5640,16 +5640,16 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 63,
+              "startLine": 92,
               "startColumn": 2,
-              "endLine": 63,
+              "endLine": 92,
               "endColumn": 22
             }
           },
           "position": {
-            "startLine": 27,
+            "startLine": 56,
             "startColumn": 2,
-            "endLine": 27,
+            "endLine": 56,
             "endColumn": 22
           }
         },
@@ -5665,16 +5665,16 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 64,
+              "startLine": 93,
               "startColumn": 2,
-              "endLine": 64,
+              "endLine": 93,
               "endColumn": 22
             }
           },
           "position": {
-            "startLine": 29,
+            "startLine": 58,
             "startColumn": 2,
-            "endLine": 29,
+            "endLine": 58,
             "endColumn": 22
           }
         },
@@ -5690,16 +5690,16 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 65,
+              "startLine": 94,
               "startColumn": 2,
-              "endLine": 65,
+              "endLine": 94,
               "endColumn": 22
             }
           },
           "position": {
-            "startLine": 31,
+            "startLine": 60,
             "startColumn": 2,
-            "endLine": 31,
+            "endLine": 60,
             "endColumn": 22
           }
         }
@@ -5744,9 +5744,9 @@
             }
           },
           "position": {
-            "startLine": 46,
+            "startLine": 75,
             "startColumn": 2,
-            "endLine": 46,
+            "endLine": 75,
             "endColumn": 14
           }
         },
@@ -5769,9 +5769,9 @@
             }
           },
           "position": {
-            "startLine": 47,
+            "startLine": 76,
             "startColumn": 2,
-            "endLine": 47,
+            "endLine": 76,
             "endColumn": 14
           }
         },
@@ -5794,9 +5794,9 @@
             }
           },
           "position": {
-            "startLine": 48,
+            "startLine": 77,
             "startColumn": 2,
-            "endLine": 48,
+            "endLine": 77,
             "endColumn": 26
           }
         },
@@ -5819,9 +5819,9 @@
             }
           },
           "position": {
-            "startLine": 49,
+            "startLine": 78,
             "startColumn": 2,
-            "endLine": 49,
+            "endLine": 78,
             "endColumn": 23
           }
         },
@@ -5844,9 +5844,9 @@
             }
           },
           "position": {
-            "startLine": 50,
+            "startLine": 79,
             "startColumn": 2,
-            "endLine": 50,
+            "endLine": 79,
             "endColumn": 20
           }
         }
@@ -5891,9 +5891,9 @@
             }
           },
           "position": {
-            "startLine": 60,
+            "startLine": 89,
             "startColumn": 2,
-            "endLine": 60,
+            "endLine": 89,
             "endColumn": 21
           }
         },
@@ -5916,9 +5916,9 @@
             }
           },
           "position": {
-            "startLine": 61,
+            "startLine": 90,
             "startColumn": 2,
-            "endLine": 61,
+            "endLine": 90,
             "endColumn": 26
           }
         },
@@ -5941,9 +5941,9 @@
             }
           },
           "position": {
-            "startLine": 62,
+            "startLine": 91,
             "startColumn": 2,
-            "endLine": 62,
+            "endLine": 91,
             "endColumn": 23
           }
         },
@@ -5966,9 +5966,9 @@
             }
           },
           "position": {
-            "startLine": 63,
+            "startLine": 92,
             "startColumn": 2,
-            "endLine": 63,
+            "endLine": 92,
             "endColumn": 22
           }
         },
@@ -5991,9 +5991,9 @@
             }
           },
           "position": {
-            "startLine": 64,
+            "startLine": 93,
             "startColumn": 2,
-            "endLine": 64,
+            "endLine": 93,
             "endColumn": 22
           }
         },
@@ -6016,9 +6016,9 @@
             }
           },
           "position": {
-            "startLine": 65,
+            "startLine": 94,
             "startColumn": 2,
-            "endLine": 65,
+            "endLine": 94,
             "endColumn": 22
           }
         },
@@ -6041,9 +6041,9 @@
             }
           },
           "position": {
-            "startLine": 67,
+            "startLine": 96,
             "startColumn": 2,
-            "endLine": 67,
+            "endLine": 96,
             "endColumn": 15
           }
         },
@@ -6066,9 +6066,9 @@
             }
           },
           "position": {
-            "startLine": 68,
+            "startLine": 97,
             "startColumn": 2,
-            "endLine": 68,
+            "endLine": 97,
             "endColumn": 16
           }
         },
@@ -6091,9 +6091,9 @@
             }
           },
           "position": {
-            "startLine": 69,
+            "startLine": 98,
             "startColumn": 2,
-            "endLine": 69,
+            "endLine": 98,
             "endColumn": 25
           }
         },
@@ -6116,9 +6116,9 @@
             }
           },
           "position": {
-            "startLine": 70,
+            "startLine": 99,
             "startColumn": 2,
-            "endLine": 70,
+            "endLine": 99,
             "endColumn": 25
           }
         },
@@ -6141,9 +6141,9 @@
             }
           },
           "position": {
-            "startLine": 71,
+            "startLine": 100,
             "startColumn": 2,
-            "endLine": 71,
+            "endLine": 100,
             "endColumn": 23
           }
         }
@@ -6181,16 +6181,16 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 27,
+              "startLine": 56,
               "startColumn": 2,
-              "endLine": 27,
+              "endLine": 56,
               "endColumn": 22
             }
           },
           "position": {
-            "startLine": 63,
+            "startLine": 92,
             "startColumn": 2,
-            "endLine": 63,
+            "endLine": 92,
             "endColumn": 22
           }
         },
@@ -6206,16 +6206,16 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 29,
+              "startLine": 58,
               "startColumn": 2,
-              "endLine": 29,
+              "endLine": 58,
               "endColumn": 22
             }
           },
           "position": {
-            "startLine": 64,
+            "startLine": 93,
             "startColumn": 2,
-            "endLine": 64,
+            "endLine": 93,
             "endColumn": 22
           }
         },
@@ -6231,16 +6231,16 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 31,
+              "startLine": 60,
               "startColumn": 2,
-              "endLine": 31,
+              "endLine": 60,
               "endColumn": 22
             }
           },
           "position": {
-            "startLine": 65,
+            "startLine": 94,
             "startColumn": 2,
-            "endLine": 65,
+            "endLine": 94,
             "endColumn": 22
           }
         }
@@ -6250,9 +6250,9 @@
         "cluster_type": 3
       }
     },
-    "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/ActivityStorage.ts-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute-idsportTypeh3Resolution": {
+    "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/ActivityStorage.ts-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute-idsportTypeh3ResolutionwalkedEdgesRedLinewalkedEdgesRedLineResolution": {
       "type": "data_clump",
-      "key": "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/ActivityStorage.ts-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute-idsportTypeh3Resolution",
+      "key": "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/ActivityStorage.ts-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute-idsportTypeh3ResolutionwalkedEdgesRedLinewalkedEdgesRedLineResolution",
       "probability": 1,
       "from_file_path": "apps/geonexia/frontend/helpers/ActivityStorage.ts",
       "from_class_or_interface_key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity",
@@ -6285,9 +6285,9 @@
             }
           },
           "position": {
-            "startLine": 75,
+            "startLine": 104,
             "startColumn": 2,
-            "endLine": 75,
+            "endLine": 104,
             "endColumn": 13
           }
         },
@@ -6310,9 +6310,9 @@
             }
           },
           "position": {
-            "startLine": 81,
+            "startLine": 110,
             "startColumn": 2,
-            "endLine": 81,
+            "endLine": 110,
             "endColumn": 24
           }
         },
@@ -6335,10 +6335,60 @@
             }
           },
           "position": {
-            "startLine": 83,
+            "startLine": 112,
             "startColumn": 2,
-            "endLine": 83,
+            "endLine": 112,
             "endColumn": 24
+          }
+        },
+        "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/walkedEdgesRedLine": {
+          "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/walkedEdgesRedLine",
+          "name": "walkedEdgesRedLine",
+          "type": "string[]",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute/memberField/walkedEdgesRedLine",
+            "name": "walkedEdgesRedLine",
+            "type": "string[]",
+            "modifiers": [],
+            "position": {
+              "startLine": 51,
+              "startColumn": 2,
+              "endLine": 51,
+              "endColumn": 32
+            }
+          },
+          "position": {
+            "startLine": 185,
+            "startColumn": 2,
+            "endLine": 185,
+            "endColumn": 32
+          }
+        },
+        "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/walkedEdgesRedLineResolution": {
+          "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/walkedEdgesRedLineResolution",
+          "name": "walkedEdgesRedLineResolution",
+          "type": "number",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute/memberField/walkedEdgesRedLineResolution",
+            "name": "walkedEdgesRedLineResolution",
+            "type": "number",
+            "modifiers": [],
+            "position": {
+              "startLine": 58,
+              "startColumn": 2,
+              "endLine": 58,
+              "endColumn": 40
+            }
+          },
+          "position": {
+            "startLine": 192,
+            "startColumn": 2,
+            "endLine": 192,
+            "endColumn": 40
           }
         }
       },
@@ -6382,9 +6432,9 @@
             }
           },
           "position": {
-            "startLine": 76,
+            "startLine": 105,
             "startColumn": 2,
-            "endLine": 76,
+            "endLine": 105,
             "endColumn": 20
           }
         },
@@ -6407,9 +6457,9 @@
             }
           },
           "position": {
-            "startLine": 78,
+            "startLine": 107,
             "startColumn": 2,
-            "endLine": 78,
+            "endLine": 107,
             "endColumn": 28
           }
         },
@@ -6432,9 +6482,9 @@
             }
           },
           "position": {
-            "startLine": 81,
+            "startLine": 110,
             "startColumn": 2,
-            "endLine": 81,
+            "endLine": 110,
             "endColumn": 24
           }
         },
@@ -6457,9 +6507,9 @@
             }
           },
           "position": {
-            "startLine": 83,
+            "startLine": 112,
             "startColumn": 2,
-            "endLine": 83,
+            "endLine": 112,
             "endColumn": 24
           }
         },
@@ -6482,9 +6532,9 @@
             }
           },
           "position": {
-            "startLine": 94,
+            "startLine": 123,
             "startColumn": 2,
-            "endLine": 94,
+            "endLine": 123,
             "endColumn": 29
           }
         },
@@ -6507,9 +6557,9 @@
             }
           },
           "position": {
-            "startLine": 112,
+            "startLine": 141,
             "startColumn": 2,
-            "endLine": 112,
+            "endLine": 141,
             "endColumn": 26
           }
         }
@@ -7010,9 +7060,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 76,
+              "startLine": 105,
               "startColumn": 2,
-              "endLine": 76,
+              "endLine": 105,
               "endColumn": 20
             }
           },
@@ -7035,9 +7085,9 @@
             "type": "RoutePoint[]",
             "modifiers": [],
             "position": {
-              "startLine": 78,
+              "startLine": 107,
               "startColumn": 2,
-              "endLine": 78,
+              "endLine": 107,
               "endColumn": 28
             }
           },
@@ -7060,9 +7110,9 @@
             "type": "string[]",
             "modifiers": [],
             "position": {
-              "startLine": 94,
+              "startLine": 123,
               "startColumn": 2,
-              "endLine": 94,
+              "endLine": 123,
               "endColumn": 29
             }
           },
@@ -7085,9 +7135,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 83,
+              "startLine": 112,
               "startColumn": 2,
-              "endLine": 83,
+              "endLine": 112,
               "endColumn": 24
             }
           },
@@ -7110,9 +7160,9 @@
             "type": "SportType",
             "modifiers": [],
             "position": {
-              "startLine": 81,
+              "startLine": 110,
               "startColumn": 2,
-              "endLine": 81,
+              "endLine": 110,
               "endColumn": 24
             }
           },
@@ -7135,9 +7185,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 112,
+              "startLine": 141,
               "startColumn": 2,
-              "endLine": 112,
+              "endLine": 141,
               "endColumn": 26
             }
           },
@@ -7182,9 +7232,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1816,
+              "startLine": 1836,
               "startColumn": 2,
-              "endLine": 1816,
+              "endLine": 1836,
               "endColumn": 22
             }
           },
@@ -7207,9 +7257,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 1825,
+              "startLine": 1845,
               "startColumn": 2,
-              "endLine": 1825,
+              "endLine": 1845,
               "endColumn": 16
             }
           },
@@ -7232,9 +7282,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1817,
+              "startLine": 1837,
               "startColumn": 2,
-              "endLine": 1817,
+              "endLine": 1837,
               "endColumn": 23
             }
           },
@@ -7257,9 +7307,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1818,
+              "startLine": 1838,
               "startColumn": 2,
-              "endLine": 1818,
+              "endLine": 1838,
               "endColumn": 26
             }
           },
@@ -7282,9 +7332,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1819,
+              "startLine": 1839,
               "startColumn": 2,
-              "endLine": 1819,
+              "endLine": 1839,
               "endColumn": 25
             }
           },
@@ -7307,9 +7357,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1820,
+              "startLine": 1840,
               "startColumn": 2,
-              "endLine": 1820,
+              "endLine": 1840,
               "endColumn": 26
             }
           },
@@ -7332,9 +7382,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1821,
+              "startLine": 1841,
               "startColumn": 2,
-              "endLine": 1821,
+              "endLine": 1841,
               "endColumn": 26
             }
           },
@@ -7357,9 +7407,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1822,
+              "startLine": 1842,
               "startColumn": 2,
-              "endLine": 1822,
+              "endLine": 1842,
               "endColumn": 25
             }
           },
@@ -7382,9 +7432,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1823,
+              "startLine": 1843,
               "startColumn": 2,
-              "endLine": 1823,
+              "endLine": 1843,
               "endColumn": 25
             }
           },
@@ -7407,9 +7457,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1824,
+              "startLine": 1844,
               "startColumn": 2,
-              "endLine": 1824,
+              "endLine": 1844,
               "endColumn": 25
             }
           },
@@ -7726,9 +7776,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1815,
+              "startLine": 1835,
               "startColumn": 2,
-              "endLine": 1815,
+              "endLine": 1835,
               "endColumn": 25
             }
           },
@@ -7751,9 +7801,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1816,
+              "startLine": 1836,
               "startColumn": 2,
-              "endLine": 1816,
+              "endLine": 1836,
               "endColumn": 22
             }
           },
@@ -7776,9 +7826,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1817,
+              "startLine": 1837,
               "startColumn": 2,
-              "endLine": 1817,
+              "endLine": 1837,
               "endColumn": 23
             }
           },
@@ -7801,9 +7851,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1818,
+              "startLine": 1838,
               "startColumn": 2,
-              "endLine": 1818,
+              "endLine": 1838,
               "endColumn": 26
             }
           },
@@ -7826,9 +7876,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1819,
+              "startLine": 1839,
               "startColumn": 2,
-              "endLine": 1819,
+              "endLine": 1839,
               "endColumn": 25
             }
           },
@@ -7851,9 +7901,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1820,
+              "startLine": 1840,
               "startColumn": 2,
-              "endLine": 1820,
+              "endLine": 1840,
               "endColumn": 26
             }
           },
@@ -7876,9 +7926,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1821,
+              "startLine": 1841,
               "startColumn": 2,
-              "endLine": 1821,
+              "endLine": 1841,
               "endColumn": 26
             }
           },
@@ -7901,9 +7951,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1822,
+              "startLine": 1842,
               "startColumn": 2,
-              "endLine": 1822,
+              "endLine": 1842,
               "endColumn": 25
             }
           },
@@ -7926,9 +7976,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1823,
+              "startLine": 1843,
               "startColumn": 2,
-              "endLine": 1823,
+              "endLine": 1843,
               "endColumn": 25
             }
           },
@@ -7951,9 +8001,9 @@
             "type": "string | null",
             "modifiers": [],
             "position": {
-              "startLine": 1824,
+              "startLine": 1844,
               "startColumn": 2,
-              "endLine": 1824,
+              "endLine": 1844,
               "endColumn": 25
             }
           },
@@ -7976,9 +8026,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 1825,
+              "startLine": 1845,
               "startColumn": 2,
-              "endLine": 1825,
+              "endLine": 1845,
               "endColumn": 16
             }
           },
@@ -8267,9 +8317,9 @@
         "cluster_type": 3
       }
     },
-    "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/RouteStorage.ts-apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-idh3ResolutionsportType": {
+    "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/RouteStorage.ts-apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-idh3ResolutionsportTypewalkedEdgesRedLinewalkedEdgesRedLineResolution": {
       "type": "data_clump",
-      "key": "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/RouteStorage.ts-apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-idh3ResolutionsportType",
+      "key": "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/RouteStorage.ts-apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute-apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity-idh3ResolutionsportTypewalkedEdgesRedLinewalkedEdgesRedLineResolution",
       "probability": 1,
       "from_file_path": "apps/geonexia/frontend/helpers/RouteStorage.ts",
       "from_class_or_interface_key": "apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute",
@@ -8295,9 +8345,9 @@
             "type": "string",
             "modifiers": [],
             "position": {
-              "startLine": 75,
+              "startLine": 104,
               "startColumn": 2,
-              "endLine": 75,
+              "endLine": 104,
               "endColumn": 13
             }
           },
@@ -8320,9 +8370,9 @@
             "type": "number",
             "modifiers": [],
             "position": {
-              "startLine": 83,
+              "startLine": 112,
               "startColumn": 2,
-              "endLine": 83,
+              "endLine": 112,
               "endColumn": 24
             }
           },
@@ -8345,9 +8395,9 @@
             "type": "SportType",
             "modifiers": [],
             "position": {
-              "startLine": 81,
+              "startLine": 110,
               "startColumn": 2,
-              "endLine": 81,
+              "endLine": 110,
               "endColumn": 24
             }
           },
@@ -8356,6 +8406,56 @@
             "startColumn": 2,
             "endLine": 16,
             "endColumn": 24
+          }
+        },
+        "apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute/memberField/walkedEdgesRedLine": {
+          "key": "apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute/memberField/walkedEdgesRedLine",
+          "name": "walkedEdgesRedLine",
+          "type": "string[]",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/walkedEdgesRedLine",
+            "name": "walkedEdgesRedLine",
+            "type": "string[]",
+            "modifiers": [],
+            "position": {
+              "startLine": 185,
+              "startColumn": 2,
+              "endLine": 185,
+              "endColumn": 32
+            }
+          },
+          "position": {
+            "startLine": 51,
+            "startColumn": 2,
+            "endLine": 51,
+            "endColumn": 32
+          }
+        },
+        "apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute/memberField/walkedEdgesRedLineResolution": {
+          "key": "apps/geonexia/frontend/helpers/RouteStorage.ts/interface/SavedRoute/memberField/walkedEdgesRedLineResolution",
+          "name": "walkedEdgesRedLineResolution",
+          "type": "number",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/geonexia/frontend/helpers/ActivityStorage.ts/interface/SavedActivity/memberField/walkedEdgesRedLineResolution",
+            "name": "walkedEdgesRedLineResolution",
+            "type": "number",
+            "modifiers": [],
+            "position": {
+              "startLine": 192,
+              "startColumn": 2,
+              "endLine": 192,
+              "endColumn": 40
+            }
+          },
+          "position": {
+            "startLine": 58,
+            "startColumn": 2,
+            "endLine": 58,
+            "endColumn": 40
           }
         }
       },

@@ -362,7 +362,7 @@ jobs:
     name: "📦 Geonexia Build & 🚀 Submit iOS App"
     runs-on: ubuntu-latest
     needs: [geonexia-check-build, check-repository]
-    if: needs.geonexia-check-build.outputs.changed == 'true'
+    if: needs.geonexia-check-build.outputs.changed == 'true' && needs.check-repository.outputs.is-upstream == 'true'
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4

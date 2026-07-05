@@ -32,6 +32,12 @@ const Index = () => {
 
 	const listItems = [
 		{
+			key: 'onboarding',
+			label: translate(TranslationKeys.onboarding),
+			leftIcon: <MaterialCommunityIcons name="rocket-launch" size={24} color={theme.screen.icon} />,
+			onPress: () => router.push('/experimentell/onboarding'),
+		},
+		{
 			key: 'edge-speech',
 			label: translate(TranslationKeys.edge_speech_test),
 			leftIcon: <MaterialCommunityIcons name="text-to-speech" size={24} color={theme.screen.icon} />,

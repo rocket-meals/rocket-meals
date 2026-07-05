@@ -141,8 +141,10 @@ export function buildRouteDisplayData(
 	}
 
 	// ── Walk path lines ───────────────────────────────────────────────────
-	// Use stored walked edges if available, otherwise compute from hex tile order.
-	const edges = route.walkedEdges ?? computeEdgesFromHexTiles(route.hexTiles);
+	// Prefer the finer red-line edges (walkedEdgesRedLine) when available so that
+	// the red walk path is drawn at the red-line resolution for higher accuracy.
+	// Fall back to h10 walkedEdges, and finally compute from hex tile order.
+	const edges = route.walkedEdgesRedLine ?? route.walkedEdges ?? computeEdgesFromHexTiles(route.hexTiles);
 
 	const pathFeatures: GeoJsonFeature[] = [];
 	for (const edge of edges) {

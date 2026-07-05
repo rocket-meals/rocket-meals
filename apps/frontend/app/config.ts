@@ -355,7 +355,7 @@ export function getFinalConfig(config?: any) {
 			],
 			experiments: {
 				typedRoutes: true,
-				baseUrl: customerConfig.baseUrl,
+				baseUrl: customerConfig.baseUrl + (process.env.EXPO_PUBLIC_BASE_URL_SUFFIX || ''),
 			},
 			extra: {
 				router: {

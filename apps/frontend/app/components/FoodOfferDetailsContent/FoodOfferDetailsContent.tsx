@@ -8,7 +8,7 @@ import Feedbacks from '@/components/Feedbacks';
 import Details from '@/components/Details';
 import Labels from '@/components/Labels';
 import { getImageUrl, getpreviousFeedback } from '@/constants/HelperFunctions';
-import { CollectibleAt, DatabaseTypes } from 'repo-depkit-common';
+import { CollectibleAt, DatabaseTypes, RatingHelper } from 'repo-depkit-common';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
 import { useDispatch, shallowEqual } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
@@ -37,6 +37,7 @@ import { useFoodAttributes } from '@/app/(app)/foodoffers/details/hooks/useFoodA
 import { fetchFoodDetailsById, fetchFoodOffersDetailsById } from '@/redux/actions/FoodOffers/FoodOffers';
 import styles from '@/app/(app)/foodoffers/details/styles';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
+import useAppRatingScore from '@/hooks/useAppRatingScore';
 
 export interface FoodOfferDetailsContentProps {
     offerId?: string;
@@ -57,6 +58,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
     const { width: screenWidth } = useWindowDimensions();
 
     const { show: showModal, close: closeModal } = useMyScrollViewModal();
+    const { addPointsForTabSwitch, addPointsForFoodRating5Stars } = useAppRatingScore();
 
     const { isSmartPhone, isAndroid, isIOS } = usePlatformHelper();
     const user = useAppSelector((state) => state.authReducer.user, shallowEqual);
@@ -104,7 +106,8 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
     const handleSetActiveTab = useCallback((tab: FoodOfferDetailTab) => {
         setActiveTab(tab);
         dispatch({ type: SET_FOOD_DETAILS_LAST_TAB, payload: tab });
-    }, [dispatch]);
+        addPointsForTabSwitch();
+    }, [dispatch, addPointsForTabSwitch]);
 
     const getFoodDetails = useCallback(async () => {
         try {
@@ -206,6 +209,9 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
             return;
         }
         const newRating = previousFeedback?.rating === rating ? null : rating;
+        if (newRating === RatingHelper.MAX_RATING) {
+            addPointsForFoodRating5Stars();
+        }
         handleFoodRating({
             foodId: foodDetails?.id,
             profileId: profile?.id,
@@ -215,7 +221,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
             previousFeedback,
             dispatch,
         });
-    }, [user, previousFeedback, foodDetails, profile, foodOfferCanteenId, dispatch, openAccountRequiredModal]);
+    }, [user, previousFeedback, foodDetails, profile, foodOfferCanteenId, dispatch, openAccountRequiredModal, addPointsForFoodRating5Stars]);
 
     const updateFoodFeedbackNotification = useCallback(async () => {
         try {

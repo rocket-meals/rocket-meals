@@ -29,6 +29,7 @@ import MyMap from '@/components/MyMap';
 import type { MyMapHandle } from '@/components/MyMap/MyMapHelper';
 import { MapStyleKey, SettingsListMyMapThemeSelection, MAP_STYLE_DEFINITIONS } from 'repo-depkit-common-ui';
 import JoggingOverlay from '@/app/(app)/map/components/JoggingOverlay';
+import useAppRatingScore from '@/hooks/useAppRatingScore';
 
 type BuildingCoordinates = { coordinates?: [number, number] } | null;
 
@@ -702,6 +703,7 @@ const OsmVectorMapScreen: React.FC = () => {
 	const { openBuildingDetailsModal } = useBuildingDetailsModal();
 	const { show, close } = useMyScrollViewModal();
 	const { translate } = useLanguage();
+	const { addPointsForMapOpen } = useAppRatingScore();
 
 	const [logEntries, setLogEntries] = useState<string[]>([]);
 	const logScrollRef = useRef<ScrollView>(null);
@@ -718,6 +720,11 @@ const OsmVectorMapScreen: React.FC = () => {
 
 	// Ref always pointing to the latest centerPosition for use in one-time HTML loading
 	const centerPositionRef = useRef<{ lat: number; lng: number }>(POSITION_BUNDESTAG);
+
+	// Award points when map screen is opened
+	useEffect(() => {
+		addPointsForMapOpen();
+	}, [addPointsForMapOpen]);
 
 	// ── Game mode (Spiel Modus) state ────────────────────────────────────────────
 	const [vehicleHeading, setVehicleHeading] = useState(0);

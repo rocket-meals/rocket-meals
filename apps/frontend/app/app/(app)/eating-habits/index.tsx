@@ -30,6 +30,7 @@ import SettingsListSelectOption from '@/components/SettingsListSelectOption/Sett
 import useCustomerConfigSeperateMarkingsForFood from '@/hooks/useCustomerConfigSeperateMarkingsForFood';
 import useSeperatedMarkingsForFood from '@/hooks/useSeperatedMarkingsForFood';
 import { ComponentIds } from '@/constants/ComponentIds';
+import useAppRatingScore from '@/hooks/useAppRatingScore';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.eating_habits);
@@ -47,6 +48,7 @@ const Index = () => {
 	const profileHelper = useMemo(() => new ProfileHelper(), []);
 	const isAnonymousUser = UserHelper.isAnonymousUser(user);
 	const { show: showModal, close: closeModal } = useMyScrollViewModal();
+	const { addPointsForEatingHabitsOpen, addPointsForEatingHabitsDetailModal } = useAppRatingScore();
 	const customerConfigDefaultBreakdown = useCustomerConfigSeperateMarkingsForFood();
 	const seperatedMarkingsValue = useSeperatedMarkingsForFood();
 
@@ -54,7 +56,8 @@ const Index = () => {
 
 	const openMenuSheet = useCallback(() => {
 		menuSheetRef?.current?.expand();
-	}, []);
+		addPointsForEatingHabitsDetailModal();
+	}, [addPointsForEatingHabitsDetailModal]);
 
 	const closeMenuSheet = useCallback(() => {
 		menuSheetRef?.current?.close();
@@ -62,6 +65,7 @@ const Index = () => {
 
 	useFocusEffect(
 		useCallback(() => {
+			addPointsForEatingHabitsOpen();
 			if (!isAnonymousUser && user?.profile) {
 				profileHelper.fetchProfileById(user.profile, {}).then((fetchedProfile) => {
 					if (fetchedProfile) {
@@ -79,7 +83,7 @@ const Index = () => {
 				clearTimeout(timer);
 				setIsActive(false);
 			};
-		}, [isAnonymousUser, user?.profile, profileHelper, dispatch])
+		}, [isAnonymousUser, user?.profile, profileHelper, dispatch, addPointsForEatingHabitsOpen])
 	);
 
 	useEffect(() => {

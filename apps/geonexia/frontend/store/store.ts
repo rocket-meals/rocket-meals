@@ -11,7 +11,7 @@ import displaySettingsReducer from './displaySettingsSlice';
 import playerInformationReducer from './playerInformationSlice';
 import mapSearchReducer from './mapSearchSlice';
 import replaySettingsReducer from './replaySettingsSlice';
-import { HexTileRecord, saveHexTileState, saveDevHexTileState, saveWalkedEdges, saveDevWalkedEdges } from '../helpers/HexTileStorage';
+import { HexTileRecord, saveHexTileState, saveDevHexTileState, saveWalkedEdges, saveDevWalkedEdges, saveWalkedEdgesRedLine, saveDevWalkedEdgesRedLine } from '../helpers/HexTileStorage';
 import { saveSportType } from '../helpers/SportTypeStorage';
 import { saveThemeMode } from '../helpers/ThemeStorage';
 import { BillboardConfigState, saveBillboardConfig } from '../helpers/BillboardConfigStorage';
@@ -53,6 +53,8 @@ let _saveTimer: ReturnType<typeof setTimeout> | null = null;
 let _lastSavedRecords: Record<string, HexTileRecord> | null = null;
 let _walkedEdgesTimer: ReturnType<typeof setTimeout> | null = null;
 let _lastSavedWalkedEdges: string[] | null = null;
+let _walkedEdgesRedLineTimer: ReturnType<typeof setTimeout> | null = null;
+let _lastSavedWalkedEdgesRedLine: string[] | null = null;
 
 // Auto-persist sport type to disk whenever the selected type changes.
 let _lastSavedSportType: SportType | null = null;
@@ -120,6 +122,22 @@ store.subscribe(() => {
 				saveWalkedEdges(currentEdges);
 			}
 			_walkedEdgesTimer = null;
+		}, 500);
+	}
+
+	const { walkedEdgesRedLine: currentWalkedEdgesRedLine } = state.hexTiles;
+	if (currentWalkedEdgesRedLine !== _lastSavedWalkedEdgesRedLine) {
+		_lastSavedWalkedEdgesRedLine = currentWalkedEdgesRedLine;
+		if (_walkedEdgesRedLineTimer) clearTimeout(_walkedEdgesRedLineTimer);
+		_walkedEdgesRedLineTimer = setTimeout(() => {
+			const currentIsDevMode = store.getState().hexTiles.isDevMode;
+			const currentEdgesRedLine = store.getState().hexTiles.walkedEdgesRedLine;
+			if (currentIsDevMode) {
+				saveDevWalkedEdgesRedLine(currentEdgesRedLine);
+			} else {
+				saveWalkedEdgesRedLine(currentEdgesRedLine);
+			}
+			_walkedEdgesRedLineTimer = null;
 		}, 500);
 	}
 

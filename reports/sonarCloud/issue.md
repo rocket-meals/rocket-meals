@@ -4,43 +4,15 @@
 
 | Category | Total Issues | Shown |
 |----------|-------------|-------|
-| 🔒 Security | 40 | 40 |
-| 🐛 Reliability | 6872 | 10 |
+| 🔒 Security | 37 | 37 |
+| 🐛 Reliability | 6891 | 13 |
 | 🔧 Maintainability | 10000 | 0 |
 
-**Total issues:** 16912 (showing top 50 prioritized by: Security > Reliability > Maintainability)
+**Total issues:** 16928 (showing top 50 prioritized by: Security > Reliability > Maintainability)
 
 ---
 
-## 🔒 Security (40/40)
-
-- **inputs.previous-commit-sha is vulnerable to script injection: values of inputs are provided by whoever triggers the workflow. Change this action to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
-  .github/actions/check-build-number/action.yml:34
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/check-build-number/action.yml#L34
-
-- **inputs.working-directory is vulnerable to script injection: values of inputs are provided by whoever triggers the workflow. Change this action to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
-  .github/actions/check-build-number/action.yml:42
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/check-build-number/action.yml#L42
-
-- **inputs.working-directory is vulnerable to script injection: values of inputs are provided by whoever triggers the workflow. Change this action to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
-  .github/actions/check-build-number/action.yml:43
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/check-build-number/action.yml#L43
-
-- **inputs.ref_name is vulnerable to script injection: values of inputs are provided by whoever triggers the workflow. Change this action to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
-  .github/actions/geonexia-expo-update/action.yml:184
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/geonexia-expo-update/action.yml#L184
-
-- **inputs.ref_name is vulnerable to script injection: values of inputs are provided by whoever triggers the workflow. Change this action to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
-  .github/actions/geonexia-expo-update/action.yml:184
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/geonexia-expo-update/action.yml#L184
-
-- **inputs.ref_name is vulnerable to script injection: values of inputs are provided by whoever triggers the workflow. Change this action to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
-  .github/actions/score-tracker-expo-update/action.yml:184
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/score-tracker-expo-update/action.yml#L184
-
-- **inputs.ref_name is vulnerable to script injection: values of inputs are provided by whoever triggers the workflow. Change this action to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
-  .github/actions/score-tracker-expo-update/action.yml:184
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/score-tracker-expo-update/action.yml#L184
+## 🔒 Security (37/37)
 
 - **Use full commit SHA hash for this dependency.**
   .github/workflows/frontend-maestro.yml:44
@@ -54,17 +26,25 @@
   .github/workflows/frontend-maestro.yml:50
   https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/frontend-maestro.yml#L50
 
-- **The expression github.event.pull_request.title can be set by an external actor to a specially crafted value, enabling script injection. Change this workflow to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
-  .github/workflows/pr-expo-preview.yml:51
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/pr-expo-preview.yml#L51
+- **"npx" can install packages on-demand and run their lifecycle scripts.**
+  .github/workflows/pr-expo-preview.yml:243
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/pr-expo-preview.yml#L243
+
+- **Define exact package version to avoid installing unverified releases.**
+  .github/workflows/pr-expo-preview.yml:243
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/pr-expo-preview.yml#L243
 
 - **The expression github.event.pull_request.title can be set by an external actor to a specially crafted value, enabling script injection. Change this workflow to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
-  .github/workflows/pr-expo-preview.yml:60
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/pr-expo-preview.yml#L60
+  .github/workflows/pr-expo-preview.yml:105
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/pr-expo-preview.yml#L105
 
 - **The expression github.event.pull_request.title can be set by an external actor to a specially crafted value, enabling script injection. Change this workflow to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
-  .github/workflows/pr-expo-preview.yml:69
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/pr-expo-preview.yml#L69
+  .github/workflows/pr-expo-preview.yml:115
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/pr-expo-preview.yml#L115
+
+- **The expression github.event.pull_request.title can be set by an external actor to a specially crafted value, enabling script injection. Change this workflow to not use user-controlled data directly in a run block, for example by assigning this expression to an environment variable.**
+  .github/workflows/pr-expo-preview.yml:125
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/pr-expo-preview.yml#L125
 
 - **A path canonicalized from CLI-controlled data must be validated before use.**
   apps/backend-sync/src/DirectusDatabaseSync.ts:75
@@ -138,6 +118,14 @@
   apps/frontend/run-maestro-web-test.sh:88
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/run-maestro-web-test.sh#L88
 
+- **Make sure that using this pseudorandom number generator is safe here.**
+  apps/geonexia/frontend/app/activities/index.tsx:185
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/app/activities/index.tsx#L185
+
+- **Make sure that using this pseudorandom number generator is safe here.**
+  apps/geonexia/frontend/app/routes/[id].tsx:171
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/app/routes/[id].tsx#L171
+
 - **Ensure that tainted data is validated before being used to construct a client-side request URL.**
   apps/geonexia/frontend/helpers/h3/libh3.js:117
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/helpers/h3/libh3.js#L117
@@ -174,7 +162,7 @@
   apps/sonarCloudReportDownloader/src/generateIssueMarkdown.ts:333
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/sonarCloudReportDownloader/src/generateIssueMarkdown.ts#L333
 
-## 🐛 Reliability (10/6872)
+## 🐛 Reliability (13/6891)
 
 - **Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/food-sync-hook/aachen/FoodWebParserAachenParseHtml.ts:40
@@ -197,22 +185,34 @@
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/foods-translation-fix-missing-schedule/index.ts#L39
 
 - **Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.**
-  apps/frontend/app/app/(app)/course-timetable/index.tsx:28
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/course-timetable/index.tsx#L28
+  apps/frontend/app/app/(app)/course-timetable/index.tsx:26
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/course-timetable/index.tsx#L26
 
 - **Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.**
-  apps/frontend/app/app/(app)/course-timetable/index.tsx:117
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/course-timetable/index.tsx#L117
+  apps/frontend/app/app/(app)/course-timetable/index.tsx:107
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/course-timetable/index.tsx#L107
+
+- **Prefer `Number.parseInt` over `parseInt`.**
+  apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx:159
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx#L159
 
 - **Prefer `Number.isFinite` over `isFinite`.**
   apps/frontend/app/app/(app)/map/components/JoggingOverlay.tsx:140
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/map/components/JoggingOverlay.tsx#L140
 
-- **Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.**
-  apps/frontend/app/app/index.tsx:15
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/index.tsx#L15
+- **Prefer `Number.parseInt` over `parseInt`.**
+  apps/frontend/app/app/(app)/settings/index.tsx:298
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/settings/index.tsx#L298
 
-- **Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.**
-  apps/frontend/app/components/CustomMarkdown/CustomMarkdown.tsx:19
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/components/CustomMarkdown/CustomMarkdown.tsx#L19
+- **Prefer `Number.isNaN` over `isNaN`.**
+  apps/frontend/app/app/(app)/settings/index.tsx:299
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/settings/index.tsx#L299
+
+- **Prefer `Number.parseInt` over `parseInt`.**
+  apps/frontend/app/app/(app)/settings/index.tsx:304
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/settings/index.tsx#L304
+
+- **Prefer `Number.isNaN` over `isNaN`.**
+  apps/frontend/app/app/(app)/settings/index.tsx:306
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/settings/index.tsx#L306
 

@@ -51,6 +51,8 @@ import useHousingSortingModal from '@/hooks/useHousingSortingModal';
 import useCampusSortingModal from '@/hooks/useCampusSortingModal';
 import useMyScrollviewModalChangeMyCanteenSelection from '@/hooks/useMyScrollviewModalChangeMyCanteenSelection';
 import useCanteenVisitsVisibilityModal from '@/hooks/useCanteenVisitsVisibilityModal';
+import useAppRatingScore from '@/hooks/useAppRatingScore';
+import { useMyScrollviewModalPriceGroupSettings } from '@/hooks/useMyScrollviewModalPriceGroupSettings';
 import { ApartmentSortOption, CampusSortOption, FoodSortOption } from 'repo-depkit-common';
 import { MapStyleKey, SettingsListMyMapThemeSelection } from 'repo-depkit-common-ui';
 import { FriendsContent } from '@/components/FriendsContent';
@@ -82,6 +84,9 @@ const Settings = () => {
         const { openCampusSortingModal } = useCampusSortingModal();
         const { openChangeMyCanteenSelectionModal } = useMyScrollviewModalChangeMyCanteenSelection();
         const { openCanteenVisitsVisibilityModal } = useCanteenVisitsVisibilityModal();
+        const { score: appRatingScore, setScore: setAppRatingScore, showDebugRatingModal, appRatingData } = useAppRatingScore();
+        const { openPriceGroupSettingsModal } = useMyScrollviewModalPriceGroupSettings();
+
 
         const openFriendsModal = useCallback(() => {
                 showScrollViewModal({
@@ -282,6 +287,28 @@ const Settings = () => {
                         ),
                 });
         };
+
+        const openAppRatingScoreSheet = useCallback(() => {
+                openTextInputModal({
+                        title: 'App Rating Score',
+                        placeholder: '0',
+                        initialValue: String(appRatingScore),
+                        saveLabel: translate(TranslationKeys.save),
+                        onSave: (value: string) => {
+                                const parsed = parseInt(value, 10);
+                                if (!isNaN(parsed) && parsed >= 0) {
+                                        setAppRatingScore(parsed);
+                                }
+                        },
+                        checkTextInput: (value: string) => {
+                                const parsed = parseInt(value, 10);
+                                return {
+                                        isValid: !isNaN(parsed) && parsed >= 0,
+                                        value: value.trim(),
+                                };
+                        },
+                });
+        }, [appRatingScore, openTextInputModal, setAppRatingScore, translate]);
 
         const handleSelectServer = useCallback(
                 async (config: CustomerConfig) => {
@@ -503,7 +530,7 @@ const Settings = () => {
 					<SettingsGroupTitle nativeID={ComponentIds.SETTINGS_GROUP_CANTEEN_USAGE}>{translate(TranslationKeys.group_canteen_usage)}</SettingsGroupTitle>
 					<View style={groupStyle}>
 						<SettingsList iconBgColor={foods_area_color} leftIcon={<MaterialIcons name="restaurant-menu" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.canteen)} value={excerpt(String(selectedCanteen?.alias), 30)} rightIcon={<MaterialCommunityIcons name="pencil" size={20} color={theme.screen.icon} />} handleFunction={openChangeMyCanteenSelectionModal} groupPosition="top" nativeID={ComponentIds.SETTINGS_CANTEEN} />
-						<SettingsList iconBgColor={foods_area_color} leftIcon={<MaterialIcons name="euro" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.price_group)} value={profile?.price_group && priceGroups[profile.price_group as PriceGroupKey] ? priceGroups[profile.price_group as PriceGroupKey].label : ''} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/price-group')} groupPosition="middle" />
+						<SettingsList iconBgColor={foods_area_color} leftIcon={<MaterialIcons name="euro" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.price_group)} value={profile?.price_group && priceGroups[profile.price_group as PriceGroupKey] ? priceGroups[profile.price_group as PriceGroupKey].label : ''} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={openPriceGroupSettingsModal} groupPosition="middle" />
 						<SettingsList iconBgColor={foods_area_color} leftIcon={<Ionicons name="card" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.accountbalance)} value={profile?.credit_balance ? showFormatedPrice(formatPrice(profile?.credit_balance)) : '€'} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/account-balance')} groupPosition="middle" />
 						<SettingsList iconBgColor={foods_area_color} leftIcon={<Ionicons name="bag-add-sharp" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.eating_habits)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={() => router.navigate('/eating-habits')} groupPosition="middle" nativeID={ComponentIds.SETTINGS_EATING_HABITS} />
 						<SettingsList iconBgColor={foods_area_color} leftIcon={<MaterialIcons name="sort" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.sort)} value={sortingLabel} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={openFoodofferSortingModal} groupPosition="middle" />
@@ -682,6 +709,7 @@ const Settings = () => {
 						/>
 					</View>
 					<Text style={{ ...styles.heading, color: theme.drawerHeading }}>{ServerInfoHelper.getServerName(serverInfo, customerConfig)}</Text>
+					<Text style={{ color: theme.screen.text, fontSize: 12, opacity: 0.5, marginTop: 2 }}>rocket meals</Text>
 				</TouchableOpacity>
 			),
 		});
@@ -720,6 +748,44 @@ const Settings = () => {
 							label={translate(TranslationKeys.simulate_expo_update_available)}
 							isEnabled={simulateExpoUpdateAvailable}
 							onToggle={toggleSimulateExpoUpdate}
+							groupPosition="middle"
+						/>
+						<SettingsListEditable
+							key={String(appRatingScore)}
+							iconBgColor={primaryColor}
+							leftIcon={<MaterialCommunityIcons name="star-outline" size={24} color={theme.screen.icon} />}
+							label="App Rating Score"
+							value={String(appRatingScore)}
+							handleFunction={openAppRatingScoreSheet}
+							groupPosition="middle"
+						/>
+						<SettingsList
+							iconBgColor={primaryColor}
+							leftIcon={<MaterialCommunityIcons name="clock-outline" size={24} color={theme.screen.icon} />}
+							label="Foodoffers Letzter Focus"
+							value={appRatingData?.lastFocusTime || '-'}
+							groupPosition="middle"
+						/>
+						<SettingsList
+							iconBgColor={primaryColor}
+							leftIcon={<MaterialCommunityIcons name="history" size={24} color={theme.screen.icon} />}
+							label="Letzte Rating-Anfrage"
+							value={appRatingData?.lastAskedAt ? new Date(appRatingData.lastAskedAt).toLocaleString() : '-'}
+							groupPosition="middle"
+						/>
+						<SettingsList
+							iconBgColor={primaryColor}
+							leftIcon={<MaterialCommunityIcons name="tag-outline" size={24} color={theme.screen.icon} />}
+							label="Letzte Rating App-Version"
+							value={appRatingData?.lastAskedAppVersion || '-'}
+							groupPosition="middle"
+						/>
+						<SettingsList
+							iconBgColor={primaryColor}
+							leftIcon={<MaterialCommunityIcons name="star-shooting-outline" size={24} color={theme.screen.icon} />}
+							label="Open App Rating Modal"
+							value=""
+							handleFunction={showDebugRatingModal}
 							groupPosition="bottom"
 						/>
 					</View>
@@ -763,6 +829,7 @@ const Settings = () => {
 		debugMode, simulateExpoUpdateAvailable, openServerSheet, openFoodOffersTimeSheet,
 		toggleWebpForAssets, toggleDebugMode, toggleSimulateExpoUpdate, osmVectorMapStyleKey,
 		acceptedFriendsCount, showFriendsInSettings, canteenVisitsVisibilityLabel, openCanteenVisitsVisibilityModal, openFriendsModal,
+		appRatingScore, openAppRatingScoreSheet, showDebugRatingModal, appRatingData,
 	]);
 
 	return (

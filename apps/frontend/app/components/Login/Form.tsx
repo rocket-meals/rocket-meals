@@ -21,6 +21,7 @@ import { ComponentIds } from '@/constants/ComponentIds';
 
 const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionSheet, providers }) => {
 	const [isChecked, setChecked] = useState(false);
+	const [agbError, setAgbError] = useState(false);
 	const { theme } = useTheme();
 	const dispatch = useDispatch();
 	const { isWeb } = usePlatformHelper();
@@ -28,6 +29,14 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 	const state = useAppSelector((state) => state);
 	const { primaryColor, selectedTheme: mode } = state.settings;
 	const contrastColor = myContrastColor(primaryColor || theme.login.linkButton, theme, mode === 'dark');
+
+	const requireAgb = (proceed: () => void) => {
+		if (!isChecked) {
+			setAgbError(true);
+			return;
+		}
+		proceed();
+	};
 
 	const getToken = async (codeVerifier: string, code: string) => {
 		try {
@@ -86,15 +95,32 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 			}}
 		>
 			<Text style={{ ...styles.heading, color: theme.login.text }}>{translate(TranslationKeys.sign_in)}</Text>
-			<View>
+			<View
+				style={{
+					borderWidth: agbError ? 2 : 0,
+					borderColor: agbError ? 'red' : 'transparent',
+					borderRadius: 8,
+					padding: agbError ? 4 : 0,
+				}}
+			>
 				<TouchableOpacity
 					onPress={() => {
-						setChecked(!isChecked);
+						const newValue = !isChecked;
+						setChecked(newValue);
+						if (newValue) setAgbError(false);
 					}}
 					style={styles.section}
 					nativeID={ComponentIds.LOGIN_ACCEPT_PRIVACY}
 				>
-					<Checkbox style={styles.checkbox} value={isChecked} onValueChange={setChecked} color={isChecked ? '#000000' : undefined} />
+					<Checkbox
+						style={styles.checkbox}
+						value={isChecked}
+						onValueChange={(val) => {
+							setChecked(val);
+							if (val) setAgbError(false);
+						}}
+						color={isChecked ? '#000000' : undefined}
+					/>
 					<Text
 						style={{
 							...styles.checkboxLabel,
@@ -106,7 +132,7 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 					</Text>
 				</TouchableOpacity>
 			</View>
-			<View style={{ width: '100%', opacity: isChecked ? 1 : 0.3 }}>
+			<View style={{ width: '100%' }}>
 				<View style={styles.firstRow}>
 					{providers &&
 						providers?.map((provider: any, index: number) => (
@@ -116,8 +142,7 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 									...styles.button,
 									borderColor: theme.login.border,
 								}}
-								disabled={!isChecked}
-								onPress={() => onPressLogin(provider?.name)}
+								onPress={() => requireAgb(() => onPressLogin(provider?.name))}
 							>
 								<View style={{ ...styles.leftIcon, backgroundColor: primaryColor }}>
 									<MaterialCommunityIcons name={provider?.icon} size={22} color={contrastColor} />
@@ -133,8 +158,7 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 						...styles.incognito,
 						borderColor: theme.login.border,
 					}}
-					disabled={!isChecked}
-					onPress={openAttentionSheet}
+					onPress={() => requireAgb(openAttentionSheet)}
 					nativeID={ComponentIds.LOGIN_CONTINUE_WITHOUT_ACCOUNT}
 				>
 					<View style={{ ...styles.leftIcon, backgroundColor: primaryColor }}>
@@ -148,9 +172,7 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, openAttentionShe
 			<View style={styles.managementLogin}>
 				<Text style={{ ...styles.fromManagement, color: theme.login.text }}>{`${translate(TranslationKeys.for_management)}?`}</Text>
 				<TouchableOpacity
-					onPress={() => {
-						openSheet();
-					}}
+					onPress={() => requireAgb(openSheet)}
 				>
 					<Text style={{ ...styles.loginText, color: theme.screen.text }}>{translate(TranslationKeys.sign_in)}</Text>
 				</TouchableOpacity>

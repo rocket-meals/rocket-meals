@@ -42,6 +42,12 @@ export type HexTileSliceState = {
 	 * consecutively, instead of connecting all adjacent walked-on hexagons.
 	 */
 	walkedEdges: string[];
+	/**
+	 * Same as `walkedEdges` but at the red-line grid resolution for a finer
+	 * walk path line. Used on the home map and activity screens to draw a more
+	 * accurate red line.
+	 */
+	walkedEdgesRedLine: string[];
 };
 
 const initialState: HexTileSliceState = {
@@ -51,6 +57,7 @@ const initialState: HexTileSliceState = {
 	isDevMode: false,
 	isDebugMode: false,
 	walkedEdges: [],
+	walkedEdgesRedLine: [],
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -255,11 +262,12 @@ const hexTileSlice = createSlice({
 		 */
 		setDevMode(
 			state,
-			action: PayloadAction<{ isDevMode: boolean; records: Record<string, HexTileRecord>; walkedEdges?: string[] }>,
+			action: PayloadAction<{ isDevMode: boolean; records: Record<string, HexTileRecord>; walkedEdges?: string[]; walkedEdgesRedLine?: string[] }>,
 		) {
 			state.isDevMode = action.payload.isDevMode;
 			state.records = action.payload.records;
 			state.walkedEdges = action.payload.walkedEdges ?? [];
+			state.walkedEdgesRedLine = action.payload.walkedEdgesRedLine ?? [];
 			state.runStartLevels = {};
 			state.resetToken += 1;
 		},
@@ -289,8 +297,29 @@ const hexTileSlice = createSlice({
 		loadWalkedEdgesState(state, action: PayloadAction<string[]>) {
 			state.walkedEdges = action.payload;
 		},
+
+		/**
+		 * Record one or more red-line hex-to-hex transitions for the finer walk path.
+		 * Each edge is provided as "cellA:cellB" with the lexicographically smaller
+		 * index first. Duplicate edges are silently ignored.
+		 */
+		addWalkedEdgesRedLine(state, action: PayloadAction<string[]>) {
+			const edgeSet = new Set(state.walkedEdgesRedLine);
+			for (const edge of action.payload) {
+				edgeSet.add(edge);
+			}
+			state.walkedEdgesRedLine = Array.from(edgeSet);
+		},
+
+		/**
+		 * Replace the red-line walked-edges list with data loaded from persistent storage.
+		 * Called once at app startup alongside loadPersistedState / setDevMode.
+		 */
+		loadWalkedEdgesRedLineState(state, action: PayloadAction<string[]>) {
+			state.walkedEdgesRedLine = action.payload;
+		},
 	},
 });
 
-export const { startRun, markVisited, markEnclosed, loadPersistedState, setHexTileCustomization, setBillboardAtAnchor, setBillboardFlatAtAnchor, setTextureAdaptionAtAnchor, applyMapCustomizations, setDevMode, setDebugMode, addWalkedEdges, loadWalkedEdgesState } = hexTileSlice.actions;
+export const { startRun, markVisited, markEnclosed, loadPersistedState, setHexTileCustomization, setBillboardAtAnchor, setBillboardFlatAtAnchor, setTextureAdaptionAtAnchor, applyMapCustomizations, setDevMode, setDebugMode, addWalkedEdges, loadWalkedEdgesState, addWalkedEdgesRedLine, loadWalkedEdgesRedLineState } = hexTileSlice.actions;
 export default hexTileSlice.reducer;

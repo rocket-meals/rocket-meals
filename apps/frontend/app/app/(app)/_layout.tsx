@@ -692,6 +692,13 @@ export default function Layout() {
 					}}
 				/>
 				<Drawer.Screen
+					name="experimentell/onboarding/index"
+					options={{
+						headerShown: false,
+						title: translate(TranslationKeys.onboarding),
+					}}
+				/>
+				<Drawer.Screen
 					name="map/index"
 					options={{
 						headerShown: false,
@@ -809,13 +816,6 @@ export default function Layout() {
 					options={{
 						title: 'Eating Habits',
 						header: () => <CustomStackHeader label={translate(TranslationKeys.eating_habits)} key={'Eating Habits'} />,
-					}}
-				/>
-				<Drawer.Screen
-					name="price-group/index"
-					options={{
-						title: 'Price Group',
-						header: () => <CustomStackHeader label={translate(TranslationKeys.price_group)} key={'Price Group'} />,
 					}}
 				/>
 

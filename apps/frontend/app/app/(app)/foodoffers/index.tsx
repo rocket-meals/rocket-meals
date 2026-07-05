@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { DatabaseTypes } from 'repo-depkit-common';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -10,6 +11,7 @@ import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import useKioskMode from '@/hooks/useKioskMode';
 import {
 	SET_BUSINESS_HOURS,
+	SET_SELECTED_CANTEEN,
 	UPDATE_PROFILE,
 } from '@/redux/Types/types';
 import HourSheet from '@/components/HoursSheet/HoursSheet';
@@ -31,12 +33,17 @@ import useAppForegroundUpdateCheckModal from '@/hooks/useAppForegroundUpdateChec
 import useMyScrollviewModalChangeMyCanteenSelection from '@/hooks/useMyScrollviewModalChangeMyCanteenSelection';
 import useMyScrollviewModalBusinessHours from '@/hooks/useMyScrollviewModalBusinessHours';
 import useMyScrollviewModalDatePicker from '@/hooks/useMyScrollviewModalDatePicker';
+import { useMyScrollviewModalFoodOffersOptions } from '@/hooks/useMyScrollviewModalFoodOffersOptions';
+import { useMyScrollviewModalPriceGroupSettings } from '@/hooks/useMyScrollviewModalPriceGroupSettings';
 
 import FoodOffersHeader from './components/FoodOffersHeader';
 import { useNotifications } from './hooks';
 import useFoodOffersDefaultDate from '@/hooks/useFoodOffersDefaultDate';
 import useMyScrollviewDirectusImageEditModal from '@/hooks/useMyScrollviewDirectusImageEditModal';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
+import useAppRatingScore from '@/hooks/useAppRatingScore';
+import DebugView from '@/components/DebugView';
+import CanteenSelection from '@/components/CanteenSelection/CanteenSelection';
 
 export const SHEET_COMPONENTS = {
 	hours: HourSheet,
@@ -69,11 +76,52 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 	useAppForegroundUpdateCheckModal();
 	useNotifications();
 
-	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
+	const { checkAndRequestRatingOnFocus, appRatingData, setLastFocusTime } = useAppRatingScore();
+	const { show: showScrollViewModal, close: closeScrollViewModal, debug: modalDebug } = useMyScrollViewModal();
+
+	// Use a ref so useFocusEffect doesn't re-run when the callback identity changes
+	const checkRatingRef = useRef(checkAndRequestRatingOnFocus);
+	useEffect(() => {
+		checkRatingRef.current = checkAndRequestRatingOnFocus;
+	}, [checkAndRequestRatingOnFocus]);
+
+	useFocusEffect(
+		useCallback(() => {
+			setLastFocusTime(new Date().toLocaleTimeString());
+			checkRatingRef.current();
+		}, [setLastFocusTime])
+	);
+
+	// Also trigger rating check when modal closes
+	const prevModalOpenRef = useRef(modalDebug.contentSet);
+	useEffect(() => {
+		const wasOpen = prevModalOpenRef.current;
+		prevModalOpenRef.current = modalDebug.contentSet;
+		if (wasOpen && !modalDebug.contentSet) {
+			checkRatingRef.current();
+		}
+	}, [modalDebug.contentSet]);
 
 	const { openChangeMyCanteenSelectionModal } = useMyScrollviewModalChangeMyCanteenSelection();
 	const { openBusinessHoursModal } = useMyScrollviewModalBusinessHours();
 	const { openDatePickerModal } = useMyScrollviewModalDatePicker();
+	const { openPriceGroupSettingsModal } = useMyScrollviewModalPriceGroupSettings();
+	const router = useRouter();
+
+	const handleOpenUtilization = useCallback(() => {
+		openUtilizationModal(selectedDate, selectedCanteen);
+	}, [openUtilizationModal, selectedDate, selectedCanteen]);
+
+	const { openFoodOffersOptionsModal } = useMyScrollviewModalFoodOffersOptions({
+		onSort: openFoodofferSortingModal,
+		onPriceGroup: openPriceGroupSettingsModal,
+		onEatingHabits: () => router.navigate('/eating-habits'),
+		onCanteen: openChangeMyCanteenSelectionModal,
+		onCalendar: () => openDatePickerModal({ updateGlobal: true }),
+		onBusinessHours: openBusinessHoursModal,
+		onUtilization: handleOpenUtilization,
+		onSettings: () => router.navigate('/settings'),
+	});
 
 	const openSheet = useCallback((sheet: string, props = {}) => {
 		if (sheet === 'canteen') {
@@ -139,23 +187,53 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 				drawerPosition={drawerPosition as 'left' | 'right'}
 				hasUnreadChats={hasUnreadChats}
 				selectedCanteen={selectedCanteen}
-				selectedDate={selectedDate}
-				profile={profile}
-				appSettings={appSettings}
 				openSheet={openSheet}
-				openUtilizationModal={openUtilizationModal}
+				openOptionsModal={openFoodOffersOptionsModal}
 			/>
 			<View style={styles.contentWrapper}>
-				{selectedCanteen && (
+				<DebugView
+					title="Foodoffers Debug"
+					logs={[
+						modalDebug.contentSet ? 'Modal offen' : 'Kein Modal offen',
+						'Letzter Focus: ' + (appRatingData?.lastFocusTime || '-'),
+					]}
+				/>
+				{selectedCanteen ? (
 					<FoodOffersScrollList
 						canteenId={selectedCanteen.id}
 						startDate={selectedDate}
 					/>
+				) : (
+					<ScrollView contentContainerStyle={foodoffersStyles.noCanteenContainer}>
+						<Text style={[foodoffersStyles.noCanteenTitle, { color: theme.screen.text }]}>
+							{translate(TranslationKeys.onboarding_select_canteen)}
+						</Text>
+						<CanteenSelection
+							onSelectCanteen={(canteen: DatabaseTypes.Canteens) => {
+								dispatch({ type: SET_SELECTED_CANTEEN, payload: canteen });
+							}}
+						/>
+					</ScrollView>
 				)}
 			</View>
 
 		</SafeAreaView>
 	);
 };
+
+const foodoffersStyles = StyleSheet.create({
+	noCanteenContainer: {
+		flexGrow: 1,
+		alignItems: 'center',
+		paddingVertical: 20,
+	},
+	noCanteenTitle: {
+		fontSize: 20,
+		fontFamily: 'Poppins_700Bold',
+		textAlign: 'center',
+		paddingHorizontal: 20,
+		marginBottom: 12,
+	},
+});
 
 export default Index;

@@ -15,7 +15,7 @@ import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { MyMap, MyMapHandle, QrCode, SettingsList, SettingsListBoolean, SettingsListGroupTitle, SettingsListSelectOption, SettingsListSelectOptionItem, SettingsListSelectOptionSingle, useMyScrollViewModal, useTheme } from 'repo-depkit-common-ui';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { deleteActivity, loadActivity, loadActivities, RoutePoint, RunStats, saveActivity, SavedActivity } from '../../helpers/ActivityStorage';
+import { deleteActivity, loadActivity, loadActivities, RoutePoint, RunStats, saveActivity, SavedActivity, WEATHER_TYPES, WeatherType, ActivityRating } from '../../helpers/ActivityStorage';
 import { TimeHelper } from '../../helpers/TimeHelper';
 import { SavedRoute, loadRoute, loadRoutes, saveRoute } from '../../helpers/RouteStorage';
 import { RouteMatchResult, findMatchingRoutes } from '../../helpers/RouteMatchingHelper';
@@ -23,12 +23,12 @@ import { HEX_TILE_SCRIPT } from '../../assets/hexTileScript';
 import { SPORT_TYPES } from '../../store/sportTypeSlice';
 import { isAvailable as isH3Available, latLngToCell, cellToLatLng, cellToBoundary, gridPathCells, getHexagonEdgeLengthAvg, UNITS } from '../../helpers/H3Helper';
 import { HexTileRecord } from '../../helpers/HexTileStorage';
-import { computeEdgesFromRoutePoints } from '../../helpers/RouteDisplayHelper';
+import { computeEdgesFromRoutePoints, computeEdgesFromHexTiles, computeHexBounds } from '../../helpers/RouteDisplayHelper';
 import ActivityAggregateStatsSection from '../../components/ActivityAggregateStatsSection';
 import type { RootState, AppDispatch } from '../../store/store';
 import { updateReplaySettings } from '../../store/replaySettingsSlice';
 import { useDebugMode } from '../../hooks/useDebugMode';
-import { computeActivityData, findEnclosedCellsFromHexTiles, buildFullRouteTileIds, H3_RESOLUTION_FALLBACK, MIN_TILES_FOR_ENCLOSED_POLYGON } from '../../helpers/ActivityMapRebuildHelper';
+import { computeActivityData, findEnclosedCellsFromHexTiles, buildFullRouteTileIds, H3_RESOLUTION_FALLBACK, RED_LINE_GRID_RESOLUTION, MIN_TILES_FOR_ENCLOSED_POLYGON, synthesizeManualActivityRoutePoints } from '../../helpers/ActivityMapRebuildHelper';
 import useGeonexiaAlert from '../../hooks/useGeonexiaAlert';
 import { snapToRoad } from '../../helpers/RouteSmootherHelper';
 
@@ -270,6 +270,90 @@ function DeleteConfirmContent({
 	);
 }
 
+// ─── Temperature Input Content (shown inside bottom sheet modal) ──────────────
+
+function TemperatureInputContent({
+	currentValue,
+	onSave,
+	onClose,
+	theme,
+}: {
+	currentValue: number | null;
+	onSave: (value: string) => void;
+	onClose: () => void;
+	theme: ReturnType<typeof useTheme>['theme'];
+}) {
+	const [text, setText] = useState(currentValue != null ? String(currentValue) : '');
+	return (
+		<View style={{ paddingTop: 4, gap: 12 }}>
+			<Text style={{ fontSize: 14, lineHeight: 20, color: theme.screen.text }}>
+				Temperatur in °C eingeben (leer lassen zum Entfernen):
+			</Text>
+			<TextInput
+				style={{ borderWidth: 1, borderRadius: 8, padding: 10, fontSize: 16, color: theme.screen.text, borderColor: theme.screen.text + '33', backgroundColor: theme.screen.background }}
+				placeholder="z.B. 18"
+				placeholderTextColor={theme.screen.icon}
+				value={text}
+				onChangeText={setText}
+				keyboardType="numeric"
+				autoFocus
+			/>
+			<TouchableOpacity
+				style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 10, backgroundColor: '#2563eb', gap: 8 }}
+				onPress={() => { onSave(text); onClose(); }}
+				activeOpacity={0.8}
+			>
+				<MaterialIcons name="check" size={18} color="#ffffff" />
+				<Text style={{ color: '#ffffff', fontSize: 15, fontWeight: '600' }}>Speichern</Text>
+			</TouchableOpacity>
+			<TouchableOpacity style={{ alignItems: 'center', paddingVertical: 10 }} onPress={onClose} activeOpacity={0.8}>
+				<Text style={{ fontSize: 15, fontWeight: '500', color: theme.screen.text }}>Abbrechen</Text>
+			</TouchableOpacity>
+		</View>
+	);
+}
+
+// ─── Weather Type Picker Content (shown inside bottom sheet modal) ─────────────
+
+function WeatherTypePickerContent({
+	currentValue,
+	onSelect,
+	onClose,
+	theme,
+}: {
+	currentValue: WeatherType | null;
+	onSelect: (type: WeatherType | null) => void;
+	onClose: () => void;
+	theme: ReturnType<typeof useTheme>['theme'];
+}) {
+	return (
+		<View style={{ paddingTop: 4, gap: 8 }}>
+			{WEATHER_TYPES.map((w) => (
+				<TouchableOpacity
+					key={w.type}
+					style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 12, borderRadius: 10, backgroundColor: currentValue === w.type ? '#2563eb22' : 'transparent' }}
+					onPress={() => { onSelect(w.type); onClose(); }}
+					activeOpacity={0.7}
+				>
+					<MaterialIcons name={w.icon as React.ComponentProps<typeof MaterialIcons>['name']} size={24} color={currentValue === w.type ? '#2563eb' : theme.screen.icon} />
+					<Text style={{ marginLeft: 12, fontSize: 16, color: currentValue === w.type ? '#2563eb' : theme.screen.text, fontWeight: currentValue === w.type ? '600' : '400' }}>{w.label}</Text>
+					{currentValue === w.type && <MaterialIcons name="check" size={20} color="#2563eb" style={{ marginLeft: 'auto' }} />}
+				</TouchableOpacity>
+			))}
+			{currentValue != null && (
+				<TouchableOpacity
+					style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 12, borderRadius: 10 }}
+					onPress={() => { onSelect(null); onClose(); }}
+					activeOpacity={0.7}
+				>
+					<MaterialIcons name="close" size={24} color="#ef4444" />
+					<Text style={{ marginLeft: 12, fontSize: 16, color: '#ef4444' }}>Entfernen</Text>
+				</TouchableOpacity>
+			)}
+		</View>
+	);
+}
+
 // ─── Speed Range Item ─────────────────────────────────────────────────────────
 
 const GRADIENT_SEGMENTS = 32;
@@ -452,6 +536,8 @@ function RouteAssignmentModalContent({ activity, savedRoutes, bestMatch, onDone,
 			createdAt: Date.now(),
 			sportType: activity.sportType,
 			walkedEdges: computeEdgesFromRoutePoints(activity.routePoints, h3Res),
+			walkedEdgesRedLine: computeEdgesFromRoutePoints(activity.routePoints, RED_LINE_GRID_RESOLUTION),
+			walkedEdgesRedLineResolution: RED_LINE_GRID_RESOLUTION,
 		};
 		try {
 			saveRoute(newRoute);
@@ -613,10 +699,11 @@ const ACTIVITY_GPS_PATH_INTERPOLATION_MAX_CELLS = 10;
 /**
  * Derive the sequence of unique H3 cells visited during an activity, including
  * interpolated cells for GPS gaps, and build:
- *  - a hexTileGeoJSON with one polygon per visited cell, colored by its level
- *    from the global Redux store.
+ *  - a hexTileGeoJSON with one polygon per visited cell (at `h3Resolution`, typically h10),
+ *    colored by its level from the global Redux store.
  *  - a hexWalkPathGeoJSON with LineString features for each actual transition
- *    between consecutive cells.
+ *    between consecutive cells at `RED_LINE_GRID_RESOLUTION` for a finer,
+ *    more accurate red walk-path line.
  */
 function buildActivityHexGeoJson(
 	routePoints: RoutePoint[],
@@ -626,39 +713,63 @@ function buildActivityHexGeoJson(
 	hexTileGeoJson: { type: 'FeatureCollection'; features: object[] };
 	hexWalkPathGeoJson: { type: 'FeatureCollection'; features: object[] };
 } {
+	// h10 tile tracking
 	const visitedCells = new Set<string>();
-	const edges = new Set<string>();
 	let lastCell: string | null = null;
 
+	// red-line walk-path edge tracking
+	const edges = new Set<string>();
+	let lastRedLineCell: string | null = null;
+
 	for (const point of routePoints) {
+		// ── h10 tile display ──────────────────────────────────────────────────
 		try {
 			const cell = latLngToCell(point.lat, point.lng, h3Resolution);
-			if (!cell) continue;
-			if (lastCell && cell !== lastCell) {
-				try {
-					const pathCells = gridPathCells(lastCell, cell);
-					if (pathCells.length - 2 <= ACTIVITY_GPS_PATH_INTERPOLATION_MAX_CELLS) {
-						for (let i = 0; i < pathCells.length - 1; i++) {
-							const a = pathCells[i];
-							const b = pathCells[i + 1];
-							visitedCells.add(a);
-							visitedCells.add(b);
-							edges.add(a < b ? `${a}:${b}` : `${b}:${a}`);
+			if (cell) {
+				if (lastCell && cell !== lastCell) {
+					try {
+						const pathCells = gridPathCells(lastCell, cell);
+						if (pathCells.length - 2 <= ACTIVITY_GPS_PATH_INTERPOLATION_MAX_CELLS) {
+							for (const cell of pathCells) visitedCells.add(cell);
 						}
+					} catch {
+						// Different icosahedron faces; just mark the two endpoints
 					}
-				} catch {
-					// Different icosahedron faces – just add direct edge
-					edges.add(lastCell < cell ? `${lastCell}:${cell}` : `${cell}:${lastCell}`);
 				}
+				visitedCells.add(cell);
+				lastCell = cell;
 			}
-			visitedCells.add(cell);
-			lastCell = cell;
+		} catch {
+			// Skip invalid GPS points
+		}
+
+		// ── red-line walk-path edges ───────────────────────────────────────────────
+		try {
+			const redLineCell = latLngToCell(point.lat, point.lng, RED_LINE_GRID_RESOLUTION);
+			if (redLineCell) {
+				if (lastRedLineCell && redLineCell !== lastRedLineCell) {
+					try {
+						const pathCells = gridPathCells(lastRedLineCell, redLineCell);
+						if (pathCells.length - 2 <= ACTIVITY_GPS_PATH_INTERPOLATION_MAX_CELLS) {
+							for (let i = 0; i < pathCells.length - 1; i++) {
+								const a = pathCells[i];
+								const b = pathCells[i + 1];
+								edges.add(a < b ? `${a}:${b}` : `${b}:${a}`);
+							}
+						}
+					} catch {
+						// Different icosahedron faces – add direct red-line edge
+						edges.add(lastRedLineCell < redLineCell ? `${lastRedLineCell}:${redLineCell}` : `${redLineCell}:${lastRedLineCell}`);
+					}
+				}
+				lastRedLineCell = redLineCell;
+			}
 		} catch {
 			// Skip invalid GPS points
 		}
 	}
 
-	// Build hex tile polygon features
+	// Build hex tile polygon features (h10)
 	const tileFeatures: object[] = [];
 	for (const cell of visitedCells) {
 		try {
@@ -675,7 +786,7 @@ function buildActivityHexGeoJson(
 		}
 	}
 
-	// Build walk path LineString features
+	// Build walk path LineString features (red-line resolution)
 	const pathFeatures: object[] = [];
 	for (const edge of edges) {
 		const colonIdx = edge.indexOf(':');
@@ -798,6 +909,26 @@ export default function ActivityDetailScreen() {
 		loadActivity(id)
 			.then(async (a) => {
 				if (!a) { setNotFound(true); return; }
+
+				// Migrate activities saved before the computed field was introduced.
+				// Compute and persist it so subsequent loads skip this step.
+				if (!a.computed && (a.hexTilesOrdered?.length ?? 0) > 0 && isH3Available()) {
+					try {
+						const h3Res = a.h3Resolution ?? H3_RESOLUTION_FALLBACK;
+						const enclosed = a.hexTilesOrdered!.length >= MIN_TILES_FOR_ENCLOSED_POLYGON
+							? findEnclosedCellsFromHexTiles(
+								buildFullRouteTileIds(a.hexTilesOrdered!, a.routePoints, h3Res),
+								h3Res,
+							)
+							: (a.enclosedHexTiles ?? a.hexTilesEnclosed ?? []);
+						const computedData = computeActivityData(a, enclosed);
+						a = { ...a, computed: computedData };
+						saveActivity(a);
+					} catch {
+						// Migration failed; continue without computed
+					}
+				}
+
 				setActivity(a);
 
 				// Load the assigned route for display
@@ -939,6 +1070,58 @@ export default function ActivityDetailScreen() {
 			} catch (err) {
 				console.warn('[ActivityDetailScreen] Failed to build activity hex GeoJSON:', err);
 			}
+		} else if (isH3Available() && activity.isManual && (activity.hexTilesOrdered?.length ?? 0) > 0) {
+			// Manual activity has no GPS points – build the hex tile and walk path
+			// GeoJSON directly from the ordered hex tile list.
+			try {
+				const hexTiles = activity.hexTilesOrdered!;
+				const tileFeatures: object[] = [];
+				for (const cell of hexTiles) {
+					try {
+						const boundary = cellToBoundary(cell, H3_GEOJSON_ORDER);
+						if (boundary.length === 0) continue;
+						const level = hexTileRecords[cell]?.level ?? 0;
+						tileFeatures.push({
+							type: 'Feature',
+							geometry: { type: 'Polygon', coordinates: [boundary] },
+							properties: { h3Index: cell, level },
+						});
+					} catch {
+						// Skip invalid cells
+					}
+				}
+				// Build red-line walk-path edges via synthetic GPS points placed at
+				// red-line center-children, matching the accuracy of real GPS activities.
+				const syntheticPoints = synthesizeManualActivityRoutePoints(
+					hexTiles,
+					activity.startedAt,
+					activity.endedAt - activity.startedAt,
+					activity.distanceKm,
+				);
+				const edges = computeEdgesFromRoutePoints(syntheticPoints, RED_LINE_GRID_RESOLUTION);
+				const pathFeatures: object[] = [];
+				for (const edge of edges) {
+					const colonIdx = edge.indexOf(':');
+					if (colonIdx === -1) continue;
+					const cellA = edge.slice(0, colonIdx);
+					const cellB = edge.slice(colonIdx + 1);
+					try {
+						const [aLat, aLng] = cellToLatLng(cellA);
+						const [bLat, bLng] = cellToLatLng(cellB);
+						pathFeatures.push({
+							type: 'Feature',
+							geometry: { type: 'LineString', coordinates: [[aLng, aLat], [bLng, bLat]] },
+							properties: {},
+						});
+					} catch {
+						// Skip invalid cells
+					}
+				}
+				mapRef.current.sendToMap({ hexTileGeoJson: { type: 'FeatureCollection', features: tileFeatures } });
+				mapRef.current.sendToMap({ hexWalkPathGeoJson: { type: 'FeatureCollection', features: pathFeatures } });
+			} catch (err) {
+				console.warn('[ActivityDetailScreen] Failed to build manual activity hex GeoJSON:', err);
+			}
 		}
 
 		// Fit the camera to the full route extent
@@ -966,6 +1149,21 @@ export default function ActivityDetailScreen() {
 				pitch: 45,
 				bearing: 0,
 			});
+		} else if (activity.isManual && (activity.hexTilesOrdered?.length ?? 0) >= 1) {
+			// Manual activity: fit the camera to the hex tile bounding box
+			const hexBounds = computeHexBounds(activity.hexTilesOrdered!);
+			if (hexBounds) {
+				const { minLat, maxLat, minLng, maxLng } = hexBounds;
+				routeCenterRef.current = { lat: (minLat + maxLat) / 2, lng: (minLng + maxLng) / 2 };
+				const latPad = Math.max((maxLat - minLat) * 0.25, 0.001);
+				const lngPad = Math.max((maxLng - minLng) * 0.25, 0.001);
+				mapRef.current.sendToMap({
+					fitBounds: [[minLng - lngPad, minLat - latPad], [maxLng + lngPad, maxLat + latPad]],
+					fitBoundsPadding: 20,
+					pitch: 45,
+					bearing: 0,
+				});
+			}
 		}
 
 		// Start smooth auto-rotate after the fitBounds animation finishes.
@@ -1040,6 +1238,8 @@ export default function ActivityDetailScreen() {
 	// the marker moves at the speed the route was actually recorded.
 	// The WebView runs the animation loop internally; the overview auto-rotate
 	// continues uninterrupted so the map keeps its normal rotation behaviour.
+	// For manual activities that have no GPS points, synthetic points are
+	// derived from the hex tile centres with evenly-distributed timestamps.
 	useEffect(() => {
 		if (replayIsDisabled || !mapMounted || !activity) {
 			if (mapRef.current && mapMounted) {
@@ -1048,9 +1248,19 @@ export default function ActivityDetailScreen() {
 			return;
 		}
 
-		// Always use the raw GPS points so the marker follows the actual recorded
-		// path at the recorded speed (real timestamps).
-		const points = activity.routePoints;
+		// For manual activities without GPS points, synthesize route points from
+		// hex tile centres with evenly-distributed timestamps so the replay
+		// marker can still traverse the walked path.
+		let points: typeof activity.routePoints = activity.routePoints;
+		if (points.length < 2 && activity.isManual && (activity.hexTilesOrdered?.length ?? 0) >= 2 && isH3Available()) {
+			const durationMs = (activity.endedAt ?? activity.startedAt + activity.stats.durationSeconds * 1000) - activity.startedAt;
+			points = synthesizeManualActivityRoutePoints(
+				activity.hexTilesOrdered!,
+				activity.startedAt,
+				durationMs,
+				activity.stats.distanceKm,
+			);
+		}
 
 		if (points.length < 2) {
 			mapRef.current?.sendToMap({ replayAnimation: null });
@@ -1219,6 +1429,32 @@ export default function ActivityDetailScreen() {
 		});
 	}, [activity, showShareModal, closeModal, router, theme]);
 
+	// ── Weather & Rating handlers ─────────────────────────────────────────────
+	const handleWeatherTemperatureChange = useCallback((value: string) => {
+		if (!activity) return;
+		const trimmed = value.trim();
+		const numVal = trimmed === '' ? null : parseFloat(trimmed);
+		if (trimmed !== '' && (numVal === null || isNaN(numVal))) return;
+		const updated: SavedActivity = { ...activity, weatherTemperature: numVal };
+		saveActivity(updated);
+		setActivity(updated);
+	}, [activity]);
+
+	const handleWeatherTypeChange = useCallback((type: WeatherType | null) => {
+		if (!activity) return;
+		const updated: SavedActivity = { ...activity, weatherType: type };
+		saveActivity(updated);
+		setActivity(updated);
+	}, [activity]);
+
+	const handleRatingChange = useCallback((newRating: ActivityRating | null) => {
+		if (!activity) return;
+		// Tap same star again → clear rating
+		const updated: SavedActivity = { ...activity, rating: activity.rating === newRating ? null : newRating };
+		saveActivity(updated);
+		setActivity(updated);
+	}, [activity]);
+
 	if (notFound) {
 		return (
 			<View style={[styles.centeredContainer, { backgroundColor: theme.screen.background }]}>
@@ -1247,11 +1483,18 @@ export default function ActivityDetailScreen() {
 		? 'Keine'
 		: '—';
 
+	const currentWeatherDef = activity.weatherType ? WEATHER_TYPES.find(w => w.type === activity.weatherType) : null;
+
 	// Compute the route centre so the map starts at the correct position immediately.
+	// For manual activities without GPS points, fall back to the hex tile bounding box centre.
 	const routeInitialCenter = (() => {
 		const bounds = computeRouteBounds(activity.routePoints);
-		if (!bounds) return undefined;
-		return { lat: (bounds.minLat + bounds.maxLat) / 2, lng: (bounds.minLng + bounds.maxLng) / 2 };
+		if (bounds) return { lat: (bounds.minLat + bounds.maxLat) / 2, lng: (bounds.minLng + bounds.maxLng) / 2 };
+		if (activity.isManual && (activity.hexTilesOrdered?.length ?? 0) > 0 && isH3Available()) {
+			const hexBounds = computeHexBounds(activity.hexTilesOrdered!);
+			if (hexBounds) return { lat: (hexBounds.minLat + hexBounds.maxLat) / 2, lng: (hexBounds.minLng + hexBounds.maxLng) / 2 };
+		}
+		return undefined;
 	})();
 
 	const statsRows: { icon: React.ComponentProps<typeof MaterialIcons>['name']; label: string; value: string }[] = [
@@ -1412,6 +1655,74 @@ export default function ActivityDetailScreen() {
 						<ActivityAggregateStatsSection activities={routeSiblingActivities} />
 					</>
 				)}
+
+				{/* ── Weather & Rating ──────────────────────────────────── */}
+				<SettingsListGroupTitle title="Wetter & Bewertung" />
+				<SettingsList
+					leftIcon={<MaterialIcons name="thermostat" size={20} color="#ffffff" />}
+					iconBackgroundColor="#f59e0b"
+					title="Temperatur"
+					value={activity.weatherTemperature != null ? `${activity.weatherTemperature} °C` : '—'}
+					groupPosition="top"
+					showSeparator
+					onPress={() => {
+						showShareModal({
+							title: '🌡️ Temperatur',
+							keyboardShouldPersistTaps: 'handled',
+							children: (
+								<TemperatureInputContent
+									currentValue={activity.weatherTemperature ?? null}
+									onSave={handleWeatherTemperatureChange}
+									onClose={closeModal}
+									theme={theme}
+								/>
+							),
+						});
+					}}
+				/>
+				<SettingsList
+					leftIcon={<MaterialIcons name={(currentWeatherDef?.icon ?? 'cloud') as React.ComponentProps<typeof MaterialIcons>['name']} size={20} color="#ffffff" />}
+					iconBackgroundColor="#3b82f6"
+					title="Wetter"
+					value={currentWeatherDef?.label ?? '—'}
+					groupPosition="middle"
+					showSeparator
+					onPress={() => {
+						showShareModal({
+							title: '🌤️ Wetter',
+							children: (
+								<WeatherTypePickerContent
+									currentValue={activity.weatherType ?? null}
+									onSelect={handleWeatherTypeChange}
+									onClose={closeModal}
+									theme={theme}
+								/>
+							),
+						});
+					}}
+				/>
+				<View style={ratingStyles.ratingRow}>
+					<View style={[ratingStyles.ratingRowInner, { backgroundColor: theme.screen.iconBg }]}>
+						<View style={ratingStyles.ratingLabelRow}>
+							<View style={[ratingStyles.ratingIconBg, { backgroundColor: '#eab308' }]}>
+								<MaterialIcons name="star" size={20} color="#ffffff" />
+							</View>
+							<Text style={[ratingStyles.ratingLabel, { color: theme.screen.text }]}>Bewertung</Text>
+						</View>
+						<View style={ratingStyles.starsRow}>
+							{([1, 2, 3, 4, 5] as ActivityRating[]).map((star) => (
+								<TouchableOpacity key={star} onPress={() => handleRatingChange(star)} activeOpacity={0.7}>
+									<MaterialIcons
+										name={activity.rating != null && star <= activity.rating ? 'star' : 'star-border'}
+										size={32}
+										color="#eab308"
+									/>
+								</TouchableOpacity>
+							))}
+						</View>
+					</View>
+				</View>
+
 				<TouchableOpacity style={[styles.shareButton, { backgroundColor: PRIMARY_COLOR }]} onPress={handleShare} activeOpacity={0.8}>
 					<MaterialIcons name="share" size={18} color="#ffffff" />
 					<Text style={styles.shareButtonText}>Share Activity</Text>
@@ -1524,6 +1835,40 @@ export default function ActivityDetailScreen() {
 		</ScrollView>
 	);
 }
+
+const ratingStyles = StyleSheet.create({
+	ratingRow: {
+		marginTop: 0,
+	},
+	ratingRowInner: {
+		borderRadius: 12,
+		paddingHorizontal: 16,
+		paddingVertical: 12,
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+	},
+	ratingLabelRow: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 10,
+	},
+	ratingIconBg: {
+		width: 30,
+		height: 30,
+		borderRadius: 8,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	ratingLabel: {
+		fontSize: 15,
+		fontWeight: '500',
+	},
+	starsRow: {
+		flexDirection: 'row',
+		gap: 2,
+	},
+});
 
 const styles = StyleSheet.create({
 	container: {

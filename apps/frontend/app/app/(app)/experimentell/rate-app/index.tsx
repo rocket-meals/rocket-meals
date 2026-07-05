@@ -9,11 +9,13 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
 import SettingsList from '@/components/SettingsList/SettingsList';
+import useAppRatingScore from '@/hooks/useAppRatingScore';
 
 const RateApp = () => {
 	useSetPageTitle(TranslationKeys.rate_app);
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const { showDebugRatingModal } = useAppRatingScore();
 
 	const [hasAction, setHasAction] = useState<string>('…');
 	const [isAvailable, setIsAvailable] = useState<string>('…');
@@ -65,9 +67,17 @@ const RateApp = () => {
 				<SettingsList
 					label="storeUrl()"
 					value={storeUrl}
+					groupPosition="middle"
+					showSeparator
+					leftIcon={<MaterialCommunityIcons name="link-variant" size={22} color={theme.screen.icon} />}
+					iconBgColor="transparent"
+				/>
+				<SettingsList
+					label="Open App Rating Modal"
+					handleFunction={showDebugRatingModal}
 					groupPosition="bottom"
 					showSeparator={false}
-					leftIcon={<MaterialCommunityIcons name="link-variant" size={22} color={theme.screen.icon} />}
+					leftIcon={<MaterialCommunityIcons name="star-shooting-outline" size={22} color={theme.screen.icon} />}
 					iconBgColor="transparent"
 				/>
 			</View>

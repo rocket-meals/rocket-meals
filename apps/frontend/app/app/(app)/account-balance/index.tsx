@@ -33,6 +33,7 @@ import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewMo
 import DebugView from '@/components/DebugView';
 import ProjectButton from '@/components/ProjectButton';
 import { myContrastColor } from '@/helper/ColorHelper';
+import useAppRatingScore from '@/hooks/useAppRatingScore';
 
 enum BalanceStateLowerBound {
 	CONFIDENT = 10,
@@ -60,6 +61,7 @@ const AccountBalanceScreen = () => {
         const [debugErrors, setDebugErrors] = useState<Array<{ timestamp: Date; error: string; source: string }>>([]);
         const { show: showModal, close: closeModal } = useMyScrollViewModal();
         const closeInstructionRef = useRef(closeModal);
+        const { addPointsForBalanceRead } = useAppRatingScore();
 
         const debugLogMessages = useMemo(
                 () =>
@@ -137,6 +139,8 @@ const AccountBalanceScreen = () => {
 				credit_balance_date_updated,
 			},
 		});
+
+		addPointsForBalanceRead();
 
 		try {
 			if (!profile || !(profile as any).id) {

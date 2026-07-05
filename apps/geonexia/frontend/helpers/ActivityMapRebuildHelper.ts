@@ -15,13 +15,14 @@
  * easy to test and call from any context.
  */
 
-import { latLngToCell, cellToLatLng, cellToBoundary, gridDisk, gridDistance, areNeighborCells, isAvailable as isH3Available, cellToParent, cellToChildren, cellToCenterChild, getResolution } from './H3Helper';
+import { latLngToCell, cellToLatLng, cellToBoundary, gridDisk, gridDistance, areNeighborCells, isAvailable as isH3Available, cellToParent, cellToChildren, cellToCenterChild, getResolution, gridPathCells } from './H3Helper';
 import { BillboardAnchorPosition, ActivityReference, HexTileRecord, computeHexTileLevel } from './HexTileStorage';
 import { ComputedActivityData, ComputedHexTileEntry, RoutePoint, SavedActivity } from './ActivityStorage';
 import type { SavedRoute } from './RouteStorage';
 import type { HexTileFeatureCache } from './HexTileFeatureStorage';
 import type { MapFeatureInfo } from './RouteNameSuggestionHelper';
 import { OpenMapTilesLayerId, LandcoverClass, LandcoverSubclass, ParkClass } from './OpenMapTilesSchema';
+import { computeEdgesFromRoutePoints } from './RouteDisplayHelper';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -35,6 +36,15 @@ export const WORLD_BUILDING_ID = 16;
 
 /** Fallback H3 resolution used for activities that pre-date the stored field. */
 export const H3_RESOLUTION_FALLBACK = 10;
+
+/**
+ * H3 resolution used for the red walk-path line drawn on the map.  One step
+ * finer than the displayed h10 tile resolution, giving a more accurate line.
+ * This is the single authoritative definition — all red-line edge computations
+ * import this constant rather than hard-coding the number.
+ */
+export const RED_LINE_GRID_RESOLUTION = 11;
+
 const H3_RESOLUTION_MIN = 0;
 const H3_RESOLUTION_MAX = 15;
 
@@ -477,6 +487,94 @@ function computeParentInfo(
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
+ * Synthesize GPS-like route points along the ordered hex tile centers for a
+ * manual (duration-only) activity.
+ *
+ * Timestamps are distributed evenly so that
+ * `last.timestamp − first.timestamp === durationMs`. Each point is tagged
+ * `interpolated: true` so rebuild helpers can distinguish them from real GPS
+ * measurements, following the same convention used for routes that were
+ * completed via gap-filling interpolation.
+ *
+ * Speed is set to the constant average derived from `distanceKm` and
+ * `durationMs` (in m/s, matching Expo Location's unit). This gives
+ * `computeActivityData` meaningful per-tile speed values instead of leaving
+ * every tile at 0 km/h.
+ *
+ * @param hexTilesOrdered  Ordered H3 cell IDs along the route.
+ * @param startedAt        Unix timestamp (ms) of activity start.
+ * @param durationMs       Total activity duration in milliseconds.
+ * @param distanceKm       Route distance in km (used to derive avg speed).
+ * @returns Array of synthetic `RoutePoint` values tagged `interpolated: true`.
+ */
+export function synthesizeManualActivityRoutePoints(
+	hexTilesOrdered: string[],
+	startedAt: number,
+	durationMs: number,
+	distanceKm: number,
+): RoutePoint[] {
+	if (hexTilesOrdered.length === 0 || durationMs <= 0 || !isH3Available()) return [];
+
+	const durationSeconds = durationMs / 1000;
+	const avgSpeedMps = distanceKm > 0 && durationSeconds > 0
+		? (distanceKm * 1000) / durationSeconds
+		: 0;
+
+	// Build a fine-grained h11 path:
+	//  1. Convert every h10 tile to its h11 center-child.
+	//  2. Between consecutive h11 cells, fill in intermediate h11 cells using
+	//     gridPathCells so the synthetic route points follow the actual h11 grid
+	//     instead of jumping from h10 centre to h10 centre.
+	const h11Path: string[] = [];
+	for (let i = 0; i < hexTilesOrdered.length; i++) {
+		try {
+			const h11Cell = cellToCenterChild(hexTilesOrdered[i], RED_LINE_GRID_RESOLUTION) || hexTilesOrdered[i];
+			if (h11Path.length === 0) {
+				h11Path.push(h11Cell);
+			} else {
+				const prev = h11Path[h11Path.length - 1];
+				if (prev === h11Cell) continue;
+				try {
+					const pathCells = gridPathCells(prev, h11Cell);
+					// pathCells[0] is prev (already included); add the rest.
+					for (let j = 1; j < pathCells.length; j++) {
+						h11Path.push(pathCells[j]);
+					}
+				} catch {
+					// Cells on different icosahedron faces – add directly.
+					h11Path.push(h11Cell);
+				}
+			}
+		} catch {
+			// skip invalid cells
+		}
+	}
+
+	if (h11Path.length === 0) return [];
+
+	// Distribute timestamps evenly: first point at startedAt, last at startedAt + durationMs.
+	const step = h11Path.length > 1 ? durationMs / (h11Path.length - 1) : 0;
+
+	const points: RoutePoint[] = [];
+	for (let i = 0; i < h11Path.length; i++) {
+		try {
+			const [lat, lng] = cellToLatLng(h11Path[i]);
+			points.push({
+				lat,
+				lng,
+				altitude: null,
+				speed: avgSpeedMps > 0 ? avgSpeedMps : null,
+				timestamp: startedAt + Math.round(i * step),
+				interpolated: true,
+			});
+		} catch {
+			// skip invalid cells
+		}
+	}
+	return points;
+}
+
+/**
  * Compute the `ComputedActivityData` blob for a `SavedActivity`.
  *
  * Call this:
@@ -557,17 +655,18 @@ export function computeActivityData(
  * @param homeHexTile        Optional H3 cell index of the player's home tile.
  *                           When provided, a castle2 billboard is placed at
  *                           the CENTER of that tile after the rebuild.
- * @returns `{ records, walkedEdges }` – fresh state ready to be loaded into
- *          the Redux hex-tile slice via `loadPersistedState` /
- *          `loadWalkedEdgesState`.
+ * @returns `{ records, walkedEdges, walkedEdgesRedLine }` – fresh state ready to be
+ *          loaded into the Redux hex-tile slice via `loadPersistedState` /
+ *          `loadWalkedEdgesState` / `loadWalkedEdgesRedLineState`.
  */
 export function rebuildMapFromActivities(
 	activities: SavedActivity[],
 	hexTileFeatureCache: HexTileFeatureCache = {},
 	homeHexTile?: string | null,
-): { records: Record<string, HexTileRecord>; walkedEdges: string[] } {
+): { records: Record<string, HexTileRecord>; walkedEdges: string[]; walkedEdgesRedLine: string[] } {
 	const records: Record<string, HexTileRecord> = {};
 	const edgeSet = new Set<string>();
+	const edgeSetRedLine = new Set<string>();
 
 	for (const activity of activities) {
 		const activityId = activity.id;
@@ -641,6 +740,24 @@ export function rebuildMapFromActivities(
 				const prev = orderedHexTiles[i - 1].hexId;
 				const edge = prev < hexId ? `${prev}:${hexId}` : `${hexId}:${prev}`;
 				edgeSet.add(edge);
+			}
+		}
+
+		// ── Compute red-line walked edges for this activity ──────────────────
+		// Use GPS route points when available; synthesize them for manual activities.
+		if (isH3Available()) {
+			const hexTilesOrdered = orderedHexTiles.map((e) => e.hexId);
+			const routePoints = activity.routePoints.length > 0
+				? activity.routePoints
+				: synthesizeManualActivityRoutePoints(
+					hexTilesOrdered,
+					activity.startedAt,
+					activity.endedAt - activity.startedAt,
+					activity.distanceKm,
+				);
+			if (routePoints.length > 0) {
+				const redLineEdges = computeEdgesFromRoutePoints(routePoints, RED_LINE_GRID_RESOLUTION);
+				for (const edge of redLineEdges) edgeSetRedLine.add(edge);
 			}
 		}
 
@@ -814,7 +931,7 @@ export function rebuildMapFromActivities(
 		}
 	}
 
-	return { records, walkedEdges: Array.from(edgeSet) };
+	return { records, walkedEdges: Array.from(edgeSet), walkedEdgesRedLine: Array.from(edgeSetRedLine) };
 }
 
 /**
