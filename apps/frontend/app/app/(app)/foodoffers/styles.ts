@@ -151,7 +151,7 @@ export default StyleSheet.create({
     canteenNameButton: {
         flex: 1,
     },
-
+    loadingContainer: {
         width: '100%',
         height: 400,
         justifyContent: 'center',
