@@ -1988,13 +1988,18 @@ export const useAvatarEditorModal = () => {
 			const allowedStyles = options?.allowedStyles ?? Object.values(AvatarStyle);
 			const defaultStyle = allowedStyles[0] ?? DEFAULT_AVATAR_STYLE;
 			const size = AvatarSize.LARGE;
+			const hasCurrentAvatarWithAllowedStyle =
+				currentAvatar != null && allowedStyles.includes(currentAvatar.style);
 
 			const initialMode: Mode = currentAvatar != null ? 'editor' : 'quickstart';
-			const initialConfig: AvatarConfig = currentAvatar ?? {
-				style: defaultStyle,
-				size,
-				options: getDefaultOptionsForStyle(defaultStyle),
-			};
+			const initialConfig: AvatarConfig =
+				hasCurrentAvatarWithAllowedStyle ?
+					currentAvatar
+				:	{
+						style: defaultStyle,
+						size: currentAvatar?.size ?? size,
+						options: getDefaultOptionsForStyle(defaultStyle),
+					};
 
 			configRef.current = { ...initialConfig };
 			observableRef.current = new ConfigObservable({ ...initialConfig });

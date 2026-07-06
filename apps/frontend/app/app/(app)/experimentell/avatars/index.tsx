@@ -15,7 +15,6 @@ import {
 	SettingsListGroupTitle,
 	useAvatarEditorModal,
 	AvatarConfig,
-	AvatarPropKey,
 } from 'repo-depkit-common-ui';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
@@ -57,10 +56,7 @@ const AvatarsScreen = () => {
 		title: translate(TranslationKeys.avatars),
 		accentColor: primaryColor,
 		debugMode,
-		allowedStyles: [AvatarStyle.OPEN_PEEPS],
-		hiddenProps: {
-			[AvatarPropKey.OpenPeeps.SCALE]: '100',
-		},
+		allowedStyles: [AvatarStyle.MICAH],
 	};
 
 	const handleOpenEditor = () => {
