@@ -482,6 +482,18 @@ function getPresetColorsForKey(key: string): string[] {
 	return PRESET_COLORS;
 }
 
+/**
+ * Returns the color choices for a style/key pair.
+ * Prefers schema-defined defaults (style-accurate palettes), falls back to app presets.
+ */
+function getAvailableColorsForKey(style: AvatarStyle, key: string): string[] {
+	const schemaDefaults = getSchemaDefaultColors(style, key);
+	if (schemaDefaults.length > 0) {
+		return schemaDefaults.map((color) => '#' + stripHashPrefix(color));
+	}
+	return getPresetColorsForKey(key);
+}
+
 /** Strips the leading '#' from a hex color string if present. */
 function stripHashPrefix(color: string): string {
 	return color.startsWith('#') ? color.slice(1) : color;
@@ -932,8 +944,8 @@ const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
 			}
 		}
 		for (const key of newColorKeys) {
-			const presetColors = getPresetColorsForKey(key);
-			const randomColor = presetColors[Math.floor(Math.random() * presetColors.length)];
+				const availableColors = getAvailableColorsForKey(config.style, key);
+				const randomColor = availableColors[Math.floor(Math.random() * availableColors.length)];
 			randomOptions[key] = [stripHashPrefix(randomColor)];
 		}
 		// Preserve boolean flags (flip, clip) and numeric options (scale, translateX, translateY, rotate)
@@ -1007,7 +1019,7 @@ const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
 	};
 
 	const handleOpenColorPicker = (key: string) => {
-		const presetColors = getPresetColorsForKey(key);
+		const availableColors = getAvailableColorsForKey(config.style, key);
 		const rawVal = config.options?.[key];
 		const storedHex = Array.isArray(rawVal) ? rawVal[0] ?? null : null;
 		let displayHex = storedHex;
@@ -1023,7 +1035,7 @@ const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
 			title: key,
 			children: (
 				<ColorPickerModalContent
-					colors={presetColors}
+					colors={availableColors}
 					initialSelectedColor={selectedColor}
 					accentColor={accentColor}
 					config={config}
@@ -1051,7 +1063,7 @@ const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
 			return effectiveAllowedStyles.map((style) => ({ id: style, label: style }));
 		}
 		if (colorKeys.includes(cat)) {
-			return getPresetColorsForKey(cat).map((color) => {
+			return getAvailableColorsForKey(config.style, cat).map((color) => {
 				const hex = stripHashPrefix(color);
 				return { id: hex, label: '' };
 			});
