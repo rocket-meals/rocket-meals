@@ -48,6 +48,20 @@ export enum AppComponentIds {
 	CANTEEN_SELECTION_EMPTY = 'canteen-selection-empty',
 	CANTEEN_SELECT_BUTTON = 'canteen-select-button',
 
+	// Price group selection (used on the settings screen and in onboarding)
+	PRICE_GROUP_SELECT_BUTTON = 'price-group-select-button',
+
+	// Onboarding screen
+	ONBOARDING_STEP_INDICATOR = 'onboarding-step-indicator',
+	ONBOARDING_WELCOME_STEP = 'onboarding-welcome-step',
+	ONBOARDING_CANTEEN_STEP = 'onboarding-canteen-step',
+	ONBOARDING_PRICEGROUP_STEP = 'onboarding-pricegroup-step',
+	ONBOARDING_PREFERENCES_STEP = 'onboarding-preferences-step',
+	ONBOARDING_NEXT_BUTTON = 'onboarding-next-button',
+	ONBOARDING_BACK_BUTTON = 'onboarding-back-button',
+	ONBOARDING_START_BUTTON = 'onboarding-start-button',
+	ONBOARDING_CONTINUE_BUTTON = 'onboarding-continue-button',
+
 	// Settings groups
 	SETTINGS_GROUP_APP_SETTINGS = 'settings-group-app-settings',
 	SETTINGS_GROUP_CANTEEN_USAGE = 'settings-group-canteen-usage',

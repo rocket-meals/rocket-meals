@@ -36,6 +36,7 @@ import useCustomerConfigSeperateMarkingsForFood from '@/hooks/useCustomerConfigS
 import ProjectButton from '@/components/ProjectButton';
 import SettingsListSelectOption from '@/components/SettingsListSelectOption/SettingsListSelectOption';
 import { UserHelper } from '@/helper/UserHelper';
+import { ComponentIds } from '@/constants/ComponentIds';
 
 const STEPS = ['welcome', 'canteen', 'pricegroup', 'preferences'] as const;
 // Avatar size: 80% bigger than original 44px
@@ -612,7 +613,7 @@ const OnboardingScreen = () => {
 	};
 
 	const renderWelcomeStep = () => (
-		<View style={[styles.stepContent, { width: screenWidth }]}>
+		<View style={[styles.stepContent, { width: screenWidth }]} nativeID={ComponentIds.ONBOARDING_WELCOME_STEP}>
 			{/*
 			  The icon/title/description live in their own flex:1 ScrollView, so however tall that
 			  text block is (it differs between new vs. returning users, and while the "loading
@@ -663,7 +664,7 @@ const OnboardingScreen = () => {
 	);
 
 	const renderCanteenStep = () => (
-		<View style={[styles.stepContent, { width: screenWidth }]}>
+		<View style={[styles.stepContent, { width: screenWidth }]} nativeID={ComponentIds.ONBOARDING_CANTEEN_STEP}>
 			<ScrollView contentContainerStyle={styles.stepScrollContentNoHPad}>
 				<Text style={[styles.stepTitle, { color: theme.screen.text, paddingHorizontal: 20 }]}>
 					{translate(TranslationKeys.onboarding_select_canteen)}
@@ -683,7 +684,7 @@ const OnboardingScreen = () => {
 	);
 
 	const renderPreferencesStep = () => (
-		<View style={[styles.stepContent, { width: screenWidth }]}>
+		<View style={[styles.stepContent, { width: screenWidth }]} nativeID={ComponentIds.ONBOARDING_PREFERENCES_STEP}>
 			<ScrollView contentContainerStyle={styles.stepScrollContentNoHPad}>
 				<Text style={[styles.stepTitle, { color: theme.screen.text, paddingHorizontal: 20 }]}>
 					{translate(TranslationKeys.onboarding_preferences)}
@@ -732,7 +733,7 @@ const OnboardingScreen = () => {
 	);
 
 	const renderPriceGroupStep = () => (
-		<View style={[styles.stepContent, { width: screenWidth }]}>
+		<View style={[styles.stepContent, { width: screenWidth }]} nativeID={ComponentIds.ONBOARDING_PRICEGROUP_STEP}>
 			<ScrollView contentContainerStyle={styles.stepScrollContentNoHPad}>
 				<Text style={[styles.stepTitle, { color: theme.screen.text, paddingHorizontal: 20 }]}>
 					{translate(TranslationKeys.onboarding_price_group)}
@@ -778,6 +779,7 @@ const OnboardingScreen = () => {
 			<View
 				style={[styles.stepIndicatorContainer, { opacity: lockedToDirectContinue ? 0 : 1 }]}
 				pointerEvents={lockedToDirectContinue ? 'none' : 'auto'}
+				nativeID={ComponentIds.ONBOARDING_STEP_INDICATOR}
 			>
 				{renderStepIndicator()}
 			</View>
@@ -796,6 +798,7 @@ const OnboardingScreen = () => {
 						disabled={!showDirectContinue}
 						style={[styles.navButtonPrimary, styles.navButtonFullWidth, { backgroundColor: primaryColor, opacity: showDirectContinue ? 1 : 0.6 }]}
 						activeOpacity={0.8}
+						nativeID={ComponentIds.ONBOARDING_CONTINUE_BUTTON}
 					>
 						{showDirectContinue ? (
 							<>
@@ -816,6 +819,7 @@ const OnboardingScreen = () => {
 					<TouchableOpacity
 						onPress={handleNext}
 						style={[styles.navButtonPrimary, styles.navButtonFullWidth, { backgroundColor: primaryColor }]}
+						nativeID={ComponentIds.ONBOARDING_NEXT_BUTTON}
 					>
 						<Text style={[styles.navButtonPrimaryText, { color: contrastColor }]}>
 							{translate(TranslationKeys.onboarding_next)}
@@ -827,6 +831,7 @@ const OnboardingScreen = () => {
 						<TouchableOpacity
 							onPress={handleBack}
 							style={[styles.navButtonPrimary, { backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.screen.iconBg }]}
+							nativeID={ComponentIds.ONBOARDING_BACK_BUTTON}
 						>
 							<MaterialCommunityIcons name="chevron-left" size={24} color={theme.screen.text} />
 							<Text style={[styles.navButtonPrimaryText, { color: theme.screen.text }]}>
@@ -837,6 +842,7 @@ const OnboardingScreen = () => {
 							<TouchableOpacity
 								onPress={handleNext}
 								style={[styles.navButtonPrimary, { backgroundColor: primaryColor }]}
+								nativeID={ComponentIds.ONBOARDING_NEXT_BUTTON}
 							>
 								<Text style={[styles.navButtonPrimaryText, { color: contrastColor }]}>
 									{translate(TranslationKeys.onboarding_next)}
@@ -848,6 +854,7 @@ const OnboardingScreen = () => {
 								onPress={handleStart}
 								style={[styles.navButtonPrimary, { backgroundColor: primaryColor }]}
 								activeOpacity={0.8}
+								nativeID={ComponentIds.ONBOARDING_START_BUTTON}
 							>
 								<MaterialCommunityIcons name="rocket-launch" size={24} color={contrastColor} />
 								<Text style={[styles.navButtonPrimaryText, { color: contrastColor }]}>
