@@ -1,7 +1,8 @@
 /**
  * food-offers-test.ts – Tests the food offers flow.
  *
- * After login: select a canteen → verify food offers load → open a detail view.
+ * After login: complete onboarding (which lands on food offers) → verify food
+ * offers load → open a detail view.
  * IMPORTANT: Always use ComponentIds (from app/constants/ComponentIds.ts) with testID
  * for element targeting. Components must set testID={ComponentIds.XXX} so that
  * Maestro web tests can locate elements by their id attribute.
@@ -9,7 +10,8 @@
 
 import { MaestroTestCase } from '../framework/MaestroTestCase';
 import { ComponentIds } from '../../../app/constants/ComponentIds';
-import { performAnonymousLogin, selectFirstCanteen } from '../framework/loginHelper';
+import { performAnonymousLogin } from '../framework/loginHelper';
+import { completeFullOnboarding } from '../framework/onboardingHelper';
 
 const test = new MaestroTestCase({
 	appId: 'com.rocketmeals.web',
@@ -17,9 +19,10 @@ const test = new MaestroTestCase({
 	outputFileName: 'food-offers-test',
 });
 
-// Login and select a canteen
+// Login anonymously and complete onboarding (every login now lands on onboarding
+// first; finishing it navigates to food offers on its own).
 performAnonymousLogin(test);
-selectFirstCanteen(test);
+completeFullOnboarding(test);
 
 test
 	.takeScreenshot('food-offers-after-canteen-selected')
