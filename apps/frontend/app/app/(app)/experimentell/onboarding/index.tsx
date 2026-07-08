@@ -413,11 +413,17 @@ const OnboardingScreen = () => {
 
 	const handleSelectCanteen = useCallback(async (canteen: DatabaseTypes.Canteens) => {
 		dispatch({ type: SET_SELECTED_CANTEEN, payload: canteen });
+		// Persist to profile.canteen locally right away (redux-persist keeps this across app
+		// restarts). Without this, hasCompleteProfile never sees the selection for anonymous
+		// users, or for registered users before their server profile round-trip finishes below
+		// - causing onboarding to reappear on every app start instead of just once.
+		dispatch({ type: UPDATE_PROFILE, payload: { ...profile, canteen: canteen.id } });
 		const canteenStepIndex = STEPS.indexOf('canteen');
 		if (canteenStepIndex < STEPS.length - 1) {
 			goToStep(canteenStepIndex + 1);
 		}
-		// Persist the selected canteen to the online profile for registered users
+		// Best-effort: also persist to the online profile for registered users who already
+		// have a server profile record.
 		if (UserHelper.isRegisteredUser(user) && profile?.id) {
 			try {
 				const updatedPayload = { ...profile, canteen: canteen.id };

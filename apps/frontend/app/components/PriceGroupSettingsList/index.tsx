@@ -52,21 +52,26 @@ const PriceGroupSettingsList = ({ onSelect }: PriceGroupSettingsListProps) => {
 	];
 
 	const handleSelect = useCallback(async (option: string) => {
-		try {
-			setSelectedOption(option);
-			const payload = { ...profile, price_group: option };
-			if (isRegisteredUser) {
+		setSelectedOption(option);
+		const payload = { ...profile, price_group: option };
+		// Persist locally right away so profile.price_group is set even if there's no server
+		// profile yet (anonymous users, or a registered user whose profile record hasn't been
+		// created yet) - otherwise onboarding's "already complete" detection would never see
+		// this and onboarding would reappear on every app start.
+		dispatch({ type: UPDATE_PROFILE, payload });
+		onSelect?.(option);
+
+		// Best-effort: also persist to the online profile for registered users who already
+		// have a server profile record.
+		if (isRegisteredUser && profile?.id) {
+			try {
 				const result = (await profileHelper.updateProfile(payload)) as DatabaseTypes.Profiles;
 				if (result) {
 					dispatch({ type: UPDATE_PROFILE, payload: result });
 				}
-			} else {
-				dispatch({ type: UPDATE_PROFILE, payload });
+			} catch (error) {
+				console.error('Error updating price group:', error);
 			}
-			onSelect?.(option);
-		} catch (error) {
-			console.error('Error updating price group:', error);
-			setSelectedOption(profile?.price_group || PriceGroupKey.student);
 		}
 	}, [profile, isRegisteredUser, profileHelper, dispatch, onSelect]);
 
