@@ -18,6 +18,12 @@ import { ComponentIds } from '../../../app/constants/ComponentIds';
 // this without pulling in JSX - same pattern as ComponentIds.
 import { APP_ROUTES } from '../../../../../packages/common/src/AppLinks';
 
+// Extra settle time before each screenshot, applied at YAML-generation time. The
+// store-screenshot mode of run-maestro-web-test.sh sets this (async content like food
+// images needs a few seconds to load and there is no generic element to wait on);
+// regular test runs keep it at 0 so the suite stays fast.
+const settleMs = parseInt(process.env.MAESTRO_SCREENS_SETTLE_MS || '0', 10) || 0;
+
 const tests: MaestroTestCase[] = APP_ROUTES.map((route: string) => {
 	const test = new MaestroTestCase({
 		appId: 'com.rocketmeals.web',
@@ -26,12 +32,20 @@ const tests: MaestroTestCase[] = APP_ROUTES.map((route: string) => {
 	});
 
 	test
-		.openPage(`http://localhost:8081/${route}?kioskMode=true`)
+		// deviceMock=iphone renders the fake iOS status bar (9:41, signal/wifi/battery) on
+		// login and (app) screens - same combination the screenshotGenerator used, so the
+		// captures double as store screenshots when the run uses a phone-sized viewport.
+		.openPage(`http://localhost:8081/${route}?kioskMode=true&deviceMock=iphone`)
 		// Block until the app shell has actually booted - waitForAnimationToEnd alone
 		// returns immediately on a still-loading (static) page and produced blank shots.
 		.waitUntilVisibleId(ComponentIds.APP_ROOT)
-		.waitForAnimationToEnd()
-		.takeScreenshot(`screen-${route}`);
+		.waitForAnimationToEnd();
+
+	if (settleMs > 0) {
+		test.sleepMs(settleMs).waitForAnimationToEnd();
+	}
+
+	test.takeScreenshot(`screen-${route}`);
 
 	return test;
 });

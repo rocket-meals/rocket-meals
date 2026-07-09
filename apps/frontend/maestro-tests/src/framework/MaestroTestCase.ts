@@ -19,6 +19,7 @@ type MaestroStep =
 	| { type: 'launchApp'; url: string }
 	| { type: 'waitForAnimationToEnd' }
 	| { type: 'waitUntilVisibleId'; id: string; timeoutMs: number }
+	| { type: 'sleepMs'; ms: number }
 	| { type: 'takeScreenshot'; name: string }
 	| { type: 'tapOn'; label: string }
 	| { type: 'tapOnIndex'; label: string; index: number }
@@ -87,6 +88,16 @@ export class MaestroTestCase {
 	 */
 	waitUntilVisibleId(id: string, timeoutMs = 30000): this {
 		this.steps.push({ type: 'waitUntilVisibleId', id, timeoutMs });
+		return this;
+	}
+
+	/**
+	 * Hard delay. Maestro has no sleep command, so this is emitted as an evalScript
+	 * busy-wait. Use sparingly - e.g. to let async images finish loading before a
+	 * screenshot; element waits (waitUntilVisibleId) are always preferable.
+	 */
+	sleepMs(ms: number): this {
+		this.steps.push({ type: 'sleepMs', ms });
 		return this;
 	}
 
@@ -246,6 +257,9 @@ export class MaestroTestCase {
 					lines.push(`        id: ${yamlString(idPattern(step.id))}`);
 					lines.push(`    timeout: ${step.timeoutMs}`);
 					break;
+				case 'sleepMs':
+					lines.push(`- evalScript: \${var start = Date.now(); while (Date.now() - start < ${step.ms}) {}}`);
+					break;
 				case 'takeScreenshot':
 					lines.push(`- takeScreenshot: ${step.name}`);
 					break;
@@ -342,6 +356,7 @@ function stepDescription(step: MaestroStep): string {
 		case 'launchApp': return `LaunchApp: ${step.url}`;
 		case 'waitForAnimationToEnd': return 'WaitForAnimationToEnd';
 		case 'waitUntilVisibleId': return `WaitUntilVisibleId: ${step.id} (timeout ${step.timeoutMs}ms)`;
+		case 'sleepMs': return `SleepMs: ${step.ms}`;
 		case 'takeScreenshot': return `TakeScreenshot: ${step.name}`;
 		case 'tapOn': return `TapOn: ${step.label}`;
 		case 'tapOnIndex': return `TapOnIndex: ${step.label}[${step.index}]`;

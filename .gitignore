@@ -85,3 +85,9 @@ tmp/
 appdrawer-screenshot.png
 apps/frontend/app/server.log
 apps/frontend/app/serveDist/
+
+# Maestro run artifacts: per-flow screenshots land in apps/frontend/ (and app/),
+# store-mode upscales go to apps/frontend/store-screenshots/
+apps/frontend/*.png
+apps/frontend/app/*.png
+apps/frontend/store-screenshots/
