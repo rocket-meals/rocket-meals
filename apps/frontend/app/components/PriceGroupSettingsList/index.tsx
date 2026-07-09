@@ -56,7 +56,7 @@ const PriceGroupSettingsList = ({ onSelect }: PriceGroupSettingsListProps) => {
 		const payload = { ...profile, price_group: option };
 		// Persist locally right away so profile.price_group is set even if there's no server
 		// profile yet (anonymous users, or a registered user whose profile record hasn't been
-		// created yet) - otherwise onboarding's "already complete" detection would never see
+		// created yet) - otherwise (app)/index.tsx's "already complete" check would never see
 		// this and onboarding would reappear on every app start.
 		dispatch({ type: UPDATE_PROFILE, payload });
 		onSelect?.(option);

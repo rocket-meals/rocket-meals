@@ -60,7 +60,11 @@ export enum AppComponentIds {
 	ONBOARDING_NEXT_BUTTON = 'onboarding-next-button',
 	ONBOARDING_BACK_BUTTON = 'onboarding-back-button',
 	ONBOARDING_START_BUTTON = 'onboarding-start-button',
-	ONBOARDING_CONTINUE_BUTTON = 'onboarding-continue-button',
+
+	// Monitor / management ("Einzel Bild Speise" day plan config + big screen monitor)
+	MONITOR_DAYPLAN_CANTEEN_ROW = 'monitor-dayplan-canteen-row',
+	MONITOR_DAYPLAN_OPEN_BIGSCREEN = 'monitor-dayplan-open-bigscreen',
+	MONITOR_BIG_SCREEN = 'monitor-big-screen',
 
 	// Settings groups
 	SETTINGS_GROUP_APP_SETTINGS = 'settings-group-app-settings',

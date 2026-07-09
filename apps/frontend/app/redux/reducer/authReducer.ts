@@ -1,4 +1,4 @@
-import { CLEAR_ANONYMOUSLY, CLEAR_PROFILE, ON_LOGIN, ON_LOGOUT, SET_PROFILE_LOADING, UPDATE_DEVELOPER_MODE, UPDATE_LOGIN, UPDATE_MANAGEMENT, UPDATE_PRIVACY_POLICY_DATE, UPDATE_PROFILE } from '@/redux/Types/types';
+import { CLEAR_ANONYMOUSLY, CLEAR_PROFILE, ON_LOGIN, ON_LOGOUT, UPDATE_DEVELOPER_MODE, UPDATE_LOGIN, UPDATE_MANAGEMENT, UPDATE_PRIVACY_POLICY_DATE, UPDATE_PROFILE } from '@/redux/Types/types';
 import { PriceGroupKey } from '@/app/(app)/settings/types';
 
 export const InitialProfile = {
@@ -14,10 +14,6 @@ const initialState = {
 	isManagement: false,
 	isDevMode: false,
 	termsAndPrivacyConsentAcceptedDate: null,
-	// True until the profile fetch triggered by this login has resolved (success or error).
-	// Lets screens (e.g. onboarding) wait for a definitive answer instead of acting on
-	// possibly-stale persisted profile data.
-	profileLoading: true,
 };
 
 const authReducer = (state = initialState, actions: any) => {
@@ -27,7 +23,6 @@ const authReducer = (state = initialState, actions: any) => {
 				...state,
 				user: actions.payload,
 				loggedIn: true,
-				profileLoading: true,
 			};
 		}
 		case UPDATE_LOGIN: {
@@ -35,13 +30,6 @@ const authReducer = (state = initialState, actions: any) => {
 				...state,
 				user: actions.payload,
 				loggedIn: true,
-				profileLoading: true,
-			};
-		}
-		case SET_PROFILE_LOADING: {
-			return {
-				...state,
-				profileLoading: actions.payload,
 			};
 		}
 		case UPDATE_MANAGEMENT: {

@@ -9,7 +9,6 @@ export type AuthState = {
 	isManagement: boolean;
 	isDevMode: boolean;
 	termsAndPrivacyConsentAcceptedDate: string | null;
-	profileLoading: boolean;
 }
 
 export type AppElementState = {

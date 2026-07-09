@@ -20,6 +20,7 @@ import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewMo
 import type { CheckTextInput } from '@/components/SettingsListTextInput';
 import { useMyScrollviewModalSelectDayPlanCanteen } from '@/hooks/useMyScrollviewModalSelectDayPlanCanteen';
 import { StringHelper } from 'repo-depkit-common';
+import { ComponentIds } from '@/constants/ComponentIds';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.food_plan_day);
@@ -93,6 +94,7 @@ const Index = () => {
 			>
 				<View style={styles.settingContainer}>
 					<SettingsList
+						nativeID={ComponentIds.MONITOR_DAYPLAN_CANTEEN_ROW}
 						iconBgColor={foods_area_color}
 						leftIcon={<Ionicons name="restaurant-sharp" size={24} color={theme.screen.icon} />}
 						label={translate(TranslationKeys.canteen)}
@@ -188,6 +190,7 @@ const Index = () => {
 				</View>
 				<View style={styles.settingsListGroup}>
 					<SettingsList
+						nativeID={ComponentIds.MONITOR_DAYPLAN_OPEN_BIGSCREEN}
 						iconBgColor={foods_area_color}
 						leftIcon={<MaterialCommunityIcons name="monitor" size={24} color={theme.screen.icon} />}
 						label="BigScreen"

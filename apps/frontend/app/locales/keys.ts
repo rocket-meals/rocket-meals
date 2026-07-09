@@ -729,7 +729,6 @@ export enum TranslationKeys {
 	onboarding_complete_user_count_prefix = 'onboarding_complete_user_count_prefix',
 	onboarding_welcome_back = 'onboarding_welcome_back',
 	onboarding_loading_profile = 'onboarding_loading_profile',
-	onboarding_loading_profile_button = 'onboarding_loading_profile_button',
 	onboarding_ready = 'onboarding_ready',
 	onboarding_many_others = 'onboarding_many_others',
 	// NOT IN TRANSLATION

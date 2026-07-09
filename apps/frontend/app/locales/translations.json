@@ -7057,16 +7057,6 @@
     "tr": "Bir moment, profiliniz yükleniyor...",
     "zh": "请稍等，我们正在加载您的个人资料..."
   },
-  "onboarding_loading_profile_button": {
-    "de": "Lade Profil",
-    "en": "Loading profile",
-    "ar": "جارٍ تحميل الملف الشخصي",
-    "es": "Cargando perfil",
-    "fr": "Chargement du profil",
-    "ru": "Загрузка профиля",
-    "tr": "Profil yükleniyor",
-    "zh": "正在加载资料"
-  },
   "more_options": {
     "de": "Weitere Optionen",
     "en": "More Options",

@@ -19,8 +19,8 @@ export const useMyScrollviewModalChangeMyCanteenSelection = () => {
 			dispatch({ type: SET_SELECTED_CANTEEN, payload: canteen });
 			// Persist to profile.canteen locally right away, mirroring onboarding's
 			// handleSelectCanteen - otherwise anonymous users (and registered users without
-			// a server profile yet) would never have this reflected in profile.canteen,
-			// which onboarding's "already complete" detection relies on.
+			// a server profile yet) would never have this reflected in profile.canteen, which
+			// (app)/index.tsx's "already complete" check relies on.
 			dispatch({ type: UPDATE_PROFILE, payload: { ...profile, canteen: canteen.id } });
 			closeCanteenSelectionModal();
 
