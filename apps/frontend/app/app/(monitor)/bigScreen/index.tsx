@@ -20,6 +20,7 @@ import { FoodOffersCategoriesHelper } from '@/redux/actions/FoodOffersCategories
 import { PriceGroupKey } from '@/app/(app)/settings/types';
 import { getAppIconInsideExpoLocalSaved } from '@/config';
 import { useAppSelector } from '@/redux/hooks';
+import { ComponentIds } from '@/constants/ComponentIds';
 
 export const bigScreenDefaultValues = {
 	showMarkingsOnCard: true,
@@ -349,6 +350,7 @@ const Index = () => {
 		>
 			<View style={[foods && foods?.length > 0 && { flex: 1 }]}>
 				<View
+					nativeID={ComponentIds.MONITOR_BIG_SCREEN}
 					style={{
 						...styles.headerContainer,
 					}}

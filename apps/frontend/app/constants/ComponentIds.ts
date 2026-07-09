@@ -48,6 +48,11 @@ export enum AppComponentIds {
 	CANTEEN_SELECTION_EMPTY = 'canteen-selection-empty',
 	CANTEEN_SELECT_BUTTON = 'canteen-select-button',
 
+	// Monitor / management ("Einzel Bild Speise" day plan config + big screen monitor)
+	MONITOR_DAYPLAN_CANTEEN_ROW = 'monitor-dayplan-canteen-row',
+	MONITOR_DAYPLAN_OPEN_BIGSCREEN = 'monitor-dayplan-open-bigscreen',
+	MONITOR_BIG_SCREEN = 'monitor-big-screen',
+
 	// Settings groups
 	SETTINGS_GROUP_APP_SETTINGS = 'settings-group-app-settings',
 	SETTINGS_GROUP_CANTEEN_USAGE = 'settings-group-canteen-usage',
