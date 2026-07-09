@@ -1,11 +1,10 @@
 /**
- * onboardingHelper.ts – Shared helpers for driving the onboarding screen
+ * onboardingHelper.ts – Shared helper for driving the onboarding screen
  * (apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx).
  *
- * Since (app)/index.tsx redirects every login straight to onboarding, both the
- * anonymous and the registered-account flows land here first. Users with an
- * already-complete profile ("returning users") are instead offered a single
- * direct-continue button – see `confirmDirectContinue` below.
+ * (app)/index.tsx redirects to onboarding only while the profile is incomplete
+ * (no canteen or no price group); sessions with a complete profile skip it and
+ * land directly on food offers. A fresh login therefore always arrives here.
  *
  * CONVENTION: Always use ComponentIds (from app/constants/ComponentIds.ts) for
  * element targeting via nativeID – see loginHelper.ts for details.
@@ -39,18 +38,5 @@ export function completeFullOnboarding(test: MaestroTestCase): MaestroTestCase {
 		// Preferences step (last step) -> finish onboarding.
 		.assertVisibleId(ComponentIds.ONBOARDING_PREFERENCES_STEP)
 		.tapOnId(ComponentIds.ONBOARDING_START_BUTTON)
-		.waitForAnimationToEnd();
-}
-
-/**
- * For a returning user whose profile is already complete, onboarding skips
- * straight to a single centered continue button instead of the step-by-step
- * flow. The step dots stay reserved but invisible in this case.
- */
-export function confirmDirectContinue(test: MaestroTestCase): MaestroTestCase {
-	return test
-		.assertVisibleId(ComponentIds.ONBOARDING_WELCOME_STEP)
-		.assertNotVisibleId(ComponentIds.ONBOARDING_NEXT_BUTTON)
-		.tapOnId(ComponentIds.ONBOARDING_CONTINUE_BUTTON)
 		.waitForAnimationToEnd();
 }
