@@ -12,6 +12,7 @@ import { UserHelper } from '@/helper/UserHelper';
 import { UPDATE_PROFILE } from '@/redux/Types/types';
 import { DatabaseTypes } from 'repo-depkit-common';
 import SettingsList from '@/components/SettingsList';
+import { ComponentIds } from '@/constants/ComponentIds';
 
 interface PriceGroupSettingsListProps {
 	onSelect?: (priceGroup: string) => void;
@@ -90,6 +91,7 @@ const PriceGroupSettingsList = ({ onSelect }: PriceGroupSettingsListProps) => {
 				return (
 					<SettingsList
 						key={option.id}
+						nativeID={ComponentIds.PRICE_GROUP_SELECT_BUTTON + '-' + option.id}
 						label={option.label}
 						leftIcon={option.icon}
 						iconBgColor={primaryColor}

@@ -21,6 +21,11 @@ import { CommonUiComponentIds } from '../../../../packages/common-ui/src/constan
 export { CommonUiComponentIds };
 
 export enum AppComponentIds {
+	// Root marker: rendered once the app has booted (redux-persist rehydrated, server
+	// status checked). Maestro flows wait for it before interacting with/screenshotting
+	// a freshly launched page.
+	APP_ROOT = 'app-root',
+
 	// Drawer navigation
 	OPEN_DRAWER = 'open-drawer',
 	DRAWER_ITEM_FOOD_OFFERS = 'drawer-item-foodoffers',
@@ -47,6 +52,24 @@ export enum AppComponentIds {
 	CANTEEN_SELECTION_TITLE = 'canteen-selection-title',
 	CANTEEN_SELECTION_EMPTY = 'canteen-selection-empty',
 	CANTEEN_SELECT_BUTTON = 'canteen-select-button',
+
+	// Price group selection (used on the settings screen and in onboarding)
+	PRICE_GROUP_SELECT_BUTTON = 'price-group-select-button',
+
+	// Onboarding screen
+	ONBOARDING_STEP_INDICATOR = 'onboarding-step-indicator',
+	ONBOARDING_WELCOME_STEP = 'onboarding-welcome-step',
+	ONBOARDING_CANTEEN_STEP = 'onboarding-canteen-step',
+	ONBOARDING_PRICEGROUP_STEP = 'onboarding-pricegroup-step',
+	ONBOARDING_PREFERENCES_STEP = 'onboarding-preferences-step',
+	ONBOARDING_NEXT_BUTTON = 'onboarding-next-button',
+	ONBOARDING_BACK_BUTTON = 'onboarding-back-button',
+	ONBOARDING_START_BUTTON = 'onboarding-start-button',
+
+	// Monitor / management ("Einzel Bild Speise" day plan config + big screen monitor)
+	MONITOR_DAYPLAN_CANTEEN_ROW = 'monitor-dayplan-canteen-row',
+	MONITOR_DAYPLAN_OPEN_BIGSCREEN = 'monitor-dayplan-open-bigscreen',
+	MONITOR_BIG_SCREEN = 'monitor-big-screen',
 
 	// Settings groups
 	SETTINGS_GROUP_APP_SETTINGS = 'settings-group-app-settings',

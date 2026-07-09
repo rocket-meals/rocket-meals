@@ -20,7 +20,8 @@ import { ComponentIds } from '../../../app/constants/ComponentIds';
 
 /**
  * Perform anonymous login: accept privacy policy, tap "Continue without account",
- * confirm the attention dialog, and wait for the canteen selection screen.
+ * confirm the attention dialog, and wait for the onboarding screen (every login
+ * lands there first – see onboardingHelper.ts to proceed past it).
  */
 export function performAnonymousLogin(test: MaestroTestCase): MaestroTestCase {
 	return test
@@ -34,17 +35,6 @@ export function performAnonymousLogin(test: MaestroTestCase): MaestroTestCase {
 		.waitForAnimationToEnd()
 		.assertVisibleId(ComponentIds.LOGIN_ATTENTION_TITLE)
 		.tapOnId(ComponentIds.LOGIN_ATTENTION_CONFIRM)
-		// Wait for canteen selection screen
-		.waitForAnimationToEnd();
-}
-
-/**
- * After login, select the first available canteen to proceed past the
- * canteen selection screen into the main app.
- */
-export function selectFirstCanteen(test: MaestroTestCase): MaestroTestCase {
-	return test
-		.assertVisibleId(ComponentIds.CANTEEN_SELECTION_TITLE)
-		.tapOnId(ComponentIds.CANTEEN_SELECT_BUTTON)
+		// Wait for the onboarding screen
 		.waitForAnimationToEnd();
 }

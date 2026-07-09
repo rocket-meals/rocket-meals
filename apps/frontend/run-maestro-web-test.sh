@@ -5,11 +5,22 @@
 # Usage:
 #   yarn maestro              (from apps/frontend/app/)  – generates + runs tests
 #   yarn maestro:runOnly      (from apps/frontend/app/)  – runs tests without regenerating
-#   ./run-maestro-web-test.sh [--skip-generate]  (from apps/frontend/)
+#   ./run-maestro-web-test.sh [--skip-generate] [--screen-size WxH]  (from apps/frontend/)
 #
 # Flags:
 #   --skip-generate   Skip step 5 (YAML generation from TypeScript).
 #                     Use when the generated files are already up-to-date.
+#   --screen-size     Browser viewport (Web only), e.g. --screen-size 430x932 for
+#                     iPhone-format store screenshots. The screens-test flows already
+#                     request the deviceMock=iphone status bar, so a phone-sized run
+#                     produces app-store-ready captures of every screen.
+#   --store-screenshots
+#                     Store-photo mode: runs headless at a phone-layout viewport with
+#                     the App-Store 6.7" aspect ratio, then upscales every screen-*.png
+#                     to the exact 1290x2796 App Store size (via sips). Maestro can't
+#                     set a deviceScaleFactor like the old puppeteer screenshotGenerator
+#                     could, so native-DPI capture isn't possible - capture at the
+#                     largest width that still renders the phone layout and scale up.
 #
 # The script:
 #   1. Starts the Expo web dev server in the background (output suppressed)
@@ -28,13 +39,40 @@ set -e
 # Parse flags
 # ---------------------------------------------------------------------------
 SKIP_GENERATE=false
+SCREEN_SIZE=""
+STORE_SCREENSHOTS=false
+EXPECT_SCREEN_SIZE=false
 for arg in "$@"; do
+    if [ "$EXPECT_SCREEN_SIZE" = true ]; then
+        SCREEN_SIZE="$arg"
+        EXPECT_SCREEN_SIZE=false
+        continue
+    fi
     case "$arg" in
         --skip-generate)
             SKIP_GENERATE=true
             ;;
+        # (Web only) browser viewport, e.g. --screen-size 430x932 for iPhone-format
+        # store screenshots (combined with the deviceMock=iphone status bar the
+        # screens-test flows already request).
+        --screen-size)
+            EXPECT_SCREEN_SIZE=true
+            ;;
+        --screen-size=*)
+            SCREEN_SIZE="${arg#--screen-size=}"
+            ;;
+        --store-screenshots)
+            STORE_SCREENSHOTS=true
+            ;;
     esac
 done
+
+# Store-photo mode: 640 CSS px is the widest viewport that still renders the phone
+# layout; 1530 window height compensates Chrome's ~143px headless window chrome so the
+# capture comes out at 640x1387 - exactly the App-Store 6.7" aspect ratio (1290:2796).
+if [ "$STORE_SCREENSHOTS" = true ]; then
+    SCREEN_SIZE="640x1530"
+fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GENERATED_DIR="$SCRIPT_DIR/maestro-tests/generated"
@@ -111,7 +149,12 @@ if [ "$SKIP_GENERATE" = true ]; then
     echo "Skipping YAML generation (--skip-generate flag set)."
 else
     echo "Generating YAML test files from TypeScript..."
-    (cd "$SCRIPT_DIR/app" && yarn maestro:generate)
+    if [ "$STORE_SCREENSHOTS" = true ]; then
+        # Give async content (e.g. food images) time to load before each screenshot
+        (cd "$SCRIPT_DIR/app" && MAESTRO_SCREENS_SETTLE_MS=6000 yarn maestro:generate)
+    else
+        (cd "$SCRIPT_DIR/app" && yarn maestro:generate)
+    fi
 fi
 echo ""
 
@@ -124,8 +167,36 @@ mkdir -p "$MAESTRO_DEBUG_DIR"
 echo "Running Maestro tests..."
 echo ""
 set +e
-maestro test "$GENERATED_DIR" --platform web --debug-output "$MAESTRO_DEBUG_DIR"
+if [ "$STORE_SCREENSHOTS" = true ]; then
+    # --screen-size only takes effect in headless mode
+    maestro test "$GENERATED_DIR" --platform web --headless --screen-size "$SCREEN_SIZE" --include-tags screens --debug-output "$MAESTRO_DEBUG_DIR"
+elif [ -n "$SCREEN_SIZE" ]; then
+    maestro test "$GENERATED_DIR" --platform web --headless --screen-size "$SCREEN_SIZE" --debug-output "$MAESTRO_DEBUG_DIR"
+else
+    maestro test "$GENERATED_DIR" --platform web --debug-output "$MAESTRO_DEBUG_DIR"
+fi
 MAESTRO_EXIT_CODE=$?
+
+# Upscale the captures to the exact App Store 6.7" size (1290x2796)
+if [ "$STORE_SCREENSHOTS" = true ] && [ "$MAESTRO_EXIT_CODE" -eq 0 ]; then
+    echo ""
+    echo "Scaling store screenshots to 1290x2796..."
+    STORE_DIR="$SCRIPT_DIR/store-screenshots"
+    mkdir -p "$STORE_DIR"
+    for png in "$SCRIPT_DIR"/screen-*.png "$SCRIPT_DIR"/app/screen-*.png; do
+        [ -f "$png" ] || continue
+        target="$STORE_DIR/$(basename "$png")"
+        if command -v sips &> /dev/null; then
+            sips -z 2796 1290 "$png" --out "$target" > /dev/null
+        elif command -v convert &> /dev/null; then
+            convert "$png" -resize '1290x2796!' "$target"
+        else
+            echo "WARNING: neither sips nor ImageMagick found - copying unscaled"
+            cp "$png" "$target"
+        fi
+        echo "  📱 $target"
+    done
+fi
 set -e
 
 # ---------------------------------------------------------------------------
