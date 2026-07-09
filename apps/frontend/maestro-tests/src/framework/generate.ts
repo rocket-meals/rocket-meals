@@ -32,19 +32,30 @@ async function generate(): Promise<void> {
 		const modulePath = path.join(testsDir, testFile);
 		// eslint-disable-next-line @typescript-eslint/no-var-requires
 		const testModule = require(modulePath) as { default?: unknown };
-		const testCase = testModule.default;
+		const exported = testModule.default;
 
-		if (!(testCase instanceof MaestroTestCase)) {
-			console.warn(
-				`Skipping ${testFile}: default export is not a MaestroTestCase instance.`,
-			);
-			continue;
+		// A test file exports either a single MaestroTestCase or an array of them.
+		// Arrays exist because a Maestro web flow can only launch one URL (the YAML
+		// header url is reused for every launchApp), so covering many URLs from one
+		// file requires one flow per URL.
+		const testCases = Array.isArray(exported) ? exported : [exported];
+		let valid = 0;
+		for (const testCase of testCases) {
+			if (!(testCase instanceof MaestroTestCase)) {
+				console.warn(
+					`Skipping entry in ${testFile}: not a MaestroTestCase instance.`,
+				);
+				continue;
+			}
+			const outputName = `${testCase.outputFileName}.yaml`;
+			const outputPath = path.join(generatedDir, outputName);
+			fs.writeFileSync(outputPath, testCase.toYaml(), 'utf-8');
+			console.log(`Generated: ${outputPath}`);
+			valid++;
 		}
-
-		const outputName = `${testCase.outputFileName}.yaml`;
-		const outputPath = path.join(generatedDir, outputName);
-		fs.writeFileSync(outputPath, testCase.toYaml(), 'utf-8');
-		console.log(`Generated: ${outputPath}`);
+		if (valid === 0) {
+			console.warn(`Skipping ${testFile}: no MaestroTestCase instances exported.`);
+		}
 	}
 }
 

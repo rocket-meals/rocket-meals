@@ -21,6 +21,11 @@ import { CommonUiComponentIds } from '../../../../packages/common-ui/src/constan
 export { CommonUiComponentIds };
 
 export enum AppComponentIds {
+	// Root marker: rendered once the app has booted (redux-persist rehydrated, server
+	// status checked). Maestro flows wait for it before interacting with/screenshotting
+	// a freshly launched page.
+	APP_ROOT = 'app-root',
+
 	// Drawer navigation
 	OPEN_DRAWER = 'open-drawer',
 	DRAWER_ITEM_FOOD_OFFERS = 'drawer-item-foodoffers',

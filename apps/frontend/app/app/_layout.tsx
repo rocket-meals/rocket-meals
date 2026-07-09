@@ -45,6 +45,7 @@ import { SET_SELECTED_CUSTOMER } from '@/redux/Types/types';
 import { SettingsProvider } from 'repo-depkit-common-ui';
 import { useAppSelector } from '@/redux/hooks';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
+import { ComponentIds } from '@/constants/ComponentIds';
 
 ServerAPI.createAuthentificationStorage(
 	async () => {
@@ -163,7 +164,10 @@ export default function Layout() {
 												<ServerStatusLoader>
 													<ExpoUpdateChecker>
 														<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: theme.screen.iconBg }}>
-															<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.iconBg }} edges={pathname?.includes('image-full-screen') ? ['bottom'] : ['top', 'bottom']}>
+															{/* nativeID marks "the app has booted" (past redux-persist rehydration and the
+															    server status check) - Maestro's per-screen flows wait for it before taking
+															    their screenshot, since a still-loading page has no elements to wait on. */}
+															<SafeAreaView nativeID={ComponentIds.APP_ROOT} style={{ flex: 1, backgroundColor: theme.screen.iconBg }} edges={pathname?.includes('image-full-screen') ? ['bottom'] : ['top', 'bottom']}>
 																<Slot />
 															</SafeAreaView>
 														</KeyboardAvoidingView>

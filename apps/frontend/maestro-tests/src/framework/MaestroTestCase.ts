@@ -18,6 +18,7 @@
 type MaestroStep =
 	| { type: 'launchApp'; url: string }
 	| { type: 'waitForAnimationToEnd' }
+	| { type: 'waitUntilVisibleId'; id: string; timeoutMs: number }
 	| { type: 'takeScreenshot'; name: string }
 	| { type: 'tapOn'; label: string }
 	| { type: 'tapOnIndex'; label: string; index: number }
@@ -75,6 +76,17 @@ export class MaestroTestCase {
 	/** Wait for any running animation to finish. */
 	waitForAnimationToEnd(): this {
 		this.steps.push({ type: 'waitForAnimationToEnd' });
+		return this;
+	}
+
+	/**
+	 * Wait (up to `timeoutMs`) until an element with testID / id matching `id` is
+	 * visible. Unlike waitForAnimationToEnd - which returns immediately on a static
+	 * loading page - this actually blocks until the app has rendered the element,
+	 * so it's the right step after launching a page before screenshotting it.
+	 */
+	waitUntilVisibleId(id: string, timeoutMs = 30000): this {
+		this.steps.push({ type: 'waitUntilVisibleId', id, timeoutMs });
 		return this;
 	}
 
@@ -228,6 +240,12 @@ export class MaestroTestCase {
 				case 'waitForAnimationToEnd':
 					lines.push('- waitForAnimationToEnd');
 					break;
+				case 'waitUntilVisibleId':
+					lines.push('- extendedWaitUntil:');
+					lines.push('    visible:');
+					lines.push(`        id: ${yamlString(idPattern(step.id))}`);
+					lines.push(`    timeout: ${step.timeoutMs}`);
+					break;
 				case 'takeScreenshot':
 					lines.push(`- takeScreenshot: ${step.name}`);
 					break;
@@ -323,6 +341,7 @@ function stepDescription(step: MaestroStep): string {
 	switch (step.type) {
 		case 'launchApp': return `LaunchApp: ${step.url}`;
 		case 'waitForAnimationToEnd': return 'WaitForAnimationToEnd';
+		case 'waitUntilVisibleId': return `WaitUntilVisibleId: ${step.id} (timeout ${step.timeoutMs}ms)`;
 		case 'takeScreenshot': return `TakeScreenshot: ${step.name}`;
 		case 'tapOn': return `TapOn: ${step.label}`;
 		case 'tapOnIndex': return `TapOnIndex: ${step.label}[${step.index}]`;
