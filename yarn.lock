@@ -20195,7 +20195,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jpeg-js@npm:^0.4.3":
+"jpeg-js@npm:^0.4.3, jpeg-js@npm:^0.4.4":
   version: 0.4.4
   resolution: "jpeg-js@npm:0.4.4"
   checksum: 10c0/4d0d5097f8e55d8bbce6f1dc32ffaf3f43f321f6222e4e6490734fdc6d005322e3bd6fb992c2df7f5b587343b1441a1c333281dc3285bc9116e369fd2a2b43a7
@@ -27356,6 +27356,7 @@ __metadata:
     i18next: "npm:^24.0.5"
     jest: "npm:^29.2.1"
     jest-expo: "npm:~53.0.2"
+    jpeg-js: "npm:^0.4.4"
     leaflet: "npm:^1.9.4"
     lottie-react-native: "npm:~7.3.1"
     markdown-it: "npm:^14.1.0"
