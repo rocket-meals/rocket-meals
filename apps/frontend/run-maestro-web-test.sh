@@ -5,13 +5,22 @@
 # Usage:
 #   yarn maestro              (from apps/frontend/app/)  – generates + runs tests
 #   yarn maestro:runOnly      (from apps/frontend/app/)  – runs tests without regenerating
-#   ./run-maestro-web-test.sh [--skip-generate]  (from apps/frontend/)
+#   yarn maestro:mock         (from apps/frontend/app/)  – runs the mock-backend tests
+#   ./run-maestro-web-test.sh [--skip-generate] [--mock]  (from apps/frontend/)
 #
 # Flags:
 #   --skip-generate   Skip step 5 (YAML generation from TypeScript).
 #                     Use when the generated files are already up-to-date.
+#   --mock            Start the Directus GET mock backend
+#                     (maestro-tests/src/mock-server/mockServer.ts) and start the
+#                     Expo dev server with EXPO_PUBLIC_SERVER_URL pointing at it,
+#                     so all app requests are answered with the shared fixtures
+#                     from packages/common/src/testData. Only tests tagged
+#                     "mock-backend" run in this mode; without --mock those
+#                     tests are excluded (they would fail on real data).
 #
 # The script:
+#   0. (--mock only) Starts the Directus GET mock backend
 #   1. Starts the Expo web dev server in the background (output suppressed)
 #   2. Waits until the server is reachable
 #   3. Installs Maestro CLI if not already present
@@ -19,7 +28,7 @@
 #   5. Generates YAML test files from TypeScript  (skipped with --skip-generate)
 #   6. Runs all Maestro tests
 #   7. Lists failed tests and screenshot paths (on failure)
-#   8. Stops the dev server on exit (success or failure)
+#   8. Stops the dev server (and mock backend) on exit (success or failure)
 # =============================================================================
 
 set -e
@@ -28,10 +37,14 @@ set -e
 # Parse flags
 # ---------------------------------------------------------------------------
 SKIP_GENERATE=false
+MOCK_MODE=false
 for arg in "$@"; do
     case "$arg" in
         --skip-generate)
             SKIP_GENERATE=true
+            ;;
+        --mock)
+            MOCK_MODE=true
             ;;
     esac
 done
@@ -39,10 +52,36 @@ done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GENERATED_DIR="$SCRIPT_DIR/maestro-tests/generated"
 DEV_URL="http://localhost:8081/"
+MOCK_SERVER_PORT="${MOCK_SERVER_PORT:-4030}"
+MOCK_SERVER_URL="http://localhost:$MOCK_SERVER_PORT"
+MOCK_BACKEND_TAG="mock-backend"
 export PATH="$HOME/.maestro/bin:$PATH"
 
 echo "=== Maestro Web Smoke Test ==="
 echo ""
+
+# ---------------------------------------------------------------------------
+# 0. (--mock only) Start the Directus GET mock backend
+# ---------------------------------------------------------------------------
+MOCK_PID=""
+if [ "$MOCK_MODE" = true ]; then
+    echo "Starting Directus GET mock backend on $MOCK_SERVER_URL ..."
+    (cd "$SCRIPT_DIR/app" && MOCK_SERVER_PORT="$MOCK_SERVER_PORT" yarn maestro:mock-server) > /dev/null 2>&1 &
+    MOCK_PID=$!
+
+    for i in $(seq 1 30); do
+        if curl -sf "$MOCK_SERVER_URL/server/health" > /dev/null 2>&1; then
+            echo "Mock backend is ready."
+            break
+        fi
+        if [ "$i" -eq 30 ]; then
+            echo "ERROR: Mock backend did not start within 30s."
+            exit 1
+        fi
+        sleep 1
+    done
+    echo ""
+fi
 
 # ---------------------------------------------------------------------------
 # 1. Start Expo web dev server in the background (output suppressed)
@@ -50,16 +89,28 @@ echo ""
 echo "Starting Expo web dev server..."
 # Use the pinned "expo" dependency already installed in node_modules, instead of "npx expo"
 # which can fetch and run an on-demand, unpinned package version.
-(cd "$SCRIPT_DIR/app" && BROWSER=none yarn expo start --web --non-interactive) > /dev/null 2>&1 &
+# With --mock, EXPO_PUBLIC_SERVER_URL is inlined into the bundle by Metro and
+# overrides the backend URL of every customer config (see app/config.ts).
+if [ "$MOCK_MODE" = true ]; then
+    (cd "$SCRIPT_DIR/app" && BROWSER=none EXPO_PUBLIC_SERVER_URL="$MOCK_SERVER_URL" yarn expo start --web --non-interactive) > /dev/null 2>&1 &
+else
+    (cd "$SCRIPT_DIR/app" && BROWSER=none yarn expo start --web --non-interactive) > /dev/null 2>&1 &
+fi
 WEB_PID=$!
 
-# Stop the dev server (and any child processes) when the script exits
+# Stop the dev server, the mock backend and any child processes on exit
 cleanup() {
     echo ""
     echo "Stopping Expo web dev server (PID $WEB_PID)..."
     kill "$WEB_PID" 2>/dev/null || true
     pkill -P "$WEB_PID" 2>/dev/null || true
     wait "$WEB_PID" 2>/dev/null || true
+    if [ -n "$MOCK_PID" ]; then
+        echo "Stopping mock backend (PID $MOCK_PID)..."
+        kill "$MOCK_PID" 2>/dev/null || true
+        pkill -P "$MOCK_PID" 2>/dev/null || true
+        wait "$MOCK_PID" 2>/dev/null || true
+    fi
 }
 trap cleanup EXIT
 
@@ -133,7 +184,13 @@ mkdir -p "$MAESTRO_DEBUG_DIR"
 echo "Running Maestro tests..."
 echo ""
 set +e
-maestro test "$GENERATED_DIR" --platform web --debug-output "$MAESTRO_DEBUG_DIR"
+if [ "$MOCK_MODE" = true ]; then
+    # Only run tests that are designed for the deterministic mock backend.
+    maestro test "$GENERATED_DIR" --platform web --include-tags "$MOCK_BACKEND_TAG" --debug-output "$MAESTRO_DEBUG_DIR"
+else
+    # Exclude mock-backend tests: they assert fixture data that the real backend does not serve.
+    maestro test "$GENERATED_DIR" --platform web --exclude-tags "$MOCK_BACKEND_TAG" --debug-output "$MAESTRO_DEBUG_DIR"
+fi
 MAESTRO_EXIT_CODE=$?
 set -e
 

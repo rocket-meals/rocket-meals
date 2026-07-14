@@ -92,7 +92,7 @@ const FoodOffersHeader: React.FC<FoodOffersHeaderProps> = ({
                     <CustomTooltip
                         placement="top"
                         trigger={triggerProps => (
-                            <IconButton {...triggerProps} onPress={openOptionsModal} style={iconPaddingStyle}>
+                            <IconButton {...triggerProps} onPress={openOptionsModal} style={iconPaddingStyle} nativeID={ComponentIds.FOODOFFERS_OPTIONS_BUTTON}>
                                 <Entypo name="dots-three-vertical" size={22} color={theme.header.text} />
                             </IconButton>
                         )}

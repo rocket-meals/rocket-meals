@@ -48,3 +48,28 @@ export function selectFirstCanteen(test: MaestroTestCase): MaestroTestCase {
 		.tapOnId(ComponentIds.CANTEEN_SELECT_BUTTON)
 		.waitForAnimationToEnd();
 }
+
+/**
+ * Complete the onboarding flow shown after a fresh anonymous login
+ * (welcome → canteen → price group → preferences → start).
+ *
+ * A fresh session is always routed to onboarding by (app)/index.tsx until a
+ * canteen AND a price group are set. Selecting a canteen or price group
+ * automatically advances to the next step.
+ */
+export function completeAnonymousOnboarding(test: MaestroTestCase): MaestroTestCase {
+	return test
+		// Welcome step
+		.assertVisibleId(ComponentIds.ONBOARDING_NEXT_BUTTON)
+		.tapOnId(ComponentIds.ONBOARDING_NEXT_BUTTON)
+		.waitForAnimationToEnd()
+		// Canteen step – selecting a canteen advances to the price group step
+		.tapOnId(ComponentIds.CANTEEN_SELECT_BUTTON)
+		.waitForAnimationToEnd()
+		// Price group step – selecting a price group advances to the preferences step
+		.tapOnId(`${ComponentIds.PRICE_GROUP_SELECT_BUTTON}-student`)
+		.waitForAnimationToEnd()
+		// Preferences step – start the app
+		.tapOnId(ComponentIds.ONBOARDING_START_BUTTON)
+		.waitForAnimationToEnd();
+}

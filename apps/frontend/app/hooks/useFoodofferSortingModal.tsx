@@ -20,6 +20,7 @@ import { useAppSelector } from '@/redux/hooks';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import SettingsListSelectOption from '@/components/SettingsListSelectOption/SettingsListSelectOption';
+import { ComponentIds } from '@/constants/ComponentIds';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
@@ -164,6 +165,7 @@ export const SortSheet: React.FC<SortSheetProps> = ({ closeSheet }) => {
                                         options={sortingOptions.map((option) => ({
                                                 ...option,
                                                 label: translate(option.label),
+                                                nativeID: `${ComponentIds.SORT_OPTION_PREFIX}-${option.id}`,
                                         }))}
                                         selectedOption={selectedOption}
                                         onSelect={updateSort}

@@ -9,6 +9,7 @@ import CanteenFeedbackLabels from '@/components/CanteenFeedbackLabels/CanteenFee
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import { sortFoodOffers } from '@/helper/foodOfferSortHelper';
+import { ComponentIds } from '@/constants/ComponentIds';
 import styles from './styles';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { useFocusEffect } from 'expo-router';
@@ -43,6 +44,8 @@ interface DayData {
 interface DayItem {
 	foodoffer: DatabaseTypes.Foodoffers | null;
 	foodofferInfoItem: DatabaseTypes.FoodoffersInfoItems | null;
+	/** 0-based position of the foodoffer within the day's (sorted) offers; null for info items. */
+	offerIndex: number | null;
 }
 
 const EMPTY_FEEDBACKS: any[] = [];
@@ -181,9 +184,9 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 		const startInfos = sortBySortField(infoItemsFiltered.filter(i => i.placement === 'start'));
 		const endInfos = sortBySortField(infoItemsFiltered.filter(i => i.placement === 'end'));
 
-		const startItems = startInfos.map(i => ({ foodoffer: null, foodofferInfoItem: i }));
-		const main = offers.map(o => ({ foodoffer: o, foodofferInfoItem: null }));
-		const endItems = endInfos.map(i => ({ foodoffer: null, foodofferInfoItem: i }));
+		const startItems = startInfos.map(i => ({ foodoffer: null, foodofferInfoItem: i, offerIndex: null }));
+		const main = offers.map((o, offerIndex) => ({ foodoffer: o, foodofferInfoItem: null, offerIndex }));
+		const endItems = endInfos.map(i => ({ foodoffer: null, foodofferInfoItem: i, offerIndex: null }));
 
 		return [...startItems, ...main, ...endItems] as DayItem[];
 	}, [foodOffersInfoItems, selectedCanteen, parseDateOnly]);
@@ -471,9 +474,12 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 				>
 					{dayItems.map((dayItem, index) => {
 						if (dayItem.foodoffer) {
+							const food = dayItem.foodoffer.food;
+							const foodId = typeof food === 'object' && food !== null ? food.id : food;
 							return (
 								<View
 									key={`offer-${dayItem.foodoffer.id}`}
+									nativeID={`${ComponentIds.FOODOFFER_POSITION_PREFIX}-${dayItem.offerIndex}-${foodId}`}
 									style={{
 										width: cardWidth || '100%',
 										marginHorizontal: itemGap,

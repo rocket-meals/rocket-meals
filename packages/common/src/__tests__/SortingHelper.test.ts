@@ -1,4 +1,4 @@
-import { sortByEatingHabits, sortByFoodCategoryOnly, sortByFoodName, sortByFoodOfferCategoryOnly, sortByOwnFavorite, sortByPublicFavorite, sortBySortField } from 'repo-depkit-common';
+import { EXPECTED_FOOD_ID_ORDER, FoodSortOption, getTestFoodoffers, sortByEatingHabits, sortByFoodCategoryOnly, sortByFoodName, sortByFoodOfferCategoryOnly, sortByOwnFavorite, sortByPrice, sortByPublicFavorite, sortBySortField } from 'repo-depkit-common';
 
 describe('SortingHelper', () => {
   test('sortByFoodName sorts alphabetically', () => {
@@ -99,5 +99,40 @@ describe('SortingHelper', () => {
     const items = [{ id: 'a', sort: 3 }, { id: 'b', sort: 1 }, { id: 'c' }];
     const sorted = sortBySortField(items);
     expect(sorted.map(i => i.id)).toEqual(['b', 'a', 'c']);
+  });
+});
+
+/**
+ * These tests run against the shared fixtures in src/testData/FoodOfferTestData.ts,
+ * which are also served by the Maestro mock backend. The expected orders asserted
+ * here are the same ones the Maestro end-to-end test asserts in the UI, so a
+ * mismatch between unit- and e2e-level expectations is impossible.
+ */
+describe('SortingHelper with shared FoodOfferTestData fixtures', () => {
+  const getFoodIds = (offers: any[]) => offers.map((o: any) => o.food.id);
+
+  test('public rating sort matches the shared expected order', () => {
+    const sorted = sortByPublicFavorite(getTestFoodoffers('2026-01-01'));
+    expect(getFoodIds(sorted)).toEqual(EXPECTED_FOOD_ID_ORDER[FoodSortOption.RATING]);
+  });
+
+  test('alphabetical sort matches the shared expected order', () => {
+    const sorted = sortByFoodName(getTestFoodoffers('2026-01-01'), 'de');
+    expect(getFoodIds(sorted)).toEqual(EXPECTED_FOOD_ID_ORDER[FoodSortOption.ALPHABETICAL]);
+  });
+
+  test('alphabetical sort matches the shared expected order in English too', () => {
+    const sorted = sortByFoodName(getTestFoodoffers('2026-01-01'), 'en');
+    expect(getFoodIds(sorted)).toEqual(EXPECTED_FOOD_ID_ORDER[FoodSortOption.ALPHABETICAL]);
+  });
+
+  test('price ascending sort matches the shared expected order', () => {
+    const sorted = sortByPrice(getTestFoodoffers('2026-01-01'), undefined, false);
+    expect(getFoodIds(sorted)).toEqual(EXPECTED_FOOD_ID_ORDER[FoodSortOption.PRICE_ASCENDING]);
+  });
+
+  test('price descending sort matches the shared expected order', () => {
+    const sorted = sortByPrice(getTestFoodoffers('2026-01-01'), undefined, true);
+    expect(getFoodIds(sorted)).toEqual(EXPECTED_FOOD_ID_ORDER[FoodSortOption.PRICE_DESCENDING]);
   });
 });
