@@ -152,6 +152,12 @@ const Index = () => {
 			leftIcon: <MaterialCommunityIcons name="account-circle" size={24} color={theme.screen.icon} />,
 			onPress: () => router.push('/experimentell/avatars'),
 		},
+		{
+			key: 'photo-cartoon-avatar',
+			label: translate(TranslationKeys.photo_cartoon_avatar),
+			leftIcon: <MaterialCommunityIcons name="emoticon-outline" size={24} color={theme.screen.icon} />,
+			onPress: () => router.push('/experimentell/photo-cartoon-avatar'),
+		},
 	];
 
 	return (

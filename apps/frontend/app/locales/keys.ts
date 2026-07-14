@@ -408,6 +408,18 @@ export enum TranslationKeys {
         avatar_create_new = 'avatar_create_new',
         avatar_reset_changes = 'avatar_reset_changes',
         avatar_appearance = 'avatar_appearance',
+        // Photo-to-cartoon avatar (on-device TFJS style transfer)
+        photo_cartoon_avatar = 'photo_cartoon_avatar',
+        photo_cartoon_avatar_description = 'photo_cartoon_avatar_description',
+        photo_cartoon_avatar_choose_photo = 'photo_cartoon_avatar_choose_photo',
+        photo_cartoon_avatar_take_photo = 'photo_cartoon_avatar_take_photo',
+        photo_cartoon_avatar_cartoonify = 'photo_cartoon_avatar_cartoonify',
+        photo_cartoon_avatar_loading_model = 'photo_cartoon_avatar_loading_model',
+        photo_cartoon_avatar_processing = 'photo_cartoon_avatar_processing',
+        photo_cartoon_avatar_original = 'photo_cartoon_avatar_original',
+        photo_cartoon_avatar_result = 'photo_cartoon_avatar_result',
+        photo_cartoon_avatar_error = 'photo_cartoon_avatar_error',
+        photo_cartoon_avatar_license_notice = 'photo_cartoon_avatar_license_notice',
         // Avatar editor category labels
         avatar_cat_Style = 'avatar_cat_Style',
         avatar_cat_skinColor = 'avatar_cat_skinColor',

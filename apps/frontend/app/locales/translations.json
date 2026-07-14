@@ -7276,5 +7276,115 @@
     "ru": "Показывать среднюю оценку на карточке",
     "tr": "Kartda ortalama puanı göster",
     "zh": "在卡片上显示平均评分"
+  },
+  "photo_cartoon_avatar": {
+    "de": "Foto-Cartoon-Avatar",
+    "en": "Photo Cartoon Avatar",
+    "ar": "أفاتار كرتوني من صورة",
+    "es": "Avatar de Foto en Caricatura",
+    "fr": "Avatar Photo en Dessin Animé",
+    "ru": "Мультяшный аватар из фото",
+    "tr": "Fotoğraftan Çizgi Film Avatar",
+    "zh": "照片卡通头像"
+  },
+  "photo_cartoon_avatar_description": {
+    "de": "Verwandle ein Foto von dir in einen Cartoon-Avatar - komplett auf dem Gerät, nichts wird hochgeladen.",
+    "en": "Turn a photo of yourself into a cartoon-style avatar - fully on-device, nothing is uploaded.",
+    "ar": "حوّل صورتك إلى أفاتار بأسلوب كرتوني - كل ذلك على الجهاز، دون رفع أي بيانات.",
+    "es": "Convierte una foto tuya en un avatar estilo caricatura - totalmente en el dispositivo, no se sube nada.",
+    "fr": "Transforme une photo de toi en avatar façon dessin animé - entièrement sur l'appareil, rien n'est envoyé.",
+    "ru": "Преврати свою фотографию в мультяшный аватар - полностью на устройстве, ничего не загружается.",
+    "tr": "Fotoğrafını çizgi film tarzı bir avatara dönüştür - tamamen cihaz üzerinde, hiçbir şey yüklenmez.",
+    "zh": "把你的照片变成卡通风格头像 - 完全在设备本地处理，不会上传任何数据。"
+  },
+  "photo_cartoon_avatar_choose_photo": {
+    "de": "Foto auswählen",
+    "en": "Choose Photo",
+    "ar": "اختر صورة",
+    "es": "Elegir foto",
+    "fr": "Choisir une photo",
+    "ru": "Выбрать фото",
+    "tr": "Fotoğraf Seç",
+    "zh": "选择照片"
+  },
+  "photo_cartoon_avatar_take_photo": {
+    "de": "Foto aufnehmen",
+    "en": "Take Photo",
+    "ar": "التقط صورة",
+    "es": "Tomar foto",
+    "fr": "Prendre une photo",
+    "ru": "Сделать фото",
+    "tr": "Fotoğraf Çek",
+    "zh": "拍照"
+  },
+  "photo_cartoon_avatar_cartoonify": {
+    "de": "In Cartoon umwandeln",
+    "en": "Cartoonify",
+    "ar": "تحويل إلى كرتون",
+    "es": "Convertir en caricatura",
+    "fr": "Transformer en dessin animé",
+    "ru": "Сделать мультяшным",
+    "tr": "Çizgi Filme Dönüştür",
+    "zh": "转换为卡通"
+  },
+  "photo_cartoon_avatar_loading_model": {
+    "de": "Modell wird geladen...",
+    "en": "Loading model...",
+    "ar": "جارٍ تحميل النموذج...",
+    "es": "Cargando modelo...",
+    "fr": "Chargement du modèle...",
+    "ru": "Загрузка модели...",
+    "tr": "Model yükleniyor...",
+    "zh": "正在加载模型..."
+  },
+  "photo_cartoon_avatar_processing": {
+    "de": "Dein Cartoon-Avatar wird erstellt...",
+    "en": "Creating your cartoon avatar...",
+    "ar": "جارٍ إنشاء الأفاتار الكرتوني...",
+    "es": "Creando tu avatar de caricatura...",
+    "fr": "Création de ton avatar en cours...",
+    "ru": "Создаём твой мультяшный аватар...",
+    "tr": "Çizgi film avatarın oluşturuluyor...",
+    "zh": "正在生成你的卡通头像..."
+  },
+  "photo_cartoon_avatar_original": {
+    "de": "Original",
+    "en": "Original",
+    "ar": "الأصلية",
+    "es": "Original",
+    "fr": "Original",
+    "ru": "Оригинал",
+    "tr": "Orijinal",
+    "zh": "原图"
+  },
+  "photo_cartoon_avatar_result": {
+    "de": "Cartoon",
+    "en": "Cartoon",
+    "ar": "كرتون",
+    "es": "Caricatura",
+    "fr": "Dessin animé",
+    "ru": "Мультяшный",
+    "tr": "Çizgi Film",
+    "zh": "卡通"
+  },
+  "photo_cartoon_avatar_error": {
+    "de": "Beim Erstellen des Avatars ist etwas schiefgelaufen. Bitte versuche es erneut.",
+    "en": "Something went wrong while creating the avatar. Please try again.",
+    "ar": "حدث خطأ أثناء إنشاء الأفاتار. حاول مرة أخرى.",
+    "es": "Algo salió mal al crear el avatar. Inténtalo de nuevo.",
+    "fr": "Une erreur s'est produite lors de la création de l'avatar. Réessaie.",
+    "ru": "Что-то пошло не так при создании аватара. Попробуй снова.",
+    "tr": "Avatar oluşturulurken bir sorun oluştu. Lütfen tekrar dene.",
+    "zh": "生成头像时出现问题，请重试。"
+  },
+  "photo_cartoon_avatar_license_notice": {
+    "de": "Demo-Modell (nur für Forschungszwecke) - vor Produktiveinsatz MODEL_LICENSE.md prüfen.",
+    "en": "Demo model (research use) - see MODEL_LICENSE.md before shipping to production.",
+    "ar": "نموذج تجريبي (لأغراض البحث فقط) - راجع MODEL_LICENSE.md قبل الاستخدام الفعلي.",
+    "es": "Modelo de demostración (uso de investigación) - revisa MODEL_LICENSE.md antes de usarlo en producción.",
+    "fr": "Modèle de démonstration (usage recherche) - consulte MODEL_LICENSE.md avant une mise en production.",
+    "ru": "Демо-модель (только для исследований) - перед продакшеном изучи MODEL_LICENSE.md.",
+    "tr": "Demo model (araştırma amaçlı) - üretime almadan önce MODEL_LICENSE.md dosyasına bak.",
+    "zh": "演示模型（仅限研究用途）- 上线前请查看 MODEL_LICENSE.md。"
   }
 }
