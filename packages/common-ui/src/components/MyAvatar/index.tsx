@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { createAvatar, Style } from '@dicebear/core';
 import * as collection from '@dicebear/collection';
+import { micahExtended } from './micahExtended';
 
 export enum AvatarStyle {
 	ADVENTURER = 'adventurer',
@@ -95,7 +96,7 @@ export const STYLE_MAP: Record<AvatarStyle, Style<object>> = {
 	[AvatarStyle.INITIALS]: collection.initials,
 	[AvatarStyle.LORELEI]: collection.lorelei,
 	[AvatarStyle.LORELEI_NEUTRAL]: collection.loreleiNeutral,
-	[AvatarStyle.MICAH]: collection.micah,
+	[AvatarStyle.MICAH]: micahExtended,
 	[AvatarStyle.MINIAVS]: collection.miniavs,
 	[AvatarStyle.NOTIONISTS]: collection.notionists,
 	[AvatarStyle.NOTIONISTS_NEUTRAL]: collection.notionistsNeutral,

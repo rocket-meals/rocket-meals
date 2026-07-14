@@ -102,6 +102,10 @@ export type { SettingsListMyMapThemeSelectionProps } from './src/components/Sett
 export { default as MyAvatar, STYLE_MAP } from './src/components/MyAvatar';
 export { AvatarStyle, AvatarSize } from './src/components/MyAvatar';
 export type { MyAvatarProps, AvatarConfig, AvatarAppearanceProps } from './src/components/MyAvatar';
+export { MicahCustomHair, MICAH_CUSTOM_HAIR_KEYS } from './src/components/MyAvatar/micahExtended';
+
+export { default as MicahHairGallery } from './src/components/MicahHairGallery';
+export type { MicahHairGalleryProps } from './src/components/MicahHairGallery';
 
 export { useAvatarEditorModal, AvatarPropKey, MICAH_PRESETS, presetToConfig, generateRandomAvatarConfig } from './src/components/MyAvatarEditor';
 export type { UseAvatarEditorModalOptions, OpenAvatarEditorProps, AvatarPreset } from './src/components/MyAvatarEditor';
