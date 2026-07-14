@@ -2,6 +2,7 @@ import { itemStatus } from '@/constants/Constants';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { CollectionHelper, Query } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
+import { buildTranslationsDeep } from '@/helper/translationLanguageQuery';
 
 export class FoodOffersCategoriesHelper extends CollectionHelper<DatabaseTypes.FoodoffersCategories> {
 	constructor(client?: any) {
@@ -13,6 +14,7 @@ export class FoodOffersCategoriesHelper extends CollectionHelper<DatabaseTypes.F
 	async fetchFoodOffersCategories(queryOverride?: Query<DatabaseTypes.FoodoffersCategories>) {
 		const defaultQuery = {
 			fields: ['*', 'translations.*'],
+			deep: buildTranslationsDeep(),
 			limit: -1, // Fetch all
 			filter: {
 				_and: [{ status: { _eq: itemStatus } }],

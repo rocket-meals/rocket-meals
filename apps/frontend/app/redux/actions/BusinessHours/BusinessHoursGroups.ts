@@ -1,6 +1,7 @@
 import { DatabaseTypes } from 'repo-depkit-common';
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
+import { buildTranslationsDeep } from '@/helper/translationLanguageQuery';
 
 export class BusinessHoursGroupsHelper extends CollectionHelper<DatabaseTypes.BusinesshoursGroups> {
 	constructor(client?: any) {
@@ -10,6 +11,7 @@ export class BusinessHoursGroupsHelper extends CollectionHelper<DatabaseTypes.Bu
 	async fetchBusinessHoursGroups(queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: ['*, translations.*'],
+			deep: buildTranslationsDeep(),
 			filter: { status: { _eq: 'published' } },
 			sort: ['sort'],
 			limit: -1,
@@ -22,6 +24,7 @@ export class BusinessHoursGroupsHelper extends CollectionHelper<DatabaseTypes.Bu
 	async fetchBusinessHoursGroupById(id: string, queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: ['*, translations.*'],
+			deep: buildTranslationsDeep(),
 		};
 
 		const query = { ...defaultQuery, ...queryOverride };

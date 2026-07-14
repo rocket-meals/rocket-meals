@@ -1,0 +1,111 @@
+name: "🎭 Score Tracker Maestro Web E2E Tests"
+
+on:
+  workflow_dispatch: # Allow manual triggering
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  maestro-web:
+    name: "🎭 Maestro Web Smoke Test (iPhone viewport)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: "🏗️ Export Expo Web"
+        run: yarn export:web
+        working-directory: apps/score-tracker/frontend
+
+      - name: "🌐 Serve exported web app"
+        run: |
+          mkdir -p /tmp/webroot/score-tracker
+          cp -r apps/score-tracker/frontend/dist/* /tmp/webroot/score-tracker/
+          python3 -m http.server 8082 --directory /tmp/webroot &
+          echo "Web server started on port 8082"
+          for i in {1..15}; do
+            if curl -sf http://localhost:8082/score-tracker/ > /dev/null; then
+              echo "Server is ready"
+              break
+            fi
+            echo "Waiting for server... ($i)"
+            sleep 2
+          done
+
+      - name: "🌐 Install Chrome"
+        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2
+        with:
+          chrome-version: stable
+
+      - name: "🎭 Install Maestro CLI"
+        run: |
+          # Pinned Maestro release, downloaded over enforced HTTPS and verified
+          # against its published SHA-256 checksum before anything is executed.
+          MAESTRO_VERSION="cli-2.6.1"
+          MAESTRO_SHA256="3440825f514f537c6a96bcf5de995780c2a4a7f83a43208fdc95d4f1fecfad3b"
+          curl -fsSL --proto '=https' --tlsv1.2 -o /tmp/maestro.zip "https://github.com/mobile-dev-inc/Maestro/releases/download/${MAESTRO_VERSION}/maestro.zip"
+          echo "${MAESTRO_SHA256}  /tmp/maestro.zip" | sha256sum --check --strict
+          unzip -q /tmp/maestro.zip -d "$HOME/.maestro-install"
+          mkdir -p "$HOME/.maestro"
+          cp -r "$HOME/.maestro-install/maestro/"* "$HOME/.maestro/"
+          chmod +x "$HOME/.maestro/bin/maestro"
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: "📝 Generate Maestro YAML from TypeScript tests"
+        run: yarn maestro:generate
+        working-directory: apps/score-tracker/frontend
+
+      - name: "▶️ Run Maestro tests (iPhone 15/16 viewport)"
+        run: |
+          mkdir -p /tmp/maestro-screenshots
+          maestro test apps/score-tracker/maestro-tests/generated/ --platform web --headless --screen-size 393x852 --debug-output /tmp/maestro-debug --output /tmp/maestro-screenshots
+        env:
+          APP_URL: "http://localhost:8082/score-tracker/"
+
+      - name: "❌ Print failure reasons"
+        if: failure()
+        shell: bash
+        run: |
+          echo ""
+          echo "=== Maestro Failure Reasons ==="
+          found=false
+          shopt -s globstar nullglob
+          for logfile in /tmp/maestro-debug/**/*.log /tmp/maestro-debug/**/*.txt /tmp/maestro-debug/**/*.xml "$HOME"/.maestro/tests/**/*.log "$HOME"/.maestro/tests/**/*.txt; do
+            [ -f "$logfile" ] || continue
+            errors=$(grep -iE "(FAILED|ERROR|Exception|Element not found|No element|Timeout|assert|tapOn)" "$logfile" 2>/dev/null | grep -v "^#" | head -20)
+            if [ -n "$errors" ]; then
+              echo ""
+              echo "📄 $(basename "$logfile"):"
+              echo "$errors" | sed 's/^/  /'
+              found=true
+            fi
+          done
+          if [ "$found" = false ]; then
+            echo "  (no detailed error logs found)"
+          fi
+          echo ""
+
+      - name: "📸 Collect screenshots for upload"
+        if: always()
+        run: |
+          mkdir -p /tmp/maestro-screenshots
+          find "$HOME/.maestro/tests/" -type f -name "*.png" -exec cp {} /tmp/maestro-screenshots/ \; 2>/dev/null || true
+          find /tmp/maestro-debug/ -type f -name "*.png" -exec cp {} /tmp/maestro-screenshots/ \; 2>/dev/null || true
+          echo "Collected screenshots:"
+          ls -la /tmp/maestro-screenshots/ 2>/dev/null || echo "No screenshots collected"
+
+      - name: "📸 Upload screenshots"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: score-tracker-maestro-screenshots
+          path: /tmp/maestro-screenshots/
+          if-no-files-found: warn
+          retention-days: 30

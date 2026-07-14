@@ -16,7 +16,7 @@ import { useDispatch, shallowEqual } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { CampusHelper } from '@/redux/actions/Campus/Campus';
-import { SET_CAMPUSES, SET_CAMPUSES_DICT, SET_CAMPUSES_LOCAL, SET_UNSORTED_CAMPUSES } from '@/redux/Types/types';
+import { SET_CAMPUSES } from '@/redux/Types/types';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
 import { calculateDistanceInMeter } from '@/helper/distanceHelper';
 import DistanceModal from '@/components/DistanceModal';
@@ -204,15 +204,9 @@ const Index: React.FC = () => {
 					mergedData.every((c, i) => c === currentCampuses[i]);
 
 				if (!isSameArray) {
-					const dict = mergedData.reduce((acc: Record<string, DatabaseTypes.Buildings>, campus) => {
-						if (campus?.id) acc[campus.id] = campus;
-						return acc;
-					}, {});
-
+					// Only one copy of the campuses/buildings list is kept in the store -
+					// the former dict/unsorted/local duplicates tripled the persisted state size.
 					dispatch({ type: SET_CAMPUSES, payload: mergedData });
-					dispatch({ type: SET_CAMPUSES_DICT, payload: dict });
-					dispatch({ type: SET_UNSORTED_CAMPUSES, payload: mergedData });
-					dispatch({ type: SET_CAMPUSES_LOCAL, payload: mergedData });
 				}
 
 				setCampusesDispatched(true);

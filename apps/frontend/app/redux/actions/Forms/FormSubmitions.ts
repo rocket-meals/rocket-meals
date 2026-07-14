@@ -1,6 +1,7 @@
 import { DatabaseTypes } from 'repo-depkit-common';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
+import { buildTranslationsDeep } from '@/helper/translationLanguageQuery';
 
 export class FormsSubmissionsHelper extends CollectionHelper<DatabaseTypes.FormSubmissions> {
 	constructor(client?: any) {
@@ -45,6 +46,7 @@ export class FormsSubmissionsHelper extends CollectionHelper<DatabaseTypes.FormS
 	async fetchFormubmissionById(id: string, queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: [' * , translations.*'],
+			deep: buildTranslationsDeep(),
 		};
 
 		const query = { ...defaultQuery, ...queryOverride };

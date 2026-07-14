@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { configureStore } from '@/redux/store';
 import translations from '@/locales/translations.json';
-import { CHANGE_LANGUAGE, SET_FUN_LANGUAGE_MODE, SET_PIRATE_LANGUAGE } from '@/redux/Types/types';
+import { CHANGE_LANGUAGE, CLEAR_COLLECTION_DATES_LAST_UPDATED, SET_FUN_LANGUAGE_MODE, SET_PIRATE_LANGUAGE } from '@/redux/Types/types';
 import { StringHelper } from 'repo-depkit-common';
 import { LanguageCode } from '@/constants/SettingData';
 
@@ -124,6 +124,10 @@ export const useLanguage = () => {
 
 	const setLanguageMode = (language: LanguageCode) => {
 		configureStore.dispatch(changeLanguage(language));
+		// Collections are fetched with a server-side language filter (translationLanguageQuery),
+		// so every cached collection is stale after a language change - clearing the
+		// lastUpdated map makes shouldFetch() refetch them all in the new language.
+		configureStore.dispatch({ type: CLEAR_COLLECTION_DATES_LAST_UPDATED });
 	};
 
 	const togglePirateLanguage = (enabled: boolean) => {

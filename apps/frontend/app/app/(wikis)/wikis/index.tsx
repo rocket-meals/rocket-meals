@@ -1,5 +1,5 @@
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
@@ -13,42 +13,50 @@ import { AppScreens, DatabaseTypes } from 'repo-depkit-common';
 import CustomMarkdown from '@/components/CustomMarkdown/CustomMarkdown';
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
+import { WikisHelper } from '@/redux/actions/Wikis/Wikis';
 
 const Index = () => {
 	const { theme } = useTheme();
 	const { translate, translateDynamic } = useLanguage();
 	const [wiki, setWiki] = useState<DatabaseTypes.Wikis>();
 	const [loading, setLoading] = useState(true);
-	const { wikis, language, primaryColor } = useAppSelector((state) => state.settings);
+	const { language, primaryColor } = useAppSelector((state) => state.settings);
 	const { deviceMock } = useGlobalSearchParams();
 	const { custom_id, id } = useLocalSearchParams();
+	const wikisHelper = useMemo(() => new WikisHelper(), []);
 	//Set Page Title
 	const title = wiki?.translations ? translateDynamic(getTitleFromTranslation(wiki?.translations, language)) : 'Wikis';
 	useSetPageTitle(title);
 
-	const filterWiki = () => {
-		const wiki_data = wikis?.filter((wiki: any) => wiki?.custom_id === custom_id);
-		if (wiki_data) {
-			setWiki(wiki_data[0]);
-			setLoading(false);
-		}
-	};
-
-	const filterWikiWithId = () => {
-		const wiki_data = wikis?.filter((wiki: any) => wiki?.id === id);
-		if (wiki_data) {
-			setWiki(wiki_data[0]);
-			setLoading(false);
-		}
-	};
-
+	// The persisted wikis list only carries titles (see WikisHelper.fetchWikis), so the
+	// full page content is fetched on demand. Re-runs on language change because the
+	// server only returns the translations for the current language (+ fallbacks).
 	useEffect(() => {
-		if (wikis?.length > 0 && custom_id) {
-			filterWiki();
-		} else if (wikis?.length > 0 && id) {
-			filterWikiWithId();
-		}
-	}, [wikis, custom_id, id]);
+		if (!custom_id && !id) return;
+		let cancelled = false;
+		const loadWiki = async () => {
+			setLoading(true);
+			try {
+				const result = (await wikisHelper.fetchWikiWithContent({
+					id: id as string | undefined,
+					custom_id: custom_id as string | undefined,
+				})) as DatabaseTypes.Wikis | undefined;
+				if (!cancelled) {
+					setWiki(result);
+				}
+			} catch (error) {
+				console.error('Error fetching wiki content:', error);
+			} finally {
+				if (!cancelled) {
+					setLoading(false);
+				}
+			}
+		};
+		loadWiki();
+		return () => {
+			cancelled = true;
+		};
+	}, [custom_id, id, language, wikisHelper]);
 
 	return (
 		<ScrollView style={{ ...styles.container, backgroundColor: theme.screen.background }}>

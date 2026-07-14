@@ -1,5 +1,6 @@
 import { DatabaseTypes } from 'repo-depkit-common';
 import { CollectionHelper, Query } from '@/helper/collectionHelper';
+import { buildTranslationsDeep } from '@/helper/translationLanguageQuery';
 
 /** A Directus foreign-key field may be returned as a raw ID (string or number) or a full nested object. */
 type DirectusForeignKey = string | number | { id?: string | number | null } | null | undefined;
@@ -31,6 +32,7 @@ export class BuildingsHelper extends CollectionHelper<DatabaseTypes.Buildings> {
 		const defaultQuery = {
 			fields: ['*', 'translations.*', 'businesshours.*'],
 			limit: -1, // Fetch all
+			deep: buildTranslationsDeep(),
 		};
 
 		const query = { ...defaultQuery, ...(queryOverride || {}) };
@@ -86,6 +88,7 @@ export class BuildingsHelper extends CollectionHelper<DatabaseTypes.Buildings> {
 	async fetchBuildingById(id: string, queryOverride?: Query<DatabaseTypes.Buildings>) {
 		const defaultQuery = {
 			fields: ['*', 'translations.*, businesshours.*'],
+			deep: buildTranslationsDeep(),
 		};
 
 		const query = { ...defaultQuery, ...(queryOverride || {}) };

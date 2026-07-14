@@ -130,9 +130,6 @@ export type FormState = {
 
 export type CampusState = {
 	campuses: DatabaseTypes.Buildings[];
-	campusesLocal: DatabaseTypes.Buildings[];
-	unSortedCampuses: DatabaseTypes.Buildings[];
-	campusesDict: Record<string, DatabaseTypes.Buildings>;
 }
 
 export type NewsState = {

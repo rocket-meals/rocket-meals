@@ -1,36 +1,19 @@
-import { CLEAR_CAMPUSES, SET_CAMPUSES, SET_CAMPUSES_DICT, SET_CAMPUSES_LOCAL, SET_UNSORTED_CAMPUSES } from '../Types/types';
+import { CLEAR_CAMPUSES, SET_CAMPUSES } from '../Types/types';
 
 const initialState = {
 	campuses: [],
-	campusesLocal: [],
-	unSortedCampuses: [],
-	campusesDict: {},
 };
 
 const campusReducer = (state = initialState, actions: any) => {
 	switch (actions.type) {
 		case SET_CAMPUSES: {
+			// Strip the legacy duplicated copies (campusesDict/campusesLocal/unSortedCampuses)
+			// that older app versions persisted - rehydration would otherwise keep them in the
+			// redux-persist snapshot forever and bloat it far beyond the storage limits.
+			const { campusesDict, campusesLocal, unSortedCampuses, ...rest } = state as Record<string, any>;
 			return {
-				...state,
+				...rest,
 				campuses: actions.payload,
-			};
-		}
-		case SET_CAMPUSES_DICT: {
-			return {
-				...state,
-				campusesDict: actions.payload,
-			};
-		}
-		case SET_CAMPUSES_LOCAL: {
-			return {
-				...state,
-				campusesLocal: actions.payload,
-			};
-		}
-		case SET_UNSORTED_CAMPUSES: {
-			return {
-				...state,
-				unSortedCampuses: actions.payload,
 			};
 		}
 		case CLEAR_CAMPUSES: {

@@ -1,6 +1,7 @@
 import { DatabaseTypes } from 'repo-depkit-common';
 import { CollectionHelper, Query } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
+import { buildTranslationsDeep } from '@/helper/translationLanguageQuery';
 
 export class CampusHelper extends CollectionHelper<DatabaseTypes.Buildings> {
 	constructor(client?: any) {
@@ -11,6 +12,7 @@ export class CampusHelper extends CollectionHelper<DatabaseTypes.Buildings> {
 	async fetchCampus(queryOverride?: Query<DatabaseTypes.Buildings>) {
 		const defaultQuery = {
 			fields: ['* ,translations.*, businesshours.*'],
+			deep: buildTranslationsDeep(),
 			limit: -1, // Fetch all
 		};
 
@@ -22,6 +24,7 @@ export class CampusHelper extends CollectionHelper<DatabaseTypes.Buildings> {
 	async fetchCampusById(id: string, queryOverride?: Query<DatabaseTypes.Buildings>) {
 		const defaultQuery = {
 			fields: ['*', 'translations.*'],
+			deep: buildTranslationsDeep(),
 		};
 
 		const query = { ...defaultQuery, ...(queryOverride || {}) };

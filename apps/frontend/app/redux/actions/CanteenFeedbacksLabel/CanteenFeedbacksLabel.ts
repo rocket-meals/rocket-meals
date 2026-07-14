@@ -2,6 +2,7 @@ import { itemStatus } from '@/constants/Constants';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
+import { buildTranslationsDeep } from '@/helper/translationLanguageQuery';
 
 export class CanteenFeedbackLabelHelper extends CollectionHelper<DatabaseTypes.CanteensFeedbacksLabels> {
 	constructor(client?: any) {
@@ -13,6 +14,7 @@ export class CanteenFeedbackLabelHelper extends CollectionHelper<DatabaseTypes.C
 	async fetchCanteenFeedbackLabels(queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: ['*', 'translations.*'], // Include translations
+			deep: buildTranslationsDeep(),
 			limit: -1, // Fetch all
 			filter: {
 				_and: [

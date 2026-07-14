@@ -1,5 +1,6 @@
 import axios from '@/interceptor';
 import { DatabaseTypes, DirectusItemStatus } from 'repo-depkit-common';
+import { buildTranslationsDeep } from '@/helper/translationLanguageQuery';
 
 const TIMEOUT_MS = 15000;
 const MAX_RETRIES = 3;
@@ -72,6 +73,7 @@ export const fetchFoodOffersByCanteen = async (canteenId: string, selected: stri
 		const response = await fetchWithRetry('/items/foodoffers', {
 			params: {
 				fields: '*, markings.*,food.*,food.translations.*, attribute_values.*, attribute_values.food_attribute.*,attribute_values.food_attribute.group.*, attribute_values.food_attribute.translations.*, foods_attributes_values.*', // Fetch all fields, including related ones
+				deep: buildTranslationsDeep('food.translations', 'attribute_values.food_attribute.translations'),
 				limit: -1, // Remove limit to fetch all results
 				filter: {
 					_and: [
@@ -159,6 +161,7 @@ export const fetchFoodsByCanteen = async (canteenId: string, selected?: string) 
 		const response = await fetchWithRetry('/items/foodoffers', {
 			params: {
 				fields: '*,food.*,!food.feedbacks,food.translations.*,markings.*, attribute_values.*, attribute_values.food_attribute.*,attribute_values.food_attribute.group.*, attribute_values.food_attribute.translations.*, foods_attributes_values.*', // Exclude food.feedbacks field as per the API call
+				deep: buildTranslationsDeep('food.translations', 'attribute_values.food_attribute.translations'),
 				limit: -1, // Fetch all results
 				filter: { _and: baseFilter },
 			},
@@ -172,20 +175,23 @@ export const fetchFoodsByCanteen = async (canteenId: string, selected?: string) 
 
 export const fetchFoodOffersDetailsById = async (id: string) => {
 	try {
+		const deep = buildTranslationsDeep(
+			'food.translations',
+			'food.food_category.translations',
+			'foodoffer_category.translations',
+			'attribute_values.food_attribute.translations'
+		);
+		deep.food.feedbacks = {
+			_filter: {
+				comment: { _nnull: true },
+			},
+			_sort: '-date_updated',
+		};
 		const response = await fetchWithRetry(`/items/foodoffers/${id}`, {
 			params: {
 				fields: '*, markings.*,food.*,food.feedbacks.*,food.translations.*,food.food_category.*,food.food_category.translations.*,foodoffer_category.*,foodoffer_category.translations.*,attribute_values.*, attribute_values.food_attribute.*, attribute_values.food_attribute.translations.*, foods_attributes_values.*',
 				limit: -1,
-				deep: {
-					food: {
-						feedbacks: {
-							_filter: {
-								comment: { _nnull: true },
-							},
-							_sort: '-date_updated',
-						},
-					},
-				},
+				deep,
 			},
 		});
 		return response.data;
@@ -258,18 +264,18 @@ export const fetchLastFoodOfferByFoodAndCanteen = async (foodId: string, canteen
 
 export const fetchFoodDetailsById = async (id: string) => {
 	try {
+		const deep = buildTranslationsDeep();
+		deep.feedbacks = {
+			_filter: {
+				comment: { _nnull: true },
+			},
+			_sort: '-date_updated',
+		};
 		const response = await fetchWithRetry(`/items/foods/${id}`, {
 			params: {
 				fields: '*, markings.*,feedbacks.*,food.*,translations.*',
 				limit: -1,
-				deep: {
-					feedbacks: {
-						_filter: {
-							comment: { _nnull: true },
-						},
-						_sort: '-date_updated',
-					},
-				},
+				deep,
 			},
 		});
 		return response.data;

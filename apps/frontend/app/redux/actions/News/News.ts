@@ -1,6 +1,7 @@
 import { DatabaseTypes } from 'repo-depkit-common';
 import { CollectionHelper, Query } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
+import { buildTranslationsDeep } from '@/helper/translationLanguageQuery';
 
 export class NewsHelper extends CollectionHelper<DatabaseTypes.News> {
 	constructor(client?: any) {
@@ -14,6 +15,7 @@ export class NewsHelper extends CollectionHelper<DatabaseTypes.News> {
 			fields: ['* , translations.*'],
 			sort: ['sort', '-date'],
 			limit: 100, // Fetch all
+			deep: buildTranslationsDeep(),
 		};
 
 		const query = { ...defaultQuery, ...(queryOverride || {}) };

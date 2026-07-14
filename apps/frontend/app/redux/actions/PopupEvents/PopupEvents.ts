@@ -2,6 +2,7 @@ import { itemStatus } from '@/constants/Constants';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import { ServerAPI } from '@/redux/actions/Auth/Auth';
+import { buildTranslationsDeep } from '@/helper/translationLanguageQuery';
 
 export class PopupEventsHelper extends CollectionHelper<DatabaseTypes.PopupEvents> {
 	constructor(client?: any) {
@@ -11,6 +12,7 @@ export class PopupEventsHelper extends CollectionHelper<DatabaseTypes.PopupEvent
 	async fetchAllPopupEvents(queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: ['* , translations.*, canteens.*'],
+			deep: buildTranslationsDeep(),
 			limit: -1,
 			filter: {
 				_and: [
@@ -30,6 +32,7 @@ export class PopupEventsHelper extends CollectionHelper<DatabaseTypes.PopupEvent
 	async fetchPopupEventsById(id: string, queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: ['*, translations.*'],
+			deep: buildTranslationsDeep(),
 		};
 
 		const query = { ...defaultQuery, ...queryOverride };

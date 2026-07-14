@@ -1,6 +1,7 @@
 import { ServerAPI } from '@/redux/actions/Auth/Auth'; // API client
 import { CollectionHelper } from '@/helper/collectionHelper'; // Reusing the CollectionHelper
 import { DatabaseTypes } from 'repo-depkit-common'; // Assuming DatabaseTypes.Markings is the required type
+import { buildTranslationsDeep } from '@/helper/translationLanguageQuery';
 
 export class MarkingGroupsHelper extends CollectionHelper<DatabaseTypes.MarkingsGroups> {
 	constructor(client?: any) {
@@ -17,6 +18,7 @@ export class MarkingGroupsHelper extends CollectionHelper<DatabaseTypes.Markings
 	async fetchMarkingGroups(queryOverride: any = {}) {
 		const defaultQuery = {
 			fields: ['*', 'translations.*'], // Include translations
+			deep: buildTranslationsDeep(),
 			limit: -1, // Fetch all
 			filter: {
 				_and: [{ status: { _eq: 'published' } }],

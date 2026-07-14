@@ -40,7 +40,9 @@ const BuildingDetailsContent: React.FC<BuildingDetailsContentProps> = ({ id }) =
 
     const campusDetails = useAppSelector((state) => {
         if (!id) return null;
-        return state.campus.campusesDict[String(id)] || null;
+        // buildingsDict is the single persisted copy of all buildings - the former
+        // campus.campusesDict duplicate was removed to shrink the redux-persist snapshot.
+        return state.canteenReducer.buildingsDict?.[String(id)] || state.campus.campuses?.find((c: DatabaseTypes.Buildings) => String(c.id) === String(id)) || null;
     }, shallowEqual);
 
     const { buildingsOrganizations, organisations } = useAppSelector((state) => ({
