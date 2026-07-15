@@ -10,6 +10,7 @@
     "expo-asset": "*",
     "expo-clipboard": "*",
     "expo-file-system": "*",
+    "expo-gl": "*",
     "expo-image-picker": "*",
     "expo-location": "*",
     "expo-sqlite": "*",

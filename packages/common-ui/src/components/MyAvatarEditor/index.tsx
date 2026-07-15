@@ -100,6 +100,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
+import { GLView } from 'expo-gl';
+import { Asset } from 'expo-asset';
 import MyAvatar, { AvatarStyle, AvatarSize, STYLE_MAP, AvatarConfig, AvatarAppearanceProps, getStyleProbabilityKeys } from '../MyAvatar';
 import { Style } from '@dicebear/core';
 import { useMyScrollViewModal } from '../GlobalModal/useMyScrollViewModal';
@@ -688,18 +690,66 @@ function nearestPaletteColor(rgb: { r: number; g: number; b: number }, palette: 
 }
 
 /**
- * EXPERIMENTAL - derives a skinColor/hairColor pair from a user photo by averaging pixel
- * regions in an off-screen <canvas>. This is a lightweight heuristic (no ML model, no face
- * detection): it samples a top-center strip for hair and a center box for skin, then snaps
- * each average color to the nearest swatch in the app's existing avataaars palettes.
- *
- * Runs entirely client-side via the browser Canvas API - the photo is decoded and read
- * locally and is never uploaded or sent over the network. React Native has no built-in
- * pixel-read API without an extra native module, so for now this only runs on web; on
- * native platforms the caller should show an explanatory message instead of invoking this.
+ * Averages the R/G/B channels of a flat RGBA pixel buffer (as returned by canvas
+ * `getImageData` or GL `readPixels`) within `[x0, x1) x [y0, y1)`, where row 0 is the TOP
+ * of the image (canvas convention - the GL path flips its buffer to match before calling
+ * this, see `flipPixelRowsVertically`).
+ */
+function averageRegion(
+	pixels: Uint8Array | Uint8ClampedArray,
+	bufferWidth: number,
+	x0: number,
+	y0: number,
+	x1: number,
+	y1: number,
+): { r: number; g: number; b: number } | null {
+	let r = 0, g = 0, b = 0, count = 0;
+	for (let y = Math.floor(y0); y < y1; y++) {
+		for (let x = Math.floor(x0); x < x1; x++) {
+			const i = (y * bufferWidth + x) * 4;
+			r += pixels[i];
+			g += pixels[i + 1];
+			b += pixels[i + 2];
+			count++;
+		}
+	}
+	return count > 0 ? { r: r / count, g: g / count, b: b / count } : null;
+}
+
+/**
+ * Derives a skinColor/hairColor pair from a square RGBA pixel buffer (top-left origin) by
+ * averaging two regions - a top-center strip for hair, a center box for skin/face - and
+ * snapping each average color to the nearest swatch in the app's existing avataaars
+ * palettes. This is a lightweight heuristic (no ML model, no face detection).
+ */
+function analyzeRgbaPixels(
+	pixels: Uint8Array | Uint8ClampedArray,
+	size: number,
+): { skinColor: string; hairColor: string } | null {
+	const hairRegion = averageRegion(pixels, size, size * 0.3, size * 0.02, size * 0.7, size * 0.18);
+	const skinRegion = averageRegion(pixels, size, size * 0.35, size * 0.4, size * 0.65, size * 0.6);
+	if (!hairRegion || !skinRegion) return null;
+
+	return {
+		skinColor: nearestPaletteColor(skinRegion, SKIN_COLORS),
+		hairColor: nearestPaletteColor(hairRegion, HAIR_COLORS),
+	};
+}
+
+/**
+ * EXPERIMENTAL - derives a skinColor/hairColor pair from a user photo picked via
+ * `expo-image-picker`. All analysis (pixel decode + averaging) happens entirely on-device:
+ * on web via an off-screen `<canvas>`, on native (iOS/Android) via a headless `expo-gl`
+ * context. The photo itself is never uploaded or sent over the network - see
+ * `analyzePhotoWeb`/`analyzePhotoNative` below for the platform-specific pixel readback.
  */
 async function analyzePhotoForAvataaars(uri: string): Promise<{ skinColor: string; hairColor: string } | null> {
-	if (Platform.OS !== 'web' || typeof document === 'undefined') return null;
+	return Platform.OS === 'web' ? analyzePhotoWeb(uri) : analyzePhotoNative(uri);
+}
+
+/** Web: draws the picked photo into an off-screen `<canvas>` and reads its pixels back. */
+async function analyzePhotoWeb(uri: string): Promise<{ skinColor: string; hairColor: string } | null> {
+	if (typeof document === 'undefined') return null;
 
 	const image: HTMLImageElement = await new Promise((resolve, reject) => {
 		const img = new (window as any).Image();
@@ -717,28 +767,123 @@ async function analyzePhotoForAvataaars(uri: string): Promise<{ skinColor: strin
 	if (!ctx) return null;
 	ctx.drawImage(image, 0, 0, size, size);
 
-	const sampleRegionAverage = (x0: number, y0: number, x1: number, y1: number) => {
-		const { data } = ctx.getImageData(x0, y0, x1 - x0, y1 - y0);
-		let r = 0, g = 0, b = 0, count = 0;
-		for (let i = 0; i < data.length; i += 4) {
-			r += data[i];
-			g += data[i + 1];
-			b += data[i + 2];
-			count++;
-		}
-		return count > 0 ? { r: r / count, g: g / count, b: b / count } : null;
-	};
+	const { data } = ctx.getImageData(0, 0, size, size);
+	return analyzeRgbaPixels(data, size);
+}
 
-	// Hair region: a strip near the top-center, above where a centered face portrait
-	// typically starts. Skin region: a box in the middle of the frame (forehead/cheek area).
-	const hairRegion = sampleRegionAverage(size * 0.3, size * 0.02, size * 0.7, size * 0.18);
-	const skinRegion = sampleRegionAverage(size * 0.35, size * 0.4, size * 0.65, size * 0.6);
-	if (!hairRegion || !skinRegion) return null;
+/** Number of pixels per side of the offscreen GL render target used for native photo analysis. */
+const NATIVE_ANALYSIS_SIZE = 48;
 
-	return {
-		skinColor: nearestPaletteColor(skinRegion, SKIN_COLORS),
-		hairColor: nearestPaletteColor(hairRegion, HAIR_COLORS),
-	};
+const PASSTHROUGH_VERTEX_SHADER = `
+	attribute vec2 aPosition;
+	varying vec2 vUV;
+	void main() {
+		vUV = (aPosition + 1.0) * 0.5;
+		gl_Position = vec4(aPosition, 0.0, 1.0);
+	}
+`;
+
+const PASSTHROUGH_FRAGMENT_SHADER = `
+	precision mediump float;
+	varying vec2 vUV;
+	uniform sampler2D uTexture;
+	void main() {
+		gl_FragColor = texture2D(uTexture, vUV);
+	}
+`;
+
+function compileShader(gl: any, type: number, source: string) {
+	const shader = gl.createShader(type);
+	gl.shaderSource(shader, source);
+	gl.compileShader(shader);
+	return shader;
+}
+
+/**
+ * Reverses row order in-place semantics (returns a new buffer) so that row 0 becomes the
+ * TOP of the rendered image. Needed because `gl.readPixels` always returns row 0 as the
+ * BOTTOM of the framebuffer (OpenGL's window-coordinate origin is bottom-left), whereas
+ * `analyzeRgbaPixels`'s region math assumes row 0 = top (matching canvas `getImageData`).
+ */
+function flipPixelRowsVertically(pixels: Uint8Array, width: number, height: number): Uint8Array {
+	const rowBytes = width * 4;
+	const flipped = new Uint8Array(pixels.length);
+	for (let y = 0; y < height; y++) {
+		const srcStart = y * rowBytes;
+		const dstStart = (height - 1 - y) * rowBytes;
+		flipped.set(pixels.subarray(srcStart, srcStart + rowBytes), dstStart);
+	}
+	return flipped;
+}
+
+/**
+ * Native (iOS/Android): renders the picked photo into a small offscreen `expo-gl`
+ * framebuffer (headless context, no visible GLView needed) and reads its pixels back via
+ * `gl.readPixels`. Everything happens in-process on the device's GPU - no upload, no
+ * network request, no ML model.
+ */
+async function analyzePhotoNative(uri: string): Promise<{ skinColor: string; hairColor: string } | null> {
+	const gl: any = await GLView.createContextAsync();
+	if (!gl) return null;
+
+	try {
+		const asset = Asset.fromURI(uri);
+		await asset.downloadAsync();
+
+		const sourceTexture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		// expo-gl patches texImage2D on native to also accept an (asset-like) object with a
+		// `localUri`/`uri` property, decoding the file directly - not part of the WebGL type
+		// definitions, hence the cast.
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, asset as any);
+
+		const targetTexture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, targetTexture);
+		gl.texImage2D(
+			gl.TEXTURE_2D, 0, gl.RGBA, NATIVE_ANALYSIS_SIZE, NATIVE_ANALYSIS_SIZE, 0, gl.RGBA, gl.UNSIGNED_BYTE, null,
+		);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+		const framebuffer = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, targetTexture, 0);
+		gl.viewport(0, 0, NATIVE_ANALYSIS_SIZE, NATIVE_ANALYSIS_SIZE);
+
+		const program = gl.createProgram();
+		gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, PASSTHROUGH_VERTEX_SHADER));
+		gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, PASSTHROUGH_FRAGMENT_SHADER));
+		gl.linkProgram(program);
+		gl.useProgram(program);
+
+		const quadBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+		const positionLoc = gl.getAttribLocation(program, 'aPosition');
+		gl.enableVertexAttribArray(positionLoc);
+		gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
+		gl.uniform1i(gl.getUniformLocation(program, 'uTexture'), 0);
+
+		gl.clearColor(0, 0, 0, 1);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+		const pixels = new Uint8Array(NATIVE_ANALYSIS_SIZE * NATIVE_ANALYSIS_SIZE * 4);
+		gl.readPixels(0, 0, NATIVE_ANALYSIS_SIZE, NATIVE_ANALYSIS_SIZE, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+
+		const topDownPixels = flipPixelRowsVertically(pixels, NATIVE_ANALYSIS_SIZE, NATIVE_ANALYSIS_SIZE);
+		return analyzeRgbaPixels(topDownPixels, NATIVE_ANALYSIS_SIZE);
+	} finally {
+		await GLView.destroyContextAsync(gl);
+	}
 }
 
 type AvatarEditorModalContentProps = AvatarPreviewAppearanceProps &
@@ -1191,15 +1336,6 @@ const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
 
 	/** EXPERIMENTAL - see `analyzePhotoForAvataaars` above for what this does and does not do. */
 	const handleImportFromPhoto = async () => {
-		if (Platform.OS !== 'web') {
-			Alert.alert(
-				translate ? translate('avatar_photo_import_title') : 'Create from Photo',
-				translate
-					? translate('avatar_photo_import_web_only')
-					: 'This experimental feature is currently only available in the web version.',
-			);
-			return;
-		}
 		const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 		if (!permission.granted) return;
 		const result = await ImagePicker.launchImageLibraryAsync({
