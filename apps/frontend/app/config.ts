@@ -1,6 +1,8 @@
 // This file can not have any imports. See app.config.ts as it will transpile this file to  JavaScript
 import { ServerHelper } from 'repo-depkit-common';
 import {ImageSourcePropType} from "react-native";
+import appBuildNumberJson from './build-number.json';
+import commonBuildNumberJson from 'repo-depkit-common/build-number.json';
 
 export { EXPO_ASC_KEY_ID, EXPO_ASC_ISSUER_ID, EXPO_APPLE_TEAM_ID, EXPO_APPLE_TEAM_TYPE } from 'repo-depkit-common';
 
@@ -30,12 +32,15 @@ export enum ConfigCustomerEnum {
         STUDI_FUTTER = 'studi-futter'
 }
 
-// DO NOT CHANGE THE NAME OF THIS FUNCTION: getBuildNumber
-// The workflow action check-build-number will use this function to determine the build number
-// and will fail if the function is not present or does not return a number.
-// The build number is used to determine if a new build is required.
+// The effective build number is the sum of:
+// - ./build-number.json (bump for app-specific changes that need a new store build)
+// - packages/common/build-number.json (bump to trigger a new store build of ALL apps,
+//   e.g. after changing a native dependency in a shared package)
+// The CI action .github/actions/check-build-number reads the same JSON files and
+// triggers a store build when this sum is higher than the last successfully built
+// number (recorded as git tag last-built/<build-key>/<number>).
 export function getBuildNumber() {
-	return 199;
+	return appBuildNumberJson.buildNumber + commonBuildNumberJson.buildNumber;
 }
 
 export function getMajorVersion() {

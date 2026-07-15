@@ -1,65 +1,90 @@
 name: Check Build Number
-description: Checks if the build number in config.ts changed compared to a previous state
+description: >
+  Determines whether an app needs a new store build. The effective build number
+  (<working-directory>/build-number.json + packages/common/build-number.json) is
+  compared against the last successfully built number, which is recorded as the
+  git tag last-built/<build-key>/<number> by the record-build-number action.
+  This is independent of git history, so it stays reliable across multi-commit
+  pushes, CI report commits and fork synchronization. Requires the repository to
+  be checked out with credentials (default actions/checkout) and the job to have
+  "contents: write" permission (a baseline tag is pushed on first run).
 
 inputs:
   working-directory:
+    required: true
+    description: 'App directory containing build-number.json (e.g. apps/frontend/app)'
+  build-key:
+    required: true
+    description: 'Unique key for this build target (e.g. frontend-ios). Used in the last-built/<build-key>/<number> tag.'
+  common-build-number-file:
     required: false
-    description: 'Directory containing the config.ts with getBuildNumber()'
-    default: apps/frontend/app
-  previous-commit-sha:
-    required: false
-    description: 'Commit SHA to compare against (e.g. pre-sync state in forks). If empty, uses HEAD^ from git history.'
-    default: ''
+    description: 'Path to the shared build number JSON that is added to every app build number'
+    default: packages/common/build-number.json
+
+outputs:
+  changed:
+    description: 'true if the effective build number is greater than the last successfully built number'
+    value: ${{ steps.check.outputs.changed }}
+  build-number:
+    description: 'The effective build number (app + common)'
+    value: ${{ steps.check.outputs.build-number }}
 
 runs:
   using: "composite"
   steps:
-    # Full history needed when comparing against an older commit SHA (fork sync scenario)
-    - name: 🔄 Checkout repository (full history)
-      if: ${{ inputs.previous-commit-sha != '' }}
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    # Only last 2 commits needed for HEAD^ comparison (normal push scenario)
-    - name: 🔄 Checkout repository (last 2 commits)
-      if: ${{ inputs.previous-commit-sha == '' }}
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 2
-
-    - name: 🔍 Compare build number
+    - name: 🔍 Compare effective build number against last successful build
       id: check
+      shell: bash
       run: |
-        COMPARE_REF="${{ inputs.previous-commit-sha }}"
-        if [ -z "$COMPARE_REF" ]; then
-          COMPARE_REF="HEAD^"
-          echo "📦 Comparing against HEAD^ (git history)"
-        else
-          echo "📦 Comparing against commit $COMPARE_REF (sync-fork)"
-        fi
+        set -euo pipefail
 
-        old=$(git show ${COMPARE_REF}:${{ inputs.working-directory }}/config.ts | grep -A 5 'function getBuildNumber' | grep 'return' | grep -Eo '[0-9]+' | head -1 || echo "not-found")
-        new=$(cat ${{ inputs.working-directory }}/config.ts | grep -A 5 'function getBuildNumber' | grep 'return' | grep -Eo '[0-9]+' | head -1 || echo "not-found")
-        echo "📦 Old build number: $old"
-        echo "📦 New build number: $new"
+        APP_FILE="${{ inputs.working-directory }}/build-number.json"
+        COMMON_FILE="${{ inputs.common-build-number-file }}"
+        BUILD_KEY="${{ inputs.build-key }}"
+        TAG_PREFIX="last-built/${BUILD_KEY}/"
 
-        if [ "$old" = "not-found" ]; then
-          echo "⚠️ Old build number not found, skipping comparison"
-          echo "changed=skip" >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
+        for f in "$APP_FILE" "$COMMON_FILE"; do
+          if [ ! -f "$f" ]; then
+            echo "::error::Build number file not found: $f"
+            exit 1
+          fi
+        done
 
-        if [ "$old" != "$new" ]; then
-          echo "✅ Build number changed"
+        APP_NUMBER=$(jq -er '.buildNumber' "$APP_FILE")
+        COMMON_NUMBER=$(jq -er '.buildNumber' "$COMMON_FILE")
+        case "${APP_NUMBER}${COMMON_NUMBER}" in
+          *[!0-9]*)
+            echo "::error::buildNumber values must be non-negative integers (app='$APP_NUMBER', common='$COMMON_NUMBER')"
+            exit 1
+            ;;
+        esac
+
+        EFFECTIVE=$((APP_NUMBER + COMMON_NUMBER))
+        echo "📦 App build number:       $APP_NUMBER ($APP_FILE)"
+        echo "📦 Common build number:    $COMMON_NUMBER ($COMMON_FILE)"
+        echo "📦 Effective build number: $EFFECTIVE"
+
+        # Last successfully built number = highest last-built/<build-key>/<n> tag on origin.
+        LAST=$(git ls-remote --tags origin "refs/tags/${TAG_PREFIX}*" \
+          | sed -n "s#.*refs/tags/${TAG_PREFIX}##p" \
+          | { grep -E '^[0-9]+$' || true; } \
+          | sort -n | tail -1) || LAST=""
+
+        if [ -z "$LAST" ]; then
+          # No record yet: assume the current number was already built before this
+          # mechanism existed and record it as baseline WITHOUT building. The next
+          # bump then triggers a build. For a brand-new app or fork that was never
+          # built, bump the build number (or run the first build manually via EAS).
+          echo "ℹ️ No last-built tag found for '${BUILD_KEY}'. Recording baseline ${TAG_PREFIX}${EFFECTIVE} without building."
+          git tag -f "${TAG_PREFIX}${EFFECTIVE}"
+          git push origin "refs/tags/${TAG_PREFIX}${EFFECTIVE}"
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+        elif [ "$EFFECTIVE" -gt "$LAST" ]; then
+          echo "✅ Build number increased ($LAST -> $EFFECTIVE): build required"
           echo "changed=true" >> "$GITHUB_OUTPUT"
         else
-          echo "🚫 Build number unchanged"
+          echo "🚫 Build number unchanged (last built: $LAST, current: $EFFECTIVE): no build required"
           echo "changed=false" >> "$GITHUB_OUTPUT"
         fi
-      shell: bash
 
-outputs:
-  changed:
-    description: 'true if the build number changed'
-    value: ${{ steps.check.outputs.changed }}
+        echo "build-number=$EFFECTIVE" >> "$GITHUB_OUTPUT"

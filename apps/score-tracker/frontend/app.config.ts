@@ -7,6 +7,7 @@ require('ts-node').register({
 	compilerOptions: {
 		module: 'Node16',
 		moduleResolution: 'node16',
+		resolveJsonModule: true,
 	},
 });
 

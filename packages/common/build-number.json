@@ -1,0 +1,4 @@
+{
+	"_readme": "Shared build number for ALL apps. Bump this to trigger a new app-store build of every app, e.g. after changing a native dependency in a shared package (packages/common, packages/common-ui). Each app's effective build number is: <app>/build-number.json + this value. Never decrease it.",
+	"buildNumber": 0
+}

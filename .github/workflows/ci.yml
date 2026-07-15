@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       previous_commit_sha:
-        description: 'Commit SHA to compare build numbers against (from sync-fork: pre-sync state)'
+        description: 'DEPRECATED, no longer used. Build detection is based on last-built/* git tags. Kept so older sync-fork workflows can still trigger this workflow.'
         required: false
         default: ''
 
@@ -28,20 +28,10 @@ jobs:
         id: check
         uses: ./.github/actions/check-repository
 
-  check-build:
-    name: "🔍 Check Build Number"
-    runs-on: ubuntu-latest
-    needs: check-repository
-    outputs:
-      changed: ${{ steps.check.outputs.changed }}
-    steps:
-      - name: "🔄 Checkout Repository"
-        uses: actions/checkout@v4
-      - name: "🔍 Compare Build Number"
-        id: check
-        uses: ./.github/actions/check-build-number
-        with:
-          previous-commit-sha: ${{ github.event.inputs.previous_commit_sha }}
+  # Build detection: each build job checks its effective build number
+  # (apps/<app>/build-number.json + packages/common/build-number.json) against the
+  # last successfully built number, recorded as git tag last-built/<build-key>/<n>.
+  # See .github/actions/check-build-number and .github/actions/record-build-number.
 
 #  lint:
 #    name: "🎨 Prettier & ESLint"
@@ -244,7 +234,7 @@ jobs:
     name: "🔨 Directus Backend Build"
     runs-on: ubuntu-latest
 #    needs: sonarcloud-report
-    needs: [check-build, check-repository]
+    needs: [check-repository]
     steps:
       - name: "🏗 Setup repo"
         if: ${{ needs.check-repository.outputs.is-upstream == 'true' }}
@@ -262,7 +252,7 @@ jobs:
     name: "🏗 EAS Update Production"
     runs-on: ubuntu-latest
     #    needs: sonarcloud-report
-    needs: [check-build, check-repository]
+    needs: [check-repository]
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
@@ -281,103 +271,145 @@ jobs:
   build-android:
     name: "📦 Build & 🚀 Submit Android App"
     runs-on: ubuntu-latest
-#    needs: [sonarcloud-report, check-build]
-    needs: [check-build, check-repository]
-    if: needs.check-build.outputs.changed == 'true'
+    needs: [check-repository]
+    permissions:
+      contents: write
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
           ref: master
+      - name: "🔍 Check Build Number"
+        id: check
+        uses: ./.github/actions/check-build-number
+        with:
+          working-directory: apps/frontend/app
+          build-key: frontend-android
       - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        if: steps.check.outputs.changed == 'true'
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       - name: "🛠️ Build and Submit Android App"
+        if: steps.check.outputs.changed == 'true'
         run: eas build --platform android --non-interactive --profile production --auto-submit
         working-directory: ./apps/frontend/app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: "💾 Record Built Build Number"
+        if: steps.check.outputs.changed == 'true'
+        uses: ./.github/actions/record-build-number
+        with:
+          build-key: frontend-android
+          build-number: ${{ steps.check.outputs.build-number }}
 
   build-android-preview:
     name: "🧪 Build Android Preview APK"
     runs-on: ubuntu-latest
-#    needs: [sonarcloud-report, check-build]
-    needs: [check-build, check-repository]
-    if: needs.check-build.outputs.changed == 'true'
+    needs: [check-repository]
+    permissions:
+      contents: write
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
+      - name: "🔍 Check Build Number"
+        id: check
+        uses: ./.github/actions/check-build-number
+        with:
+          working-directory: apps/frontend/app
+          build-key: frontend-android-preview
       - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        if: steps.check.outputs.changed == 'true'
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       - name: "🧪 Build with previewApk profile"
+        if: steps.check.outputs.changed == 'true'
         run: eas build --platform android --non-interactive --profile previewApk
         working-directory: ./apps/frontend/app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: "💾 Record Built Build Number"
+        if: steps.check.outputs.changed == 'true'
+        uses: ./.github/actions/record-build-number
+        with:
+          build-key: frontend-android-preview
+          build-number: ${{ steps.check.outputs.build-number }}
 
   build-ios:
     name: "📦 Build & 🚀 Submit iOS App"
     runs-on: ubuntu-latest
-#    needs: [sonarcloud-report, check-build]
-    needs: [check-build, check-repository]
-    if: needs.check-build.outputs.changed == 'true'
+    needs: [check-repository]
+    permissions:
+      contents: write
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
           ref: master
+      - name: "🔍 Check Build Number"
+        id: check
+        uses: ./.github/actions/check-build-number
+        with:
+          working-directory: apps/frontend/app
+          build-key: frontend-ios
       - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        if: steps.check.outputs.changed == 'true'
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT: ${{ secrets.EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT }}
       - name: "🛠️ Build and Submit iOS App"
+        if: steps.check.outputs.changed == 'true'
         run: eas build --platform ios --non-interactive --auto-submit
         working-directory: ./apps/frontend/app
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-  geonexia-check-build:
-    name: "🔍 Geonexia Check Build Number"
-    runs-on: ubuntu-latest
-    needs: check-repository
-    outputs:
-      changed: ${{ steps.check.outputs.changed }}
-    steps:
-      - name: "🔄 Checkout Repository"
-        uses: actions/checkout@v4
-      - name: "🔍 Compare Geonexia Build Number"
-        id: check
-        uses: ./.github/actions/check-build-number
+      - name: "💾 Record Built Build Number"
+        if: steps.check.outputs.changed == 'true'
+        uses: ./.github/actions/record-build-number
         with:
-          working-directory: apps/geonexia/frontend
-          previous-commit-sha: ${{ github.event.inputs.previous_commit_sha }}
+          build-key: frontend-ios
+          build-number: ${{ steps.check.outputs.build-number }}
 
   geonexia-build-ios:
     name: "📦 Geonexia Build & 🚀 Submit iOS App"
     runs-on: ubuntu-latest
-    needs: [geonexia-check-build, check-repository]
-    if: needs.geonexia-check-build.outputs.changed == 'true' && needs.check-repository.outputs.is-upstream == 'true'
+    needs: [check-repository]
+    if: needs.check-repository.outputs.is-upstream == 'true'
+    permissions:
+      contents: write
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
           ref: master
+      - name: "🔍 Check Build Number"
+        id: check
+        uses: ./.github/actions/check-build-number
+        with:
+          working-directory: apps/geonexia/frontend
+          build-key: geonexia-ios
       - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        if: steps.check.outputs.changed == 'true'
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT: ${{ secrets.EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT }}
       - name: "🛠️ Build and Submit Geonexia iOS App"
+        if: steps.check.outputs.changed == 'true'
         run: eas build --platform ios --non-interactive --auto-submit
         working-directory: ./apps/geonexia/frontend
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: "💾 Record Built Build Number"
+        if: steps.check.outputs.changed == 'true'
+        uses: ./.github/actions/record-build-number
+        with:
+          build-key: geonexia-ios
+          build-number: ${{ steps.check.outputs.build-number }}
 
   geonexia-expo-update:
     name: "🌍 Geonexia EAS Update (OTA)"
@@ -398,42 +430,42 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ref_name: ${{ github.ref_name }}
 
-  score-tracker-check-build:
-    name: "🔍 Score Tracker Check Build Number"
-    runs-on: ubuntu-latest
-    needs: check-repository
-    outputs:
-      changed: ${{ steps.check.outputs.changed }}
-    steps:
-      - name: "🔄 Checkout Repository"
-        uses: actions/checkout@v4
-      - name: "🔍 Compare Score Tracker Build Number"
-        id: check
-        uses: ./.github/actions/check-build-number
-        with:
-          working-directory: apps/score-tracker/frontend
-          previous-commit-sha: ${{ github.event.inputs.previous_commit_sha }}
-
   score-tracker-build-ios:
     name: "📦 Score Tracker Build & 🚀 Submit iOS App"
     runs-on: ubuntu-latest
-    needs: [score-tracker-check-build, check-repository]
-    if: needs.score-tracker-check-build.outputs.changed == 'true' && needs.check-repository.outputs.is-upstream == 'true'
+    needs: [check-repository]
+    if: needs.check-repository.outputs.is-upstream == 'true'
+    permissions:
+      contents: write
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
         with:
           ref: master
+      - name: "🔍 Check Build Number"
+        id: check
+        uses: ./.github/actions/check-build-number
+        with:
+          working-directory: apps/score-tracker/frontend
+          build-key: score-tracker-ios
       - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        if: steps.check.outputs.changed == 'true'
         uses: ./.github/actions/setup-and-install
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT: ${{ secrets.EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT }}
       - name: "🛠️ Build and Submit Score Tracker iOS App"
+        if: steps.check.outputs.changed == 'true'
         run: eas build --platform ios --non-interactive --auto-submit
         working-directory: ./apps/score-tracker/frontend
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: "💾 Record Built Build Number"
+        if: steps.check.outputs.changed == 'true'
+        uses: ./.github/actions/record-build-number
+        with:
+          build-key: score-tracker-ios
+          build-number: ${{ steps.check.outputs.build-number }}
 
   score-tracker-expo-update:
     name: "🎯 Score Tracker EAS Update (OTA)"
@@ -458,7 +490,7 @@ jobs:
     name: "🌍 Deploy to GitHub Pages"
     runs-on: ubuntu-latest
 #    needs: sonarcloud-report
-    needs: [check-build, check-repository]
+    needs: [check-repository]
     if: github.ref_name == 'master'
     steps:
       - name: "🔄 Checkout Repository"

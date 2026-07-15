@@ -1,0 +1,48 @@
+name: Record Built Build Number
+description: >
+  Records a successful store build by pushing the git tag
+  last-built/<build-key>/<build-number>. The check-build-number action compares
+  against this tag, so it MUST only run after the build (and submit) succeeded.
+  Requires the repository to be checked out with credentials (default
+  actions/checkout) and the job to have "contents: write" permission.
+
+inputs:
+  build-key:
+    required: true
+    description: 'Unique key for this build target (e.g. frontend-ios). Must match the key used in check-build-number.'
+  build-number:
+    required: true
+    description: 'The effective build number that was just built (output build-number of check-build-number)'
+
+runs:
+  using: "composite"
+  steps:
+    - name: 💾 Record successful build as git tag
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        BUILD_KEY="${{ inputs.build-key }}"
+        BUILD_NUMBER="${{ inputs.build-number }}"
+        TAG_PREFIX="last-built/${BUILD_KEY}/"
+        TAG="${TAG_PREFIX}${BUILD_NUMBER}"
+
+        if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+          echo "ℹ️ Tag ${TAG} already exists on origin"
+        else
+          git tag -f "$TAG"
+          git push origin "refs/tags/${TAG}"
+          echo "✅ Recorded successful build: ${TAG}"
+        fi
+
+        # Best effort: prune older last-built tags of this build key to keep the
+        # tag list small. Failures here must not fail the build.
+        OLD_TAGS=$(git ls-remote --tags origin "refs/tags/${TAG_PREFIX}*" \
+          | sed -n "s#.*refs/tags/${TAG_PREFIX}##p" \
+          | { grep -E '^[0-9]+$' || true; }) || OLD_TAGS=""
+        for n in $OLD_TAGS; do
+          if [ "$n" -lt "$BUILD_NUMBER" ]; then
+            echo "🧹 Pruning outdated tag ${TAG_PREFIX}${n}"
+            git push origin ":refs/tags/${TAG_PREFIX}${n}" || true
+          fi
+        done

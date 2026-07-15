@@ -1,0 +1,4 @@
+{
+	"_readme": "App-specific build number. The effective build number is this value + packages/common/build-number.json. Bump it to trigger a new app-store build of this app only. Never decrease it.",
+	"buildNumber": 17
+}

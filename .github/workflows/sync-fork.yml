@@ -78,10 +78,11 @@ jobs:
           GH_TOKEN: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
         run: |
           echo "🚀 Triggering Combined CI workflow after successful sync..."
+          # No previous_commit_sha needed anymore: build detection in ci.yml is
+          # based on last-built/* git tags and independent of git history.
           gh workflow run ci.yml \
             --repo "${{ steps.check-repo.outputs.repository-name }}" \
-            --ref master \
-            -f previous_commit_sha="${{ steps.check-updates.outputs.local-commit }}"
+            --ref master
           echo "✅ Combined CI workflow triggered!"
 
       - name: ⏭️ Skip Fork Sync - No Updates
