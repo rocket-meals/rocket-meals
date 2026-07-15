@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { SettingsListAvatar, useTheme } from 'repo-depkit-common-ui';
+import { SettingsList, SettingsListAvatar, useTheme } from 'repo-depkit-common-ui';
 import { useDispatch, useSelector } from 'react-redux';
 import { router, useNavigation } from 'expo-router';
 import { addFriend } from '../../store/friendsSlice';
@@ -76,12 +76,21 @@ export default function PlayersScreen() {
 			<ScrollView
 				contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 32 }]}
 			>
+				<SettingsList
+					nativeID={ComponentIds.PLAYERS_SCREEN_ADD_BUTTON_LIST}
+					label="Neuen Freund hinzufügen"
+					leftIcon={<Ionicons name="person-add-outline" size={20} color="#ffffff" />}
+					iconBgColor={PRIMARY_COLOR}
+					handleFunction={handleAddFriend}
+					groupPosition="single"
+				/>
+				<View style={styles.addButtonSpacer} />
 				{friends.length === 0 ? (
 					<View style={styles.emptyContainer}>
 						<Ionicons name="people-outline" size={64} color={theme.screen.icon} />
 						<Text style={[styles.emptyText, { color: theme.screen.text }]}>Noch keine Freunde</Text>
 						<Text style={[styles.emptySubtext, { color: theme.screen.placeholder }]}>
-							Füge einen Freund über den + Button im Header hinzu
+							Füge oben deinen ersten Freund hinzu
 						</Text>
 					</View>
 				) : filteredFriends.length === 0 ? (
@@ -135,6 +144,9 @@ const styles = StyleSheet.create({
 	},
 	listContent: {
 		padding: 12,
+	},
+	addButtonSpacer: {
+		height: 12,
 	},
 	emptyContainer: {
 		flex: 1,

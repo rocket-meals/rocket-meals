@@ -9,4 +9,7 @@
 export enum CommonUiComponentIds {
 	// Modal
 	MODAL_CLOSE_BUTTON = 'modal-close-button',
+
+	// Avatar editor
+	AVATAR_EDITOR_PHOTO_IMPORT_BUTTON = 'avatar-editor-photo-import-button',
 }

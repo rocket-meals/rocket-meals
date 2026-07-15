@@ -97,8 +97,9 @@
  *   own BottomSheetScrollView — that is fine.
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import * as ImagePicker from 'expo-image-picker';
 import MyAvatar, { AvatarStyle, AvatarSize, STYLE_MAP, AvatarConfig, AvatarAppearanceProps, getStyleProbabilityKeys } from '../MyAvatar';
 import { Style } from '@dicebear/core';
 import { useMyScrollViewModal } from '../GlobalModal/useMyScrollViewModal';
@@ -106,6 +107,7 @@ import SettingsListGroupTitle from '../SettingsListGroupTitle';
 import SettingsList from '../SettingsList';
 import SettingsListLeftRight, { type SettingsListLeftRightItem } from '../SettingsListLeftRight/SettingsListLeftRight';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { CommonUiComponentIds } from '../../constants/ComponentIds';
 import { HAIR_COLORS, MICAH_HAIR_COLORS, SKIN_COLORS, PRESET_COLORS } from '../MyColorPicker';
 import MyCustomColorPicker from '../MyCustomColorPicker';
 import { myContrastColor } from '../../helpers/ColorHelper';
@@ -645,7 +647,99 @@ type AvatarEditorBehaviorProps = {
 	hiddenProps?: Record<string, string>;
 	/** Translation function for localising section headers, buttons, and category labels. */
 	translate?: (key: string) => string;
+	/**
+	 * Experimental: shows a "Create from Photo" action (avataaars style only) that lets the
+	 * user pick a photo and derives a matching skinColor/hairColor from it. Off by default -
+	 * opt in per caller. All analysis happens on-device (see `analyzePhotoForAvataaars`
+	 * below); the photo is never uploaded anywhere.
+	 */
+	enablePhotoImport?: boolean;
 };
+
+/**
+ * Converts a (optionally '#'-prefixed) hex color string to an RGB triple.
+ */
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+	const clean = stripHashPrefix(hex);
+	return {
+		r: parseInt(clean.substring(0, 2), 16),
+		g: parseInt(clean.substring(2, 4), 16),
+		b: parseInt(clean.substring(4, 6), 16),
+	};
+}
+
+/**
+ * Finds the closest color in `palette` to `rgb` by squared Euclidean distance in RGB space.
+ * Returns the match without a leading '#', ready to store in an avatar config option.
+ */
+function nearestPaletteColor(rgb: { r: number; g: number; b: number }, palette: string[]): string {
+	let closest = palette[0];
+	let closestDistance = Infinity;
+	for (const color of palette) {
+		const candidate = hexToRgb(color);
+		const distance =
+			(candidate.r - rgb.r) ** 2 + (candidate.g - rgb.g) ** 2 + (candidate.b - rgb.b) ** 2;
+		if (distance < closestDistance) {
+			closestDistance = distance;
+			closest = color;
+		}
+	}
+	return stripHashPrefix(closest);
+}
+
+/**
+ * EXPERIMENTAL - derives a skinColor/hairColor pair from a user photo by averaging pixel
+ * regions in an off-screen <canvas>. This is a lightweight heuristic (no ML model, no face
+ * detection): it samples a top-center strip for hair and a center box for skin, then snaps
+ * each average color to the nearest swatch in the app's existing avataaars palettes.
+ *
+ * Runs entirely client-side via the browser Canvas API - the photo is decoded and read
+ * locally and is never uploaded or sent over the network. React Native has no built-in
+ * pixel-read API without an extra native module, so for now this only runs on web; on
+ * native platforms the caller should show an explanatory message instead of invoking this.
+ */
+async function analyzePhotoForAvataaars(uri: string): Promise<{ skinColor: string; hairColor: string } | null> {
+	if (Platform.OS !== 'web' || typeof document === 'undefined') return null;
+
+	const image: HTMLImageElement = await new Promise((resolve, reject) => {
+		const img = new (window as any).Image();
+		img.crossOrigin = 'anonymous';
+		img.onload = () => resolve(img);
+		img.onerror = () => reject(new Error('Failed to load image'));
+		img.src = uri;
+	});
+
+	const size = 100;
+	const canvas = document.createElement('canvas');
+	canvas.width = size;
+	canvas.height = size;
+	const ctx = canvas.getContext('2d', { willReadFrequently: true });
+	if (!ctx) return null;
+	ctx.drawImage(image, 0, 0, size, size);
+
+	const sampleRegionAverage = (x0: number, y0: number, x1: number, y1: number) => {
+		const { data } = ctx.getImageData(x0, y0, x1 - x0, y1 - y0);
+		let r = 0, g = 0, b = 0, count = 0;
+		for (let i = 0; i < data.length; i += 4) {
+			r += data[i];
+			g += data[i + 1];
+			b += data[i + 2];
+			count++;
+		}
+		return count > 0 ? { r: r / count, g: g / count, b: b / count } : null;
+	};
+
+	// Hair region: a strip near the top-center, above where a centered face portrait
+	// typically starts. Skin region: a box in the middle of the frame (forehead/cheek area).
+	const hairRegion = sampleRegionAverage(size * 0.3, size * 0.02, size * 0.7, size * 0.18);
+	const skinRegion = sampleRegionAverage(size * 0.35, size * 0.4, size * 0.65, size * 0.6);
+	if (!hairRegion || !skinRegion) return null;
+
+	return {
+		skinColor: nearestPaletteColor(skinRegion, SKIN_COLORS),
+		hairColor: nearestPaletteColor(hairRegion, HAIR_COLORS),
+	};
+}
 
 type AvatarEditorModalContentProps = AvatarPreviewAppearanceProps &
 	AvatarEditorBehaviorProps & {
@@ -1049,8 +1143,10 @@ const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
 	rounded,
 	backgroundColor,
 	translate,
+	enablePhotoImport,
 }) => {
 	const [config, setConfig] = useState<AvatarConfig>(configRef.current);
+	const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
 	const { show: showCategoryModal, close: closeCategoryModal } = useMyScrollViewModal();
 	const { theme, isDark } = useTheme();
 
@@ -1091,6 +1187,54 @@ const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
 		configObservable.set(withHidden);
 		// Do NOT call onChange here – this is a reset, not a user modification.
 		onReset?.();
+	};
+
+	/** EXPERIMENTAL - see `analyzePhotoForAvataaars` above for what this does and does not do. */
+	const handleImportFromPhoto = async () => {
+		if (Platform.OS !== 'web') {
+			Alert.alert(
+				translate ? translate('avatar_photo_import_title') : 'Create from Photo',
+				translate
+					? translate('avatar_photo_import_web_only')
+					: 'This experimental feature is currently only available in the web version.',
+			);
+			return;
+		}
+		const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+		if (!permission.granted) return;
+		const result = await ImagePicker.launchImageLibraryAsync({
+			mediaTypes: ['images'],
+			quality: 1,
+		});
+		if (result.canceled || !result.assets?.[0]?.uri) return;
+
+		setIsAnalyzingPhoto(true);
+		try {
+			const analyzed = await analyzePhotoForAvataaars(result.assets[0].uri);
+			if (!analyzed) {
+				Alert.alert(
+					translate ? translate('avatar_photo_import_title') : 'Create from Photo',
+					translate ? translate('avatar_photo_import_failed') : 'Could not analyze this photo.',
+				);
+				return;
+			}
+			handleChange({
+				...config,
+				options: {
+					...(config.options ?? {}),
+					skinColor: [analyzed.skinColor],
+					hairColor: [analyzed.hairColor],
+				},
+			});
+			Alert.alert(
+				translate ? translate('avatar_photo_import_title') : 'Create from Photo',
+				translate
+					? translate('avatar_photo_import_success')
+					: 'Applied! Skin tone and hair color were derived from your photo. The analysis happened entirely on your device – the photo was never uploaded.',
+			);
+		} finally {
+			setIsAnalyzingPhoto(false);
+		}
 	};
 
 	const componentOptions = useMemo(() => getStyleComponentOptions(config.style), [config.style]);
@@ -1428,6 +1572,33 @@ const AvatarEditorModalContent: React.FC<AvatarEditorModalContentProps> = ({
 				iconBgColor={accentColor}
 				groupPosition="single"
 			/>
+
+			{enablePhotoImport && config.style === AvatarStyle.AVATAAARS && (
+				<>
+					<SettingsListGroupTitle
+						title={translate ? translate('avatar_section_experimental') : 'Experimental'}
+					/>
+					<SettingsList
+						nativeID={CommonUiComponentIds.AVATAR_EDITOR_PHOTO_IMPORT_BUTTON}
+						title={translate ? translate('avatar_photo_import') : 'Create from Photo (Beta)'}
+						value={
+							translate
+								? translate('avatar_photo_import_hint')
+								: 'Suggest a matching skin tone & hair color from a photo – analysis stays on this device'
+						}
+						onPress={isAnalyzingPhoto ? undefined : handleImportFromPhoto}
+						leftIcon={
+							isAnalyzingPhoto ? (
+								<ActivityIndicator size="small" color={accentColor ?? theme.screen.text} />
+							) : (
+								<MaterialCommunityIcons name="face-recognition" size={20} />
+							)
+						}
+						iconBgColor={accentColor}
+						groupPosition="single"
+					/>
+				</>
+			)}
 
 			{debugMode && (
 				<View style={styles.debugSection}>
@@ -2370,6 +2541,7 @@ const AvatarEditorUnifiedContent: React.FC<AvatarEditorUnifiedContentProps> = ({
 	rounded,
 	backgroundColor,
 	translate,
+	enablePhotoImport,
 }) => {
 	const [mode, setMode] = useState<Mode>(modeObservable.get());
 
@@ -2426,6 +2598,7 @@ const AvatarEditorUnifiedContent: React.FC<AvatarEditorUnifiedContentProps> = ({
 			rounded={rounded}
 			backgroundColor={backgroundColor}
 			translate={translate}
+			enablePhotoImport={enablePhotoImport}
 		/>
 	);
 };
@@ -2701,6 +2874,7 @@ export const useAvatarEditorModal = () => {
 						rounded={options?.rounded}
 						backgroundColor={options?.backgroundColor}
 						translate={options?.translate}
+						enablePhotoImport={options?.enablePhotoImport}
 					/>
 				),
 			});

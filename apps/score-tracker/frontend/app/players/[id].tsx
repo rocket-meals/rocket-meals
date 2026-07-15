@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -13,7 +13,7 @@ import {
 	AvatarStyle,
 } from 'repo-depkit-common-ui';
 import { useDispatch, useSelector } from 'react-redux';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { renameFriend, setFriendColor, setFriendAvatar, removeFriend } from '../../store/friendsSlice';
 import type { AppDispatch, RootState } from '../../store/store';
 import { PLAYER_COLORS } from '../../helpers/GameStorage';
@@ -33,6 +33,26 @@ export default function PlayerDetailScreen() {
 	const friend = useSelector((state: RootState) => state.friends.friends.find((f) => f.id === id));
 	const historyEntries = useSelector((state: RootState) => state.gameHistory.entries);
 	const { show: showColorModal, close: closeColorModal } = useMyScrollViewModal();
+	const navigation = useNavigation();
+
+	// This screen is a top-level Drawer.Screen (see app/_layout.tsx), so by default its
+	// header shows the hamburger/drawer-toggle icon instead of a back arrow. Override it
+	// with an explicit back button so users can return to the Players list without having
+	// to open the side menu.
+	React.useLayoutEffect(() => {
+		navigation.setOptions({
+			headerLeft: () => (
+				<TouchableOpacity
+					nativeID={ComponentIds.PLAYER_DETAIL_BACK_BUTTON}
+					onPress={() => router.navigate('/players')}
+					style={styles.headerButton}
+					hitSlop={8}
+				>
+					<Ionicons name="arrow-back" size={22} color={theme.header.text} />
+				</TouchableOpacity>
+			),
+		});
+	}, [navigation, theme.header.text]);
 
 	const friendGames = useMemo(() => {
 		if (!friend) return [];
@@ -102,7 +122,7 @@ export default function PlayerDetailScreen() {
 					previewSize={72}
 					avatarBackgroundColor={friend.color}
 					groupPosition="top"
-					editorOptions={{ title: 'Avatar', allowedStyles: [AvatarStyle.AVATAAARS] }}
+					editorOptions={{ title: 'Avatar', allowedStyles: [AvatarStyle.AVATAAARS], enablePhotoImport: true }}
 				/>
 				<SettingsListTextInput
 					label="Name"
@@ -155,6 +175,10 @@ export default function PlayerDetailScreen() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+	},
+	headerButton: {
+		padding: 4,
+		marginLeft: 8,
 	},
 	listContent: {
 		padding: 12,
