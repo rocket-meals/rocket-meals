@@ -5237,18 +5237,37 @@
       // Speed range from the last routeSpeedRange message (min/Q1/Q3/max in km/h).
       var routeSpeedMin = 0, routeSpeedQ1 = 0, routeSpeedQ3 = 0, routeSpeedMax = 0;
 
-      // Speed color zones: below Q1 → red (#ef4444), Q1..Q3 (middle 50%) → green
-      // (#22c55e), above Q3 → blue (#3b82f6). Flat zones, no interpolation, so the
-      // color directly reflects which quartile a segment's speed falls into.
+      // Speed color: below Q1 gradient-interpolates red (#ef4444) → green (#22c55e),
+      // Q1..Q3 (middle 50%) is flat green, above Q3 gradient-interpolates green →
+      // blue (#3b82f6). Same scheme as the whiskers/box of the speed boxplot shown
+      // on the activity detail screen - continuous, so there are no hard color jumps.
+      function mixRgb(a, b, t) {
+        return [
+          Math.round(a[0] + (b[0] - a[0]) * t),
+          Math.round(a[1] + (b[1] - a[1]) * t),
+          Math.round(a[2] + (b[2] - a[2]) * t),
+        ];
+      }
+      var SPEED_COLOR_RED   = [0xef, 0x44, 0x44];
+      var SPEED_COLOR_GREEN = [0x22, 0xc5, 0x5e];
+      var SPEED_COLOR_BLUE  = [0x3b, 0x82, 0xf6];
       function speedToColor(speedKmh) {
         var minS = routeSpeedMin, q1S = routeSpeedQ1, q3S = routeSpeedQ3, maxS = routeSpeedMax;
         if (maxS <= minS || q3S <= q1S) {
           // No useful spread – treat everything as "typical" speed
           return 'rgb(34,197,94)';
         }
-        if (speedKmh <= q1S) return 'rgb(239,68,68)';
-        if (speedKmh >= q3S) return 'rgb(59,130,246)';
-        return 'rgb(34,197,94)';
+        var rgb;
+        if (speedKmh <= q1S) {
+          var t1 = (q1S > minS) ? Math.max(0, Math.min(1, (speedKmh - minS) / (q1S - minS))) : 1;
+          rgb = mixRgb(SPEED_COLOR_RED, SPEED_COLOR_GREEN, t1);
+        } else if (speedKmh >= q3S) {
+          var t2 = (maxS > q3S) ? Math.max(0, Math.min(1, (speedKmh - q3S) / (maxS - q3S))) : 1;
+          rgb = mixRgb(SPEED_COLOR_GREEN, SPEED_COLOR_BLUE, t2);
+        } else {
+          rgb = SPEED_COLOR_GREEN;
+        }
+        return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ')';
       }
 
       function updateRouteSegmentsLayer(segments) {
