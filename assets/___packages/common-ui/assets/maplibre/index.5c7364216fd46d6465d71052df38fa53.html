@@ -5353,6 +5353,35 @@
           });
         }
       }
+
+      // ─── Selected hex tiles (test-case export tooling) ─────────────────────────
+      var SELECTED_HEX_SOURCE = 'selected-hex-source';
+      var SELECTED_HEX_FILL   = 'selected-hex-fill-layer';
+      var SELECTED_HEX_STROKE = 'selected-hex-stroke-layer';
+
+      function updateSelectedHexTilesLayer(geojson) {
+        if (!map) return;
+        var data = geojson || { type: 'FeatureCollection', features: [] };
+
+        if (map.getSource(SELECTED_HEX_SOURCE)) {
+          map.getSource(SELECTED_HEX_SOURCE).setData(data);
+        } else {
+          map.addSource(SELECTED_HEX_SOURCE, { type: 'geojson', data: data });
+          map.addLayer({
+            id: SELECTED_HEX_FILL,
+            type: 'fill',
+            source: SELECTED_HEX_SOURCE,
+            paint: { 'fill-color': '#06b6d4', 'fill-opacity': 0.35 },
+          });
+          map.addLayer({
+            id: SELECTED_HEX_STROKE,
+            type: 'line',
+            source: SELECTED_HEX_SOURCE,
+            layout: { 'line-join': 'round' },
+            paint: { 'line-color': '#0891b2', 'line-width': 3, 'line-opacity': 0.9 },
+          });
+        }
+      }
       // ─────────────────────────────────────────────────────────────────────────────
 
       // ─── Route start point circle ─────────────────────────────────────────────────
@@ -5825,6 +5854,10 @@
 
         if (data.matchedRoadCoordinates !== undefined) {
           updateMatchedRoadLayer(data.matchedRoadCoordinates);
+        }
+
+        if (data.selectedHexTilesGeoJson !== undefined) {
+          updateSelectedHexTilesLayer(data.selectedHexTilesGeoJson);
         }
 
         if (data.userLocation !== undefined) {
