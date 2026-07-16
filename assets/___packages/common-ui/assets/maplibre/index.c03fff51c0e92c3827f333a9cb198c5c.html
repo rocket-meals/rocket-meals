@@ -5315,6 +5315,46 @@
       }
       // ─────────────────────────────────────────────────────────────────────────────
 
+      // ─── Road-matched route (activity detail view, "Auf Straße/Weg ausrichten") ────
+      // Coords are the raw GPS points snapped onto the real road/path network on the
+      // JS side (see RoadMatchHelper.ts) - here we just draw the resulting line in
+      // yellow, like a navigation app's route.
+      var ROAD_MATCH_SOURCE = 'road-match-source';
+      var ROAD_MATCH_BORDER = 'road-match-border-layer';
+      var ROAD_MATCH_COLOR  = 'road-match-color-layer';
+
+      function updateMatchedRoadLayer(coords) {
+        if (!map) return;
+        var hasCoords = coords && coords.length > 1;
+        var geojson = {
+          type: 'FeatureCollection',
+          features: hasCoords
+            ? [{ type: 'Feature', geometry: { type: 'LineString', coordinates: coords }, properties: {} }]
+            : [],
+        };
+
+        if (map.getSource(ROAD_MATCH_SOURCE)) {
+          map.getSource(ROAD_MATCH_SOURCE).setData(geojson);
+        } else {
+          map.addSource(ROAD_MATCH_SOURCE, { type: 'geojson', data: geojson });
+          map.addLayer({
+            id: ROAD_MATCH_BORDER,
+            type: 'line',
+            source: ROAD_MATCH_SOURCE,
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#78350f', 'line-width': ROUTE_LINE_BORDER_WIDTH_EXPR, 'line-opacity': 0.6 },
+          });
+          map.addLayer({
+            id: ROAD_MATCH_COLOR,
+            type: 'line',
+            source: ROAD_MATCH_SOURCE,
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#eab308', 'line-width': ROUTE_LINE_WIDTH_EXPR, 'line-opacity': 0.95 },
+          });
+        }
+      }
+      // ─────────────────────────────────────────────────────────────────────────────
+
       // ─── Route start point circle ─────────────────────────────────────────────────
       var ROUTE_START_SOURCE = 'route-start-source';
       var ROUTE_START_LAYER  = 'route-start-layer';
@@ -5781,6 +5821,10 @@
 
         if (data.debugGpsPoints !== undefined) {
           updateDebugGpsPointsLayer(data.debugGpsPoints);
+        }
+
+        if (data.matchedRoadCoordinates !== undefined) {
+          updateMatchedRoadLayer(data.matchedRoadCoordinates);
         }
 
         if (data.userLocation !== undefined) {
