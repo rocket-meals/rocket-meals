@@ -5229,18 +5229,19 @@
       // ─── Speed-colored route segments (activity detail view) ──────────────────
       // Each segment is { coords: [[lng,lat],[lng,lat]], speedKmh: number }.
       // Colors match the speed boxplot shown on the activity detail screen:
-      // below Q1 → red, the middle 50% (Q1..Q3) → green, above Q3 → blue.
+      // below median-band → red, within median±band → green, above median+band → blue.
       var ROUTE_SEG_SOURCE  = 'route-seg-source';
       var ROUTE_SEG_BORDER  = 'route-seg-border-layer';
       var ROUTE_SEG_COLOR   = 'route-seg-color-layer';
       var routeSegmentsData = null;
-      // Speed range from the last routeSpeedRange message (min/Q1/Q3/max in km/h).
-      var routeSpeedMin = 0, routeSpeedQ1 = 0, routeSpeedQ3 = 0, routeSpeedMax = 0;
+      // Speed range from the last routeSpeedRange message (min/median/band/max in km/h).
+      var routeSpeedMin = 0, routeSpeedMedian = 0, routeSpeedBand = 1, routeSpeedMax = 0;
 
-      // Speed color: below Q1 gradient-interpolates red (#ef4444) → green (#22c55e),
-      // Q1..Q3 (middle 50%) is flat green, above Q3 gradient-interpolates green →
-      // blue (#3b82f6). Same scheme as the whiskers/box of the speed boxplot shown
-      // on the activity detail screen - continuous, so there are no hard color jumps.
+      // Speed color: below (median-band) gradient-interpolates red (#ef4444) →
+      // green (#22c55e), within median±band is flat green, above (median+band)
+      // gradient-interpolates green → blue (#3b82f6). Same scheme as the
+      // whiskers/box of the speed boxplot shown on the activity detail screen -
+      // continuous, so there are no hard color jumps.
       function mixRgb(a, b, t) {
         return [
           Math.round(a[0] + (b[0] - a[0]) * t),
@@ -5252,17 +5253,19 @@
       var SPEED_COLOR_GREEN = [0x22, 0xc5, 0x5e];
       var SPEED_COLOR_BLUE  = [0x3b, 0x82, 0xf6];
       function speedToColor(speedKmh) {
-        var minS = routeSpeedMin, q1S = routeSpeedQ1, q3S = routeSpeedQ3, maxS = routeSpeedMax;
-        if (maxS <= minS || q3S <= q1S) {
+        var minS = routeSpeedMin, maxS = routeSpeedMax;
+        var greenLow = Math.max(minS, routeSpeedMedian - routeSpeedBand);
+        var greenHigh = Math.min(maxS, routeSpeedMedian + routeSpeedBand);
+        if (maxS <= minS || greenHigh <= greenLow) {
           // No useful spread – treat everything as "typical" speed
           return 'rgb(34,197,94)';
         }
         var rgb;
-        if (speedKmh <= q1S) {
-          var t1 = (q1S > minS) ? Math.max(0, Math.min(1, (speedKmh - minS) / (q1S - minS))) : 1;
+        if (speedKmh <= greenLow) {
+          var t1 = (greenLow > minS) ? Math.max(0, Math.min(1, (speedKmh - minS) / (greenLow - minS))) : 1;
           rgb = mixRgb(SPEED_COLOR_RED, SPEED_COLOR_GREEN, t1);
-        } else if (speedKmh >= q3S) {
-          var t2 = (maxS > q3S) ? Math.max(0, Math.min(1, (speedKmh - q3S) / (maxS - q3S))) : 1;
+        } else if (speedKmh >= greenHigh) {
+          var t2 = (maxS > greenHigh) ? Math.max(0, Math.min(1, (speedKmh - greenHigh) / (maxS - greenHigh))) : 1;
           rgb = mixRgb(SPEED_COLOR_GREEN, SPEED_COLOR_BLUE, t2);
         } else {
           rgb = SPEED_COLOR_GREEN;
@@ -5837,8 +5840,8 @@
           var sr = data.routeSpeedRange;
           routeSpeedMin = (sr && sr.min != null) ? sr.min : 0;
           routeSpeedMax = (sr && sr.max != null) ? sr.max : 0;
-          routeSpeedQ1 = (sr && sr.q1 != null) ? sr.q1 : routeSpeedMin;
-          routeSpeedQ3 = (sr && sr.q3 != null) ? sr.q3 : routeSpeedMax;
+          routeSpeedMedian = (sr && sr.median != null) ? sr.median : (routeSpeedMin + routeSpeedMax) / 2;
+          routeSpeedBand = (sr && sr.band != null) ? sr.band : 1;
         }
         if (data.routeSegments !== undefined) {
           updateRouteSegmentsLayer(data.routeSegments);
