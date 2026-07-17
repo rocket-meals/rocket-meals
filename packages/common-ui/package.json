@@ -21,6 +21,20 @@
     "react-native-svg": "*",
     "react-native-webview": "*"
   },
+  "peerDependenciesMeta": {
+    "expo-asset": {
+      "optional": true
+    },
+    "expo-location": {
+      "optional": true
+    },
+    "react-native-qrcode-svg": {
+      "optional": true
+    },
+    "react-native-webview": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
