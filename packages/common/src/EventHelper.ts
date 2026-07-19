@@ -27,8 +27,8 @@ export const isPopupEventActive = (
 const VERSION_CONSTRAINT_REGEX = /^(<=|>=|<|>|=)?\s*(\d+(?:\.\d+)*)$/;
 
 export const compareAppVersions = (a: string, b: string): number => {
-  const partsA = a.split('.').map((part) => parseInt(part, 10) || 0);
-  const partsB = b.split('.').map((part) => parseInt(part, 10) || 0);
+  const partsA = a.split('.').map((part) => Number.parseInt(part, 10) || 0);
+  const partsB = b.split('.').map((part) => Number.parseInt(part, 10) || 0);
   const length = Math.max(partsA.length, partsB.length);
 
   for (let i = 0; i < length; i++) {

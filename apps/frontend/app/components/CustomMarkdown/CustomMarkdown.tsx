@@ -15,13 +15,16 @@ const CustomMarkdown: React.FC<CustomMarkdownProps> = ({ content, backgroundColo
 	const { primaryColor, selectedTheme: mode } = useAppSelector((state) => state.settings);
 
 	const getContent = () => {
-		// Regex patterns for different content types
+		// Regex patterns for different content types.
+		// The character classes exclude the opening bracket/parenthesis as well, so the
+		// patterns are unambiguous and run in linear time (SonarCloud S5852: no
+		// catastrophic backtracking).
 		const contentPatterns = {
-			email: /\[([^\]]+)]\((mailto:[^\)]+)\)/,
-			location: /\[([^\]]+)]\(((?:geo|maps):[^\)]+)\)/i,
-			link: /\[([^\]]+)]\((https?:\/\/[^\)]+)\)/,
+			email: /\[([^[\]]+)]\((mailto:[^()]+)\)/,
+			location: /\[([^[\]]+)]\(((?:geo|maps):[^()]+)\)/i,
+			link: /\[([^[\]]+)]\((https?:\/\/[^()]+)\)/,
 			image: /!\[([^\]]*)]\(([^)]+)\)/,
-			heading: /^#{1,3}\s*(.*)$/,
+			heading: /^#{1,3}[ \t]*(\S.*)?$/,
 		};
 
 		if (content) {
@@ -59,7 +62,7 @@ const CustomMarkdown: React.FC<CustomMarkdownProps> = ({ content, backgroundColo
 						flushTextContent();
 
 						const level = headingMatch[0].match(/#/g)?.length || 1;
-						const headerText = headingMatch[1].trim();
+						const headerText = (headingMatch[1] ?? '').trim();
 
 						if (level === 1) {
 							while (stack.length > 1) {

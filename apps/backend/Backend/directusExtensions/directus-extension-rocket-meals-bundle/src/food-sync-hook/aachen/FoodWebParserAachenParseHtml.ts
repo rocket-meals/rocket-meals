@@ -37,7 +37,11 @@ export class FoodWebParserAachenParseHtml {
 
     const paragraphText = paragraph.text().trim();
     // extract all codes and descriptions from the paragraph text
-    const regex = /\(([^)]+)\)\s*([^,(]+)/g;
+    // The code class excludes "(" and the description must start with a
+    // non-whitespace character, so the pattern is unambiguous and linear-time
+    // (SonarCloud S5852). Behavior is unchanged: whitespace-only descriptions
+    // were skipped by the `if (code && description)` check anyway.
+    const regex = /\(([^()]+)\)\s*([^\s,(][^,(]*)/g;
     let match;
     while ((match = regex.exec(paragraphText)) !== null) {
       const code = match[1]!.trim(); // e.g. "A", "A1", "1"

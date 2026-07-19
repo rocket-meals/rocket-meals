@@ -1,5 +1,7 @@
 export class EmailHelper {
-  private static readonly EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Domain is matched as dot-separated, dot-free labels: unambiguous and thus
+  // linear-time (no catastrophic backtracking, SonarCloud S5852).
+  private static readonly EMAIL_REGEX = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
 
   static sanitize(email: string): string {
     return email.trim();

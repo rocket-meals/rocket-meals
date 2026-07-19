@@ -668,7 +668,7 @@ export default function RouteDetailScreen() {
 				// immediately on subsequent screen visits without recomputation.
 				const updatedRoute: SavedRoute = { ...route, enclosedTiles: tiles };
 				try {
-					saveRoute(updatedRoute);
+					await saveRoute(updatedRoute);
 				} catch (err) {
 					console.warn('[RouteDetailScreen] Failed to save enclosed tiles to route:', err);
 				}
@@ -1263,12 +1263,12 @@ export default function RouteDetailScreen() {
 					initialValue={route.name}
 					groupPosition={infoRows.length === 0 ? 'bottom' : 'middle'}
 					showSeparator={infoRows.length > 0}
-					onSave={(newName) => {
+					onSave={async (newName) => {
 						const trimmed = newName.trim();
 						if (!trimmed) return;
 						const updated: SavedRoute = { ...route, name: trimmed };
 						try {
-							saveRoute(updated);
+							await saveRoute(updated);
 						} catch {
 							showAlert('Fehler', 'Der Name der Route konnte nicht gespeichert werden.');
 							return;

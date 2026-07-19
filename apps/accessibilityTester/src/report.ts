@@ -105,7 +105,7 @@ function impactEmoji(impact: ImpactLevel): string {
 }
 
 function escapeMarkdownTableCell(text: string): string {
-  return text.replace(/\|/g, '\\|').replace(/\n/g, ' ');
+  return text.replaceAll('|', '\\|').replaceAll('\n', ' ');
 }
 
 export function generateMarkdownReport(report: AccessibilityReport): string {

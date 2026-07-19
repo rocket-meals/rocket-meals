@@ -73,7 +73,7 @@ for i in $(seq 1 $MAX_WAIT); do
         echo "Server is ready."
         break
     fi
-    if [ "$i" -eq "$MAX_WAIT" ]; then
+    if [[ "$i" -eq "$MAX_WAIT" ]]; then
         echo "ERROR: Dev server did not start within ${MAX_WAIT}s."
         exit 1
     fi
@@ -91,7 +91,7 @@ if ! command -v maestro &> /dev/null; then
     # sanity-checked before it is executed, and pin the transport to TLS.
     MAESTRO_INSTALLER="$(mktemp)"
     curl -fsSL --proto '=https' --tlsv1.2 -o "$MAESTRO_INSTALLER" "https://get.maestro.mobile.dev"
-    [ -s "$MAESTRO_INSTALLER" ] || { echo "ERROR: Downloaded Maestro installer is empty."; exit 1; }
+    [[ -s "$MAESTRO_INSTALLER" ]] || { echo "ERROR: Downloaded Maestro installer is empty."; exit 1; }
     head -n1 "$MAESTRO_INSTALLER" | grep -q '^#!' || { echo "ERROR: Downloaded Maestro installer does not look like a shell script."; exit 1; }
     bash "$MAESTRO_INSTALLER"
     rm -f "$MAESTRO_INSTALLER"
@@ -116,7 +116,7 @@ echo ""
 # ---------------------------------------------------------------------------
 # 5. Generate YAML test files from TypeScript
 # ---------------------------------------------------------------------------
-if [ "$SKIP_GENERATE" = true ]; then
+if [[ "$SKIP_GENERATE" = true ]]; then
     echo "Skipping YAML generation (--skip-generate flag set)."
 else
     echo "Generating YAML test files from TypeScript..."
@@ -140,7 +140,7 @@ set -e
 # ---------------------------------------------------------------------------
 # 7. Report failed tests and screenshot paths
 # ---------------------------------------------------------------------------
-if [ "$MAESTRO_EXIT_CODE" -ne 0 ]; then
+if [[ "$MAESTRO_EXIT_CODE" -ne 0 ]]; then
     echo ""
     echo "=== Failed Tests & Screenshots ==="
     FOUND_SCREENSHOTS=false
@@ -148,7 +148,7 @@ if [ "$MAESTRO_EXIT_CODE" -ne 0 ]; then
         echo "  📸 $png"
         FOUND_SCREENSHOTS=true
     done < <(find "$MAESTRO_DEBUG_DIR" "$HOME/.maestro/tests" -type f -name "*.png" -print0 2>/dev/null)
-    if [ "$FOUND_SCREENSHOTS" = false ]; then
+    if [[ "$FOUND_SCREENSHOTS" = false ]]; then
         echo "  (no screenshots found)"
     fi
 
@@ -158,14 +158,14 @@ if [ "$MAESTRO_EXIT_CODE" -ne 0 ]; then
     # Search for error/failure messages in Maestro debug log files
     while IFS= read -r -d '' logfile; do
         ERRORS=$(grep -iE "(FAILED|ERROR|Exception|Element not found|No element|Timeout|assert|tapOn)" "$logfile" 2>/dev/null | grep -v "^#" | head -20)
-        if [ -n "$ERRORS" ]; then
+        if [[ -n "$ERRORS" ]]; then
             echo ""
             echo "  📄 $(basename "$logfile"):"
             echo "$ERRORS" | sed 's/^/    /'
             FOUND_ERRORS=true
         fi
     done < <(find "$MAESTRO_DEBUG_DIR" "$HOME/.maestro/tests" -type f \( -name "*.log" -o -name "*.txt" -o -name "*.xml" \) -print0 2>/dev/null)
-    if [ "$FOUND_ERRORS" = false ]; then
+    if [[ "$FOUND_ERRORS" = false ]]; then
         echo "  (no detailed error logs found in $MAESTRO_DEBUG_DIR)"
     fi
     echo ""

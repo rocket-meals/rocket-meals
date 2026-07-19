@@ -23,6 +23,7 @@ import {
 	AvatarStyle,
 } from 'repo-depkit-common-ui';
 import type { AvatarConfig } from 'repo-depkit-common-ui';
+import { MathHelper } from 'repo-depkit-common';
 import { useDispatch, useSelector } from 'react-redux';
 import { router, useNavigation } from 'expo-router';
 import {
@@ -77,7 +78,7 @@ function getGroupPosition(index: number, total: number): 'top' | 'middle' | 'bot
 }
 
 function generateHistoryId(): string {
-	return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+	return Date.now().toString(36) + MathHelper.randomBase36String(6);
 }
 
 // ─── Score Input Modal Content ────────────────────────────────────────────────

@@ -372,7 +372,7 @@ export function hasForestFeature(features: MapFeatureInfo[]): boolean {
 export function getSmallTreeAnchorForHexId(hexId: string): BillboardAnchorPosition {
 	let hash = 0;
 	for (let i = 0; i < hexId.length; i++) {
-		hash = (hash * 31 + hexId.charCodeAt(i)) >>> 0;
+		hash = (hash * 31 + (hexId.codePointAt(i) ?? 0)) >>> 0;
 	}
 	return MIDDLE_RING_BY_DEGREE[hash % MIDDLE_RING_BY_DEGREE.length];
 }

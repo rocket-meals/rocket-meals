@@ -508,7 +508,9 @@ export class MaxManagerConnector implements FoodParserInterface, MarkingParserIn
                 const codeElement = $(element).find('td').first();
                 let externalIdentifier: string | undefined = undefined;
                 const codeText = codeElement.text().trim();
-                const codeMatch = codeText.match(/\(([^)]+)\)/);
+                // The class excludes "(" as well, so the pattern is unambiguous
+                // and linear-time (SonarCloud S5852).
+                const codeMatch = codeText.match(/\(([^()]+)\)/);
                 if(codeMatch && codeMatch.length > 1){
                     externalIdentifier = codeMatch[1] || undefined;
                 } else {

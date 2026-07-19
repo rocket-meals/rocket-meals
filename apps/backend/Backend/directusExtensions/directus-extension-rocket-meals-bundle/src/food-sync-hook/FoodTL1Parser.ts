@@ -574,7 +574,9 @@ export class FoodTL1Parser implements FoodParserInterface {
     let nutritionValuesString = parsedReportItem[FoodTL1Parser.DEFAULT_NUTRITIONS_FIELD];
     if (nutritionValuesString) {
       let kcalEndString = ' kcal)';
-      let match = nutritionValuesString.match(/\(.* kcal/gm);
+      // Digit/decimal class instead of ".*" keeps the pattern unambiguous and
+      // linear-time (SonarCloud S5852) and only matches the actual kcal number.
+      let match = nutritionValuesString.match(/\([\d.,]+ kcal/gm);
       // e. G. (XXXXXXX kcal)
       if (match) {
         let kcal = match[0].slice(1, kcalEndString.length); //remove starting bracket "(" and kcal)
@@ -686,7 +688,9 @@ export class FoodTL1Parser implements FoodParserInterface {
   static getMarkingLabelsDictFromFoodName(name: string) {
     let markingsDict: { [x: string]: string } = {};
     //e. G. "Strawberries (g, b) with Cream (2)"
-    let rawMarkingsInName = name.match(/\([^)]+\)/gm); //http://regex.inginf.units.it/
+    // The class excludes "(" as well, so the pattern is unambiguous and
+    // linear-time (SonarCloud S5852).
+    let rawMarkingsInName = name.match(/\([^()]+\)/gm); //http://regex.inginf.units.it/
     //e. G. ["(g, b)", "(2)"]
     if (rawMarkingsInName) {
       for (let rawMarkingsPart of rawMarkingsInName) {

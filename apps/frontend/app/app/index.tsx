@@ -13,7 +13,9 @@ import { markOnboardingShouldBeShownAfterLogin } from '@/helper/onboardingIntent
 
 const extractRawExpoToken = (token: string | null) => {
 	if (!token) return null;
-	const m = String(token).match(/\[(.+?)\]/);
+	// Bracket-free character class keeps the pattern unambiguous and linear-time
+	// (SonarCloud S5852); Expo tokens look like "ExponentPushToken[xxxx]".
+	const m = String(token).match(/\[([^[\]]+)\]/);
 	return m ? m[1] : token;
 };
 

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { MathHelper } from 'repo-depkit-common';
 import type { AvatarConfig } from 'repo-depkit-common-ui';
 import type { Player, Round, GameState, GameStatus } from '../helpers/GameStorage';
 import { PLAYER_COLORS } from '../helpers/GameStorage';
@@ -32,7 +33,7 @@ const initialState: GameSliceState = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function generateId(): string {
-	return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+	return Date.now().toString(36) + MathHelper.randomBase36String(6);
 }
 
 function emptyScoresFor(players: Player[]): Record<string, number | null> {

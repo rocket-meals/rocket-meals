@@ -9,9 +9,12 @@ type ContentPatterns = {
 
 const LINK_SCHEME_PATTERN = `(?:https?:\\/\\/|${UriScheme.GEO}|${UriScheme.MAPS}|${UriScheme.TEL})`;
 
+// The character classes exclude the opening bracket/parenthesis as well, so the
+// patterns are unambiguous and run in linear time (SonarCloud S5852: no
+// catastrophic backtracking).
 export const markdownContentPatterns: ContentPatterns = {
-	email: new RegExp(`\\[([^\\]]+)]\\((${UriScheme.MAILTO}[^\\)]+)\\)`),
-	link: new RegExp(`\\[([^\\]]+)]\\((${LINK_SCHEME_PATTERN}[^\\)]+)\\)`),
+	email: new RegExp(`\\[([^\\[\\]]+)]\\((${UriScheme.MAILTO}[^()]+)\\)`),
+	link: new RegExp(`\\[([^\\[\\]]+)]\\((${LINK_SCHEME_PATTERN}[^()]+)\\)`),
 	image: /!\[([^\]]*)]\(([^)]+)\)/,
-	heading: /^#{1,6}\s*(.*)$/,
+	heading: /^#{1,6}[ \t]*(\S.*)?$/,
 };

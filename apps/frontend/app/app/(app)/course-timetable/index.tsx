@@ -23,7 +23,9 @@ const extractTextAndLink = (description: string) => {
 	// Remove unintended spaces between `]` and `(`
 	const cleanedDescription = StringHelper.replaceAllWithOptions({ str: description, find: ']\\s+\\(', replace: '](' });
 
-	const regex = /\[(.*?)\]\((.*?)\)/g;
+	// Negated character classes instead of lazy dots keep the pattern
+	// unambiguous and linear-time (SonarCloud S5852).
+	const regex = /\[([^[\]]*)\]\(([^()]*)\)/g;
 	const match = regex.exec(cleanedDescription);
 
 	if (match) {
@@ -104,7 +106,9 @@ const TimetableScreen = () => {
 	};
 
 	const parseMarkdown = (text: string) => {
-		const regex = /(\*\*.*?\*\*|\*.*?\*|\[.*?\]\(.*?\))/g;
+		// Negated character classes instead of lazy dots keep the pattern
+		// unambiguous and linear-time (SonarCloud S5852).
+		const regex = /(\*\*[^*]*\*\*|\*[^*]*\*|\[[^[\]]*\]\([^()]*\))/g;
 		const parts = text?.split(regex);
 
 		return parts?.map((part, index) => {

@@ -429,6 +429,9 @@ const FLIP_SEVEN_ITEMS: CardItem[] = [
 	{ id: 'x2', label: 'x2', category: 'multiplier', value: 2 },
 ];
 
+// Note on `then`: it is a persisted schema key of RuleExpr (stored game types
+// and shareable preset JSON rely on it) and never holds a function, so these
+// objects are not actually thenable - renaming it would break existing data.
 const FLIP_SEVEN_SCORE_FORMULA: RuleExpr = {
 	op: 'add',
 	args: [
@@ -436,14 +439,14 @@ const FLIP_SEVEN_SCORE_FORMULA: RuleExpr = {
 			op: 'multiply',
 			args: [
 				{ op: 'sumValues', category: 'number' },
-				{ op: 'if', cond: { op: 'hasItem', itemId: 'x2' }, then: { op: 'const', value: 2 }, else: { op: 'const', value: 1 } },
+				{ op: 'if', cond: { op: 'hasItem', itemId: 'x2' }, then: { op: 'const', value: 2 }, else: { op: 'const', value: 1 } }, // NOSONAR - data schema key, not a thenable
 			],
 		},
 		{ op: 'sumValues', category: 'modifier' },
 		{
 			op: 'if',
 			cond: { op: 'gte', a: { op: 'countItems', category: 'number' }, b: { op: 'const', value: 7 } },
-			then: { op: 'const', value: 15 },
+			then: { op: 'const', value: 15 }, // NOSONAR - data schema key, not a thenable
 			else: { op: 'const', value: 0 },
 		},
 	],

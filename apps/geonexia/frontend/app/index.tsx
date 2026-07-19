@@ -3484,7 +3484,7 @@ export default function RecordScreen() {
 								closeRecoveryModal();
 							}}
 							onSave={(activity) => {
-								try { saveActivity(activity); } catch (err) { console.warn('[RecordScreen] Failed to save recovered activity:', err); }
+								saveActivity(activity).catch((err) => console.warn('[RecordScreen] Failed to save recovered activity:', err));
 								clearRecordingSnapshot();
 								closeRecoveryModal();
 								router.push(`/activities/${activity.id}`);
@@ -5088,7 +5088,7 @@ export default function RecordScreen() {
 		};
 		activity.computed = computeActivityData(activity, enclosedCells);
 		try {
-			saveActivity(activity);
+			await saveActivity(activity);
 		} catch (err) {
 			console.warn('[RecordScreen] Failed to save activity:', err);
 		}

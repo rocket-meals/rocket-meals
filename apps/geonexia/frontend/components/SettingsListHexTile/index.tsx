@@ -73,7 +73,7 @@ const SettingsListHexTile: React.FC<Props> = ({
 
 	const thumbnail = svgUri ? (
 		<WebView
-			source={{ html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{margin:0;padding:0}html,body{width:${THUMB_SIZE}px;height:${THUMB_SIZE}px;overflow:hidden;background:transparent}img{width:100%;height:100%;object-fit:cover}</style></head><body><img src="${svgUri.replace(/"/g, '&quot;')}"/></body></html>` }}
+			source={{ html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{margin:0;padding:0}html,body{width:${THUMB_SIZE}px;height:${THUMB_SIZE}px;overflow:hidden;background:transparent}img{width:100%;height:100%;object-fit:cover}</style></head><body><img src="${svgUri.replaceAll('"', '&quot;')}"/></body></html>` }}
 			style={[styles.thumb, { backgroundColor: 'transparent' }]}
 			originWhitelist={['*']}
 			scrollEnabled={false}

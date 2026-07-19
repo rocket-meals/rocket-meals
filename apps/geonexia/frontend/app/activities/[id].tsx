@@ -412,7 +412,7 @@ function RouteAssignmentModalContent({ activity, savedRoutes, bestMatch, onDone,
 		}
 		const updated: SavedActivity = { ...activity, routeId };
 		try {
-			saveActivity(updated);
+			await saveActivity(updated);
 		} catch {
 			showAlert('Fehler', 'Die Aktivität konnte nicht gespeichert werden.');
 			return;
@@ -436,7 +436,7 @@ function RouteAssignmentModalContent({ activity, savedRoutes, bestMatch, onDone,
 			walkedEdgesRedLineResolution: RED_LINE_GRID_RESOLUTION,
 		};
 		try {
-			saveRoute(newRoute);
+			await saveRoute(newRoute);
 		} catch {
 			showAlert('Fehler', 'Die Route konnte nicht gespeichert werden.');
 			return;

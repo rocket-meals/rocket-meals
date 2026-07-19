@@ -23,7 +23,9 @@ type JsonApiDocument = {
 
 function base64url(input: Buffer | string): string {
   const buffer = typeof input === 'string' ? Buffer.from(input) : input;
-  return buffer.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  // Base64 padding is at most two "=" characters, so the bounded quantifier
+  // keeps the pattern linear-time (SonarCloud S5852).
+  return buffer.toString('base64').replaceAll('+', '-').replaceAll('/', '_').replace(/={1,2}$/, '');
 }
 
 function createAppStoreConnectToken(keyId: string, issuerId: string, privateKeyPath: string): string {

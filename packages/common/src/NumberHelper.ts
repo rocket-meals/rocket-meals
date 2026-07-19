@@ -35,7 +35,7 @@ export class NumberHelper {
       if (!integerPart) {
         formattedValue = `0${fractionsSeparator}${fractionPart || ''}`;
       } else {
-        const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator);
+        const formattedInteger = NumberHelper.insertThousandsSeparator(integerPart, thousandsSeparator);
         formattedValue = fractionPart ? `${formattedInteger}${fractionsSeparator}${fractionPart}` : formattedInteger;
       }
     }
@@ -43,6 +43,22 @@ export class NumberHelper {
     // Add unit suffix if provided
     const suffix = unit ? StringHelper.NONBREAKING_SPACE + unit : '';
     return formattedValue + suffix;
+  }
+
+  // Inserts the separator between every group of three digits (counted from the
+  // right). Implemented without a regex: the previously used lookahead pattern
+  // had super-linear worst-case runtime (SonarCloud S5852).
+  private static insertThousandsSeparator(integerPart: string, separator: string): string {
+    const sign = integerPart.startsWith('-') ? '-' : '';
+    const digits = sign ? integerPart.slice(1) : integerPart;
+    let result = '';
+    for (let i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 === 0) {
+        result += separator;
+      }
+      result += digits[i];
+    }
+    return sign + result;
   }
 
   // Formats a number with compact abbreviations: up to 999 shown as-is,

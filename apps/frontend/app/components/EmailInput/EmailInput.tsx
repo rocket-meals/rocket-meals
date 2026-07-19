@@ -6,7 +6,9 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { isWeb } from '@/constants/Constants';
 import { TranslationKeys } from '@/locales/keys';
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Domain is matched as dot-separated, dot-free labels: unambiguous and thus
+// linear-time (no catastrophic backtracking, SonarCloud S5852).
+const emailRegex = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
 
 const EmailInput = ({
 	id,

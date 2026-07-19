@@ -65,6 +65,14 @@ export interface KmAnnouncementContent {
 }
 
 /**
+ * Default content toggles for {@link buildKmAnnouncement} when none are given.
+ */
+const DEFAULT_KM_ANNOUNCEMENT_CONTENT: Readonly<KmAnnouncementContent> = Object.freeze({
+	announcePace: true,
+	announceSpeedKmh: false,
+});
+
+/**
  * Build a localised TTS announcement for a km milestone during recording.
  * Falls back to English for unrecognised language codes. Only the primary
  * language subtag is used (e.g. "de" from "de-DE"); regional variants are not
@@ -79,8 +87,9 @@ export function buildKmAnnouncement(
 	km: number,
 	paceMinPerKm: number | null,
 	locale: string,
-	content: KmAnnouncementContent = { announcePace: true, announceSpeedKmh: false },
+	content?: KmAnnouncementContent,
 ): string {
+	const resolvedContent = content ?? DEFAULT_KM_ANNOUNCEMENT_CONTENT;
 	const langCode = locale.split('-')[0].toLowerCase();
 	const paceMin = paceMinPerKm != null ? Math.floor(paceMinPerKm) : null;
 	const paceSec = paceMinPerKm != null ? Math.round((paceMinPerKm - Math.floor(paceMinPerKm)) * 60) : null;
@@ -93,10 +102,10 @@ export function buildKmAnnouncement(
 		speedUnit: string,
 	): string {
 		const parts: string[] = [];
-		if (content.announcePace && paceMin != null && paceSec != null) {
+		if (resolvedContent.announcePace && paceMin != null && paceSec != null) {
 			parts.push(`${paceLabel} ${paceMin} ${paceUnit.replace('{sec}', String(paceSec))}`);
 		}
-		if (content.announceSpeedKmh && speedKmh != null) {
+		if (resolvedContent.announceSpeedKmh && speedKmh != null) {
 			parts.push(`${formatSpeedForSpeech(speedKmh)} ${speedUnit}`);
 		}
 		return parts.length > 0 ? `, ${parts.join(', ')}` : '';

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet } from 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SettingsListGroupTitle, useTheme, type Theme } from 'repo-depkit-common-ui';
+import { MathHelper } from 'repo-depkit-common';
 import { ComponentIds } from '../../constants/ComponentIds';
 
 type MCIName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
@@ -48,7 +49,7 @@ type RollResult =
 	| { mode: 'advantage' | 'disadvantage'; rollA: DiceRoll; rollB: DiceRoll; keptRoll: 'A' | 'B'; keptTotal: number };
 
 function rollValue(sides: number): number {
-	return Math.floor(Math.random() * sides) + 1;
+	return MathHelper.randomIntBetween(1, sides);
 }
 
 function rollPoolOnce(pool: PoolDie[]): DiceRoll {

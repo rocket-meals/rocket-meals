@@ -12,6 +12,7 @@ import {
 	useMyScrollViewModal,
 	useTheme,
 } from 'repo-depkit-common-ui';
+import { MathHelper } from 'repo-depkit-common';
 import * as Clipboard from 'expo-clipboard';
 import { useDispatch, useSelector } from 'react-redux';
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
@@ -44,7 +45,7 @@ const DANGER_COLOR = '#dc2626';
 const DEBUG_COLOR = '#7c3aed';
 
 function generateHistoryId(): string {
-	return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+	return Date.now().toString(36) + MathHelper.randomBase36String(6);
 }
 
 function formatDate(timestamp: number): string {

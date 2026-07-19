@@ -482,7 +482,7 @@ export default function SettingsScreen() {
 							}
 							const newComputed = computeActivityData(activity, enclosedTiles);
 							try {
-								saveActivity({ ...activity, computed: newComputed });
+								await saveActivity({ ...activity, computed: newComputed });
 								updatedCount++;
 							} catch (err) {
 								console.warn('[Recalculate] Failed to save activity:', activity.id, err);
@@ -547,7 +547,7 @@ export default function SettingsScreen() {
 							}
 							if (updated) {
 								try {
-									saveActivity(activity);
+									await saveActivity(activity);
 								} catch (err) {
 									console.warn('[Rebuild] Failed to save migrated activity:', activity.id, err);
 								}

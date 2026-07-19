@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { MathHelper } from 'repo-depkit-common';
 import type { GameType, ScoringMode } from '../helpers/GameTypesStorage';
 import { DEFAULT_GAME_TYPE_ICON } from '../helpers/GameTypesStorage';
 import type { GamePreset, GameRules, StartingPlayerMode } from '../helpers/GameRules';
@@ -17,7 +18,7 @@ const initialState: GameTypesSliceState = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function generateId(): string {
-	return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+	return Date.now().toString(36) + MathHelper.randomBase36String(6);
 }
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
