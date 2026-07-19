@@ -3726,6 +3726,10 @@
         position: relative;
         width: 18px;
         height: 18px;
+        /* Keep the user marker above the 2D route-track canvas overlay
+           (z-index 1, see initRouteTrackCanvas) so the marker is always
+           rendered on top of route and path lines. */
+        z-index: 2;
       }
       #error {
         display: none;
@@ -5207,11 +5211,14 @@
 
       function initRouteTrackCanvas() {
         // Create a transparent canvas and append it inside the map container so
-        // it is positioned above the WebGL canvas but MapLibre HTML markers
-        // (appended after it) appear on top of the route line.
+        // it is positioned above the WebGL canvas. MapLibre HTML markers live in
+        // the canvas container (an earlier sibling), so without an explicit
+        // z-index this overlay would cover them: z-index 1 here combined with
+        // z-index 2 on .user-location-wrapper keeps the user marker on top of
+        // the route line.
         var container = map.getContainer();
         routeTrackCanvas = document.createElement('canvas');
-        routeTrackCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+        routeTrackCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;';
         container.appendChild(routeTrackCanvas);
         syncRouteTrackCanvasSize();
         window.addEventListener('resize', function () {
@@ -5224,6 +5231,20 @@
       function updateRouteTrackLayer(coords) {
         routeTrackCoords = (coords && coords.length > 0) ? coords : null;
         drawRouteTrackCanvas();
+      }
+
+      // ─── Marker-like point layers ──────────────────────────────────────────────
+      // Circle layers that represent positions (route start, raw GPS points,
+      // replay player) must always render above route/road line layers. Called
+      // after (re)creating any line layer so newly added lines never cover them.
+      // NOTE: 'replay-player-layer' is created by the injected hexTileScript
+      // (Geonexia); the id must stay in sync with REPLAY_PLAYER_LAYER there.
+      function raiseMarkerLikeLayers() {
+        if (!map) return;
+        var ids = ['route-start-layer', 'debug-gps-points-layer', 'replay-player-layer'];
+        for (var i = 0; i < ids.length; i++) {
+          if (map.getLayer(ids[i])) map.moveLayer(ids[i]);
+        }
       }
 
       // ─── Speed-colored route segments (activity detail view) ──────────────────
@@ -5315,6 +5336,7 @@
             },
           });
         }
+        raiseMarkerLikeLayers();
       }
       // ─────────────────────────────────────────────────────────────────────────────
 
@@ -5355,6 +5377,7 @@
             paint: { 'line-color': '#eab308', 'line-width': ROUTE_LINE_WIDTH_EXPR, 'line-opacity': 0.95 },
           });
         }
+        raiseMarkerLikeLayers();
       }
 
       // ─── Selected hex tiles (test-case export tooling) ─────────────────────────
