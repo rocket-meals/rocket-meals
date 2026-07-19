@@ -126,11 +126,26 @@ export const studiFutterConfig: CustomerConfig = {
     foodoffers_show_separated_markings_breakdown: true
 };
 
+// EXPO_PUBLIC_SERVER_URL overrides the backend URL of every customer config.
+// It is inlined into the JS bundle by Metro at build time, exactly like
+// EXPO_PUBLIC_CUSTOMER. Used by the Maestro test runner (--mock) to point the
+// app at the local mock backend before the app is started. Never set in
+// production builds.
+export function getServerUrlOverride(): string | undefined {
+        return process.env.EXPO_PUBLIC_SERVER_URL || undefined;
+}
+
+function applyServerUrlOverride(config: CustomerConfig): CustomerConfig {
+        const override = getServerUrlOverride();
+        if (!override) return config;
+        return { ...config, server_url: override };
+}
+
 export function getCustomerConfigsDict(): Record<ConfigCustomerEnum, CustomerConfig> {
         return {
-                [ConfigCustomerEnum.TEST]: devConfig,
-                [ConfigCustomerEnum.SWOSY]: swosyConfig,
-                [ConfigCustomerEnum.STUDI_FUTTER]: studiFutterConfig,
+                [ConfigCustomerEnum.TEST]: applyServerUrlOverride(devConfig),
+                [ConfigCustomerEnum.SWOSY]: applyServerUrlOverride(swosyConfig),
+                [ConfigCustomerEnum.STUDI_FUTTER]: applyServerUrlOverride(studiFutterConfig),
         };
 }
 
@@ -180,7 +195,7 @@ export function getCustomerEnvVariable(): string | undefined {
 
 export function getCustomerConfig(): CustomerConfig {
 	const customer = getCustomerEnvVariable();
-	return getCustomerConfigsDict()[customer as ConfigCustomerEnum] || devConfig;
+	return getCustomerConfigsDict()[customer as ConfigCustomerEnum] || applyServerUrlOverride(devConfig);
 }
 
 export function getGeneratedAssetsPath(): string {

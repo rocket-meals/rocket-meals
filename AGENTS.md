@@ -9,6 +9,13 @@ Diese Datei enthält Arbeitsregeln für KI-Agenten in diesem Repository.
 ## Wichtige Referenzen
 - Für visuelle Änderungen und Screenshots: `SCREENSHOTS_PLAYWRIGHT.md`
 
+## Maestro End-to-End-Tests
+
+- Tests liegen als TypeScript in `apps/frontend/maestro-tests/src/tests/` und werden mit `yarn maestro:generate` (aus `apps/frontend/app/`) zu YAML generiert.
+- `yarn maestro` führt die Tests gegen das echte Test-Backend aus; `yarn maestro:mock` startet zusätzlich den Directus-GET-Mock (`maestro-tests/src/mock-server/mockServer.ts`) und führt nur Tests mit dem Tag `mock-backend` aus.
+- Der Mock serviert die geteilten Fixtures aus `packages/common/src/testData/` — dieselben Daten, gegen die auch die Unit-Tests laufen. Neue deterministische E2E-Tests sollten diese Fixtures erweitern statt eigene Daten zu definieren.
+- Für Element-Targeting immer `nativeID={ComponentIds.XXX}` verwenden (siehe `apps/frontend/app/constants/ComponentIds.ts`).
+
 ## React-Dateien (verbindliche Konvention)
 Bei React-Dateien sollen **Styles, Export und Logik in derselben Datei** bleiben.
 

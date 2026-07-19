@@ -16,6 +16,7 @@ import { AppScreens, DatabaseTypes } from 'repo-depkit-common';
 import { CanteenHelper } from '@/redux/actions';
 import { BuildingsHelper } from '@/redux/actions/Buildings/Buildings';
 import { excerpt, getImageUrl } from '@/constants/HelperFunctions';
+import { ComponentIds } from '@/constants/ComponentIds';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { CollectionHelper } from '@/helper/collectionHelper';
 import LottieView from 'lottie-react-native';
@@ -780,6 +781,7 @@ const OnboardingScreen = () => {
 					<TouchableOpacity
 						onPress={handleNext}
 						style={[styles.navButtonPrimary, styles.navButtonFullWidth, { backgroundColor: primaryColor }]}
+						nativeID={ComponentIds.ONBOARDING_NEXT_BUTTON}
 					>
 						<Text style={[styles.navButtonPrimaryText, { color: contrastColor }]}>
 							{translate(TranslationKeys.onboarding_next)}
@@ -801,6 +803,7 @@ const OnboardingScreen = () => {
 							<TouchableOpacity
 								onPress={handleNext}
 								style={[styles.navButtonPrimary, { backgroundColor: primaryColor }]}
+								nativeID={ComponentIds.ONBOARDING_NEXT_BUTTON}
 							>
 								<Text style={[styles.navButtonPrimaryText, { color: contrastColor }]}>
 									{translate(TranslationKeys.onboarding_next)}
@@ -812,6 +815,7 @@ const OnboardingScreen = () => {
 								onPress={handleStart}
 								style={[styles.navButtonPrimary, { backgroundColor: primaryColor }]}
 								activeOpacity={0.8}
+								nativeID={ComponentIds.ONBOARDING_START_BUTTON}
 							>
 								<MaterialCommunityIcons name="rocket-launch" size={24} color={contrastColor} />
 								<Text style={[styles.navButtonPrimaryText, { color: contrastColor }]}>

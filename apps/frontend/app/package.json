@@ -21,7 +21,9 @@
     "export:web:dev": "expo export --platform web",
     "maestro:generate": "ts-node --project ../maestro-tests/tsconfig.json ../maestro-tests/generate.ts",
     "maestro": "bash ../run-maestro-web-test.sh",
-    "maestro:runOnly": "bash ../run-maestro-web-test.sh --skip-generate"
+    "maestro:runOnly": "bash ../run-maestro-web-test.sh --skip-generate",
+    "maestro:mock": "bash ../run-maestro-web-test.sh --mock",
+    "maestro:mock-server": "ts-node --project ../maestro-tests/tsconfig.json ../maestro-tests/src/mock-server/mockServer.ts"
   },
   "jest": {
     "preset": "jest-expo"

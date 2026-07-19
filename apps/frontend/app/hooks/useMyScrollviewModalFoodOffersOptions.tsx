@@ -5,6 +5,7 @@ import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewMo
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import SettingsList from '@/components/SettingsList/SettingsList';
+import { ComponentIds } from '@/constants/ComponentIds';
 import { useAppSelector } from '@/redux/hooks';
 import { shallowEqual } from 'react-redux';
 import FoodoffersAverageRatingToggle from '@/components/FoodoffersAverageRatingToggle';
@@ -32,6 +33,7 @@ type NavigationOption = {
 	title: string;
 	icon: React.ReactNode;
 	onPress: () => void;
+	nativeID?: string;
 };
 
 type BooleanToggleOption = {
@@ -75,6 +77,7 @@ const FoodOffersOptionsContent: React.FC<FoodOffersOptionsContentProps> = ({
 			title: translate(TranslationKeys.sort),
 			icon: <MaterialIcons name="sort" size={20} />,
 			onPress: () => { onSort(); },
+			nativeID: ComponentIds.FOODOFFERS_OPTION_SORT,
 		},
 		{
 			key: 'priceGroup',
@@ -144,6 +147,7 @@ const FoodOffersOptionsContent: React.FC<FoodOffersOptionsContentProps> = ({
 						onPress={option.onPress}
 						groupPosition={groupPosition}
 						showSeparator={showSeparator}
+						nativeID={option.nativeID}
 					/>
 				);
 			})}

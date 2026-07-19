@@ -8,6 +8,7 @@ export * from './src/GlobalParams';
 export * from './src/DistanceHelper';
 export * from './src/SortingHelper';
 export * from './src/SortingEnums';
+export * from './src/testData/FoodOfferTestData';
 export * from './src/ServerHelper';
 export * from './src/FormCommonHelper';
 export * from './src/ChatConversationState';

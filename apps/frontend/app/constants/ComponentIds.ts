@@ -48,6 +48,13 @@ export enum AppComponentIds {
 	CANTEEN_SELECTION_EMPTY = 'canteen-selection-empty',
 	CANTEEN_SELECT_BUTTON = 'canteen-select-button',
 
+	// Onboarding
+	ONBOARDING_NEXT_BUTTON = 'onboarding-next-button',
+	ONBOARDING_START_BUTTON = 'onboarding-start-button',
+	// Prefix for the price group options; the PriceGroupKey is appended,
+	// e.g. "price-group-select-button-student".
+	PRICE_GROUP_SELECT_BUTTON = 'price-group-select-button',
+
 	// Settings groups
 	SETTINGS_GROUP_APP_SETTINGS = 'settings-group-app-settings',
 	SETTINGS_GROUP_CANTEEN_USAGE = 'settings-group-canteen-usage',
@@ -81,6 +88,15 @@ export enum AppComponentIds {
 
 	// Food offers
 	FOODOFFERS_BALANCE_QUICK_ACCESS = 'foodoffers-balance-quick-access',
+	FOODOFFERS_OPTIONS_BUTTON = 'foodoffers-options-button',
+	FOODOFFERS_OPTION_SORT = 'foodoffers-option-sort',
+	// Prefix for the sort options in the sorting modal; the FoodSortOption value
+	// is appended, e.g. "sort-option-rating", "sort-option-alphabetical".
+	SORT_OPTION_PREFIX = 'sort-option',
+	// Prefix for a food card at a specific list position; the 0-based position
+	// and the food id are appended, e.g. "foodoffer-position-0-food-gnocchi".
+	// This encodes the rendered order so Maestro tests can assert sorting.
+	FOODOFFER_POSITION_PREFIX = 'foodoffer-position',
 
 	// Housing
 	HOUSING_SEARCH = 'housing-search',

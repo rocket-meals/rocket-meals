@@ -9,7 +9,7 @@
 
 import { MaestroTestCase } from 'repo-depkit-maestro-framework';
 import { ComponentIds } from '../../../app/constants/ComponentIds';
-import { performAnonymousLogin, selectFirstCanteen } from '../framework/loginHelper';
+import { completeAnonymousOnboarding, performAnonymousLogin } from '../framework/loginHelper';
 
 const test = new MaestroTestCase({
 	appId: 'com.rocketmeals.web',
@@ -17,9 +17,10 @@ const test = new MaestroTestCase({
 	outputFileName: 'food-offers-test',
 });
 
-// Login and select a canteen
+// Login and complete onboarding (fresh sessions are always routed to onboarding
+// by (app)/index.tsx until a canteen and a price group are set)
 performAnonymousLogin(test);
-selectFirstCanteen(test);
+completeAnonymousOnboarding(test);
 
 test
 	.takeScreenshot('food-offers-after-canteen-selected')
