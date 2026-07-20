@@ -74,8 +74,8 @@ Maintainability-Issues weiter", ist genau dieser Ablauf gemeint.
 | 2026-07-20 | Expected a `for-of` loop instead of a `for` loop with this simple iteration. | 12 von 12 (Cheerio-Objekt per `.toArray()` iteriert) | #3953 |
 | 2026-07-20 | 'any' overrides all other types in this union type. | 12 von 12 (redundante Union-Member entfernt, `any` beibehalten — keine Typ-Semantik geändert) | #3953 |
 | 2026-07-20 | Refactor this code to not use nested template literals. | 10 von 10 (innere Literale ohne Interpolation → normale Strings; sonst in Variable extrahiert) | #3953 |
-| 2026-07-20 | Add an explicit return statement at the end of the function. | 20 von 20 (nur Shell-Skripte, `return 0` am Funktionsende; kein Aufrufer wertet den Exit-Status aus, `bash -n` geprüft) | – |
-| 2026-07-20 | Unexpected `await` of a non-Promise (non-"Thenable") value. | 16 von 16 (`await` entfernt; alle Zielmethoden verifiziert synchron, z. B. MyDatabaseHelper-Getter, `window.open`) | – |
+| 2026-07-20 | Add an explicit return statement at the end of the function. | 20 von 20 (nur Shell-Skripte, `return 0` am Funktionsende; kein Aufrufer wertet den Exit-Status aus, `bash -n` geprüft) | #3954 |
+| 2026-07-20 | Unexpected `await` of a non-Promise (non-"Thenable") value. | 16 von 16 (`await` entfernt; alle Zielmethoden verifiziert synchron, z. B. MyDatabaseHelper-Getter, `window.open`) | #3954 |
 
 Neu abgearbeitete Typen bitte hier ergänzen.
 
