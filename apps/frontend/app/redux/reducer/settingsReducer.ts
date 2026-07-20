@@ -75,7 +75,8 @@ const initialState = {
         },
 };
 
-const settingReducer = (state = initialState, actions: any) => {
+const settingReducer = (state: typeof initialState | undefined, actions: any) => {
+	state ??= initialState;
 	switch (actions.type) {
 		case CHANGE_THEME: {
 			return {

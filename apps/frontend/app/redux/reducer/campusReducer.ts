@@ -7,7 +7,8 @@ const initialState = {
 	campusesDict: {},
 };
 
-const campusReducer = (state = initialState, actions: any) => {
+const campusReducer = (state: typeof initialState | undefined, actions: any) => {
+	state ??= initialState;
 	switch (actions.type) {
 		case SET_CAMPUSES: {
 			return {

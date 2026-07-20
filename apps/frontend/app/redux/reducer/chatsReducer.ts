@@ -7,7 +7,8 @@ const initialState: ChatsState = {
         readStatus: {} as Record<string, string>,
 };
 
-const chatsReducer = (state: ChatsState = initialState, actions: { type: string; payload?: any }) => {
+const chatsReducer = (state: ChatsState | undefined, actions: { type: string; payload?: any }) => {
+        state ??= initialState;
         switch (actions.type) {
                 case SET_CHATS:
                         return {

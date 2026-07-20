@@ -14,7 +14,8 @@ const initialState: CollectibleEventsState = {
         collectibleEventsDict: {} as Record<string, Record<string, boolean>>,
 };
 
-const collectibleEventsReducer = (state: CollectibleEventsState = initialState, actions: { type: string; payload?: any }) => {
+const collectibleEventsReducer = (state: CollectibleEventsState | undefined, actions: { type: string; payload?: any }) => {
+        state ??= initialState;
         switch (actions.type) {
                 case SET_COLLECTIBLE_EVENTS: {
                         return {

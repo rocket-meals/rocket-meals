@@ -13,7 +13,8 @@ export class CanteenFeedbackLabelEntryHelper extends CollectionHelper<DatabaseTy
 		return { ...defaultQuery, ...queryOverride };
 	}
 	// Fetch canteen feedback label entries with query overrides
-	async fetchCanteenFeedbackLabelEntries(queryOverride: any = {}, date: string, canteenId: string, labelId: string) {
+	async fetchCanteenFeedbackLabelEntries(queryOverride: any, date: string, canteenId: string, labelId: string) {
+		queryOverride ??= {};
 		const defaultQuery = {
 			filter: {
 				_and: [

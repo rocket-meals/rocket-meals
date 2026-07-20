@@ -4,7 +4,8 @@ const initialState = {
 	appElements: [],
 };
 
-const appElementsReducer = (state = initialState, actions: any) => {
+const appElementsReducer = (state: typeof initialState | undefined, actions: any) => {
+	state ??= initialState;
 	switch (actions.type) {
 		case SET_APP_ELEMENTS: {
 			return {

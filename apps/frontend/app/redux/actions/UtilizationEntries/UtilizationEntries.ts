@@ -9,7 +9,8 @@ export class UtilizationEntryHelper extends CollectionHelper<DatabaseTypes.Utili
 	}
 
 	// Fetch utilization entries with query overrides
-	async fetchUtilizationEntries(queryOverride: any = {}, utilizationGroupId: string, dateToGet: string) {
+	async fetchUtilizationEntries(queryOverride: any, utilizationGroupId: string, dateToGet: string) {
+		queryOverride ??= {};
 		// Default query structure
 		const defaultQuery: {
 			fields: string[];

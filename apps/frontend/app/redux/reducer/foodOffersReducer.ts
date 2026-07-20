@@ -10,7 +10,8 @@ const initialState = {
 // the same combined "persist:root" blob as everything else risked pushing that single
 // AsyncStorage item past Android's ~2MB per-item limit (silently failing writes and
 // corrupting rehydration, e.g. the onboarding loop).
-const foodOffersReducer = (state = initialState, actions: any) => {
+const foodOffersReducer = (state: typeof initialState | undefined, actions: any) => {
+	state ??= initialState;
 	switch (actions.type) {
 		case SET_SELECTED_CANTEEN_FOOD_OFFERS: {
 			return {

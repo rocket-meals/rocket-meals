@@ -16,7 +16,8 @@ const initialState = {
 	termsAndPrivacyConsentAcceptedDate: null,
 };
 
-const authReducer = (state = initialState, actions: any) => {
+const authReducer = (state: typeof initialState | undefined, actions: any) => {
+	state ??= initialState;
 	switch (actions.type) {
 		case ON_LOGIN: {
 			return {

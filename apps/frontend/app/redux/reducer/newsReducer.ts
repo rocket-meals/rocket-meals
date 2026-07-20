@@ -4,7 +4,8 @@ const initialState = {
 	news: [],
 };
 
-const newsReducer = (state = initialState, actions: any) => {
+const newsReducer = (state: typeof initialState | undefined, actions: any) => {
+	state ??= initialState;
 	switch (actions.type) {
 		case SET_NEWS: {
 			return {

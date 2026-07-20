@@ -4,7 +4,8 @@ const initialState = {
 	lastUpdatedMap: {},
 };
 
-const lastUpdatedReducer = (state = initialState, actions: any) => {
+const lastUpdatedReducer = (state: typeof initialState | undefined, actions: any) => {
+	state ??= initialState;
 	switch (actions.type) {
 		case SET_COLLECTION_DATES_LAST_UPDATED: {
 			return {

@@ -6,7 +6,8 @@ const initialState: FriendshipsState = {
 	friendships: [] as DatabaseTypes.Friendships[],
 };
 
-const friendshipsReducer = (state: FriendshipsState = initialState, action: { type: string; payload?: any }) => {
+const friendshipsReducer = (state: FriendshipsState | undefined, action: { type: string; payload?: any }) => {
+	state ??= initialState;
 	switch (action.type) {
 		case SET_FRIENDSHIPS:
 			return {

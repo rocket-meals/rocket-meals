@@ -25,7 +25,8 @@ const initialState = {
 	},
 };
 
-const managementReducer = (state = initialState, actions: any) => {
+const managementReducer = (state: typeof initialState | undefined, actions: any) => {
+	state ??= initialState;
 	switch (actions.type) {
 		case SET_DAY_PLAN: {
 			return {
