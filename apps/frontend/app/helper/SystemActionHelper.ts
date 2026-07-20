@@ -29,7 +29,7 @@ export class CommonSystemActionHelper {
 			if (newWindow) {
 				target = '_blank';
 			}
-			await window.open(url, target);
+			window.open(url, target);
 		}
 	}
 

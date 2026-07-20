@@ -128,7 +128,7 @@ export class MaxManagerConnector implements FoodParserInterface, MarkingParserIn
     private async getHtml(canteenId: string, fetchDate: Date, initialHtml: string): Promise<string | undefined> {
         if(this.config.fileContentReader){
             const fileContentReader = this.config.fileContentReader;
-            let fileContent = await fileContentReader.getContent();
+            let fileContent = fileContentReader.getContent();
             return fileContent;
         }
         if(this.config.url){

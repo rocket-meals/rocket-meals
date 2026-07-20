@@ -4,6 +4,7 @@
 function show_help() {
     echo "Usage: ./genSSO_Apple.sh --team_id <team_id> --client_id <client_id> --key_id <key_id> --key_file_path <path_to_key_file>"
     echo "or:    ./genSSO_Apple.sh --team_id <team_id> --client_id <client_id> --key_id <key_id> --key_file_content '<key_file_content>'"
+    return 0
 }
 
 # Initialize variables for parameters
@@ -103,6 +104,7 @@ CLAIMS=$(printf '{"iss":"%s","iat":%d,"exp":%d,"aud":"https://appleid.apple.com"
 # Base64 URL encode function
 base64_url_encode() {
     openssl enc -base64 -A | tr '+/' '-_' | tr -d '='
+    return 0
 }
 
 # Create JWT token
@@ -127,6 +129,7 @@ function convert_ec {
 
     echo -n $R | xxd -r -p
     echo -n $S | xxd -r -p
+    return 0
 }
 SIGNATURE=$(echo -n "$JWT_HEADER_BASE64.$JWT_CLAIMS_BASE64" | openssl dgst -binary -sha256 -sign <(echo "$ECDSA_KEY") | convert_ec | openssl base64 -e -A | tr '+/' '-_' | tr -d '\n=')
 

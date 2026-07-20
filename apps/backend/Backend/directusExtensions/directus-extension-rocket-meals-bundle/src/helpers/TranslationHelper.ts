@@ -87,7 +87,7 @@ export class TranslationHelper {
     config: TranslationUpdateConfig<E>
   ) {
     const { translationsFromParsing, items_primary_field_in_translation_table, itemsTablename, myDatabaseHelper } = config;
-    const specificItemServiceReader = await myDatabaseHelper.getItemsServiceHelper<T>(itemsTablename);
+    const specificItemServiceReader = myDatabaseHelper.getItemsServiceHelper<T>(itemsTablename);
     if (itemWithTranslations) {
       const { updateObject: updateObject, updateNeeded: updateNeeded } = await TranslationHelper._getUpdateInformationForTranslations(itemWithTranslations, itemWithTranslations, translationsFromParsing, items_primary_field_in_translation_table);
 
@@ -136,7 +136,7 @@ export class TranslationHelper {
     config: TranslationUpdateConfig<E>
   ) {
     const { itemsTablename, myDatabaseHelper } = config;
-    const specificItemServiceReader = await myDatabaseHelper.getItemsServiceHelper<T>(itemsTablename);
+    const specificItemServiceReader = myDatabaseHelper.getItemsServiceHelper<T>(itemsTablename);
     let itemWithTranslations = await specificItemServiceReader.readOne(item?.id, {
       ...TranslationHelper.QUERY_FIELDS_FOR_ALL_FIELDS_AND_FOR_TRANSLATION_FETCHING,
     }); // Bottleneck HERE. Takes on average 1.0s

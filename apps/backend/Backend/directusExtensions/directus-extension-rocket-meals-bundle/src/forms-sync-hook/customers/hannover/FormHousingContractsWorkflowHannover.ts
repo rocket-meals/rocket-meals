@@ -26,7 +26,7 @@ export class FormHousingContractsWorkflowHannover extends FormImportSyncWorkflow
   }
 
   async getCurrentResultHash(): Promise<WorkflowResultHash> {
-    let hash = await this.reader.getResultHash(this.contracts);
+    let hash = this.reader.getResultHash(this.contracts);
     return new WorkflowResultHash(hash);
   }
 

@@ -52,7 +52,7 @@ export class ShareServiceHelper implements ShareDirectusFileMethod {
   }
 
   async createShareLink(options: CreateShareLinkOptions): Promise<string | null> {
-    let usersHelper = await this.myDatabaseHelper.getUsersHelper();
+    let usersHelper = this.myDatabaseHelper.getUsersHelper();
     let adminEmail = EnvVariableHelper.getAdminEmail();
     let adminUser = await usersHelper.findFirstItem({
       email: adminEmail,
