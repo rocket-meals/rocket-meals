@@ -188,7 +188,7 @@ async function modifyInputForCreateOrUpdateWorkflowRunToRunning(
           throw new Error('-- No WorkflowRunJobInterface found for workflowId: ' + workflowId);
         } else {
           console.log('Handling workflow_runs for workflowId: ' + workflowId);
-          let result = await workflowRunJobInterface.handleWorkflowRunsWantToRun(input, workflowRuns, alreadyRunningWorkflowRuns);
+          let result = workflowRunJobInterface.handleWorkflowRunsWantToRun(input, workflowRuns, alreadyRunningWorkflowRuns);
           if (result.errorMessage) {
             console.error('Error while setting workflow_runs to running: ' + result.errorMessage);
             throw new Error('Error while setting workflow_runs to running: ' + result.errorMessage);

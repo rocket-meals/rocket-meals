@@ -52,7 +52,7 @@ export class MyDatabaseHelper implements MyDatabaseHelperInterface {
   }
 
   async getAdminBearerToken(): Promise<string | undefined> {
-    let usersHelper = await this.getUsersHelper();
+    let usersHelper = this.getUsersHelper();
     let adminEmail = EnvVariableHelper.getAdminEmail();
     let adminUser = await usersHelper.findFirstItem({
       email: adminEmail,

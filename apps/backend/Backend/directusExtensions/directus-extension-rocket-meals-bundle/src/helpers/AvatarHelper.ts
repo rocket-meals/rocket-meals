@@ -10,7 +10,7 @@ export class AvatarHelper {
     const database = myDatabaseHelper?.eventContext?.database || myDatabaseHelper?.apiContext.database;
     // TODO: check if we can use instead of database the userService to handle/manipulate users
 
-    const filesService = await myDatabaseHelper.getFilesHelper();
+    const filesService = myDatabaseHelper.getFilesHelper();
     if (!userId) {
       throw new Error('deleteAvatarOfUser: No userId provided: ');
     }

@@ -271,7 +271,7 @@ export class ParseSchedule {
   }
 
   async getFoodsService() {
-    return await this.context.myDatabaseHelper.getFoodsHelper();
+    return this.context.myDatabaseHelper.getFoodsHelper();
   }
 
   getFoodofferDatesFromRawFoodofferJSONList(foodoffersForParser: FoodoffersTypeForParser[]): FoodofferDateType[] {
@@ -288,7 +288,7 @@ export class ParseSchedule {
   static readonly DELETE_BATCH_SIZE = 250;
 
   async deleteFoodOffers(foodoffers: DatabaseTypes.Foodoffers[], notice: string) {
-    let itemService = await this.context.myDatabaseHelper.getFoodoffersHelper();
+    let itemService = this.context.myDatabaseHelper.getFoodoffersHelper();
     let idsToDelete = foodoffers.map(item => item.id);
 
     if (idsToDelete.length > 0) {
@@ -362,7 +362,7 @@ export class ParseSchedule {
       if (!canteen) continue;
 
       const canteenFoodoffers = foodoffersForParserGroupedByCanteen[canteenExternalIdentifier] || [];
-      const foodoffersHelper = await this.context.myDatabaseHelper.getFoodoffersHelper();
+      const foodoffersHelper = this.context.myDatabaseHelper.getFoodoffersHelper();
 
       if (canteen.foodoffers_import_without_date) {
         // Import-without-date canteen: all offers have date=null, process as a single group.
@@ -512,7 +512,7 @@ export class ParseSchedule {
       await this.context.logger.appendLog('Sync: checking all canteens for missing report data (oldest report date: ' + globalOldestDateString + ')');
       const canteensHelper = this.context.myDatabaseHelper.getCanteensHelper();
       const allCanteens = await canteensHelper.readAllItems();
-      const foodoffersHelper = await this.context.myDatabaseHelper.getFoodoffersHelper();
+      const foodoffersHelper = this.context.myDatabaseHelper.getFoodoffersHelper();
 
       for (const canteen of allCanteens) {
         const externalIdentifier = canteen.external_identifier;
@@ -1097,7 +1097,7 @@ export class ParseSchedule {
 
     const batchSize = 10;
 
-    const myFoodOffersService = await this.context.myDatabaseHelper.getFoodoffersHelper();
+    const myFoodOffersService = this.context.myDatabaseHelper.getFoodoffersHelper();
 
     const myTimer = new MyTimer(SCHEDULE_NAME + ' - Create Food Offers (' + canteenInfo + ', ' + dateInfo + ')');
     await this.context.logger.appendLog('Amount of food offers to create: ' + foodoffersToCreate.length)
@@ -1138,7 +1138,7 @@ export class ParseSchedule {
   }
 
   async updateMarkings(markingsJSONList: MarkingsTypeForParser[]) {
-    let itemService = await this.context.myDatabaseHelper.getMarkingsHelper();
+    let itemService = this.context.myDatabaseHelper.getMarkingsHelper();
 
     markingsJSONList = ListHelper.removeDuplicatesFromJsonList(markingsJSONList, 'external_identifier'); // Remove duplicates https://github.com/rocket-meals/rocket-meals/issues/151
 

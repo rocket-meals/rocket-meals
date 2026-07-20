@@ -59,7 +59,7 @@ export class NewsParseSchedule {
   }
 
   async findOrCreateSingleNews(newsJSON: NewsTypeForParser) {
-    let itemService = await this.context.myDatabaseHelper.getNewsHelper();
+    let itemService = this.context.myDatabaseHelper.getNewsHelper();
 
     const searchJson = {
       external_identifier: newsJSON?.basicNews.external_identifier,
