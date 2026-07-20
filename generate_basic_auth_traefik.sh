@@ -5,6 +5,7 @@ generate_basic_auth() {
   local username=$1
   local password=$2
   echo -n "$username:$password" | base64
+  return
 }
 
 # Function to update .env file
@@ -27,12 +28,14 @@ update_env_file() {
     echo "BASIC_AUTH=${basic_auth_value}" >> .env
     echo "BASIC_AUTH value added to .env file."
   fi
+  return
 }
 
 # Function to get username
 get_username() {
   read -p "Enter username: " username
   echo "$username"
+  return
 }
 
 # Function to get password with confirmation
@@ -50,6 +53,7 @@ get_password() {
       echo "Passwords do not match. Please try again."
     fi
   done
+  return
 }
 
 # Main script
