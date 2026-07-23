@@ -1,0 +1,33 @@
+{
+	"name": "Rocket Meals",
+	"short_name": "Rocket Meals",
+	"start_url": "/rocket-meals/pr-3957/",
+	"scope": "/rocket-meals/pr-3957/",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#ffffff",
+	"icons": [
+		{
+			"src": "favicon.ico",
+			"sizes": "48x48",
+			"type": "image/x-icon"
+		},
+		{
+			"src": "manifest-icon.png",
+			"sizes": "1024x1024",
+			"type": "image/png"
+		}
+	],
+	"prefer_related_applications": true,
+	"related_applications": [
+		{
+			"platform": "play",
+			"id": "com.baumgartnersoftware.rocketmealsdev",
+			"url": "https://play.google.com/store/apps/details?id=com.baumgartnersoftware.rocketmealsdev"
+		},
+		{
+			"platform": "itunes",
+			"url": "https://apps.apple.com/app/id6483930801"
+		}
+	]
+}
