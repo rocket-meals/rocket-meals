@@ -17,6 +17,7 @@ import { loadThemeMode as loadThemeModeAction } from '../store/themeSlice';
 import { loadPersistedBillboardConfig } from '../store/billboardConfigSlice';
 import { loadPersistedHexTextureConfig } from '../store/hexTextureConfigSlice';
 import { loadGpsIntervalSeconds as loadGpsIntervalSecondsAction } from '../store/gpsIntervalSlice';
+import { loadMapOfflineEnabled as loadMapOfflineEnabledAction } from '../store/mapOfflineSlice';
 import { loadTTSEnabled as loadTTSEnabledAction } from '../store/ttsSlice';
 import { loadSpeechSettings as loadSpeechSettingsAction } from '../store/speechSettingsSlice';
 import { loadDisplaySettings as loadDisplaySettingsAction } from '../store/displaySettingsSlice';
@@ -29,6 +30,7 @@ import { loadThemeMode } from '../helpers/ThemeStorage';
 import { loadBillboardConfig } from '../helpers/BillboardConfigStorage';
 import { loadHexTextureConfig } from '../helpers/HexTextureConfigStorage';
 import { loadGpsIntervalSeconds } from '../helpers/GpsIntervalStorage';
+import { loadMapOfflineEnabled } from '../helpers/MapOfflineStorage';
 import { loadTTSEnabled } from '../helpers/TTSStorage';
 import { loadSpeechSettings } from '../helpers/SpeechSettingsStorage';
 import { loadDisplaySettings } from '../helpers/DisplaySettingsStorage';
@@ -601,6 +603,13 @@ export default function Layout() {
 			})
 			.catch((err) => {
 				console.warn('[Layout] Failed to load persisted GPS interval seconds:', err);
+			});
+		loadMapOfflineEnabled()
+			.then((enabled) => {
+				store.dispatch(loadMapOfflineEnabledAction(enabled));
+			})
+			.catch((err) => {
+				console.warn('[Layout] Failed to load persisted offline maps flag:', err);
 			});
 		loadTTSEnabled()
 			.then((enabled) => {

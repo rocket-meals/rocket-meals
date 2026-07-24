@@ -9,6 +9,7 @@ import {
 	SettingsListSelectOption,
 	SettingsListMyMapThemeSelection,
 	SettingsListSqliteStorage,
+	formatBytes,
 	useMyScrollViewModal,
 	useTheme,
 } from 'repo-depkit-common-ui';
@@ -58,6 +59,8 @@ import {
 	loadWalkedEdgesRedLine,
 	loadDevWalkedEdgesRedLine,
 } from '../../helpers/HexTileStorage';
+import { setMapOfflineEnabled } from '../../store/mapOfflineSlice';
+import { deleteAllMapTiles, getMapTileUsage } from '../../helpers/MapOfflineStorage';
 import { getCompanyLogoLocalSaved } from '../../config';
 import { loadTTSLog, clearTTSLog, type TTSLogEntry } from '../../helpers/TTSLogStorage';
 import useGeonexiaAlert from '../../hooks/useGeonexiaAlert';
@@ -363,6 +366,8 @@ export default function SettingsScreen() {
 	const hexLineOpacity = useSelector((state: RootState) => state.displaySettings.hexLineOpacity);
 	const hexLineWidth = useSelector((state: RootState) => state.displaySettings.hexLineWidth);
 	const routeSmoothingLevel = useSelector((state: RootState) => state.displaySettings.routeSmoothingLevel);
+	const mapOfflineEnabled = useSelector((state: RootState) => state.mapOffline.enabled);
+	const [mapTileUsage, setMapTileUsage] = useState<{ count: number; totalBytes: number } | null>(null);
 	const { show: showModal, close: closeModal } = useMyScrollViewModal();
 	const { show: showResetModal, close: closeResetModal } = useMyScrollViewModal();
 	const { show: showGpsModal, close: closeGpsModal } = useMyScrollViewModal();
@@ -425,6 +430,23 @@ export default function SettingsScreen() {
 			),
 		});
 	}, [showResetModal, closeResetModal, dispatch, theme]);
+
+	// Load the cached-map-data usage once so the offline toggle can show how much
+	// storage the map cache currently occupies.
+	useEffect(() => {
+		getMapTileUsage().then(setMapTileUsage);
+	}, []);
+
+	const handleToggleMapOffline = useCallback(async () => {
+		const next = !mapOfflineEnabled;
+		dispatch(setMapOfflineEnabled(next));
+		if (!next) {
+			// Disabling deletes the cached map data from the SQLite storage – and
+			// only that data; all other stored keys are untouched.
+			await deleteAllMapTiles();
+		}
+		setMapTileUsage(await getMapTileUsage());
+	}, [dispatch, mapOfflineEnabled]);
 
 	const handleToggleDebugMode = useCallback(() => {
 		const next = !isDebugMode;
@@ -766,6 +788,22 @@ export default function SettingsScreen() {
 					leftIcon={<MaterialCommunityIcons name="map-outline" size={22} color="#ffffff" />}
 					label="Karten Material"
 					modalTitle="🗺️ Karten Material"
+					groupPosition="single"
+				/>
+
+				<SettingsListGroupTitle title="Offline-Karten" />
+				<SettingsListBoolean
+					iconBgColor={MAP_COLOR}
+					leftIcon={<MaterialCommunityIcons name="cloud-download-outline" size={22} color="#ffffff" />}
+					label="Offline-Karten"
+					isEnabled={mapOfflineEnabled}
+					onToggle={handleToggleMapOffline}
+					valueActive={
+						mapTileUsage && mapTileUsage.count > 0
+							? `Aktiviert · ${mapTileUsage.count} Kacheln (${formatBytes(mapTileUsage.totalBytes)})`
+							: 'Aktiviert'
+					}
+					valueInactive="Deaktiviert"
 					groupPosition="single"
 				/>
 

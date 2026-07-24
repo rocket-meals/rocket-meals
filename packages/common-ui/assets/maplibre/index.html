@@ -5131,6 +5131,11 @@
       //   onMapReady(map)       – called once after MapLibre finishes loading
       //   onMessage(data)       – called from applyMessage for every incoming message
       //   onMapClick(e, map)    – called from the click handler; return true to consume
+      //   transformRequest(url, resourceType)
+      //                         – optional MapLibre transformRequest hook, applied to
+      //                           every resource the map fetches (style, tiles, glyphs,
+      //                           sprites). Must be set before initMap() runs, i.e. from
+      //                           an injected script. Used by Geonexia's offline map cache.
       window._mapExtensions = {};
 
       // ─── Route track canvas overlay ───────────────────────────────────────────
@@ -5935,6 +5940,7 @@
           zoom: initialZoom != null ? initialZoom : 16,
           pitch: initialPitch != null ? initialPitch : 20,
           attributionControl: { compact: true },
+          transformRequest: window._mapExtensions.transformRequest || undefined,
         });
 
         map.on('load', function () {

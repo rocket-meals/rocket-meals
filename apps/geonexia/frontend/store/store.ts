@@ -10,6 +10,7 @@ import speechSettingsReducer from './speechSettingsSlice';
 import displaySettingsReducer from './displaySettingsSlice';
 import playerInformationReducer from './playerInformationSlice';
 import mapSearchReducer from './mapSearchSlice';
+import mapOfflineReducer from './mapOfflineSlice';
 import replaySettingsReducer from './replaySettingsSlice';
 import { HexTileRecord, saveHexTileState, saveDevHexTileState, saveWalkedEdges, saveDevWalkedEdges, saveWalkedEdgesRedLine, saveDevWalkedEdgesRedLine } from '../helpers/HexTileStorage';
 import { saveSportType } from '../helpers/SportTypeStorage';
@@ -17,6 +18,7 @@ import { saveThemeMode } from '../helpers/ThemeStorage';
 import { BillboardConfigState, saveBillboardConfig } from '../helpers/BillboardConfigStorage';
 import { HexTextureConfigState, saveHexTextureConfig } from '../helpers/HexTextureConfigStorage';
 import { saveGpsIntervalSeconds } from '../helpers/GpsIntervalStorage';
+import { saveMapOfflineEnabled } from '../helpers/MapOfflineStorage';
 import { saveTTSEnabled } from '../helpers/TTSStorage';
 import { saveSpeechSettings } from '../helpers/SpeechSettingsStorage';
 import { saveDisplaySettings } from '../helpers/DisplaySettingsStorage';
@@ -43,6 +45,7 @@ export const store = configureStore({
 		displaySettings: displaySettingsReducer,
 		playerInformation: playerInformationReducer,
 		mapSearch: mapSearchReducer,
+		mapOffline: mapOfflineReducer,
 		replaySettings: replaySettingsReducer,
 	},
 });
@@ -153,6 +156,9 @@ const hexTextureConfigRef: DebounceRef<HexTextureConfigState> = { timer: null, l
 // Auto-persist GPS interval seconds to disk whenever it changes.
 const gpsIntervalRef: ImmediateRef<number> = { lastSaved: null };
 
+// Auto-persist the offline maps flag to disk whenever it changes.
+const mapOfflineEnabledRef: ImmediateRef<boolean> = { lastSaved: null };
+
 // Auto-persist TTS enabled flag to disk whenever it changes.
 const ttsEnabledRef: ImmediateRef<boolean> = { lastSaved: null };
 
@@ -182,6 +188,7 @@ store.subscribe(() => {
 	persistDebounced(state.hexTextureConfig.spriteAnchors, hexTextureConfigRef, saveHexTextureConfig);
 
 	persistImmediate(state.gpsInterval.intervalSeconds, gpsIntervalRef, saveGpsIntervalSeconds);
+	persistImmediate(state.mapOffline.enabled, mapOfflineEnabledRef, saveMapOfflineEnabled);
 	persistImmediate(state.tts.ttsEnabled, ttsEnabledRef, saveTTSEnabled);
 
 	persistDebounced(state.speechSettings, speechSettingsRef, saveSpeechSettings);

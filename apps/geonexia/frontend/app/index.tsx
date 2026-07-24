@@ -26,6 +26,8 @@ import { MathHelper } from 'repo-depkit-common';
 import type { MapOverlayIdentity } from 'repo-depkit-common';
 
 import { HEX_TILE_SCRIPT } from '../assets/hexTileScript';
+import { MAP_OFFLINE_SCRIPT } from '../assets/mapOfflineScript';
+import { loadMapOfflineEnabled, loadMapTile, saveMapTile } from '../helpers/MapOfflineStorage';
 import { TERRAIN_ASSETS, TERRAIN_CATEGORIES, TerrainAssetEntry } from '../assets/terrainAssets';
 import { MapLoadingOverlay } from '../components/MapLoadingOverlay';
 import { isAvailable as isH3Available, latLngToCell, cellToLatLng, gridDisk, gridDistance, areNeighborCells, cellToBoundary, gridPathCells, cellToChildren, cellToCenterChild, cellToParent, gridRingUnsafe, getResolution, isValidCell, computeRouteLengthKm, formatDistanceKm, getPentagons, type CoordPair } from '../helpers/H3Helper';
@@ -3412,6 +3414,27 @@ function handleMapViewportChanged(
 	}
 }
 
+/** Handles the 'MapOfflineLoad' map message: looks up a cached map resource in
+ * the SQLite offline adapter and answers the WebView. Always responds (with
+ * null on miss/disabled) so the WebView's pending request never has to wait
+ * for its timeout. */
+function handleMapOfflineLoad(
+	msg: { id: number; url: string },
+	mapOfflineEnabledRef: React.MutableRefObject<boolean>,
+	mapRef: React.MutableRefObject<MyMapHandle | null>,
+): void {
+	const respond = (data: string | null) => {
+		mapRef.current?.sendToMap({ mapOfflineLoadResult: { id: msg.id, data } });
+	};
+	if (!mapOfflineEnabledRef.current || typeof msg.url !== 'string') {
+		respond(null);
+		return;
+	}
+	loadMapTile(msg.url)
+		.then(respond)
+		.catch(() => respond(null));
+}
+
 /** Handles the 'HexTileClicked' map message: dispatches to whichever click
  * mode (set-home, coloring, magnify, or default tile-info) is currently active. */
 function handleHexTileClicked(options: {
@@ -4394,6 +4417,7 @@ export default function RecordScreen() {
 	);
 	const homeHexTile = useSelector((state: RootState) => state.playerInformation.homeHexTile);
 	const searchState = useSelector((state: RootState) => state.mapSearch.searchState);
+	const mapOfflineEnabled = useSelector((state: RootState) => state.mapOffline.enabled);
 	const prevResetTokenRef = useRef<number | null>(null);
 
 	const activeSport = useMemo(
@@ -4523,6 +4547,9 @@ export default function RecordScreen() {
 	// to receive overlay messages.
 	const mapWebViewReadyRef = useRef(false);
 
+	// Latest offline-maps flag, readable from the stable handleMapMessage callback.
+	const mapOfflineEnabledRef = useRef(mapOfflineEnabled);
+
 	// Cache: asset key → base64 data URL, so assets are only read from disk once.
 	const assetUrlCacheRef = useRef<Map<string, string>>(new Map());
 
@@ -4614,6 +4641,14 @@ export default function RecordScreen() {
 		loadAndSendCustomizations();
 	}, [hexTileCustomizationsKey, billboardConfigKey, loadAndSendCustomizations]);
 
+	// Keep the WebView's offline-maps flag in sync whenever the setting changes.
+	// (Initial delivery happens via the 'MapOfflineInit' request the injected
+	// script sends as soon as the WebView loads.)
+	useEffect(() => {
+		mapOfflineEnabledRef.current = mapOfflineEnabled;
+		mapRef.current?.sendToMap({ mapOfflineEnabled });
+	}, [mapOfflineEnabled]);
+
 	// Send updated hex grid line opacity to the map whenever the setting changes.
 	useEffect(() => {
 		if (!mapWebViewReadyRef.current) return;
@@ -4644,6 +4679,9 @@ export default function RecordScreen() {
 			const { hexLineOpacity: currentHexLineOpacity, hexLineWidth: currentHexLineWidth } = store.getState().displaySettings;
 			mapRef.current?.sendToMap({ hexLineOpacity: currentHexLineOpacity });
 			mapRef.current?.sendToMap({ hexLineWidth: currentHexLineWidth });
+			// Re-send the offline-maps flag: a toggle on the settings screen may have
+			// been dropped while the WebView was covered by the drawer screen.
+			mapRef.current?.sendToMap({ mapOfflineEnabled: store.getState().mapOffline.enabled });
 			loadAndSendCustomizations();
 			// Refresh hex tile data and route track so the map shows the latest state
 			// when returning from a drawer screen (e.g. Settings).  The WebView may not
@@ -5344,6 +5382,21 @@ export default function RecordScreen() {
 		} else if (msg.tag === 'MapMeasurePoint') {
 			const ptMsg = msg as { lat: number; lng: number };
 			handleMapMeasurePoint(ptMsg, isMeasureModeRef, measureWaypointsRef, mapRef);
+		} else if (msg.tag === 'MapOfflineInit') {
+			// Answer with the persisted flag (not the redux state) so a cold offline
+			// start works even before the _layout startup loaders have finished.
+			loadMapOfflineEnabled().then((enabled) => {
+				mapOfflineEnabledRef.current = enabled;
+				mapRef.current?.sendToMap({ mapOfflineEnabled: enabled });
+			});
+		} else if (msg.tag === 'MapOfflineLoad') {
+			const loadMsg = msg as { id: number; url: string };
+			handleMapOfflineLoad(loadMsg, mapOfflineEnabledRef, mapRef);
+		} else if (msg.tag === 'MapOfflineStore') {
+			const storeMsg = msg as { url?: string; data?: string };
+			if (mapOfflineEnabledRef.current && typeof storeMsg.url === 'string' && typeof storeMsg.data === 'string') {
+				void saveMapTile(storeMsg.url, storeMsg.data);
+			}
 		}
 	}, [centerMapOnPosition, sendRouteToMap, setFollowMode, showHexTileModal, showMagnifyHexTileModal, loadAndSendCustomizations, dispatch, refreshNormalTileDisplay]);
 
@@ -6205,7 +6258,7 @@ export default function RecordScreen() {
 			{/* Map fills remaining space above the panel */}
 			<View style={styles.mapWrapper}>
 				{mapCanRender && (
-					<MyMap ref={mapRef} initialZoom={17} initialCenter={mapInitialCenter} onMessage={handleMapMessage} injectScript={HEX_TILE_SCRIPT} loadingOverlay={<MapLoadingOverlay />} mapStyleKey={mapTheme as MapStyleKey} />
+					<MyMap ref={mapRef} initialZoom={17} initialCenter={mapInitialCenter} onMessage={handleMapMessage} injectScript={HEX_TILE_SCRIPT + MAP_OFFLINE_SCRIPT} loadingOverlay={<MapLoadingOverlay />} mapStyleKey={mapTheme as MapStyleKey} />
 				)}
 
 				{/* Map overlay buttons – top-right */}
