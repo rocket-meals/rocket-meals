@@ -172,17 +172,18 @@ describe('authHelper native login', () => {
 		expect(WebBrowser.dismissBrowser).toHaveBeenCalled();
 	});
 
-	// Samsung Internet Custom Tabs never deliver the redirect deep link back to
-	// the app (and the same-task variant proved flaky), so Android defaults to
-	// the plain in-app browser, which relies on the redirect listener alone.
-	it('defaults to the in-app browser strategy on Android', async () => {
-		expect(authHelper.getSelectedLoginBrowserStrategy()).toBe(authHelper.LoginBrowserStrategy.IN_APP_BROWSER);
-		WebBrowser.openBrowserAsync.mockResolvedValue({ type: 'opened' });
+	// Android defaults to the same principle as iOS: the auth session in the
+	// preferred browser (native ASWebAuthenticationSession on iOS).
+	it('defaults to the preferred-browser auth session strategy on Android', async () => {
+		expect(authHelper.getSelectedLoginBrowserStrategy()).toBe(authHelper.LoginBrowserStrategy.AUTH_SESSION_PREFERRED_BROWSER);
+		WebBrowser.openAuthSessionAsync.mockResolvedValue({ type: 'success', url: `${REDIRECT_URL}?code=code-default` });
+		const getToken = jest.fn();
 
-		await authHelper.handleNativeLogin(LOGIN_URL, REDIRECT_URL, 'verifier-default', jest.fn());
+		await authHelper.handleNativeLogin(LOGIN_URL, REDIRECT_URL, 'verifier-default', getToken);
 
-		expect(WebBrowser.openBrowserAsync).toHaveBeenCalledWith(LOGIN_URL);
-		expect(WebBrowser.openAuthSessionAsync).not.toHaveBeenCalled();
+		expect(WebBrowser.openAuthSessionAsync).toHaveBeenCalledWith(LOGIN_URL, REDIRECT_URL, expect.objectContaining({ browserPackage: 'com.android.chrome' }));
+		expect(WebBrowser.openBrowserAsync).not.toHaveBeenCalled();
+		expect(getToken).toHaveBeenCalledWith('verifier-default', 'code-default');
 	});
 
 	it('passes createTask=false for the same-task auth session strategy', async () => {
