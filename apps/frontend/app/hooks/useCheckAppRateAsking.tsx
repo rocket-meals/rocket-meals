@@ -5,13 +5,13 @@ import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewMo
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
 import { TranslationKeys } from '@/locales/keys';
 import useDebugMode from '@/hooks/useDebugMode';
-import useNativeQuickRateApp from '@/hooks/useNativeQuickRateApp';
+import useAppRatingScore from '@/hooks/useAppRatingScore';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 
 const useCheckAppRateAsking = () => {
 	const debugMode = useDebugMode();
-	const { requestNativeReview } = useNativeQuickRateApp();
+	const { requestReviewIfAllowed } = useAppRatingScore();
 	const { show } = useMyScrollViewModal();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
@@ -31,14 +31,14 @@ const useCheckAppRateAsking = () => {
 
 	const showAppRating = useCallback(async () => {
 		if (Platform.OS !== 'web') {
-			const shown = await requestNativeReview();
-			if (!shown) {
+			const attempted = await requestReviewIfAllowed();
+			if (!attempted) {
 				showWebRatingModal();
 			}
 		} else {
 			showWebRatingModal();
 		}
-	}, [requestNativeReview, showWebRatingModal]);
+	}, [requestReviewIfAllowed, showWebRatingModal]);
 
 	const checkAndShowAppRating = useCallback(() => {
 		if (debugMode) {

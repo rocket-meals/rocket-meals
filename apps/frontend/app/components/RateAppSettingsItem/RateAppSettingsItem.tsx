@@ -11,7 +11,10 @@ import { useTheme } from '@/hooks/useTheme';
 import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 import { CommonSystemActionHelper } from '@/helper/SystemActionHelper';
-import useNativeQuickRateApp from '@/hooks/useNativeQuickRateApp';
+import { buildReviewUrl } from '@/helper/ReviewLinkHelper';
+// Imported from the pure rules module rather than from `useAppRatingScore`, which renders
+// this component in its debug modal — going through the hook would be a circular import.
+import { decideAppRatingFromStoredData } from '@/hooks/appRatingDecision';
 
 const RATE_APP_ICON_BACKGROUND = '#F7D21F';
 
@@ -37,9 +40,8 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 }) => {
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
-	const { primaryColor, appSettings } = useSelector((state: RootState) => state.settings);
+	const { primaryColor, appSettings, appRatingData } = useSelector((state: RootState) => state.settings);
 	const { show: showModal } = useMyScrollViewModal();
-	const { wasAskedForRating, requestNativeReview } = useNativeQuickRateApp();
 
 	const [debugLogs, setDebugLogs] = useState<{ id: number; text: string }[]>([]);
 	const nextDebugLogIdRef = useRef(0);
@@ -57,35 +59,21 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 		[onLog]
 	);
 
+	/**
+	 * Always opens the store review page — never the native review API.
+	 *
+	 * Both stores forbid triggering the in-app review API from a button: Apple because
+	 * "this method may or may not present an alert", Google explicitly with "you should not
+	 * have a call-to-action option (such as a button) to trigger the API […] redirect the
+	 * user to the Play Store instead". A tap here must always do something visible.
+	 */
 	const openStore = useCallback(
 		(storeUrl: string, store: StoreTarget) => {
-			addLog(`Opening ${store} store URL`);
-			CommonSystemActionHelper.openExternalURL(storeUrl, true);
+			const reviewUrl = buildReviewUrl(store, storeUrl) ?? storeUrl;
+			addLog(`Opening ${store} review page`);
+			CommonSystemActionHelper.openExternalURL(reviewUrl, true);
 		},
 		[addLog]
-	);
-
-	const handleNativeRating = useCallback(
-		async (storeUrl: string | undefined, store: StoreTarget) => {
-			if (wasAskedForRating) {
-				addLog('Already asked for rating, opening store URL');
-				if (storeUrl) {
-					openStore(storeUrl, store);
-				}
-				return;
-			}
-			addLog('Requesting native review dialog');
-			const shown = await requestNativeReview();
-			if (shown) {
-				addLog('Native review dialog shown');
-				return;
-			}
-			addLog('Native review not available, falling back to store URL');
-			if (storeUrl) {
-				openStore(storeUrl, store);
-			}
-		},
-		[addLog, openStore, requestNativeReview, wasAskedForRating]
 	);
 
 	const showDebugLogsModal = useCallback(() => {
@@ -121,11 +109,22 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 		<>
 			<SettingsListBoolean
 				label="Was user asked for rating?"
-				isEnabled={wasAskedForRating}
+				isEnabled={Boolean(appRatingData?.lastAskedAt)}
 				onToggle={() => {}}
 				disabled
 				groupPosition="middle"
 				showSeparator
+			/>
+			<SettingsList
+				label="Current decision"
+				value={(() => {
+					const decision = decideAppRatingFromStoredData(appRatingData);
+					return decision.ask ? 'ask' : `blocked: ${decision.reason}`;
+				})()}
+				groupPosition="middle"
+				showSeparator
+				leftIcon={<MaterialCommunityIcons name="gavel" size={22} color={theme.screen.icon} />}
+				iconBgColor="transparent"
 			/>
 			<SettingsList
 				label="Debug Logs for App Rating"
@@ -203,7 +202,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 			{nativeStoreUrl && (
 				<SettingsList
 					label={nativeRow?.label || translate(TranslationKeys.rate_app)}
-					handleFunction={() => handleNativeRating(nativeStoreUrl, nativeStore)}
+					handleFunction={() => openStore(nativeStoreUrl, nativeStore)}
 					groupPosition={debug ? 'top' : groupPosition}
 					showSeparator={debug}
 					iconBgColor={RATE_APP_ICON_BACKGROUND}

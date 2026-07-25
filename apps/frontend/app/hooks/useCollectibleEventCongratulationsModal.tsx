@@ -5,7 +5,7 @@ import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewMo
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
-import useNativeQuickRateApp from '@/hooks/useNativeQuickRateApp';
+import useAppRatingScore from '@/hooks/useAppRatingScore';
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
 import DebugView from '@/components/DebugView';
 import styles from '@/app/(app)/collectible-event/styles';
@@ -14,15 +14,14 @@ const useCollectibleEventCongratulationsModal = () => {
 	const { show } = useMyScrollViewModal();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
-	const { wasAskedForRating, requestNativeReview } = useNativeQuickRateApp();
+	const { appRatingData, requestReviewIfAllowed } = useAppRatingScore();
+	const wasAskedForRating = Boolean(appRatingData?.lastAskedAt);
 
 	const openCongratulationsModal = useCallback(() => {
-		const wasAskedSnapshot = wasAskedForRating;
-
+		// Closing the congratulations modal is one of the best moments in the app to ask.
+		// The shared rules (cooldown, yearly budget, recent negative signal) still apply.
 		const handleClose = () => {
-			if (!wasAskedSnapshot) {
-				requestNativeReview();
-			}
+			requestReviewIfAllowed();
 		};
 
 		show(
@@ -65,7 +64,7 @@ const useCollectibleEventCongratulationsModal = () => {
 			{}
 		);
 	}, [
-		requestNativeReview,
+		requestReviewIfAllowed,
 		show,
 		theme.inactiveText,
 		theme.screen.text,

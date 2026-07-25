@@ -23,6 +23,7 @@ import useMyScrollviewTextInputModal from '@/hooks/useMyScrollviewTextInputModal
 import { excerpt } from '@/constants/HelperFunctions';
 import SettingsListLikeDislike from '@/components/SettingsListLikeDislike';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
+import useAppRatingScore from '@/hooks/useAppRatingScore';
 
 /**
  * Fill in `title`/`content` on the sanitized feedback input from
@@ -66,6 +67,7 @@ const FeedbackScreen = () => {
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
 	const toast = useToast();
+	const { registerNegativeSignal } = useAppRatingScore();
 	const appFeedback = new AppFeedback();
 	const { app_feedbacks_id } = useLocalSearchParams();
     const { profile } = useAppSelector((state) => state.authReducer);
@@ -268,6 +270,9 @@ const FeedbackScreen = () => {
 				console.log('Creating app feedback with input:');
 				await appFeedback.createAppFeedback(sanitizedInput);
 				console.log('App feedback created successfully');
+				// Someone who just filed a support ticket should not be asked to rate the
+				// app in the store for a while.
+				registerNegativeSignal();
 				setLoading(false);
 				console.log('Set loading to false finished');
 				await fetchDeviceInfo();

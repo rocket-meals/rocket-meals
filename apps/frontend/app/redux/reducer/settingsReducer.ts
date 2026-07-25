@@ -72,6 +72,11 @@ const initialState = {
                 lastAskedAt: null as string | null,
                 lastAskedAppVersion: null as string | null,
                 lastFocusTime: '',
+                // ISO timestamps of the prompt attempts of the last year. Drives the yearly
+                // budget in decideAppRating; pruned whenever a new attempt is recorded.
+                askedTimestamps: [] as string[],
+                // Set when the user just had a bad experience, so we don't ask right after.
+                negativeSignalAt: null as string | null,
         },
 };
 

@@ -76,6 +76,17 @@ export type SettingsState = {
         mapClusterPixelRadius: number;
         foodoffersShowSeparatedMarkingsBreakdown: boolean | null;
         foodoffersShowAverageRatingOnCard: boolean | null;
+        appRatingData: AppRatingData;
+}
+
+/** Persisted state behind the native "rate this app" prompt. See hooks/appRatingDecision.ts. */
+export type AppRatingData = {
+        score: number;
+        lastAskedAt: string | null;
+        lastAskedAppVersion: string | null;
+        lastFocusTime: string;
+        askedTimestamps: string[];
+        negativeSignalAt: string | null;
 }
 
 export type FoodState = {

@@ -50,6 +50,9 @@ const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => fo
 
 const VALID_FOOD_TABS = Object.values(FoodOfferDetailTab);
 
+/** A meal rated at or below this counts as a bad experience and delays the store prompt. */
+const LOW_FOOD_RATING_THRESHOLD = RatingHelper.MIN_RATING + 1;
+
 const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offerId, foodId: initialFoodId, initialImageAssetId, initialImageRemoteUrl }) => {
     const { theme } = useTheme();
     const { translate } = useLanguage();
@@ -57,7 +60,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
     const { width: screenWidth } = useWindowDimensions();
 
     const { show: showModal, close: closeModal } = useMyScrollViewModal();
-    const { addPointsForTabSwitch, addPointsForFoodRating5Stars } = useAppRatingScore();
+    const { addPointsForTabSwitch, addPointsForFoodRating5Stars, registerNegativeSignal } = useAppRatingScore();
 
     const { isSmartPhone, isAndroid, isIOS } = usePlatformHelper();
     const user = useAppSelector((state) => state.authReducer.user, shallowEqual);
@@ -212,6 +215,9 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
         const newRating = previousFeedback?.rating === rating ? null : rating;
         if (newRating === RatingHelper.MAX_RATING) {
             addPointsForFoodRating5Stars();
+        } else if (newRating !== null && newRating <= LOW_FOOD_RATING_THRESHOLD) {
+            // Someone who just rated a meal badly is a bad candidate for a store prompt.
+            registerNegativeSignal();
         }
         handleFoodRating({
             foodId: foodDetails?.id,
@@ -222,7 +228,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
             previousFeedback,
             dispatch,
         });
-    }, [user, previousFeedback, foodDetails, profile, foodOfferCanteenId, dispatch, openAccountRequiredModal, addPointsForFoodRating5Stars]);
+    }, [user, previousFeedback, foodDetails, profile, foodOfferCanteenId, dispatch, openAccountRequiredModal, addPointsForFoodRating5Stars, registerNegativeSignal]);
 
     const updateFoodFeedbackNotification = useCallback(async () => {
         try {
