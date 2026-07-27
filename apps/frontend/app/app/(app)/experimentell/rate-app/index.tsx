@@ -5,22 +5,20 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SettingsListGroupTitle } from 'repo-depkit-common-ui';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useAppSelector } from '@/redux/hooks';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
 import SettingsList from '@/components/SettingsList/SettingsList';
 import useAppRatingScore from '@/hooks/useAppRatingScore';
+import useAppReview, { AppReviewTrigger } from '@/hooks/useAppReview';
 import {
-	COOLDOWN_DAYS,
 	MAX_ASKS_PER_YEAR,
 	NEGATIVE_SIGNAL_BLOCK_DAYS,
 	SCORE_THRESHOLD,
-	daysUntilCooldownOver,
 	pruneAskedTimestamps,
 } from '@/hooks/appRatingDecision';
-import { buildReviewUrl } from '@/helper/ReviewLinkHelper';
-import { CommonSystemActionHelper } from '@/helper/SystemActionHelper';
+import { getAppUsageSessionId } from '@/helper/AppUsageEventHelper';
+import { getVersion } from '@/config';
 
 /**
  * Explains an `isAvailableAsync() === false` result, which is the single most confusing
@@ -47,7 +45,6 @@ const RateApp = () => {
 	useSetPageTitle(TranslationKeys.rate_app);
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const { appSettings } = useAppSelector((state) => state.settings);
 	const {
 		appRatingData,
 		score,
@@ -57,10 +54,12 @@ const RateApp = () => {
 		resetRatingState,
 		showDebugRatingModal,
 	} = useAppRatingScore();
+	const { requestAppReview } = useAppReview();
 
 	const [hasAction, setHasAction] = useState<string>('…');
 	const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
 	const [storeUrl, setStoreUrl] = useState<string>('…');
+	const [lastOutcome, setLastOutcome] = useState<string>('-');
 
 	useEffect(() => {
 		StoreReview.hasAction().then((v) => setHasAction(String(v)));
@@ -72,20 +71,20 @@ const RateApp = () => {
 		await StoreReview.requestReview();
 	}, []);
 
+	/** Exercises the two real entry points, so the debug screen tests the shipped paths. */
+	const runTrigger = useCallback(
+		async (trigger: AppReviewTrigger) => {
+			const outcome = await requestAppReview(trigger, { screenName: 'debug-rate-app' });
+			setLastOutcome(
+				`${trigger}: ${outcome.kind}${outcome.kind === 'skipped' ? ` (${outcome.reason})` : ''}`
+			);
+		},
+		[requestAppReview]
+	);
+
 	const now = new Date();
 	const decision = getCurrentDecision();
 	const asksThisYear = pruneAskedTimestamps(appRatingData?.askedTimestamps ?? [], now).length;
-	const cooldownLeft = daysUntilCooldownOver(appRatingData?.lastAskedAt ?? null, now);
-
-	const configuredStoreUrl =
-		Platform.OS === 'android' ? appSettings?.app_stores_url_to_google : appSettings?.app_stores_url_to_apple;
-	const reviewUrl = buildReviewUrl(Platform.OS === 'android' ? 'android' : 'ios', configuredStoreUrl);
-
-	const openReviewUrl = useCallback(() => {
-		if (reviewUrl) {
-			CommonSystemActionHelper.openExternalURL(reviewUrl, true);
-		}
-	}, [reviewUrl]);
 
 	const icon = (name: React.ComponentProps<typeof MaterialCommunityIcons>['name']) => (
 		<MaterialCommunityIcons name={name} size={22} color={theme.screen.icon} />
@@ -126,11 +125,19 @@ const RateApp = () => {
 					iconBgColor="transparent"
 				/>
 				<SettingsList
-					label={`Cooldown left (of ${COOLDOWN_DAYS} days)`}
-					value={cooldownLeft > 0 ? `${cooldownLeft} days` : 'none'}
+					label="Current build"
+					value={getVersion()}
 					groupPosition="middle"
 					showSeparator
-					leftIcon={icon('timer-sand')}
+					leftIcon={icon('cellphone-arrow-down')}
+					iconBgColor="transparent"
+				/>
+				<SettingsList
+					label="Asked on build (once-per-build cap)"
+					value={appRatingData?.lastAskedAppVersion || '-'}
+					groupPosition="middle"
+					showSeparator
+					leftIcon={icon('lock-outline')}
 					iconBgColor="transparent"
 				/>
 				<SettingsList
@@ -194,20 +201,45 @@ const RateApp = () => {
 						'dagegen in jeder Umgebung.'}
 				</Text>
 
-				<SettingsListGroupTitle title="Test-Aktionen" />
+				<SettingsListGroupTitle title="requestAppReview() — der eine Eintrittspunkt" />
 				<SettingsList
-					label="Review-Link öffnen (funktioniert immer)"
-					value={reviewUrl ? undefined : 'keine Store-URL konfiguriert'}
-					handleFunction={reviewUrl ? openReviewUrl : undefined}
+					label="EXPLICIT (fällt auf Store zurück)"
+					handleFunction={() => runTrigger(AppReviewTrigger.EXPLICIT)}
 					groupPosition="top"
 					showSeparator
-					leftIcon={icon('open-in-new')}
+					leftIcon={icon('gesture-tap-button')}
 					iconBgColor="transparent"
 				/>
 				<SettingsList
+					label="CELEBRATION (still, regelgeprüft)"
+					handleFunction={() => runTrigger(AppReviewTrigger.CELEBRATION)}
+					groupPosition="middle"
+					showSeparator
+					leftIcon={icon('party-popper')}
+					iconBgColor="transparent"
+				/>
+				<SettingsList
+					label="Letztes Ergebnis"
+					value={lastOutcome}
+					groupPosition="middle"
+					showSeparator
+					leftIcon={icon('receipt-text-outline')}
+					iconBgColor="transparent"
+				/>
+				<SettingsList
+					label="Usage-Event session_id"
+					value={getAppUsageSessionId()}
+					groupPosition="bottom"
+					showSeparator={false}
+					leftIcon={icon('identifier')}
+					iconBgColor="transparent"
+				/>
+
+				<SettingsListGroupTitle title="Test-Aktionen" />
+				<SettingsList
 					label="Score auf Schwelle setzen"
 					handleFunction={() => setScore(SCORE_THRESHOLD)}
-					groupPosition="middle"
+					groupPosition="top"
 					showSeparator
 					leftIcon={icon('target')}
 					iconBgColor="transparent"

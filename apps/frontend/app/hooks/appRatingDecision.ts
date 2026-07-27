@@ -14,12 +14,9 @@ import { Platform } from 'react-native';
 /** Points needed before the app is allowed to ask at all. */
 export const SCORE_THRESHOLD = 100;
 
-/** Minimum distance between two prompt attempts. */
-export const COOLDOWN_DAYS = 120;
-
 /**
- * Maximum attempts per rolling year. Matches the iOS limit of three prompts per 365 days,
- * so we never waste a slot that the OS would have swallowed anyway.
+ * Backstop on top of the once-per-version rule. Matches the iOS limit of three prompts per
+ * 365 days, so a burst of releases can never turn into a burst of prompts.
  */
 export const MAX_ASKS_PER_YEAR = 3;
 
@@ -40,7 +37,8 @@ export function getRatingPlatform(): AppRatingPlatform {
 
 export type AppRatingDecisionInput = {
 	score: number;
-	lastAskedAt: string | null;
+	lastAskedAppVersion: string | null;
+	currentAppVersion: string;
 	askedTimestamps: string[];
 	negativeSignalAt: string | null;
 	platform: AppRatingPlatform;
@@ -50,7 +48,7 @@ export type AppRatingDecisionInput = {
 /** The persisted slice the rules operate on. Matches `SettingsState['appRatingData']`. */
 export type AppRatingStoredData = {
 	score?: number;
-	lastAskedAt?: string | null;
+	lastAskedAppVersion?: string | null;
 	askedTimestamps?: string[];
 	negativeSignalAt?: string | null;
 } | null | undefined;
@@ -59,7 +57,7 @@ export type AppRatingDecisionReason =
 	| 'unsupported_platform'
 	| 'below_threshold'
 	| 'negative_signal'
-	| 'cooldown'
+	| 'already_asked_this_version'
 	| 'yearly_budget';
 
 export type AppRatingDecision =
@@ -97,9 +95,16 @@ export function pruneAskedTimestamps(askedTimestamps: string[], now: Date): stri
 	});
 }
 
+/**
+ * Decides whether the *automatic* prompt (a celebration moment) may fire right now.
+ *
+ * The once-per-version rule is the primary safety net: if a release ever asks at the wrong
+ * moment, or a bug makes a celebration fire repeatedly, the user still sees at most one
+ * prompt until the next build. The yearly budget guards against the opposite failure —
+ * many releases in quick succession.
+ */
 export function decideAppRating(input: AppRatingDecisionInput): AppRatingDecision {
-	const { score, lastAskedAt, askedTimestamps, negativeSignalAt, platform, now } = input;
-	const nowMs = now.getTime();
+	const { score, lastAskedAppVersion, currentAppVersion, askedTimestamps, negativeSignalAt, platform, now } = input;
 
 	if (platform === 'web') {
 		return { ask: false, reason: 'unsupported_platform' };
@@ -110,13 +115,12 @@ export function decideAppRating(input: AppRatingDecisionInput): AppRatingDecisio
 	}
 
 	const negativeSignalMs = parseTimestamp(negativeSignalAt);
-	if (negativeSignalMs !== null && daysBetween(nowMs, negativeSignalMs) < NEGATIVE_SIGNAL_BLOCK_DAYS) {
+	if (negativeSignalMs !== null && daysBetween(now.getTime(), negativeSignalMs) < NEGATIVE_SIGNAL_BLOCK_DAYS) {
 		return { ask: false, reason: 'negative_signal' };
 	}
 
-	const lastAskedMs = parseTimestamp(lastAskedAt);
-	if (lastAskedMs !== null && daysBetween(nowMs, lastAskedMs) < COOLDOWN_DAYS) {
-		return { ask: false, reason: 'cooldown' };
+	if (lastAskedAppVersion !== null && lastAskedAppVersion === currentAppVersion) {
+		return { ask: false, reason: 'already_asked_this_version' };
 	}
 
 	if (pruneAskedTimestamps(askedTimestamps, now).length >= MAX_ASKS_PER_YEAR) {
@@ -132,11 +136,13 @@ export function decideAppRating(input: AppRatingDecisionInput): AppRatingDecisio
  */
 export function decideAppRatingFromStoredData(
 	data: AppRatingStoredData,
+	currentAppVersion: string,
 	now: Date = new Date()
 ): AppRatingDecision {
 	return decideAppRating({
 		score: data?.score ?? 0,
-		lastAskedAt: data?.lastAskedAt ?? null,
+		lastAskedAppVersion: data?.lastAskedAppVersion ?? null,
+		currentAppVersion,
 		askedTimestamps: data?.askedTimestamps ?? [],
 		negativeSignalAt: data?.negativeSignalAt ?? null,
 		platform: getRatingPlatform(),
@@ -144,12 +150,14 @@ export function decideAppRatingFromStoredData(
 	});
 }
 
-/** Days left until the cooldown expires, or 0 when it already has. Debug display only. */
-export function daysUntilCooldownOver(lastAskedAt: string | null, now: Date): number {
-	const lastAskedMs = parseTimestamp(lastAskedAt);
-	if (lastAskedMs === null) {
-		return 0;
-	}
-	const remaining = COOLDOWN_DAYS - daysBetween(now.getTime(), lastAskedMs);
-	return remaining > 0 ? Math.ceil(remaining) : 0;
+/**
+ * Whether the native dialog was already attempted on this build. The explicit entry point
+ * uses this to send repeat taps straight to the store instead of into a likely no-op.
+ */
+export function wasAskedOnThisVersion(
+	data: AppRatingStoredData,
+	currentAppVersion: string
+): boolean {
+	const lastAsked = data?.lastAskedAppVersion ?? null;
+	return lastAsked !== null && lastAsked === currentAppVersion;
 }

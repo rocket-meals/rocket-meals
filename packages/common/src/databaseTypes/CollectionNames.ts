@@ -11,6 +11,7 @@ export enum CollectionNames {
   AUTO_TRANSLATION_SETTINGS = 'auto_translation_settings',
   APP_SETTINGS = 'app_settings',
   APP_FEEDBACKS = 'app_feedbacks',
+  APP_USAGE_EVENTS = 'app_usage_events',
   CASHREGISTERS = 'cashregisters',
   CASHREGISTERS_TRANSACTIONS = 'cashregisters_transactions',
   COLLECTIONS_DATES_LAST_UPDATE = 'collections_dates_last_update',

@@ -5,7 +5,8 @@ import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewMo
 import { TranslationKeys } from '@/locales/keys';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
-import useAppRatingScore from '@/hooks/useAppRatingScore';
+import useAppReview, { AppReviewTrigger } from '@/hooks/useAppReview';
+import { useAppSelector } from '@/redux/hooks';
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
 import DebugView from '@/components/DebugView';
 import styles from '@/app/(app)/collectible-event/styles';
@@ -14,14 +15,15 @@ const useCollectibleEventCongratulationsModal = () => {
 	const { show } = useMyScrollViewModal();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
-	const { appRatingData, requestReviewIfAllowed } = useAppRatingScore();
+	const { requestAppReview } = useAppReview();
+	const appRatingData = useAppSelector((state) => state.settings.appRatingData);
 	const wasAskedForRating = Boolean(appRatingData?.lastAskedAt);
 
 	const openCongratulationsModal = useCallback(() => {
 		// Closing the congratulations modal is one of the best moments in the app to ask.
-		// The shared rules (cooldown, yearly budget, recent negative signal) still apply.
+		// Silent by design: if the rules or the OS say no, nothing happens at all.
 		const handleClose = () => {
-			requestReviewIfAllowed();
+			requestAppReview(AppReviewTrigger.CELEBRATION, { screenName: 'collectible-event' });
 		};
 
 		show(
@@ -64,7 +66,7 @@ const useCollectibleEventCongratulationsModal = () => {
 			{}
 		);
 	}, [
-		requestReviewIfAllowed,
+		requestAppReview,
 		show,
 		theme.inactiveText,
 		theme.screen.text,

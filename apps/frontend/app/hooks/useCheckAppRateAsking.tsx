@@ -1,22 +1,26 @@
 import React, { useCallback } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
 import { TranslationKeys } from '@/locales/keys';
 import useDebugMode from '@/hooks/useDebugMode';
-import useAppRatingScore from '@/hooks/useAppRatingScore';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 
+/**
+ * Shows the invitation modal — a prompt plus the `RateAppSettingsItem` row. This is the
+ * shape the explicit case takes inside a popup event or an info modal: the row itself is the
+ * single entry point (`requestAppReview` with `AppReviewTrigger.EXPLICIT`), so this hook only
+ * has to present it and never calls the store review API itself.
+ */
 const useCheckAppRateAsking = () => {
 	const debugMode = useDebugMode();
-	const { requestReviewIfAllowed } = useAppRatingScore();
 	const { show } = useMyScrollViewModal();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
 
-	const showWebRatingModal = useCallback(() => {
+	const showAppRating = useCallback(() => {
 		show({
 			children: (
 				<View style={styles.container}>
@@ -28,17 +32,6 @@ const useCheckAppRateAsking = () => {
 			),
 		});
 	}, [show, theme.screen.text, translate]);
-
-	const showAppRating = useCallback(async () => {
-		if (Platform.OS !== 'web') {
-			const attempted = await requestReviewIfAllowed();
-			if (!attempted) {
-				showWebRatingModal();
-			}
-		} else {
-			showWebRatingModal();
-		}
-	}, [requestReviewIfAllowed, showWebRatingModal]);
 
 	const checkAndShowAppRating = useCallback(() => {
 		if (debugMode) {

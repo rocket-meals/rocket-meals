@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import * as StoreReview from 'expo-store-review';
 import { useDispatch } from 'react-redux';
 
 import { useAppSelector } from '@/redux/hooks';
@@ -12,11 +11,11 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from '@/hooks/useTheme';
 import useDebugMode from '@/hooks/useDebugMode';
 import { getVersion } from '@/config';
+import useAppReview, { AppReviewTrigger } from '@/hooks/useAppReview';
 import {
 	type AppRatingDecision,
 	SCORE_THRESHOLD,
 	decideAppRatingFromStoredData,
-	pruneAskedTimestamps,
 } from '@/hooks/appRatingDecision';
 
 export { SCORE_THRESHOLD };
@@ -31,21 +30,20 @@ const SCORE_FOOD_RATING_5_STARS = 10;
 const SCORE_LABEL_POSITIVE = 10;
 
 /**
- * Hook that manages a persistent "App Rating Score" via Redux store.
- * Points accumulate through user interactions. When the score reaches the threshold (100),
- * the app attempts to show the native rating dialog on foodoffer screen focus.
+ * Accumulates the "App Rating Score" in Redux — points earned through positive interactions
+ * — and decides when a celebration moment is worth a rating prompt.
+ *
+ * This hook owns the *score*. It does not talk to the store review API: the single entry
+ * point for that is `requestAppReview` in `useAppReview`, which this hook calls with
+ * `AppReviewTrigger.CELEBRATION`.
  *
  * The state is stored as an object containing:
  * - score: current accumulated score
  * - lastAskedAt: ISO timestamp of last rating prompt
- * - lastAskedAppVersion: app version when last asked (debug display only)
+ * - lastAskedAppVersion: app version when last asked — the once-per-build cap
  * - lastFocusTime: last focus time for debug display
  * - askedTimestamps: attempts within the last year, for the yearly budget
  * - negativeSignalAt: timestamp of the last bad experience
- *
- * Whether we are actually allowed to ask is decided by `decideAppRating`, which is a pure
- * function so the rules can be unit tested — the OS dialog itself never appears in
- * TestFlight and is silently rate limited in production, so it cannot be relied on in tests.
  */
 const useAppRatingScore = () => {
 	const dispatch = useDispatch();
@@ -55,6 +53,7 @@ const useAppRatingScore = () => {
 	const { show } = useMyScrollViewModal();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
+	const { requestAppReview } = useAppReview();
 
 	const appRatingDataRef = useRef(appRatingData);
 	useEffect(() => {
@@ -98,7 +97,7 @@ const useAppRatingScore = () => {
 
 	/** Evaluates the current rules without any side effect. Used by the debug screen. */
 	const getCurrentDecision = useCallback((): AppRatingDecision => {
-		return decideAppRatingFromStoredData(appRatingDataRef.current);
+		return decideAppRatingFromStoredData(appRatingDataRef.current, getVersion());
 	}, []);
 
 	const showDebugRatingModal = useCallback(() => {
@@ -118,52 +117,6 @@ const useAppRatingScore = () => {
 	}, [show, theme.screen.text, translate]);
 
 	/**
-	 * Records an attempt. Note that `requestReview()` resolves even when the OS silently
-	 * suppressed the dialog (there is no return value), so this counts attempts, not
-	 * impressions. That is why the rules use a cooldown rather than a one-shot flag: a
-	 * suppressed attempt is retried at the next good moment instead of being lost forever.
-	 */
-	const recordAskAttempt = useCallback(() => {
-		const now = new Date();
-		const previous = appRatingDataRef.current?.askedTimestamps ?? [];
-		dispatch({
-			type: SET_APP_RATING_DATA,
-			payload: {
-				score: 0,
-				lastAskedAt: now.toISOString(),
-				lastAskedAppVersion: getVersion(),
-				askedTimestamps: [...pruneAskedTimestamps(previous, now), now.toISOString()],
-			},
-		});
-	}, [dispatch]);
-
-	/**
-	 * Single entry point for every "good moment" in the app that wants to ask for a rating.
-	 * Applies the shared rules first, so callers never have to know about cooldowns or
-	 * budgets. Resolves to true when an attempt was made — note that this still does not
-	 * mean the dialog was actually shown, see `recordAskAttempt`.
-	 */
-	const requestReviewIfAllowed = useCallback(async (): Promise<boolean> => {
-		if (!getCurrentDecision().ask) {
-			return false;
-		}
-
-		try {
-			const isAvailable = await StoreReview.isAvailableAsync();
-			if (!isAvailable) {
-				// iOS returns false in TestFlight, where the dialog can never appear.
-				return false;
-			}
-			await StoreReview.requestReview();
-			recordAskAttempt();
-			return true;
-		} catch (error) {
-			console.log('useAppRatingScore: error requesting review', error);
-			return false;
-		}
-	}, [getCurrentDecision, recordAskAttempt]);
-
-	/**
 	 * Called when the foodoffer screen gains focus or a modal closes.
 	 * In debug mode the in-app modal is shown instead, since the native dialog is not
 	 * reliably available in development builds.
@@ -174,7 +127,6 @@ const useAppRatingScore = () => {
 		}
 
 		if (debugMode) {
-			recordAskAttempt();
 			// Small delay to ensure the foodoffers screen is fully mounted before showing modal
 			setTimeout(() => {
 				showDebugRatingModal();
@@ -182,8 +134,8 @@ const useAppRatingScore = () => {
 			return;
 		}
 
-		await requestReviewIfAllowed();
-	}, [debugMode, recordAskAttempt, requestReviewIfAllowed, showDebugRatingModal]);
+		await requestAppReview(AppReviewTrigger.CELEBRATION, { screenName: 'foodoffers' });
+	}, [debugMode, requestAppReview, showDebugRatingModal]);
 
 	const addPointsForDetailsOpen = useCallback(() => {
 		addPoints(SCORE_FOODOFFER_DETAILS_OPEN);
@@ -223,7 +175,6 @@ const useAppRatingScore = () => {
 		setScore,
 		setLastFocusTime,
 		checkAndRequestRatingOnFocus,
-		requestReviewIfAllowed,
 		showDebugRatingModal,
 		getCurrentDecision,
 		registerNegativeSignal,

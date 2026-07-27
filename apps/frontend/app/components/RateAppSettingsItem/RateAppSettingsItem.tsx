@@ -12,8 +12,10 @@ import { TranslationKeys } from '@/locales/keys';
 import { RootState } from '@/redux/reducer';
 import { CommonSystemActionHelper } from '@/helper/SystemActionHelper';
 import { buildReviewUrl } from '@/helper/ReviewLinkHelper';
-// Imported from the pure rules module rather than from `useAppRatingScore`, which renders
-// this component in its debug modal — going through the hook would be a circular import.
+import { getVersion } from '@/config';
+import useAppReview, { AppReviewTrigger } from '@/hooks/useAppReview';
+// The decision is imported from the pure rules module rather than from `useAppRatingScore`,
+// which renders this component in its debug modal — that would be a circular import.
 import { decideAppRatingFromStoredData } from '@/hooks/appRatingDecision';
 
 const RATE_APP_ICON_BACKGROUND = '#F7D21F';
@@ -42,6 +44,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 	const { theme } = useTheme();
 	const { primaryColor, appSettings, appRatingData } = useSelector((state: RootState) => state.settings);
 	const { show: showModal } = useMyScrollViewModal();
+	const { requestAppReview } = useAppReview();
 
 	const [debugLogs, setDebugLogs] = useState<{ id: number; text: string }[]>([]);
 	const nextDebugLogIdRef = useRef(0);
@@ -60,12 +63,8 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 	);
 
 	/**
-	 * Always opens the store review page — never the native review API.
-	 *
-	 * Both stores forbid triggering the in-app review API from a button: Apple because
-	 * "this method may or may not present an alert", Google explicitly with "you should not
-	 * have a call-to-action option (such as a button) to trigger the API […] redirect the
-	 * user to the Play Store instead". A tap here must always do something visible.
+	 * Web only: one row per store, each opening that store's review page directly. On web
+	 * there is no native dialog and no single correct store, so the user picks.
 	 */
 	const openStore = useCallback(
 		(storeUrl: string, store: StoreTarget) => {
@@ -75,6 +74,18 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 		},
 		[addLog]
 	);
+
+	/**
+	 * Native: the explicit entry point. Tries the native dialog once per build and otherwise
+	 * opens the store review page, so a tap always leads somewhere. Both stores warn that the
+	 * API may silently do nothing — Google explicitly says to redirect to the store for
+	 * button-triggered flows — which is exactly what the fallback covers.
+	 */
+	const handleRateTap = useCallback(async () => {
+		addLog('Explicit rate request');
+		const outcome = await requestAppReview(AppReviewTrigger.EXPLICIT, { screenName: 'rate-app-row' });
+		addLog(`Outcome: ${outcome.kind}${outcome.kind === 'skipped' ? ` (${outcome.reason})` : ''}`);
+	}, [addLog, requestAppReview]);
 
 	const showDebugLogsModal = useCallback(() => {
 		showModal({
@@ -118,7 +129,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 			<SettingsList
 				label="Current decision"
 				value={(() => {
-					const decision = decideAppRatingFromStoredData(appRatingData);
+					const decision = decideAppRatingFromStoredData(appRatingData, getVersion());
 					return decision.ask ? 'ask' : `blocked: ${decision.reason}`;
 				})()}
 				groupPosition="middle"
@@ -202,7 +213,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 			{nativeStoreUrl && (
 				<SettingsList
 					label={nativeRow?.label || translate(TranslationKeys.rate_app)}
-					handleFunction={() => openStore(nativeStoreUrl, nativeStore)}
+					handleFunction={handleRateTap}
 					groupPosition={debug ? 'top' : groupPosition}
 					showSeparator={debug}
 					iconBgColor={RATE_APP_ICON_BACKGROUND}
