@@ -38,16 +38,12 @@ runs:
       shell: bash
     - name: Commit and push changes if dist changed
       if: steps.repo_check.outputs.is_main_repo == 'true' && env.dist_changed == 'true'
-      run: |
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        git stash --include-untracked
-        git pull --rebase
-        git stash pop
-        git add -f apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/dist
-        git commit -m "Update dist after backend build"
-        git push
-      shell: bash
+      uses: ./.github/actions/commit-and-push-files
+      with:
+        files: apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/dist
+        commit-message: "Update dist after backend build"
+        git-user-name: "GitHub Actions"
+        git-user-email: "actions@github.com"
     - name: Upload Dist Artifact
       if: steps.repo_check.outputs.is_main_repo == 'true' && env.dist_changed == 'true'
       uses: actions/upload-artifact@v4

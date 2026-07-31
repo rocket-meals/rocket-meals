@@ -1,14 +1,22 @@
 name: "Commit and push files"
 description: >
-  Commit the given generated files and push them to a branch, safely handling
-  concurrent pushes from other jobs. The files are kept aside, the working tree
-  is reset to the latest remote state, and the commit is rebuilt on top of it.
-  On a push rejection (another job pushed in between) the whole cycle retries
-  with backoff instead of force-pushing, so concurrent commits are never lost.
+  Commit generated files and push them to a branch, safely handling concurrent
+  pushes from other jobs. The commit is created locally, then rebased onto the
+  freshly fetched remote state (preferring the newly generated files on
+  conflicts) and pushed without --force. On a push rejection (another job
+  pushed in between) the whole cycle retries with backoff instead of
+  force-pushing, so concurrent commits are never lost.
 inputs:
   files:
-    description: "Whitespace-separated list of file paths to commit (added with git add -f)"
-    required: true
+    description: >
+      Whitespace-separated list of file or directory paths to commit (added
+      with git add -f). Required unless add-all is 'true'.
+    required: false
+    default: ""
+  add-all:
+    description: "Set to 'true' to commit all working tree changes (git add -A) instead of a fixed file list"
+    required: false
+    default: "false"
   commit-message:
     description: "Commit message to use"
     required: true
@@ -17,9 +25,21 @@ inputs:
     required: false
     default: ${{ github.ref_name }}
   max-attempts:
-    description: "How often to retry the fetch/commit/push cycle"
+    description: "How often to retry the fetch/rebase/push cycle"
     required: false
     default: "5"
+  git-user-name:
+    description: "Git user.name for the commit"
+    required: false
+    default: "github-actions"
+  git-user-email:
+    description: "Git user.email for the commit"
+    required: false
+    default: "github-actions@github.com"
+  github-token:
+    description: "Optional GitHub token; when set, the origin remote URL is rewritten to authenticate with it"
+    required: false
+    default: ""
 runs:
   using: "composite"
   steps:
@@ -27,36 +47,30 @@ runs:
       shell: bash
       env:
         FILES: ${{ inputs.files }}
+        ADD_ALL: ${{ inputs.add-all }}
         COMMIT_MESSAGE: ${{ inputs.commit-message }}
         BRANCH: ${{ inputs.branch }}
         MAX_ATTEMPTS: ${{ inputs.max-attempts }}
+        GIT_USER_NAME: ${{ inputs.git-user-name }}
+        GIT_USER_EMAIL: ${{ inputs.git-user-email }}
+        GH_TOKEN: ${{ inputs.github-token }}
       run: |
         set -euo pipefail
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
+        git config user.name "$GIT_USER_NAME"
+        git config user.email "$GIT_USER_EMAIL"
+        if [ -n "$GH_TOKEN" ]; then
+          git remote set-url origin "https://git:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+        fi
 
-        # Keep the freshly generated files safe while we sync with origin
-        BACKUP_DIR=$(mktemp -d)
-        for file in $FILES; do
-          if [ -e "$file" ]; then
-            cp --parents "$file" "$BACKUP_DIR"
-          else
-            echo "Warning: $file does not exist, skipping"
-          fi
-        done
-
-        for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
-          # Rebuild the commit on top of the latest remote state so a push
-          # never needs --force and never discards concurrent commits.
-          git fetch origin "$BRANCH"
-          git reset --hard FETCH_HEAD
-          if [ -n "$(ls -A "$BACKUP_DIR")" ]; then
-            cp -R "$BACKUP_DIR"/. .
-          fi
+        if [ "$ADD_ALL" = "true" ]; then
+          git add -A
+        else
           ADD_FILES=""
           for file in $FILES; do
             if [ -e "$file" ]; then
               ADD_FILES="$ADD_FILES $file"
+            else
+              echo "Warning: $file does not exist, skipping"
             fi
           done
           if [ -z "$ADD_FILES" ]; then
@@ -64,11 +78,25 @@ runs:
             exit 0
           fi
           git add -f -- $ADD_FILES
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-            exit 0
+        fi
+
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+          exit 0
+        fi
+        git commit -m "$COMMIT_MESSAGE"
+
+        for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
+          git fetch origin "$BRANCH"
+          # Replay our commit on top of the latest remote state so a push
+          # never needs --force and never discards concurrent commits. On
+          # conflicting files the freshly generated version wins (in a
+          # rebase, "theirs" is the commit being replayed).
+          if ! git rebase --autostash -X theirs FETCH_HEAD; then
+            git rebase --abort || true
+            echo "Rebase onto latest $BRANCH failed and could not be resolved automatically"
+            exit 1
           fi
-          git commit -m "$COMMIT_MESSAGE"
           if git push origin "HEAD:$BRANCH"; then
             echo "Pushed successfully on attempt $attempt"
             exit 0

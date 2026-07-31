@@ -61,16 +61,7 @@ jobs:
           path: reports/accessibility/
 
       - name: "💾 Commit reports"
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git pull --rebase --autostash origin ${{ github.ref_name }}
-          git add -f reports/accessibility/
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: update accessibility reports [skip ci]"
-            git push
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/commit-and-push-files
+        with:
+          files: reports/accessibility
+          commit-message: "chore: update accessibility reports [skip ci]"

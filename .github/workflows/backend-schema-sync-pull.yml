@@ -65,17 +65,10 @@ jobs:
           fi
           yarn workspace backend-sync sync:pull-from-test-system
 
-      - name: "🤖 Configure Git"
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
       - name: "📤 Commit and push schema changes"
-        run: |
-          git add data/directus-sync-data packages/common/src/databaseTypes
-          if git diff --cached --quiet; then
-            echo "ℹ️ No schema changes detected, nothing to commit."
-          else
-            git commit -m "${{ github.event.inputs.commit_message || 'chore: pull database schema from test system [skip ci]' }}"
-            git push origin HEAD:${{ github.ref_name }}
-          fi
+        uses: ./.github/actions/commit-and-push-files
+        with:
+          files: data/directus-sync-data packages/common/src/databaseTypes
+          commit-message: "${{ github.event.inputs.commit_message || 'chore: pull database schema from test system [skip ci]' }}"
+          git-user-name: "github-actions[bot]"
+          git-user-email: "41898282+github-actions[bot]@users.noreply.github.com"

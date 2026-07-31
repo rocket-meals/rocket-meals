@@ -163,21 +163,14 @@ runs:
         EXPO_TOKEN: ${{ inputs.EXPO_TOKEN }}
 
     - name: "💾 Commit EAS config changes"
-      run: |
-        git config --global user.name 'Rocket Meals'
-        git config --global user.email 'nils@baumgartner-software.de'
-        git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-        if ! git diff --quiet; then
-          git add -A && git commit -m "chore: update geonexia EAS config [skip ci]"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin "$(git rev-parse --abbrev-ref HEAD)" && git push && break
-            echo "Push attempt $i failed, retrying..."
-            sleep 5
-          done
-        fi
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+      uses: ./.github/actions/commit-and-push-files
+      with:
+        add-all: 'true'
+        commit-message: "chore: update geonexia EAS config [skip ci]"
+        branch: ${{ inputs.ref_name }}
+        git-user-name: "Rocket Meals"
+        git-user-email: "nils@baumgartner-software.de"
+        github-token: ${{ inputs.GITHUB_TOKEN }}
 
     - name: "🚀 Publish OTA update"
       run: |
