@@ -227,18 +227,10 @@ jobs:
           refactor-amount: 15
           detector-options-paths-ignored-in-detection-comparison: '**/databaseTypes/types.ts'
       - name: "💾 Commit reports"
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add -f reports/data-clumps-doctor/data-clumps.json reports/data-clumps-doctor/badges/data-clumps.svg
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: update data-clumps reports [skip ci]"
-            git push --force
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ./.github/actions/commit-and-push-files
+        with:
+          files: reports/data-clumps-doctor/data-clumps.json reports/data-clumps-doctor/badges/data-clumps.svg
+          commit-message: "chore: update data-clumps reports [skip ci]"
 
   backend-directus:
     name: "🔨 Directus Backend Build"

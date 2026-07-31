@@ -1,0 +1,81 @@
+name: "Commit and push files"
+description: >
+  Commit the given generated files and push them to a branch, safely handling
+  concurrent pushes from other jobs. The files are kept aside, the working tree
+  is reset to the latest remote state, and the commit is rebuilt on top of it.
+  On a push rejection (another job pushed in between) the whole cycle retries
+  with backoff instead of force-pushing, so concurrent commits are never lost.
+inputs:
+  files:
+    description: "Whitespace-separated list of file paths to commit (added with git add -f)"
+    required: true
+  commit-message:
+    description: "Commit message to use"
+    required: true
+  branch:
+    description: "Branch to push to"
+    required: false
+    default: ${{ github.ref_name }}
+  max-attempts:
+    description: "How often to retry the fetch/commit/push cycle"
+    required: false
+    default: "5"
+runs:
+  using: "composite"
+  steps:
+    - name: "💾 Commit and push with retry"
+      shell: bash
+      env:
+        FILES: ${{ inputs.files }}
+        COMMIT_MESSAGE: ${{ inputs.commit-message }}
+        BRANCH: ${{ inputs.branch }}
+        MAX_ATTEMPTS: ${{ inputs.max-attempts }}
+      run: |
+        set -euo pipefail
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+
+        # Keep the freshly generated files safe while we sync with origin
+        BACKUP_DIR=$(mktemp -d)
+        for file in $FILES; do
+          if [ -e "$file" ]; then
+            cp --parents "$file" "$BACKUP_DIR"
+          else
+            echo "Warning: $file does not exist, skipping"
+          fi
+        done
+
+        for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
+          # Rebuild the commit on top of the latest remote state so a push
+          # never needs --force and never discards concurrent commits.
+          git fetch origin "$BRANCH"
+          git reset --hard FETCH_HEAD
+          if [ -n "$(ls -A "$BACKUP_DIR")" ]; then
+            cp -R "$BACKUP_DIR"/. .
+          fi
+          ADD_FILES=""
+          for file in $FILES; do
+            if [ -e "$file" ]; then
+              ADD_FILES="$ADD_FILES $file"
+            fi
+          done
+          if [ -z "$ADD_FILES" ]; then
+            echo "None of the given files exist, nothing to commit"
+            exit 0
+          fi
+          git add -f -- $ADD_FILES
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "$COMMIT_MESSAGE"
+          if git push origin "HEAD:$BRANCH"; then
+            echo "Pushed successfully on attempt $attempt"
+            exit 0
+          fi
+          echo "Push rejected on attempt $attempt (concurrent push to $BRANCH), retrying..."
+          sleep $((attempt * 5))
+        done
+
+        echo "Failed to push after $MAX_ATTEMPTS attempts"
+        exit 1
