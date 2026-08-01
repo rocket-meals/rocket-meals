@@ -7,11 +7,33 @@ on:
         description: "Changelog-Text (What's New), der in App Store Connect gesetzt wird"
         required: false
         default: "Fehlerbehebungen und Aktualisierung von Bibliotheken."
+  schedule:
+    # Täglich prüfen, ob ein fertig verarbeiteter Build eingereicht werden kann -
+    # z.B. sobald eine vorherige Review abgeschlossen ist. Gibt es nichts zu tun,
+    # wird der Lauf sauber übersprungen (grün). Zeit in UTC.
+    - cron: "33 6 * * *"
+  workflow_run:
+    # Nach jedem erfolgreichen CI-Lauf automatisch einreichen. Das Skript wartet
+    # dabei darauf, dass Apple den frisch hochgeladenen Build fertig verarbeitet hat.
+    workflows: ["🚀 CI"]
+    types: [completed]
+    branches: [master]
+
+# Nie zwei Einreichungen gleichzeitig (z.B. Cron + Build-Trigger) laufen lassen.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
   submit-for-review:
     name: "🚀 Submit latest build for App Review"
     runs-on: ubuntu-latest
+    timeout-minutes: 150
+    # Geonexia wird nur aus dem Upstream-Repo gebaut - automatische Läufe auf Forks überspringen.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.repository == 'rocket-meals/rocket-meals' &&
+       (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'))
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
@@ -40,4 +62,10 @@ jobs:
         run: yarn workspace rocket-meals-scripts submit:ios:review
         env:
           IOS_BUNDLE_ID: de.baumgartner-software.geonexia
-          IOS_RELEASE_NOTES: ${{ inputs.release_notes }}
+          IOS_RELEASE_NOTES: ${{ inputs.release_notes || 'Fehlerbehebungen und Aktualisierung von Bibliotheken.' }}
+          # Automatisierte Läufe (Cron/Build-Trigger) überspringen sauber, wenn es
+          # nichts einzureichen gibt; nur manuelle Läufe melden das als Fehler.
+          IOS_SUBMIT_AUTOMATED: ${{ github.event_name != 'workflow_dispatch' }}
+          # Direkt nach einem Build braucht Apple i.d.R. einige Minuten bis der
+          # hochgeladene Build verarbeitet (VALID) ist - so lange warten wir maximal.
+          IOS_SUBMIT_WAIT_FOR_PROCESSING_MINUTES: ${{ github.event_name == 'workflow_run' && '90' || '0' }}
