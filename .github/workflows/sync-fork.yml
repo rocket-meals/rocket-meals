@@ -4,18 +4,45 @@ permissions:
   contents: write
 
 on:
-  # Run hourly
+  # Run daily at 00:00 UTC as a safety net for syncs that could not be
+  # detected immediately (see the note on [skip ci] at the push trigger).
   schedule:
-    - cron: '0 0 * * *'  # Runs at 00:00. 
+    - cron: '0 0 * * *'
 
   # Allow manual triggering
   workflow_dispatch:
+
+  # React to pushes on master. This is what fires when the "Sync fork" button
+  # on the GitHub UI is pressed - GitHub simply pushes the upstream commits to
+  # the fork's master. Note: when the head commit message contains [skip ci],
+  # GitHub suppresses ALL push-triggered workflows, so such syncs cannot be
+  # detected immediately. They are picked up by the next scheduled or manual
+  # run via the last-processed marker tag below.
+  push:
+    branches: [master]
+
+# Serialize runs (no cancel) so the marker tag is never updated by two runs
+# racing each other, e.g. a scheduled run and the push event caused by its
+# own `gh repo sync`.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   sync-fork:
     name: 🔄 Sync Fork with Upstream
     runs-on: ubuntu-latest
-    
+    # Pushes on the upstream repository itself are none of this workflow's
+    # business - only forks need to react to the "Sync fork" button.
+    if: github.event_name != 'push' || github.repository != 'rocket-meals/rocket-meals'
+
+    env:
+      # Tag on the fork that records the last commit the Combined CI has been
+      # triggered for. This is how the workflow knows "what the repository
+      # looked like before", independent of HOW new commits arrived (own
+      # `gh repo sync`, the GitHub "Sync fork" button, or a direct push).
+      MARKER_TAG: fork-sync/last-processed
+
     steps:
       - name: 🔄 Checkout Repository
         uses: actions/checkout@v4
@@ -28,19 +55,21 @@ jobs:
 
       - name: 🔍 Check for Updates from Upstream
         id: check-updates
-        if: steps.check-repo.outputs.is-fork == 'true'
+        # On push events the fork already received the new commits (e.g. via
+        # the "Sync fork" button), so there is nothing to pull from upstream.
+        if: steps.check-repo.outputs.is-fork == 'true' && github.event_name != 'push'
         run: |
           # Fetch upstream repository
           git remote add upstream https://github.com/rocket-meals/rocket-meals.git || true
           git fetch upstream master
-          
+
           # Check if there are differences
           LOCAL_COMMIT=$(git rev-parse HEAD)
           UPSTREAM_COMMIT=$(git rev-parse upstream/master)
-          
+
           echo "Local commit: $LOCAL_COMMIT"
           echo "Upstream commit: $UPSTREAM_COMMIT"
-          
+
           if [ "$LOCAL_COMMIT" != "$UPSTREAM_COMMIT" ]; then
             echo "Updates available from upstream"
             echo "has-updates=true" >> $GITHUB_OUTPUT
@@ -72,21 +101,108 @@ jobs:
             exit 1
           fi
 
+      - name: 🔍 Determine Unprocessed Changes
+        id: changes
+        if: steps.check-repo.outputs.is-fork == 'true'
+        run: |
+          # Refresh local state - the sync above (or the push that triggered
+          # this run) may have moved origin/master.
+          git fetch origin master
+          CURRENT_COMMIT=$(git rev-parse origin/master)
+
+          # Fetch the marker tag recording the last state CI was triggered for.
+          git fetch --force origin "+refs/tags/${MARKER_TAG}:refs/tags/${MARKER_TAG}" || true
+          if git rev-parse -q --verify "refs/tags/${MARKER_TAG}^{commit}" >/dev/null; then
+            LAST_PROCESSED=$(git rev-parse "refs/tags/${MARKER_TAG}^{commit}")
+          else
+            LAST_PROCESSED=""
+          fi
+
+          echo "current-commit=$CURRENT_COMMIT" >> $GITHUB_OUTPUT
+          echo "last-processed=$LAST_PROCESSED" >> $GITHUB_OUTPUT
+
+          {
+            echo "## 🔄 Fork Synchronization"
+            echo ""
+            echo "- Trigger: \`${{ github.event_name }}\`"
+            if [ "${{ github.event_name }}" = "push" ]; then
+              echo "- Push (e.g. \"Sync fork\" button): \`${{ github.event.before }}\` → \`${{ github.event.after }}\`"
+            fi
+            echo "- Last processed state: \`${LAST_PROCESSED:-<none - first run>}\`"
+            echo "- Current state: \`$CURRENT_COMMIT\`"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ -z "$LAST_PROCESSED" ]; then
+            echo "No marker tag found - treating everything as unprocessed (first run)."
+            echo "has-unprocessed=true" >> $GITHUB_OUTPUT
+            echo "First run: no \`${MARKER_TAG}\` tag yet - Combined CI will process the current state." >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$LAST_PROCESSED" != "$CURRENT_COMMIT" ]; then
+            echo "Unprocessed changes detected: $LAST_PROCESSED -> $CURRENT_COMMIT"
+            echo "has-unprocessed=true" >> $GITHUB_OUTPUT
+            {
+              if git merge-base --is-ancestor "$LAST_PROCESSED" "$CURRENT_COMMIT"; then
+                # Cap the lists so a first sync of an old fork cannot blow the
+                # 1 MiB step-summary limit.
+                git log --oneline "${LAST_PROCESSED}..${CURRENT_COMMIT}" > /tmp/new-commits.txt
+                git diff --name-status "$LAST_PROCESSED" "$CURRENT_COMMIT" > /tmp/changed-files.txt
+                echo "### 📝 New commits since last processed state ($(wc -l < /tmp/new-commits.txt) total)"
+                echo ""
+                echo '```'
+                head -n 100 /tmp/new-commits.txt
+                echo '```'
+                echo ""
+                echo "### 📁 Changed files ($(wc -l < /tmp/changed-files.txt) total)"
+                echo ""
+                echo '```'
+                head -n 300 /tmp/changed-files.txt
+                echo '```'
+              else
+                echo "### ⚠️ History rewritten"
+                echo ""
+                echo "The last processed commit is no longer an ancestor of the current state (force push?). Combined CI will process the current state."
+              fi
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Current state already processed - nothing to do."
+            echo "has-unprocessed=false" >> $GITHUB_OUTPUT
+            echo "✅ Current state already processed - nothing to do." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: 🚀 Trigger Combined CI
-        if: steps.check-repo.outputs.is-fork == 'true' && steps.sync-result.outputs.sync-success == 'true'
+        # On push events ci.yml is already triggered natively by the push
+        # itself, so dispatching it again would build twice.
+        if: steps.check-repo.outputs.is-fork == 'true' && steps.changes.outputs.has-unprocessed == 'true' && github.event_name != 'push'
         env:
           GH_TOKEN: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
         run: |
-          echo "🚀 Triggering Combined CI workflow after successful sync..."
+          echo "🚀 Triggering Combined CI workflow for unprocessed changes..."
           gh workflow run ci.yml \
             --repo "${{ steps.check-repo.outputs.repository-name }}" \
             --ref master
           echo "✅ Combined CI workflow triggered!"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "🚀 Combined CI workflow triggered." >> "$GITHUB_STEP_SUMMARY"
 
-      - name: ⏭️ Skip Fork Sync - No Updates
-        if: steps.check-repo.outputs.is-fork == 'true' && steps.check-updates.outputs.has-updates == 'false'
+      - name: ⏭️ Combined CI Already Triggered by Push
+        if: steps.check-repo.outputs.is-fork == 'true' && steps.changes.outputs.has-unprocessed == 'true' && github.event_name == 'push'
         run: |
-          echo "⏭️ No updates available from upstream - skipping sync."
+          echo "⏭️ The push that triggered this run also triggers ci.yml natively - not dispatching it again."
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "⏭️ Combined CI runs via the native push trigger - no extra dispatch needed." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 💾 Update Last Processed Marker
+        if: steps.check-repo.outputs.is-fork == 'true' && steps.changes.outputs.has-unprocessed == 'true'
+        run: |
+          CURRENT_COMMIT="${{ steps.changes.outputs.current-commit }}"
+          echo "Recording $CURRENT_COMMIT as the last processed state (tag: $MARKER_TAG)"
+          git tag --force "$MARKER_TAG" "$CURRENT_COMMIT"
+          git push --force origin "refs/tags/${MARKER_TAG}"
+
+      - name: ⏭️ Skip Fork Sync - Nothing To Do
+        if: steps.check-repo.outputs.is-fork == 'true' && steps.changes.outputs.has-unprocessed == 'false'
+        run: |
+          echo "⏭️ Fork is in sync and all changes have been processed - nothing to do."
 
       - name: ⏭️ Skip Fork Sync - Upstream Repository
         if: steps.check-repo.outputs.is-fork == 'false'
