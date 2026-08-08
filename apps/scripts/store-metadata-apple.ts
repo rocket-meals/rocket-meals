@@ -1,5 +1,5 @@
 import type { AppleAppMetadata } from 'repo-depkit-common';
-import { JsonApiResource, asArray, ascRequest, findAppId } from './asc-api';
+import { AscApiError, JsonApiResource, asArray, ascRequest, findAppId } from './asc-api';
 import { AttributeChange, changesToAttributeObject, computeAttributeChanges, formatChanges } from './store-metadata-diff';
 
 // Reads and writes the "App-Informationen" (age rating declaration, categories, content
@@ -147,6 +147,14 @@ export function planApplePush(current: ApplePullResult, metadata: AppleAppMetada
   return { current, targetAppInfo, ageRatingChanges, categoryChanges, contentRightsChanges, localizationChanges, missingFields };
 }
 
+export function isContentRightsLockedError(error: unknown): boolean {
+  return (
+    error instanceof AscApiError &&
+    error.status === 409 &&
+    error.errors.some(detail => detail.code === 'ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE' && detail.source?.pointer === 'contentRightsDeclaration')
+  );
+}
+
 export async function applyApplePush(token: string, plan: ApplePushPlan, dryRun: boolean): Promise<boolean> {
   const { current, targetAppInfo, ageRatingChanges, categoryChanges, contentRightsChanges, localizationChanges, missingFields } = plan;
 
@@ -220,9 +228,25 @@ export async function applyApplePush(token: string, plan: ApplePushPlan, dryRun:
   if (contentRightsChanges.length > 0) {
     console.log(`   📝 Apple Content Rights:\n${formatChanges(contentRightsChanges, '      ')}`);
     if (!dryRun) {
-      await ascRequest(token, 'PATCH', `/apps/${current.appId}`, {
-        data: { type: 'apps', id: current.appId, attributes: changesToAttributeObject(contentRightsChanges) },
-      });
+      try {
+        await ascRequest(token, 'PATCH', `/apps/${current.appId}`, {
+          data: { type: 'apps', id: current.appId, attributes: changesToAttributeObject(contentRightsChanges) },
+        });
+      } catch (error) {
+        // Apple sperrt contentRightsDeclaration je nach App-Zustand komplett (409
+        // INVALID_STATE, teils auch im App-Store-Connect-UI nicht editierbar). Die API
+        // bietet dann keinen Weg, den Wert zu setzen - ein harter Fehler würde jede
+        // Einreichung dauerhaft blockieren, obwohl alle übrigen Metadaten oben bereits
+        // abgeglichen wurden. Deshalb: Warnung statt Abbruch, Rest des Submits läuft weiter.
+        if (!isContentRightsLockedError(error)) {
+          throw error;
+        }
+        console.log(
+          '   ⚠️ Apple: contentRightsDeclaration ist im aktuellen App-Zustand gesperrt und kann nicht per API geändert werden (409 INVALID_STATE). ' +
+            'Bitte manuell in App Store Connect unter "App-Informationen" -> "Inhaltsrechte" anpassen - oder, falls der Store-Wert fachlich stimmt, ' +
+            'die Ground Truth per "store-metadata pull/extract" an den Store angleichen. Die übrigen Metadaten wurden abgeglichen.'
+        );
+      }
     }
   }
 

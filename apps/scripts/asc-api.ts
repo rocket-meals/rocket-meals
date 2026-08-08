@@ -29,7 +29,7 @@ export function createAppStoreConnectToken(keyId: string, issuerId: string, priv
   return `${unsigned}.${base64url(signature)}`;
 }
 
-export type AscApiErrorDetail = { code?: string; detail?: string };
+export type AscApiErrorDetail = { code?: string; detail?: string; source?: { pointer?: string } };
 
 export class AscApiError extends Error {
   constructor(

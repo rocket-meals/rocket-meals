@@ -132,6 +132,12 @@ explizit per `--store` angefordert).
 - **Apple**: Altersfreigabe und Kategorien sind nur änderbar, solange eine App-Store-
   Version im Entwurfsstatus existiert (legt der Submit-Workflow ohnehin an). Die
   Änderungen werden erst mit der nächsten eingereichten Version live.
+- **Apple Content Rights**: Apple sperrt `contentRightsDeclaration` je nach App-Zustand
+  komplett (API antwortet mit 409 `ENTITY_ERROR.ATTRIBUTE.INVALID.INVALID_STATE`, teils
+  ist das Feld auch im App-Store-Connect-UI nicht editierbar). Push und Pre-Submit-Sync
+  geben dann nur eine Warnung aus und machen weiter, statt die Einreichung zu blockieren -
+  der Wert muss manuell unter "App-Informationen" -> "Inhaltsrechte" geändert werden
+  (oder die Ground Truth wird an den Store-Wert angeglichen).
 - **Apple 2025er-Fragebogen**: Apple hat den Fragebogen erweitert (neue Ratings
   4+/9+/13+/16+/18+, Fähigkeiten wie "Benutzergenerierte Inhalte"). `pull` zeigt alle
   Attribute, die Apple aktuell liefert - neue Fragen können direkt in der Ground Truth
