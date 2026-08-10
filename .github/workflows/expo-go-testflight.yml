@@ -17,6 +17,27 @@ name: "🧪 Expo Go Client → TestFlight"
 # EXPO_PERSONAL_TOKEN mit einem persönlichen Access Token eines echten
 # Expo-Accounts: expo.dev → eigener User-Account (nicht die Organisation) →
 # Access tokens → "Create token".
+#
+# Apple-Login: `eas go` erzwingt eine ECHTE Apple-User-Session
+# (ensureUserAuthenticatedAsync) - es legt die App in App Store Connect an und
+# erstellt Push Keys, was mit dem App-Store-Connect-API-Key nicht geht. Der
+# ASC-API-Key (prepare-asc-api-key) wird trotzdem gebraucht (Submission).
+# Apple-Accounts haben Pflicht-2FA, ein Passwort-Login im CI ist daher
+# unmöglich. Stattdessen wird eine lokal erzeugte Session per Cookie-Secret
+# wiederverwendet - @expo/apple-utils liest sie aus EXPO_APP_STORE_COOKIES_JSON:
+#
+#   1. Lokal einloggen (Apple ID + 2FA) und Session exportieren:
+#        npx -y @expo/apple-utils@latest login --export
+#      Der Befehl druckt u.a.:
+#        export EXPO_APP_STORE_COOKIES_JSON="{...}"
+#   2. Den JSON-Wert (ohne die umschließenden Anführungszeichen) als
+#      Repo-Secret EXPO_APPLE_APP_STORE_COOKIES_JSON hinterlegen.
+#   3. Die Apple-ID-E-Mail als Repo-Secret EXPO_APPLE_ID hinterlegen
+#      (ohne sie fragt die CLI interaktiv nach dem Apple-Account).
+#
+# Die Apple-Session läuft nach ca. 30 Tagen ab (wie fastlane spaceauth).
+# Schlägt der Lauf dann wieder mit "Input is required, but stdin is not
+# readable" fehl, Schritt 1+2 wiederholen und das Secret aktualisieren.
 
 on:
   workflow_dispatch:
@@ -69,6 +90,8 @@ jobs:
         env:
           EXPO_PERSONAL_TOKEN: ${{ secrets.EXPO_PERSONAL_TOKEN }}
           ASC_KEY: ${{ secrets.EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT }}
+          APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          APPLE_COOKIES: ${{ secrets.EXPO_APPLE_APP_STORE_COOKIES_JSON }}
         run: |
           if [ -z "$EXPO_PERSONAL_TOKEN" ]; then
             echo "available=false" >> "$GITHUB_OUTPUT"
@@ -79,6 +102,16 @@ jobs:
           elif [ -z "$ASC_KEY" ]; then
             echo "available=false" >> "$GITHUB_OUTPUT"
             echo "⏭️ Secret EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT ist nicht gesetzt - Workflow wird übersprungen."
+          elif [ -z "$APPLE_ID" ] || [ -z "$APPLE_COOKIES" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "⏭️ Secrets EXPO_APPLE_ID und/oder EXPO_APPLE_APP_STORE_COOKIES_JSON fehlen - Workflow wird übersprungen."
+            echo "ℹ️ 'eas go' braucht eine echte Apple-User-Session (der ASC-API-Key reicht nicht,"
+            echo "   da die App in App Store Connect angelegt und ein Push Key erstellt wird)."
+            echo "   Wegen Apple-2FA ist ein Passwort-Login im CI unmöglich. Einmalig lokal:"
+            echo "     npx -y @expo/apple-utils@latest login --export"
+            echo "   Danach den gedruckten EXPO_APP_STORE_COOKIES_JSON-Wert als Repo-Secret"
+            echo "   EXPO_APPLE_APP_STORE_COOKIES_JSON und die Apple-ID-E-Mail als Repo-Secret"
+            echo "   EXPO_APPLE_ID hinterlegen. Die Session hält ca. 30 Tage."
           else
             echo "available=true" >> "$GITHUB_OUTPUT"
           fi
@@ -115,6 +148,15 @@ jobs:
           # Persönlicher Token statt Robot-Token - 'eas go' bricht mit
           # "This action is not supported for robot users" ab.
           EXPO_TOKEN: ${{ secrets.EXPO_PERSONAL_TOKEN }}
+          # Apple-User-Auth ohne Prompt: Apple-ID + lokal exportierte Session-
+          # Cookies (siehe Kommentar am Dateianfang). @expo/apple-utils stellt
+          # die Session aus EXPO_APP_STORE_COOKIES_JSON wieder her - dadurch
+          # entfallen Passwort-Eingabe und 2FA-Prompt, die im CI unmöglich sind.
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_ID }}
+          EXPO_APP_STORE_COOKIES_JSON: ${{ secrets.EXPO_APPLE_APP_STORE_COOKIES_JSON }}
+          # Kein OS-Keychain im CI-Runner - verhindert Keychain-Zugriffe beim
+          # Cachen von Apple-Credentials.
+          EXPO_NO_KEYCHAIN: "1"
           # Freitext übersteuert das Dropdown; 'latest' bedeutet: kein
           # --sdk-version-Flag, EAS nimmt die neueste unterstützte Version.
           SDK_VERSION: ${{ github.event.inputs.sdk_version_custom || github.event.inputs.sdk_version }}
