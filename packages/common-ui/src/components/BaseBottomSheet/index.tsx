@@ -32,7 +32,7 @@ const CustomBackdrop: React.FC<CustomBackdropProps> = ({ animatedIndex, style, o
 			pointerEvents="box-none"
 		>
 			{isPressableActive && (
-				<Pressable style={StyleSheet.absoluteFillObject} onPress={onPress} />
+				<Pressable style={StyleSheet.absoluteFill} onPress={onPress} />
 			)}
 		</Animated.View>
 	);

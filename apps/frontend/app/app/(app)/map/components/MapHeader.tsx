@@ -5,7 +5,7 @@ import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomT
 import IconButton from '@/components/UI/IconButton';
 import { TranslationKeys } from '@/locales/keys';
 import { ComponentIds } from '@/constants/ComponentIds';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { DrawerNavigationProp } from 'expo-router/drawer';
 import { useNavigation } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';

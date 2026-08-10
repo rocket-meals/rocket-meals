@@ -4,7 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { DatabaseTypes } from 'repo-depkit-common';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { DrawerContentComponentProps } from '@react-navigation/drawer';
+import { DrawerContentComponentProps } from 'expo-router/drawer';
 import { useDispatch, shallowEqual } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';

@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import styles from './styles';
 import { useNavigation } from 'expo-router';
 import { CustomMenuHeaderProps, DrawerParamList } from './types';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { DrawerNavigationProp } from 'expo-router/drawer';
 import { useAppSelector } from '@/redux/hooks';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import { useLanguage } from '@/hooks/useLanguage';

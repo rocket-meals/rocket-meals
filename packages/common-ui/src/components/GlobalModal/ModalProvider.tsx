@@ -413,7 +413,7 @@ export const ModalRenderer: React.FC<{ children: ReactNode }> = ({ children }) =
 					    this one up until the confirmed finalize just made closing look slow. */}
 					{!isSheetClosing && (
 						<View
-							style={[StyleSheet.absoluteFillObject, currentItem.overlayStyle ?? { backgroundColor: 'rgba(0,0,0,0.5)' }]}
+							style={[StyleSheet.absoluteFill, currentItem.overlayStyle ?? { backgroundColor: 'rgba(0,0,0,0.5)' }]}
 							pointerEvents="none"
 						/>
 					)}
@@ -450,7 +450,7 @@ export const useModalContext = () => {
 
 const styles = StyleSheet.create({
 	modalContainer: {
-		...StyleSheet.absoluteFillObject,
+		...StyleSheet.absoluteFill,
 		zIndex: 999,
 	},
 });

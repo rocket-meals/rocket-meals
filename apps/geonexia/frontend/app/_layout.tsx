@@ -5,9 +5,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider, AppDrawer, DrawerItem, ModalProvider, SettingsProvider, useTheme } from 'repo-depkit-common-ui';
-import { DrawerContentComponentProps } from '@react-navigation/drawer';
+import { DrawerContentComponentProps } from 'expo-router/drawer';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Modal, ScrollView, TouchableOpacity, View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { ColorValue, Modal, ScrollView, TouchableOpacity, View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { Provider, useSelector } from 'react-redux';
 import { store } from '../store/store';
@@ -133,7 +133,7 @@ function ThemeSyncBridge() {
 // Drawer.Screen's options can reference a stable function instead of
 // defining a new arrow (and thus a new "component") on every render.
 function makeDrawerIcon(IconSet: typeof Ionicons | typeof MaterialCommunityIcons, name: string) {
-	return ({ color, size }: { color: string; size: number }) => <IconSet name={name as any} size={size} color={color} />;
+	return ({ color, size }: { color: ColorValue; size: number }) => <IconSet name={name as any} size={size} color={color} />;
 }
 
 const renderDrawerContent = (props: DrawerContentComponentProps) => <CustomDrawerContent {...props} />;
