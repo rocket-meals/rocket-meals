@@ -1,5 +1,5 @@
 import React from 'react';
-import { ImageResizeMode, ImageStyle, StyleProp } from 'react-native';
+import { ImageStyle, StyleProp } from 'react-native';
 import MyImage from '@/components/MyImage';
 import { getCompanyLogoLocalSaved } from '@/config';
 import { getImageUrl } from '@/constants/HelperFunctions';
@@ -8,7 +8,9 @@ import { DatabaseTypes } from 'repo-depkit-common';
 interface CompanyImageProps {
 	appSettings?: DatabaseTypes.AppSettings | null;
 	style?: StyleProp<ImageStyle>;
-	resizeMode?: ImageResizeMode;
+	// RN 0.85 widened ImageResizeMode by 'none', which MyImage does not
+	// support - so mirror MyImage's own resizeMode type instead.
+	resizeMode?: React.ComponentProps<typeof MyImage>['resizeMode'];
 }
 
 const CompanyImage: React.FC<CompanyImageProps> = ({ appSettings, style, resizeMode = 'contain' }) => {
