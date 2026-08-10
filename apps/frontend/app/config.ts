@@ -348,7 +348,8 @@ export function getFinalConfig(config?: any, licenses?: unknown[]) {
 							buildToolsVersion: '36.0.0',
 						},
 						ios: {
-							deploymentTarget: '15.1',
+							// Expo SDK 56+ requires at least iOS 16.4.
+							deploymentTarget: '16.4',
 						},
 					},
 				],
