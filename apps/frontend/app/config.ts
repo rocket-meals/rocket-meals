@@ -206,9 +206,6 @@ export function getFinalConfig(config?: any, licenses?: unknown[]) {
 			version: getVersion(),
 			orientation: 'default',
 			icon: `${generatedPath}/icon.png`,
-			notification: {
-				icon: `${generatedPath}/notification-icon.png`,
-			},
 			updates: {
 				enabled: true,
 				url: 'https://u.expo.dev/' + customerConfig.easUpdateId,
@@ -216,11 +213,6 @@ export function getFinalConfig(config?: any, licenses?: unknown[]) {
 			},
 			scheme: customerConfig.appScheme,
 			userInterfaceStyle: 'automatic',
-			splash: {
-				image: `${generatedPath}/splash.png`,
-				resizeMode: 'contain',
-				backgroundColor: '#ffffff',
-			},
 			assetBundlePatterns: ['**/*'],
 			ios: {
 				supportsTablet: true,
@@ -308,7 +300,10 @@ export function getFinalConfig(config?: any, licenses?: unknown[]) {
 				'expo-router',
 				'expo-secure-store',
 				'expo-location',
-				'expo-notifications',
+				// Since SDK 55 the top-level `notification` config field is gone
+				// from the app.json schema; the icon moves into the
+				// expo-notifications config plugin instead.
+				['expo-notifications', { icon: `${generatedPath}/notification-icon.png` }],
 				'expo-web-browser',
 				['expo-document-picker', { iCloudContainerEnvironment: 'Production' }],
 				[

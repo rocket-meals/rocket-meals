@@ -1,7 +1,7 @@
 import { Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import React, { useEffect } from 'react';
 import { AntDesign, Entypo, EvilIcons, Feather, FontAwesome, FontAwesome5, FontAwesome6, Foundation, Ionicons, MaterialCommunityIcons, Octicons, SimpleLineIcons, Zocial } from '@expo/vector-icons';
-import { DrawerContentComponentProps } from '@react-navigation/drawer';
+import { DrawerContentComponentProps } from 'expo-router/drawer';
 import { useTheme } from '@/hooks/useTheme';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';

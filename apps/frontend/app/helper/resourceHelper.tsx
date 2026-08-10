@@ -7,7 +7,7 @@ export type TranslationEntry = {
 	[key: string]: any;
 };
 
-const getIconComponent = (iconString: string, iconColor: string): JSX.Element | null => {
+const getIconComponent = (iconString: string, iconColor: string): React.JSX.Element | null => {
 	if (!iconString) return null;
 
 	const [library, iconName] = iconString.split(':') as [string, string];

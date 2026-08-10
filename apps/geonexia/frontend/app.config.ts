@@ -25,11 +25,6 @@ module.exports = function getExpoConfig({ config }: ConfigContext): ExpoConfig {
 		icon: './assets/generated/icon.png',
 		scheme: 'geonexia',
 		userInterfaceStyle: 'automatic',
-		splash: {
-			image: './assets/generated/splash.png',
-			resizeMode: 'contain',
-			backgroundColor: '#ffffff',
-		},
 		ios: {
 			supportsTablet: true,
 			bundleIdentifier: 'de.baumgartner-software.geonexia',
