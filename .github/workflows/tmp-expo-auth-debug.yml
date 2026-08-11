@@ -1,6 +1,7 @@
 name: "🔎 TMP Expo auth debug"
 
-# Temporary diagnostic for the Expo Go 403 ("project requires authentication"):
+# Temporary diagnostic for the Expo Go 403 ("project requires authentication"),
+# run 1:
 # checks whether the update manifest endpoint accepts authenticated requests and
 # what the server-side privacy field of rocket-meals-dev is. Remove after use.
 on:
