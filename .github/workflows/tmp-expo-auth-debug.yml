@@ -1,0 +1,41 @@
+name: "🔎 TMP Expo auth debug"
+
+# Temporary diagnostic for the Expo Go 403 ("project requires authentication"):
+# checks whether the update manifest endpoint accepts authenticated requests and
+# what the server-side privacy field of rocket-meals-dev is. Remove after use.
+on:
+  push:
+    branches: ["claude/expo-go-sdk57-project-missing-lf7o3x"]
+
+jobs:
+  expo-auth-debug:
+    name: "🔎 Expo auth debug"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Manifest endpoint: anonymous vs. authenticated"
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          UPDATE_URL="https://u.expo.dev/update/019ff147-ae64-7756-b814-44b4888ec005"
+          echo "anonymous:  $(curl -s -o /dev/null -w '%{http_code}' "$UPDATE_URL" -H 'expo-platform: ios')"
+          echo "bearer:     $(curl -s -o /dev/null -w '%{http_code}' "$UPDATE_URL" -H 'expo-platform: ios' -H "authorization: Bearer $EXPO_TOKEN")"
+          echo "--- anonymous response body (truncated) ---"
+          curl -s "$UPDATE_URL" -H 'expo-platform: ios' | head -c 500
+          echo
+
+      - name: "GraphQL: token check + server-side project privacy"
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          echo "--- viewer (token works?) ---"
+          curl -s https://api.expo.dev/graphql \
+            -H 'content-type: application/json' \
+            -H "authorization: Bearer $EXPO_TOKEN" \
+            -d '{"query":"query{meActor{__typename id}}"}'
+          echo
+          echo "--- rocket-meals-dev privacy ---"
+          curl -s https://api.expo.dev/graphql \
+            -H 'content-type: application/json' \
+            -H "authorization: Bearer $EXPO_TOKEN" \
+            -d '{"query":"query{app{byFullName(fullName:\"@baumgartner-software/rocket-meals-dev\"){id name privacy}}}"}'
+          echo
