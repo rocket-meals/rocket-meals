@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 	},
 	loadingOverlay: {
-		...StyleSheet.absoluteFillObject,
+		...StyleSheet.absoluteFill,
 		backgroundColor: 'rgba(0,0,0,0.35)',
 		alignItems: 'center',
 		justifyContent: 'center',

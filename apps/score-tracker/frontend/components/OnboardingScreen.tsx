@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	heroIcon: {
-		...StyleSheet.absoluteFillObject,
+		...StyleSheet.absoluteFill,
 		justifyContent: 'center',
 		alignItems: 'center',
 	},

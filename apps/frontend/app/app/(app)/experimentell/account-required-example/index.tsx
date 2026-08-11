@@ -75,7 +75,7 @@ const PulsingBorderWrapper = ({ children, primaryColor }: { children: React.Reac
 			<Animated.View
 				pointerEvents="none"
 				style={{
-					...StyleSheet.absoluteFillObject,
+					...StyleSheet.absoluteFill,
 					borderRadius: 12,
 					borderWidth: 2,
 					borderColor: primaryColor,
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
 		overflow: 'hidden',
 	},
 	shimmerOverlay: {
-		...StyleSheet.absoluteFillObject,
+		...StyleSheet.absoluteFill,
 		zIndex: 10,
 	},
 	lockBadgeContainer: {
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
 		overflow: 'hidden',
 	},
 	dimOverlay: {
-		...StyleSheet.absoluteFillObject,
+		...StyleSheet.absoluteFill,
 		borderRadius: 12,
 		zIndex: 10,
 	},

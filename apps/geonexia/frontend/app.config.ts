@@ -25,11 +25,6 @@ module.exports = function getExpoConfig({ config }: ConfigContext): ExpoConfig {
 		icon: './assets/generated/icon.png',
 		scheme: 'geonexia',
 		userInterfaceStyle: 'automatic',
-		splash: {
-			image: './assets/generated/splash.png',
-			resizeMode: 'contain',
-			backgroundColor: '#ffffff',
-		},
 		ios: {
 			supportsTablet: true,
 			bundleIdentifier: 'de.baumgartner-software.geonexia',
@@ -159,7 +154,8 @@ module.exports = function getExpoConfig({ config }: ConfigContext): ExpoConfig {
 						buildToolsVersion: '36.0.0',
 					},
 					ios: {
-						deploymentTarget: '15.1',
+						// Expo SDK 56+ requires at least iOS 16.4.
+						deploymentTarget: '16.4',
 					},
 				},
 			],
