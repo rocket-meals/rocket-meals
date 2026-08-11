@@ -82,6 +82,46 @@ cd rocket-meals
 yarn install
 ```
 
+## 🧪 Eigener Expo-Go-Client für TestFlight (`eas go`)
+
+Die App-Store-Version von Expo Go hängt auf einer älteren SDK-Version fest. Um neuere
+Expo-SDKs auf echten iPhones zu testen, kann mit `eas go` ein **eigener Expo-Go-Client**
+gebaut und automatisch in das interne TestFlight-Team hochgeladen werden. Dabei wird
+unter unserem Apple-Team eine eigene App in App Store Connect angelegt (eigene Bundle-ID,
+unabhängig von der offiziellen Expo-Go-App).
+
+### Befehl (lokal ausführen)
+
+```bash
+npx -y eas-cli@latest go --sdk-version 57.0.0 --name "Baumgartner Expo Go" --bundle-id de.baumgartner-software.expo-go
+```
+
+- **`--sdk-version` braucht die volle Versionsnummer** (z.&nbsp;B. `57.0.0`, nicht `57`) —
+  sonst bricht der Lauf mit „No Expo Go repack target is published for SDK …" ab.
+  Ohne das Flag zeigt die CLI eine interaktive Auswahl der unterstützten Versionen.
+- **Bundle-ID stabil lassen**: Ein erneuter Lauf mit derselben Bundle-ID aktualisiert die
+  bestehende App in TestFlight, statt eine neue anzulegen.
+- Der Build läuft auf EAS-Servern (zählt als Workflow-Minuten, nicht gegen die Build-Quota)
+  und wird danach automatisch zu TestFlight submitted. Apple braucht anschließend ein paar
+  Minuten Verarbeitungszeit, bis der Build im internen TestFlight-Team erscheint.
+
+### Anmeldung
+
+- **Expo**: Es muss ein **persönlicher** Expo-Account eingeloggt sein (`npx eas-cli login`).
+  Robot-Tokens wie das CI-Secret `EXPO_TOKEN` funktionieren nicht
+  („This action is not supported for robot users").
+- **Apple**: Beim ersten Lauf fragt die CLI nach Apple ID, Passwort und 2FA-Code.
+  Die Session wird lokal unter `~/.app-store` gecacht und hält ca. 30 Tage — innerhalb
+  dieses Zeitraums sind weitere Läufe ohne erneuten Login möglich.
+
+### Einmalig vs. wiederkehrend
+
+Beim ersten Lauf werden App, Bundle-ID, Zertifikate, Push Key und die TestFlight-Gruppe
+„Team (Expo)" (inkl. aller Admin-Accounts als Tester) automatisch angelegt. Folgeläufe —
+z.&nbsp;B. für eine neue SDK-Version — verwenden all das wieder; nur der Apple-Login wird
+bei **jedem** Lauf gebraucht (im CLI fest verdrahtet, daher gibt es dafür bewusst keinen
+CI-Workflow: Die 2FA-Session müsste dort alle ~30 Tage manuell als Secret erneuert werden).
+
 ## 🔢 Versionierung
 
 Die App-Version setzt sich aus `Major.BuildNumber.Patch` zusammen (siehe `getMajorVersion()`, `getBuildNumber()` und `getVersionPatch()` in der `config.ts` der jeweiligen App, z.&nbsp;B. `apps/frontend/app/config.ts`).
