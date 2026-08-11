@@ -1,42 +1,34 @@
 name: "🔎 TMP Expo auth debug"
 
-# Temporary diagnostic for the Expo Go 403 ("project requires authentication"),
-# run 1:
-# checks whether the update manifest endpoint accepts authenticated requests and
-# what the server-side privacy field of rocket-meals-dev is. Remove after use.
+# Temporary diagnostic for the Expo Go 403 ("project requires authentication"):
+# rocket-meals-dev has server-side privacy "hidden"; this checks whether the
+# Expo Go gate on the manifest endpoint lets authenticated members through.
+# Remove after use.
 on:
+  workflow_dispatch:
   push:
     branches: ["claude/expo-go-sdk57-project-missing-lf7o3x"]
+    paths: [".github/workflows/tmp-expo-auth-debug.yml"]
 
 jobs:
   expo-auth-debug:
     name: "🔎 Expo auth debug"
     runs-on: ubuntu-latest
     steps:
-      - name: "Manifest endpoint: anonymous vs. authenticated"
+      - name: "Manifest endpoint: client-type / auth matrix"
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           UPDATE_URL="https://u.expo.dev/update/019ff147-ae64-7756-b814-44b4888ec005"
-          echo "anonymous:  $(curl -s -o /dev/null -w '%{http_code}' "$UPDATE_URL" -H 'expo-platform: ios')"
-          echo "bearer:     $(curl -s -o /dev/null -w '%{http_code}' "$UPDATE_URL" -H 'expo-platform: ios' -H "authorization: Bearer $EXPO_TOKEN")"
-          echo "--- anonymous response body (truncated) ---"
-          curl -s "$UPDATE_URL" -H 'expo-platform: ios' | head -c 500
-          echo
+          req() { curl -s -o /tmp/body -w '%{http_code}' "$UPDATE_URL" -H 'expo-platform: ios' "$@"; }
 
-      - name: "GraphQL: token check + server-side project privacy"
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: |
-          echo "--- viewer (token works?) ---"
-          curl -s https://api.expo.dev/graphql \
-            -H 'content-type: application/json' \
-            -H "authorization: Bearer $EXPO_TOKEN" \
-            -d '{"query":"query{meActor{__typename id}}"}'
-          echo
-          echo "--- rocket-meals-dev privacy ---"
-          curl -s https://api.expo.dev/graphql \
-            -H 'content-type: application/json' \
-            -H "authorization: Bearer $EXPO_TOKEN" \
-            -d '{"query":"query{app{byFullName(fullName:\"@baumgartner-software/rocket-meals-dev\"){id name privacy}}}"}'
+          echo "plain anon:                 $(req)"
+          echo "expo-go-env anon:           $(req -H 'expo-updates-environment: EXPO_GO')"
+          echo "expo-go-env bearer:         $(req -H 'expo-updates-environment: EXPO_GO' -H "authorization: Bearer $EXPO_TOKEN")"
+          echo "expo-go-ua anon:            $(req -A 'Expo/2570011 CFNetwork/1494.0.7 Darwin/23.4.0')"
+          echo "expo-go-ua bearer:          $(req -A 'Expo/2570011 CFNetwork/1494.0.7 Darwin/23.4.0' -H "authorization: Bearer $EXPO_TOKEN")"
+          echo "exponent-headers anon:      $(req -H 'Exponent-Platform: ios' -H 'Exponent-Version: 2.57.11')"
+          echo "exponent-headers bearer:    $(req -H 'Exponent-Platform: ios' -H 'Exponent-Version: 2.57.11' -H "authorization: Bearer $EXPO_TOKEN")"
+          echo "--- last response body (truncated) ---"
+          head -c 400 /tmp/body
           echo
