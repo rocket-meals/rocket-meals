@@ -1,142 +1,31 @@
 import * as Speech from 'expo-speech';
 import { appendTTSLogEntry, SpokenTextFields } from './TTSLogStorage';
-import { activateSpeechSession, scheduleSpeechSessionRelease } from './SpeechAudioSession';
-import { recordTTSSessionEvent, TTSSessionLogEvent } from './TTSSessionLog';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface QueueItem extends SpokenTextFields {
 	options?: Omit<Speech.SpeechOptions, 'language' | 'onDone' | 'onError' | 'onStopped'>;
-	/** Timestamp (ms) when the item was enqueued; used for the max-age check. */
-	enqueuedAt: number;
-	/** Maximum age (ms) an item may reach before playback; older items are dropped. */
-	maxAgeMs?: number;
-	/** Whether other apps' music is ducked while this item is spoken. */
-	duckOthers: boolean;
-}
-
-/**
- * Per-announcement queue behaviour.
- */
-export interface EnqueueAnnouncementOptions {
-	/**
-	 * Drop the item instead of speaking it when it waited longer than this
-	 * many milliseconds in the queue. Stats announcements (distance, pace, …)
-	 * are worthless once stale — after the app was suspended in the background
-	 * they used to pile up and then play "all at once" with outdated values.
-	 */
-	maxAgeMs?: number;
-	/**
-	 * Replace any pending (not yet playing) items with the same `source`
-	 * instead of queueing another one. Ensures at most one announcement per
-	 * kind waits in the queue — after a background wake-up only the newest
-	 * periodic/km/pace announcement is spoken instead of the whole backlog.
-	 */
-	replaceSameSource?: boolean;
-	/**
-	 * true (default): other apps' music is lowered while the announcement is
-	 * spoken. false: the music keeps playing at full volume and the
-	 * announcement plays over it. Music is never stopped/interrupted either
-	 * way.
-	 */
-	duckOthers?: boolean;
 }
 
 // ─── Module-level queue state ─────────────────────────────────────────────────
 
-/**
- * Hard cap on the number of pending announcements. Without this, a
- * misconfigured periodic interval (or a run of km-milestone/pace-hint
- * announcements arriving faster than they can be spoken) makes the queue
- * grow without bound for the entire duration of a run — the app ends up
- * talking non-stop with increasingly stale information and can eventually
- * crash from the unbounded memory growth. When the cap is hit, the oldest
- * pending (not-yet-spoken) item is dropped in favour of the newest one, so
- * the runner always hears the most current stats.
- */
-const MAX_QUEUE_LENGTH = 3;
-
 const _queue: QueueItem[] = [];
 let _isPlaying = false;
-/** Incremented by clearAudioQueue so an in-flight (awaiting audio session)
- * item does not start speaking after the user stopped announcements. */
-let _stopGeneration = 0;
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
-/** Session-log event per drop reason (see {@link logDroppedItem}). */
-const DROP_REASON_EVENTS: Record<string, TTSSessionLogEvent> = {
-	'stale': 'dropped_stale',
-	'superseded': 'superseded',
-	'queue full': 'dropped_queue_full',
-};
+function processNext(): void {
+	if (_isPlaying || _queue.length === 0) return;
+	const item = _queue.shift();
+	if (item == null) return;
+	_isPlaying = true;
 
-function logDroppedItem(item: QueueItem, reason: string): void {
-	console.warn(`[AudioQueueHelper] Dropping announcement (${reason}):`, item.source);
-	recordTTSSessionEvent(DROP_REASON_EVENTS[reason] ?? 'dropped_stale', {
-		source: item.source,
-		text: item.text,
-		detail: `waitedMs=${Date.now() - item.enqueuedAt}`,
-	});
-	void appendTTSLogEntry({
-		timestamp: Date.now(),
-		text: item.text,
-		languageCode: item.languageCode,
-		success: false,
-		error: `dropped: ${reason}`,
-		source: item.source,
-	});
-}
-
-/** Remove expired items from the front of the queue so stale announcements
- * (e.g. queued while the app was suspended) are never spoken. */
-function dropExpiredItems(): void {
-	const now = Date.now();
-	while (_queue.length > 0) {
-		const head = _queue[0];
-		if (head.maxAgeMs != null && now - head.enqueuedAt > head.maxAgeMs) {
-			_queue.shift();
-			logDroppedItem(head, 'stale');
-		} else {
-			break;
-		}
-	}
-}
-
-function finishItem(): void {
-	_isPlaying = false;
-	if (_queue.length === 0) {
-		// Queue drained – give the music its volume back (debounced).
-		scheduleSpeechSessionRelease();
-	} else {
-		processNext();
-	}
-}
-
-function speakItem(item: QueueItem): void {
-	const startedAt = Date.now();
-	recordTTSSessionEvent('speak_start', {
-		source: item.source,
-		text: item.text,
-		detail: `waitedMs=${startedAt - item.enqueuedAt}`,
-	});
 	try {
 		Speech.speak(item.text, {
-			...item.options,
-			// The shared synthesizer must NEVER use its private audio session
-			// (`useApplicationAudioSession: false`): the private session hard-stops
-			// other apps' music instead of ducking it, and it stays active for the
-			// synthesizer's lifetime — iOS then re-asserts it on every foreground,
-			// stopping the user's music every time the app is opened. Whether the
-			// music ducks or mixes is controlled via SpeechAudioSession instead.
 			useApplicationAudioSession: true,
+			...item.options,
 			language: item.languageCode,
 			onDone: () => {
-				recordTTSSessionEvent('speak_done', {
-					source: item.source,
-					text: item.text,
-					detail: `speakingMs=${Date.now() - startedAt}`,
-				});
 				void appendTTSLogEntry({
 					timestamp: Date.now(),
 					text: item.text,
@@ -144,16 +33,12 @@ function speakItem(item: QueueItem): void {
 					success: true,
 					source: item.source,
 				});
-				finishItem();
+				_isPlaying = false;
+				processNext();
 			},
 			onError: (err) => {
 				const message = err instanceof Error ? err.message : String(err);
 				console.warn('[AudioQueueHelper] Speech error:', message);
-				recordTTSSessionEvent('speak_error', {
-					source: item.source,
-					text: item.text,
-					detail: `speakingMs=${Date.now() - startedAt}, error=${message}`,
-				});
 				void appendTTSLogEntry({
 					timestamp: Date.now(),
 					text: item.text,
@@ -162,27 +47,17 @@ function speakItem(item: QueueItem): void {
 					error: message,
 					source: item.source,
 				});
-				finishItem();
+				_isPlaying = false;
+				processNext();
 			},
 			onStopped: () => {
 				// Manual stop via clearAudioQueue – do not advance to next item.
-				recordTTSSessionEvent('speak_stopped', {
-					source: item.source,
-					text: item.text,
-					detail: `speakingMs=${Date.now() - startedAt}`,
-				});
 				_isPlaying = false;
-				scheduleSpeechSessionRelease();
 			},
 		});
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
 		console.warn('[AudioQueueHelper] Speech.speak threw:', message);
-		recordTTSSessionEvent('speak_error', {
-			source: item.source,
-			text: item.text,
-			detail: `threw=${message}`,
-		});
 		void appendTTSLogEntry({
 			timestamp: Date.now(),
 			text: item.text,
@@ -191,44 +66,9 @@ function speakItem(item: QueueItem): void {
 			error: message,
 			source: item.source,
 		});
-		finishItem();
+		_isPlaying = false;
+		processNext();
 	}
-}
-
-function processNext(): void {
-	if (_isPlaying) return;
-	dropExpiredItems();
-	if (_queue.length === 0) {
-		scheduleSpeechSessionRelease();
-		return;
-	}
-	const item = _queue.shift();
-	if (item == null) return;
-	_isPlaying = true;
-
-	// Affect other apps' music (duck or mix) only for the duration of the
-	// announcement (plus a short debounce), not for the whole recording.
-	recordTTSSessionEvent('audio_session_activating', {
-		source: item.source,
-		detail: `duckOthers=${item.duckOthers}`,
-	});
-	const generation = _stopGeneration;
-	void activateSpeechSession(item.duckOthers)
-		.catch(() => { /* logged inside activateSpeechSession */ })
-		.then(() => {
-			if (generation !== _stopGeneration) {
-				// clearAudioQueue was called while the audio session was being
-				// activated – do not start speaking a cancelled announcement.
-				recordTTSSessionEvent('cancelled_before_speak', {
-					source: item.source,
-					text: item.text,
-				});
-				_isPlaying = false;
-				scheduleSpeechSessionRelease();
-				return;
-			}
-			speakItem(item);
-		});
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
@@ -243,50 +83,14 @@ function processNext(): void {
  * @param options       Additional expo-speech options (excluding `language`,
  *                      `onDone`, `onError`, `onStopped`).
  * @param source        Label for logging (e.g. `"km_milestone"`, `"pace_hint"`).
- * @param queueOptions  Queue behaviour: staleness limit and same-source
- *                      coalescing (see {@link EnqueueAnnouncementOptions}).
  */
 export function enqueueAnnouncement(
 	text: string,
 	languageCode: string,
 	options?: Omit<Speech.SpeechOptions, 'language' | 'onDone' | 'onError' | 'onStopped'>,
 	source: string = 'unknown',
-	queueOptions?: EnqueueAnnouncementOptions,
 ): void {
-	// Coalesce: a newer announcement of the same kind supersedes pending ones
-	// (e.g. only the most recent periodic stats update is worth hearing).
-	if (queueOptions?.replaceSameSource) {
-		for (let i = _queue.length - 1; i >= 0; i--) {
-			if (_queue[i].source === source) {
-				const [replaced] = _queue.splice(i, 1);
-				if (replaced != null) {
-					logDroppedItem(replaced, 'superseded');
-				}
-			}
-		}
-	}
-	// Drop the oldest queued (not yet playing) item once the cap is reached so
-	// the queue can never grow without bound — see MAX_QUEUE_LENGTH above.
-	if (_queue.length >= MAX_QUEUE_LENGTH) {
-		const dropped = _queue.shift();
-		if (dropped) {
-			logDroppedItem(dropped, 'queue full');
-		}
-	}
-	_queue.push({
-		text,
-		languageCode,
-		options,
-		source,
-		enqueuedAt: Date.now(),
-		maxAgeMs: queueOptions?.maxAgeMs,
-		duckOthers: queueOptions?.duckOthers !== false,
-	});
-	recordTTSSessionEvent('enqueued', {
-		source,
-		text,
-		detail: `queueLength=${_queue.length}, isPlaying=${_isPlaying}`,
-	});
+	_queue.push({ text, languageCode, options, source });
 	processNext();
 }
 
@@ -295,16 +99,11 @@ export function enqueueAnnouncement(
  * Call this when recording stops or when the user cancels announcements.
  */
 export function clearAudioQueue(): void {
-	recordTTSSessionEvent('queue_cleared', {
-		detail: `pending=${_queue.length}, isPlaying=${_isPlaying}`,
-	});
 	_queue.length = 0;
-	_stopGeneration++;
 	try {
 		Speech.stop();
 	} catch (err) {
 		console.warn('[AudioQueueHelper] Speech.stop threw:', err);
 	}
 	// _isPlaying is reset by the onStopped callback of Speech.speak.
-	scheduleSpeechSessionRelease();
 }

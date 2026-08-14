@@ -1,5 +1,6 @@
 import { getStorageItem, setStorageItem, removeStorageItem } from 'repo-depkit-common-ui';
 import type { RecordingSessionFields } from './ActivityRouteSharedTypes';
+import type { RoutePoint } from './ActivityStorage';
 import type { SportType } from '../store/sportTypeSlice';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -33,6 +34,12 @@ export type InterruptedRecordingSnapshot = RecordingSessionFields & {
 const SNAPSHOT_KEY = 'geonexia-interrupted-recording.json';
 
 /**
+ * Maximum age of a snapshot that still counts as an interrupted-but-ongoing
+ * recording. Mirrors the 24h recovery window used by the record screen.
+ */
+export const SNAPSHOT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+/**
  * Persist a recording snapshot to disk. Called periodically during recording.
  * Silently ignores write errors.
  */
@@ -60,6 +67,40 @@ export async function loadRecordingSnapshot(): Promise<InterruptedRecordingSnaps
 	} catch {
 		return null;
 	}
+}
+
+/**
+ * Append freshly received GPS points to the persisted recording snapshot.
+ *
+ * Used by the background location task when it fires in a JS runtime that has
+ * no active recording in memory (e.g. the OS killed the app process
+ * mid-recording and relaunched the runtime headlessly). The in-memory
+ * recording state is gone, but the run keeps being captured on disk so the
+ * crash recovery on the next app start has the complete GPS track instead of
+ * only the points up to the last pre-kill snapshot.
+ *
+ * Returns true when a fresh snapshot existed and was updated, false when
+ * there is no (fresh) snapshot – i.e. there is no ongoing recording and the
+ * caller should stop the background location task.
+ */
+export async function appendPointsToRecordingSnapshot(points: RoutePoint[]): Promise<boolean> {
+	if (points.length === 0) return false;
+	const snapshot = await loadRecordingSnapshot();
+	if (!snapshot) return false;
+	const now = Date.now();
+	// A recording that started more than the recovery window ago, or whose
+	// snapshot has not been touched within it, is treated as ended – never
+	// keep GPS alive indefinitely without an active recording.
+	if (now - snapshot.startedAt > SNAPSHOT_MAX_AGE_MS) return false;
+	if (now - snapshot.savedAt > SNAPSHOT_MAX_AGE_MS) return false;
+	const lastTimestamp = snapshot.routePoints.at(-1)?.timestamp ?? 0;
+	const freshPoints = points.filter((p) => p.timestamp > lastTimestamp);
+	if (freshPoints.length > 0) {
+		snapshot.routePoints = [...snapshot.routePoints, ...freshPoints];
+		snapshot.savedAt = now;
+		await saveRecordingSnapshot(snapshot);
+	}
+	return true;
 }
 
 /**

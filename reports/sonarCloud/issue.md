@@ -4,15 +4,15 @@
 
 | Category | Total Issues | Shown |
 |----------|-------------|-------|
-| 🔒 Security | 11 | 11 |
+| 🔒 Security | 13 | 13 |
 | 🐛 Reliability | 13 | 13 |
-| 🔧 Maintainability | 96 | 26 |
+| 🔧 Maintainability | 95 | 24 |
 
-**Total issues:** 120 (showing top 50 prioritized by: Security > Reliability > Maintainability)
+**Total issues:** 121 (showing top 50 prioritized by: Security > Reliability > Maintainability)
 
 ---
 
-## 🔒 Security (11/11)
+## 🔒 Security (13/13)
 
 - **Lifecycle scripts are enabled by default in Yarn v2+.**
   .github/actions/tag-und-jahr-expo-update/action.yml:47
@@ -42,6 +42,10 @@
   .github/workflows/ios-submit-review-tag-und-jahr.yml:39
   https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/ios-submit-review-tag-und-jahr.yml#L39
 
+- **Verify the origin of the received message.**
+  apps/frontend/app/components/MyMap/index.web.tsx:43
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/components/MyMap/index.web.tsx#L43
+
 - **LLMs running this code with faulty CLI arguments can escape file system restrictions. Refactor this code to validate the constructed path before accessing the file system.**
   apps/scripts/store-metadata-extract.ts:82
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/scripts/store-metadata-extract.ts#L82
@@ -57,6 +61,10 @@
 - **Change this code to not log user-controlled data.**
   apps/scripts/submit-ios-review.ts:372
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/scripts/submit-ios-review.ts#L372
+
+- **Verify the origin of the received message.**
+  packages/common-ui/src/components/MyMap/index.web.tsx:141
+  https://github.com/rocket-meals/rocket-meals/blob/master/packages/common-ui/src/components/MyMap/index.web.tsx#L141
 
 ## 🐛 Reliability (13/13)
 
@@ -112,7 +120,7 @@
   packages/common/src/CompressionHelper.ts:236
   https://github.com/rocket-meals/rocket-meals/blob/master/packages/common/src/CompressionHelper.ts#L236
 
-## 🔧 Maintainability (26/96)
+## 🔧 Maintainability (24/95)
 
 - **Refactor this function to reduce its Cognitive Complexity from 27 to the 15 allowed.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/files-without-folder-report-schedule/index.ts:29
@@ -146,21 +154,17 @@
   apps/frontend/app/redux/actions/FoodOffers/FoodOffers.ts:200
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/redux/actions/FoodOffers/FoodOffers.ts#L200
 
-- **Use the opposite operator (<=) instead.**
-  apps/geonexia/frontend/app/activities/[id].tsx:834
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/app/activities/[id].tsx#L834
+- **Remove this useless assignment to variable "liveSpeedKmh".**
+  apps/geonexia/frontend/app/index.tsx:4338
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/app/index.tsx#L4338
 
-- **Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed.**
-  apps/geonexia/frontend/app/index.tsx:5626
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/app/index.tsx#L5626
+- **Prefer `.at(…)` over `[….length - index]`.**
+  apps/geonexia/frontend/app/index.tsx:5436
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/app/index.tsx#L5436
 
-- **Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.**
-  apps/geonexia/frontend/app/index.tsx:5832
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/app/index.tsx#L5832
-
-- **Refactor this code to not use nested template literals.**
-  apps/geonexia/frontend/helpers/TTSSessionLog.ts:84
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/helpers/TTSSessionLog.ts#L84
+- **Refactor this function to reduce its Cognitive Complexity from 19 to the 15 allowed.**
+  apps/geonexia/frontend/app/index.tsx:5390
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/geonexia/frontend/app/index.tsx#L5390
 
 - **Remove this unused import of 'GameType'.**
   apps/score-tracker/frontend/app/games/[id].tsx:38
@@ -213,8 +217,4 @@
 - **Remove this useless assignment to variable "categoryValues".**
   apps/score-tracker/frontend/app/match/index.tsx:1374
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/score-tracker/frontend/app/match/index.tsx#L1374
-
-- **Remove this useless assignment to variable "toggleEditingPlayers".**
-  apps/score-tracker/frontend/app/match/index.tsx:1389
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/score-tracker/frontend/app/match/index.tsx#L1389
 

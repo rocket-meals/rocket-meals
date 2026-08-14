@@ -29,9 +29,10 @@ export function getMajorVersion() {
 
 export function getVersionPatch() {
 	// Never decrease the visible patch version.
-	// 8: fix OTA delivery (stable runtime version) + update-on-start loader
-	// 9: auto-pause recording when the GPS position stops moving
-	// 10: always max GPS accuracy, per-activity GPS interval + TTS session log
+	// 9: GPS tracking + TTS announcements reset to pre-2026-07-10 behavior;
+	//    tappable speed/pace stats open a history bar chart modal
+	// 10: reliable background GPS capture (headless updates feed the crash
+	//     snapshot instead of stopping the task); weather saved on activities
 	return 10;
 }
 

@@ -1,7 +1,7 @@
 import * as Speech from 'expo-speech';
+import { setAudioModeAsync } from 'expo-audio';
 import type { SpeechRate } from '../store/speechSettingsSlice';
-import { enqueueAnnouncement, EnqueueAnnouncementOptions } from './AudioQueueHelper';
-import { configureSpeechAudioSession } from './SpeechAudioSession';
+import { enqueueAnnouncement } from './AudioQueueHelper';
 import type { AnnouncementToggles } from './AnnouncementToggles';
 
 // ─── Speech rate mapping ──────────────────────────────────────────────────────
@@ -28,20 +28,34 @@ export function speechRateToNumber(rate: SpeechRate): number {
  * Configure the audio session so that TTS announcements continue playing when
  * the app is in the background on iOS.  Call once when recording starts and
  * reset when recording stops.
- *
- * The base mode does NOT duck other apps' music — ducking is activated by the
- * audio queue only while an announcement is actually being spoken (see
- * SpeechAudioSession), so music no longer stays quiet between announcements.
  */
 export async function enableBackgroundAudio(): Promise<void> {
-	await configureSpeechAudioSession(true);
+	try {
+		await setAudioModeAsync({
+			shouldPlayInBackground: true,
+			playsInSilentMode: true,
+			interruptionMode: 'duckOthers',
+			interruptionModeAndroid: 'duckOthers',
+		});
+	} catch (err) {
+		console.warn('[TTSHelper] Failed to enable background audio:', err);
+	}
 }
 
 /**
  * Reset the audio session to default settings when recording stops.
  */
 export async function disableBackgroundAudio(): Promise<void> {
-	await configureSpeechAudioSession(false);
+	try {
+		await setAudioModeAsync({
+			shouldPlayInBackground: false,
+			playsInSilentMode: false,
+			interruptionMode: 'mixWithOthers',
+			interruptionModeAndroid: 'duckOthers',
+		});
+	} catch (err) {
+		console.warn('[TTSHelper] Failed to disable background audio:', err);
+	}
 }
 
 /**
@@ -120,19 +134,16 @@ export function buildKmAnnouncement(
  * @param source  Label identifying the announcement origin (e.g.
  *                `"km_milestone"`, `"periodic"`, `"pace_hint"`,
  *                `"background"`).  Used in the log for filtering.
- * @param queueOptions  Queue behaviour (staleness limit, same-source
- *                coalescing) — see {@link EnqueueAnnouncementOptions}.
  */
 export function speakAnnouncement(
 	text: string,
 	languageCode: string,
 	options?: Omit<Speech.SpeechOptions, 'language'>,
 	source: string = 'unknown',
-	queueOptions?: EnqueueAnnouncementOptions,
 ): void {
 	// Strip the callback keys that AudioQueueHelper manages internally.
 	const { onDone: _d, onError: _e, onStopped: _s, ...forwardedOptions } = (options ?? {}) as Speech.SpeechOptions;
-	enqueueAnnouncement(text, languageCode, forwardedOptions, source, queueOptions);
+	enqueueAnnouncement(text, languageCode, forwardedOptions, source);
 }
 
 // ─── Distance / speed formatting helpers ─────────────────────────────────────
@@ -351,56 +362,6 @@ export function buildBackgroundAnnouncement(locale: string): string {
 			return 'De app draait op de achtergrond';
 		default:
 			return 'The app is running in the background';
-	}
-}
-
-// ─── Auto-pause announcements ────────────────────────────────────────────────
-
-/**
- * Build a localised TTS announcement for when the recording is automatically
- * paused because the GPS position stopped moving.
- */
-export function buildAutoPauseAnnouncement(locale: string): string {
-	const langCode = locale.split('-')[0].toLowerCase();
-	switch (langCode) {
-		case 'de':
-			return 'Keine Bewegung erkannt. Die Aufzeichnung wird pausiert.';
-		case 'fr':
-			return "Aucun mouvement détecté. L'enregistrement est mis en pause.";
-		case 'es':
-			return 'No se detecta movimiento. La grabación se ha pausado.';
-		case 'it':
-			return 'Nessun movimento rilevato. La registrazione è in pausa.';
-		case 'pt':
-			return 'Nenhum movimento detectado. A gravação foi pausada.';
-		case 'nl':
-			return 'Geen beweging gedetecteerd. De opname is gepauzeerd.';
-		default:
-			return 'No movement detected. Recording paused.';
-	}
-}
-
-/**
- * Build a localised TTS announcement for when the recording automatically
- * resumes after movement is detected again.
- */
-export function buildAutoResumeAnnouncement(locale: string): string {
-	const langCode = locale.split('-')[0].toLowerCase();
-	switch (langCode) {
-		case 'de':
-			return 'Bewegung erkannt. Die Aufzeichnung wird fortgesetzt.';
-		case 'fr':
-			return "Mouvement détecté. L'enregistrement reprend.";
-		case 'es':
-			return 'Movimiento detectado. La grabación continúa.';
-		case 'it':
-			return 'Movimento rilevato. La registrazione riprende.';
-		case 'pt':
-			return 'Movimento detectado. A gravação continua.';
-		case 'nl':
-			return 'Beweging gedetecteerd. De opname gaat verder.';
-		default:
-			return 'Movement detected. Recording resumed.';
 	}
 }
 

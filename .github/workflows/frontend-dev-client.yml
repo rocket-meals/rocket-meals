@@ -1,0 +1,221 @@
+name: "🧑‍💻 Rocket Meals Dev Client"
+
+# Builds an expo-dev-client development build for Rocket Meals (frontend) whenever a new
+# native build is due: the local build number (getBuildNumber() in config.ts)
+# is compared against the latest finished EAS build of the "development"
+# profile. This fires on master pushes (a new release build implies a bumped
+# build number) and on PRs that raise the build number, so a matching dev
+# client is ready before/alongside the store build. Expo Go is currently not
+# usable for private projects (see expo/expo session bug), so the dev client
+# is the supported way to test PR previews on devices.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "apps/frontend/**"
+      - "packages/**"
+      - ".github/workflows/frontend-dev-client.yml"
+  pull_request:
+    paths:
+      - "apps/frontend/**"
+      - "packages/**"
+      - ".github/workflows/frontend-dev-client.yml"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Force the dev client build (skip the online build number check)"
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-repository:
+    name: "🔍 Check Repository"
+    runs-on: ubuntu-latest
+    outputs:
+      is-upstream: ${{ steps.check.outputs.is-upstream }}
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "🔍 Check Repository Type"
+        id: check
+        uses: ./.github/actions/check-repository
+
+  check-build-number:
+    name: "🔍 Check Dev Client Build Number (online)"
+    runs-on: ubuntu-latest
+    needs: check-repository
+    # Forks have no EXPO_TOKEN and must not trigger builds on our EAS account.
+    if: >-
+      needs.check-repository.outputs.is-upstream == 'true'
+      && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    outputs:
+      should-build: ${{ steps.check.outputs.should-build }}
+      local-build-number: ${{ steps.check.outputs.local-build-number }}
+      online-build-number: ${{ steps.check.outputs.online-build-number }}
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: "🔍 Compare build number against latest development build on EAS"
+        id: check
+        uses: ./.github/actions/check-build-number-online
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          working-directory: ./apps/frontend/app
+          platform: ios
+          build-profile: development
+
+  build-dev-client:
+    name: "📱 Build Rocket Meals Dev Client (Android + iOS)"
+    runs-on: ubuntu-latest
+    needs: [check-repository, check-build-number]
+    timeout-minutes: 120
+    if: >-
+      needs.check-build-number.outputs.should-build == 'true'
+      || (github.event_name == 'workflow_dispatch' && inputs.force)
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: "🤖 Build Android Dev Client"
+        run: eas build --platform android --profile development --non-interactive --json > eas-build-dev-android.json
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      # iOS internal distribution needs devices registered on EAS
+      # (eas device:create). If this step fails with a provisioning error,
+      # register the device and re-run via workflow_dispatch with force=true.
+      - name: "🍏 Build iOS Dev Client"
+        run: eas build --platform ios --profile development --non-interactive --json > eas-build-dev-ios.json
+        working-directory: ./apps/frontend/app
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: "📤 Upload raw EAS build JSON"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eas-dev-client-build-output
+          path: apps/frontend/app/eas-build-dev-*.json
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: "💬 Report build results (summary + PR comment)"
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const dir = 'apps/frontend/app';
+            const marker = '<!-- frontend-dev-client-comment -->';
+
+            const readBuilds = file => {
+              try {
+                const parsed = JSON.parse(fs.readFileSync(`${dir}/${file}`, 'utf8'));
+                return Array.isArray(parsed) ? parsed : [parsed];
+              } catch {
+                return [];
+              }
+            };
+
+            const builds = [...readBuilds('eas-build-dev-android.json'), ...readBuilds('eas-build-dev-ios.json')];
+
+            const lines = [
+              marker,
+              '## 🧑‍💻 Rocket Meals Dev Client',
+              '',
+            ];
+
+            if (builds.length === 0) {
+              lines.push('❌ No dev client build results found - check the workflow logs.');
+            } else {
+              lines.push('| Platform | Version | Build | Install |');
+              lines.push('|---|---|---|---|');
+              for (const b of builds) {
+                const account = b.project?.ownerAccount?.name ?? 'baumgartner-software';
+                const slug = b.project?.slug ?? 'rocket-meals-dev';
+                const pageUrl = `https://expo.dev/accounts/${account}/projects/${slug}/builds/${b.id}`;
+                const artifactUrl = b.artifacts?.buildUrl || b.artifacts?.applicationArchiveUrl;
+                const install = artifactUrl ? `[Download](${artifactUrl})` : `[Build page](${pageUrl})`;
+                lines.push(`| ${b.platform} | ${b.appVersion} (${b.appBuildVersion}) | [${b.id.slice(0, 8)}](${pageUrl}) | ${install} |`);
+              }
+              const hasIos = builds.some(b => (b.platform || '').toUpperCase() === 'IOS');
+              if (!hasIos) {
+                lines.push('');
+                lines.push('> ⚠️ No iOS build result. iOS internal distribution requires registered devices (`eas device:create`).');
+              }
+              lines.push('');
+              lines.push('Install the dev client once per build number bump, then load JS changes via `npx expo start --dev-client` or an EAS Update (PR preview) - no rebuild needed.');
+            }
+
+            const body = lines.join('\n');
+            core.summary.addRaw(body).write();
+
+            if (context.eventName !== 'pull_request') {
+              return;
+            }
+
+            const prNumber = context.payload.pull_request.number;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body,
+              });
+            }
+
+      # Only master pushes update the README (same rule as the preview APK links).
+      - name: "📝 Update dev client links in README"
+        if: always() && github.event_name == 'push'
+        run: yarn workspace rocket-meals-scripts dev-client:update-readme
+        env:
+          README_PATH: ${{ github.workspace }}/README.md
+          APP_KEY: frontend
+          APP_LABEL: "Rocket Meals (Frontend)"
+          ANDROID_BUILD_JSON: ${{ github.workspace }}/apps/frontend/app/eas-build-dev-android.json
+          IOS_BUILD_JSON: ${{ github.workspace }}/apps/frontend/app/eas-build-dev-ios.json
+
+      - name: "💾 Commit README update"
+        if: always() && github.event_name == 'push'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add README.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update Rocket Meals dev client links in README [skip ci]"
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME"
+            git push
+          fi

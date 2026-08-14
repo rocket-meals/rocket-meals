@@ -222,6 +222,15 @@ export const playbookRegistryData: PlaybookEntryData[] = [
 		},
 	},
 	{
+		name: 'WeatherPreview',
+		description: 'Weather (temperature + condition) for a GPS coordinate from the free, key-less Open-Meteo API. Optional time as unix ms or ISO string; empty = current weather.',
+		knobs: {
+			latitude: { type: 'number', defaultValue: 52.2799 },
+			longitude: { type: 'number', defaultValue: 8.0472 },
+			time: { type: 'text', defaultValue: '', label: 'time (unix ms / ISO, empty = now)' },
+		},
+	},
+	{
 		name: 'ScreenHeader',
 		description: 'Screen header bar with centered title.',
 		knobs: {

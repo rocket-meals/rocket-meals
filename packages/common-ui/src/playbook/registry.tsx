@@ -38,6 +38,7 @@ import FeatureWishesScreen from '../components/FeatureWishesScreen';
 import { useMyScrollViewModal } from '../components/GlobalModal/useMyScrollViewModal';
 import CardWithText from '../components/CardWithText';
 import QrCode from '../components/QrCode';
+import WeatherPreview from '../components/WeatherPreview';
 import ScreenHeader from '../components/ScreenHeader';
 import Boxplot from '../components/Boxplot';
 import MyAvatar, { AvatarStyle } from '../components/MyAvatar';
@@ -212,6 +213,9 @@ const runtimeByName: Record<string, PlaybookEntryRuntime> = {
 	},
 	QrCode: {
 		component: QrCode,
+	},
+	WeatherPreview: {
+		component: WeatherPreview,
 	},
 	ScreenHeader: {
 		component: ScreenHeader,

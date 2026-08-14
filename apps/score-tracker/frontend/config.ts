@@ -28,7 +28,8 @@ export function getMajorVersion() {
 export function getVersionPatch() {
 	// 3: the summed-patch experiment already shipped patch 2 from master;
 	// never decrease the visible patch version.
-	return 3;
+	// 4: common/common-ui: weather API helper + WeatherPreview playbook entry
+	return 4;
 }
 
 // Same semver scheme as apps/frontend/app: major.buildNumber.patch

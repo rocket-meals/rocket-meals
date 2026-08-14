@@ -22,7 +22,7 @@ import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-ic
 import { useFocusEffect, useNavigation, useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { MapLocationButton, MyMap, MyMapHandle, QrCode, useTheme, useMyScrollViewModal, SettingsListSelectOptionSingle, SettingsListGroupTitle, SettingsList, SettingsListTextInput, SettingsListBoolean, SettingsListNumberInput, MapStyleKey } from 'repo-depkit-common-ui';
-import { MathHelper } from 'repo-depkit-common';
+import { MathHelper, fetchWeatherAtCoordinates } from 'repo-depkit-common';
 import type { MapOverlayIdentity } from 'repo-depkit-common';
 
 import { HEX_TILE_SCRIPT } from '../assets/hexTileScript';
@@ -47,13 +47,11 @@ import type { SpeechSettingsState } from '../store/speechSettingsSlice';
 import { resetMapSearchState, setMapSearchName, toggleMapSearchKey } from '../store/mapSearchSlice';
 import { buildJsonExportFilename, pickJsonFromFile, saveJsonToFile } from '../helpers/JsonFileTransferHelper';
 import { getLocales } from 'expo-localization';
-import { buildKmAnnouncement, speakAnnouncement, buildBackgroundAnnouncement, buildPeriodicAnnouncement, buildPaceHintAnnouncement, buildOnTargetAnnouncement, buildAutoPauseAnnouncement, buildAutoResumeAnnouncement, speechRateToNumber, enableBackgroundAudio, disableBackgroundAudio } from '../helpers/TTSHelper';
-import { advanceAutoPauseAnchor, AutoPauseAnchor, hasMovedBeyondRadius, isStationaryLongEnough } from '../helpers/AutoPauseHelper';
-import { startTTSSessionLog, finishTTSSessionLog } from '../helpers/TTSSessionLog';
+import { buildKmAnnouncement, speakAnnouncement, buildBackgroundAnnouncement, buildPeriodicAnnouncement, buildPaceHintAnnouncement, buildOnTargetAnnouncement, speechRateToNumber, enableBackgroundAudio, disableBackgroundAudio } from '../helpers/TTSHelper';
 import { clearAudioQueue } from '../helpers/AudioQueueHelper';
 import { setRecordingActive } from '../helpers/RecordingActivityTracker';
 import { findMatchingRoutes } from '../helpers/RouteMatchingHelper';
-import { saveRecordingSnapshot, loadRecordingSnapshot, clearRecordingSnapshot, type InterruptedRecordingSnapshot } from '../helpers/InterruptedRecordingStorage';
+import { saveRecordingSnapshot, loadRecordingSnapshot, clearRecordingSnapshot, appendPointsToRecordingSnapshot, type InterruptedRecordingSnapshot } from '../helpers/InterruptedRecordingStorage';
 import type { PaceHintState } from '../helpers/TTSHelper';
 import { OBJECT_SPRITES } from '../assets/objects/objectSprites';
 import SettingsListBillboard from '../components/SettingsListBillboard';
@@ -814,66 +812,13 @@ const FLUID_BASELINE_ML = 600;
 const SPEED_WARMUP_MS = 10_000;
 const SPEED_WINDOW_SIZE = 5;
 const GPS_TIME_INTERVAL_MS = 1000;
-// Minimum movement between location updates. A small non-zero value stops the
-// platform from waking the app with a fresh fix while the user stands still,
-// without dropping points at any realistic walking pace and GPS interval.
-const GPS_DISTANCE_INTERVAL_METERS = 5;
+const GPS_DISTANCE_INTERVAL_METERS = 0;
 /**
  * Maximum number of intermediate H3 cells to fill in when a GPS gap is detected
  * (i.e. the straight-line H3 path between two accepted GPS fixes is longer than 1
  * cell). Prevents marking enormous numbers of tiles when the gap is very large.
  */
 const GPS_PATH_INTERPOLATION_MAX_CELLS = 200;
-
-/**
- * Location options for activity recording, derived from the user-selected GPS
- * interval.
- *
- * Always uses `Accuracy.BestForNavigation`, regardless of the configured
- * interval: recording quality and timely fix delivery have priority over
- * battery savings. The lower accuracy tiers let the platform power-manage the
- * GPS hardware, which in practice delayed fixes at longer intervals — and with
- * them everything driven by incoming fixes, including speech announcements.
- */
-function getRecordingLocationOptions(gpsTimeIntervalMs: number): Location.LocationOptions {
-	return {
-		accuracy: Location.Accuracy.BestForNavigation,
-		timeInterval: gpsTimeIntervalMs,
-		distanceInterval: GPS_DISTANCE_INTERVAL_METERS,
-	};
-}
-
-/**
- * Options for the background location task during activity recording.
- *
- * Deliberately does NOT set `deferredUpdatesInterval`: deferred (batched)
- * background fixes let iOS suspend the app between batches and in practice
- * delivered far fewer fixes than configured (~1 fix per 2 minutes instead of
- * one per 15 seconds), producing unusably sparse GPS tracks. Batching also
- * froze the JS timers, so speech announcements arrived late and all at once.
- * Every fix is delivered immediately; the recording track has priority over
- * the battery savings.
- *
- * @param gpsTimeIntervalMs  User-selected GPS interval in milliseconds.
- */
-function getBackgroundRecordingLocationOptions(gpsTimeIntervalMs: number): Location.LocationTaskOptions {
-	return {
-		...getRecordingLocationOptions(gpsTimeIntervalMs),
-		// Fitness lets iOS aggressively power-manage the location hardware
-		// for workout-style movement patterns.
-		activityType: Location.ActivityType.Fitness,
-		// Never let iOS pause location delivery to save battery: a paused
-		// location session suspends the whole app, freezing JS timers — speech
-		// announcements then arrive late and bunched up on the next wake.
-		pausesUpdatesAutomatically: false,
-		showsBackgroundLocationIndicator: true,
-		foregroundService: {
-			notificationTitle: 'Activity Recording',
-			notificationBody: 'Geonexia is recording your activity in the background.',
-			notificationColor: PRIMARY_COLOR,
-		},
-	};
-}
 
 // ─── Background task ──────────────────────────────────────────────────────────
 
@@ -887,14 +832,32 @@ TaskManager.defineTask(ACTIVITY_LOCATION_TASK, async ({ data, error }: TaskManag
 	if (error || !data) return;
 	const locations = (data as { locations: Location.LocationObject[] }).locations;
 	if (!Array.isArray(locations)) return;
-	for (const loc of locations) {
-		const point: RoutePoint = {
-			lat: loc.coords.latitude,
-			lng: loc.coords.longitude,
-			altitude: loc.coords.altitude,
-			speed: loc.coords.speed,
-			timestamp: loc.timestamp,
-		};
+	const points: RoutePoint[] = locations.map((loc) => ({
+		lat: loc.coords.latitude,
+		lng: loc.coords.longitude,
+		altitude: loc.coords.altitude,
+		speed: loc.coords.speed,
+		timestamp: loc.timestamp,
+	}));
+	// No active recording in this JS runtime. Two possible reasons:
+	// 1. The OS killed the app process mid-recording and relaunched the runtime
+	//    headlessly for this update. The run is still ongoing – keep capturing
+	//    it by appending the points to the crash-recovery snapshot so the
+	//    recovery on the next app start has the complete track. Stopping the
+	//    task here (as an earlier version did) killed legitimate background
+	//    recordings and made GPS capture unreliable.
+	// 2. The task is a stale leftover with no fresh snapshot – then GPS must
+	//    not stay active without a recording, so stop the task. Fully closing
+	//    the app (swipe away) is additionally handled natively on Android via
+	//    the foreground service's killServiceOnDestroy.
+	if (!_onLocationUpdate) {
+		const appended = await appendPointsToRecordingSnapshot(points);
+		if (!appended) {
+			await Location.stopLocationUpdatesAsync(ACTIVITY_LOCATION_TASK).catch(() => {});
+		}
+		return;
+	}
+	for (const point of points) {
 		if (_onLocationUpdate) {
 			_onLocationUpdate(point);
 		}
@@ -3505,42 +3468,6 @@ function handleMapMeasurePoint(
 
 // ─── RecordScreen: handleLocationUpdate helpers ────────────────────────────────
 
-/** Handles a location update while a recording is paused: updates the visual
- * player marker (without recording GPS points or marking hex tiles) and keeps
- * the GPS speed-filter reference in sync. */
-function applyPausedLocationUpdate(options: {
-	point: RoutePoint;
-	fromJoystick: boolean;
-	appActive: boolean;
-	movedPlayerManuallyRef: React.MutableRefObject<boolean>;
-	debugPlayerPositionRef: React.MutableRefObject<{ lat: number; lng: number } | null>;
-	lastAcceptedGpsPointRef: React.MutableRefObject<RoutePoint | null>;
-	mapRef: React.MutableRefObject<MyMapHandle | null>;
-	centerMapOnPosition: (pos: { lat: number; lng: number }, zoom?: number) => void;
-}): void {
-	const {
-		point, fromJoystick, appActive, movedPlayerManuallyRef, debugPlayerPositionRef,
-		lastAcceptedGpsPointRef, mapRef, centerMapOnPosition,
-	} = options;
-	// For real GPS: skip if the user already overrode the position with the
-	// joystick before pausing – this mirrors the active-recording behaviour and
-	// prevents GPS from snapping the marker back while the user navigates
-	// virtually during the pause.
-	const shouldUpdate = fromJoystick || !movedPlayerManuallyRef.current;
-	if (shouldUpdate) {
-		debugPlayerPositionRef.current = { lat: point.lat, lng: point.lng };
-		if (appActive) {
-			mapRef.current?.sendToMap({ userLocation: { lat: point.lat, lng: point.lng } });
-			centerMapOnPosition({ lat: point.lat, lng: point.lng });
-		}
-		// Advance the accepted-point ref for real GPS so the speed filter works
-		// correctly on the first GPS point recorded after resume.
-		if (!fromJoystick) {
-			lastAcceptedGpsPointRef.current = point;
-		}
-	}
-}
-
 /**
  * GPS speed/interval filter applied to real (non-joystick) GPS fixes.
  * Returns true when the point should be discarded as noise/glitch/too-frequent;
@@ -3751,23 +3678,6 @@ function trackVisitedHexCells(
 	}
 }
 
-/**
- * Announcements that carry live stats are worthless once stale. When iOS
- * suspends the app between deferred background GPS batches, queued
- * announcements used to pile up and then play all at once with outdated
- * values on the next wake-up. Items older than this are dropped instead of
- * spoken; combined with `replaceSameSource` at most one announcement per
- * kind ever waits in the queue.
- */
-const RECORDING_ANNOUNCEMENT_MAX_AGE_MS = 30_000;
-const RECORDING_ANNOUNCEMENT_QUEUE_OPTIONS = {
-	maxAgeMs: RECORDING_ANNOUNCEMENT_MAX_AGE_MS,
-	replaceSameSource: true,
-} as const;
-
-/** How often the auto-pause stationary check runs while recording. */
-const AUTO_PAUSE_CHECK_INTERVAL_MS = 1000;
-
 /** Speaks a TTS announcement, swallowing and logging (rather than throwing) any error. */
 function trySpeakAnnouncement(
 	text: string,
@@ -3775,10 +3685,9 @@ function trySpeakAnnouncement(
 	options: Parameters<typeof speakAnnouncement>[2],
 	source: string,
 	logContext: string,
-	duckOthers: boolean = true,
 ): void {
 	try {
-		speakAnnouncement(text, langCode, options, source, { ...RECORDING_ANNOUNCEMENT_QUEUE_OPTIONS, duckOthers });
+		speakAnnouncement(text, langCode, options, source);
 	} catch (err) {
 		console.warn(`[RecordScreen] ${logContext} failed:`, err);
 	}
@@ -3808,87 +3717,8 @@ function announceKmMilestoneIfNeeded(
 			announcePace: curSs.announcePace,
 			announceSpeedKmh: curSs.announceSpeed,
 		});
-		trySpeakAnnouncement(text, langCode, { rate: speechRateToNumber(curSs.speechRate) }, 'km_milestone', 'Km milestone announcement', curSs.duckMusicDuringTTS);
+		trySpeakAnnouncement(text, langCode, { rate: speechRateToNumber(curSs.speechRate) }, 'km_milestone', 'Km milestone announcement');
 	}
-}
-
-// ─── RecordScreen: auto-pause helpers ─────────────────────────────────────────
-
-/** Speaks the auto-pause / auto-resume hint, respecting the speech master
- * toggle and the "Automatische Pause" announcement toggle. */
-function announceAutoPauseTransition(
-	kind: 'pause' | 'resume',
-	speechSettingsRef: React.MutableRefObject<SpeechSettingsState>,
-): void {
-	const curSs = speechSettingsRef.current;
-	if (!curSs.enabled || !curSs.announceAutoPause) return;
-	const locale = getLocales()[0]?.languageTag ?? 'en-US';
-	const langCode = locale.split('-')[0].toLowerCase();
-	const text = kind === 'pause' ? buildAutoPauseAnnouncement(locale) : buildAutoResumeAnnouncement(locale);
-	trySpeakAnnouncement(text, langCode, {
-		volume: curSs.volume,
-		rate: speechRateToNumber(curSs.speechRate),
-	}, kind === 'pause' ? 'auto_pause' : 'auto_resume', 'Auto-pause announcement', curSs.duckMusicDuringTTS);
-}
-
-/**
- * Periodic tick evaluating whether the recording should auto-pause because the
- * stationary anchor has not moved for the configured delay. Timer-driven
- * rather than GPS-driven: the platform delivers no fixes at all while the
- * user stands still (GPS_DISTANCE_INTERVAL_METERS), so stillness can only be
- * observed by a clock.
- */
-function evaluateAutoPauseOnTick(options: {
-	isRecordingRef: React.MutableRefObject<boolean>;
-	isPausedRef: React.MutableRefObject<boolean>;
-	joystickActiveRef: React.MutableRefObject<boolean>;
-	movedPlayerManuallyRef: React.MutableRefObject<boolean>;
-	autoPauseAnchorRef: React.MutableRefObject<AutoPauseAnchor | null>;
-	autoPausedRef: React.MutableRefObject<boolean>;
-	pauseRecordingRef: React.MutableRefObject<(() => void) | null>;
-	speechSettingsRef: React.MutableRefObject<SpeechSettingsState>;
-}): void {
-	const {
-		isRecordingRef, isPausedRef, joystickActiveRef, movedPlayerManuallyRef,
-		autoPauseAnchorRef, autoPausedRef, pauseRecordingRef, speechSettingsRef,
-	} = options;
-	if (!isRecordingRef.current || isPausedRef.current) return;
-	// While the joystick substitutes GPS, real fixes are not recorded and the
-	// stationary anchor goes stale – it must not trigger a pause.
-	if (joystickActiveRef.current || movedPlayerManuallyRef.current) return;
-	const { enabled, delaySeconds } = store.getState().autoPause;
-	if (!enabled) return;
-	const anchor = autoPauseAnchorRef.current;
-	if (!anchor || !isStationaryLongEnough(anchor, Date.now(), delaySeconds)) return;
-	pauseRecordingRef.current?.();
-	autoPausedRef.current = true;
-	announceAutoPauseTransition('pause', speechSettingsRef);
-}
-
-/**
- * Handles a location update while auto-paused: resumes the recording as soon
- * as the position moves beyond the movement radius around the stationary
- * anchor. Returns true when the recording was resumed – the caller then
- * processes the point as a normal recorded fix so the track continues from
- * the spot where movement restarted.
- */
-function maybeAutoResumeFromMovement(options: {
-	point: RoutePoint;
-	fromJoystick: boolean;
-	autoPausedRef: React.MutableRefObject<boolean>;
-	autoPauseAnchorRef: React.MutableRefObject<AutoPauseAnchor | null>;
-	resumeRecordingRef: React.MutableRefObject<(() => void) | null>;
-	speechSettingsRef: React.MutableRefObject<SpeechSettingsState>;
-}): boolean {
-	const { point, fromJoystick, autoPausedRef, autoPauseAnchorRef, resumeRecordingRef, speechSettingsRef } = options;
-	if (fromJoystick || !autoPausedRef.current) return false;
-	if (!store.getState().autoPause.enabled) return false;
-	const anchor = autoPauseAnchorRef.current;
-	if (!anchor || !hasMovedBeyondRadius(anchor, point)) return false;
-	resumeRecordingRef.current?.();
-	autoPauseAnchorRef.current = { lat: point.lat, lng: point.lng, timestamp: point.timestamp };
-	announceAutoPauseTransition('resume', speechSettingsRef);
-	return true;
 }
 
 /** Instantaneous pace (min/km) from GPS speed, or average pace as a fallback when GPS speed is unavailable/too low. */
@@ -3937,7 +3767,8 @@ function announcePaceHintTransitionIfDue(options: {
 	trySpeakAnnouncement(text, langCode, {
 		volume: curSs.volume,
 		rate: speechRateToNumber(curSs.speechRate),
-	}, 'pace_hint', 'Pace hint announcement', curSs.duckMusicDuringTTS);
+		useApplicationAudioSession: curSs.duckMusicDuringTTS,
+	}, 'pace_hint', 'Pace hint announcement');
 	lastPaceHintTimeRef.current = now;
 }
 
@@ -3948,7 +3779,8 @@ function announceOnTargetIfDue(next: PaceHintState, prev: PaceHintState, curSs: 
 	trySpeakAnnouncement(text, langCode, {
 		volume: curSs.volume,
 		rate: speechRateToNumber(curSs.speechRate),
-	}, 'pace_hint_on_target', 'On-target announcement', curSs.duckMusicDuringTTS);
+		useApplicationAudioSession: curSs.duckMusicDuringTTS,
+	}, 'pace_hint_on_target', 'On-target announcement');
 }
 
 /** Evaluates and (if needed) speaks a pace-hint transition announcement
@@ -4006,35 +3838,6 @@ function evaluatePaceHintAnnouncement(options: {
 	announceOnTargetIfDue(next, prev, curSs, locale, langCode);
 
 	paceHintStateRef.current = next;
-}
-
-/** Refreshes the H3 hex-tile and walk-path GeoJSON (plus the search highlight
- * layer) sent to the map so newly-visited tiles are reflected without waiting
- * for a full viewport-change event. No-ops while backgrounded. */
-function refreshHexDisplayForViewport(
-	appActive: boolean,
-	debugViewportRef: React.MutableRefObject<DebugViewportInfo | null>,
-	mapRef: React.MutableRefObject<MyMapHandle | null>,
-	h3ResolutionRef: React.MutableRefObject<number>,
-	showGridAlwaysRef: React.MutableRefObject<boolean>,
-	h3MinZoomRef: React.MutableRefObject<number>,
-	refreshSearchHighlight: (cells: string[]) => void,
-): void {
-	const vp = debugViewportRef.current;
-	if (appActive && vp && mapRef.current) {
-		let geoJson: H3FeatureCollection = { type: 'FeatureCollection', features: [] };
-		try {
-			geoJson = buildH3GeoJson(vp.bounds, vp.zoom, h3ResolutionRef.current, showGridAlwaysRef.current, store.getState().hexTiles.records, h3MinZoomRef.current);
-		} catch (err) {
-			console.warn('[RecordScreen] buildH3GeoJson failed during location update:', err);
-		}
-		debugViewportRef.current = { ...vp, tileCount: geoJson.features.length };
-		const viewportCells = [...new Set(geoJson.features.map((f) => f.properties.h3Index))];
-		const walkPathGeoJson = buildWalkPathGeoJson(viewportCells, store.getState().hexTiles.walkedEdges, store.getState().hexTiles.walkedEdgesRedLine);
-		mapRef.current.sendToMap({ hexTileGeoJson: geoJson });
-		mapRef.current.sendToMap({ hexWalkPathGeoJson: walkPathGeoJson });
-		refreshSearchHighlight(viewportCells);
-	}
 }
 
 /** Persists a recording snapshot for crash recovery, throttled to at most once
@@ -4532,12 +4335,7 @@ export default function RecordScreen() {
 	const [isRecording, setIsRecording] = useState(false);
 	const [elapsedSeconds, setElapsedSeconds] = useState(0);
 	const [liveDistanceKm, setLiveDistanceKm] = useState(0);
-	const [liveSpeedKmh, setLiveSpeedKmh] = useState<number | null>(null); // NOSONAR: liveSpeedKmh is currently unused; remove this comment once it is used
-	// Incrementally accumulated route distance (km) of the current recording.
-	// Kept in a ref so each GPS fix only adds the latest segment instead of
-	// re-summing the whole route, and so the value stays available while the
-	// display state updates are suspended in the background.
-	const liveDistanceKmRef = useRef(0);
+	const [liveSpeedKmh, setLiveSpeedKmh] = useState<number | null>(null);
 
 	// Measure mode (debug only): collect waypoints by tapping the map
 	const [isMeasureMode, setIsMeasureMode] = useState(false);
@@ -4568,14 +4366,6 @@ export default function RecordScreen() {
 	const lastPaceHintTimeRef = useRef(0);
 	/** Minimum cooldown between pace hint announcements (ms). */
 	const PACE_HINT_COOLDOWN_MS = 15_000;
-	/**
-	 * Minimum allowed interval between periodic announcements (seconds).
-	 * Speaking a full stats announcement can take several seconds, so an
-	 * interval shorter than this makes the announcement queue back up for the
-	 * entire run. Persisted settings are clamped to this floor here as a
-	 * defensive measure, even though the settings UI also enforces it.
-	 */
-	const MIN_PERIODIC_ANNOUNCEMENT_INTERVAL_SEC = 10;
 
 	// Follow mode: when active the map stays centred on the user's location.
 	// Starts as true so the map tracks the user by default.
@@ -4585,21 +4375,6 @@ export default function RecordScreen() {
 	const [isPaused, setIsPaused] = useState(false);
 	const isPausedRef = useRef(false);
 	const accumulatedSecondsRef = useRef(0);
-
-	// Auto-pause: true while the current pause was triggered automatically by
-	// missing movement (as opposed to the manual pause button). Only an
-	// automatic pause is auto-resumed when movement is detected again.
-	const autoPausedRef = useRef(false);
-	// Stationary anchor for auto-pause detection: the last position where
-	// movement was detected. Null outside recordings.
-	const autoPauseAnchorRef = useRef<AutoPauseAnchor | null>(null);
-	// Interval running the stationary check while recording.
-	const autoPauseTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-	// Ref mirrors of pauseRecording/resumeRecording so handleLocationUpdate and
-	// the auto-pause tick (both created earlier in the component) can call them
-	// without stale closures. Assigned below, after the callbacks are defined.
-	const pauseRecordingRef = useRef<(() => void) | null>(null);
-	const resumeRecordingRef = useRef<(() => void) | null>(null);
 
 	const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
 
@@ -4878,9 +4653,6 @@ export default function RecordScreen() {
 	selectedSportTypeRef.current = selectedSportType;
 	// Timestamp of the last recording snapshot persisted to disk (crash recovery).
 	const lastSnapshotSaveRef = useRef(0);
-	// GPS interval (seconds) the current recording was started with; stored on
-	// the saved activity so the recording frequency is known afterwards.
-	const recordingGpsIntervalSecondsRef = useRef<number | null>(null);
 
 	const centerMapOnPosition = useCallback((pos: { lat: number; lng: number }, zoom?: number) => {
 		if (!mapRef.current) return;
@@ -4960,12 +4732,25 @@ export default function RecordScreen() {
 	}, []);
 
 	useEffect(() => {
+		// A previous session may have been terminated mid-recording (app swiped
+		// away), leaving the background location task registered with the OS.
+		// Stop it on startup so GPS is not queried without an active recording.
+		void (async () => {
+			try {
+				const isTaskRunning = await TaskManager.isTaskRegisteredAsync(ACTIVITY_LOCATION_TASK);
+				if (isTaskRunning && !isRecordingRef.current) {
+					await Location.stopLocationUpdatesAsync(ACTIVITY_LOCATION_TASK);
+					console.log('[RecordScreen] Stopped leftover background location task from a previous session.');
+				}
+			} catch (err) {
+				console.warn('[RecordScreen] Leftover background task check failed:', err);
+			}
+		})();
 		return () => {
 			// Cleanup on unmount: stop any active tracking
 			_onLocationUpdate = null;
 			fgSubRef.current?.remove();
 			if (timerRef.current) clearInterval(timerRef.current);
-			if (autoPauseTimerRef.current) clearInterval(autoPauseTimerRef.current);
 			if (periodicAnnouncementTimerRef.current) clearInterval(periodicAnnouncementTimerRef.current);
 			Location.stopLocationUpdatesAsync(ACTIVITY_LOCATION_TASK).catch(() => {});
 		};
@@ -5030,7 +4815,7 @@ export default function RecordScreen() {
 				try {
 					speakAnnouncement(text, langCode, {
 						rate: speechRateToNumber(curSs.speechRate),
-					}, 'background', { ...RECORDING_ANNOUNCEMENT_QUEUE_OPTIONS, duckOthers: curSs.duckMusicDuringTTS });
+					}, 'background');
 				} catch (err) {
 					console.warn('[RecordScreen] Background announcement failed:', err);
 				}
@@ -5064,31 +4849,10 @@ export default function RecordScreen() {
 				if (pos) {
 					centerMapOnPosition({ lat: pos.lat, lng: pos.lng });
 				}
-				// Live stats display state is not updated while the app is
-				// backgrounded (to avoid re-renders with the screen off) – bring it
-				// up to date from the refs.
-				setLiveDistanceKm(liveDistanceKmRef.current);
-				const lastPt = routePointsRef.current.length > 0
-					? routePointsRef.current[routePointsRef.current.length - 1]
-					: null;
-				if (lastPt?.speed != null && lastPt.speed >= 0) {
-					setLiveSpeedKmh(lastPt.speed * 3.6);
-				}
 			}
 		});
 		return () => subscription.remove();
 	}, [sendRouteToMap, refreshNormalTileDisplay, centerMapOnPosition]);
-
-	// ── Activate background audio if speech gets enabled mid-recording ──
-	// startRecording skips the background audio session when speech is disabled
-	// (it keeps the app awake and costs battery). If the user enables speech
-	// while a recording is running, activate the session now so announcements
-	// remain audible when the app is backgrounded.
-	useEffect(() => {
-		if (isRecording && speechSettings.enabled) {
-			void enableBackgroundAudio();
-		}
-	}, [isRecording, speechSettings.enabled]);
 
 	// ── Route preview: when a route is selected before recording, show only the
 	// route's hex tiles and walk path on the map (hiding all other visited tiles).
@@ -5624,25 +5388,27 @@ export default function RecordScreen() {
 	}, [showModal, closeModal, dispatch, selectedSportType]);
 
 	const handleLocationUpdate = useCallback((point: RoutePoint, fromJoystick = false) => {
-		// While the app is backgrounded (screen off) all map/display work is
-		// skipped: the map WebView does not render anyway and every React state
-		// update re-renders this screen for nobody. Recording (route points, hex
-		// visits, announcements, crash snapshots) continues normally; the
-		// AppState 'active' handler re-syncs the display on return.
-		const appActive = AppState.currentState === 'active';
 		if (isPausedRef.current) {
-			// Auto-resume: when the pause was automatic and the position moved
-			// beyond the movement radius, resume and record this point normally.
-			const resumed = maybeAutoResumeFromMovement({
-				point, fromJoystick, autoPausedRef, autoPauseAnchorRef, resumeRecordingRef, speechSettingsRef,
-			});
-			if (!resumed) {
-				applyPausedLocationUpdate({
-					point, fromJoystick, appActive, movedPlayerManuallyRef, debugPlayerPositionRef,
-					lastAcceptedGpsPointRef, mapRef, centerMapOnPosition,
-				});
-				return;
+			// During pause: update the visual player position but do NOT record GPS points
+			// or mark hex tiles. Both real GPS and joystick movement are allowed so the
+			// player marker stays live while the run is paused.
+			//
+			// For real GPS: skip if the user already overrode the position with the
+			// joystick before pausing – this mirrors the active-recording behaviour and
+			// prevents GPS from snapping the marker back while the user navigates
+			// virtually during the pause.
+			const shouldUpdate = fromJoystick || !movedPlayerManuallyRef.current;
+			if (shouldUpdate) {
+				debugPlayerPositionRef.current = { lat: point.lat, lng: point.lng };
+				mapRef.current?.sendToMap({ userLocation: { lat: point.lat, lng: point.lng } });
+				centerMapOnPosition({ lat: point.lat, lng: point.lng });
+				// Advance the accepted-point ref for real GPS so the speed filter works
+				// correctly on the first GPS point recorded after resume.
+				if (!fromJoystick) {
+					lastAcceptedGpsPointRef.current = point;
+				}
 			}
+			return;
 		}
 
 		// ── GPS speed filter (real GPS only) ─────────────────────────────────────
@@ -5651,13 +5417,6 @@ export default function RecordScreen() {
 		// glitch / noise spike.
 		if (maybeFilterGpsPoint(fromJoystick, point, isRecordingRef, joystickActiveRef, movedPlayerManuallyRef, lastAcceptedGpsPointRef, selectedSportTypeRef)) {
 			return;
-		}
-
-		// Advance the auto-pause stationary anchor for accepted real GPS fixes:
-		// the anchor follows the position while moving and ages while standing
-		// still (the timer-driven check pauses once it is old enough).
-		if (!fromJoystick && isRecordingRef.current) {
-			autoPauseAnchorRef.current = advanceAutoPauseAnchor(autoPauseAnchorRef.current, point);
 		}
 
 		const next = [...routePointsRef.current, point];
@@ -5673,22 +5432,17 @@ export default function RecordScreen() {
 		trackVisitedHexCells(point, h3ResolutionRef, lastCellRef, visitedHexIdsRef, orderedHexTilesRef, lastRedLineCellRef, dispatch);
 
 		// If heading mode is active, rotate the map smoothly to face movement direction.
-		if (appActive && isHeadingModeRef.current && next.length >= 2) {
-			const prev = next.at(-2)!;
+		if (isHeadingModeRef.current && next.length >= 2) {
+			const prev = next[next.length - 2];
 			const bearing = computeBearing(prev.lat, prev.lng, point.lat, point.lng);
 			mapRef.current?.sendToMap({ bearing, easeAnimation: true, easeDuration: 500 });
 		}
 
-		// Accumulate the distance incrementally: each fix only adds its latest
-		// segment instead of re-summing the entire route on every update.
-		if (next.length >= 2) {
-			const prevPoint = next.at(-2)!;
-			liveDistanceKmRef.current += haversineKm(prevPoint.lat, prevPoint.lng, point.lat, point.lng);
+		let d = 0;
+		for (let i = 1; i < next.length; i++) {
+			d += haversineKm(next[i - 1].lat, next[i - 1].lng, next[i].lat, next[i].lng);
 		}
-		const d = liveDistanceKmRef.current;
-		if (appActive) {
-			setLiveDistanceKm(d);
-		}
+		setLiveDistanceKm(d);
 
 		// Announce each whole-km milestone via TTS when enabled.
 		announceKmMilestoneIfNeeded(d, speechSettingsRef, lastAnnouncedKmRef, startTimeRef, accumulatedSecondsRef);
@@ -5699,25 +5453,35 @@ export default function RecordScreen() {
 			paceHintStateRef, lastPaceHintTimeRef, paceHintCooldownMs: PACE_HINT_COOLDOWN_MS,
 		});
 
-		if (appActive && point.speed != null && point.speed >= 0) {
+		if (point.speed != null && point.speed >= 0) {
 			setLiveSpeedKmh(point.speed * 3.6);
 		}
 
-		if (appActive) {
-			sendRouteToMap(next);
+		sendRouteToMap(next);
 
-			// Centre the map on the new position:
-			//  – Joystick updates always re-centre (the user is actively navigating).
-			//  – GPS updates only re-centre when the user has not overridden with the joystick.
-			if (fromJoystick || !movedPlayerManuallyRef.current) {
-				centerMapOnPosition({ lat: point.lat, lng: point.lng });
-			}
+		// Centre the map on the new position:
+		//  – Joystick updates always re-centre (the user is actively navigating).
+		//  – GPS updates only re-centre when the user has not overridden with the joystick.
+		if (fromJoystick || !movedPlayerManuallyRef.current) {
+			centerMapOnPosition({ lat: point.lat, lng: point.lng });
 		}
 
-		// Refresh hex GeoJSON to show updated tile levels (includes the just-dispatched
-		// visit). Skipped while backgrounded; the AppState 'active' handler rebuilds
-		// the full map display when the app returns to the foreground.
-		refreshHexDisplayForViewport(appActive, debugViewportRef, mapRef, h3ResolutionRef, showGridAlwaysRef, h3MinZoomRef, refreshSearchHighlight);
+		// Refresh hex GeoJSON to show updated tile levels (includes the just-dispatched visit)
+		const vp = debugViewportRef.current;
+		if (vp && mapRef.current) {
+			let geoJson: H3FeatureCollection = { type: 'FeatureCollection', features: [] };
+			try {
+				geoJson = buildH3GeoJson(vp.bounds, vp.zoom, h3ResolutionRef.current, showGridAlwaysRef.current, store.getState().hexTiles.records, h3MinZoomRef.current);
+			} catch (err) {
+				console.warn('[RecordScreen] buildH3GeoJson failed during location update:', err);
+			}
+			debugViewportRef.current = { ...vp, tileCount: geoJson.features.length };
+			const viewportCells = [...new Set(geoJson.features.map((f) => f.properties.h3Index))];
+			const walkPathGeoJson = buildWalkPathGeoJson(viewportCells, store.getState().hexTiles.walkedEdges, store.getState().hexTiles.walkedEdgesRedLine);
+			mapRef.current.sendToMap({ hexTileGeoJson: geoJson });
+			mapRef.current.sendToMap({ hexWalkPathGeoJson: walkPathGeoJson });
+			refreshSearchHighlight(viewportCells);
+		}
 
 		// ── Periodically persist a recording snapshot for crash recovery ──
 		persistRecordingSnapshotIfDue({
@@ -5782,9 +5546,8 @@ export default function RecordScreen() {
 		stopPeriodicAnnouncementTimer();
 		const ss = speechSettingsRef.current;
 		if (!ss.enabled) return;
-		const configuredIntervalSec = ss.intervalTimeMinutes * 60 + ss.intervalTimeSeconds;
-		if (configuredIntervalSec <= 0) return;
-		const intervalSec = Math.max(configuredIntervalSec, MIN_PERIODIC_ANNOUNCEMENT_INTERVAL_SEC);
+		const intervalSec = ss.intervalTimeMinutes * 60 + ss.intervalTimeSeconds;
+		if (intervalSec <= 0) return;
 
 		periodicAnnouncementTimerRef.current = setInterval(() => {
 			if (!isRecordingRef.current || isPausedRef.current || !speechSettingsRef.current.enabled) return;
@@ -5794,7 +5557,10 @@ export default function RecordScreen() {
 				? (Date.now() - startTimeRef.current) / 1000 + accumulatedSecondsRef.current
 				: accumulatedSecondsRef.current;
 			const points = routePointsRef.current;
-			const totalDistanceKm = liveDistanceKmRef.current;
+			let totalDistanceKm = 0;
+			for (let i = 1; i < points.length; i++) {
+				totalDistanceKm += haversineKm(points[i - 1].lat, points[i - 1].lng, points[i].lat, points[i].lng);
+			}
 			const paceMinPerKm = totalDistanceKm > 0 && elapsedSec > 0 ? elapsedSec / 60 / totalDistanceKm : null;
 			const lastPt = points.length > 0 ? points[points.length - 1] : null;
 			const speedKmh = lastPt?.speed != null && lastPt.speed >= 0 ? lastPt.speed * 3.6 : null;
@@ -5821,7 +5587,8 @@ export default function RecordScreen() {
 					speakAnnouncement(text, langCode, {
 						volume: curSs.volume,
 						rate: speechRateToNumber(curSs.speechRate),
-					}, 'periodic', { ...RECORDING_ANNOUNCEMENT_QUEUE_OPTIONS, duckOthers: curSs.duckMusicDuringTTS });
+						useApplicationAudioSession: curSs.duckMusicDuringTTS,
+					}, 'periodic');
 				} catch (err) {
 					console.warn('[RecordScreen] Periodic announcement failed:', err);
 				}
@@ -5851,13 +5618,8 @@ export default function RecordScreen() {
 				return;
 			}
 
-			// Enable background audio so TTS announcements work when the app is
-			// backgrounded. Only do this when speech is enabled: an active
-			// background audio session keeps the whole app awake while the screen
-			// is off and costs battery even when nothing is ever spoken.
-			if (speechSettingsRef.current.enabled) {
-				await enableBackgroundAudio();
-			}
+			// Enable background audio so TTS announcements work when the app is backgrounded
+			await enableBackgroundAudio();
 
 			routePointsRef.current = [];
 			visitedHexIdsRef.current = new Set();
@@ -5867,22 +5629,15 @@ export default function RecordScreen() {
 			lastAcceptedGpsPointRef.current = null;
 			movedPlayerManuallyRef.current = false;
 			lastSnapshotSaveRef.current = 0;
-			recordingGpsIntervalSecondsRef.current = gpsTimeIntervalMs / 1000;
-			// Collect every TTS pipeline event of this recording; attached to the
-			// saved activity for debugging late or missing announcements.
-			startTTSSessionLog();
 			dispatch(startRun());
 			startTimeRef.current = Date.now();
 			accumulatedSecondsRef.current = 0;
 			isPausedRef.current = false;
 			setIsPaused(false);
 			setElapsedSeconds(0);
-			liveDistanceKmRef.current = 0;
 			setLiveDistanceKm(0);
 			setLiveSpeedKmh(null);
 			lastAnnouncedKmRef.current = 0;
-			autoPausedRef.current = false;
-			autoPauseAnchorRef.current = null;
 			paceHintStateRef.current = 'on_target';
 			// Initialise to now so the first pace-hint announcement is delayed by
 			// PACE_HINT_COOLDOWN_MS (same warm-up concept as SPEED_WARMUP_MS).
@@ -5901,26 +5656,11 @@ export default function RecordScreen() {
 			mapRef.current?.sendToMap({ bearing: currentHeadingRef.current, easeAnimation: true, easeDuration: 500 });
 
 			timerRef.current = setInterval(() => {
-				// Skip display updates while backgrounded – re-rendering with the
-				// screen off wastes battery. Elapsed time is recomputed from
-				// timestamps, so the next foreground tick shows the correct value.
-				if (AppState.currentState !== 'active') return;
 				setElapsedSeconds(accumulatedSecondsRef.current + Math.floor((Date.now() - startTimeRef.current) / 1000));
 			}, 1000);
 
 			// Start periodic (time-based) speech announcements if enabled
 			startPeriodicAnnouncementTimer();
-
-			// Evaluate auto-pause once per second while recording. Timer-driven:
-			// the platform delivers no GPS fixes while the user stands still
-			// (GPS_DISTANCE_INTERVAL_METERS), so incoming points alone cannot
-			// detect stillness.
-			autoPauseTimerRef.current = setInterval(() => {
-				evaluateAutoPauseOnTick({
-					isRecordingRef, isPausedRef, joystickActiveRef, movedPlayerManuallyRef,
-					autoPauseAnchorRef, autoPausedRef, pauseRecordingRef, speechSettingsRef,
-				});
-			}, AUTO_PAUSE_CHECK_INTERVAL_MS);
 
 			// ── Debug replay: emit GPS points from a recorded activity instead of real GPS ──
 			if (isDebugMode && debugReplayActivityRef.current && debugReplayActivityRef.current.routePoints.length > 0) {
@@ -5960,7 +5700,11 @@ export default function RecordScreen() {
 					),
 				});
 				const sub = await Location.watchPositionAsync(
-					getRecordingLocationOptions(gpsTimeIntervalMs),
+					{
+						accuracy: Location.Accuracy.BestForNavigation,
+						timeInterval: gpsTimeIntervalMs,
+						distanceInterval: GPS_DISTANCE_INTERVAL_METERS,
+					},
 					(loc) => {
 						console.log('[RecordScreen] Foreground location update:', loc.coords.latitude, loc.coords.longitude);
 						handleLocationUpdate({
@@ -5991,15 +5735,29 @@ export default function RecordScreen() {
 			if (useBackground) {
 				console.log('[RecordScreen] Starting background location updates via TaskManager...');
 				_onLocationUpdate = handleLocationUpdate;
-				await Location.startLocationUpdatesAsync(
-					ACTIVITY_LOCATION_TASK,
-					getBackgroundRecordingLocationOptions(gpsTimeIntervalMs),
-				);
+				await Location.startLocationUpdatesAsync(ACTIVITY_LOCATION_TASK, {
+					accuracy: Location.Accuracy.BestForNavigation,
+					timeInterval: gpsTimeIntervalMs,
+					distanceInterval: GPS_DISTANCE_INTERVAL_METERS,
+					showsBackgroundLocationIndicator: true,
+					foregroundService: {
+						notificationTitle: 'Activity Recording',
+						notificationBody: 'Geonexia is recording your activity in the background.',
+						notificationColor: PRIMARY_COLOR,
+						// Stop the Android foreground service (and GPS) when the user
+						// closes the app; tracking may only continue in the background.
+						killServiceOnDestroy: true,
+					},
+				});
 				console.log('[RecordScreen] Background location updates started.');
 			} else {
 				console.log('[RecordScreen] Background permission denied – falling back to foreground-only tracking.');
 				const sub = await Location.watchPositionAsync(
-					getRecordingLocationOptions(gpsTimeIntervalMs),
+					{
+						accuracy: Location.Accuracy.BestForNavigation,
+						timeInterval: gpsTimeIntervalMs,
+						distanceInterval: GPS_DISTANCE_INTERVAL_METERS,
+					},
 					(loc) => {
 						console.log('[RecordScreen] Foreground location update:', loc.coords.latitude, loc.coords.longitude);
 						handleLocationUpdate({
@@ -6027,13 +5785,7 @@ export default function RecordScreen() {
 				clearInterval(timerRef.current);
 				timerRef.current = null;
 			}
-			if (autoPauseTimerRef.current) {
-				clearInterval(autoPauseTimerRef.current);
-				autoPauseTimerRef.current = null;
-			}
 			stopPeriodicAnnouncementTimer();
-			// Discard the TTS session log of the failed start.
-			finishTTSSessionLog();
 		}
 	}, [handleLocationUpdate, setFollowMode, showModal, theme, startPeriodicAnnouncementTimer, stopPeriodicAnnouncementTimer, refreshSearchHighlight, isDebugMode]);
 
@@ -6154,12 +5906,6 @@ export default function RecordScreen() {
 			clearInterval(timerRef.current);
 			timerRef.current = null;
 		}
-		if (autoPauseTimerRef.current) {
-			clearInterval(autoPauseTimerRef.current);
-			autoPauseTimerRef.current = null;
-		}
-		autoPausedRef.current = false;
-		autoPauseAnchorRef.current = null;
 		stopPeriodicAnnouncementTimer();
 
 		try {
@@ -6275,12 +6021,24 @@ export default function RecordScreen() {
 			routeId: selectedRouteRef.current?.id ?? undefined,
 			walkedEdgesRedLine: store.getState().hexTiles.walkedEdgesRedLine.slice(),
 			walkedEdgesRedLineResolution: RED_LINE_GRID_RESOLUTION,
-			gpsIntervalSeconds: recordingGpsIntervalSecondsRef.current ?? undefined,
-			// Collected after clearAudioQueue above, so the final queue_cleared
-			// event is included.
-			ttsLog: finishTTSSessionLog(),
 		};
 		activity.computed = computeActivityData(activity, enclosedCells);
+
+		// Best-effort: look up the weather at the START GPS point for the time
+		// the run started (free Open-Meteo API, no key required). Failures
+		// (offline, 404, timeout, …) resolve to null and simply leave the
+		// weather fields unset – the user can still fill them in manually.
+		const weather = await fetchWeatherAtCoordinates({
+			latitude: points[0].lat,
+			longitude: points[0].lng,
+			time: startTimeRef.current,
+			timeoutMs: 8_000,
+		});
+		if (weather) {
+			activity.weatherTemperature = Math.round(weather.temperatureCelsius * 10) / 10;
+			activity.weatherType = weather.condition;
+		}
+
 		try {
 			await saveActivity(activity);
 		} catch (err) {
@@ -6302,9 +6060,6 @@ export default function RecordScreen() {
 			timerRef.current = null;
 		}
 		stopPeriodicAnnouncementTimer();
-		// A pause is manual by default; the auto-pause tick sets autoPausedRef
-		// back to true right after calling this when it triggered the pause.
-		autoPausedRef.current = false;
 		isPausedRef.current = true;
 		setIsPaused(true);
 	}, [stopPeriodicAnnouncementTimer]);
@@ -6312,9 +6067,6 @@ export default function RecordScreen() {
 	const resumeRecording = useCallback(() => {
 		startTimeRef.current = Date.now();
 		timerRef.current = setInterval(() => {
-			// Same background guard as in startRecording: no display updates
-			// while the screen is off.
-			if (AppState.currentState !== 'active') return;
 			setElapsedSeconds(accumulatedSecondsRef.current + Math.floor((Date.now() - startTimeRef.current) / 1000));
 		}, 1000);
 		startPeriodicAnnouncementTimer();
@@ -6322,19 +6074,9 @@ export default function RecordScreen() {
 		// navigated via joystick during the pause, GPS will smoothly re-anchor
 		// to the physical device location from the current player position.
 		movedPlayerManuallyRef.current = false;
-		// Restart stillness detection from the current position so a resume
-		// without any subsequent movement auto-pauses again after the delay.
-		autoPausedRef.current = false;
-		const pos = debugPlayerPositionRef.current;
-		autoPauseAnchorRef.current = pos ? { lat: pos.lat, lng: pos.lng, timestamp: Date.now() } : null;
 		isPausedRef.current = false;
 		setIsPaused(false);
 	}, [startPeriodicAnnouncementTimer]);
-
-	// Ref mirrors for the auto-pause logic inside handleLocationUpdate and the
-	// stationary-check tick, which are defined before these callbacks exist.
-	pauseRecordingRef.current = pauseRecording;
-	resumeRecordingRef.current = resumeRecording;
 
 	// Handle the record button press. In debug mode, show a replay selection modal first.
 	// Outside debug mode (or if already recording), delegate directly to startRecording.

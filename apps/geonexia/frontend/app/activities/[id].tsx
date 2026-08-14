@@ -27,6 +27,7 @@ import ActivityAggregateStatsSection from '../../components/ActivityAggregateSta
 import ModalTextInput from '../../components/ModalTextInput';
 import type { RootState, AppDispatch } from '../../store/store';
 import { updateReplaySettings } from '../../store/replaySettingsSlice';
+import { updateDisplaySettings } from '../../store/displaySettingsSlice';
 import { useDebugMode } from '../../hooks/useDebugMode';
 import { computeActivityData, findEnclosedCellsFromHexTiles, buildFullRouteTileIds, H3_RESOLUTION_FALLBACK, RED_LINE_GRID_RESOLUTION, MIN_TILES_FOR_ENCLOSED_POLYGON, synthesizeManualActivityRoutePoints } from '../../helpers/ActivityMapRebuildHelper';
 import useGeonexiaAlert from '../../hooks/useGeonexiaAlert';
@@ -824,23 +825,6 @@ function migrateActivityStatsQuartiles(a: SavedActivity): SavedActivity {
 }
 
 /**
- * Migrate an activity saved before `gpsIntervalSeconds` was recorded by
- * approximating the recording frequency as duration / number of GPS points
- * and persisting it. Returns the activity unchanged when the field is already
- * present or no approximation is possible (manual activities without GPS
- * points, zero duration).
- */
-function migrateActivityGpsInterval(a: SavedActivity): SavedActivity {
-	if (a.gpsIntervalSeconds != null || a.routePoints.length === 0 || !(a.stats.durationSeconds > 0)) {
-		return a;
-	}
-	const approxSeconds = a.stats.durationSeconds / a.routePoints.length;
-	const updated = { ...a, gpsIntervalSeconds: Math.round(approxSeconds * 100) / 100 };
-	saveActivity(updated);
-	return updated;
-}
-
-/**
  * Straßen/Wege mode: the GPS-connected track is not rendered at all. The
  * road-match effect sends the road-matched line as speed-colored
  * routeSegments once the road network has been fetched.
@@ -866,7 +850,9 @@ function sendActivityGpsRouteSegmentsToMap(
 			...seg,
 			coords: [displayCoords[i], displayCoords[i + 1]] as [[number, number], [number, number]],
 		}));
-		mapHandle.sendToMap({ routeSegments: smoothedSegments, routeSpeedRange: result.speedRange });
+		// Also clear the plain track line so a previously shown raw-GPS
+		// straight-line route does not linger under the colored segments.
+		mapHandle.sendToMap({ routeSegments: smoothedSegments, routeSpeedRange: result.speedRange, routeCoordinates: null });
 	} else {
 		// Fallback: plain route without speed coloring
 		mapHandle.sendToMap({ routeCoordinates: displayCoords });
@@ -1015,6 +1001,7 @@ export default function ActivityDetailScreen() {
 	const replaySpeed = useSelector((state: RootState) => state.replaySettings.speed);
 	const routeSmoothingLevel = useSelector((state: RootState) => state.displaySettings.routeSmoothingLevel);
 	const showGpsPoints = useSelector((state: RootState) => state.displaySettings.showGpsPoints);
+	const showRawGpsRoute = useSelector((state: RootState) => state.displaySettings.showRawGpsRoute);
 	const showRoadMatch = useSelector((state: RootState) => state.displaySettings.showRoadMatch);
 	const roadMatchJunctionMode = useSelector((state: RootState) => state.displaySettings.roadMatchJunctionMode);
 	const dispatch = useDispatch<AppDispatch>();
@@ -1113,9 +1100,6 @@ export default function ActivityDetailScreen() {
 
 				// Migrate activities saved before the speed boxplot quartiles were introduced.
 				a = migrateActivityStatsQuartiles(a);
-
-				// Migrate activities saved before the GPS interval was recorded.
-				a = migrateActivityGpsInterval(a);
 
 				setActivity(a);
 
@@ -1230,7 +1214,8 @@ export default function ActivityDetailScreen() {
 	// GPS track entirely and is rendered with the same red/green/blue speed
 	// gradient as the raw track (via the routeSegments layer), not in yellow.
 	useEffect(() => {
-		if (!showRoadMatch || !mapMounted || !activity || !mapRef.current) {
+		// Raw-GPS mode overrides road matching – the plain straight-line track is shown instead.
+		if (!showRoadMatch || showRawGpsRoute || !mapMounted || !activity || !mapRef.current) {
 			mapRef.current?.sendToMap({ matchedRoadCoordinates: null });
 			setLastRoadWays(null);
 			setLastMatchedRoadCoords(null);
@@ -1267,7 +1252,7 @@ export default function ActivityDetailScreen() {
 			});
 
 		return () => { cancelled = true; };
-	}, [showRoadMatch, mapMounted, activity, computeRouteBounds, roadMatchJunctionMode, buildRoadMatchedSegments, buildRouteSegments]);
+	}, [showRoadMatch, showRawGpsRoute, mapMounted, activity, computeRouteBounds, roadMatchJunctionMode, buildRoadMatchedSegments, buildRouteSegments]);
 
 	// Highlight the hex tiles selected for test-case export.
 	useEffect(() => {
@@ -1326,13 +1311,18 @@ export default function ActivityDetailScreen() {
 		// Apply centre-line projection when route smoothing is enabled.
 		// We compute smoothed [lng, lat] coordinates and use those for display
 		// while keeping the original speed values from the raw route points.
+		// In raw-GPS mode the smoothing is skipped entirely.
 		const rawCoords: [number, number][] = activity.routePoints.map((p) => [p.lng, p.lat]);
-		const displayCoords: [number, number][] = routeSmoothingLevel !== 'off'
+		const displayCoords: [number, number][] = !showRawGpsRoute && routeSmoothingLevel !== 'off'
 			? snapToRoad(rawCoords, activity.routePoints.map((p) => !!p.interpolated), ROUTE_SMOOTHING_WINDOWS[routeSmoothingLevel])
 			: rawCoords;
 
 		const result = buildRouteSegments(activity.routePoints, activity.stats);
-		if (showRoadMatch) {
+		if (showRawGpsRoute) {
+			// Raw-GPS mode: connect the raw GPS points with plain straight lines
+			// (no smoothing, no speed coloring, no road match).
+			mapRef.current.sendToMap({ routeSegments: null, routeCoordinates: rawCoords });
+		} else if (showRoadMatch) {
 			clearActivityRouteSegmentsOnMap(mapRef.current);
 		} else {
 			sendActivityGpsRouteSegmentsToMap(mapRef.current, displayCoords, result);
@@ -1345,8 +1335,9 @@ export default function ActivityDetailScreen() {
 		}
 
 		// Render raw GPS measurement points as small black circles on top of the
-		// route line when the "GPS-Punkte anzeigen" setting is enabled.
-		if (showGpsPoints && pts.length > 0) {
+		// route line when the "GPS-Punkte anzeigen" setting or the raw-GPS route
+		// mode is enabled.
+		if ((showGpsPoints || showRawGpsRoute) && pts.length > 0) {
 			mapRef.current.sendToMap({ debugGpsPoints: pts.map((p) => [p.lng, p.lat]) });
 		} else {
 			mapRef.current.sendToMap({ debugGpsPoints: null });
@@ -1390,7 +1381,7 @@ export default function ActivityDetailScreen() {
 				mapRef.current.sendToMap({ autoRotate: false });
 			}
 		};
-	}, [mapMounted, activity, buildRouteSegments, computeRouteBounds, hexTileRecords, showGpsPoints, routeSmoothingLevel, showRoadMatch]);
+	}, [mapMounted, activity, buildRouteSegments, computeRouteBounds, hexTileRecords, showGpsPoints, showRawGpsRoute, routeSmoothingLevel, showRoadMatch]);
 
 	// Send enclosed tiles GeoJSON to the map (light blue fill), mirroring routes/[id].tsx
 	useEffect(() => {
@@ -1777,6 +1768,18 @@ export default function ActivityDetailScreen() {
 						</View>
 					}
 					groupPosition="bottom"
+				/>
+
+				<SettingsListGroupTitle title="Darstellung" />
+				<SettingsListBoolean
+					iconBgColor={PRIMARY_COLOR}
+					leftIcon={<MaterialIcons name="timeline" size={22} color="#ffffff" />}
+					label="Nur GPS-Punkte (gerade Linien)"
+					isEnabled={showRawGpsRoute}
+					onToggle={() => dispatch(updateDisplaySettings({ showRawGpsRoute: !showRawGpsRoute }))}
+					valueActive="Eingeschaltet"
+					valueInactive="Ausgeschaltet"
+					groupPosition="single"
 				/>
 
 				<SettingsListGroupTitle title="Aktivität Informationen" />

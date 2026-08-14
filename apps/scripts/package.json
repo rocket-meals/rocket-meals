@@ -14,6 +14,9 @@
     "apk:extract-url": "ts-node --project ./tsconfig.json ./android-preview-apk.ts extract",
     "build-number:compare-online": "ts-node --project ./tsconfig.json ./check-build-version.ts compare",
     "apk:update-readme": "ts-node --project ./tsconfig.json ./android-preview-apk.ts update-readme",
+    "dev-client:update-readme": "ts-node --project ./tsconfig.json ./dev-client-readme.ts update-readme",
+    "ios-preview:extract-url": "ts-node --project ./tsconfig.json ./ios-preview.ts extract",
+    "ios-preview:update-readme": "ts-node --project ./tsconfig.json ./ios-preview.ts update-readme",
     "test": "jest"
   },
   "devDependencies": {

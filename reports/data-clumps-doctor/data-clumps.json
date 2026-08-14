@@ -1,15 +1,15 @@
 {
   "report_version": "^0.1.103",
-  "report_timestamp": "2026-08-11T14:00:21.072Z",
+  "report_timestamp": "2026-08-14T10:33:18.701Z",
   "target_language": "typescript",
   "report_summary": {
     "additional": {
       "invertedIndexSoftwareProjectStatistics": {
         "invertedFieldToClasses": {
           "median": 1,
-          "maximum": 112,
-          "average": 1.5426223895926052,
-          "amountSavedValuesForKeys": 4506,
+          "maximum": 113,
+          "average": 1.540402318445278,
+          "amountSavedValuesForKeys": 4518,
           "amountKeys": 30
         },
         "invertedParameterToMethods": {
@@ -21,51 +21,51 @@
         },
         "invertedParameterToClasses": {
           "median": 1.5,
-          "maximum": 112,
-          "average": 1.558091286307054,
-          "amountSavedValuesForKeys": 4506,
+          "maximum": 113,
+          "average": 1.5557851239669422,
+          "amountSavedValuesForKeys": 4518,
           "amountKeys": 30
         }
       },
       "timer_information": {
-        "ast_generation_time_ms": 4740,
-        "detection_time_ms": 97,
+        "ast_generation_time_ms": 4957,
+        "detection_time_ms": 103,
         "machine_information": {
           "os": "Linux",
-          "os_release": "6.17.0-1020-azure",
+          "os_release": "6.17.0-1022-azure",
           "os_platform": "linux",
           "os_arch": "x64",
-          "os_uptime": 133.79,
-          "os_memory_free": 14828335104,
+          "os_uptime": 190.71,
+          "os_memory_free": 14818652160,
           "os_memory_total": 16766414848,
           "os_cpu_cores": 4,
-          "os_cpu_model": "AMD EPYC 9V74 80-Core Processor",
+          "os_cpu_model": "AMD EPYC 7763 64-Core Processor",
           "os_cpu_speed": 0
         }
       }
     },
-    "amount_classes_or_interfaces_with_data_clumps": 18,
-    "amount_files_with_data_clumps": 17,
+    "amount_classes_or_interfaces_with_data_clumps": 16,
+    "amount_files_with_data_clumps": 15,
     "amount_methods_with_data_clumps": 0,
-    "fields_to_fields_data_clump": 18,
+    "fields_to_fields_data_clump": 16,
     "parameters_to_fields_data_clump": 0,
     "parameters_to_parameters_data_clump": 0,
-    "amount_data_clumps": 18
+    "amount_data_clumps": 16
   },
   "project_info": {
     "project_url": "https://github.com/rocket-meals/rocket-meals",
     "project_name": "rocket-meals",
-    "project_version": "1d2d8d741de750d86ddbcee4b2cc0662ce2caef3",
-    "project_commit_hash": "1d2d8d741de750d86ddbcee4b2cc0662ce2caef3",
+    "project_version": "ba4db0307ae17d035292cdd12197909be23abc5e",
+    "project_commit_hash": "ba4db0307ae17d035292cdd12197909be23abc5e",
     "project_tag": null,
-    "project_commit_date": "1786456700",
+    "project_commit_date": "1786703462",
     "additional": {
       "relative_path_to_source_folder_in_project": ""
     },
-    "number_of_files": 631,
-    "number_of_classes_or_interfaces": 1362,
+    "number_of_files": 634,
+    "number_of_classes_or_interfaces": 1367,
     "number_of_methods": 1493,
-    "number_of_data_fields": 4506,
+    "number_of_data_fields": 4518,
     "number_of_method_parameters": 1651
   },
   "detector": {
@@ -285,103 +285,6 @@
         "cluster_type": 2
       }
     },
-    "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/AutoPauseHelper.ts-apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor-packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint-latlngtimestamp": {
-      "type": "data_clump",
-      "key": "fields_to_fields_data_clump-apps/geonexia/frontend/helpers/AutoPauseHelper.ts-apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor-packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint-latlngtimestamp",
-      "probability": 1,
-      "from_file_path": "apps/geonexia/frontend/helpers/AutoPauseHelper.ts",
-      "from_class_or_interface_key": "apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor",
-      "from_class_or_interface_name": "AutoPauseAnchor",
-      "from_method_name": null,
-      "from_method_key": null,
-      "to_file_path": "packages/common/src/GpsRouteTypes.ts",
-      "to_class_or_interface_key": "packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint",
-      "to_class_or_interface_name": "GpsRoutePoint",
-      "to_method_key": null,
-      "to_method_name": null,
-      "data_clump_type": "fields_to_fields_data_clump",
-      "data_clump_data": {
-        "apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor/memberField/lat": {
-          "key": "apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor/memberField/lat",
-          "name": "lat",
-          "type": "number",
-          "probability": 1,
-          "modifiers": [],
-          "to_variable": {
-            "key": "packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint/memberField/lat",
-            "name": "lat",
-            "type": "number",
-            "modifiers": [],
-            "position": {
-              "startLine": 9,
-              "startColumn": 3,
-              "endLine": 9,
-              "endColumn": 15
-            }
-          },
-          "position": {
-            "startLine": 34,
-            "startColumn": 2,
-            "endLine": 34,
-            "endColumn": 14
-          }
-        },
-        "apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor/memberField/lng": {
-          "key": "apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor/memberField/lng",
-          "name": "lng",
-          "type": "number",
-          "probability": 1,
-          "modifiers": [],
-          "to_variable": {
-            "key": "packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint/memberField/lng",
-            "name": "lng",
-            "type": "number",
-            "modifiers": [],
-            "position": {
-              "startLine": 10,
-              "startColumn": 3,
-              "endLine": 10,
-              "endColumn": 15
-            }
-          },
-          "position": {
-            "startLine": 35,
-            "startColumn": 2,
-            "endLine": 35,
-            "endColumn": 14
-          }
-        },
-        "apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor/memberField/timestamp": {
-          "key": "apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor/memberField/timestamp",
-          "name": "timestamp",
-          "type": "number",
-          "probability": 1,
-          "modifiers": [],
-          "to_variable": {
-            "key": "packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint/memberField/timestamp",
-            "name": "timestamp",
-            "type": "number",
-            "modifiers": [],
-            "position": {
-              "startLine": 16,
-              "startColumn": 3,
-              "endLine": 16,
-              "endColumn": 21
-            }
-          },
-          "position": {
-            "startLine": 36,
-            "startColumn": 2,
-            "endLine": 36,
-            "endColumn": 20
-          }
-        }
-      },
-      "data_clump_type_additional": {
-        "cluster_id": 3,
-        "cluster_type": 2
-      }
-    },
     "fields_to_fields_data_clump-apps/score-tracker/frontend/config.ts-apps/score-tracker/frontend/config.ts/interface/CustomerConfig-apps/tag-und-jahr/frontend/config.ts/interface/CustomerConfig-projectNameappleAppIdimages": {
       "type": "data_clump",
       "key": "fields_to_fields_data_clump-apps/score-tracker/frontend/config.ts-apps/score-tracker/frontend/config.ts/interface/CustomerConfig-apps/tag-und-jahr/frontend/config.ts/interface/CustomerConfig-projectNameappleAppIdimages",
@@ -475,7 +378,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 4,
+        "cluster_id": 3,
         "cluster_type": 2
       }
     },
@@ -572,7 +475,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 5,
+        "cluster_id": 4,
         "cluster_type": 2
       }
     },
@@ -769,7 +672,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 6,
+        "cluster_id": 5,
         "cluster_type": 2
       }
     },
@@ -966,7 +869,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 6,
+        "cluster_id": 5,
         "cluster_type": 2
       }
     },
@@ -1063,7 +966,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 5,
+        "cluster_id": 4,
         "cluster_type": 2
       }
     },
@@ -1185,7 +1088,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 7,
+        "cluster_id": 6,
         "cluster_type": 2
       }
     },
@@ -1379,7 +1282,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 4,
+        "cluster_id": 3,
         "cluster_type": 2
       }
     },
@@ -1573,7 +1476,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 8,
+        "cluster_id": 7,
         "cluster_type": 2
       }
     },
@@ -1670,7 +1573,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 8,
+        "cluster_id": 7,
         "cluster_type": 2
       }
     },
@@ -1817,7 +1720,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 9,
+        "cluster_id": 8,
         "cluster_type": 2
       }
     },
@@ -1964,104 +1867,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 9,
-        "cluster_type": 2
-      }
-    },
-    "fields_to_fields_data_clump-packages/common/src/GpsRouteTypes.ts-packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint-apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor-latlngtimestamp": {
-      "type": "data_clump",
-      "key": "fields_to_fields_data_clump-packages/common/src/GpsRouteTypes.ts-packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint-apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor-latlngtimestamp",
-      "probability": 1,
-      "from_file_path": "packages/common/src/GpsRouteTypes.ts",
-      "from_class_or_interface_key": "packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint",
-      "from_class_or_interface_name": "GpsRoutePoint",
-      "from_method_name": null,
-      "from_method_key": null,
-      "to_file_path": "apps/geonexia/frontend/helpers/AutoPauseHelper.ts",
-      "to_class_or_interface_key": "apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor",
-      "to_class_or_interface_name": "AutoPauseAnchor",
-      "to_method_key": null,
-      "to_method_name": null,
-      "data_clump_type": "fields_to_fields_data_clump",
-      "data_clump_data": {
-        "packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint/memberField/lat": {
-          "key": "packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint/memberField/lat",
-          "name": "lat",
-          "type": "number",
-          "probability": 1,
-          "modifiers": [],
-          "to_variable": {
-            "key": "apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor/memberField/lat",
-            "name": "lat",
-            "type": "number",
-            "modifiers": [],
-            "position": {
-              "startLine": 34,
-              "startColumn": 2,
-              "endLine": 34,
-              "endColumn": 14
-            }
-          },
-          "position": {
-            "startLine": 9,
-            "startColumn": 3,
-            "endLine": 9,
-            "endColumn": 15
-          }
-        },
-        "packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint/memberField/lng": {
-          "key": "packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint/memberField/lng",
-          "name": "lng",
-          "type": "number",
-          "probability": 1,
-          "modifiers": [],
-          "to_variable": {
-            "key": "apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor/memberField/lng",
-            "name": "lng",
-            "type": "number",
-            "modifiers": [],
-            "position": {
-              "startLine": 35,
-              "startColumn": 2,
-              "endLine": 35,
-              "endColumn": 14
-            }
-          },
-          "position": {
-            "startLine": 10,
-            "startColumn": 3,
-            "endLine": 10,
-            "endColumn": 15
-          }
-        },
-        "packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint/memberField/timestamp": {
-          "key": "packages/common/src/GpsRouteTypes.ts/interface/GpsRoutePoint/memberField/timestamp",
-          "name": "timestamp",
-          "type": "number",
-          "probability": 1,
-          "modifiers": [],
-          "to_variable": {
-            "key": "apps/geonexia/frontend/helpers/AutoPauseHelper.ts/interface/AutoPauseAnchor/memberField/timestamp",
-            "name": "timestamp",
-            "type": "number",
-            "modifiers": [],
-            "position": {
-              "startLine": 36,
-              "startColumn": 2,
-              "endLine": 36,
-              "endColumn": 20
-            }
-          },
-          "position": {
-            "startLine": 16,
-            "startColumn": 3,
-            "endLine": 16,
-            "endColumn": 21
-          }
-        }
-      },
-      "data_clump_type_additional": {
-        "cluster_id": 3,
+        "cluster_id": 8,
         "cluster_type": 2
       }
     },
@@ -2183,7 +1989,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 7,
+        "cluster_id": 6,
         "cluster_type": 2
       }
     }

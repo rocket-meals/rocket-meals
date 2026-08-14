@@ -1,0 +1,61 @@
+name: 'Build iOS Preview'
+description: 'Builds an EAS iOS preview build (ad-hoc/internal distribution) for an app and optionally publishes its install link (EAS build details page) into the README'
+
+inputs:
+  EXPO_TOKEN:
+    required: true
+    description: Expo Access Token (für EAS CLI)
+  working-directory:
+    required: true
+    description: Verzeichnis der Expo-App (z.B. ./apps/frontend/app)
+  eas-profile:
+    required: false
+    default: previewIos
+    description: EAS Build-Profil, das für den iOS-Preview-Build verwendet wird
+  app-key:
+    required: true
+    description: Kurzer Slug der App für den README-Marker (z.B. frontend, geonexia, score-tracker)
+  app-label:
+    required: true
+    description: Anzeigename der App im README-Link (z.B. "Rocket Meals (Frontend)")
+  update-readme:
+    required: false
+    default: 'false'
+    description: Wenn 'true', wird der iOS-Preview-Link in die README.md des Repos geschrieben (nur auf master@rocket-meals/rocket-meals aufrufen)
+  readme-path:
+    required: false
+    default: README.md
+    description: Pfad zur README-Datei relativ zum Repo-Root
+
+outputs:
+  ios-build-page-url:
+    description: 'URL der EAS-Build-Detailseite (Ad-hoc-Install per QR-Code), leer falls keine gefunden'
+    value: ${{ steps.extract.outputs.ios-build-page-url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: "🧪 Build iOS with ${{ inputs.eas-profile }} profile"
+      shell: bash
+      run: eas build --platform ios --non-interactive --profile "${{ inputs.eas-profile }}" --json | tee eas-build-output-ios.json
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        EXPO_TOKEN: ${{ inputs.EXPO_TOKEN }}
+
+    - name: "🔍 Extract iOS build page URL"
+      id: extract
+      shell: bash
+      run: yarn workspace rocket-meals-scripts ios-preview:extract-url
+      env:
+        # yarn workspace runs with cwd=apps/scripts, so paths must be absolute
+        BUILD_OUTPUT_PATH: ${{ github.workspace }}/${{ inputs.working-directory }}/eas-build-output-ios.json
+
+    - name: "📝 Update iOS preview link in README"
+      if: inputs.update-readme == 'true' && steps.extract.outputs.ios-build-page-url != ''
+      shell: bash
+      run: yarn workspace rocket-meals-scripts ios-preview:update-readme
+      env:
+        README_PATH: ${{ github.workspace }}/${{ inputs.readme-path }}
+        APP_KEY: ${{ inputs.app-key }}
+        APP_LABEL: ${{ inputs.app-label }}
+        IOS_BUILD_PAGE_URL: ${{ steps.extract.outputs.ios-build-page-url }}

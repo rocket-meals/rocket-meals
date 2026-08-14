@@ -37,6 +37,49 @@ https://github.com/rocket-meals/studi-futter
 **Geonexia:** 📱 [Neueste Android Preview APK herunterladen](https://expo.dev/artifacts/eas/UYZgGVWq2muifAWBieRzsTwRtc6uBsLrhsosIno2yG8.apk)
 <!-- android-preview-apk:geonexia:end -->
 
+## 🍏 iOS Preview (Ad-hoc)
+
+Installierbar direkt über die EAS-Build-Seite (QR-Code) - das Gerät muss einmalig per `eas device:create` registriert sein.
+Die Links werden wie die Android Preview APKs bei jedem Build-Nummern-Bump auf `master` automatisch aktualisiert.
+
+<!-- ios-preview:frontend:start -->
+**Rocket Meals (Frontend):** Wird nach dem nächsten iOS-Preview-Build auf `master` automatisch aktualisiert.
+<!-- ios-preview:frontend:end -->
+
+<!-- ios-preview:score-tracker:start -->
+**Score Tracker:** Wird nach dem nächsten iOS-Preview-Build auf `master` automatisch aktualisiert.
+<!-- ios-preview:score-tracker:end -->
+
+<!-- ios-preview:tag-und-jahr:start -->
+**Tag und Jahr:** Wird nach dem nächsten iOS-Preview-Build auf `master` automatisch aktualisiert.
+<!-- ios-preview:tag-und-jahr:end -->
+
+<!-- ios-preview:geonexia:start -->
+**Geonexia:** Wird nach dem nächsten iOS-Preview-Build auf `master` automatisch aktualisiert.
+<!-- ios-preview:geonexia:end -->
+
+## 🧑‍💻 Dev Client Builds
+
+Development Builds (expo-dev-client) zum Testen von PR-Previews und Dev-Servern auf echten Geräten -
+Android als direkte APK, iOS per Ad-hoc-Install über die EAS-Build-Seite (Gerät muss per `eas device:create` registriert sein).
+Die Links werden bei jedem Build-Nummern-Bump automatisch aktualisiert.
+
+<!-- dev-client:frontend:start -->
+**Rocket Meals (Frontend) Dev Client:** Wird nach dem nächsten Dev-Client-Build auf `master` automatisch aktualisiert.
+<!-- dev-client:frontend:end -->
+
+<!-- dev-client:score-tracker:start -->
+**Score Tracker Dev Client v0.22.3:** 🤖 [Android APK](https://expo.dev/artifacts/eas/FfqitQTNiaN1gMOCSD5iQI0UMtoZj7UpXKS8qut-6uE.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/score-tracker/builds/c125251b-5670-4c3a-8993-aeb3f0141f09)
+<!-- dev-client:score-tracker:end -->
+
+<!-- dev-client:tag-und-jahr:start -->
+**Tag und Jahr Dev Client v0.3.0:** 🤖 [Android APK](https://expo.dev/artifacts/eas/zJnhrBFFRKRepsc8dIfoBcqNM5_jruDX-NFQ3xPQuV0.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/tag-und-jahr/builds/643dba6a-060d-47b5-b569-10b625544d73)
+<!-- dev-client:tag-und-jahr:end -->
+
+<!-- dev-client:geonexia:start -->
+**Geonexia Dev Client v0.21.0:** 🤖 [Android APK](https://expo.dev/artifacts/eas/vPfF3y76Gy_ARvGVvy2E8N5aekV2LthduKdK7MAjP5I.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/geonexia/builds/d36d6ddb-10f1-4f04-b51d-fea6a944e682)
+<!-- dev-client:geonexia:end -->
+
 # 🚀 Rocket Meals
 
 **Rocket Meals** ist eine innovative Lösung zur digitalen Verwaltung und Präsentation von

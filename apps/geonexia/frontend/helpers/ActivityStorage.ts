@@ -1,7 +1,6 @@
 import { getStorageItem, setStorageItem, removeStorageItem } from 'repo-depkit-common-ui';
 import type { RedLineRouteFields, RecordingSessionFields } from './ActivityRouteSharedTypes';
 import type { GpsRoutePoint, SpeedStats as CommonSpeedStats } from 'repo-depkit-common';
-import type { TTSSessionLogEntry } from './TTSSessionLog';
 
 // ─── Weather & Rating types ───────────────────────────────────────────────────
 
@@ -160,19 +159,6 @@ export type SavedActivity = RedLineRouteFields &
 		 * Manual activities only have a duration and are assigned to an existing route.
 		 */
 		isManual?: boolean;
-		/**
-		 * GPS poll interval (seconds) configured while this activity was
-		 * recorded. Activities saved before this field existed are backfilled on
-		 * next load with durationSeconds / routePoints.length (see the migration
-		 * in activities/[id].tsx).
-		 */
-		gpsIntervalSeconds?: number;
-		/**
-		 * Event log of the TTS announcement pipeline collected during the
-		 * recording (enqueueing, queue drops, speech start/end/errors, queue
-		 * clears). Stored for debugging late or missing announcements.
-		 */
-		ttsLog?: TTSSessionLogEntry[];
 	};
 
 /**

@@ -21,7 +21,6 @@ import { loadTTSEnabled as loadTTSEnabledAction } from '../store/ttsSlice';
 import { loadSpeechSettings as loadSpeechSettingsAction } from '../store/speechSettingsSlice';
 import { loadDisplaySettings as loadDisplaySettingsAction } from '../store/displaySettingsSlice';
 import { loadReplaySettings as loadReplaySettingsAction } from '../store/replaySettingsSlice';
-import { loadAutoPauseSettings as loadAutoPauseSettingsAction } from '../store/autoPauseSlice';
 import { loadPersistedPlayerInformation } from '../store/playerInformationSlice';
 import type { PlayerInformation } from '../helpers/PlayerInformationStorage';
 import { loadHexTileState, loadDevHexTileState, loadDevModeFlag, loadDebugModeFlag, loadWalkedEdges, loadDevWalkedEdges, loadWalkedEdgesRedLine, loadDevWalkedEdgesRedLine, loadWorldBuildingId, loadDevWorldBuildingId, saveWorldBuildingId, saveDevWorldBuildingId, saveHexTileState, saveDevHexTileState, saveWalkedEdges, saveDevWalkedEdges, saveWalkedEdgesRedLine, saveDevWalkedEdgesRedLine, BillboardAnchorPosition } from '../helpers/HexTileStorage';
@@ -34,7 +33,6 @@ import { loadTTSEnabled } from '../helpers/TTSStorage';
 import { loadSpeechSettings } from '../helpers/SpeechSettingsStorage';
 import { loadDisplaySettings } from '../helpers/DisplaySettingsStorage';
 import { loadReplaySettings } from '../helpers/ReplaySettingsStorage';
-import { loadAutoPauseSettings } from '../helpers/AutoPauseStorage';
 import { loadPlayerInformation } from '../helpers/PlayerInformationStorage';
 import { WORLD_BUILDING_ID, rebuildMapFromActivities, applyRouteBenches, hasForestFeature, BILLBOARD_PINE_TREE_LARGE, BILLBOARD_PINE_TREE_SMALL, getSmallTreeAnchorForHexId } from '../helpers/ActivityMapRebuildHelper';
 import { loadActivities } from '../helpers/ActivityStorage';
@@ -268,6 +266,20 @@ function ThemedDrawerNavigator() {
 				name="experimental/onboarding/index"
 				options={{
 					title: 'Onboarding',
+					drawerItemStyle: { display: 'none' },
+				}}
+			/>
+			<Drawer.Screen
+				name="playbook/index"
+				options={{
+					title: 'Playbook',
+					drawerItemStyle: { display: 'none' },
+				}}
+			/>
+			<Drawer.Screen
+				name="playbook/[component]"
+				options={{
+					title: 'Playbook Component',
 					drawerItemStyle: { display: 'none' },
 				}}
 			/>
@@ -664,13 +676,6 @@ export default function Layout() {
 			})
 			.catch((err) => {
 				console.warn('[Layout] Failed to load persisted replay settings:', err);
-			});
-		loadAutoPauseSettings()
-			.then((settings) => {
-				store.dispatch(loadAutoPauseSettingsAction(settings));
-			})
-			.catch((err) => {
-				console.warn('[Layout] Failed to load persisted auto-pause settings:', err);
 			});
 	}, []);
 

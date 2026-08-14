@@ -800,3 +800,171 @@ jobs:
 #          git config user.name "github-actions"
 #          git config user.email "github-actions@github.com"
 #          git push
+
+  # iOS previews (ad-hoc) mirror the Android preview APK jobs: only
+  # master@rocket-meals/rocket-meals builds them and publishes the install
+  # link (EAS build details page) into the README. Devices must be
+  # registered via `eas device:create` to install these builds.
+  build-ios-preview:
+    name: "🧪 Build iOS Preview (Ad-hoc)"
+    runs-on: ubuntu-latest
+    needs: [check-build-ios, check-repository]
+    if: needs.check-build-ios.outputs.should-build == 'true' && github.ref_name == 'master' && needs.check-repository.outputs.is-upstream == 'true'
+    permissions:
+      contents: write
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: "🧪 Build iOS Preview & update README"
+        uses: ./.github/actions/build-ios-preview
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          working-directory: ./apps/frontend/app
+          app-key: frontend
+          app-label: "Rocket Meals (Frontend)"
+          update-readme: 'true'
+      - name: "💾 Commit README update"
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add README.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update iOS preview link in README [skip ci]"
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  geonexia-build-ios-preview:
+    name: "🧪 Geonexia Build iOS Preview (Ad-hoc)"
+    runs-on: ubuntu-latest
+    needs: [geonexia-check-build, check-repository]
+    if: needs.geonexia-check-build.outputs.should-build == 'true' && github.ref_name == 'master' && needs.check-repository.outputs.is-upstream == 'true'
+    permissions:
+      contents: write
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: "🧪 Build Geonexia iOS Preview & update README"
+        uses: ./.github/actions/build-ios-preview
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          working-directory: ./apps/geonexia/frontend
+          app-key: geonexia
+          app-label: "Geonexia"
+          update-readme: 'true'
+      - name: "💾 Commit README update"
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add README.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update Geonexia iOS preview link in README [skip ci]"
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  score-tracker-build-ios-preview:
+    name: "🧪 Score Tracker Build iOS Preview (Ad-hoc)"
+    runs-on: ubuntu-latest
+    needs: [score-tracker-check-build, check-repository]
+    if: needs.score-tracker-check-build.outputs.should-build == 'true' && github.ref_name == 'master' && needs.check-repository.outputs.is-upstream == 'true'
+    permissions:
+      contents: write
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: "🧪 Build Score Tracker iOS Preview & update README"
+        uses: ./.github/actions/build-ios-preview
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          working-directory: ./apps/score-tracker/frontend
+          app-key: score-tracker
+          app-label: "Score Tracker"
+          update-readme: 'true'
+      - name: "💾 Commit README update"
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add README.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update Score Tracker iOS preview link in README [skip ci]"
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  tag-und-jahr-build-ios-preview:
+    name: "🧪 Tag und Jahr Build iOS Preview (Ad-hoc)"
+    runs-on: ubuntu-latest
+    needs: [tag-und-jahr-check-build, check-repository]
+    if: needs.tag-und-jahr-check-build.outputs.should-build == 'true' && github.ref_name == 'master' && needs.check-repository.outputs.is-upstream == 'true'
+    permissions:
+      contents: write
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: "🧪 Build Tag und Jahr iOS Preview & update README"
+        uses: ./.github/actions/build-ios-preview
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          working-directory: ./apps/tag-und-jahr/frontend
+          app-key: tag-und-jahr
+          app-label: "Tag und Jahr"
+          update-readme: 'true'
+      - name: "💾 Commit README update"
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add README.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update Tag und Jahr iOS preview link in README [skip ci]"
+            git pull --rebase --autostash origin "$GITHUB_REF_NAME"
+            git push
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

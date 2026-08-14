@@ -38,9 +38,6 @@ const VOLUME_STEP = 0.1;
 const VOLUME_MIN = 0.0;
 const VOLUME_MAX = 1.0;
 const PREVIEW_VIBRATION_DURATION_MS = 400;
-// Speaking a full stats announcement can take several seconds, so an interval
-// shorter than this backs up the announcement queue for the whole run.
-const MIN_PERIODIC_INTERVAL_SECONDS = 10;
 
 const SPEECH_RATE_OPTIONS: Array<{ id: SpeechRate; label: string }> = [
 	{ id: 'slow', label: 'Langsam' },
@@ -68,13 +65,6 @@ interface PaceMinSecModalProps extends PaceValue {
 	onSave: (minutes: number, seconds: number) => void;
 	primaryColor: string;
 	saveLabel?: string;
-	/**
-	 * Minimum total (minutes*60 + seconds) enforced on save. Used by the
-	 * periodic-announcement interval picker to prevent intervals shorter than
-	 * the time it takes to speak an announcement, which would otherwise make
-	 * the announcement queue back up for the whole run.
-	 */
-	minTotalSeconds?: number;
 }
 
 function PaceMinSecModal({
@@ -83,7 +73,6 @@ function PaceMinSecModal({
 	onSave,
 	primaryColor,
 	saveLabel = 'Speichern',
-	minTotalSeconds = 0,
 }: Readonly<PaceMinSecModalProps>) {
 	const { theme } = useTheme();
 	const [mins, setMins] = useState(minutes);
@@ -104,15 +93,8 @@ function PaceMinSecModal({
 
 	const handleSave = useCallback(() => {
 		Keyboard.dismiss();
-		const total = mins * 60 + secs;
-		// A total of 0 is a distinct "disabled" state (e.g. periodic announcements
-		// off) and must not be forced up to the minimum.
-		if (total > 0 && total < minTotalSeconds) {
-			onSave(0, minTotalSeconds);
-			return;
-		}
 		onSave(mins, secs);
-	}, [onSave, mins, secs, minTotalSeconds]);
+	}, [onSave, mins, secs]);
 
 	const content = (
 		<View style={styles.paceSheetView}>
@@ -216,7 +198,6 @@ interface PaceMinSecInputProps extends PaceValue, Pick<SettingsListItemBaseProps
 	disabled?: boolean;
 	groupPosition?: 'top' | 'middle' | 'bottom' | 'single';
 	primaryColor?: string;
-	minTotalSeconds?: number;
 }
 
 function PaceMinSecInput({
@@ -230,7 +211,6 @@ function PaceMinSecInput({
 	disabled,
 	groupPosition,
 	primaryColor = HINT_COLOR,
-	minTotalSeconds = 0,
 }: Readonly<PaceMinSecInputProps>) {
 	const { theme } = useTheme();
 	const { show, close } = useMyScrollViewModal();
@@ -249,11 +229,10 @@ function PaceMinSecInput({
 						close();
 					}}
 					primaryColor={primaryColor}
-					minTotalSeconds={minTotalSeconds}
 				/>
 			),
 		});
-	}, [disabled, show, close, modalTitle, label, minutes, seconds, onSave, primaryColor, minTotalSeconds]);
+	}, [disabled, show, close, modalTitle, label, minutes, seconds, onSave, primaryColor]);
 
 	return (
 		<SettingsList
@@ -295,7 +274,8 @@ export default function SpeechSettingsContent() {
 		speakAnnouncement(text, langCode, {
 			volume: settings.volume,
 			rate: speechRateToNumber(settings.speechRate),
-		}, 'sample', { duckOthers: settings.duckMusicDuringTTS });
+			useApplicationAudioSession: settings.duckMusicDuringTTS,
+		});
 	}, [langCode, settings.volume, settings.speechRate, settings.duckMusicDuringTTS]);
 
 	// ─── Play content example (based on enabled toggles) ─────────────────────
@@ -318,7 +298,8 @@ export default function SpeechSettingsContent() {
 		speakAnnouncement(text, langCode, {
 			volume: settings.volume,
 			rate: speechRateToNumber(settings.speechRate),
-		}, 'sample', { duckOthers: settings.duckMusicDuringTTS });
+			useApplicationAudioSession: settings.duckMusicDuringTTS,
+		});
 	}, [langCode, settings]);
 
 	// ─── Play faster hint example ─────────────────────────────────────────────
@@ -330,7 +311,8 @@ export default function SpeechSettingsContent() {
 		speakAnnouncement(text, langCode, {
 			volume: settings.volume,
 			rate: speechRateToNumber(settings.speechRate),
-		}, 'sample', { duckOthers: settings.duckMusicDuringTTS });
+			useApplicationAudioSession: settings.duckMusicDuringTTS,
+		});
 	}, [langCode, settings.volume, settings.speechRate, settings.duckMusicDuringTTS]);
 
 	// ─── Play slower hint example ─────────────────────────────────────────────
@@ -342,7 +324,8 @@ export default function SpeechSettingsContent() {
 		speakAnnouncement(text, langCode, {
 			volume: settings.volume,
 			rate: speechRateToNumber(settings.speechRate),
-		}, 'sample', { duckOthers: settings.duckMusicDuringTTS });
+			useApplicationAudioSession: settings.duckMusicDuringTTS,
+		});
 	}, [langCode, settings.volume, settings.speechRate, settings.duckMusicDuringTTS]);
 
 	// ─── Volume stepper ───────────────────────────────────────────────────────
@@ -543,9 +526,7 @@ export default function SpeechSettingsContent() {
 						speakAnnouncement(
 							langCode === 'de' ? 'Hinweiston' : 'Hint tone',
 							langCode,
-							{ volume: settings.volume, rate: speechRateToNumber(settings.speechRate) },
-							'sample',
-							{ duckOthers: settings.duckMusicDuringTTS },
+							{ volume: settings.volume, rate: speechRateToNumber(settings.speechRate), useApplicationAudioSession: settings.duckMusicDuringTTS },
 						);
 					}
 				}}
@@ -582,7 +563,6 @@ export default function SpeechSettingsContent() {
 				onSave={(m, s) => update({ intervalTimeMinutes: m, intervalTimeSeconds: s })}
 				groupPosition="single"
 				primaryColor={INTERVAL_COLOR}
-				minTotalSeconds={MIN_PERIODIC_INTERVAL_SECONDS}
 			/>
 
 			{/* ── Announcement content toggles ───────────────────────── */}
@@ -673,16 +653,6 @@ export default function SpeechSettingsContent() {
 				label="App im Hintergrund"
 				isEnabled={settings.announceAppInBackground}
 				onToggle={() => update({ announceAppInBackground: !settings.announceAppInBackground })}
-				valueActive="Wird angesagt"
-				valueInactive="Deaktiviert"
-				groupPosition="middle"
-			/>
-			<SettingsListBoolean
-				iconBgColor={CONTENT_COLOR}
-				leftIcon={<MaterialCommunityIcons name="pause-circle-outline" size={22} color="#ffffff" />}
-				label="Automatische Pause"
-				isEnabled={settings.announceAutoPause}
-				onToggle={() => update({ announceAutoPause: !settings.announceAutoPause })}
 				valueActive="Wird angesagt"
 				valueInactive="Deaktiviert"
 				groupPosition="middle"

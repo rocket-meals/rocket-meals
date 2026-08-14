@@ -38,8 +38,6 @@ import { queryTileFeaturesForHexCell } from '../../helpers/TileFeatureHelper';
 import { setThemeMode } from '../../store/themeSlice';
 import type { ThemeMode } from '../../store/themeSlice';
 import { setGpsIntervalSeconds } from '../../store/gpsIntervalSlice';
-import { updateAutoPauseSettings } from '../../store/autoPauseSlice';
-import { AUTO_PAUSE_MIN_DELAY_SECONDS } from '../../helpers/AutoPauseHelper';
 import SpeechSettingsContent from '../../components/SpeechSettingsModal';
 import AdvancedSettingsContent from '../../components/AdvancedSettingsContent';
 import type { RouteSmoothingLevel } from '../../helpers/RouteSmootherHelper';
@@ -357,8 +355,6 @@ export default function SettingsScreen() {
 	const dispatch = useDispatch<AppDispatch>();
 	const selectedTheme = useSelector((state: RootState) => state.theme.selectedMode);
 	const selectedGpsInterval = useSelector((state: RootState) => state.gpsInterval.intervalSeconds);
-	const autoPauseEnabled = useSelector((state: RootState) => state.autoPause.enabled);
-	const autoPauseDelaySeconds = useSelector((state: RootState) => state.autoPause.delaySeconds);
 	const speechEnabled = useSelector((state: RootState) => state.speechSettings.enabled);
 	const isDebugMode = useSelector((state: RootState) => state.hexTiles.isDebugMode);
 	const isDevMode = useSelector((state: RootState) => state.hexTiles.isDevMode);
@@ -654,36 +650,7 @@ export default function SettingsScreen() {
 				value={gpsIntervalLabel(selectedGpsInterval)}
 				rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
 				handleFunction={handleOpenGpsIntervalSelection}
-				groupPosition="top"
-			/>
-			<SettingsListBoolean
-				iconBgColor={GPS_COLOR}
-				leftIcon={<MaterialCommunityIcons name="pause-circle-outline" size={22} color="#ffffff" />}
-				label="Automatische Pause"
-				isEnabled={autoPauseEnabled}
-				onToggle={() => {
-					dispatch(updateAutoPauseSettings({ enabled: !autoPauseEnabled }));
-				}}
-				valueActive="Pausiert bei Stillstand"
-				valueInactive="Deaktiviert"
-				groupPosition="middle"
-			/>
-			<SettingsListNumberInput
-				leftIcon={<MaterialCommunityIcons name="timer-sand" size={22} color="#ffffff" />}
-				iconBgColor={GPS_COLOR}
-				label="Auto-Pause nach"
-				value={`${autoPauseDelaySeconds}s`}
-				groupPosition="bottom"
-				modalTitle="⏸️ Auto-Pause nach"
-				placeholder="z.B. 10"
-				saveLabel="Bestätigen"
-				initialValue={autoPauseDelaySeconds}
-				min={AUTO_PAUSE_MIN_DELAY_SECONDS}
-				suffix="s"
-				primaryColor={GPS_COLOR}
-				onSave={(seconds) => {
-					dispatch(updateAutoPauseSettings({ delaySeconds: seconds }));
-				}}
+				groupPosition="single"
 			/>
 
 			<SettingsListGroupTitle title="Audio" />

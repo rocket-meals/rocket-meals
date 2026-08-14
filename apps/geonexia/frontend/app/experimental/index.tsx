@@ -94,7 +94,16 @@ export default function ExperimentalScreen() {
 					value="Test keyboard avoidance in modals"
 					rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
 					handleFunction={() => router.push('/experimental/keyboard-avoid-test')}
-					groupPosition="single"
+					groupPosition="top"
+				/>
+				<SettingsList
+					iconBgColor={EXPERIMENTAL_COLOR}
+					leftIcon={<MaterialCommunityIcons name="puzzle-outline" size={22} color="#ffffff" />}
+					label="Playbook"
+					value="Common-UI Komponenten-Galerie (inkl. Wetter-API)"
+					rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
+					handleFunction={() => router.push('/playbook')}
+					groupPosition="bottom"
 				/>
 			</ScrollView>
 		</View>

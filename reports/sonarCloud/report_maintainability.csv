@@ -1,4 +1,6 @@
 Key,Message,Component,Line
+"AZ_yQOL1pgUJmaIr0f7D","Remove this useless assignment to variable ""liveSpeedKmh"".","rocket-meals_rocket-meals:apps/geonexia/frontend/app/index.tsx",4338
+"AZ_yQOL1pgUJmaIr0f7E","Prefer `.at(…)` over `[….length - index]`.","rocket-meals_rocket-meals:apps/geonexia/frontend/app/index.tsx",5436
 "AZ_rjWWpiiRzAXeKHrKM","Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.","rocket-meals_rocket-meals:apps/tag-und-jahr/frontend/app/settings/index.tsx",17
 "AZ_rjWZuiiRzAXeKHrKN","Do not use Array index in keys","rocket-meals_rocket-meals:apps/tag-und-jahr/frontend/components/WidgetPreview.tsx",68
 "AZ_rTPX2Zu4Ig3zpugeq","Do not use Array index in keys","rocket-meals_rocket-meals:apps/tag-und-jahr/frontend/widgets/FoodWidget.tsx",66
@@ -6,10 +8,7 @@ Key,Message,Component,Line
 "AZ_ny-jrHB_X69K27h4p","Verify that argument is of correct type: expected 'number' instead of 'number | undefined'.","rocket-meals_rocket-meals:apps/tag-und-jahr/frontend/scripts/generate-app-icon.js",78
 "AZ_ny-jrHB_X69K27h4q","Verify that argument is of correct type: expected 'number' instead of 'number | undefined'.","rocket-meals_rocket-meals:apps/tag-und-jahr/frontend/scripts/generate-app-icon.js",79
 "AZ_ny-jrHB_X69K27h4r","Verify that argument is of correct type: expected 'number' instead of 'number | undefined'.","rocket-meals_rocket-meals:apps/tag-und-jahr/frontend/scripts/generate-app-icon.js",80
-"AZ_mDo6nwr7A0FAxuFXv","Use the opposite operator (<=) instead.","rocket-meals_rocket-meals:apps/geonexia/frontend/app/activities/[id].tsx",834
-"AZ_mDozYwr7A0FAxuFXu","Refactor this code to not use nested template literals.","rocket-meals_rocket-meals:apps/geonexia/frontend/helpers/TTSSessionLog.ts",84
-"AZ_mDo87wr7A0FAxuFXw","Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed.","rocket-meals_rocket-meals:apps/geonexia/frontend/app/index.tsx",5626
-"AZ_mDo87wr7A0FAxuFXx","Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.","rocket-meals_rocket-meals:apps/geonexia/frontend/app/index.tsx",5832
+"AZ_mDo87wr7A0FAxuFXw","Refactor this function to reduce its Cognitive Complexity from 19 to the 15 allowed.","rocket-meals_rocket-meals:apps/geonexia/frontend/app/index.tsx",5390
 "AZ_bhgSmh08MZ_CNlF2h","Refactor this function to reduce its Cognitive Complexity from 27 to the 15 allowed.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/files-without-folder-report-schedule/index.ts",29
 "AZ_ZdY2aVTkoKe_w_Fkw","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:packages/common-ui/src/components/Collapsible/CollapsibleView.tsx",45
 "AZ_ZFtaL4GWqYiG8MC2O","Remove this unused import of 'StyleSheet'.","rocket-meals_rocket-meals:packages/common-ui/src/components/CustomMarkdown/CustomMarkdown.tsx",2
@@ -58,11 +57,11 @@ Key,Message,Component,Line
 "AZ_HfXtu4OT8cE4gH-ef","'change.to' will use Object's default stringification format ('[object Object]') when stringified.","rocket-meals_rocket-meals:apps/scripts/store-metadata-apple.ts",203
 "AZ_HfXt54OT8cE4gH-eg","`new Error()` is too unspecific for a type check. Use `new TypeError()` instead.","rocket-meals_rocket-meals:apps/scripts/store-metadata-load.ts",20
 "AZ_HfXrM4OT8cE4gH-eb","Refactor this function to reduce its Cognitive Complexity from 35 to the 15 allowed.","rocket-meals_rocket-meals:apps/scripts/store-metadata.ts",174
-"AZ_HG7ZcUuTJtAa61ed5","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:packages/common-ui/src/playbook/registry.tsx",138
-"AZ_HG7ZcUuTJtAa61ed6","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:packages/common-ui/src/playbook/registry.tsx",139
-"AZ_HG7ZcUuTJtAa61ed7","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:packages/common-ui/src/playbook/registry.tsx",199
-"AZ_HG7csUuTJtAa61ed8","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:packages/common-ui/src/playbook/registryData.ts",338
-"AZ_HG7csUuTJtAa61ed9","function 'serializeKnobValue' is equivalent to `String`. Use `String` directly.","rocket-meals_rocket-meals:packages/common-ui/src/playbook/registryData.ts",350
+"AZ_HG7ZcUuTJtAa61ed5","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:packages/common-ui/src/playbook/registry.tsx",139
+"AZ_HG7ZcUuTJtAa61ed6","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:packages/common-ui/src/playbook/registry.tsx",140
+"AZ_HG7ZcUuTJtAa61ed7","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:packages/common-ui/src/playbook/registry.tsx",200
+"AZ_HG7csUuTJtAa61ed8","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:packages/common-ui/src/playbook/registryData.ts",347
+"AZ_HG7csUuTJtAa61ed9","function 'serializeKnobValue' is equivalent to `String`. Use `String` directly.","rocket-meals_rocket-meals:packages/common-ui/src/playbook/registryData.ts",359
 "AZ_EeHeTkMhpq5gUNw8t","'../helpers/GameHistoryStorage' imported multiple times.","rocket-meals_rocket-meals:apps/score-tracker/frontend/store/store.ts",11
 "AZ_EeHeTkMhpq5gUNw8u","'../helpers/GameHistoryStorage' imported multiple times.","rocket-meals_rocket-meals:apps/score-tracker/frontend/store/store.ts",14
 "AZ_Dn36j1vMCp7SkBLUp","Refactor this function to reduce its Cognitive Complexity from 34 to the 15 allowed.","rocket-meals_rocket-meals:apps/score-tracker/frontend/helpers/GameCategories.ts",590
