@@ -27,7 +27,8 @@
     },
     "previewIos": {
       "extends": "previewApk",
-      "distribution": "internal"
+      "distribution": "internal",
+      "channel": "preview"
     },
     "preview2": {
       "android": {

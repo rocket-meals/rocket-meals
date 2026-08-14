@@ -1,0 +1,58 @@
+name: "🔎 EAS Build Logs"
+
+# Diagnostic helper: fetches the remote EAS build logs for a given build ID
+# via the Expo GraphQL API (using the repo's EXPO_TOKEN) and prints the tail
+# to the job log. Useful because failed EAS builds only show "Build failed"
+# in CI, while the actual error lives on expo.dev.
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_id:
+        description: "EAS build ID (UUID from the build page URL)"
+        required: true
+        type: string
+      tail:
+        description: "Number of log lines to print from the end of each log file"
+        required: false
+        default: "300"
+        type: string
+
+jobs:
+  fetch-logs:
+    name: "🔎 Fetch EAS build logs"
+    runs-on: ubuntu-latest
+    if: github.repository == 'rocket-meals/rocket-meals'
+    steps:
+      - name: "🔎 Query build and print logs"
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          BUILD_ID: ${{ inputs.build_id }}
+          TAIL: ${{ inputs.tail }}
+        run: |
+          set -euo pipefail
+          curl -sf https://api.expo.dev/graphql \
+            -H "Authorization: Bearer ${EXPO_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{\"query\":\"query(\$id: ID!){ builds { byId(buildId: \$id){ id platform status buildProfile appVersion logFiles error { errorCode message } } } }\",\"variables\":{\"id\":\"${BUILD_ID}\"}}" > build.json
+
+          echo "=== Build metadata:"
+          jq '.data.builds.byId | {id, platform, status, buildProfile, appVersion, error}' build.json
+
+          for url in $(jq -r '.data.builds.byId.logFiles[]?' build.json); do
+            echo ""
+            echo "===== Log file: ${url}"
+            curl -sf --compressed "$url" > logfile.raw || { echo "(download failed)"; continue; }
+            # Log files are usually gzipped JSON-lines; decompress if needed,
+            # then extract msg fields, fall back to raw text
+            if gzip -t logfile.raw 2>/dev/null; then
+              gzip -dc logfile.raw > logfile.dec
+            else
+              mv logfile.raw logfile.dec
+            fi
+            if jq -r 'select(type == "object" and .msg != null) | .msg' logfile.dec > logfile.txt 2>/dev/null && [ -s logfile.txt ]; then
+              tail -n "${TAIL}" logfile.txt
+            else
+              tail -n "${TAIL}" logfile.dec
+            fi
+          done
