@@ -26081,13 +26081,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-leaflet-view@npm:^1.1.2":
+"react-native-leaflet-view@npm:1.1.2":
   version: 1.1.2
   resolution: "react-native-leaflet-view@npm:1.1.2"
   peerDependencies:
     react: "*"
     react-native: "*"
   checksum: 10c0/713f4f888118c7e444f900950053d68b10b91357c493bef546e037061699854f61b3e9be5a85b5ab72dc8ea193a8e7ca820c0b40b3e1cd7be4d8fa840fbc113c
+  languageName: node
+  linkType: hard
+
+"react-native-leaflet-view@patch:react-native-leaflet-view@npm%3A1.1.2#~/.yarn/patches/react-native-leaflet-view-npm-1.1.2-jcenter-fix.patch":
+  version: 1.1.2
+  resolution: "react-native-leaflet-view@patch:react-native-leaflet-view@npm%3A1.1.2#~/.yarn/patches/react-native-leaflet-view-npm-1.1.2-jcenter-fix.patch::version=1.1.2&hash=8cf8e4"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/dd6c2e0d4b65fe1e3e1c70a187fd6fc74536c47b87e34f1d9973607c1a046620fe3d9c14c7f19ef0378db3a72b23aeff543047e66cbc2e4a19fe6a79cac7ff23
   languageName: node
   linkType: hard
 

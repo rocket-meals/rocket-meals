@@ -1,7 +1,18 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { speak, stop } from 'expo-edge-speech';
+
+// expo-edge-speech depends on expo-av, which is discontinued and incompatible
+// with SDK 57 native builds (expo-av is excluded from autolinking). The
+// experiment therefore only runs on web; the lazy require keeps the native
+// bundle from evaluating expo-av's JS.
+const { speak, stop }: { speak: (text: string, options?: object) => Promise<void>; stop: () => Promise<void> } =
+	Platform.OS === 'web'
+		? require('expo-edge-speech')
+		: {
+				speak: async () => {},
+				stop: async () => {},
+			};
 
 import { useTheme } from '@/hooks/useTheme';
 import useSetPageTitle from '@/hooks/useSetPageTitle';

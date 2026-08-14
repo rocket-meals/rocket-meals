@@ -1,4 +1,4 @@
-import { ScrollView, Text, View } from 'react-native';
+import { Platform, ScrollView, Text, View } from 'react-native';
 import React, { useMemo } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -43,12 +43,18 @@ const Index = () => {
 			leftIcon: <MaterialCommunityIcons name="rocket-launch" size={24} color={theme.screen.icon} />,
 			onPress: () => router.push('/experimentell/onboarding'),
 		},
-		{
-			key: 'edge-speech',
-			label: translate(TranslationKeys.edge_speech_test),
-			leftIcon: <MaterialCommunityIcons name="text-to-speech" size={24} color={theme.screen.icon} />,
-			onPress: () => router.push('/experimentell/edge-speech'),
-		},
+		// expo-edge-speech needs expo-av, which is incompatible with SDK 57
+		// native builds (excluded from autolinking) - web-only experiment.
+		...(Platform.OS === 'web'
+			? [
+					{
+						key: 'edge-speech',
+						label: translate(TranslationKeys.edge_speech_test),
+						leftIcon: <MaterialCommunityIcons name="text-to-speech" size={24} color={theme.screen.icon} />,
+						onPress: () => router.push('/experimentell/edge-speech'),
+					},
+				]
+			: []),
 		{
 			key: 'map-with-custom-images-and-buildings',
 			label: 'Map – Custom Images & Buildings',

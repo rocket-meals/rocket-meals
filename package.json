@@ -45,5 +45,8 @@
     "node-gyp": "^10.2.0",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2"
+  },
+  "resolutions": {
+    "react-native-leaflet-view@npm:^1.1.2": "patch:react-native-leaflet-view@npm%3A1.1.2#~/.yarn/patches/react-native-leaflet-view-npm-1.1.2-jcenter-fix.patch"
   }
 }
