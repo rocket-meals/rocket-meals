@@ -99,10 +99,11 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      # iOS internal distribution needs devices registered on EAS
-      # (eas device:create). If this step fails with a provisioning error,
-      # register the device and re-run via workflow_dispatch with force=true.
+      # Runs even if the Android build failed so both platforms report
+      # independently. One-time setup per app: ad-hoc credentials must exist
+      # on EAS (eas device:create + one interactive ios build).
       - name: "🍏 Build iOS Dev Client"
+        if: ${{ !cancelled() }}
         run: eas build --platform ios --profile development --non-interactive --json > eas-build-dev-ios.json
         working-directory: ./apps/geonexia/frontend
         env:
@@ -156,10 +157,11 @@ jobs:
                 const install = artifactUrl ? `[Download](${artifactUrl})` : `[Build page](${pageUrl})`;
                 lines.push(`| ${b.platform} | ${b.appVersion} (${b.appBuildVersion}) | [${b.id.slice(0, 8)}](${pageUrl}) | ${install} |`);
               }
-              const hasIos = builds.some(b => (b.platform || '').toUpperCase() === 'IOS');
-              if (!hasIos) {
-                lines.push('');
-                lines.push('> ⚠️ No iOS build result. iOS internal distribution requires registered devices (`eas device:create`).');
+              for (const [platform, label] of [['ANDROID', 'Android'], ['IOS', 'iOS']]) {
+                if (!builds.some(b => (b.platform || '').toUpperCase() === platform)) {
+                  lines.push('');
+                  lines.push(`> ⚠️ No ${label} build result - the EAS build failed or did not start. Check the workflow logs and the linked EAS build logs on expo.dev for the actual error.`);
+                }
               }
               lines.push('');
               lines.push('Install the dev client once per build number bump, then load JS changes via `npx expo start --dev-client` or an EAS Update (PR preview) - no rebuild needed.');
