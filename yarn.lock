@@ -16251,6 +16251,56 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-dev-client@npm:~57.0.10":
+  version: 57.0.11
+  resolution: "expo-dev-client@npm:57.0.11"
+  dependencies:
+    expo-dev-launcher: "npm:~57.0.11"
+    expo-dev-menu: "npm:~57.0.11"
+    expo-dev-menu-interface: "npm:~57.0.0"
+    expo-manifests: "npm:~57.0.1"
+    expo-updates-interface: "npm:~57.0.1"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/5bf3ab6723bdef52dcbe89832c078e41d3fe23e9266ddb5c70f82d3395d714e36e89bee0b8bd67f973ce49afeeb190c533d4032d8f41547afc311813d9aed6bb
+  languageName: node
+  linkType: hard
+
+"expo-dev-launcher@npm:~57.0.11":
+  version: 57.0.11
+  resolution: "expo-dev-launcher@npm:57.0.11"
+  dependencies:
+    "@expo/schema-utils": "npm:^57.0.2"
+    expo-dev-menu: "npm:~57.0.11"
+    expo-manifests: "npm:~57.0.1"
+  peerDependencies:
+    expo: "*"
+    react-native: "*"
+  checksum: 10c0/d3b3ca0a676fe0669f7de4d2157f4a896c2ef175af4568d9d0bcb58a11f1072748f6dd4c41d280a18ec09fc3fc0cfa13a6de8c49792fd566bbec273eb1d18bc2
+  languageName: node
+  linkType: hard
+
+"expo-dev-menu-interface@npm:~57.0.0":
+  version: 57.0.0
+  resolution: "expo-dev-menu-interface@npm:57.0.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/8c08c773873cc625a73288b32bcc04a75d225c4adbeceab23fe556d804643ccbf44a7b728751a7503541e7ac62a47b84a74cbb2bdcd30807a0fa6017dea8440a
+  languageName: node
+  linkType: hard
+
+"expo-dev-menu@npm:~57.0.11":
+  version: 57.0.11
+  resolution: "expo-dev-menu@npm:57.0.11"
+  dependencies:
+    expo-dev-menu-interface: "npm:~57.0.0"
+  peerDependencies:
+    expo: "*"
+    react-native: "*"
+  checksum: 10c0/20cb3200fb34dca0b798cb052094ee23a21c50d1a40a029275225a4de8a40e74b94e4d47cab14055c18cebb3af1097b67f229b5453f799205bc6b314f81214e8
+  languageName: node
+  linkType: hard
+
 "expo-device@npm:~57.0.1":
   version: 57.0.1
   resolution: "expo-device@npm:57.0.1"
@@ -17912,6 +17962,7 @@ __metadata:
     expo-build-properties: "npm:~57.0.9"
     expo-clipboard: "npm:~57.0.1"
     expo-constants: "npm:~57.0.9"
+    expo-dev-client: "npm:~57.0.10"
     expo-document-picker: "npm:~57.0.1"
     expo-file-system: "npm:~57.0.2"
     expo-font: "npm:~57.0.1"
@@ -27333,6 +27384,7 @@ __metadata:
     expo-clipboard: "npm:~57.0.1"
     expo-constants: "npm:~57.0.9"
     expo-crypto: "npm:~57.0.1"
+    expo-dev-client: "npm:~57.0.10"
     expo-device: "npm:~57.0.1"
     expo-document-picker: "npm:~57.0.1"
     expo-edge-speech: "npm:^0.1.1"
@@ -27729,6 +27781,7 @@ __metadata:
     expo: "npm:57.0.11"
     expo-clipboard: "npm:~57.0.1"
     expo-constants: "npm:~57.0.9"
+    expo-dev-client: "npm:~57.0.10"
     expo-file-system: "npm:~57.0.2"
     expo-font: "npm:~57.0.1"
     expo-image-manipulator: "npm:~57.0.8"
@@ -29273,6 +29326,7 @@ __metadata:
     "@types/react": "npm:~19.2.0"
     expo: "npm:57.0.11"
     expo-constants: "npm:~57.0.9"
+    expo-dev-client: "npm:~57.0.10"
     expo-file-system: "npm:~57.0.2"
     expo-font: "npm:~57.0.1"
     expo-linking: "npm:~57.0.5"

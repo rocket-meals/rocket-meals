@@ -14,7 +14,7 @@ export type CustomerConfig = {
 // The build number is used to determine if a new build is required.
 export function getBuildNumber() {
 	// 22: Trigger new builds incl. Android preview APK link in the README.
-	return 22;
+	return 23;
 }
 
 // DO NOT CHANGE THE NAME OF THIS FUNCTION: getMajorVersion
@@ -29,7 +29,7 @@ export function getVersionPatch() {
 	// 3: the summed-patch experiment already shipped patch 2 from master;
 	// never decrease the visible patch version.
 	// 4: common/common-ui: weather API helper + WeatherPreview playbook entry
-	return 4;
+	return 5;
 }
 
 // Same semver scheme as apps/frontend/app: major.buildNumber.patch

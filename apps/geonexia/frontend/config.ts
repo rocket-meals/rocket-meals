@@ -16,7 +16,7 @@ export function getBuildNumber() {
 	// the patch segment, so patch-only OTA updates never matched the installed
 	// binary. getVersion() now pins the patch segment to 0 — this build picks
 	// up the stable runtime version plus the update-on-start loader.
-	return 21;
+	return 22;
 }
 
 // DO NOT CHANGE THE NAME OF THIS FUNCTION: getMajorVersion
@@ -33,7 +33,7 @@ export function getVersionPatch() {
 	//    tappable speed/pace stats open a history bar chart modal
 	// 10: reliable background GPS capture (headless updates feed the crash
 	//     snapshot instead of stopping the task); weather saved on activities
-	return 10;
+	return 11;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

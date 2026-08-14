@@ -39,7 +39,7 @@ export enum ConfigCustomerEnum {
 // and will fail if the function is not present or does not return a number.
 // The build number is used to determine if a new build is required.
 export function getBuildNumber() {
-	return 203;
+	return 204;
 }
 
 export function getMajorVersion() {
@@ -47,7 +47,7 @@ export function getMajorVersion() {
 }
 
 export function getVersionPatch() {
-        return 11;
+        return 12;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
