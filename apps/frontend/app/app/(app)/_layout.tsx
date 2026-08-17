@@ -5,7 +5,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
-import { Redirect, useGlobalSearchParams } from 'expo-router';
+import { ErrorBoundaryProps, Redirect, useGlobalSearchParams } from 'expo-router';
 import useKioskMode from '@/hooks/useKioskMode';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
 import {AppScreens, DatabaseTypes, filterPopupEvents, sortBySortField, sortMarkingsByGroup} from 'repo-depkit-common';
@@ -54,8 +54,18 @@ import { loadChatReadStatus } from '@/helper/chatReadStatus';
 import { FriendshipsHelper } from '@/redux/actions/Friendships/Friendships';
 import { PriceGroupKey } from '@/app/(app)/settings/types';
 import { UserHelper } from '@/helper/UserHelper';
+import AppErrorBoundary from '@/components/AppErrorBoundary';
 
 const renderDrawerContent = (props: React.ComponentProps<typeof CustomDrawerContent>) => <CustomDrawerContent {...props} />;
+
+/**
+ * Catches render errors from every screen inside the drawer. The root layout in
+ * `app/_layout.tsx` stays mounted, so the fallback can additionally offer a way
+ * back to the start screen instead of only a full app reload.
+ */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+	return <AppErrorBoundary error={error} retry={retry} variant="screen" />;
+}
 
 // The `header` screen option is invoked by react-navigation as a plain render
 // function, not mounted as a component. Hooks therefore MUST NOT be called in
@@ -797,6 +807,13 @@ export default function Layout() {
 					options={{
 						header: PlaybookComponentHeader,
 						title: 'Playbook',
+					}}
+				/>
+				<Drawer.Screen
+					name="experimentell/crash-test/index"
+					options={{
+						header: makeTranslatedStackHeader(TranslationKeys.crash_test, 'crash_test'),
+						title: translate(TranslationKeys.crash_test),
 					}}
 				/>
 				<Drawer.Screen
