@@ -1,7 +1,7 @@
 // Polyfill for environments where `setImmediate` is not available (e.g. web)
 import 'setimmediate';
 import React, {useEffect} from 'react';
-import {Slot, usePathname} from 'expo-router';
+import {ErrorBoundaryProps, Slot, usePathname} from 'expo-router';
 import {RootSiblingParent} from 'react-native-root-siblings';
 import {
 	Poppins_100Thin,
@@ -47,6 +47,22 @@ import { SettingsProvider } from 'repo-depkit-common-ui';
 import { useAppSelector } from '@/redux/hooks';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
 import { afterRehydration } from '@/helper/afterRehydration';
+import AppErrorBoundary from '@/components/AppErrorBoundary';
+
+/**
+ * Last-resort boundary. expo-router wraps this route's component with it, so it
+ * catches render errors from the providers below (redux, theme, modals) as well
+ * as anything they render. At this point the provider tree is gone - only a
+ * reload can bring the app back, which is why the fallback reads its theme and
+ * language straight from the store singleton instead of via context.
+ *
+ * Screens inside `(app)` are additionally covered by the boundary in
+ * `app/(app)/_layout.tsx`, which keeps the app shell alive; this one only takes
+ * over when that boundary itself could not render.
+ */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+	return <AppErrorBoundary error={error} retry={retry} variant="root" />;
+}
 
 ServerAPI.createAuthentificationStorage(
 	async () => {

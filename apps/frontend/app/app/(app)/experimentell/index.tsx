@@ -86,6 +86,12 @@ const Index = () => {
 			onPress: () => router.push('/experimentell/debug-logout'),
 		},
 		{
+			key: 'crash-test',
+			label: translate(TranslationKeys.crash_test),
+			leftIcon: <MaterialCommunityIcons name="alert-circle-outline" size={24} color={theme.screen.icon} />,
+			onPress: () => router.push('/experimentell/crash-test'),
+		},
+		{
 			key: 'rate-app',
 			label: translate(TranslationKeys.rate_app),
 			leftIcon: <MaterialCommunityIcons name="star" size={24} color={theme.screen.icon} />,

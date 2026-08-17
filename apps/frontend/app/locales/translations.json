@@ -7436,5 +7436,175 @@
     "ru": "Удерживайте логотип приложения, чтобы показать параметры отладки",
     "tr": "Hata ayıklama seçeneklerini göstermek için uygulama logosuna basılı tut",
     "zh": "长按应用标志以显示调试选项"
+  },
+  "error_boundary_title": {
+    "de": "Da ist etwas schiefgelaufen",
+    "en": "Something went wrong",
+    "ar": "حدث خطأ ما",
+    "es": "Algo ha salido mal",
+    "fr": "Une erreur s'est produite",
+    "ru": "Что-то пошло не так",
+    "tr": "Bir şeyler ters gitti",
+    "zh": "出错了"
+  },
+  "error_boundary_description": {
+    "de": "Dieser Bereich konnte nicht geladen werden. Du kannst es erneut versuchen oder die App neu starten.",
+    "en": "This screen could not be loaded. You can try again or restart the app.",
+    "ar": "تعذّر تحميل هذه الشاشة. يمكنك المحاولة مرة أخرى أو إعادة تشغيل التطبيق.",
+    "es": "No se ha podido cargar esta pantalla. Puedes volver a intentarlo o reiniciar la aplicación.",
+    "fr": "Cet écran n'a pas pu être chargé. Vous pouvez réessayer ou redémarrer l'application.",
+    "ru": "Не удалось загрузить этот экран. Попробуйте ещё раз или перезапустите приложение.",
+    "tr": "Bu ekran yüklenemedi. Tekrar deneyebilir veya uygulamayı yeniden başlatabilirsin.",
+    "zh": "此页面无法加载。你可以重试或重新启动应用。"
+  },
+  "error_boundary_retry": {
+    "de": "Erneut versuchen",
+    "en": "Try again",
+    "ar": "أعد المحاولة",
+    "es": "Reintentar",
+    "fr": "Réessayer",
+    "ru": "Повторить",
+    "tr": "Tekrar dene",
+    "zh": "重试"
+  },
+  "error_boundary_back_to_start": {
+    "de": "Zurück zum Start",
+    "en": "Back to start",
+    "ar": "العودة إلى البداية",
+    "es": "Volver al inicio",
+    "fr": "Retour à l'accueil",
+    "ru": "На главную",
+    "tr": "Başlangıca dön",
+    "zh": "返回首页"
+  },
+  "error_boundary_reload_app": {
+    "de": "App neu starten",
+    "en": "Restart app",
+    "ar": "إعادة تشغيل التطبيق",
+    "es": "Reiniciar la aplicación",
+    "fr": "Redémarrer l'application",
+    "ru": "Перезапустить приложение",
+    "tr": "Uygulamayı yeniden başlat",
+    "zh": "重新启动应用"
+  },
+  "error_boundary_copy_details": {
+    "de": "Fehlerdetails kopieren",
+    "en": "Copy error details",
+    "ar": "نسخ تفاصيل الخطأ",
+    "es": "Copiar detalles del error",
+    "fr": "Copier les détails de l'erreur",
+    "ru": "Скопировать детали ошибки",
+    "tr": "Hata ayrıntılarını kopyala",
+    "zh": "复制错误详情"
+  },
+  "error_boundary_details_copied": {
+    "de": "Details kopiert",
+    "en": "Details copied",
+    "ar": "تم نسخ التفاصيل",
+    "es": "Detalles copiados",
+    "fr": "Détails copiés",
+    "ru": "Детали скопированы",
+    "tr": "Ayrıntılar kopyalandı",
+    "zh": "详情已复制"
+  },
+  "error_boundary_unknown_error": {
+    "de": "Unbekannter Fehler",
+    "en": "Unknown error",
+    "ar": "خطأ غير معروف",
+    "es": "Error desconocido",
+    "fr": "Erreur inconnue",
+    "ru": "Неизвестная ошибка",
+    "tr": "Bilinmeyen hata",
+    "zh": "未知错误"
+  },
+  "crash_test": {
+    "de": "Crash-Test (Error Boundary)",
+    "en": "Crash test (error boundary)",
+    "ar": "اختبار الأعطال (حدود الخطأ)",
+    "es": "Prueba de fallo (error boundary)",
+    "fr": "Test de plantage (error boundary)",
+    "ru": "Тест сбоя (error boundary)",
+    "tr": "Çökme testi (error boundary)",
+    "zh": "崩溃测试（错误边界）"
+  },
+  "crash_test_description": {
+    "de": "Löst absichtlich Fehler aus, um zu zeigen, welche davon die Error Boundary auffängt und welche nicht.",
+    "en": "Deliberately triggers errors to show which ones the error boundary catches and which it does not.",
+    "ar": "يُطلق أخطاء عمدًا لإظهار ما تلتقطه حدود الخطأ وما لا تلتقطه.",
+    "es": "Provoca errores a propósito para mostrar cuáles captura el error boundary y cuáles no.",
+    "fr": "Déclenche volontairement des erreurs pour montrer lesquelles l'error boundary intercepte et lesquelles non.",
+    "ru": "Намеренно вызывает ошибки, чтобы показать, какие из них перехватывает error boundary, а какие нет.",
+    "tr": "Hangi hataların error boundary tarafından yakalandığını göstermek için kasıtlı olarak hata oluşturur.",
+    "zh": "故意触发错误，以显示错误边界能捕获哪些错误、不能捕获哪些错误。"
+  },
+  "crash_test_render_error": {
+    "de": "Fehler beim Rendern",
+    "en": "Error during render",
+    "ar": "خطأ أثناء العرض",
+    "es": "Error durante el renderizado",
+    "fr": "Erreur pendant le rendu",
+    "ru": "Ошибка при рендеринге",
+    "tr": "Render sırasında hata",
+    "zh": "渲染时出错"
+  },
+  "crash_test_effect_error": {
+    "de": "Fehler in useEffect",
+    "en": "Error in useEffect",
+    "ar": "خطأ في useEffect",
+    "es": "Error en useEffect",
+    "fr": "Erreur dans useEffect",
+    "ru": "Ошибка в useEffect",
+    "tr": "useEffect içinde hata",
+    "zh": "useEffect 中出错"
+  },
+  "crash_test_event_error": {
+    "de": "Fehler im Event-Handler",
+    "en": "Error in event handler",
+    "ar": "خطأ في معالج الأحداث",
+    "es": "Error en el manejador de eventos",
+    "fr": "Erreur dans le gestionnaire d'événement",
+    "ru": "Ошибка в обработчике событий",
+    "tr": "Olay işleyicisinde hata",
+    "zh": "事件处理函数中出错"
+  },
+  "crash_test_promise_error": {
+    "de": "Unbehandelte Promise-Ablehnung",
+    "en": "Unhandled promise rejection",
+    "ar": "رفض وعد غير معالَج",
+    "es": "Rechazo de promesa no gestionado",
+    "fr": "Rejet de promesse non géré",
+    "ru": "Необработанное отклонение промиса",
+    "tr": "İşlenmemiş promise reddi",
+    "zh": "未处理的 Promise 拒绝"
+  },
+  "crash_test_caught": {
+    "de": "Wird aufgefangen",
+    "en": "Caught",
+    "ar": "يتم التقاطه",
+    "es": "Capturado",
+    "fr": "Intercepté",
+    "ru": "Перехватывается",
+    "tr": "Yakalanır",
+    "zh": "会被捕获"
+  },
+  "crash_test_not_caught": {
+    "de": "Wird nicht aufgefangen",
+    "en": "Not caught",
+    "ar": "لا يتم التقاطه",
+    "es": "No capturado",
+    "fr": "Non intercepté",
+    "ru": "Не перехватывается",
+    "tr": "Yakalanmaz",
+    "zh": "不会被捕获"
+  },
+  "crash_test_not_caught_hint": {
+    "de": "React fängt nur Fehler ab, die beim Rendern, in Lifecycle-Methoden oder in useEffect auftreten. Alles andere landet im globalen Fehler-Handler - dafür braucht es Crash-Reporting.",
+    "en": "React only catches errors thrown during render, in lifecycle methods or in useEffect. Everything else ends up in the global error handler - that is what crash reporting is for.",
+    "ar": "لا يلتقط React سوى الأخطاء التي تحدث أثناء العرض أو في دوال دورة الحياة أو في useEffect. أما البقية فتصل إلى معالج الأخطاء العام - وهذا ما يوجد من أجله تتبّع الأعطال.",
+    "es": "React solo captura los errores lanzados durante el renderizado, en métodos de ciclo de vida o en useEffect. Todo lo demás acaba en el manejador global de errores: para eso sirve el crash reporting.",
+    "fr": "React n'intercepte que les erreurs survenues pendant le rendu, dans les méthodes de cycle de vie ou dans useEffect. Le reste passe par le gestionnaire d'erreurs global - c'est le rôle du crash reporting.",
+    "ru": "React перехватывает только ошибки во время рендеринга, в методах жизненного цикла или в useEffect. Всё остальное попадает в глобальный обработчик — для этого и нужен сбор отчётов о сбоях.",
+    "tr": "React yalnızca render sırasında, yaşam döngüsü metotlarında veya useEffect içinde oluşan hataları yakalar. Geri kalan her şey global hata işleyicisine düşer - crash reporting bunun içindir.",
+    "zh": "React 只捕获渲染期间、生命周期方法或 useEffect 中抛出的错误。其他错误会进入全局错误处理器 —— 这正是崩溃报告的用途。"
   }
 }
