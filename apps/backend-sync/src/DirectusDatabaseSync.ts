@@ -8,6 +8,8 @@ import FormData from 'form-data';
 import { createRequire } from 'node:module';
 import { FetchIgnoreSelfSignedCertHelper } from './FetchIgnoreSelfSignedCertHelper';
 import { DirectusConnectionOptions } from './DirectusConnectionOptions';
+import { ProtectedCollectionsGuard, resolveProtectedCollectionsConfig } from './ProtectedCollectionsGuard';
+import { DirectusNotificationHelper } from './DirectusNotificationHelper';
 
 const require = createRequire(import.meta.url);
 
@@ -18,6 +20,11 @@ console.log('Directus Sync Version:', version);
 
 export interface DirectusDatabaseSyncOptions extends DirectusConnectionOptions {
   pathToDataDirectusSyncData: string;
+  /**
+   * Overwrite the protected collections (dashboards, panels, ...) even when the live instance
+   * has local changes. Only meant for an explicit, manual "force" deployment.
+   */
+  forceOverwriteProtectedCollections?: boolean;
 }
 
 const DirectusSyncVersion = version;
@@ -31,6 +38,7 @@ export class DirectusDatabaseSync {
   private readonly directusConfigCollectionsPath: string;
   private readonly configurationPathCollections: string;
   private readonly dumpPath: string;
+  private readonly defaultDriftBackupPath: string;
 
   constructor(config: DirectusDatabaseSyncOptions) {
     this.config = config;
@@ -45,6 +53,9 @@ export class DirectusDatabaseSync {
     this.directusConfigOverwriteCollectionsPath = path.resolve(validatedRoot, 'configuration/directus-config-overwrite/collections');
     this.configurationPathCollections = path.resolve(validatedRoot, 'configuration/collections');
     this.dumpPath = path.resolve(validatedRoot, 'configuration/directus-config');
+    // Sibling of the sync data ("<repo>/data/directus-sync-backups"), mounted from the host in
+    // Docker so a backup of local dashboard changes survives a container rebuild.
+    this.defaultDriftBackupPath = path.resolve(validatedRoot, '..', 'directus-sync-backups');
   }
 
   // Walks up from cwd to find the repository root. Looks for ".git" (present in a local
@@ -83,7 +94,9 @@ export class DirectusDatabaseSync {
     const headers = await this.setupDirectusConnectionAndGetHeaders();
     await this.copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder();
     await this.enableRequiredSettings(headers);
-    await this.pushDirectusSyncSchemas();
+    // Never overwrite dashboards/panels that were edited in the live instance without saying so.
+    const guardResult = await this.runProtectedCollectionsGuard(headers);
+    await this.pushDirectusSyncSchemas(guardResult.collectionsToExcludeFromPush);
     await this.uploadSchemas(headers);
   }
 
@@ -96,6 +109,33 @@ export class DirectusDatabaseSync {
     await this.pullDirectusSyncSchema();
     console.log('NOW copying overwrite files');
     await this.copyFromDirectusConfigOverwriteFolderIntoDirectusConfigFolder();
+  }
+
+  private async runProtectedCollectionsGuard(headers: Headers) {
+    const config = resolveProtectedCollectionsConfig({
+      defaultBackupPath: this.defaultDriftBackupPath,
+      forceOverwrite: this.config.forceOverwriteProtectedCollections,
+    });
+    const guard = new ProtectedCollectionsGuard({
+      config,
+      repositoryCollectionsPath: path.resolve(this.dumpPath, 'collections'),
+      directusInstanceUrl: this.config.directusInstanceUrl,
+      pullInstanceCollections: (dumpPath, collections) => this.pullCollectionsIntoDumpPath(dumpPath, collections),
+      notificationHelper: new DirectusNotificationHelper(this.config.directusInstanceUrl, headers),
+    });
+    return await guard.run();
+  }
+
+  /**
+   * Pulls only the given collections of the live instance into a separate dump folder. Used by
+   * the guard to compare the instance with the repository; the schema snapshot and the API
+   * specs are not needed for that and are therefore skipped.
+   */
+  private async pullCollectionsIntoDumpPath(dumpPath: string, collections: string[]) {
+    const args = ['pull', ...this.getDirectusSyncArgs(dumpPath), '--only-collections', DirectusDatabaseSync.requireSafeCollectionList(collections), '--no-snapshot', '--no-specs'];
+    if (!(await this.execDirectusSync(args))) {
+      throw new Error('Error during comparison pull of the protected collections');
+    }
   }
 
   private async pullDirectusSyncSchema() {
@@ -281,13 +321,19 @@ export class DirectusDatabaseSync {
     return value;
   }
 
-  private getDirectusSyncArgs(): string[] {
+  // Collection names end up on the directus-sync command line, so they are validated against
+  // the same anchored allowlist approach as the other CLI values.
+  private static requireSafeCollectionList(collections: string[]): string {
+    return DirectusDatabaseSync.requireSafeCliValue('collections', collections.join(','), /^[a-z_]+(?:,[a-z_]+)*$/);
+  }
+
+  private getDirectusSyncArgs(dumpPath: string = this.dumpPath): string[] {
     const preserveIds = 'dashboards,operations,panels,policies,roles,translations';
     return [
       '--directus-url', DirectusDatabaseSync.requireSafeCliValue('directus-url', this.config.directusInstanceUrl, /^https?:\/\/[\w.-]+(?::\d+)?(?:\/[\w./-]*)?$/),
       '--directus-email', DirectusDatabaseSync.requireSafeCliValue('directus-email', this.config.adminEmail, /^[^\s@]+@[^\s@]+$/),
       '--directus-password', DirectusDatabaseSync.requireSafeCliValue('directus-password', this.config.adminPassword, /^[\x20-\x7e]+$/),
-      '--dump-path', DirectusDatabaseSync.requireSafeCliValue('dump-path', this.dumpPath, /^[\w./ -]+$/),
+      '--dump-path', DirectusDatabaseSync.requireSafeCliValue('dump-path', dumpPath, /^[\w./ -]+$/),
       '--preserve-ids', preserveIds,
     ];
   }
@@ -340,9 +386,9 @@ export class DirectusDatabaseSync {
     return false;
   }
 
-  private async execDirectusSyncMethod(method: string, logText: string) {
+  private async execDirectusSyncMethod(method: string, logText: string, additionalArgs: string[] = []) {
     console.log(' - Directus Sync: ' + logText);
-    const args = [method, ...this.getDirectusSyncArgs()];
+    const args = [method, ...this.getDirectusSyncArgs(), ...additionalArgs];
     let success = await this.execDirectusSync(args);
     if (success) {
       console.log(' -  Success: ' + logText);
@@ -352,8 +398,9 @@ export class DirectusDatabaseSync {
     }
   }
 
-  private async pushDirectusSyncSchemas() {
-    await this.execDirectusSyncMethod('push', 'Pushing schema changes');
+  private async pushDirectusSyncSchemas(collectionsToExclude: string[] = []) {
+    const additionalArgs = collectionsToExclude.length > 0 ? ['--exclude-collections', DirectusDatabaseSync.requireSafeCollectionList(collectionsToExclude)] : [];
+    await this.execDirectusSyncMethod('push', 'Pushing schema changes', additionalArgs);
   }
 
   private async uploadSchemas(headers: any) {

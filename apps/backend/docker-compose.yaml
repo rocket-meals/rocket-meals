@@ -220,6 +220,14 @@ services:
       ADMIN_EMAIL: "${ADMIN_EMAIL}"
       ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
       DIRECTUS_PORT: "${DIRECTUS_PORT}"
+      # Schutz der Kollektionen, die im Directus-Backend selbst gepflegt werden (Dashboards/Panels).
+      # Werden dort Änderungen gefunden, überspringt der Sync diese Kollektionen, statt sie zu überschreiben.
+      # Siehe docs/DASHBOARD_SYNC_PROTECTION.md
+      DIRECTUS_SYNC_PROTECTED_COLLECTIONS: "${DIRECTUS_SYNC_PROTECTED_COLLECTIONS:-dashboards,panels}"
+      # Nur für bewusste Force-Deployments (z. B. Workflow "Deploy Backend (Manual)" mit Force-Override)
+      DIRECTUS_SYNC_FORCE_OVERWRITE_PROTECTED_COLLECTIONS: "${DIRECTUS_SYNC_FORCE_OVERWRITE_PROTECTED_COLLECTIONS:-false}"
+      # Zusätzliche Directus-Benutzer (Kommaliste von E-Mail-Adressen), die benachrichtigt werden
+      DIRECTUS_SYNC_DRIFT_NOTIFY_EMAILS: "${DIRECTUS_SYNC_DRIFT_NOTIFY_EMAILS:-}"
     networks:
       - directus_network
     volumes:
@@ -229,6 +237,8 @@ services:
       - ./genSSO_Apple.sh:/directus/sso/genSSO_Apple.sh
       # Env File
       - ./../../.env:/directus/host.env # Path to the host .env file - so that we can read variables from there
+      # Backups der im Backend gefundenen Dashboard-Änderungen (überleben einen Container-Rebuild)
+      - ./../../data/directus-sync-backups:/rocket-meals/data/directus-sync-backups
 
   rocket-meals-database-backup:
     build:

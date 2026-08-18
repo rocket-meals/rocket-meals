@@ -8,6 +8,10 @@ inputs:
   DEPLOY_SERVER_HOST:
     description: 'Hostname or IP of the target server'
     required: true
+  FORCE_DASHBOARD_OVERWRITE:
+    description: 'Overwrite dashboards/panels that were changed in the Directus backend (see docs/DASHBOARD_SYNC_PROTECTION.md)'
+    required: false
+    default: 'false'
 
 runs:
   using: 'composite'
@@ -25,10 +29,19 @@ runs:
       shell: bash
       env:
         DEPLOY_SERVER_HOST: ${{ inputs.DEPLOY_SERVER_HOST }}
+        FORCE_DASHBOARD_OVERWRITE: ${{ inputs.FORCE_DASHBOARD_OVERWRITE }}
       run: |
+        # Normalize the input to a literal true/false, so nothing else can end up in the
+        # command that is executed on the server.
+        if [ "$FORCE_DASHBOARD_OVERWRITE" = "true" ]; then
+          FORCE_FLAG=true
+          echo "⚠️ Force-Override: dashboards/panels changed in the backend will be overwritten by the repository state."
+        else
+          FORCE_FLAG=false
+        fi
         echo "🚀 Connecting to $DEPLOY_SERVER_HOST as deploy user..."
         ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -i ~/.ssh/deploy_key deploy@"$DEPLOY_SERVER_HOST" \
-          'sudo bash -l -c "cd /root/rocket-meals && ./scripts/update-and-generate-env.sh"'
+          "sudo bash -l -c \"cd /root/rocket-meals && DIRECTUS_SYNC_FORCE_OVERWRITE_PROTECTED_COLLECTIONS=$FORCE_FLAG ./scripts/update-and-generate-env.sh\""
         echo "✅ Deploy completed successfully"
 
     - name: "🧹 Cleanup SSH Key"

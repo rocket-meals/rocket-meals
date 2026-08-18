@@ -27,6 +27,8 @@ data/database/
 data/database_backups/
 !data/database_file_uploads/.keep
 data/database_file_uploads/
+!data/directus-sync-backups/.keep
+data/directus-sync-backups/
 
 # Ignore all ios generated files
 apps/frontend/app/ios

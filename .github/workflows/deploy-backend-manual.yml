@@ -18,6 +18,11 @@ on:
         required: false
         type: string
         default: ''
+      force_dashboard_overwrite:
+        description: 'Dashboards/Panels überschreiben, auch wenn sie im Backend geändert wurden (siehe docs/DASHBOARD_SYNC_PROTECTION.md)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   deploy:
@@ -47,3 +52,4 @@ jobs:
         with:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_SERVER_HOST: ${{ steps.resolve-host.outputs.host }}
+          FORCE_DASHBOARD_OVERWRITE: ${{ github.event.inputs.force_dashboard_overwrite }}

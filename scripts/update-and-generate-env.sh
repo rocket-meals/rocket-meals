@@ -83,6 +83,14 @@ fi
 
 log ".env erfolgreich generiert"
 
+# Schutz der im Backend gepflegten Dashboards/Panels (siehe docs/DASHBOARD_SYNC_PROTECTION.md).
+# Standard: Änderungen im Backend werden erkannt und NICHT überschrieben. Der Workflow
+# "Deploy Backend (Manual)" kann die Variable mit Force-Override auf true setzen.
+export DIRECTUS_SYNC_FORCE_OVERWRITE_PROTECTED_COLLECTIONS="${DIRECTUS_SYNC_FORCE_OVERWRITE_PROTECTED_COLLECTIONS:-false}"
+if [[ "$DIRECTUS_SYNC_FORCE_OVERWRITE_PROTECTED_COLLECTIONS" == "true" ]]; then
+  log "ACHTUNG: Force-Override aktiv - im Backend geänderte Dashboards/Panels werden mit dem Repository-Stand überschrieben"
+fi
+
 log "Baue Images neu (docker compose build)"
 docker compose build
 

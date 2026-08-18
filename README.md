@@ -171,6 +171,15 @@ return Math.random(); // NOSONAR - not security-sensitive (see class comment abo
 
 Dieselbe Regel gilt sinngemäß für Reliability- und Maintainability-Findings.
 
+## 🛡️ Dashboards im Backend vs. Schema-Sync
+
+Beim Backend-Update schreibt der Schema-Sync die Directus-Konfiguration aus dem Repository in die
+Instanz. Damit dabei keine im Backend gebauten Insights-Dashboards mehr verloren gehen, werden
+`dashboards` und `panels` vorher verglichen: Gibt es dort Änderungen, sichert der Sync sie, meldet
+sie per Benachrichtigung/E-Mail und überspringt genau diese Kollektionen — der Rest des Schemas wird
+normal aktualisiert. Details, Konfiguration und der bewusste Force-Override stehen in
+`docs/DASHBOARD_SYNC_PROTECTION.md`.
+
 ## ⏰ Update und Env-Generierung
 
 Das Skript `scripts/update-and-generate-env.sh` führt folgende Schritte aus:

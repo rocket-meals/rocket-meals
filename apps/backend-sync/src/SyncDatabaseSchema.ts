@@ -25,6 +25,11 @@ export type SyncDatabaseOptions = {
     dockerPush?: boolean;
     pullFromTestSystem?: boolean;
     pushToTestSystem?: boolean;
+    /**
+     * Push dashboards/panels even when they were changed in the target instance.
+     * Without this flag such changes are detected and the affected collections are skipped.
+     */
+    forceOverwriteProtectedCollections?: boolean;
 }
 
 export const SyncDataBaseOptionDockerPush: SyncDatabaseOptions = {
@@ -148,6 +153,7 @@ export async function syncDatabase(options: SyncDatabaseOptions): Promise<boolea
       adminEmail: adminEmail as string,
       adminPassword: adminPassword as string,
       pathToDataDirectusSyncData: pathToDataDirectusSync as string,
+      forceOverwriteProtectedCollections: options.forceOverwriteProtectedCollections,
     });
 
     switch (syncOperation) {
