@@ -9,6 +9,7 @@ Diese Datei enthält Arbeitsregeln für KI-Agenten in diesem Repository.
 ## Wichtige Referenzen
 - Für visuelle Änderungen und Screenshots: `SCREENSHOTS_PLAYWRIGHT.md`
 - Für das Abarbeiten von SonarCloud-Maintainability-Issues: `docs/SONARCLOUD_MAINTAINABILITY_WORKFLOW.md`
+- Für Directus-Dashboards/Auswertungen (warum Änderungen im Backend verloren gehen): `docs/DIRECTUS_DASHBOARDS.md`
 
 ## React-Dateien (verbindliche Konvention)
 Bei React-Dateien sollen **Styles, Export und Logik in derselben Datei** bleiben.
