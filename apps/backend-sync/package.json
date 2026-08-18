@@ -8,6 +8,7 @@
     "sync:push-to-test-system": "yarn sync --push-to-test-system",
     "sync:push": "yarn sync --push",
     "sync:pull": "yarn sync --pull",
+    "sync:check-dashboards": "tsx src/DashboardDriftCheckProgramm.ts",
     "sync": "tsx src/SyncDatabaseSchemaProgramm.ts"
   },
   "author": "",

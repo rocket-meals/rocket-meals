@@ -2,12 +2,12 @@ import { DockerDirectusPingHelper } from './DockerDirectusPingHelper';
 import path from 'node:path';
 import fs from 'node:fs';
 import { spawn } from 'node:child_process';
-import { CookieJar } from 'cookiejar';
 import FormData from 'form-data';
 
 import { createRequire } from 'node:module';
 import { FetchIgnoreSelfSignedCertHelper } from './FetchIgnoreSelfSignedCertHelper';
 import { DirectusConnectionOptions } from './DirectusConnectionOptions';
+import { DirectusSessionHelper } from './DirectusSessionHelper';
 
 const require = createRequire(import.meta.url);
 
@@ -152,41 +152,7 @@ export class DirectusDatabaseSync {
   // Function to handle login and return headers with cookies
   private async login() {
     console.log('Logging into Directus...');
-    const cookieJar = new CookieJar();
-    const headers = new Headers();
-    const origin = new URL(this.config.directusInstanceUrl).origin;
-
-    const response = await FetchIgnoreSelfSignedCertHelper.fetch(`${this.config.directusInstanceUrl}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: this.config.adminEmail,
-        password: this.config.adminPassword,
-        mode: 'session',
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    // Save the cookies to the jar
-    const cookies = response.headers.get('set-cookie') as string;
-    cookieJar.setCookie(cookies, origin);
-
-    headers.set(
-      'cookie',
-      cookieJar
-        .getCookies({
-          domain: origin,
-          path: '/',
-          secure: true,
-          script: false,
-        })
-        .toValueString()
-    );
-
-    return headers;
+    return DirectusSessionHelper.login(this.config);
   }
 
   private getUrlSettings() {

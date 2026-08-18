@@ -1,5 +1,17 @@
 name: "🚀 Deploy Backend (Manual)"
 
+# Ein Deploy startet den backend-sync Container neu, der den Stand dieses Repositories
+# per directus-sync in Directus pusht. Alles, was direkt im Directus-Admin gebaut wurde
+# (z. B. Dashboards mit Auswertungen) und nicht im Repository liegt, wird dabei gelöscht.
+#
+# Deshalb werden vor dem Deploy alle Backends abgefragt und mit dem Repository verglichen.
+# Gibt es Unterschiede, bricht der Workflow ab. Server, die nicht laufen, werden übersprungen.
+#
+# Benötigte Repository-Secrets für die Prüfung:
+#   - ADMIN_EMAIL / ADMIN_PASSWORD:                Admin-Zugang der Directus-Instanzen
+#   - optional ADMIN_EMAIL_<SERVER> / ADMIN_PASSWORD_<SERVER> (z. B. ADMIN_EMAIL_SWOSY),
+#     falls eine Instanz einen eigenen Admin-Zugang hat
+
 on:
   workflow_dispatch:
     inputs:
@@ -18,16 +30,81 @@ on:
         required: false
         type: string
         default: ''
+      force_push:
+        description: 'Force Push: Dashboard-Prüfung überspringen (Änderungen auf den Servern gehen verloren!)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
-  deploy:
-    name: "🚀 Deploy Backend Server"
+  check-dashboards:
+    name: "🧐 Check Dashboards on all Backends"
+    if: ${{ !inputs.force_push }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - name: "🔄 Checkout Repository"
         uses: actions/checkout@v4
+
+      - name: "⚙️ Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.16.0"
+
+      - name: "⚙️ Enable Corepack for Yarn"
+        run: corepack enable
+
+      - name: "📦 Get Yarn cache directory path"
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - name: "📦 Cache Yarn dependencies"
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: "📦 Install dependencies"
+        run: yarn install --immutable --mode=skip-build
+
+      - name: "🧐 Compare dashboards of all backends with this repository"
+        env:
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          ADMIN_EMAIL_TEST: ${{ secrets.ADMIN_EMAIL_TEST }}
+          ADMIN_PASSWORD_TEST: ${{ secrets.ADMIN_PASSWORD_TEST }}
+          ADMIN_EMAIL_SWOSY: ${{ secrets.ADMIN_EMAIL_SWOSY }}
+          ADMIN_PASSWORD_SWOSY: ${{ secrets.ADMIN_PASSWORD_SWOSY }}
+          ADMIN_EMAIL_STUDI_FUTTER: ${{ secrets.ADMIN_EMAIL_STUDI_FUTTER }}
+          ADMIN_PASSWORD_STUDI_FUTTER: ${{ secrets.ADMIN_PASSWORD_STUDI_FUTTER }}
+          ADMIN_EMAIL_MUENSTER: ${{ secrets.ADMIN_EMAIL_MUENSTER }}
+          ADMIN_PASSWORD_MUENSTER: ${{ secrets.ADMIN_PASSWORD_MUENSTER }}
+        run: |
+          if [ -z "$ADMIN_EMAIL" ] || [ -z "$ADMIN_PASSWORD" ]; then
+            echo "::error::Secrets ADMIN_EMAIL und ADMIN_PASSWORD müssen für die Dashboard-Prüfung konfiguriert sein."
+            exit 1
+          fi
+          yarn workspace backend-sync sync:check-dashboards
+
+  deploy:
+    name: "🚀 Deploy Backend Server"
+    needs: [check-dashboards]
+    # force_push überspringt die Prüfung (Job "skipped"), sonst muss sie erfolgreich sein.
+    if: ${{ always() && (inputs.force_push || needs.check-dashboards.result == 'success') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "⚠️ Force Push Hinweis"
+        if: ${{ inputs.force_push }}
+        run: |
+          echo "::warning::force_push ist aktiv – die Dashboard-Prüfung wurde übersprungen. Änderungen, die direkt im Directus-Admin gemacht wurden, werden überschrieben."
 
       - name: "🔍 Resolve target host"
         id: resolve-host

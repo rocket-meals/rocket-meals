@@ -171,6 +171,23 @@ return Math.random(); // NOSONAR - not security-sensitive (see class comment abo
 
 Dieselbe Regel gilt sinngemäß für Reliability- und Maintainability-Findings.
 
+## 🧐 Dashboard-Prüfung vor dem Backend-Deploy
+
+Beim Deploy pusht `backend-sync` die Directus-Konfiguration aus diesem Repository in die
+Directus-Instanz. Dashboards, die nur im Directus-Admin gebaut und nie ins Repository gepullt
+wurden, würden dabei gelöscht.
+
+Deshalb fragt der Workflow `🚀 Deploy Backend (Manual)` vor dem Deploy **alle** Backends ab und
+vergleicht deren Dashboards und Panels mit dem Repository:
+
+- Unterschiede gefunden → der Workflow bricht ab, es wird nicht deployt.
+- Server läuft nicht → wird übersprungen, der Workflow läuft weiter.
+- Mit dem Parameter `force_push` wird die Prüfung übersprungen (die Änderungen auf den Servern
+  gehen dabei verloren).
+
+Lokal prüfen: `yarn workspace backend-sync sync:check-dashboards`.
+Details und Vorgehen bei Unterschieden: `docs/BACKEND_DEPLOY_DASHBOARD_CHECK.md`.
+
 ## ⏰ Update und Env-Generierung
 
 Das Skript `scripts/update-and-generate-env.sh` führt folgende Schritte aus:
