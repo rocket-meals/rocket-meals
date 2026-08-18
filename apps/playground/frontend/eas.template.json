@@ -1,0 +1,51 @@
+{
+  "cli": {
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "node": "22.16.0",
+      "channel": "development"
+    },
+    "preview": {
+      "android": {
+        "buildType": "apk"
+      },
+      "node": "22.16.0",
+      "channel": "preview"
+    },
+    "previewIos": {
+      "extends": "preview",
+      "distribution": "internal",
+      "channel": "preview"
+    },
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "autoIncrement": false,
+      "channel": "production",
+      "node": "22.16.0"
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "track": "production"
+      },
+      "ios": {
+        "appleId": "nils@baumgartner-software.de",
+        "ascAppId": "",
+        "appleTeamId": "6U99CRVHVR",
+        "ascApiKeyPath": "./asc-api-key.p8",
+        "ascApiKeyId": "39JT9543R7",
+        "ascApiKeyIssuerId": "a8db47e8-cb43-4861-b383-58ec4f9a9fc6"
+      }
+    }
+  }
+}

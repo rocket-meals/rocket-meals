@@ -80,6 +80,9 @@ Die Links werden bei jedem Build-Nummern-Bump automatisch aktualisiert.
 **Geonexia Dev Client v0.22.0:** 🤖 [Android APK](https://expo.dev/artifacts/eas/5cv8X25rwcMW37RacoRCMv60cdcHukV5aaL1zRiSVUo.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/geonexia/builds/10f624c1-45d4-4310-a828-37adcd97382f)
 <!-- dev-client:geonexia:end -->
 
+<!-- dev-client:playground:start -->
+<!-- dev-client:playground:end -->
+
 # 🚀 Rocket Meals
 
 **Rocket Meals** ist eine innovative Lösung zur digitalen Verwaltung und Präsentation von

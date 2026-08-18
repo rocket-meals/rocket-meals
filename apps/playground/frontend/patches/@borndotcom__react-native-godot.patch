@@ -1,0 +1,1338 @@
+diff --git a/android/src/main/cpp/OnLoad.cpp b/android/src/main/cpp/OnLoad.cpp
+index 102ac358a36e6088e6de5ece8f0f13f50baacec9..ad87e269f84a4353e50ada36c9ffc4463e8322ed 100644
+--- a/android/src/main/cpp/OnLoad.cpp
++++ b/android/src/main/cpp/OnLoad.cpp
+@@ -53,10 +53,20 @@
+ // }
+ 
+ #include "native_godot_module_jni.h"
++#include "libgodot_jni.h"
+ #include <fbjni/fbjni.h>
++using namespace facebook::jni;
+ 
+-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
+-	return facebook::jni::initialize(vm, [] {
+-		NativeGodotModuleJNI::registerNatives();
+-	});
++JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *)
++{
++	// Store the JavaVM pointer in LibGodot before anything else
++	// This ensures it's available when AndroidThread is created
++	JNIEnv *env;
++	if (vm->GetEnv((void **)&env, JNI_VERSION_1_6) == JNI_OK)
++	{
++		LibGodot::set_java_vm(vm);
++	}
++
++	return facebook::jni::initialize(vm, []
++									 { NativeGodotModuleJNI::registerNatives(); });
+ }
+\ No newline at end of file
+diff --git a/android/src/main/cpp/libgodot_jni.cpp b/android/src/main/cpp/libgodot_jni.cpp
+index 113f32e71b60ad253ac7aa30511d8e6786ffed0d..72dbbc2e2a71fa1fb480c28f68d08714f36ab1c8 100644
+--- a/android/src/main/cpp/libgodot_jni.cpp
++++ b/android/src/main/cpp/libgodot_jni.cpp
+@@ -49,21 +49,21 @@
+ #include <mutex>
+ #include <string>
+ 
+-typedef struct WindowData {
++typedef struct WindowData
++{
+ 	int width;
+ 	int height;
+ 	int32_t id;
+ 	ANativeWindow *surface;
+-	WindowData() :
+-			width(0), height(0), id(-1), surface(nullptr) {}
+-	WindowData(ANativeWindow *p_surface, int p_width, int p_height, int32_t p_id = -1) :
+-			width(p_width), height(p_height), id(p_id), surface(p_surface) {}
++	WindowData() : width(0), height(0), id(-1), surface(nullptr) {}
++	WindowData(ANativeWindow *p_surface, int p_width, int p_height, int32_t p_id = -1) : width(p_width), height(p_height), id(p_id), surface(p_surface) {}
+ } WindowData;
+ 
+ static std::map<std::string, WindowData> windowMap;
+ static std::recursive_mutex windowMapMutex;
+ 
+-void LibGodot::initialize(JNIEnv *env, jobject p_asset_manager, jobject p_net_utils, jobject p_dir_access_handler, jobject p_file_access_handler, jobject p_godot_io, jobject p_main_surface, jint p_width, jint p_height, jobject p_godot_engine, jobject p_host_activity, jobject p_class_loader) {
++void LibGodot::initialize(JNIEnv *env, jobject p_asset_manager, jobject p_net_utils, jobject p_dir_access_handler, jobject p_file_access_handler, jobject p_godot_io, jobject p_main_surface, jint p_width, jint p_height, jobject p_godot_engine, jobject p_host_activity, jobject p_class_loader)
++{
+ 	LOGI("LibGodot::initialize");
+ 	env->GetJavaVM(&java_vm);
+ 	asset_manager = env->NewGlobalRef(p_asset_manager);
+@@ -79,58 +79,71 @@ void LibGodot::initialize(JNIEnv *env, jobject p_asset_manager, jobject p_net_ut
+ 	class_loader = env->NewGlobalRef(p_class_loader);
+ }
+ 
+-ANativeWindow *LibGodot::get_main_surface() {
++ANativeWindow *LibGodot::get_main_surface()
++{
+ 	std::lock_guard<std::recursive_mutex> lock(windowMapMutex);
+ 	return windowMap[""].surface;
+ }
+ 
+-int LibGodot::get_main_width() {
++int LibGodot::get_main_width()
++{
+ 	std::lock_guard<std::recursive_mutex> lock(windowMapMutex);
+ 	return windowMap[""].width;
+ }
+ 
+-int LibGodot::get_main_height() {
++int LibGodot::get_main_height()
++{
+ 	std::lock_guard<std::recursive_mutex> lock(windowMapMutex);
+ 	return windowMap[""].height;
+ }
+ 
+-void LibGodot::cleanup(JNIEnv *env) {
+-	if (asset_manager) {
++void LibGodot::cleanup(JNIEnv *env)
++{
++	if (asset_manager)
++	{
+ 		env->DeleteGlobalRef(asset_manager);
+ 		asset_manager = nullptr;
+ 	}
+-	if (net_utils) {
++	if (net_utils)
++	{
+ 		env->DeleteGlobalRef(net_utils);
+ 		net_utils = nullptr;
+ 	}
+-	if (dir_access_handler) {
++	if (dir_access_handler)
++	{
+ 		env->DeleteGlobalRef(dir_access_handler);
+ 		dir_access_handler = nullptr;
+ 	}
+-	if (file_access_handler) {
++	if (file_access_handler)
++	{
+ 		env->DeleteGlobalRef(file_access_handler);
+ 		file_access_handler = nullptr;
+ 	}
+-	if (godot_io) {
++	if (godot_io)
++	{
+ 		env->DeleteGlobalRef(godot_io);
+ 		godot_io = nullptr;
+ 	}
+-	if (godot_engine) {
++	if (godot_engine)
++	{
+ 		env->DeleteGlobalRef(godot_engine);
+ 		godot_engine = nullptr;
+ 	}
+-	if (host_activity) {
++	if (host_activity)
++	{
+ 		env->DeleteGlobalRef(host_activity);
+ 		host_activity = nullptr;
+ 	}
+-	if (class_loader) {
++	if (class_loader)
++	{
+ 		env->DeleteGlobalRef(class_loader);
+ 		class_loader = nullptr;
+ 	}
+ 
+ 	{
+ 		std::lock_guard<std::recursive_mutex> lock(windowMapMutex);
+-		for (auto item : windowMap) {
++		for (auto item : windowMap)
++		{
+ 			WindowData &data = item.second;
+ 			ANativeWindow_release(data.surface);
+ 		}
+@@ -140,45 +153,71 @@ void LibGodot::cleanup(JNIEnv *env) {
+ 	java_vm = nullptr;
+ }
+ 
+-JNIEnv *LibGodot::get_jni_env() {
++JNIEnv *LibGodot::get_jni_env()
++{
++	if (!java_vm)
++	{
++		LOGE("LibGodot::get_jni_env() called but java_vm is null!");
++		return nullptr;
++	}
+ 	JNIEnv *env;
+ 	java_vm->AttachCurrentThread(&env, nullptr);
+ 	return env;
+ }
+ 
+-static std::function<void()> createUpdateWindowFunc(std::string p_window_name, int p_width, int p_height, ANativeWindow *p_window_surface, bool p_change_surface) {
+-	return [p_window_name, p_width, p_height, p_window_surface, p_change_surface]() {
++JavaVM *LibGodot::get_java_vm()
++{
++	return java_vm;
++}
++
++void LibGodot::set_java_vm(JavaVM *vm)
++{
++	java_vm = vm;
++}
++
++static std::function<void()> createUpdateWindowFunc(std::string p_window_name, int p_width, int p_height, ANativeWindow *p_window_surface, bool p_change_surface)
++{
++	return [p_window_name, p_width, p_height, p_window_surface, p_change_surface]()
++	{
+ 		godot::DisplayServerEmbedded *dse = godot::DisplayServerEmbedded::get_singleton();
+ 		int32_t windowId = -1;
+-		if (p_window_name == "") {
++		if (p_window_name == "")
++		{
+ 			// Default id
+ 			windowId = 0;
+-		} else {
++		}
++		else
++		{
+ 			// Find window
+ 			godot::MainLoop *mainLoop = godot::Engine::get_singleton()->get_main_loop();
+ 			godot::SceneTree *sceneTree = godot::Object::cast_to<godot::SceneTree>(mainLoop);
+-			if (!sceneTree) {
++			if (!sceneTree)
++			{
+ 				LOGE("Unable to get SceneTree from Godot!");
+ 				return;
+ 			}
+ 			godot::Node *node = sceneTree->get_root()->find_child(
+-					godot::String::utf8(p_window_name.c_str()), true, false);
++				godot::String::utf8(p_window_name.c_str()), true, false);
+ 			godot::Window *newWindow = godot::Object::cast_to<godot::Window>(node);
+ 
+-			if (newWindow) {
++			if (newWindow)
++			{
+ 				bool change_surface = true;
+ 				godot::Ref<godot::RenderingNativeSurfaceAndroid> ns = newWindow->get_native_surface();
+-				if (ns.is_valid()) {
++				if (ns.is_valid())
++				{
+ 					ANativeWindow *current_window = (ANativeWindow *)ns->get_window();
+-					if (current_window == p_window_surface) {
++					if (current_window == p_window_surface)
++					{
+ 						change_surface = false;
+ 					}
+ 				}
+ 
+-				if (change_surface) {
++				if (change_surface)
++				{
+ 					LOGI("Changing surface");
+ 					godot::Ref<godot::RenderingNativeSurfaceAndroid> androidSurface = godot::RenderingNativeSurfaceAndroid::create(
+-							(uint64_t)p_window_surface, p_width, p_height);
++						(uint64_t)p_window_surface, p_width, p_height);
+ 
+ 					newWindow->set_visible(true);
+ 					newWindow->set_native_surface(androidSurface);
+@@ -187,12 +226,14 @@ static std::function<void()> createUpdateWindowFunc(std::string p_window_name, i
+ 				windowId = newWindow->get_window_id();
+ 			}
+ 		}
+-		if (windowId >= 0) {
++		if (windowId >= 0)
++		{
+ 			LOGI("Resizing Window: %d %d %d", windowId, p_width, p_height);
+ 			dse->resize_window(godot::Vector2i(p_width, p_height), windowId);
+ 			{
+ 				std::lock_guard<std::recursive_mutex> lock(windowMapMutex);
+-				if (windowId > 0 && windowMap.contains(p_window_name)) {
++				if (windowId > 0 && windowMap.contains(p_window_name))
++				{
+ 					windowMap[p_window_name].id = windowId;
+ 				}
+ 			}
+@@ -200,7 +241,8 @@ static std::function<void()> createUpdateWindowFunc(std::string p_window_name, i
+ 	};
+ }
+ 
+-void LibGodot::updateWindowNative(JNIEnv *env, jstring p_name, jobject p_surface, jint p_width, jint p_height) {
++void LibGodot::updateWindowNative(JNIEnv *env, jstring p_name, jobject p_surface, jint p_width, jint p_height)
++{
+ 	std::string windowName;
+ 	{
+ 		jboolean isCopy;
+@@ -214,29 +256,34 @@ void LibGodot::updateWindowNative(JNIEnv *env, jstring p_name, jobject p_surface
+ 	{
+ 		std::lock_guard<std::recursive_mutex> lock(windowMapMutex);
+ 
+-		if (!windowMap.contains(windowName)) {
++		if (!windowMap.contains(windowName))
++		{
+ 			windowMap[windowName] = WindowData(windowSurface, p_width, p_height);
+ 			changeSurface = true;
+ 		}
+ 
+ 		WindowData &winData = windowMap[windowName];
+-		if (winData.surface != windowSurface) {
++		if (winData.surface != windowSurface)
++		{
+ 			changeSurface = true;
+ 			winData.surface = windowSurface;
+ 		}
+-		if (windowName == "" && changeSurface) {
++		if (windowName == "" && changeSurface)
++		{
+ 			LOGW("Default window surface should never change!");
+ 		}
+ 		winData.width = p_width;
+ 		winData.height = p_height;
+ 	}
+ 	godot::GodotInstance *instance = GodotModule::get_singleton()->get_instance();
+-	if (instance && instance->is_started()) {
++	if (instance && instance->is_started())
++	{
+ 		GodotModule::get_singleton()->runOnGodotThread(createUpdateWindowFunc(windowName, p_width, p_height, windowSurface, changeSurface), true);
+ 	}
+ }
+ 
+-void LibGodot::removeWindowNative(JNIEnv *env, jstring p_name) {
++void LibGodot::removeWindowNative(JNIEnv *env, jstring p_name)
++{
+ 	std::string windowName;
+ 	{
+ 		jboolean isCopy;
+@@ -244,14 +291,16 @@ void LibGodot::removeWindowNative(JNIEnv *env, jstring p_name) {
+ 		windowName = val;
+ 		env->ReleaseStringUTFChars(p_name, val);
+ 	}
+-	if (windowName == "") {
++	if (windowName == "")
++	{
+ 		// Default window cannot be removed
+ 		return;
+ 	}
+ 	{
+ 		std::lock_guard<std::recursive_mutex> lock(windowMapMutex);
+ 
+-		if (!windowMap.contains(windowName)) {
++		if (!windowMap.contains(windowName))
++		{
+ 			// No window
+ 			return;
+ 		}
+@@ -259,8 +308,10 @@ void LibGodot::removeWindowNative(JNIEnv *env, jstring p_name) {
+ 		ANativeWindow *windowSurface = windowMap[windowName].surface;
+ 
+ 		godot::GodotInstance *instance = GodotModule::get_singleton()->get_instance();
+-		if (instance && instance->is_started()) {
+-			GodotModule::get_singleton()->runOnGodotThread([windowName, windowSurface]() {
++		if (instance && instance->is_started())
++		{
++			GodotModule::get_singleton()->runOnGodotThread([windowName, windowSurface]()
++														   {
+ 				godot::DisplayServerEmbedded *dse = godot::DisplayServerEmbedded::get_singleton();
+ 				{
+ 					// Find window
+@@ -280,41 +331,48 @@ void LibGodot::removeWindowNative(JNIEnv *env, jstring p_name) {
+ 						window->set_native_surface(nativeSurface);
+ 					}
+ 					ANativeWindow_release(windowSurface);
+-				}
+-			});
++				} });
+ 		}
+ 		windowMap.erase(windowName);
+ 	}
+ }
+ 
+-void LibGodot::updateWindow(std::string windowName) {
++void LibGodot::updateWindow(std::string windowName)
++{
+ 	std::lock_guard<std::recursive_mutex> lock(windowMapMutex);
+-	if (windowMap.contains(windowName)) {
++	if (windowMap.contains(windowName))
++	{
+ 		godot::GodotInstance *instance = GodotModule::get_singleton()->get_instance();
+ 		WindowData &data = windowMap[windowName];
+-		if (instance && instance->is_started()) {
++		if (instance && instance->is_started())
++		{
+ 			GodotModule::get_singleton()->runOnGodotThread(createUpdateWindowFunc(windowName, data.width, data.height, data.surface, windowName != ""));
+ 		}
+ 	}
+ }
+ 
+-void LibGodot::updateWindows() {
++void LibGodot::updateWindows()
++{
+ 	std::lock_guard<std::recursive_mutex> lock(windowMapMutex);
+ 	godot::GodotInstance *instance = GodotModule::get_singleton()->get_instance();
+-	if (instance && instance->is_started()) {
+-		for (auto item : windowMap) {
++	if (instance && instance->is_started())
++	{
++		for (auto item : windowMap)
++		{
+ 			std::string windowName = item.first;
+ 			WindowData &data = item.second;
+ 			GodotModule::get_singleton()->runOnGodotThread(
+-					createUpdateWindowFunc(windowName, data.width, data.height, data.surface,
+-							windowName != ""));
++				createUpdateWindowFunc(windowName, data.width, data.height, data.surface,
++									   windowName != ""));
+ 		}
+ 	}
+ }
+ 
+-void LibGodot::registerWindowUpdateCallbackNative(JNIEnv *env, jstring name, jlong handle, jobject r) {
++void LibGodot::registerWindowUpdateCallbackNative(JNIEnv *env, jstring name, jlong handle, jobject r)
++{
+ 	GodotModule *mod = GodotModule::get_singleton();
+-	if (!mod) {
++	if (!mod)
++	{
+ 		LOGE("GodotModule not available");
+ 		return;
+ 	}
+@@ -323,12 +381,14 @@ void LibGodot::registerWindowUpdateCallbackNative(JNIEnv *env, jstring name, jlo
+ 
+ 	jobject myRunnable = env->NewGlobalRef(r);
+ 
+-	std::function<void(bool)> callback = [myRunnable](bool adding) {
++	std::function<void(bool)> callback = [myRunnable](bool adding)
++	{
+ 		JNIEnv *env = get_jni_env();
+ 		jclass runnable_class = env->FindClass("java/lang/Runnable");
+ 		jmethodID runnable_run_method_id = env->GetMethodID(runnable_class, "run", "()V");
+ 		env->CallVoidMethod(myRunnable, runnable_run_method_id);
+-		if (env->ExceptionCheck()) {
++		if (env->ExceptionCheck())
++		{
+ 			// Retrieve the last Java exception
+ 			env->ExceptionDescribe();
+ 
+@@ -340,16 +400,19 @@ void LibGodot::registerWindowUpdateCallbackNative(JNIEnv *env, jstring name, jlo
+ 	mod->registerWindowUpdateCallback(std_name, (void *)handle, callback, myRunnable);
+ }
+ 
+-void LibGodot::unregisterWindowUpdateCallbackNative(jlong handle) {
++void LibGodot::unregisterWindowUpdateCallbackNative(jlong handle)
++{
+ 	GodotModule *mod = GodotModule::get_singleton();
+-	if (!mod) {
++	if (!mod)
++	{
+ 		LOGE("GodotModule not available");
+ 		return;
+ 	}
+ 	mod->unregisterWindowUpdateCallback((void *)handle);
+ }
+ 
+-static std::string convertToStdString(JNIEnv *env, jstring s) {
++static std::string convertToStdString(JNIEnv *env, jstring s)
++{
+ 	std::string result;
+ 	{
+ 		jboolean isCopy;
+@@ -360,14 +423,16 @@ static std::string convertToStdString(JNIEnv *env, jstring s) {
+ 	return result;
+ }
+ 
+-struct TouchPos {
++struct TouchPos
++{
+ 	int id = 0;
+ 	godot::Point2 pos;
+ 	float pressure = 0;
+ 	godot::Vector2 tilt;
+ };
+ 
+-static godot::String convertToGodotString(JNIEnv *env, jstring s) {
++static godot::String convertToGodotString(JNIEnv *env, jstring s)
++{
+ 	godot::String result;
+ 	{
+ 		jboolean isCopy;
+@@ -378,9 +443,11 @@ static godot::String convertToGodotString(JNIEnv *env, jstring s) {
+ 	return result;
+ }
+ 
+-static int32_t getWindowId(std::string p_name) {
++static int32_t getWindowId(std::string p_name)
++{
+ 	std::lock_guard<std::recursive_mutex> lock(windowMapMutex);
+-	if (windowMap.contains(p_name)) {
++	if (windowMap.contains(p_name))
++	{
+ 		return windowMap[p_name].id;
+ 	}
+ 	return -1;
+@@ -388,95 +455,112 @@ static int32_t getWindowId(std::string p_name) {
+ 
+ static std::map<int32_t, godot::Vector<TouchPos>> touches;
+ 
+-extern "C" {
+-
+-JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_initialize(JNIEnv *env, jclass clazz, jobject p_asset_manager, jobject p_net_utils, jobject p_dir_access_handler, jobject p_file_access_handler, jobject p_godot_io, jobject p_main_surface, jint p_width, jint p_height, jobject p_godot_engine, jobject p_host_activity, jobject p_class_loader) {
+-	LibGodot::initialize(env, p_asset_manager, p_net_utils, p_dir_access_handler, p_file_access_handler, p_godot_io, p_main_surface, p_width, p_height, p_godot_engine, p_host_activity, p_class_loader);
+-}
+-
+-JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_updateWindowNative(JNIEnv *env, jclass clazz, jstring p_name, jobject p_surface, jint p_width, jint p_height) {
+-	LibGodot::updateWindowNative(env, p_name, p_surface, p_width, p_height);
+-}
++extern "C"
++{
+ 
+-JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_removeWindowNative(JNIEnv *env, jclass clazz, jstring p_name) {
+-	LibGodot::removeWindowNative(env, p_name);
+-}
+-
+-JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_cleanup(JNIEnv *env, jclass clazz) {
+-	LibGodot::cleanup(env);
+-}
++	JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_initialize(JNIEnv *env, jclass clazz, jobject p_asset_manager, jobject p_net_utils, jobject p_dir_access_handler, jobject p_file_access_handler, jobject p_godot_io, jobject p_main_surface, jint p_width, jint p_height, jobject p_godot_engine, jobject p_host_activity, jobject p_class_loader)
++	{
++		LibGodot::initialize(env, p_asset_manager, p_net_utils, p_dir_access_handler, p_file_access_handler, p_godot_io, p_main_surface, p_width, p_height, p_godot_engine, p_host_activity, p_class_loader);
++	}
+ 
+-// Called on the UI thread
+-JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_dispatchMouseEvent(JNIEnv *env, jclass clazz, jstring p_name, jint p_event_type, jint p_button_mask, jfloat p_x, jfloat p_y, jfloat p_delta_x, jfloat p_delta_y, jboolean p_double_click, jboolean p_source_mouse_relative, jfloat p_pressure, jfloat p_tilt_x, jfloat p_tilt_y) {
+-	// godot::GodotInstance *instance = GodotModule::get_singleton()->get_instance();
+-	// if (!instance || !instance->is_started()) {
+-	//     return;
+-	// }
++	JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_updateWindowNative(JNIEnv *env, jclass clazz, jstring p_name, jobject p_surface, jint p_width, jint p_height)
++	{
++		LibGodot::updateWindowNative(env, p_name, p_surface, p_width, p_height);
++	}
+ 
+-	// input_handler->process_mouse_event(p_event_type, p_button_mask, godot::Point2(p_x, p_y), godot::Vector2(p_delta_x, p_delta_y), p_double_click, p_source_mouse_relative, p_pressure, godot::Vector2(p_tilt_x, p_tilt_y));
+-}
++	JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_removeWindowNative(JNIEnv *env, jclass clazz, jstring p_name)
++	{
++		LibGodot::removeWindowNative(env, p_name);
++	}
+ 
+-JNIEXPORT jobjectArray JNICALL Java_com_rtngodot_RTNLibGodot_getRendererInfo(JNIEnv *env, jclass clazz) {
+-	godot::String rendering_driver = godot::RenderingServer::get_singleton()->get_current_rendering_driver_name();
+-	godot::String rendering_method = godot::RenderingServer::get_singleton()->get_current_rendering_method();
++	JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_cleanup(JNIEnv *env, jclass clazz)
++	{
++		LibGodot::cleanup(env);
++	}
+ 
+-	jobjectArray result = env->NewObjectArray(2, env->FindClass("java/lang/String"), nullptr);
+-	env->SetObjectArrayElement(result, 0, env->NewStringUTF(rendering_driver.utf8().get_data()));
+-	env->SetObjectArrayElement(result, 1, env->NewStringUTF(rendering_method.utf8().get_data()));
++	// Called on the UI thread
++	JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_dispatchMouseEvent(JNIEnv *env, jclass clazz, jstring p_name, jint p_event_type, jint p_button_mask, jfloat p_x, jfloat p_y, jfloat p_delta_x, jfloat p_delta_y, jboolean p_double_click, jboolean p_source_mouse_relative, jfloat p_pressure, jfloat p_tilt_x, jfloat p_tilt_y)
++	{
++		// godot::GodotInstance *instance = GodotModule::get_singleton()->get_instance();
++		// if (!instance || !instance->is_started()) {
++		//     return;
++		// }
+ 
+-	return result;
+-}
++		// input_handler->process_mouse_event(p_event_type, p_button_mask, godot::Point2(p_x, p_y), godot::Vector2(p_delta_x, p_delta_y), p_double_click, p_source_mouse_relative, p_pressure, godot::Vector2(p_tilt_x, p_tilt_y));
++	}
+ 
+-JNIEXPORT jstring JNICALL Java_com_rtngodot_RTNLibGodot_getGlobal(JNIEnv *env, jclass clazz, jstring path) {
+-	godot::String js = jstring_to_string(path, env);
++	JNIEXPORT jobjectArray JNICALL Java_com_rtngodot_RTNLibGodot_getRendererInfo(JNIEnv *env, jclass clazz)
++	{
++		godot::String rendering_driver = godot::RenderingServer::get_singleton()->get_current_rendering_driver_name();
++		godot::String rendering_method = godot::RenderingServer::get_singleton()->get_current_rendering_method();
+ 
+-	godot::Variant setting_with_override = godot::ProjectSettings::get_singleton()->get_setting_with_override(js);
+-	godot::String setting_value = (setting_with_override.get_type() == godot::Variant::NIL) ? "" : setting_with_override;
+-	return env->NewStringUTF(setting_value.utf8().get_data());
+-}
++		jobjectArray result = env->NewObjectArray(2, env->FindClass("java/lang/String"), nullptr);
++		env->SetObjectArrayElement(result, 0, env->NewStringUTF(rendering_driver.utf8().get_data()));
++		env->SetObjectArrayElement(result, 1, env->NewStringUTF(rendering_method.utf8().get_data()));
+ 
+-JNIEXPORT void JNICALL
+-Java_com_rtngodot_RTNLibGodot_registerWindowUpdateCallbackNative(JNIEnv *env, jclass clazz, jstring name, jlong handle, jobject r) {
+-	LibGodot::registerWindowUpdateCallbackNative(env, name, handle, r);
+-}
++		return result;
++	}
+ 
+-JNIEXPORT void JNICALL
+-Java_com_rtngodot_RTNLibGodot_unregisterWindowUpdateCallbackNative(JNIEnv *env, jclass clazz, jlong handle) {
+-	LibGodot::unregisterWindowUpdateCallbackNative(handle);
+-}
++	JNIEXPORT jstring JNICALL Java_com_rtngodot_RTNLibGodot_getGlobal(JNIEnv *env, jclass clazz, jstring path)
++	{
++		godot::String js = jstring_to_string(path, env);
+ 
+-// Called on the UI thread
+-JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_dispatchTouchEvent(JNIEnv *env, jclass clazz, jstring p_name, jint p_event, jint p_pointer, jint pointer_count, jfloatArray position, jboolean p_double_tap) {
+-	godot::GodotInstance *instance = GodotModule::get_singleton()->get_instance();
+-	if (!instance || !instance->is_started()) {
+-		return;
++		godot::Variant setting_with_override = godot::ProjectSettings::get_singleton()->get_setting_with_override(js);
++		godot::String setting_value = (setting_with_override.get_type() == godot::Variant::NIL) ? "" : setting_with_override;
++		return env->NewStringUTF(setting_value.utf8().get_data());
+ 	}
+-	std::string windowName = convertToStdString(env, p_name);
+-	int32_t windowId = getWindowId(windowName);
+-	if (windowId < 0) {
+-		LOGE("Could not find window for name: %s", windowName.c_str());
+-		return;
++
++	JNIEXPORT void JNICALL
++	Java_com_rtngodot_RTNLibGodot_registerWindowUpdateCallbackNative(JNIEnv *env, jclass clazz, jstring name, jlong handle, jobject r)
++	{
++		LibGodot::registerWindowUpdateCallbackNative(env, name, handle, r);
+ 	}
+-	godot::Vector<TouchPos> points;
+-	for (int i = 0; i < pointer_count; i++) {
+-		jfloat p[6];
+-		env->GetFloatArrayRegion(position, i * 6, 6, p);
+-		TouchPos tp;
+-		tp.id = (int)p[0];
+-		tp.pos = godot::Point2(p[1], p[2]);
+-		tp.pressure = p[3];
+-		tp.tilt = godot::Vector2(p[4], p[5]);
+-		points.push_back(tp);
++
++	JNIEXPORT void JNICALL
++	Java_com_rtngodot_RTNLibGodot_unregisterWindowUpdateCallbackNative(JNIEnv *env, jclass clazz, jlong handle)
++	{
++		LibGodot::unregisterWindowUpdateCallbackNative(handle);
+ 	}
+ 
+-	switch (p_event) {
+-		case AMOTION_EVENT_ACTION_DOWN: { //gesture begin
++	// Called on the UI thread
++	JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_dispatchTouchEvent(JNIEnv *env, jclass clazz, jstring p_name, jint p_event, jint p_pointer, jint pointer_count, jfloatArray position, jboolean p_double_tap)
++	{
++		godot::GodotInstance *instance = GodotModule::get_singleton()->get_instance();
++		if (!instance || !instance->is_started())
++		{
++			return;
++		}
++		std::string windowName = convertToStdString(env, p_name);
++		int32_t windowId = getWindowId(windowName);
++		if (windowId < 0)
++		{
++			LOGE("Could not find window for name: %s", windowName.c_str());
++			return;
++		}
++		godot::Vector<TouchPos> points;
++		for (int i = 0; i < pointer_count; i++)
++		{
++			jfloat p[6];
++			env->GetFloatArrayRegion(position, i * 6, 6, p);
++			TouchPos tp;
++			tp.id = (int)p[0];
++			tp.pos = godot::Point2(p[1], p[2]);
++			tp.pressure = p[3];
++			tp.tilt = godot::Vector2(p[4], p[5]);
++			points.push_back(tp);
++		}
++
++		switch (p_event)
++		{
++		case AMOTION_EVENT_ACTION_DOWN:
++		{ // gesture begin
+ 
+ 			touches[windowId] = points;
+ 			godot::Vector<TouchPos> &touch = touches[windowId];
+ 
+-			//send touch
+-			for (int i = 0; i < touch.size(); i++) {
++			// send touch
++			for (int i = 0; i < touch.size(); i++)
++			{
+ 				godot::Ref<godot::InputEventScreenTouch> ev;
+ 				ev.instantiate();
+ 				ev->set_window_id(windowId);
+@@ -487,17 +571,23 @@ JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_dispatchTouchEvent(JNIEnv *
+ 				ev->set_double_tap(p_double_tap);
+ 				godot::Input::get_singleton()->parse_input_event(ev);
+ 			}
+-		} break;
+-		case AMOTION_EVENT_ACTION_MOVE: { //motion
++		}
++		break;
++		case AMOTION_EVENT_ACTION_MOVE:
++		{ // motion
+ 			godot::Vector<TouchPos> &touch = touches[windowId];
+-			if (touch.size() != points.size()) {
++			if (touch.size() != points.size())
++			{
+ 				return;
+ 			}
+ 
+-			for (int i = 0; i < touch.size(); i++) {
++			for (int i = 0; i < touch.size(); i++)
++			{
+ 				int idx = -1;
+-				for (int j = 0; j < points.size(); j++) {
+-					if (touch[i].id == points[j].id) {
++				for (int j = 0; j < points.size(); j++)
++				{
++					if (touch[i].id == points[j].id)
++					{
+ 						idx = j;
+ 						break;
+ 					}
+@@ -505,7 +595,8 @@ JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_dispatchTouchEvent(JNIEnv *
+ 
+ 				ERR_CONTINUE(idx == -1);
+ 
+-				if (touch[i].pos == points[idx].pos) {
++				if (touch[i].pos == points[idx].pos)
++				{
+ 					continue; // Don't move unnecessarily.
+ 				}
+ 
+@@ -515,17 +606,19 @@ JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_dispatchTouchEvent(JNIEnv *
+ 				ev->set_index(touch[i].id);
+ 				ev->set_position(points[idx].pos);
+ 				ev->set_relative(points[idx].pos - touch[i].pos);
+-				//ev->set_relative_screen_position(ev->get_relative());
++				// ev->set_relative_screen_position(ev->get_relative());
+ 				ev->set_pressure(points[idx].pressure);
+ 				ev->set_tilt(points[idx].tilt);
+ 				godot::Input::get_singleton()->parse_input_event(ev);
+ 				touch.write[i].pos = points[idx].pos;
+ 			}
+-
+-		} break;
+-		case AMOTION_EVENT_ACTION_CANCEL: {
++		}
++		break;
++		case AMOTION_EVENT_ACTION_CANCEL:
++		{
+ 			godot::Vector<TouchPos> &touch = touches[windowId];
+-			for (int i = 0; i < touch.size(); i++) {
++			for (int i = 0; i < touch.size(); i++)
++			{
+ 				godot::Ref<godot::InputEventScreenTouch> ev;
+ 				ev.instantiate();
+ 				ev->set_window_id(windowId);
+@@ -536,10 +629,13 @@ JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_dispatchTouchEvent(JNIEnv *
+ 				ev->set_double_tap(p_double_tap);
+ 				godot::Input::get_singleton()->parse_input_event(ev);
+ 			}
+-		} break;
+-		case AMOTION_EVENT_ACTION_UP: { //release
++		}
++		break;
++		case AMOTION_EVENT_ACTION_UP:
++		{ // release
+ 			godot::Vector<TouchPos> &touch = touches[windowId];
+-			for (int i = 0; i < touch.size(); i++) {
++			for (int i = 0; i < touch.size(); i++)
++			{
+ 				godot::Ref<godot::InputEventScreenTouch> ev;
+ 				ev.instantiate();
+ 				ev->set_window_id(windowId);
+@@ -550,11 +646,15 @@ JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_dispatchTouchEvent(JNIEnv *
+ 				ev->set_double_tap(p_double_tap);
+ 				godot::Input::get_singleton()->parse_input_event(ev);
+ 			}
+-		} break;
+-		case AMOTION_EVENT_ACTION_POINTER_DOWN: { // add touch
++		}
++		break;
++		case AMOTION_EVENT_ACTION_POINTER_DOWN:
++		{ // add touch
+ 			godot::Vector<TouchPos> &touch = touches[windowId];
+-			for (int i = 0; i < points.size(); i++) {
+-				if (points[i].id == p_pointer) {
++			for (int i = 0; i < points.size(); i++)
++			{
++				if (points[i].id == p_pointer)
++				{
+ 					TouchPos tp = points[i];
+ 					touch.push_back(tp);
+ 
+@@ -569,11 +669,15 @@ JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_dispatchTouchEvent(JNIEnv *
+ 					break;
+ 				}
+ 			}
+-		} break;
+-		case AMOTION_EVENT_ACTION_POINTER_UP: { // remove touch
++		}
++		break;
++		case AMOTION_EVENT_ACTION_POINTER_UP:
++		{ // remove touch
+ 			godot::Vector<TouchPos> &touch = touches[windowId];
+-			for (int i = 0; i < touch.size(); i++) {
+-				if (touch[i].id == p_pointer) {
++			for (int i = 0; i < touch.size(); i++)
++			{
++				if (touch[i].id == p_pointer)
++				{
+ 					godot::Ref<godot::InputEventScreenTouch> ev;
+ 					ev.instantiate();
+ 					ev->set_window_id(windowId);
+@@ -585,7 +689,8 @@ JNIEXPORT void JNICALL Java_com_rtngodot_RTNLibGodot_dispatchTouchEvent(JNIEnv *
+ 					break;
+ 				}
+ 			}
+-		} break;
++		}
++		break;
++		}
+ 	}
+ }
+\ No newline at end of file
+-}
+\ No newline at end of file
+diff --git a/android/src/main/cpp/libgodot_jni.h b/android/src/main/cpp/libgodot_jni.h
+index 78fa34a7ab9fd2d34453e3b159f4e5c29d65ae08..a6957e30780283c8c3e01e3c2cda3163b85b3e35 100644
+--- a/android/src/main/cpp/libgodot_jni.h
++++ b/android/src/main/cpp/libgodot_jni.h
+@@ -31,7 +31,8 @@
+ 
+ struct ANativeWindow;
+ 
+-class LibGodot {
++class LibGodot
++{
+ 	static inline JavaVM *java_vm = nullptr;
+ 	static inline jobject asset_manager = nullptr;
+ 	static inline jobject net_utils = nullptr;
+@@ -44,32 +45,40 @@ class LibGodot {
+ 	static inline jint maxSize = 0;
+ 
+ public:
+-	static jobject get_asset_manager() {
++	static jobject get_asset_manager()
++	{
+ 		return asset_manager;
+ 	}
+-	static jobject get_net_utils() {
++	static jobject get_net_utils()
++	{
+ 		return net_utils;
+ 	}
+-	static jobject get_dir_access_handler() {
++	static jobject get_dir_access_handler()
++	{
+ 		return dir_access_handler;
+ 	}
+-	static jobject get_file_access_handler() {
++	static jobject get_file_access_handler()
++	{
+ 		return file_access_handler;
+ 	}
+ 
+-	static jobject get_godot_io() {
++	static jobject get_godot_io()
++	{
+ 		return godot_io;
+ 	}
+ 
+-	static jobject get_godot_engine() {
++	static jobject get_godot_engine()
++	{
+ 		return godot_engine;
+ 	}
+ 
+-	static jobject get_host_activity() {
++	static jobject get_host_activity()
++	{
+ 		return host_activity;
+ 	}
+ 
+-	static jobject get_class_loader() {
++	static jobject get_class_loader()
++	{
+ 		return class_loader;
+ 	}
+ 
+@@ -79,7 +88,8 @@ public:
+ 
+ 	static int get_main_height();
+ 
+-	static jint get_max_size() {
++	static jint get_max_size()
++	{
+ 		return maxSize;
+ 	}
+ 
+@@ -87,6 +97,8 @@ public:
+ 
+ 	static JavaVM *get_java_vm();
+ 
++	static void set_java_vm(JavaVM *vm);
++
+ 	static void initialize(JNIEnv *env, jobject p_asset_manager, jobject p_net_utils, jobject p_dir_access_handler, jobject p_file_access_handler, jobject p_godot_io, jobject p_main_surface, jint p_width, jint p_height, jobject p_godot_engine, jobject p_host_activity, jobject p_class_loader);
+ 
+ 	static void cleanup(JNIEnv *env);
+@@ -104,14 +116,18 @@ public:
+ 	static void unregisterWindowUpdateCallbackNative(jlong handle);
+ };
+ 
+-static inline godot::String jstring_to_string(jstring source, JNIEnv *env = nullptr) {
++static inline godot::String jstring_to_string(jstring source, JNIEnv *env = nullptr)
++{
+ 	godot::String result;
+-	if (source) {
+-		if (!env) {
++	if (source)
++	{
++		if (!env)
++		{
+ 			env = LibGodot::get_jni_env();
+ 		}
+ 		const char *const source_utf8 = env->GetStringUTFChars(source, nullptr);
+-		if (source_utf8) {
++		if (source_utf8)
++		{
+ 			result.parse_utf8(source_utf8);
+ 			env->ReleaseStringUTFChars(source, source_utf8);
+ 		}
+@@ -119,14 +135,18 @@ static inline godot::String jstring_to_string(jstring source, JNIEnv *env = null
+ 	return result;
+ }
+ 
+-static inline std::string jstring_to_std_string(jstring source, JNIEnv *env = nullptr) {
++static inline std::string jstring_to_std_string(jstring source, JNIEnv *env = nullptr)
++{
+ 	std::string result;
+-	if (source) {
+-		if (!env) {
++	if (source)
++	{
++		if (!env)
++		{
+ 			env = LibGodot::get_jni_env();
+ 		}
+ 		const char *const source_utf8 = env->GetStringUTFChars(source, nullptr);
+-		if (source_utf8) {
++		if (source_utf8)
++		{
+ 			result = source_utf8;
+ 			env->ReleaseStringUTFChars(source, source_utf8);
+ 		}
+diff --git a/android/src/main/cpp/native_godot_module_jni.cpp b/android/src/main/cpp/native_godot_module_jni.cpp
+index 11841bf7b411bff1165d908fc06897a12134b36d..82fc608de6502d14f9f7c365df602f0b404f3d18 100644
+--- a/android/src/main/cpp/native_godot_module_jni.cpp
++++ b/android/src/main/cpp/native_godot_module_jni.cpp
+@@ -2,26 +2,6 @@
+ /*  native_godot_module_jni.cpp                                           */
+ /**************************************************************************/
+ /* Copyright (c) 2024-2025 Slay GmbH                                      */
+-/*                                                                        */
+-/* Permission is hereby granted, free of charge, to any person obtaining  */
+-/* a copy of this software and associated documentation files (the        */
+-/* "Software"), to deal in the Software without restriction, including    */
+-/* without limitation the rights to use, copy, modify, merge, publish,    */
+-/* distribute, sublicense, and/or sell copies of the Software, and to     */
+-/* permit persons to whom the Software is furnished to do so, subject to  */
+-/* the following conditions:                                              */
+-/*                                                                        */
+-/* The above copyright notice and this permission notice shall be         */
+-/* included in all copies or substantial portions of the Software.        */
+-/*                                                                        */
+-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+-/**************************************************************************/
+ 
+ #include "native_godot_module_jni.h"
+ #include <NativeGodotModule.h>
+@@ -29,39 +9,96 @@
+ #define LOG_TAG "NativeGodotModuleJNI"
+ #include "godot-log.h"
+ 
++using namespace facebook::jni;
++
+ jni::local_ref<NativeGodotModuleJNI::jhybriddata> NativeGodotModuleJNI::initHybrid(
+-		jni::alias_ref<jhybridobject> jThis,
+-		jlong jsContext,
+-		jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>
+-				jsCallInvokerHolder) {
++	jni::alias_ref<jhybridobject> jThis,
++	jlong jsContext,
++	jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>
++		jsCallInvokerHolder)
++{
+ 	auto jsCallInvoker = jsCallInvokerHolder->cthis()->getCallInvoker();
++
++	// CRITICAL FIX: Handle Bridgeless mode where jsContext == 0
++	jsi::Runtime *runtime = nullptr;
++	bool isBridgeless = (jsContext == 0);
++
++	if (isBridgeless)
++	{
++		LOGI("Initializing in Bridgeless mode (jsContext == 0)");
++		runtime = nullptr;
++	}
++	else
++	{
++		LOGI("Initializing in Bridge mode (jsContext != 0)");
++		runtime = (jsi::Runtime *)jsContext;
++	}
++
+ 	return makeCxxInstance(
+-			jThis,
+-			(jsi::Runtime *)jsContext,
+-			jsCallInvoker);
++		jThis,
++		runtime,
++		jsCallInvoker,
++		isBridgeless);
+ }
+ 
+-void NativeGodotModuleJNI::registerNatives() {
++void NativeGodotModuleJNI::registerNatives()
++{
+ 	registerHybrid({
+-			makeNativeMethod("initHybrid", NativeGodotModuleJNI::initHybrid),
+-			makeNativeMethod("installTurboModule", NativeGodotModuleJNI::installTurboModule),
++		makeNativeMethod("initHybrid", NativeGodotModuleJNI::initHybrid),
++		makeNativeMethod("installTurboModule", NativeGodotModuleJNI::installTurboModule),
+ 	});
+ }
+ 
+-bool NativeGodotModuleJNI::installTurboModule() {
++bool NativeGodotModuleJNI::installTurboModule()
++{
++	if (rnRuntime_ == nullptr)
++	{
++		if (isBridgeless_)
++		{
++			LOGW("Runtime not yet available in Bridgeless mode");
++			return true;
++		}
++		LOGE("Runtime is null, cannot install TurboModule");
++		return false;
++	}
++
+ 	jsi::Runtime &rnRuntime = *rnRuntime_;
+ 	jsi::Value godotModule = createNativeGodotModule(rnRuntime, callInvoker_);
+-	if (!godotModule.isObject()) {
++	if (!godotModule.isObject())
++	{
+ 		LOGE("Could not install NativeGodotModule.");
+ 		return false;
+ 	}
++
++	LOGI("NativeGodotModule installed successfully");
+ 	return true;
+ }
+ 
++void NativeGodotModuleJNI::setRuntime(jsi::Runtime *runtime)
++{
++	if (isBridgeless_ && rnRuntime_ == nullptr)
++	{
++		LOGI("Setting runtime for Bridgeless mode");
++		rnRuntime_ = runtime;
++	}
++}
++
+ NativeGodotModuleJNI::NativeGodotModuleJNI(
+-		jni::alias_ref<NativeGodotModuleJNI::jhybridobject> jThis,
+-		jsi::Runtime *rnRuntime,
+-		const std::shared_ptr<facebook::react::CallInvoker> &jsCallInvoker) :
+-		javaPart_(jni::make_global(jThis)),
+-		rnRuntime_(rnRuntime),
+-		callInvoker_(jsCallInvoker) {}
+\ No newline at end of file
++	jni::alias_ref<NativeGodotModuleJNI::jhybridobject> jThis,
++	jsi::Runtime *rnRuntime,
++	const std::shared_ptr<facebook::react::CallInvoker> &jsCallInvoker,
++	bool isBridgeless) : javaPart_(jni::make_global(jThis)),
++						 rnRuntime_(rnRuntime),
++						 callInvoker_(jsCallInvoker),
++						 isBridgeless_(isBridgeless)
++{
++
++	if (isBridgeless_)
++	{
++		LOGI("NativeGodotModuleJNI constructed for Bridgeless mode");
++	}
++	else
++	{
++		LOGI("NativeGodotModuleJNI constructed for Bridge mode");
++	}
++}
+\ No newline at end of file
+diff --git a/android/src/main/cpp/native_godot_module_jni.h b/android/src/main/cpp/native_godot_module_jni.h
+index 36a34e74b4a6b51ea2e7c1d42b8beeac73557158..e0bf5d791197492a9e30de8ed0df3f5975ed400d 100644
+--- a/android/src/main/cpp/native_godot_module_jni.h
++++ b/android/src/main/cpp/native_godot_module_jni.h
+@@ -23,36 +23,51 @@
+ /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+ /**************************************************************************/
+ 
+-#include <ReactCommon/CallInvokerHolder.h>
++#ifndef NATIVE_GODOT_MODULE_JNI_H
++#define NATIVE_GODOT_MODULE_JNI_H
++
+ #include <fbjni/fbjni.h>
+ #include <jsi/jsi.h>
+-#include <react/jni/CxxModuleWrapper.h>
+-
+-using namespace facebook;
+-
+-class NativeGodotModuleJNI : public jni::HybridClass<NativeGodotModuleJNI> {
+-public:
+-	static auto constexpr kJavaDescriptor =
+-			"Lcom/rtngodot/NativeGodotModule;";
+-	static jni::local_ref<jhybriddata> initHybrid(
+-			jni::alias_ref<jhybridobject> jThis,
+-			jlong jsContext,
+-			jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>
++#include <ReactCommon/CallInvokerHolder.h>
++
++namespace facebook
++{
++	namespace jni
++	{
++
++		class NativeGodotModuleJNI : public HybridClass<NativeGodotModuleJNI>
++		{
++		public:
++			static constexpr auto kJavaDescriptor = "Lcom/rtngodot/NativeGodotModule;";
++
++			static void registerNatives();
++
++			static jni::local_ref<jhybriddata> initHybrid(
++				jni::alias_ref<jhybridobject> jThis,
++				jlong jsContext,
++				jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>
+ 					jsCallInvokerHolder);
+ 
+-	static void registerNatives();
++			bool installTurboModule();
++
++			// Helper method to set runtime later in Bridgeless mode
++			void setRuntime(jsi::Runtime *runtime);
++
++		private:
++			friend HybridBase;
++			jni::global_ref<NativeGodotModuleJNI::javaobject> javaPart_;
++			jsi::Runtime *rnRuntime_;
++			std::shared_ptr<facebook::react::CallInvoker> callInvoker_;
++			bool isBridgeless_; // NEW: Track if we're in Bridgeless mode
+ 
+-	~NativeGodotModuleJNI() {}
++			NativeGodotModuleJNI(
++				jni::alias_ref<NativeGodotModuleJNI::jhybridobject> jThis,
++				jsi::Runtime *rnRuntime,
++				const std::shared_ptr<facebook::react::CallInvoker> &jsCallInvoker,
++				bool isBridgeless); // NEW: Added isBridgeless parameter
++		};
+ 
+-private:
+-	friend HybridBase;
+-	jni::global_ref<NativeGodotModuleJNI::javaobject> javaPart_;
+-	jsi::Runtime *rnRuntime_;
+-	std::shared_ptr<facebook::react::CallInvoker> callInvoker_;
+-	bool installTurboModule();
++	} // namespace jni
++} // namespace facebook
+ 
+-	explicit NativeGodotModuleJNI(
+-			jni::alias_ref<NativeGodotModuleJNI::jhybridobject> jThis,
+-			jsi::Runtime *rnRuntime,
+-			const std::shared_ptr<facebook::react::CallInvoker> &jsCallInvoker);
+-};
++#endif // NATIVE_GODOT_MODULE_JNI_H
+\ No newline at end of file
+diff --git a/android/src/main/java/com/rtngodot/NativeGodotModule.java b/android/src/main/java/com/rtngodot/NativeGodotModule.java
+index 3f66edce1d09818107a4ba56514249d05529ef54..350263b4f3bbe30c8902614f0d3a3e3c9154e572 100644
+--- a/android/src/main/java/com/rtngodot/NativeGodotModule.java
++++ b/android/src/main/java/com/rtngodot/NativeGodotModule.java
+@@ -1,28 +1,3 @@
+-/**************************************************************************/
+-/*  NativeGodotModule.java                                                */
+-/**************************************************************************/
+-/* Copyright (c) 2024-2025 Slay GmbH                                      */
+-/*                                                                        */
+-/* Permission is hereby granted, free of charge, to any person obtaining  */
+-/* a copy of this software and associated documentation files (the        */
+-/* "Software"), to deal in the Software without restriction, including    */
+-/* without limitation the rights to use, copy, modify, merge, publish,    */
+-/* distribute, sublicense, and/or sell copies of the Software, and to     */
+-/* permit persons to whom the Software is furnished to do so, subject to  */
+-/* the following conditions:                                              */
+-/*                                                                        */
+-/* The above copyright notice and this permission notice shall be         */
+-/* included in all copies or substantial portions of the Software.        */
+-/*                                                                        */
+-/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,        */
+-/* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF     */
+-/* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. */
+-/* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY   */
+-/* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,   */
+-/* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE      */
+-/* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
+-/**************************************************************************/
+-
+ package com.rtngodot;
+ 
+ import androidx.annotation.OptIn;
+@@ -36,6 +11,7 @@ import com.facebook.react.bridge.ReactMethod;
+ import com.facebook.react.common.annotations.FrameworkAPI;
+ import com.facebook.react.module.annotations.ReactModule;
+ import com.facebook.react.turbomodule.core.CallInvokerHolderImpl;
++import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder;
+ import com.migeran.NativeGodotModuleSpec;
+ 
+ @OptIn(markerClass = FrameworkAPI.class)
+@@ -49,11 +25,42 @@ public class NativeGodotModule extends NativeGodotModuleSpec {
+ 
+ 	public NativeGodotModule(ReactApplicationContext context) {
+ 		super(context);
+-		CallInvokerHolderImpl holder =
+-				(CallInvokerHolderImpl)context.getCatalystInstance().getJSCallInvokerHolder();
+-		mHybridData = initHybrid(
+-				Objects.requireNonNull(context.getJavaScriptContextHolder()).get(),
+-				holder);
++
++		// CRITICAL: Initialize RTNLibGodot FIRST
++		RTNLibGodot.getInstance().init(context.getCurrentActivity());
++
++		CallInvokerHolderImpl holder = null;
++
++		// Try Bridgeless mode first (new architecture)
++		try {
++			CallInvokerHolder callInvokerHolder = context.getJSCallInvokerHolder();
++			if (callInvokerHolder instanceof CallInvokerHolderImpl) {
++				holder = (CallInvokerHolderImpl) callInvokerHolder;
++			}
++		} catch (Exception e) {
++			// Bridgeless mode failed, try bridge mode
++		}
++
++		// Fallback to Bridge mode (old architecture)
++		if (holder == null) {
++			try {
++				holder = (CallInvokerHolderImpl) context.getCatalystInstance().getJSCallInvokerHolder();
++			} catch (Exception e) {
++				throw new RuntimeException("Failed to get CallInvokerHolder in both Bridgeless and Bridge modes", e);
++			}
++		}
++
++		// Initialize hybrid data
++		long jsContext = 0;
++		try {
++			if (context.getJavaScriptContextHolder() != null) {
++				jsContext = Objects.requireNonNull(context.getJavaScriptContextHolder()).get();
++			}
++		} catch (Exception e) {
++			jsContext = 0;
++		}
++
++		mHybridData = initHybrid(jsContext, holder);
+ 	}
+ 
+ 	private native HybridData initHybrid(long jsContext, CallInvokerHolderImpl jsCallInvokerHolder);
+diff --git a/android/src/main/java/com/rtngodot/RTNLibGodot.java b/android/src/main/java/com/rtngodot/RTNLibGodot.java
+index 934f5a544696a0ab65844686f7c9cdeae9521849..35ee71f25f8365241136423d74a9fdd2d62260a8 100644
+--- a/android/src/main/java/com/rtngodot/RTNLibGodot.java
++++ b/android/src/main/java/com/rtngodot/RTNLibGodot.java
+@@ -93,13 +93,25 @@ public class RTNLibGodot implements IGodotLib, GodotHost, GodotRenderView {
+ 	public boolean initialize(Godot godot, AssetManager assetManager, GodotIO godotIO, GodotNetUtils godotNetUtils, DirectoryAccessHandler directoryAccessHandler, FileAccessHandler fileAccessHandler, boolean b) {
+ 		ClassLoader loader = RTNLibGodot.class.getClassLoader();
+ 
++		// Ensure window surface exists before trying to use it
++		WindowSurfaceData wsData = windowData.get("");
++		if (wsData == null) {
++			Log.e(TAG, "Window surface not initialized. Ensure init() is called before initialize()");
++			return false;
++		}
++
++		if (wsData.surface == null) {
++			Log.e(TAG, "Window surface is null");
++			return false;
++		}
++
+ 		initialize(
+ 				assetManager,
+ 				godotNetUtils,
+ 				directoryAccessHandler,
+ 				fileAccessHandler,
+ 				godotIO,
+-				Objects.requireNonNull(windowData.get("")).surface,
++				wsData.surface,
+ 				surfaceSize,
+ 				surfaceSize,
+ 				godot,
+@@ -363,13 +375,14 @@ public class RTNLibGodot implements IGodotLib, GodotHost, GodotRenderView {
+ 	private static void createWindowSurface(String name, int width, int height, boolean persistent) {
+ 		SurfaceControl.Builder b = new SurfaceControl.Builder();
+ 		SurfaceControl control = b.setBufferSize(width, height)
+-										 .setFormat(PixelFormat.RGBA_8888)
+-										 .setName(name)
+-										 .build();
++				.setFormat(PixelFormat.RGBA_8888)
++				.setName(name)
++				.build();
+ 
+ 		WindowSurfaceData wsData = new WindowSurfaceData(control, width, height, persistent);
+ 
+ 		windowData.put(name, wsData);
++		Log.d(TAG, "Created window surface: " + name + " (" + width + "x" + height + ")");
+ 	}
+ 
+ 	@NonNull
+@@ -447,6 +460,7 @@ public class RTNLibGodot implements IGodotLib, GodotHost, GodotRenderView {
+ 
+ 	public void init(Activity activity) {
+ 		if (inited) {
++			Log.w(TAG, "Already initialized, skipping init()");
+ 			return;
+ 		}
+ 
+@@ -456,9 +470,15 @@ public class RTNLibGodot implements IGodotLib, GodotHost, GodotRenderView {
+ 			Log.e(TAG, "Activity not set, abort init");
+ 			return;
+ 		}
++
++		Log.d(TAG, "Initializing RTNLibGodot...");
++
+ 		DisplayMetrics metrics = new DisplayMetrics();
+ 		mActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+ 
++		surfaceSize = Math.min(metrics.widthPixels, metrics.heightPixels);
++		Log.d(TAG, "Surface size: " + surfaceSize + " (Display: " + metrics.widthPixels + "x" + metrics.heightPixels + ")");
++
+ 		createWindowSurface("", metrics.widthPixels, metrics.heightPixels, true);
+ 
+ 		GodotLib.setGodotLibImpl(RTNLibGodot.getInstance());
+@@ -473,26 +493,29 @@ public class RTNLibGodot implements IGodotLib, GodotHost, GodotRenderView {
+ 
+ 		if (!godot.initEngine(this, commands, runtimePlugins)) {
+ 			Log.e(TAG, "Unable to initialize Godot engine layer");
++			return;
+ 		}
+ 
+ 		mInputHandler = new GodotInputHandler(mActivity, godot);
+ 
+ 		inited = true;
++		Log.d(TAG, "RTNLibGodot initialized successfully");
+ 	}
+ 
+ 	public void shutdown() {
+ 		if (inited) {
++			Log.d(TAG, "Shutting down RTNLibGodot...");
+ 			cleanup();
+ 			inited = false;
+ 		}
+ 	}
+ 
+ 	private static native void initialize(AssetManager asset_manager,
+-			GodotNetUtils net_utils,
+-			DirectoryAccessHandler directoryAccessHandler,
+-			FileAccessHandler fileAccessHandler,
+-			GodotIO io, Surface mainSurface, int width, int height,
+-			Godot godot, Activity host_activity, ClassLoader appClassLoader);
++										  GodotNetUtils net_utils,
++										  DirectoryAccessHandler directoryAccessHandler,
++										  FileAccessHandler fileAccessHandler,
++										  GodotIO io, Surface mainSurface, int width, int height,
++										  Godot godot, Activity host_activity, ClassLoader appClassLoader);
+ 
+ 	private native void cleanup();
+ 

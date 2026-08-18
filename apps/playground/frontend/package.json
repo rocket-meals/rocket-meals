@@ -1,0 +1,55 @@
+{
+  "name": "playground",
+  "main": "expo-router/entry",
+  "version": "1.0.0",
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "lint": "expo lint",
+    "generate:icon": "node scripts/generate-app-icon.js",
+    "generate:eas": "ts-node --project ../scripts/tsconfig.json ../scripts/generate-eas-config.ts",
+    "download-prebuilt": "download-prebuilt",
+    "eas-build-post-install": "yarn download-prebuilt"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.26.0",
+    "@borndotcom/react-native-godot": "1.0.1",
+    "@expo/vector-icons": "^15.0.2",
+    "expo": "57.0.11",
+    "expo-build-properties": "~57.0.9",
+    "expo-constants": "~57.0.9",
+    "expo-dev-client": "~57.0.10",
+    "expo-file-system": "~57.0.2",
+    "expo-font": "~57.0.1",
+    "expo-linking": "~57.0.5",
+    "expo-router": "~57.0.11",
+    "expo-splash-screen": "~57.0.5",
+    "expo-status-bar": "~57.0.1",
+    "expo-system-ui": "~57.0.2",
+    "expo-updates": "~57.0.12",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.2",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-reanimated": "4.5.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-web": "^0.21.0",
+    "react-native-worklets": "0.10.1",
+    "react-native-worklets-core": "1.6.2",
+    "repo-depkit-common": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@types/node": "^24.9.1",
+    "@types/react": "~19.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "private": true
+}

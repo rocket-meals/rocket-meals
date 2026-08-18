@@ -5,6 +5,7 @@
   "scripts": {
     "frontend": "yarn app-frontend-start",
     "geonexia": "yarn workspace geonexia start",
+    "playground": "yarn workspace playground start",
     "app-frontend-start": "yarn && yarn workspace rocket-meals-dev start",
     "app-frontend-gh-pages-deploy": "yarn && yarn workspace rocket-meals-dev deploy:gh:pages",
     "sync:pull-from-test-system": "yarn && yarn workspace backend-sync sync:pull-from-test-system",
@@ -32,12 +33,16 @@
     "apps/geonexia/frontend",
     "apps/score-tracker/frontend",
     "apps/tag-und-jahr/frontend",
+    "apps/playground/frontend",
     "apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle",
     "apps/scripts",
     "apps/*",
     "packages/*"
   ],
   "packageManager": "yarn@4.9.4",
+  "resolutions": {
+    "@borndotcom/react-native-godot@npm:1.0.1": "patch:@borndotcom/react-native-godot@npm%3A1.0.1#./apps/playground/frontend/patches/@borndotcom__react-native-godot.patch"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.42.0",
     "@typescript-eslint/parser": "^8.42.0",

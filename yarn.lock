@@ -2394,6 +2394,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@borndotcom/react-native-godot@npm:1.0.1":
+  version: 1.0.1
+  resolution: "@borndotcom/react-native-godot@npm:1.0.1"
+  dependencies:
+    react-native-worklets-core: "npm:1.6.2"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-worklets-core: "*"
+  bin:
+    download-prebuilt: scripts/download-prebuilt.js
+  checksum: 10c0/9c2ac6d0558e2e5d78d12787ea33e7ce60352da78138273a7a74d40d076a8993c2ba46c1be2ad6af5463839f3e84eb72df32cf1dbbb556e6985166e49f87dbf6
+  languageName: node
+  linkType: hard
+
+"@borndotcom/react-native-godot@patch:@borndotcom/react-native-godot@npm%3A1.0.1#./apps/playground/frontend/patches/@borndotcom__react-native-godot.patch::locator=monorepo%40workspace%3A.":
+  version: 1.0.1
+  resolution: "@borndotcom/react-native-godot@patch:@borndotcom/react-native-godot@npm%3A1.0.1#./apps/playground/frontend/patches/@borndotcom__react-native-godot.patch::version=1.0.1&hash=03d49f&locator=monorepo%40workspace%3A."
+  dependencies:
+    react-native-worklets-core: "npm:1.6.2"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-worklets-core: "*"
+  bin:
+    download-prebuilt: scripts/download-prebuilt.js
+  checksum: 10c0/5d3fb7f4a111ce05c6c16412be61864a33ed70503118796d4fe44e0c42b620170caa775996e59b9e9a7bf7d2e958be0cf900a78530361d64f0e216441bc8a4b1
+  languageName: node
+  linkType: hard
+
 "@cspotcode/source-map-support@npm:^0.8.0":
   version: 0.8.1
   resolution: "@cspotcode/source-map-support@npm:0.8.1"
@@ -22621,6 +22651,44 @@ __metadata:
   languageName: node
   linkType: hard
 
+"playground@workspace:apps/playground/frontend":
+  version: 0.0.0-use.local
+  resolution: "playground@workspace:apps/playground/frontend"
+  dependencies:
+    "@babel/core": "npm:^7.25.2"
+    "@babel/runtime": "npm:^7.26.0"
+    "@borndotcom/react-native-godot": "npm:1.0.1"
+    "@expo/vector-icons": "npm:^15.0.2"
+    "@types/node": "npm:^24.9.1"
+    "@types/react": "npm:~19.2.0"
+    expo: "npm:57.0.11"
+    expo-build-properties: "npm:~57.0.9"
+    expo-constants: "npm:~57.0.9"
+    expo-dev-client: "npm:~57.0.10"
+    expo-file-system: "npm:~57.0.2"
+    expo-font: "npm:~57.0.1"
+    expo-linking: "npm:~57.0.5"
+    expo-router: "npm:~57.0.11"
+    expo-splash-screen: "npm:~57.0.5"
+    expo-status-bar: "npm:~57.0.1"
+    expo-system-ui: "npm:~57.0.2"
+    expo-updates: "npm:~57.0.12"
+    react: "npm:19.2.3"
+    react-dom: "npm:19.2.3"
+    react-native: "npm:0.86.2"
+    react-native-gesture-handler: "npm:~2.32.0"
+    react-native-reanimated: "npm:4.5.1"
+    react-native-safe-area-context: "npm:~5.7.0"
+    react-native-screens: "npm:~4.26.0"
+    react-native-web: "npm:^0.21.0"
+    react-native-worklets: "npm:0.10.1"
+    react-native-worklets-core: "npm:1.6.2"
+    repo-depkit-common: "workspace:*"
+    ts-node: "npm:^10.9.2"
+    typescript: "npm:^5.9.3"
+  languageName: unknown
+  linkType: soft
+
 "playwright-core@npm:1.59.1":
   version: 1.59.1
   resolution: "playwright-core@npm:1.59.1"
@@ -24173,6 +24241,18 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10c0/8fdf14447bc430100d78030b8fdb60df223bd51cdb25c06d58757962fea8ad0cd9cdb13a7aa40ff795c671d2b04a561cbeb2b5795d95780d7f0d3734573ebeeb
+  languageName: node
+  linkType: hard
+
+"react-native-worklets-core@npm:1.6.2":
+  version: 1.6.2
+  resolution: "react-native-worklets-core@npm:1.6.2"
+  dependencies:
+    string-hash-64: "npm:^1.0.3"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/c10a6edb0b8c8f7f9573ac24e0808dc01bfc90581d0b0aa6d264457ef7805f54358226b5afe4ce67ac9fa00c861ec65d1ebfd9657f97197068f10240758b1175
   languageName: node
   linkType: hard
 
@@ -26586,6 +26666,13 @@ __metadata:
   version: 2.0.0
   resolution: "strict-uri-encode@npm:2.0.0"
   checksum: 10c0/010cbc78da0e2cf833b0f5dc769e21ae74cdc5d5f5bd555f14a4a4876c8ad2c85ab8b5bdf9a722dc71a11dcd3184085e1c3c0bd50ec6bb85fffc0f28cf82597d
+  languageName: node
+  linkType: hard
+
+"string-hash-64@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "string-hash-64@npm:1.0.3"
+  checksum: 10c0/ac175f71b383af1487ab16b4cc1b42b5302bea08bdf1cc1ea04bacb293fb9b35afc6c58260e1fc728627e7265519da01976822a188d493d7e7625b9628173ea3
   languageName: node
   linkType: hard
 

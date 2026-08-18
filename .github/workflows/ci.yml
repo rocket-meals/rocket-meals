@@ -706,6 +706,92 @@ jobs:
           paths: README.md
           description: "update Tag und Jahr Android preview APK link in README"
 
+  playground-check-build:
+    name: "🔍 Playground Check iOS Build Number (online)"
+    runs-on: ubuntu-latest
+    needs: check-repository
+    if: ${{ needs.check-repository.outputs.is-upstream == 'true' }}
+    outputs:
+      should-build: ${{ steps.check.outputs.should-build }}
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: "🔍 Compare Playground iOS Build Number against EAS"
+        id: check
+        uses: ./.github/actions/check-build-number-online
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          working-directory: ./apps/playground/frontend
+          platform: ios
+
+  # The playground is a development-only app: this job stays red until it has
+  # been created once in App Store Connect and its Apple-ID is stored in
+  # apps/playground/frontend/config.ts (appleAppId) - see apps/playground/README.md.
+  # The LibGodot prebuilts are fetched on the EAS worker by the
+  # eas-build-post-install hook in apps/playground/frontend/package.json.
+  playground-build-ios:
+    name: "📦 Playground Build & 🚀 Submit iOS App"
+    runs-on: ubuntu-latest
+    needs: [playground-check-build, check-repository]
+    if: needs.playground-check-build.outputs.should-build == 'true' && needs.check-repository.outputs.is-upstream == 'true'
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          ref: master
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT: ${{ secrets.EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT }}
+      # eas build --non-interactive cannot bootstrap credentials for a new app
+      # ("Credentials are not set up. Run this command again in interactive
+      # mode.") - this creates/validates them headless first, using the ASC API
+      # key exported by setup-and-install (prepare-asc-api-key).
+      - name: "🔐 Ensure Playground iOS build credentials"
+        uses: ./.github/actions/eas-ios-build-credentials
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          working-directory: ./apps/playground/frontend
+      # --auto-submit cannot link an App Store Connect API key to a new app in
+      # non-interactive mode ("App Store Connect API Keys cannot be set up in
+      # --non-interactive mode"). The submit profile therefore references the
+      # key locally (ascApiKeyPath/-Id/-IssuerId in eas.json); this step places
+      # the .p8 written by prepare-asc-api-key at that path. The file is
+      # gitignored (*.p8).
+      - name: "🔑 Provide ASC API key for auto-submit"
+        run: cp "$EXPO_ASC_API_KEY_PATH" ./apps/playground/frontend/asc-api-key.p8
+      - name: "🛠️ Build and Submit Playground iOS App"
+        run: eas build --platform ios --non-interactive --auto-submit
+        working-directory: ./apps/playground/frontend
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+  playground-expo-update:
+    name: "🕹️ Playground EAS Update (OTA)"
+    runs-on: ubuntu-latest
+    needs: [check-repository]
+    if: ${{ needs.check-repository.outputs.is-upstream == 'true' }}
+    permissions:
+      contents: write
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - name: "🚀 Publish Playground OTA update"
+        uses: ./.github/actions/playground-expo-update
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ref_name: ${{ github.ref_name }}
+
   deploy-gh-pages:
     name: "🌍 Deploy to GitHub Pages"
     runs-on: ubuntu-latest
@@ -748,6 +834,7 @@ jobs:
       - geonexia-expo-update
       - score-tracker-expo-update
       - tag-und-jahr-expo-update
+      - playground-expo-update
       - build-android-preview
       - geonexia-build-android-preview
       - score-tracker-build-android-preview
