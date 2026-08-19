@@ -28,7 +28,8 @@ export function getVersionPatch() {
 	// 1: initial version - Godot view with touch controls.
 	// 2: appstore:create-app script fills in the App Store Connect Apple-ID.
 	// 3: CI job backfills the Apple-ID automatically (appstore-app-id action).
-	return 3;
+	// 4: App Store Connect Apple-ID of the created app.
+	return 4;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates
@@ -57,9 +58,13 @@ export const playgroundConfig: CustomerConfig = {
 	// User-facing brand name - matches `name` in app.config.ts (home screen) so
 	// the device and the in-app branding say the same.
 	projectName: 'Playground',
-	// No App Store Connect Apple-ID yet: the playground is a development-only
-	// app. Fill this in once it is created in App Store Connect, then re-run
-	// `yarn workspace playground generate:eas`.
+	// App Store Connect Apple-ID (App-Informationen -> Apple-ID), required for
+	// non-interactive `eas submit`. Written by
+	// `yarn appstore:create-app apps/playground/frontend` and kept up to date by
+	// the playground-appstore-app-id CI job - never edited by hand.
+	// The App Store listing is called "Playground Baumgartner" (store names are
+	// globally unique); the shorter projectName above stays the home screen name.
+	appleAppId: '6802999436',
 	images: {
 		company_logo_source_get_for_react_native: () => require('./assets/icons/app_icon_source.png'),
 	},

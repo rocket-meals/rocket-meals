@@ -40,6 +40,7 @@
       },
       "ios": {
         "appleId": "nils@baumgartner-software.de",
+        "ascAppId": "6802999436",
         "appleTeamId": "6U99CRVHVR",
         "ascApiKeyPath": "./asc-api-key.p8",
         "ascApiKeyId": "39JT9543R7",
