@@ -95,6 +95,29 @@ jobs:
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
+      # Without this every eas command here fails with "EAS project not
+      # configured. This command cannot configure it in non-interactive mode."
+      # ci.yml initializes the project in the <app>-expo-update job, but ci.yml
+      # only runs on pushes to master - a brand-new app is therefore unbuildable
+      # from a pull request until the project exists. The action is idempotent:
+      # with a projectId in app.config.ts it does nothing.
+      - name: "🔧 Initialize EAS project if not configured"
+        uses: ./.github/actions/eas-init-project
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          working-directory: ./apps/playground/frontend
+
+      # On master the freshly written projectId belongs in the repository, so
+      # later runs skip the init above. Pull request runs only need it in the
+      # working tree of this job.
+      - name: "💾 Stage EAS project config"
+        if: github.event_name == 'push'
+        uses: ./.github/actions/stage-changes
+        with:
+          name: eas-init-playground-dev-client
+          paths: apps/playground/frontend/app.config.ts
+          description: "add the EAS project id of playground"
+
       - name: "🤖 Build Android Dev Client"
         run: eas build --platform android --profile development --non-interactive --json > eas-build-dev-android.json
         working-directory: ./apps/playground/frontend

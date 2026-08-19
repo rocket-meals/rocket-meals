@@ -72,6 +72,8 @@ Wie in den anderen Apps:
 
 Beim ersten Lauf legt `playground-expo-update` das EAS-Projekt an (`eas init`) und schreibt Projekt-ID und `updates`-Block in `app.config.ts` zurück.
 
+**Wichtig für ganz neue Apps:** `ci.yml` läuft nur bei Pushes auf `master`, nicht auf Pull-Request-Branches. Solange das EAS-Projekt noch nicht existiert, scheitert dort jedes `eas`-Kommando mit „EAS project not configured. This command cannot configure it in non-interactive mode." – deshalb macht [`playground-dev-client.yml`](../../.github/workflows/playground-dev-client.yml) den `eas init`-Schritt selbst, bevor es baut (idempotent, sobald die Projekt-ID in `app.config.ts` steht).
+
 Der iOS-Build-Job bleibt so lange rot, bis die App in App Store Connect existiert und ihre Apple-ID in [`frontend/config.ts`](frontend/config.ts) (`appleAppId`) steht. Beides erledigt ein Skript:
 
 ```bash

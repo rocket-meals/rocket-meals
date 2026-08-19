@@ -11,7 +11,9 @@ export type CustomerConfig = CustomerConfigBase<ImageSourcePropType>;
 // The build number is used to determine if a new build is required.
 export function getBuildNumber() {
 	// 1: first build - Expo + React Native Godot experiment.
-	return 1;
+	// 2: retrigger after the first CI run could not build (EAS project was not
+	//    initialized yet, see .github/workflows/playground-dev-client.yml).
+	return 2;
 }
 
 // DO NOT CHANGE THE NAME OF THIS FUNCTION: getMajorVersion
@@ -29,7 +31,8 @@ export function getVersionPatch() {
 	// 2: appstore:create-app script fills in the App Store Connect Apple-ID.
 	// 3: CI job backfills the Apple-ID automatically (appstore-app-id action).
 	// 4: App Store Connect Apple-ID of the created app.
-	return 4;
+	// 5: dev client workflow initializes the EAS project itself.
+	return 5;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

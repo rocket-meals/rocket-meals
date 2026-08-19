@@ -69,6 +69,11 @@ Bei React-Dateien sollen **Styles, Export und Logik in derselben Datei** bleiben
   3. A `<app>-expo-update` job for OTA updates.
 - **Whenever any native change is made to an existing app** (not just plugin changes), increment `getBuildNumber()` in that app's `config.ts` by at least 1 to trigger a new native build in CI.
 
+## New Expo apps: EAS project initialization
+
+- `.github/workflows/ci.yml` only runs on pushes to `main`/`master`/`dev`. A brand-new app whose `app.config.ts` has no `extra.eas.projectId` therefore has **no** EAS project while its pull request is open, and every `eas` command in a PR workflow fails with "EAS project not configured. This command cannot configure it in non-interactive mode."
+- Any workflow that runs `eas` on pull requests (e.g. `<app>-dev-client.yml`) must therefore run `./.github/actions/eas-init-project` for that app before the first `eas` command. The action is idempotent - once the projectId is in `app.config.ts` it does nothing.
+
 ## New Expo apps: EAS config generation
 
 - **Every new Expo app must have a `generate-eas-config.ts` script** set up under `apps/<app>/scripts/generate-eas-config.ts`, following the pattern of existing apps (e.g. `apps/score-tracker/scripts/generate-eas-config.ts`).
