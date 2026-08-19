@@ -150,12 +150,22 @@ yarn appstore:create-app apps/playground/frontend --lookup-only
 
 Das Skript ([`scripts/appstore-create-app.js`](scripts/appstore-create-app.js)) liest Name und Bundle-ID aus der Expo-Config der App, registriert die Bundle-ID falls nötig, legt die App an, schreibt die Apple-ID in die `config.ts` der App und ruft anschließend deren `generate:eas` auf, damit `eas.json` passt.
 
+**„Bei eas ging das doch von allein?"** Ja – und genau deshalb funktioniert dieses Skript dort auch ohne Eingaben. `@expo/apple-utils` (die Bibliothek hinter eas-cli und hinter diesem Skript) legt die Apple-ID in `~/.app-store/auth/username.json`, das Passwort im System-Keychain und die Session-Cookies daneben ab. Wer auf seinem Rechner schon einmal mit eas eingeloggt war, hat diesen Cache – `eas submit` legt die App dann scheinbar aus dem Nichts an, benutzt in Wahrheit aber die gespeicherte Apple-ID-Session. Das Skript liest denselben Cache: ohne `EXPO_APPLE_ID` nimmt es die dort hinterlegte Apple-ID und läuft ohne Prompt durch. Auf einem frischen Rechner (und in der CI) gibt es diesen Cache nicht – dort ist der Login einmal fällig.
+
 **Warum ein Apple-ID-Login und nicht der API-Key?** Apples öffentliche App-Store-Connect-API kann Apps nicht anlegen („Don't use this API to create new apps") – `eas submit` benutzt dafür intern die private iris-API mit einer Apple-ID-Session. Das Skript macht dasselbe über `@expo/apple-utils`:
 
 - **Anlegen** braucht eine Apple-ID-Session: `EXPO_APPLE_ID` (+ Passwort aus `EXPO_APPLE_PASSWORD`, Keychain oder Eingabe) und den 2FA-Code. Die Session wird gecacht, der nächste Lauf kommt meist ohne 2FA aus; alternativ `FASTLANE_SESSION`.
 - **Nachschlagen** geht auch mit dem API-Key (`EXPO_ASC_API_KEY_PATH`, `EXPO_ASC_KEY_ID`, `EXPO_ASC_ISSUER_ID`) – deshalb funktioniert es prinzipiell auch in der CI, sobald die App einmal existiert.
 
 App-Store-Namen sind global eindeutig. Ist der Name vergeben, hängt das Skript – wie eas-cli – ein kurzes Suffix an; mit `--name "Anderer Name"` lässt sich das steuern, umbenennen geht später jederzeit in App Store Connect.
+
+### Was die CI davon automatisch macht
+
+Das **Anlegen** des App-Datensatzes ist der einzige Schritt, der zwingend einen Apple-ID-Login braucht – das ist eine Grenze von Apple, nicht des Tooolings: fastlane schreibt für `produce` ausdrücklich „it's not possible to use the App Store Connect API to create new apps", `eas submit` benutzt dafür dieselbe private API mit Session-Cookies.
+
+Alles danach läuft ohne Handarbeit: Der CI-Job `playground-appstore-app-id` (Action [`appstore-app-id`](.github/actions/appstore-app-id), generisch für jede App) fragt bei jedem Push mit dem App-Store-Connect-API-Key nach der Apple-ID der App und committet sie in `config.ts` und `eas.json`, sobald die App existiert. Solange es sie noch nicht gibt, meldet der Job das und wird grün.
+
+Praktisch heißt das: **einmal** `yarn appstore:create-app …` laufen lassen (oder die App in App Store Connect anklicken) – den Rest trägt die CI selbst nach. Wer auch diesen einen Schritt in der CI haben will, kann eine Apple-Session per `fastlane spaceauth -u <apple-id>` erzeugen und als Secret `FASTLANE_SESSION` hinterlegen; die hält allerdings nur rund 30 Tage und muss dann erneuert werden.
 
 ## 🛡️ Umgang mit SonarCloud-Findings
 

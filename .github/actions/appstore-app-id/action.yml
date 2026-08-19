@@ -1,0 +1,50 @@
+name: "App Store Connect Apple-ID"
+description: >-
+  Fills the numeric App Store Connect Apple-ID of an Expo app into its config.ts
+  (appleAppId) and the generated eas.json (submit.production.ios.ascAppId) and
+  stages the change, so nobody has to copy it out of App Store Connect by hand.
+
+  Read-only by design: it runs scripts/appstore-create-app.js with
+  --allow-missing, which uses the App Store Connect API key exported by
+  prepare-asc-api-key. That key can look an app up but cannot create one - Apple
+  has no public endpoint for creating apps ("Don't use this API to create new
+  apps"), which is why fastlane's produce and eas submit both need an Apple-ID
+  login for that one step. So while the app does not exist yet this action just
+  says so and succeeds; the moment it exists (created once via
+  `yarn appstore:create-app <dir>` or in the App Store Connect UI) the Apple-ID
+  lands in the repository automatically.
+
+inputs:
+  working-directory:
+    required: true
+    description: Verzeichnis der Expo-App relativ zum Repo-Root (z.B. ./apps/playground/frontend)
+  app-key:
+    required: true
+    description: Kurzer Slug der App für den Namen des Staging-Artefakts (z.B. playground)
+
+runs:
+  using: "composite"
+  steps:
+    - name: "🍎 Look up the App Store Connect Apple-ID"
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        # The EXPO_ASC_* variables come from prepare-asc-api-key (part of
+        # setup-and-install when the ASC key content is passed).
+        if [ -z "${EXPO_ASC_API_KEY_PATH:-}" ] || [ -z "${EXPO_ASC_KEY_ID:-}" ] || [ -z "${EXPO_ASC_ISSUER_ID:-}" ]; then
+          echo "⚠️ No App Store Connect API key in this job, skipping the Apple-ID lookup."
+          echo "   Pass EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT to setup-and-install to enable it."
+          exit 0
+        fi
+
+        node scripts/appstore-create-app.js "${{ inputs.working-directory }}" --allow-missing
+
+    - name: "💾 Stage Apple-ID changes"
+      uses: ./.github/actions/stage-changes
+      with:
+        name: appstore-app-id-${{ inputs.app-key }}
+        paths: |
+          ${{ inputs.working-directory }}/config.ts
+          ${{ inputs.working-directory }}/eas.json
+        description: "fill in the App Store Connect Apple-ID of ${{ inputs.app-key }}"

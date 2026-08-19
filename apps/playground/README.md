@@ -78,6 +78,8 @@ Der iOS-Build-Job bleibt so lange rot, bis die App in App Store Connect existier
 EXPO_APPLE_ID=nils@baumgartner-software.de yarn appstore:create-app apps/playground/frontend
 ```
 
+Der Job `playground-appstore-app-id` trägt die Apple-ID danach von selbst nach (er fragt sie mit dem App-Store-Connect-API-Key ab und committet `config.ts`/`eas.json`) – das Skript ist also nur für das einmalige Anlegen nötig, weil Apples öffentliche API keine Apps erzeugen kann.
+
 Details siehe [App-Store-Connect-App anlegen](../../README.md#app-store-connect-app-anlegen) – kurz: Das Skript legt Bundle-ID und App an (oder findet eine bestehende), schreibt die Apple-ID in `config.ts` und erzeugt `eas.json` neu. `eas.json` wird **nie** von Hand bearbeitet, es entsteht ausschließlich aus [`frontend/eas.template.json`](frontend/eas.template.json).
 
 ## Spiel-Assets & Credits

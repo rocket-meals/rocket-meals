@@ -27,6 +27,7 @@
 //   yarn appstore:create-app apps/playground/frontend
 //   yarn appstore:create-app apps/playground/frontend --name "My Playground"
 //   yarn appstore:create-app apps/playground/frontend --lookup-only
+//   yarn appstore:create-app apps/playground/frontend --lookup-only --allow-missing
 //
 // Options:
 //   --name <name>      App Store name (default: `name` from the Expo config).
@@ -36,7 +37,21 @@
 //   --sku <sku>        Internal SKU (default: the bundle identifier).
 //   --language <code>  Primary locale (default: en-US).
 //   --lookup-only      Never create anything, only read the Apple-ID.
-//   --apple-id <email> Apple-ID to log in with (default: EXPO_APPLE_ID).
+//   --allow-missing    Exit 0 instead of failing when the app does not exist
+//                      yet. Implies --lookup-only and makes the run read-only,
+//                      which is what the CI backfill uses: with the API key
+//                      alone it cannot create the app, but as soon as the app
+//                      exists it fills the Apple-ID in without anyone asking.
+//   --apple-id <email> Apple-ID to log in with (default: EXPO_APPLE_ID, or the
+//                      Apple-ID cached by eas-cli/@expo/apple-utils in
+//                      ~/.app-store/auth/username.json).
+//
+// Note on "it just works": @expo/apple-utils caches the Apple-ID in
+// ~/.app-store/auth/username.json, the password in the system keychain and the
+// session cookies next to it - the very same cache eas-cli fills. On a machine
+// that has ever logged in with eas, this script therefore runs through without
+// asking anything, which is why `eas submit` can look like it creates the app
+// out of thin air. It does not: it uses that stored Apple-ID session.
 //
 // Env:
 //   EXPO_APPLE_ID, EXPO_APPLE_PASSWORD   Apple-ID login (mode 1)
@@ -56,12 +71,23 @@ function fail(message) {
 }
 
 function parseArguments(argv) {
-	const options = { projectDir: null, name: null, sku: null, language: 'en-US', lookupOnly: false, appleId: null };
+	const options = {
+		projectDir: null,
+		name: null,
+		sku: null,
+		language: 'en-US',
+		lookupOnly: false,
+		allowMissing: false,
+		appleId: null,
+	};
 	const flags = { '--name': 'name', '--sku': 'sku', '--language': 'language', '--apple-id': 'appleId' };
 
 	for (let i = 0; i < argv.length; i++) {
 		const argument = argv[i];
 		if (argument === '--lookup-only') {
+			options.lookupOnly = true;
+		} else if (argument === '--allow-missing') {
+			options.allowMissing = true;
 			options.lookupOnly = true;
 		} else if (flags[argument]) {
 			const value = argv[++i];
@@ -109,6 +135,32 @@ function readSharedAppleConstants() {
 	} catch {
 		return {};
 	}
+}
+
+/**
+ * The Apple-ID to use: explicit flag, environment, or the one eas-cli and this
+ * script share through @expo/apple-utils' cache. Reading the cache is what
+ * makes a repeat run (and a machine that already used eas) prompt-free.
+ */
+function resolveAppleId(explicitAppleId) {
+	if (explicitAppleId) {
+		return { appleId: explicitAppleId, source: 'argument' };
+	}
+	if (process.env.EXPO_APPLE_ID) {
+		return { appleId: process.env.EXPO_APPLE_ID, source: 'EXPO_APPLE_ID' };
+	}
+
+	try {
+		const cachePath = path.join(require('node:os').homedir(), '.app-store', 'auth', 'username.json');
+		const cached = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+		if (typeof cached?.username === 'string' && cached.username) {
+			return { appleId: cached.username, source: 'cached eas/apple-utils login' };
+		}
+	} catch {
+		// No cached login - fall through to the API key / error path.
+	}
+
+	return { appleId: null, source: null };
 }
 
 function requireAppleUtils() {
@@ -239,7 +291,10 @@ async function main() {
 	const appName = options.name ?? name;
 	const constants = readSharedAppleConstants();
 	const teamId = process.env.EXPO_APPLE_TEAM_ID ?? constants.EXPO_APPLE_TEAM_ID;
-	const appleId = options.appleId ?? process.env.EXPO_APPLE_ID ?? null;
+	const { appleId, source: appleIdSource } = resolveAppleId(options.appleId);
+	if (appleId) {
+		console.log(`🍎 Apple-ID: ${appleId} (${appleIdSource})`);
+	}
 
 	console.log(`📱 App:    ${appName}`);
 	console.log(`📦 Bundle: ${bundleIdentifier}`);
@@ -250,6 +305,13 @@ async function main() {
 	let app = await App.findAsync(context, { bundleId: bundleIdentifier });
 
 	if (!app) {
+		if (options.allowMissing) {
+			console.log(
+				`ℹ️  No App Store Connect app for "${bundleIdentifier}" yet - nothing to fill in.\n` +
+					'   Create it once (see the repository README), afterwards this step picks the Apple-ID up on its own.'
+			);
+			return;
+		}
 		if (options.lookupOnly) {
 			fail(
 				`No App Store Connect app for "${bundleIdentifier}".\n` +

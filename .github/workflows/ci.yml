@@ -792,6 +792,36 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ref_name: ${{ github.ref_name }}
 
+  # Apple's public App Store Connect API cannot CREATE an app ("Don't use this
+  # API to create new apps") - that one step needs an Apple-ID login, see
+  # `yarn appstore:create-app` and the repository README. Everything after it is
+  # automated here: with the API key alone this job reads the Apple-ID of the
+  # app as soon as it exists and commits it into config.ts/eas.json, so the iOS
+  # build/submit job stops needing a manual copy&paste. While the app does not
+  # exist yet the job succeeds and says so.
+  playground-appstore-app-id:
+    name: "🍎 Playground App Store Connect Apple-ID"
+    runs-on: ubuntu-latest
+    needs: [check-repository]
+    if: ${{ needs.check-repository.outputs.is-upstream == 'true' }}
+    permissions:
+      contents: write
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT: ${{ secrets.EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT }}
+      - name: "🍎 Fill in the App Store Connect Apple-ID"
+        uses: ./.github/actions/appstore-app-id
+        with:
+          working-directory: ./apps/playground/frontend
+          app-key: playground
+
   deploy-gh-pages:
     name: "🌍 Deploy to GitHub Pages"
     runs-on: ubuntu-latest
@@ -835,6 +865,7 @@ jobs:
       - score-tracker-expo-update
       - tag-und-jahr-expo-update
       - playground-expo-update
+      - playground-appstore-app-id
       - build-android-preview
       - geonexia-build-android-preview
       - score-tracker-build-android-preview

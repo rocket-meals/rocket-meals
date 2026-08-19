@@ -27,7 +27,8 @@ export function getVersionPatch() {
 	// Never decrease the visible patch version.
 	// 1: initial version - Godot view with touch controls.
 	// 2: appstore:create-app script fills in the App Store Connect Apple-ID.
-	return 2;
+	// 3: CI job backfills the Apple-ID automatically (appstore-app-id action).
+	return 3;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates
