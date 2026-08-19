@@ -83,6 +83,12 @@ Bei React-Dateien sollen **Styles, Export und Logik in derselben Datei** bleiben
   ```
 - **Never edit `eas.json` manually** — always update `eas.template.json` and re-run the script.
 
+## New Expo apps: App Store Connect app + Apple-ID
+
+- The numeric Apple-ID of an app (`appleAppId` in the app's `config.ts`, injected as `submit.production.ios.ascAppId` into `eas.json`) is **not** filled in by hand: run `yarn appstore:create-app apps/<app>/frontend`.
+- The script (`scripts/appstore-create-app.js`) reads name and bundle identifier from the app's Expo config, registers the bundle id, creates the App Store Connect app, writes `appleAppId` into `config.ts` and re-runs the app's `generate:eas`.
+- **Creating** an app requires an Apple-ID session (`EXPO_APPLE_ID`, 2FA prompt or `FASTLANE_SESSION`): Apple's public App Store Connect API has no endpoint for creating apps, which is why `eas submit` uses the private iris API for exactly this step. With only the App Store Connect API key (`EXPO_ASC_*`) the script can look an existing app's Apple-ID up (`--lookup-only`), not create one.
+
 ## Geonexia: Dialogs and alerts
 
 - **Never use React Native's `Alert` in Geonexia.** Use `useMyScrollviewModal` instead for all user-facing dialogs, confirmations, and notifications.

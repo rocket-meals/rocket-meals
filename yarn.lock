@@ -3865,6 +3865,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@expo/apple-utils@npm:^2.1.22":
+  version: 2.1.22
+  resolution: "@expo/apple-utils@npm:2.1.22"
+  bin:
+    apple-utils: bin.js
+  checksum: 10c0/19a5d21f80cde11e7502d7380b17bb4634568dcd243eb72ce741277dd71aab2b20168e44060143b10bfa01f0b03a6b8a2628b3cf3e5d697b12cf7f78a16d469a
+  languageName: node
+  linkType: hard
+
 "@expo/cli@npm:^57.0.13":
   version: 57.0.13
   resolution: "@expo/cli@npm:57.0.13"
@@ -20959,6 +20968,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "monorepo@workspace:."
   dependencies:
+    "@expo/apple-utils": "npm:^2.1.22"
     "@typescript-eslint/eslint-plugin": "npm:^8.42.0"
     "@typescript-eslint/parser": "npm:^8.42.0"
     eslint: "npm:^8.57.0"

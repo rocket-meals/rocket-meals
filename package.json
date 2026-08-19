@@ -6,6 +6,7 @@
     "frontend": "yarn app-frontend-start",
     "geonexia": "yarn workspace geonexia start",
     "playground": "yarn workspace playground start",
+    "appstore:create-app": "node scripts/appstore-create-app.js",
     "app-frontend-start": "yarn && yarn workspace rocket-meals-dev start",
     "app-frontend-gh-pages-deploy": "yarn && yarn workspace rocket-meals-dev deploy:gh:pages",
     "sync:pull-from-test-system": "yarn && yarn workspace backend-sync sync:pull-from-test-system",
@@ -44,6 +45,7 @@
     "@borndotcom/react-native-godot@npm:1.0.1": "patch:@borndotcom/react-native-godot@npm%3A1.0.1#./apps/playground/frontend/patches/@borndotcom__react-native-godot.patch"
   },
   "devDependencies": {
+    "@expo/apple-utils": "^2.1.22",
     "@typescript-eslint/eslint-plugin": "^8.42.0",
     "@typescript-eslint/parser": "^8.42.0",
     "eslint": "^8.57.0",

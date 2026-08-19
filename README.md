@@ -136,6 +136,27 @@ Die App-Version setzt sich aus `Major.BuildNumber.Patch` zusammen (siehe `getMaj
 
 Bei nativen Änderungen (z.&nbsp;B. Expo-Plugins) muss zusätzlich die Build-Nummer (`getBuildNumber()`) erhöht werden — Details dazu in der `AGENTS.md`.
 
+## 🍎 App-Store-Connect-App anlegen
+
+Eine neue App braucht genau einen Eintrag, den bisher niemand automatisiert hat: den App-Datensatz in App Store Connect und dessen numerische **Apple-ID**, die `eas submit` non-interaktiv braucht (`appleAppId` in der `config.ts` der App → `ascAppId` in der generierten `eas.json`). Dafür gibt es:
+
+```bash
+# App anlegen (oder eine bestehende finden) und die Apple-ID eintragen
+EXPO_APPLE_ID=nils@baumgartner-software.de yarn appstore:create-app apps/playground/frontend
+
+# nur nachschlagen, nichts anlegen (z.B. mit App-Store-Connect-API-Key)
+yarn appstore:create-app apps/playground/frontend --lookup-only
+```
+
+Das Skript ([`scripts/appstore-create-app.js`](scripts/appstore-create-app.js)) liest Name und Bundle-ID aus der Expo-Config der App, registriert die Bundle-ID falls nötig, legt die App an, schreibt die Apple-ID in die `config.ts` der App und ruft anschließend deren `generate:eas` auf, damit `eas.json` passt.
+
+**Warum ein Apple-ID-Login und nicht der API-Key?** Apples öffentliche App-Store-Connect-API kann Apps nicht anlegen („Don't use this API to create new apps") – `eas submit` benutzt dafür intern die private iris-API mit einer Apple-ID-Session. Das Skript macht dasselbe über `@expo/apple-utils`:
+
+- **Anlegen** braucht eine Apple-ID-Session: `EXPO_APPLE_ID` (+ Passwort aus `EXPO_APPLE_PASSWORD`, Keychain oder Eingabe) und den 2FA-Code. Die Session wird gecacht, der nächste Lauf kommt meist ohne 2FA aus; alternativ `FASTLANE_SESSION`.
+- **Nachschlagen** geht auch mit dem API-Key (`EXPO_ASC_API_KEY_PATH`, `EXPO_ASC_KEY_ID`, `EXPO_ASC_ISSUER_ID`) – deshalb funktioniert es prinzipiell auch in der CI, sobald die App einmal existiert.
+
+App-Store-Namen sind global eindeutig. Ist der Name vergeben, hängt das Skript – wie eas-cli – ein kurzes Suffix an; mit `--name "Anderer Name"` lässt sich das steuern, umbenennen geht später jederzeit in App Store Connect.
+
 ## 🛡️ Umgang mit SonarCloud-Findings
 
 Die SonarCloud-Reports liegen unter `reports/sonarCloud/` (`report_security.csv`, `report_reliability.csv`,

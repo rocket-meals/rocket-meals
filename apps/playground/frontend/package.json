@@ -13,6 +13,7 @@
     "lint": "expo lint",
     "generate:icon": "node scripts/generate-app-icon.js",
     "generate:eas": "ts-node --project ../scripts/tsconfig.json ../scripts/generate-eas-config.ts",
+    "appstore:create-app": "node ../../../scripts/appstore-create-app.js apps/playground/frontend",
     "download-prebuilt": "download-prebuilt",
     "eas-build-post-install": "yarn download-prebuilt"
   },

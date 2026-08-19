@@ -26,7 +26,8 @@ export function getMajorVersion() {
 export function getVersionPatch() {
 	// Never decrease the visible patch version.
 	// 1: initial version - Godot view with touch controls.
-	return 1;
+	// 2: appstore:create-app script fills in the App Store Connect Apple-ID.
+	return 2;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

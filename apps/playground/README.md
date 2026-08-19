@@ -70,7 +70,15 @@ Wie in den anderen Apps:
 
 `.github/workflows/ci.yml` enthält – wie für jede App dieses Repos – drei Jobs: `playground-check-build` (vergleicht die Build-Nummer mit EAS), `playground-build-ios` (nur wenn die Build-Nummer gestiegen ist) und `playground-expo-update` (OTA).
 
-Beim ersten Lauf legt `playground-expo-update` das EAS-Projekt an (`eas init`) und schreibt Projekt-ID und `updates`-Block in `app.config.ts` zurück. Der iOS-Build-Job bleibt so lange rot, bis die App einmalig in App Store Connect angelegt und ihre Apple-ID in [`frontend/config.ts`](frontend/config.ts) (`appleAppId`) eingetragen wurde – danach `yarn workspace playground generate:eas` ausführen, das `eas.json` wird ausschließlich aus [`frontend/eas.template.json`](frontend/eas.template.json) erzeugt.
+Beim ersten Lauf legt `playground-expo-update` das EAS-Projekt an (`eas init`) und schreibt Projekt-ID und `updates`-Block in `app.config.ts` zurück.
+
+Der iOS-Build-Job bleibt so lange rot, bis die App in App Store Connect existiert und ihre Apple-ID in [`frontend/config.ts`](frontend/config.ts) (`appleAppId`) steht. Beides erledigt ein Skript:
+
+```bash
+EXPO_APPLE_ID=nils@baumgartner-software.de yarn appstore:create-app apps/playground/frontend
+```
+
+Details siehe [App-Store-Connect-App anlegen](../../README.md#app-store-connect-app-anlegen) – kurz: Das Skript legt Bundle-ID und App an (oder findet eine bestehende), schreibt die Apple-ID in `config.ts` und erzeugt `eas.json` neu. `eas.json` wird **nie** von Hand bearbeitet, es entsteht ausschließlich aus [`frontend/eas.template.json`](frontend/eas.template.json).
 
 ## Spiel-Assets & Credits
 
