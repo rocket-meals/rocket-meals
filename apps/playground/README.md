@@ -55,7 +55,19 @@ yarn workspace playground android             # lokaler Android-Build
 
 Ohne natives Modul (Web, Expo Go) zeigt der Godot-Screen einen entsprechenden Hinweis statt eines Absturzes.
 
-> **Versions-Hinweis:** Die App läuft auf dem SDK-Stand des Monorepos (Expo 57 / React Native 0.86), `react-native-godot@1.0.1` ist gegen React Native 0.81 gebaut. Sollte der native Build daran scheitern, ist der Playground der richtige Ort, um entweder die Library zu aktualisieren oder diese eine App per `installConfig.hoistingLimits` auf ältere Versionen zu pinnen.
+### Warum diese App auf Expo SDK 54 festgenagelt ist
+
+Alle anderen Apps des Monorepos laufen auf **Expo 57 / React Native 0.86**, der Playground bewusst auf **Expo 54 / React Native 0.81** – möglich, weil `installConfig.hoistingLimits: workspaces` jeder App ihren eigenen Dependency-Baum gibt.
+
+Grund ist die native Kette hinter Godot: `react-native-godot` hängt an `react-native-worklets-core`, und dessen CMake-Datei linkt gegen das Prefab-Ziel `hermes-engine::libhermes`. Der Android-Build auf RN 0.86 stirbt deshalb mit
+
+```
+Target "rnworklets" links to target "hermes-engine::libhermes" but the target was not found.
+```
+
+RN 0.81 liefert dieses Prefab noch (`node_modules/react-native/ReactAndroid/hermes-engine/`), ab RN 0.86 gibt es das Verzeichnis nicht mehr – `ReactAndroid` exportiert nur noch `jsi`, `reactnative` und `hermestooling`. Auch `react-native-worklets-core@2.0.0-beta.4` linkt noch das alte Ziel, es gibt also derzeit keine Version, die RN 0.86 unterstützt.
+
+Der Pin ist damit die Bedingung dafür, dass die Godot-Engine überhaupt baut, und gilt nur für diese App. Sobald `react-native-worklets-core` (bzw. `react-native-godot`) RN 0.86 unterstützt, kann der Playground einfach wieder auf den SDK-Stand der anderen Apps gehoben werden – die gemeinsamen Einstellungen kommen ohnehin aus `repo-depkit-common/appconfig`.
 
 ## Version und Build-Nummer
 

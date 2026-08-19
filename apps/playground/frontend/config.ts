@@ -13,7 +13,9 @@ export function getBuildNumber() {
 	// 1: first build - Expo + React Native Godot experiment.
 	// 2: retrigger after the first CI run could not build (EAS project was not
 	//    initialized yet, see .github/workflows/playground-dev-client.yml).
-	return 2;
+	// 3: pinned to Expo SDK 54 / React Native 0.81 - react-native-worklets-core
+	//    (via react-native-godot) does not build against RN 0.86, see README.
+	return 3;
 }
 
 // DO NOT CHANGE THE NAME OF THIS FUNCTION: getMajorVersion
@@ -32,7 +34,8 @@ export function getVersionPatch() {
 	// 3: CI job backfills the Apple-ID automatically (appstore-app-id action).
 	// 4: App Store Connect Apple-ID of the created app.
 	// 5: dev client workflow initializes the EAS project itself.
-	return 5;
+	// 6: Expo SDK 54 pin for the Godot native stack.
+	return 6;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates
