@@ -946,6 +946,18 @@ export default function Layout() {
 					}}
 				/>
 				<Drawer.Screen
+					name="housing-analytics/index"
+					options={{
+						header: makeTranslatedStackHeader(TranslationKeys.housing_analytics),
+					}}
+				/>
+				<Drawer.Screen
+					name="housing-analytics/[report]"
+					options={{
+						headerShown: false,
+					}}
+				/>
+				<Drawer.Screen
 					name="image-full-screen"
 					options={{
 						headerShown: false,

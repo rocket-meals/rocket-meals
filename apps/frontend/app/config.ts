@@ -80,7 +80,8 @@ export function getVersionPatch() {
         // 22: shared translation catalogue now also serves the backend; French texts repaired
         // 23: 20 French texts repaired that were cut off at an apostrophe
         // 24: language codes matched case- and region-insensitively when picking a translation
-        return 24;
+        // 25: housing analytics reports for the handover protocols (management menu)
+        return 25;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
