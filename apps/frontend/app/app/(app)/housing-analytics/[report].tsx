@@ -159,13 +159,27 @@ const ReportScreen = () => {
 		[basisLabel]
 	);
 
-	/** What a single report adds on top of its primary number: cost, second share, median. */
+	/**
+	 * The row's headline number. Cleaning hours carry their cost right here rather than in the
+	 * expandable detail - the euro amount is the number this report exists for.
+	 */
+	const buildRowHeadline = useCallback(
+		(currentDefinition: HousingReportDefinition, row: HousingReportRow): string => {
+			const valueText = formatMetric(row.value, currentDefinition.unit);
+			if (currentDefinition.id === HousingReportId.CLEANING_EFFORT) {
+				return `${valueText} · ${formatCurrency(row.sum * hourlyRate)}`;
+			}
+			return valueText;
+		},
+		[formatCurrency, formatMetric, hourlyRate]
+	);
+
+	/** What a single report adds below its headline: averages, a second share, the median. */
 	const buildRowExtras = useCallback(
 		(currentDefinition: HousingReportDefinition, row: HousingReportRow): string => {
 			const parts: string[] = [];
 			if (currentDefinition.id === HousingReportId.CLEANING_EFFORT) {
 				parts.push(`${translate(TranslationKeys.housing_analytics_average)} ${formatMetric(row.mean, HousingReportUnit.HOURS)}`);
-				parts.push(formatCurrency(row.sum * hourlyRate));
 			}
 			if (currentDefinition.hasSecondaryShare && row.secondaryRatio !== null) {
 				parts.push(`${translate(TranslationKeys.housing_analytics_short_term_share)}: ${formatMetric(row.secondaryRatio, HousingReportUnit.SHARE)}`);
@@ -177,13 +191,13 @@ const ReportScreen = () => {
 			}
 			return parts.join(' · ');
 		},
-		[formatCurrency, formatMetric, hourlyRate, translate]
+		[formatMetric, translate]
 	);
 
 	const renderRow = useCallback(
 		(currentDefinition: HousingReportDefinition, row: HousingReportRow, index: number, amount: number, keyPrefix: string) => {
 			const groupPosition = resolveSettingsGroupPosition(index, amount);
-			const valueText = formatMetric(row.value, currentDefinition.unit);
+			const valueText = buildRowHeadline(currentDefinition, row);
 			const basisText = buildRowBasis(currentDefinition, row);
 			const extrasText = buildRowExtras(currentDefinition, row);
 
@@ -232,7 +246,7 @@ const ReportScreen = () => {
 				/>
 			);
 		},
-		[buildRowBasis, buildRowExtras, formatMetric]
+		[buildRowBasis, buildRowExtras, buildRowHeadline, formatMetric]
 	);
 
 	if (!definition) {
