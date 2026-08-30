@@ -684,6 +684,20 @@ export const TranslationKeys = {
 	housing_analytics_short_term_share: 'housing_analytics_short_term_share',
 	housing_analytics_unit_hours: 'housing_analytics_unit_hours',
 	housing_analytics_unit_days: 'housing_analytics_unit_days',
+
+	// Housing analytics: export
+	housing_analytics_export: 'housing_analytics_export',
+	housing_analytics_export_pdf: 'housing_analytics_export_pdf',
+	housing_analytics_export_csv: 'housing_analytics_export_csv',
+	housing_analytics_building: 'housing_analytics_building',
+	housing_analytics_room: 'housing_analytics_room',
+	housing_analytics_matches: 'housing_analytics_matches',
+	housing_analytics_share_percent: 'housing_analytics_share_percent',
+	housing_analytics_value: 'housing_analytics_value',
+	housing_analytics_sum: 'housing_analytics_sum',
+	housing_analytics_minimum: 'housing_analytics_minimum',
+	housing_analytics_maximum: 'housing_analytics_maximum',
+	housing_analytics_costs: 'housing_analytics_costs',
 } as const;
 
 export type TranslationKeys = (typeof TranslationKeys)[keyof typeof TranslationKeys];

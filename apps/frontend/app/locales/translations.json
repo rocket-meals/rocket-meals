@@ -6618,5 +6618,125 @@
     "ru": "дн.",
     "tr": "gün",
     "zh": "天"
+  },
+  "housing_analytics_export": {
+    "de": "Exportieren",
+    "en": "Export",
+    "ar": "تصدير",
+    "es": "Exportar",
+    "fr": "Exporter",
+    "ru": "Экспорт",
+    "tr": "Dışa aktar",
+    "zh": "导出"
+  },
+  "housing_analytics_export_pdf": {
+    "de": "Als PDF speichern",
+    "en": "Save as PDF",
+    "ar": "حفظ بصيغة PDF",
+    "es": "Guardar como PDF",
+    "fr": "Enregistrer en PDF",
+    "ru": "Сохранить как PDF",
+    "tr": "PDF olarak kaydet",
+    "zh": "另存为 PDF"
+  },
+  "housing_analytics_export_csv": {
+    "de": "Auswertung als CSV speichern",
+    "en": "Save the report as CSV",
+    "ar": "حفظ التقرير بصيغة CSV",
+    "es": "Guardar el informe como CSV",
+    "fr": "Enregistrer l'analyse en CSV",
+    "ru": "Сохранить отчёт в CSV",
+    "tr": "Değerlendirmeyi CSV olarak kaydet",
+    "zh": "将分析结果另存为 CSV"
+  },
+  "housing_analytics_building": {
+    "de": "Wohnanlage",
+    "en": "Housing complex",
+    "ar": "مجمع سكني",
+    "es": "Residencia",
+    "fr": "Résidence",
+    "ru": "Общежитие",
+    "tr": "Yurt",
+    "zh": "宿舍楼"
+  },
+  "housing_analytics_room": {
+    "de": "Zimmer",
+    "en": "Room",
+    "ar": "غرفة",
+    "es": "Habitación",
+    "fr": "Chambre",
+    "ru": "Комната",
+    "tr": "Oda",
+    "zh": "房间"
+  },
+  "housing_analytics_matches": {
+    "de": "Betroffene Abnahmen",
+    "en": "Affected handovers",
+    "ar": "عمليات التسليم المعنية",
+    "es": "Entregas afectadas",
+    "fr": "Remises concernées",
+    "ru": "Затронутые приёмки",
+    "tr": "Etkilenen teslimler",
+    "zh": "受影响的交接"
+  },
+  "housing_analytics_share_percent": {
+    "de": "Anteil %",
+    "en": "Share %",
+    "ar": "النسبة %",
+    "es": "Porcentaje %",
+    "fr": "Part %",
+    "ru": "Доля %",
+    "tr": "Oran %",
+    "zh": "占比 %"
+  },
+  "housing_analytics_value": {
+    "de": "Wert",
+    "en": "Value",
+    "ar": "القيمة",
+    "es": "Valor",
+    "fr": "Valeur",
+    "ru": "Значение",
+    "tr": "Değer",
+    "zh": "数值"
+  },
+  "housing_analytics_sum": {
+    "de": "Summe",
+    "en": "Sum",
+    "ar": "المجموع",
+    "es": "Suma",
+    "fr": "Somme",
+    "ru": "Сумма",
+    "tr": "Toplam",
+    "zh": "合计"
+  },
+  "housing_analytics_minimum": {
+    "de": "Minimum",
+    "en": "Minimum",
+    "ar": "الحد الأدنى",
+    "es": "Mínimo",
+    "fr": "Minimum",
+    "ru": "Минимум",
+    "tr": "En düşük",
+    "zh": "最小值"
+  },
+  "housing_analytics_maximum": {
+    "de": "Maximum",
+    "en": "Maximum",
+    "ar": "الحد الأقصى",
+    "es": "Máximo",
+    "fr": "Maximum",
+    "ru": "Максимум",
+    "tr": "En yüksek",
+    "zh": "最大值"
+  },
+  "housing_analytics_costs": {
+    "de": "Kosten",
+    "en": "Costs",
+    "ar": "التكاليف",
+    "es": "Costes",
+    "fr": "Coûts",
+    "ru": "Затраты",
+    "tr": "Maliyet",
+    "zh": "成本"
   }
 }

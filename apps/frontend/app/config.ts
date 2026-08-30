@@ -81,7 +81,8 @@ export function getVersionPatch() {
         // 23: 20 French texts repaired that were cut off at an apostrophe
         // 24: language codes matched case- and region-insensitively when picking a translation
         // 25: housing analytics reports for the handover protocols (management menu)
-        return 25;
+        // 26: housing analytics reports exportable as PDF (print) and CSV on the web
+        return 26;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

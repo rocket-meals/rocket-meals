@@ -17,6 +17,7 @@ import {
 	HousingReportId,
 	type HousingReportDefinition,
 } from './HousingAnalyticsReports';
+import { buildHousingReportCsv, buildHousingReportCsvFileName, escapeCsvField } from './HousingAnalyticsCsv';
 
 function answer(alias: string, value: Partial<HousingHandoverAnswer>): HousingHandoverAnswer {
 	return { form_field: { alias, internal_custom_id: null }, ...value };
@@ -356,5 +357,88 @@ describe('buildHousingReport', () => {
 
 		expect(report.rows).toHaveLength(0);
 		expect(report.total).toBeNull();
+	});
+});
+
+const CSV_LABELS = {
+	group: 'Wohnanlage',
+	handovers: 'Abnahmen',
+	matching: 'Betroffene Abnahmen',
+	share: 'Anteil %',
+	value: 'Wert',
+	sum: 'Summe',
+	average: 'Durchschnitt',
+	median: 'Median',
+	minimum: 'Minimum',
+	maximum: 'Maximum',
+	costs: 'Kosten',
+	shortTermShare: 'Kurzmieter (unter 6 Monate)',
+	overall: 'Gesamt',
+};
+
+describe('buildHousingReportCsv', () => {
+	function csvOf(reportId: string, inputs: HandoverInput[], hourlyRate = 25): string[] {
+		const definition = definitionOf(reportId);
+		const result = buildHousingReport(definition, records(inputs), definition.defaultGrouping);
+		const csv = buildHousingReportCsv({ definition, result, labels: CSV_LABELS, hourlyRate });
+		// Drop the BOM here so the assertions below read as the file content, not its encoding.
+		const withoutBom = csv.startsWith('\ufeff') ? csv.slice(1) : csv;
+		return withoutBom.split('\r\n');
+	}
+
+	it('writes a header, one line per group and the total last', () => {
+		const lines = csvOf(HousingReportId.DEFECT_RATE, [
+			{ id: 'a', building: '370', buildingName: 'Bischofsholer Damm', defectFree: false },
+			{ id: 'b', building: '370', buildingName: 'Bischofsholer Damm', defectFree: true },
+			{ id: 'c', building: '380', buildingName: 'Hufelandstraße', defectFree: false },
+		]);
+
+		expect(lines[0]).toBe('Wohnanlage;Abnahmen;Betroffene Abnahmen;Anteil %');
+		expect(lines[1]).toBe('380 Hufelandstraße;1;1;100,0');
+		expect(lines[2]).toBe('370 Bischofsholer Damm;2;1;50,0');
+		expect(lines[3]).toBe('Gesamt;3;2;66,7');
+	});
+
+	it('starts with a BOM so Excel reads the umlauts', () => {
+		const definition = definitionOf(HousingReportId.DEFECT_RATE);
+		const result = buildHousingReport(definition, records([{ id: 'a', building: '370', defectFree: false }]), HousingGrouping.BUILDING);
+		const csv = buildHousingReportCsv({ definition, result, labels: CSV_LABELS, hourlyRate: 25 });
+
+		expect(csv.charCodeAt(0)).toBe(0xfeff);
+	});
+
+	it('adds the cost column and the spread for the cleaning report', () => {
+		const lines = csvOf(
+			HousingReportId.CLEANING_EFFORT,
+			[
+				{ id: 'a', building: '370', buildingName: 'Bischofsholer Damm', cleaning: '2 Stunden' },
+				{ id: 'b', building: '370', buildingName: 'Bischofsholer Damm', cleaning: 'keine' },
+			],
+			30
+		);
+
+		expect(lines[0]).toBe('Wohnanlage;Abnahmen;Wert;Kosten;Durchschnitt;Median;Minimum;Maximum');
+		// 2 hours in total at 30 €/h, average and median of [2, 0].
+		expect(lines[1]).toBe('370 Bischofsholer Damm;2;2,0;60,00;1,0;1,0;0,0;2,0');
+	});
+
+	it('carries the short-term share of the early move-out report', () => {
+		const lines = csvOf(HousingReportId.EARLY_MOVE_OUTS, [
+			{ id: 'a', building: '370', rentStart: '2025-01-01', rentEnd: '2025-12-31', moveOut: '2025-01-31' },
+			{ id: 'b', building: '370', rentStart: '2025-01-01', rentEnd: '2025-12-31', moveOut: '2025-12-31' },
+		]);
+
+		expect(lines[0]).toBe('Wohnanlage;Abnahmen;Betroffene Abnahmen;Anteil %;Kurzmieter (unter 6 Monate)');
+		expect(lines[1]).toBe('370;2;1;50,0;50,0');
+	});
+
+	it('quotes a field that carries the separator', () => {
+		expect(escapeCsvField('Haus 1; Haus 2')).toBe('"Haus 1; Haus 2"');
+		expect(escapeCsvField('Zimmer "A"')).toBe('"Zimmer ""A"""');
+		expect(escapeCsvField('370 Bischofsholer Damm')).toBe('370 Bischofsholer Damm');
+	});
+
+	it('names the file after the report and the day', () => {
+		expect(buildHousingReportCsvFileName('defect-rate', new Date(2026, 7, 30))).toBe('housing-analytics-defect-rate-2026-08-30.csv');
 	});
 });

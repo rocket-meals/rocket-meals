@@ -1,11 +1,16 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { SettingsList, SettingsListBoxplot, SettingsListDate, SettingsListNumberInput, SettingsListProgress, SettingsListSelectOptionSingle } from 'repo-depkit-common-ui';
 import { DateHelper, NumberHelper } from 'repo-depkit-common';
 import CustomStackHeader from '@/components/CustomStackHeader/CustomStackHeader';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
+import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
+import { isWeb } from '@/constants/Constants';
+import { downloadTextFileOnWeb } from '@/helper/downloadTextFileOnWeb';
+import { prependPrintHeading, printDomNode } from '@/helper/printDomNode';
+import { buildHousingReportCsv, buildHousingReportCsvFileName } from '@/helper/housingAnalytics/HousingAnalyticsCsv';
 import { resolveSettingsGroupPosition } from '@/helper/settingsListGroupPosition';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -60,6 +65,10 @@ const ReportScreen = () => {
 	const { report } = useLocalSearchParams<{ report?: string }>();
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
+	const { show: showModal, close: closeModal } = useMyScrollViewModal();
+	// The printed page is the result area, not the whole screen - the drawer and the header
+	// would otherwise end up on the paper.
+	const printRef = useRef<View | null>(null);
 
 	const definition = useMemo(() => findHousingReportDefinition(report), [report]);
 
@@ -194,6 +203,70 @@ const ReportScreen = () => {
 		[formatMetric, translate]
 	);
 
+	const handlePrint = useCallback(() => {
+		const node = printRef.current as unknown as HTMLElement | null;
+		if (!isWeb || !node || !definition) {
+			return;
+		}
+		printDomNode(node, { transformClone: (clone) => prependPrintHeading(clone, translate(definition.titleKey)) });
+	}, [definition, translate]);
+
+	const handleCsvExport = useCallback(() => {
+		if (!isWeb || !definition || !result) {
+			return;
+		}
+		const csv = buildHousingReportCsv({
+			definition,
+			result,
+			hourlyRate,
+			labels: {
+				group: translate(grouping === HousingGrouping.ROOM ? TranslationKeys.housing_analytics_room : TranslationKeys.housing_analytics_building),
+				handovers: translate(definition.id === HousingReportId.VACANCY_DAYS ? TranslationKeys.housing_analytics_vacancies : TranslationKeys.housing_analytics_handovers),
+				matching: translate(TranslationKeys.housing_analytics_matches),
+				share: translate(TranslationKeys.housing_analytics_share_percent),
+				value: translate(TranslationKeys.housing_analytics_value),
+				sum: translate(TranslationKeys.housing_analytics_sum),
+				average: translate(TranslationKeys.housing_analytics_average),
+				median: translate(TranslationKeys.housing_analytics_median),
+				minimum: translate(TranslationKeys.housing_analytics_minimum),
+				maximum: translate(TranslationKeys.housing_analytics_maximum),
+				costs: translate(TranslationKeys.housing_analytics_costs),
+				shortTermShare: translate(TranslationKeys.housing_analytics_short_term_share),
+				overall: translate(TranslationKeys.housing_analytics_overall),
+			},
+		});
+		downloadTextFileOnWeb(buildHousingReportCsvFileName(definition.id), csv, 'text/csv');
+	}, [definition, grouping, hourlyRate, result, translate]);
+
+	const openExportModal = useCallback(() => {
+		showModal({
+			title: translate(TranslationKeys.housing_analytics_export),
+			children: (
+				<View style={styles.exportOptions}>
+					<SettingsList
+						title={translate(TranslationKeys.housing_analytics_export_pdf)}
+						leftIcon={<MaterialCommunityIcons name="printer-outline" size={20} />}
+						onPress={() => {
+							closeModal();
+							handlePrint();
+						}}
+						groupPosition="top"
+					/>
+					<SettingsList
+						title={translate(TranslationKeys.housing_analytics_export_csv)}
+						leftIcon={<MaterialCommunityIcons name="file-delimited-outline" size={20} />}
+						onPress={() => {
+							closeModal();
+							handleCsvExport();
+						}}
+						groupPosition="bottom"
+						showSeparator={false}
+					/>
+				</View>
+			),
+		});
+	}, [closeModal, handleCsvExport, handlePrint, showModal, translate]);
+
 	const renderRow = useCallback(
 		(currentDefinition: HousingReportDefinition, row: HousingReportRow, index: number, amount: number, keyPrefix: string) => {
 			const groupPosition = resolveSettingsGroupPosition(index, amount);
@@ -263,9 +336,20 @@ const ReportScreen = () => {
 
 	return (
 		<View style={{ ...styles.container, backgroundColor: theme.screen.background }}>
-			<CustomStackHeader label={translate(definition.titleKey)} />
+			<CustomStackHeader
+				label={translate(definition.titleKey)}
+				rightElement={
+					// Printing and downloading are browser features - on native the menu would
+					// only have entries that do nothing.
+					isWeb ? (
+						<TouchableOpacity onPress={openExportModal} style={styles.headerButton} accessibilityLabel={translate(TranslationKeys.housing_analytics_export)}>
+							<Entypo name="dots-three-vertical" size={20} color={theme.header.text} />
+						</TouchableOpacity>
+					) : undefined
+				}
+			/>
 			<ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
-				<View style={styles.content}>
+				<View style={styles.content} ref={printRef} collapsable={false}>
 					<Text style={{ ...styles.introduction, color: theme.screen.text }}>{translate(definition.descriptionKey)}</Text>
 
 					<SettingsGroupTitle>{translate(TranslationKeys.filter)}</SettingsGroupTitle>
@@ -415,6 +499,12 @@ const styles = StyleSheet.create({
 		width: '100%',
 		maxWidth: 900,
 		paddingHorizontal: 10,
+	},
+	headerButton: {
+		padding: 10,
+	},
+	exportOptions: {
+		width: '100%',
 	},
 	introduction: {
 		fontSize: 14,
