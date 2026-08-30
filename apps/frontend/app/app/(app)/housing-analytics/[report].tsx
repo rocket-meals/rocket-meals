@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
-import { SettingsList, SettingsListBoxplot, SettingsListDate, SettingsListNumberInput, SettingsListProgress, SettingsListSelectOptionSingle } from 'repo-depkit-common-ui';
+import { PrintHidden, SettingsList, SettingsListBoxplot, SettingsListDate, SettingsListNumberInput, SettingsListProgress, SettingsListSelectOptionSingle } from 'repo-depkit-common-ui';
 import { DateHelper, NumberHelper } from 'repo-depkit-common';
 import CustomStackHeader from '@/components/CustomStackHeader/CustomStackHeader';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
@@ -357,7 +357,11 @@ const ReportScreen = () => {
 						label={translate(TranslationKeys.housing_analytics_period)}
 						value={selectedPeriodLabel}
 						leftIcon={<MaterialCommunityIcons name="calendar-clock" size={22} />}
-						rightIcon={<MaterialCommunityIcons name={periodExpanded ? 'chevron-up' : 'chevron-down'} size={22} color={theme.screen.icon} />}
+						rightIcon={
+							<PrintHidden>
+								<MaterialCommunityIcons name={periodExpanded ? 'chevron-up' : 'chevron-down'} size={22} color={theme.screen.icon} />
+							</PrintHidden>
+						}
 						onPress={() => setPeriodExpanded((expanded) => !expanded)}
 						groupPosition="top"
 					/>
@@ -396,7 +400,11 @@ const ReportScreen = () => {
 						label={translate(TranslationKeys.housing_analytics_grouping)}
 						value={selectedGroupingLabel}
 						leftIcon={<MaterialCommunityIcons name="format-list-group" size={22} />}
-						rightIcon={<MaterialCommunityIcons name={groupingExpanded ? 'chevron-up' : 'chevron-down'} size={22} color={theme.screen.icon} />}
+						rightIcon={
+							<PrintHidden>
+								<MaterialCommunityIcons name={groupingExpanded ? 'chevron-up' : 'chevron-down'} size={22} color={theme.screen.icon} />
+							</PrintHidden>
+						}
 						onPress={() => setGroupingExpanded((expanded) => !expanded)}
 						groupPosition="middle"
 					/>

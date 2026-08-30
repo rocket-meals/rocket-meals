@@ -9,6 +9,8 @@
  * print button on native.
  */
 
+import { PRINT_HIDDEN_CSS } from 'repo-depkit-common-ui';
+
 export type PrintDomNodeOptions = {
 	/** Extra `@media print` rules appended after the base ones. */
 	extraPrintCss?: string;
@@ -17,6 +19,8 @@ export type PrintDomNodeOptions = {
 };
 
 const BASE_PRINT_CSS = `
+${PRINT_HIDDEN_CSS}
+
 @media print {
 	* {
 		-webkit-print-color-adjust: exact !important;

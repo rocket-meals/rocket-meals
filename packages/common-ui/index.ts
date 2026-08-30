@@ -40,6 +40,9 @@ export { MyBuffer } from './src/helpers/MyBuffer';
 
 // Constants
 export { borderRadiusContainer, horizontalScreenPadding } from './src/constants/ui';
+export { PRINT_HIDDEN_ATTRIBUTE, PRINT_HIDDEN_CSS, PRINT_HIDDEN_DATA_KEY, PRINT_HIDDEN_DATA_SET } from './src/constants/print';
+export { default as PrintHidden } from './src/components/PrintHidden';
+export type { PrintHiddenProps } from './src/components/PrintHidden';
 export { CommonUiComponentIds } from './src/constants/ComponentIds';
 
 // Components

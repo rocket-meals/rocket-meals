@@ -21,6 +21,7 @@ import type { SettingsListProps } from '../SettingsList/types';
 import type { ModalSheetBaseProps, TextInputAppearanceProps } from '../SettingsList/formFieldTypes';
 import { borderRadiusContainer } from '../../constants/ui';
 import SettingsListSelectOption from '../SettingsListSelectOption';
+import PrintHidden from '../PrintHidden';
 
 export type CheckTextInputResult = {
 	isValid: boolean;
@@ -224,7 +225,9 @@ const SettingsListTextInput: React.FC<SettingsListTextInputProps> = ({
 			rightElement || rightIcon ? (
 				rightIcon
 			) : (
-				<MaterialCommunityIcons name="pencil" size={20} color={theme.screen.icon} />
+				<PrintHidden>
+					<MaterialCommunityIcons name="pencil" size={20} color={theme.screen.icon} />
+				</PrintHidden>
 			),
 		[rightElement, rightIcon, theme.screen.icon]
 	);

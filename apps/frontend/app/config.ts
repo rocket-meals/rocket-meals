@@ -82,7 +82,8 @@ export function getVersionPatch() {
         // 24: language codes matched case- and region-insensitively when picking a translation
         // 25: housing analytics reports for the handover protocols (management menu)
         // 26: housing analytics reports exportable as PDF (print) and CSV on the web
-        return 26;
+        // 27: common-ui: PrintHidden keeps tap affordances off the printed page
+        return 27;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

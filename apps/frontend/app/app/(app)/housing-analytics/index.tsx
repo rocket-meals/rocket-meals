@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { SettingsList } from 'repo-depkit-common-ui';
+import { PrintHidden, SettingsList } from 'repo-depkit-common-ui';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import { resolveSettingsGroupPosition } from '@/helper/settingsListGroupPosition';
 import { useTheme } from '@/hooks/useTheme';
@@ -48,7 +48,11 @@ const Index = () => {
 									value={translate(definition.descriptionKey)}
 									stackedValue
 									leftIcon={<MaterialCommunityIcons name={definition.iconName as never} size={22} />}
-									rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+									rightIcon={
+										<PrintHidden>
+											<Octicons name="chevron-right" size={24} color={theme.screen.icon} />
+										</PrintHidden>
+									}
 									groupPosition={resolveSettingsGroupPosition(index, group.reports.length)}
 									onPress={() => {
 										router.navigate(`${HOUSING_ANALYTICS_ROUTE}/${definition.id}`);
