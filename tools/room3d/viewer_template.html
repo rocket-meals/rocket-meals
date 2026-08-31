@@ -1,46 +1,126 @@
-<title>Raum 3D Viewer</title>
+<title>Küche &amp; Bad in 3D</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
+  /* A viewer for a lit 3D scene: committed to one dark world so nothing
+     competes with the render. Accent is the oak of the worktop. */
   :root {
-    color-scheme: light dark;
-    --bg: #10131a; --panel: rgba(18,22,30,.86); --line: rgba(255,255,255,.14);
-    --fg: #f3f5f8; --muted: #a7b0bf; --accent: #7bb0ff; --accent-fg: #0b1220;
+    color-scheme: dark;
+    --ground: #0d1016;
+    --panel: rgba(17, 21, 28, 0.84);
+    --line: rgba(233, 238, 246, 0.13);
+    --line-strong: rgba(233, 238, 246, 0.28);
+    --fg: #eef1f6;
+    --muted: #929daf;
+    --accent: #d0954e;
+    --accent-ink: #17120a;
+    --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   }
-  body { background: var(--bg); color: var(--fg); font: 14px/1.45 -apple-system, BlinkMacSystemFont,
-         "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+  body {
+    background: var(--ground);
+    color: var(--fg);
+    font: 400 14px/1.5 var(--sans);
+    overflow: hidden;
+  }
   #stage { position: fixed; inset: 0; }
   canvas { display: block; touch-action: none; }
-  .panel { position: fixed; background: var(--panel); border: 1px solid var(--line);
-           border-radius: 14px; padding: 12px 14px; backdrop-filter: blur(10px);
-           box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-  #ui { top: 14px; left: 14px; max-width: min(340px, calc(100vw - 28px)); }
-  #ui h1 { font-size: 15px; margin: 0 0 8px; letter-spacing: .01em; }
-  #ui p { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; }
-  .row { display: flex; flex-wrap: wrap; gap: 8px; }
-  button { font: inherit; color: var(--fg); background: rgba(255,255,255,.07);
-           border: 1px solid var(--line); border-radius: 9px; padding: 7px 12px;
-           cursor: pointer; }
-  button:hover { background: rgba(255,255,255,.14); }
-  button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg);
-           border-color: transparent; font-weight: 600; }
-  #xr { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
-        padding: 12px 22px; font-size: 15px; font-weight: 600;
-        background: var(--accent); color: var(--accent-fg); border: none;
-        border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
-  #xr[disabled] { background: rgba(255,255,255,.09); color: var(--muted);
-        font-weight: 400; box-shadow: none; cursor: default; }
-  #hint { bottom: 14px; right: 14px; color: var(--muted); font-size: 12px;
-          max-width: 260px; }
-  kbd { background: rgba(255,255,255,.12); border-radius: 5px; padding: 1px 5px;
-        font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
-  @media (max-width: 620px) { #hint { display: none; } }
+
+  .panel {
+    position: fixed;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  }
+  #ui {
+    top: 16px; left: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 14px;
+    max-width: min(320px, calc(100vw - 32px));
+  }
+  .eyebrow {
+    font: 500 10px/1 var(--mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  #roomTitle { font: 600 19px/1.15 var(--sans); margin: 6px 0 0; text-wrap: balance; }
+  #meta {
+    font: 400 12px/1.5 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    margin: 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  button {
+    font: 500 13px/1 var(--sans);
+    color: var(--fg);
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 7px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  button:hover { background: rgba(233, 238, 246, 0.08); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 600;
+  }
+
+  #xr {
+    position: fixed;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    padding: 13px 26px;
+    font: 600 15px/1 var(--sans);
+    letter-spacing: 0.01em;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+    border-radius: 999px;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+  }
+  #xr:hover { background: #dda261; border-color: #dda261; }
+  #xr[disabled] {
+    background: var(--panel);
+    border-color: var(--line);
+    color: var(--muted);
+    font-weight: 400;
+    box-shadow: none;
+    cursor: default;
+  }
+
+  #hint {
+    bottom: 16px; right: 16px;
+    padding: 12px 14px;
+    max-width: 250px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  #hint dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; margin: 8px 0 0; }
+  #hint dt { font: 400 11px/1.35 var(--mono); color: var(--fg); }
+  #hint dd { margin: 0; line-height: 1.35; }
+  @media (max-width: 680px) { #hint { display: none; } }
+  @media (prefers-reduced-motion: reduce) { button { transition: none; } }
 </style>
 
 <div id="stage"></div>
 
 <div id="ui" class="panel">
-  <h1 id="roomTitle">Raum</h1>
+  <div>
+    <p class="eyebrow">Raum begehen</p>
+    <h1 id="roomTitle">Raum</h1>
+  </div>
   <div class="row" id="rooms"></div>
-  <div class="row" style="margin-top:8px">
+  <div class="row">
     <button id="toggleCeiling" aria-pressed="false">Decke ausblenden</button>
     <button id="reset">Startposition</button>
   </div>
@@ -48,8 +128,13 @@
 </div>
 
 <div id="hint" class="panel">
-  Maus ziehen = umsehen · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> = gehen ·
-  <kbd>Q</kbd>/<kbd>E</kbd> = hoch/runter · <kbd>Shift</kbd> = schneller
+  <p class="eyebrow">Steuerung am Rechner</p>
+  <dl>
+    <dt>Maus</dt><dd>ziehen zum Umsehen</dd>
+    <dt>W A S D</dt><dd>gehen</dd>
+    <dt>Q E</dt><dd>Höhe ändern</dd>
+    <dt>Shift</dt><dd>schneller</dd>
+  </dl>
 </div>
 
 <button id="xr" disabled>WebXR wird geprüft …</button>
@@ -200,9 +285,10 @@ function showRoom(key) {
   scene.add(roomGroup);
   addReflections();
   document.getElementById('roomTitle').textContent = room.title;
+  const m = v => v.toFixed(2).replace('.', ',');
   document.getElementById('meta').textContent =
-    room.size[0].toFixed(2) + ' m × ' + room.size[2].toFixed(2) + ' m, ' +
-    room.size[1].toFixed(2) + ' m hoch — ' + room.prims.length + ' Bauteile';
+    m(room.size[0]) + ' × ' + m(room.size[2]) + ' m Grundfläche · ' +
+    m(room.size[1]) + ' m Raumhöhe · ' + room.prims.length + ' Bauteile';
   document.querySelectorAll('#rooms button').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.key === room.key)));
   resetView();
