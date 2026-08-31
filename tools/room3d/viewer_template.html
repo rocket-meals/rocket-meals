@@ -1,0 +1,349 @@
+<title>Raum 3D Viewer</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #10131a; --panel: rgba(18,22,30,.86); --line: rgba(255,255,255,.14);
+    --fg: #f3f5f8; --muted: #a7b0bf; --accent: #7bb0ff; --accent-fg: #0b1220;
+  }
+  body { background: var(--bg); color: var(--fg); font: 14px/1.45 -apple-system, BlinkMacSystemFont,
+         "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden; }
+  #stage { position: fixed; inset: 0; }
+  canvas { display: block; touch-action: none; }
+  .panel { position: fixed; background: var(--panel); border: 1px solid var(--line);
+           border-radius: 14px; padding: 12px 14px; backdrop-filter: blur(10px);
+           box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  #ui { top: 14px; left: 14px; max-width: min(340px, calc(100vw - 28px)); }
+  #ui h1 { font-size: 15px; margin: 0 0 8px; letter-spacing: .01em; }
+  #ui p { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  button { font: inherit; color: var(--fg); background: rgba(255,255,255,.07);
+           border: 1px solid var(--line); border-radius: 9px; padding: 7px 12px;
+           cursor: pointer; }
+  button:hover { background: rgba(255,255,255,.14); }
+  button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg);
+           border-color: transparent; font-weight: 600; }
+  #xr { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+        padding: 12px 22px; font-size: 15px; font-weight: 600;
+        background: var(--accent); color: var(--accent-fg); border: none;
+        border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+  #xr[disabled] { background: rgba(255,255,255,.09); color: var(--muted);
+        font-weight: 400; box-shadow: none; cursor: default; }
+  #hint { bottom: 14px; right: 14px; color: var(--muted); font-size: 12px;
+          max-width: 260px; }
+  kbd { background: rgba(255,255,255,.12); border-radius: 5px; padding: 1px 5px;
+        font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  @media (max-width: 620px) { #hint { display: none; } }
+</style>
+
+<div id="stage"></div>
+
+<div id="ui" class="panel">
+  <h1 id="roomTitle">Raum</h1>
+  <div class="row" id="rooms"></div>
+  <div class="row" style="margin-top:8px">
+    <button id="toggleCeiling" aria-pressed="false">Decke ausblenden</button>
+    <button id="reset">Startposition</button>
+  </div>
+  <p id="meta"></p>
+</div>
+
+<div id="hint" class="panel">
+  Maus ziehen = umsehen · <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> = gehen ·
+  <kbd>Q</kbd>/<kbd>E</kbd> = hoch/runter · <kbd>Shift</kbd> = schneller
+</div>
+
+<button id="xr" disabled>WebXR wird geprüft …</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const SCENE = __SCENE_JSON__;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.92;
+renderer.xr.enabled = true;
+renderer.xr.setReferenceSpaceType('local-floor');
+document.getElementById('stage').appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0d1017);
+
+const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.05, 60);
+const dolly = new THREE.Group();          // moves the viewer, also in VR
+dolly.add(camera);
+scene.add(dolly);
+
+let roomGroup = null;
+let currentRoom = null;
+let ceilingHidden = false;
+const yaw = { a: 0 }, pitch = { a: 0 };
+
+// ---------------------------------------------------------------- geometry
+function materialFor(key) {
+  const m = SCENE.materials[key] || { color: '#cccccc', rough: 0.7 };
+  // r128 expects linear colours when the output is sRGB-encoded
+  const base = new THREE.Color(m.color).convertSRGBToLinear();
+  return new THREE.MeshStandardMaterial({
+    color: base,
+    roughness: m.rough,
+    metalness: m.metal || 0,
+    transparent: m.opacity < 1,
+    opacity: m.opacity,
+    side: m.opacity < 1 ? THREE.DoubleSide : THREE.FrontSide,
+    emissive: m.emissive ? base.clone() : new THREE.Color(0x000000),
+    emissiveIntensity: m.emissive || 0,
+  });
+}
+
+function geometryFor(p) {
+  if (p.t === 'box') {
+    const g = new THREE.BoxGeometry(p.s[0], p.s[1], p.s[2]);
+    g.translate(p.c[0], p.c[1], p.c[2]);
+    return g;
+  }
+  const g = new THREE.CylinderGeometry(p.r, p.r, p.h, p.seg || 16, 1, false);
+  if (p.a === 'x') g.rotateZ(Math.PI / 2);
+  else if (p.a === 'z') g.rotateX(Math.PI / 2);
+  g.translate(p.c[0], p.c[1], p.c[2]);
+  return g;
+}
+
+/** One merged mesh per material keeps the draw calls low enough for standalone headsets. */
+function buildRoom(room) {
+  const group = new THREE.Group();
+  const buckets = new Map();
+  for (const p of room.prims) {
+    const g = geometryFor(p).toNonIndexed();
+    const bucketKey = p.m + '|' + (p.g || '');
+    if (!buckets.has(bucketKey)) buckets.set(bucketKey, { pos: [], nor: [], mat: p.m, tag: p.g || '' });
+    const b = buckets.get(bucketKey);
+    const pos = g.attributes.position.array, nor = g.attributes.normal.array;
+    for (let i = 0; i < pos.length; i++) b.pos.push(pos[i]);
+    for (let i = 0; i < nor.length; i++) b.nor.push(nor[i]);
+    g.dispose();
+  }
+  buckets.forEach(b => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(b.pos, 3));
+    geo.setAttribute('normal', new THREE.Float32BufferAttribute(b.nor, 3));
+    const mesh = new THREE.Mesh(geo, materialFor(b.mat));
+    mesh.name = b.mat;
+    mesh.userData.tag = b.tag;
+    mesh.frustumCulled = false;
+    group.add(mesh);
+  });
+
+  group.add(new THREE.HemisphereLight(0xf3f6ff, 0x5c564c, 0.42));
+  const key = new THREE.DirectionalLight(0xfff4e2, 0.42);
+  key.position.set(room.size[0] * 0.8, room.size[1] * 1.6, room.size[2] * 0.9);
+  group.add(key);
+  group.add(new THREE.AmbientLight(0xffffff, 0.16));
+  for (const l of room.lights) {
+    const pl = new THREE.PointLight(0xfff1dc, l.i, l.d || 0, 2);
+    pl.position.set(l.p[0], l.p[1], l.p[2]);
+    group.add(pl);
+  }
+  return group;
+}
+
+/** One cube render per room: gives the mirror a real reflection and the
+ *  chrome / glass parts something to pick up. */
+function addReflections() {
+  const target = new THREE.WebGLCubeRenderTarget(256, {
+    format: THREE.RGBFormat, generateMipmaps: true,
+    minFilter: THREE.LinearMipmapLinearFilter,
+  });
+  const probe = new THREE.CubeCamera(0.05, 40, target);
+  const mirror = roomGroup.children.find(o => o.isMesh && o.name === 'mirror');
+  const centre = new THREE.Vector3(currentRoom.size[0] / 2, 1.6, currentRoom.size[2] / 2);
+
+  if (mirror) {
+    mirror.geometry.computeBoundingBox();
+    const box = mirror.geometry.boundingBox;
+    const mid = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const dir = new THREE.Vector3();
+    if (size.x <= size.y && size.x <= size.z) dir.set(Math.sign(centre.x - mid.x), 0, 0);
+    else if (size.z <= size.x && size.z <= size.y) dir.set(0, 0, Math.sign(centre.z - mid.z));
+    else dir.set(0, Math.sign(centre.y - mid.y), 0);
+    probe.position.copy(mid).addScaledVector(dir, 0.3);
+    mirror.visible = false;
+  } else {
+    probe.position.copy(centre);
+  }
+  scene.add(probe);
+  probe.update(renderer, scene);
+  scene.remove(probe);
+  if (mirror) mirror.visible = true;
+
+  for (const [name, intensity] of [['mirror', 1.0], ['chrome', 0.75], ['glass', 0.5]]) {
+    const mesh = roomGroup.children.find(o => o.isMesh && o.name === name);
+    if (!mesh) continue;
+    mesh.material.envMap = target.texture;
+    mesh.material.envMapIntensity = intensity;
+    mesh.material.needsUpdate = true;
+  }
+}
+
+function showRoom(key) {
+  const room = SCENE.rooms.find(r => r.key === key) || SCENE.rooms[0];
+  if (roomGroup) {
+    roomGroup.traverse(o => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose(); } });
+    scene.remove(roomGroup);
+  }
+  currentRoom = room;
+  roomGroup = buildRoom(room);
+  applyCeiling();
+  scene.add(roomGroup);
+  addReflections();
+  document.getElementById('roomTitle').textContent = room.title;
+  document.getElementById('meta').textContent =
+    room.size[0].toFixed(2) + ' m × ' + room.size[2].toFixed(2) + ' m, ' +
+    room.size[1].toFixed(2) + ' m hoch — ' + room.prims.length + ' Bauteile';
+  document.querySelectorAll('#rooms button').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.key === room.key)));
+  resetView();
+}
+
+function applyCeiling() {
+  if (!roomGroup) return;
+  roomGroup.traverse(o => {
+    if (o.isMesh && o.userData.tag === 'top') o.visible = !ceilingHidden;
+  });
+}
+
+function resetView() {
+  dolly.position.set(currentRoom.eye[0], 0, currentRoom.eye[2]);
+  camera.position.set(0, renderer.xr.isPresenting ? 0 : currentRoom.eye[1], 0);
+  yaw.a = 0; pitch.a = -0.06;
+}
+
+// ---------------------------------------------------------------- controls
+const keys = new Set();
+addEventListener('keydown', e => { keys.add(e.code); if (e.code.startsWith('Arrow')) e.preventDefault(); });
+addEventListener('keyup', e => keys.delete(e.code));
+
+let dragging = false, lastX = 0, lastY = 0;
+const canvas = renderer.domElement;
+canvas.addEventListener('pointerdown', e => {
+  dragging = true; lastX = e.clientX; lastY = e.clientY; canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointerup', e => { dragging = false; canvas.releasePointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  yaw.a -= (e.clientX - lastX) * 0.0045;
+  pitch.a = Math.max(-1.4, Math.min(1.4, pitch.a - (e.clientY - lastY) * 0.0045));
+  lastX = e.clientX; lastY = e.clientY;
+});
+
+function desktopStep(dt) {
+  const speed = (keys.has('ShiftLeft') || keys.has('ShiftRight') ? 3.4 : 1.5) * dt;
+  let fwd = 0, side = 0, up = 0;
+  if (keys.has('KeyW') || keys.has('ArrowUp')) fwd += 1;
+  if (keys.has('KeyS') || keys.has('ArrowDown')) fwd -= 1;
+  if (keys.has('KeyD') || keys.has('ArrowRight')) side += 1;
+  if (keys.has('KeyA') || keys.has('ArrowLeft')) side -= 1;
+  if (keys.has('KeyE')) up += 1;
+  if (keys.has('KeyQ')) up -= 1;
+  dolly.position.x += (-Math.sin(yaw.a) * fwd + Math.cos(yaw.a) * side) * speed;
+  dolly.position.z += (-Math.cos(yaw.a) * fwd - Math.sin(yaw.a) * side) * speed;
+  camera.position.y = Math.max(0.4, Math.min(2.4, camera.position.y + up * speed));
+  camera.rotation.set(pitch.a, yaw.a, 0, 'YXZ');
+}
+
+/** Thumbstick locomotion so the room can be walked through in a small play space. */
+let snapReady = true;
+function xrStep(dt) {
+  const session = renderer.xr.getSession();
+  if (!session) return;
+  for (const src of session.inputSources) {
+    const gp = src.gamepad;
+    if (!gp || gp.axes.length < 4) continue;
+    const x = gp.axes[2], y = gp.axes[3];
+    if (src.handedness === 'right') {
+      if (Math.abs(x) > 0.7 && snapReady) { yaw.a -= Math.sign(x) * Math.PI / 6; snapReady = false; }
+      if (Math.abs(x) < 0.3) snapReady = true;
+    } else if (Math.abs(x) > 0.15 || Math.abs(y) > 0.15) {
+      const head = new THREE.Vector3();
+      camera.getWorldDirection(head);
+      const hy = Math.atan2(-head.x, -head.z);
+      const speed = 1.4 * dt;
+      dolly.position.x += (-Math.sin(hy) * -y + Math.cos(hy) * x) * speed;
+      dolly.position.z += (-Math.cos(hy) * -y - Math.sin(hy) * x) * speed;
+    }
+  }
+  dolly.rotation.y = yaw.a;
+}
+
+// ---------------------------------------------------------------- WebXR
+const xrButton = document.getElementById('xr');
+let xrSession = null;
+
+async function toggleXR() {
+  if (xrSession) { xrSession.end(); return; }
+  try {
+    xrSession = await navigator.xr.requestSession('immersive-vr', {
+      optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking'],
+    });
+    xrSession.addEventListener('end', () => {
+      xrSession = null;
+      xrButton.textContent = 'In VR ansehen';
+      camera.position.y = currentRoom.eye[1];
+      dolly.rotation.y = 0;
+    });
+    await renderer.xr.setSession(xrSession);
+    camera.position.y = 0;
+    xrButton.textContent = 'VR beenden';
+  } catch (err) {
+    xrButton.textContent = 'VR-Start fehlgeschlagen: ' + err.message;
+  }
+}
+
+if (navigator.xr && navigator.xr.isSessionSupported) {
+  navigator.xr.isSessionSupported('immersive-vr').then(ok => {
+    xrButton.disabled = !ok;
+    xrButton.textContent = ok
+      ? 'In VR ansehen'
+      : 'Kein VR-Headset erkannt – Seite in der Brille öffnen';
+    if (ok) xrButton.addEventListener('click', toggleXR);
+  });
+} else {
+  xrButton.textContent = 'WebXR nicht verfügbar – Seite in der Brille öffnen';
+}
+
+// ---------------------------------------------------------------- ui + loop
+const roomsBar = document.getElementById('rooms');
+SCENE.rooms.forEach(r => {
+  const b = document.createElement('button');
+  b.textContent = r.title;
+  b.dataset.key = r.key;
+  b.addEventListener('click', () => showRoom(r.key));
+  roomsBar.appendChild(b);
+});
+document.getElementById('toggleCeiling').addEventListener('click', e => {
+  ceilingHidden = !ceilingHidden;
+  e.currentTarget.setAttribute('aria-pressed', String(ceilingHidden));
+  e.currentTarget.textContent = ceilingHidden ? 'Decke einblenden' : 'Decke ausblenden';
+  applyCeiling();
+});
+document.getElementById('reset').addEventListener('click', resetView);
+
+addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+showRoom(SCENE.rooms[0].key);
+
+let last = performance.now();
+renderer.setAnimationLoop(now => {
+  const dt = Math.min(0.1, (now - last) / 1000);
+  last = now;
+  if (renderer.xr.isPresenting) xrStep(dt); else desktopStep(dt);
+  renderer.render(scene, camera);
+});
+</script>
