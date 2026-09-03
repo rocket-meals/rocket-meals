@@ -1,4 +1,4 @@
-import {ChatConversationState, CollectionNames, DatabaseTypes} from 'repo-depkit-common';
+import {ChatConversationState, CollectionNames, DatabaseTypes, DateHelper, MailAdresses} from 'repo-depkit-common';
 import {ItemsServiceHelper} from '../helpers/ItemsServiceHelper';
 import {MyDatabaseHelper} from '../helpers/MyDatabaseHelper';
 import {PushNotificationHelper} from '../helpers/PushNotificationHelper';
@@ -55,6 +55,14 @@ export default MyDefineHook.defineHookWithAllTablesExisting(HOOK_NAME, async ({ 
 
     await chatsHelper.updateOne(chatId, { conversation_state: conversationState });
 
+    if (!messageFromAdmin) {
+      try {
+        await notifySupportAboutAppFeedbackChatMessage(chatId, message, myDatabaseHelper);
+      } catch (error) {
+        console.error(`${HOOK_NAME}: Failed to notify support about chat message ${messageId}`, error);
+      }
+    }
+
     const profilesToNotify = await collectProfilesToNotify(chatId, message, myDatabaseHelper);
     const profilesArray = Array.from(profilesToNotify);
     console.log(`${HOOK_NAME}: Profiles to notify for chat ${chatId}:`, profilesArray);
@@ -67,6 +75,64 @@ export default MyDefineHook.defineHookWithAllTablesExisting(HOOK_NAME, async ({ 
     }
   });
 });
+
+/**
+ * Mail support when a user writes in a chat that belongs to an app feedback. Support answers
+ * those requests from its mailbox, so a reply that only lands in the chat would go unnoticed.
+ * Chats without a linked app feedback (e.g. food feedback chats) are not covered by this.
+ */
+async function notifySupportAboutAppFeedbackChatMessage(
+  chatId: string,
+  message: DatabaseTypes.ChatMessages,
+  myDatabaseHelper: MyDatabaseHelper
+): Promise<void> {
+  const appFeedbacksHelper = myDatabaseHelper.getAppFeedbacksHelper();
+  const relatedAppFeedbacks = await appFeedbacksHelper.findItems({ chat: chatId });
+
+  if (relatedAppFeedbacks.length === 0) {
+    return;
+  }
+
+  const chatsHelper = new ItemsServiceHelper<DatabaseTypes.Chats>(myDatabaseHelper, CollectionNames.CHATS);
+  const chat = await chatsHelper.readOne(chatId);
+
+  const server_info = await myDatabaseHelper.getServerInfo();
+  const project_name = server_info?.project?.project_name || 'Rocket Meals';
+  const publicUrl = myDatabaseHelper.getServerUrl();
+
+  const humanReadableDate = DateHelper.getHumanReadableDateAndTime(new Date());
+  const subject = `${project_name} - Chat - Neue Nachricht - ${humanReadableDate}`;
+
+  const chatAlias = chat?.alias || chatId;
+  const messageText = message?.message || '';
+  const feedbackLinks = relatedAppFeedbacks
+    .map(appFeedback => `- ${appFeedback.title || appFeedback.id}: ${publicUrl}/admin/content/app_feedbacks/${appFeedback.id}`)
+    .join('\n');
+
+  const markdown_content = [
+    `Ein Nutzer hat im Chat "${chatAlias}" etwas Neues geschrieben.`,
+    '',
+    '## Nachricht',
+    '',
+    messageText,
+    '',
+    '## Chat',
+    '',
+    `${publicUrl}/admin/content/chats/${chatId}`,
+    '',
+    '## Zugehöriges App-Feedback',
+    '',
+    feedbackLinks,
+  ].join('\n');
+
+  await myDatabaseHelper.sendMail({
+    recipient: MailAdresses.SupportMail,
+    subject: subject,
+    markdown_content: markdown_content,
+  });
+
+  console.log(`${HOOK_NAME}: Notified support about a new user message in app feedback chat ${chatId}`);
+}
 
 async function collectProfilesToNotify(
   chatId: string,

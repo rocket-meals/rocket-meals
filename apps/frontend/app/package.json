@@ -13,7 +13,7 @@
     "test:watch": "jest --watchAll",
     "lint": "expo lint",
     "predeploy": "expo export -p web",
-    "deploy": "yarn run copy-assets && gh-pages --nojekyll -d dist",
+    "deploy": "yarn run copy-assets && node ./scripts/deploy-gh-pages.js",
     "copy-assets": "cpx \"node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/**/*\" \"dist/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts\"",
     "deploy:gh:pages": "yarn run predeploy && yarn run deploy",
     "eas-build-post-install": "node ./scripts/eas-build-post-install.js",

@@ -13,7 +13,7 @@
     "interface": "input-multiline",
     "note": null,
     "options": {
-      "softLength": 2048
+      "softLength": 65536
     },
     "readonly": false,
     "required": false,

@@ -1,21 +1,36 @@
 {
   "collection": "app_feedbacks",
-  "field": "display_height",
-  "type": "float",
+  "field": "state",
+  "type": "string",
   "meta": {
     "collection": "app_feedbacks",
     "conditions": null,
     "display": null,
     "display_options": null,
-    "field": "display_height",
+    "field": "state",
     "group": null,
     "hidden": false,
-    "interface": "input",
+    "interface": "select-dropdown",
     "note": null,
-    "options": null,
+    "options": {
+      "choices": [
+        {
+          "text": "open",
+          "value": "open"
+        },
+        {
+          "text": "in review",
+          "value": "in_review"
+        },
+        {
+          "text": "solved / closed",
+          "value": "closed"
+        }
+      ]
+    },
     "readonly": false,
     "required": false,
-    "sort": 24,
+    "sort": 30,
     "special": null,
     "translations": null,
     "validation": null,
@@ -23,12 +38,12 @@
     "width": "full"
   },
   "schema": {
-    "name": "display_height",
+    "name": "state",
     "table": "app_feedbacks",
-    "data_type": "real",
-    "default_value": null,
-    "max_length": null,
-    "numeric_precision": 24,
+    "data_type": "character varying",
+    "default_value": "open",
+    "max_length": 255,
+    "numeric_precision": null,
     "numeric_scale": null,
     "is_nullable": true,
     "is_unique": false,

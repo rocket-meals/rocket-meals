@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import Constants from 'expo-constants';
 import { getPlatformHelper } from '@/helper/platformHelper';
 import { getDeviceInformationWithoutPushToken } from './DeviceHelper';
@@ -27,6 +27,12 @@ export class NotificationHelper {
 		return Constants.expoConfig?.extra?.eas?.projectId;
 	}
 
+	/**
+	 * Reads the permission that was cached on the profile's device entry the last time the app
+	 * synchronised it. It can be missing or outdated (a profile without devices reports "not
+	 * granted"), so never gate an action on it - ask the system via
+	 * {@link NotificationHelper.ensureDeviceNotificationPermission} instead.
+	 */
 	static useNotificationPermission(profile: DatabaseTypes.Profiles): [boolean, NotificationObjType, (timestamp?: string) => void, () => void] {
 		const devices = profile?.devices || [];
 		let deviceInformationsWithoutPushToken: Partial<DatabaseTypes.Devices> = getDeviceInformationWithoutPushToken();
@@ -132,6 +138,39 @@ export class NotificationHelper {
 		} catch (err) {
 			console.warn('NotificationHelper: could not request device notification permission (e.g. running on an emulator)', err);
 			return undefined;
+		}
+	}
+
+	/**
+	 * Returns the current notification permission and asks the user for it when the system still
+	 * allows asking.
+	 *
+	 * iOS only ever shows its permission dialog once: afterwards `requestPermissionsAsync()`
+	 * resolves immediately with `granted: false` and `canAskAgain: false`. Callers therefore must
+	 * not treat "not granted" as "nothing to do" - they have to send the user to the system
+	 * settings, otherwise a toggle that depends on the permission simply does nothing.
+	 */
+	static async ensureDeviceNotificationPermission(): Promise<NotificationPermissionsStatus | undefined> {
+		const currentPermission = await NotificationHelper.getDeviceNotificationPermission();
+		if (currentPermission?.granted) {
+			return currentPermission;
+		}
+		if (currentPermission?.canAskAgain === false) {
+			return currentPermission;
+		}
+		const requestedPermission = await NotificationHelper.requestDeviceNotificationPermission();
+		return requestedPermission ?? currentPermission;
+	}
+
+	/**
+	 * Opens the system settings of the app so the user can grant the notification permission that
+	 * can no longer be requested from inside the app.
+	 */
+	static async openSystemNotificationSettings(): Promise<void> {
+		try {
+			await Linking.openSettings();
+		} catch (err) {
+			console.warn('NotificationHelper: could not open the system settings', err);
 		}
 	}
 

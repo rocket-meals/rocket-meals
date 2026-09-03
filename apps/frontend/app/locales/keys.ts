@@ -156,6 +156,7 @@ export const TranslationKeys = {
 	notification_index_introduction: 'notification_index_introduction',
 	notification_please_enable_notifications_in_order_to_use_this_feature: 'notification_please_enable_notifications_in_order_to_use_this_feature',
 	notification_please_notify_me_on_my_smartphones_if_they_allow_to_be_notified: 'notification_please_notify_me_on_my_smartphones_if_they_allow_to_be_notified',
+	notification_open_system_settings: 'notification_open_system_settings',
 	this_feature_is_not_available_currently_reason: 'this_feature_is_not_available_currently_reason',
 	device_android_system: 'device_android_system',
 	device_ios_system: 'device_ios_system',
@@ -179,7 +180,6 @@ export const TranslationKeys = {
 	food_plan_week: 'food_plan_week',
 	response: 'response',
 	your_request: 'your_request',
-	support_warning_no_account_or_mail_provided_therefore_we_cannot_answer_your_request: 'support_warning_no_account_or_mail_provided_therefore_we_cannot_answer_your_request',
 	my_support_tickets: 'my_support_tickets',
 	no_permission_for: 'no_permission_for',
 	please_create_an_account: 'please_create_an_account',
@@ -426,6 +426,7 @@ export const TranslationKeys = {
 	linked_elements_food_image: 'linked_elements_food_image',
 	linked_elements_rating: 'linked_elements_rating',
 	linked_elements_comment: 'linked_elements_comment',
+	linked_elements_app_feedback: 'linked_elements_app_feedback',
 	mark_all_chats_as_read: 'mark_all_chats_as_read',
 	mark_all_chats_as_unread: 'mark_all_chats_as_unread',
 	rss_feed: 'rss_feed',
@@ -638,6 +639,7 @@ export const TranslationKeys = {
 	debug_request_send: 'debug_request_send',
 	debug_request_default_title: 'debug_request_default_title',
 	debug_request_default_content: 'debug_request_default_content',
+	feedback_open_chat: 'feedback_open_chat',
 
 	// Housing analytics (management reports on the handover protocols)
 	housing_analytics: 'housing_analytics',

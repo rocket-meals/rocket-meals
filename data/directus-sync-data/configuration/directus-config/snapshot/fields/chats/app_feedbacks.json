@@ -1,23 +1,21 @@
 {
   "collection": "chats",
-  "field": "messages",
+  "field": "app_feedbacks",
   "type": "alias",
   "meta": {
     "collection": "chats",
     "conditions": null,
     "display": null,
     "display_options": null,
-    "field": "messages",
-    "group": null,
+    "field": "app_feedbacks",
+    "group": "linked_entities",
     "hidden": false,
     "interface": "list-o2m",
     "note": null,
-    "options": {
-      "enableLink": true
-    },
+    "options": null,
     "readonly": false,
     "required": false,
-    "sort": 13,
+    "sort": 2,
     "special": [
       "o2m"
     ],

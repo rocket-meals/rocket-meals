@@ -1,4 +1,6 @@
 Key,Message,Component,Line
+"AaBg9V9xEfY3x5R1F0GH","Compare with `undefined` directly instead of using `typeof`.","rocket-meals_rocket-meals:apps/frontend/app/helper/appStateForFeedback.ts",98
+"AaBg9V9xEfY3x5R1F0GI","'value' may use Object's default stringification format ('[object Object]') when stringified.","rocket-meals_rocket-meals:apps/frontend/app/helper/appStateForFeedback.ts",103
 "AaAjUba4LLG6L2zbMTrv","Move function 'getDashboardIdOfPanelPayload' to the outer scope.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/dashboard-protection-hook/index.ts",172
 "AaAjUba4LLG6L2zbMTrt","Move function 'isProtectionActiveFor' to the outer scope.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/dashboard-protection-hook/index.ts",63
 "AaAjUba4LLG6L2zbMTru","Move function 'buildForbiddenError' to the outer scope.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/dashboard-protection-hook/index.ts",67

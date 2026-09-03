@@ -43,8 +43,10 @@ export type AppElementsTranslations = {
 };
 
 export type AppFeedbacks = {
+  chat?: string | Chats | null;
   contact_email?: string | null;
   content?: string | null;
+  data?: unknown | null;
   date_created?: string | null;
   date_updated?: string | null;
   device_brand?: string | null;
@@ -66,6 +68,7 @@ export type AppFeedbacks = {
   sort?: number | null;
   source_identifier?: string | null;
   source_rating_raw?: number | null;
+  state?: string | null;
   status?: string | null;
   title?: string | null;
   user_created?: string | null;
@@ -495,6 +498,7 @@ export type ChatMessages = {
 
 export type Chats = {
   alias?: string | null;
+  app_feedbacks: any[] | AppFeedbacks[];
   conversation_state?: string | null;
   date_created?: string | null;
   date_updated?: string | null;

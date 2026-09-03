@@ -13,9 +13,10 @@ import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import useToast from '@/hooks/useToast';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { DatabaseTypes, EmailHelper, StringHelper } from 'repo-depkit-common';
+import { AppFeedbackContentHelper, DatabaseTypes, EmailHelper, StringHelper } from 'repo-depkit-common';
 import { useAppSelector } from '@/redux/hooks';
 import { configureStore } from '@/redux/store';
+import { buildAppStateJsonForFeedback } from '@/helper/appStateForFeedback';
 import { myContrastColor } from '@/helper/ColorHelper';
 import SettingsList from '@/components/SettingsList';
 import SettingsListEditable from '@/components/SettingsListEditable';
@@ -104,6 +105,7 @@ const FeedbackScreen = () => {
 				display_scale: response?.display_scale,
 				positive: response?.positive,
 				profile: response?.profile,
+				chat: response?.chat,
 			});
 		}
 	};
@@ -136,6 +138,7 @@ const FeedbackScreen = () => {
 			title: '',
 			content: '',
 			email: '',
+			positive: false,
 			device_brand: brand,
 			device_system_version: systemVersion,
 			device_platform: platform,
@@ -149,6 +152,14 @@ const FeedbackScreen = () => {
 		setErrorJson(null);
 	};
 
+	// Without a profile we can only answer via mail, so the contact email becomes mandatory.
+	const isContactEmailRequired = !profile?.id;
+	const isContactEmailValid = useMemo(
+		() => EmailHelper.sanitizeAndValidate(String(inputValues.contact_email ?? '')).isValid,
+		[inputValues.contact_email]
+	);
+	const isContactEmailMissing = isContactEmailRequired && !isContactEmailValid;
+
 	const feedbackSettingsItems = useMemo(
 		() =>
 			feedbackData
@@ -157,8 +168,9 @@ const FeedbackScreen = () => {
 					...item,
 					multiline: item.key === 'content',
 					keyboardType: (item.key === 'contact_email' ? 'email-address' : undefined) as KeyboardTypeOptions | undefined,
+					required: item.key === 'contact_email' && isContactEmailRequired,
 				})),
-		[]
+		[isContactEmailRequired]
 	);
 	const deviceSettingsItems = useMemo(() => {
 		const numericDeviceKeys = new Set(['display_height', 'display_width', 'display_fontscale', 'display_pixelratio', 'display_scale']);
@@ -195,11 +207,13 @@ const FeedbackScreen = () => {
 			title,
 			multiline,
 			keyboardType,
+			required,
 		}: {
 			key: string;
 			title: string;
 			multiline?: boolean;
 			keyboardType?: KeyboardTypeOptions;
+			required?: boolean;
 		}) => {
 			const isEmailField = key === 'contact_email';
 			openTextInputModal({
@@ -222,7 +236,7 @@ const FeedbackScreen = () => {
 					? value => {
 							const cleanedEmail = StringHelper.replaceAllWithOptions({ str: value, find: String.raw`\s+`, replace: '' });
 							if (cleanedEmail.trim().length === 0) {
-								return { isValid: true, value: '' };
+								return { isValid: !required, value: '' };
 							}
 							const { trimmedEmail, isValid } = EmailHelper.sanitizeAndValidate(cleanedEmail);
 							return { isValid, value: trimmedEmail };
@@ -233,23 +247,27 @@ const FeedbackScreen = () => {
 		[inputValues, openTextInputModal, translate]
 	);
 
-	const appendAppStateToContent = (sanitizedInput: { [key: string]: any }) => {
+	// The app state belongs into the `data` column, not into `content`: `content` is what the
+	// user wrote and is shown as the initial message of the support chat.
+	const applyAppStateToFeedback = (sanitizedInput: { [key: string]: any }) => {
 		if (!includeAppState) return;
 		try {
-			const appStateJson = JSON.stringify(configureStore.getState());
-			sanitizedInput.content = `${sanitizedInput.content ?? ''}\n\n---APP_STATE_JSON---\n${appStateJson}`;
+			// The raw state contains the whole content catalogue with all translations (>1 MB in
+			// production), which blew up the feedback entry and the notification mail.
+			const appStateJson = buildAppStateJsonForFeedback(configureStore.getState());
+			sanitizedInput.data = AppFeedbackContentHelper.buildAppStateData(appStateJson);
 		} catch (e) {
 			console.warn('feedback-support: could not serialize app state', e);
 			// send the serialization error itself along with the feedback so it can be investigated
-			const errorInfo = e instanceof Error ? { message: e.message, stack: e.stack } : e;
-			sanitizedInput.content = `${sanitizedInput.content ?? ''}\n\n---APP_STATE_JSON_ERROR---\n${JSON.stringify(errorInfo)}`;
+			sanitizedInput.data = AppFeedbackContentHelper.buildAppStateErrorData(e);
 		}
 	};
 
 	const handleCreateAppFeedback = async (defaultValues?: { title: string; content: string }) => {
 		if (inputValues) {
 			setLoading(true);
-			const { email, ...filteredInputValues } = inputValues;
+			// `chat` is linked by the server-side hook and is not writable for the app.
+			const { email, chat, ...filteredInputValues } = inputValues;
 			applyDefaultFeedbackValues(filteredInputValues, defaultValues);
 			if (profile?.id) {
 				filteredInputValues.profile = profile?.id;
@@ -263,7 +281,7 @@ const FeedbackScreen = () => {
 					return true;
 				})
 			);
-			appendAppStateToContent(sanitizedInput);
+			applyAppStateToFeedback(sanitizedInput);
 			try {
 				console.log('Creating app feedback with input:');
 				await appFeedback.createAppFeedback(sanitizedInput);
@@ -295,7 +313,8 @@ const FeedbackScreen = () => {
 	const handleUpdateAppFeedback = async () => {
 		if (inputValues && app_feedbacks_id) {
 			setLoading(true);
-			const { email, ...filteredInputValues } = inputValues;
+			// `chat` is linked by the server-side hook and is not writable for the app.
+			const { email, chat, ...filteredInputValues } = inputValues;
 			if (profile?.id) {
 				filteredInputValues.profile = profile?.id;
 			}
@@ -308,7 +327,7 @@ const FeedbackScreen = () => {
 					return true;
 				})
 			);
-			appendAppStateToContent(sanitizedInput);
+			applyAppStateToFeedback(sanitizedInput);
 			try {
 				await appFeedback.updateAppFeedback(String(app_feedbacks_id), sanitizedInput);
 				setLoading(false);
@@ -330,10 +349,14 @@ const FeedbackScreen = () => {
 
 	const webHeadingFontSize = isWeb ? 20 : 24;
 	const requestHeadingFontSize = windowWidth > 600 ? webHeadingFontSize : 24;
-	const webWarningFontSize = isWeb ? 17 : 20;
-	const warningFontSize = windowWidth > 600 ? webWarningFontSize : 20;
 	const webLinkFontSize = isWeb ? 18 : 16;
 	const linkFontSize = windowWidth > 600 ? webLinkFontSize : 16;
+
+	// `*` is the common non-linguistic marker for a mandatory field, so it needs no translation.
+	const getFieldLabel = (title: string, required?: boolean) => {
+		const label = translate(title as any);
+		return required ? `${label} *` : label;
+	};
 
 	const getGroupPosition = (index: number, total: number) => {
 		if (index === 0) {
@@ -351,6 +374,12 @@ const FeedbackScreen = () => {
 		}
 		return inputValues[key] || '';
 	};
+
+	// A chat only exists for feedbacks of users with a profile - the hook creates it on the server.
+	const linkedChatId = typeof inputValues.chat === 'object' ? inputValues.chat?.id : inputValues.chat;
+
+	const isSubmitDisabled =
+		inputValues?.title?.length === 0 || inputValues?.content?.length === 0 || isContactEmailMissing;
 
 	const submitButtonLabel = app_feedbacks_id ? translate(TranslationKeys.to_update) : translate(TranslationKeys.send);
 	const submitButtonIcon = app_feedbacks_id ? <FontAwesome5 name="save" size={24} color={contrastColor} /> : <MaterialCommunityIcons name="plus" size={24} color={contrastColor} />;
@@ -380,7 +409,7 @@ const FeedbackScreen = () => {
 								key={item.key}
 								iconBgColor={primaryColor}
 								leftIcon={getFeedbackIcon(item.icon)}
-								label={translate(item.title as any)}
+								label={getFieldLabel(item.title, item.required)}
 								value={excerpt(String(inputValues[item.key] ?? ''), windowWidth > 850 ? 50 : 20)}
 								handleFunction={() => {
 									openFeedbackSheet({
@@ -388,6 +417,7 @@ const FeedbackScreen = () => {
 										title: item.title,
 										multiline: item.multiline,
 										keyboardType: item.keyboardType,
+										required: item.required,
 									});
 								}}
 								groupPosition={getGroupPosition(index, feedbackSettingsItems.length)}
@@ -421,17 +451,6 @@ const FeedbackScreen = () => {
 									groupPosition="single"
 								/>
 							))}
-						{!profile?.id && (
-							<Text
-								style={{
-									fontSize: warningFontSize,
-									color: theme.screen.text,
-									padding: 15,
-								}}
-							>
-								{translate(TranslationKeys.support_warning_no_account_or_mail_provided_therefore_we_cannot_answer_your_request)}
-							</Text>
-						)}
 					</View>
 
 					<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '100%' }]}>
@@ -442,7 +461,7 @@ const FeedbackScreen = () => {
 									padding: 15,
 									borderRadius: 10,
 									backgroundColor: primaryColor,
-									opacity: inputValues?.title?.length === 0 || inputValues?.content?.length === 0 ? 0.5 : 1,
+									opacity: isSubmitDisabled ? 0.5 : 1,
 								},
 							]}
 							onPress={() => {
@@ -452,7 +471,7 @@ const FeedbackScreen = () => {
 									handleCreateAppFeedback();
 								}
 							}}
-							disabled={inputValues?.title?.length === 0 || inputValues?.content?.length === 0}
+							disabled={isSubmitDisabled}
 						>
 							{loading ? (
 								<View style={{ width: '100%' }}>
@@ -477,6 +496,38 @@ const FeedbackScreen = () => {
 								</>
 							)}
 						</TouchableOpacity>
+
+						{linkedChatId && (
+							<TouchableOpacity
+								style={[
+									styles.row,
+									{
+										marginTop: 10,
+										padding: 15,
+										borderRadius: 10,
+										backgroundColor: theme.screen.iconBg,
+									},
+								]}
+								onPress={() => router.push({ pathname: '/chats/details', params: { chat_id: String(linkedChatId) } })}
+							>
+								<View style={styles.leftView}>
+									<Text
+										style={[
+											styles.linkText,
+											{
+												color: theme.screen.text,
+												fontSize: linkFontSize,
+											},
+										]}
+									>
+										{translate(TranslationKeys.feedback_open_chat)}
+									</Text>
+								</View>
+								<View>
+									<MaterialCommunityIcons name="chat" size={24} color={theme.screen.text} />
+								</View>
+							</TouchableOpacity>
+						)}
 					</View>
 
 					<View style={[styles.section, { width: windowWidth > 600 ? '85%' : '100%' }]}>
@@ -599,11 +650,11 @@ const FeedbackScreen = () => {
 										padding: 15,
 										borderRadius: 10,
 										backgroundColor: theme.screen.iconBg,
-										opacity: loading ? 0.5 : 1,
+										opacity: loading || isContactEmailMissing ? 0.5 : 1,
 									},
 								]}
 								onPress={handleSendDebugRequest}
-								disabled={loading}
+								disabled={loading || isContactEmailMissing}
 							>
 								<View style={styles.leftView}>
 									<Text

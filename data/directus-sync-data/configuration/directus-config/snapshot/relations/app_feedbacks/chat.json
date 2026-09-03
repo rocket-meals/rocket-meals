@@ -1,0 +1,25 @@
+{
+  "collection": "app_feedbacks",
+  "field": "chat",
+  "related_collection": "chats",
+  "meta": {
+    "junction_field": null,
+    "many_collection": "app_feedbacks",
+    "many_field": "chat",
+    "one_allowed_collections": null,
+    "one_collection": "chats",
+    "one_collection_field": null,
+    "one_deselect_action": "nullify",
+    "one_field": "app_feedbacks",
+    "sort_field": null
+  },
+  "schema": {
+    "table": "app_feedbacks",
+    "column": "chat",
+    "foreign_key_table": "chats",
+    "foreign_key_column": "id",
+    "constraint_name": "app_feedbacks_chat_foreign",
+    "on_update": "NO ACTION",
+    "on_delete": "SET NULL"
+  }
+}

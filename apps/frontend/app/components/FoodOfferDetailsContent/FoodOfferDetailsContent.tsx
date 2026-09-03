@@ -16,7 +16,6 @@ import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { DELETE_FOOD_FEEDBACK_LOCAL, SET_FOOD_DETAILS_LAST_TAB, UPDATE_FOOD_FEEDBACK_LOCAL, UPDATE_PROFILE } from '@/redux/Types/types';
 import { FoodOfferDetailTab } from '@/constants/TabEnums';
 import { MarkingContent } from '@/components/MarkingBottomSheet';
-import NotificationSheet from '@/components/NotificationSheet/NotificationSheet';
 import usePlatformHelper from '@/helper/platformHelper';
 import { NotificationHelper } from '@/helper/NotificationHelper';
 import { getCurrentDevice, getDeviceIdentifier, getDeviceInformationWithoutPushToken } from '@/helper/DeviceHelper';
@@ -28,6 +27,7 @@ import { handleFoodRating } from '@/helper/feedback';
 import { RootState } from '@/redux/reducer';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
+import useFoodNotificationModal from '@/hooks/useFoodNotificationModal';
 import FoodHeader from '@/app/(app)/foodoffers/details/components/FoodHeader';
 import NotificationSection from '@/app/(app)/foodoffers/details/components/NotificationSection';
 import TabController from '@/app/(app)/foodoffers/details/components/TabController';
@@ -59,7 +59,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
     const { show: showModal, close: closeModal } = useMyScrollViewModal();
     const { addPointsForTabSwitch, addPointsForFoodRating5Stars } = useAppRatingScore();
 
-    const { isSmartPhone, isAndroid, isIOS } = usePlatformHelper();
+    const { isSmartPhone } = usePlatformHelper();
     const user = useAppSelector((state) => state.authReducer.user, shallowEqual);
     const profile = useAppSelector((state) => state.authReducer.profile, shallowEqual);
     const isManagement = useAppSelector((state) => state.authReducer.isManagement);
@@ -79,7 +79,6 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
 
     const profileHelper = useMemo(() => new ProfileHelper(), []);
     const foodfeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
-    const [, pushTokenObj, _, requestDeviceNotificationPermission] = NotificationHelper.useNotificationPermission(profile);
 
     const { foodDetails, foodAttributes, loading: foodAttributesLoading } = useFoodDetails({ offerId, initialFoodId });
     const { groupedAttributes } = useFoodAttributes({ foodAttributes, foodDetails });
@@ -92,6 +91,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
     const selectedCanteen = useSelectedCanteen();
     const foodOfferCanteenId = selectedCanteen?.id as string | undefined;
     const { openAccountRequiredModal } = useAccountRequiredModal();
+    const { openNotificationConfirmModal, openNotificationPermissionModal } = useFoodNotificationModal();
 
     // Initialisierung mit dem zuletzt gespeicherten Reiter.
     // Ist der gespeicherte Wert kein gültiger Tab (z. B. null, undefined oder ein veralteter Wert),
@@ -130,12 +130,6 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
             console.error('Error fetching food details: ', e);
         }
     }, [offerId, initialFoodId, language]);
-
-    const openNotificationSheet = useCallback(() => {
-        showModal({
-            children: <NotificationSheet closeSheet={closeModal} previousFeedback={previousFeedback} foodDetails={foodDetails} />,
-        });
-    }, [showModal, closeModal, previousFeedback, foodDetails]);
 
     const openMenuSheet = useCallback(() => {
         showModal({
@@ -317,27 +311,28 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
             openAccountRequiredModal();
             return;
         }
-        if (isSmartPhone()) {
-            const result = await NotificationHelper.getDeviceNotificationPermission();
-            if (isAndroid()) {
-                if (result?.granted) {
-                    updateFoodFeedbackNotification();
-                } else if (NotificationHelper.isDeviceNotificationPermissionUndetermined(pushTokenObj)) {
-                    requestDeviceNotificationPermission();
-                }
-            }
-            if (isIOS()) {
-                const result = await NotificationHelper.requestDeviceNotificationPermission();
-                if (result?.granted) {
-                    updateFoodFeedbackNotification();
-                } else if (NotificationHelper.isDeviceNotificationPermissionUndetermined(pushTokenObj)) {
-                    requestDeviceNotificationPermission();
-                }
-            }
-        } else {
-            openNotificationSheet();
+        if (!isSmartPhone()) {
+            openNotificationConfirmModal(updateFoodFeedbackNotification);
+            return;
         }
-    }, [user, isSmartPhone, isAndroid, isIOS, pushTokenObj, requestDeviceNotificationPermission, updateFoodFeedbackNotification, openNotificationSheet, openAccountRequiredModal]);
+        // Switching a reminder off must always work, even when the system permission is gone.
+        if (previousFeedback?.notify) {
+            await updateFoodFeedbackNotification();
+            return;
+        }
+        const permission = await NotificationHelper.ensureDeviceNotificationPermission();
+        if (permission?.granted) {
+            await updateFoodFeedbackNotification();
+            // The stored device still carries the old permission/push token - without refreshing it
+            // the backend has no token to send the reminder to.
+            await updateDeviceInfo();
+            return;
+        }
+        // Without the system permission the reminder would never arrive. iOS only shows its
+        // permission dialog once, so instead of leaving the toggle silently dead we explain the
+        // situation and offer the way to the system settings.
+        openNotificationPermissionModal();
+    }, [user, isSmartPhone, previousFeedback, updateFoodFeedbackNotification, updateDeviceInfo, openNotificationConfirmModal, openNotificationPermissionModal, openAccountRequiredModal]);
 
     const pagerViewStyle = useMemo(() => [
         styles.pagerView,

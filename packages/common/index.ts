@@ -27,6 +27,7 @@ export * from './src/ImpressumHelper';
 export * from './src/MarkdownSectionHelper';
 export * from './src/FriendshipStatus';
 export * from './src/AppFeedbackSourceIdentifier';
+export * from './src/AppFeedbackContentHelper';
 export * from './src/CustomerAppStoreIds';
 export * from './src/AppleAppStoreConfig';
 export * from './src/StoreAppMetadata';

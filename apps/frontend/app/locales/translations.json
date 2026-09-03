@@ -1419,6 +1419,16 @@
     "tr": "Bu özelliği kullanmak için lütfen bildirimleri etkinleştirin.",
     "zh": "请启用通知以使用此功能。"
   },
+  "notification_open_system_settings": {
+    "de": "Systemeinstellungen öffnen",
+    "en": "Open system settings",
+    "ar": "فتح إعدادات النظام",
+    "es": "Abrir la configuración del sistema",
+    "fr": "Ouvrir les paramètres du système",
+    "ru": "Открыть системные настройки",
+    "tr": "Sistem ayarlarını aç",
+    "zh": "打开系统设置"
+  },
   "notification_please_notify_me_on_my_smartphones_if_they_allow_to_be_notified": {
     "de": "Bitte benachrichtige mich auf meinen Smartphones. Die Benachrichtigungen müssen auf den Geräten erlaubt sein.",
     "en": "Please notify me on my smartphones. Notifications must be allowed on the devices.",
@@ -1598,16 +1608,6 @@
     "ru": "Ваш запрос",
     "tr": "Talebiniz",
     "zh": "你的请求"
-  },
-  "support_warning_no_account_or_mail_provided_therefore_we_cannot_answer_your_request": {
-    "de": "Kein Account vorhanden oder E-Mail Adresse angegeben, daher können wir deine Anfrage nicht beantworten.",
-    "en": "No account provided or email address given, therefore we cannot answer your request.",
-    "ar": "لم يتم توفير حساب أو تقديم عنوان بريد إلكتروني، لذا لا يمكننا الرد على طلبك.",
-    "es": "No se proporcionó una cuenta o dirección de correo electrónico, por lo tanto no podemos responder a tu solicitud.",
-    "fr": "Aucun compte fourni ou adresse e-mail donnée, nous ne pouvons donc pas répondre à votre demande.",
-    "ru": "Учетная запись не предоставлена или не указан адрес электронной почты, поэтому мы не можем ответить на ваш запрос.",
-    "tr": "Hesap sağlanmadı veya e-posta adresi verilmediği için talebinizi yanıtlayamıyoruz.",
-    "zh": "未提供帐户或提供电子邮件地址，因此我们无法回答您的请求。"
   },
   "my_support_tickets": {
     "de": "Meine Support-Tickets",
@@ -3878,6 +3878,16 @@
     "ru": "Комментарий",
     "tr": "Yorum",
     "zh": "评论"
+  },
+  "linked_elements_app_feedback": {
+    "de": "App-Feedback",
+    "en": "App feedback",
+    "ar": "ملاحظات التطبيق",
+    "es": "Comentarios de la app",
+    "fr": "Retour sur l'application",
+    "ru": "Отзыв о приложении",
+    "tr": "Uygulama geri bildirimi",
+    "zh": "应用反馈"
   },
   "rss_feed": {
     "de": "RSS Feed",
@@ -6178,6 +6188,16 @@
     "ru": "Удерживайте логотип приложения, чтобы показать параметры отладки",
     "tr": "Hata ayıklama seçeneklerini göstermek için uygulama logosuna basılı tut",
     "zh": "长按应用标志以显示调试选项"
+  },
+  "feedback_open_chat": {
+    "de": "Zum Chat",
+    "en": "Go to chat",
+    "ar": "الانتقال إلى المحادثة",
+    "es": "Ir al chat",
+    "fr": "Aller au chat",
+    "ru": "Перейти к чату",
+    "tr": "Sohbete git",
+    "zh": "前往聊天"
   },
   "housing_analytics": {
     "de": "Wohnanlagen: Auswertungen",

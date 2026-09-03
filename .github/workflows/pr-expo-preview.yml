@@ -321,7 +321,7 @@ jobs:
         run: |
           yarn expo export -p web
           yarn run copy-assets
-          yarn gh-pages --nojekyll -d dist --dest "pr-${PR_NUMBER}"
+          node ./scripts/deploy-gh-pages.js --dest "pr-${PR_NUMBER}"
         working-directory: ./apps/frontend/app
         env:
           EXPO_PUBLIC_BASE_URL_SUFFIX: /pr-${{ env.PR_NUMBER }}

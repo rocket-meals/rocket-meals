@@ -12,12 +12,13 @@ import { myContrastColor } from '@/helper/ColorHelper';
 import { ChatMessagesHelper } from '@/redux/actions/Chats/ChatMessages';
 import { useLanguage } from '@/hooks/useLanguage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { DatabaseTypes, DateHelper } from 'repo-depkit-common';
+import { AppFeedbackContentHelper, DatabaseTypes, DateHelper } from 'repo-depkit-common';
 import SettingsList from '@/components/SettingsList';
 import MyImage from '@/components/MyImage';
 import { getFoodName } from '@/helper/resourceHelper';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
+import { AppFeedback } from '@/redux/actions/AppFeedback/AppFeedback';
 import { loadFoodById } from '@/helper/FoodHelper';
 import styles from './styles';
 import { MARK_CHAT_AS_READ } from '@/redux/Types/types';
@@ -29,6 +30,39 @@ type LinkedFoodInfo = {
         feedback: DatabaseTypes.FoodsFeedbacks;
         foodOfferId?: string | null;
 };
+
+/**
+ * Resolve the id of a linked entity, no matter whether the relation was delivered as a plain
+ * id, as a nested object or as a junction row.
+ */
+function getLinkedEntityId(entity: any): string | null {
+        if (!entity) {
+                return null;
+        }
+        if (typeof entity === 'string') {
+                return entity;
+        }
+        if (typeof entity === 'object') {
+                if ('food_feedbacks_id' in entity && entity.food_feedbacks_id) {
+                        return getLinkedEntityId(entity.food_feedbacks_id);
+                }
+                if ('id' in entity && entity.id) {
+                        return String(entity.id);
+                }
+        }
+        return null;
+}
+
+/**
+ * Return the first related id of a `chats` o2m relation (`food_feedbacks`, `app_feedbacks`),
+ * or null when the chat has no such linked entity.
+ */
+function getFirstRelatedEntityId(relations: unknown): string | null {
+        if (!Array.isArray(relations) || relations.length === 0) {
+                return null;
+        }
+        return getLinkedEntityId(relations[0]);
+}
 
 /**
  * Apply `setLinkedFoodFeedback` only if the calling effect is still mounted
@@ -59,11 +93,13 @@ const ChatDetailsScreen = () => {
         const [sending, setSending] = useState(false);
         const { translate, language } = useLanguage();
         const [linkedFoodFeedback, setLinkedFoodFeedback] = useState<LinkedFoodInfo | null>(null);
+        const [linkedAppFeedback, setLinkedAppFeedback] = useState<DatabaseTypes.AppFeedbacks | null>(null);
         const [refreshing, setRefreshing] = useState(false);
         const listRef = useRef<FlatList<DatabaseTypes.ChatMessages> | null>(null);
         const [isAtBottom, setIsAtBottom] = useState(true);
         const hasAutoScrolledToBottomRef = useRef(false);
         const foodFeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
+        const appFeedbackHelper = useMemo(() => new AppFeedback(), []);
         const { show: showModal, close: closeModal } = useMyScrollViewModal();
 
     const foodsAreaColor = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
@@ -264,51 +300,8 @@ const ChatDetailsScreen = () => {
         useEffect(() => {
                 let isMounted = true;
 
-                const getEntityId = (entity: any): string | null => {
-                        if (!entity) {
-                                return null;
-                        }
-                        if (typeof entity === 'string') {
-                                return entity;
-                        }
-                        if (typeof entity === 'object') {
-                                if ('food_feedbacks_id' in entity && entity.food_feedbacks_id) {
-                                        return getEntityId((entity as any).food_feedbacks_id);
-                                }
-                                if ('id' in entity && entity.id) {
-                                        return String(entity.id);
-                                }
-                        }
-                        return null;
-                };
-
-                const resolveFeedbackRelation = (chatEntity: DatabaseTypes.Chats | undefined) => {
-                        if (!chatEntity) {
-                                return null;
-                        }
-
-                        const relations: string[] | null = chatEntity.food_feedbacks as string[] | null;
-
-                        if (!relations) {
-                                return null;
-                        }
-
-                        if (Array.isArray(relations)) {
-                                return relations;
-                        }
-
-                        return null;
-                };
-
                 const resolveLinkedFoodFeedback = async () => {
-                        const chatFeedbackRelations = resolveFeedbackRelation(chat);
-
-                        if (!chatFeedbackRelations || chatFeedbackRelations.length === 0) {
-                                setLinkedFoodFeedbackIfMounted(isMounted, setLinkedFoodFeedback, null);
-                                return;
-                        }
-
-                        const feedbackId = getEntityId(chatFeedbackRelations[0]);
+                        const feedbackId = getFirstRelatedEntityId(chat?.food_feedbacks);
 
                         if (!feedbackId) {
                                 setLinkedFoodFeedbackIfMounted(isMounted, setLinkedFoodFeedback, null);
@@ -330,7 +323,7 @@ const ChatDetailsScreen = () => {
                                         return;
                                 }
 
-                                const foodId = getEntityId(feedback.food);
+                                const foodId = getLinkedEntityId(feedback.food);
 
                                 if (!foodId) {
                                         setLinkedFoodFeedbackIfMounted(isMounted, setLinkedFoodFeedback, null);
@@ -338,7 +331,7 @@ const ChatDetailsScreen = () => {
                                 }
 
                                 const food = (await loadFoodById(foodId)) as DatabaseTypes.Foods;
-                                const foodOfferId = getEntityId(feedback.foodoffer);
+                                const foodOfferId = getLinkedEntityId(feedback.foodoffer);
 
                                 setLinkedFoodFeedbackIfMounted(isMounted, setLinkedFoodFeedback, {
                                         food,
@@ -358,7 +351,52 @@ const ChatDetailsScreen = () => {
                 };
         }, [chat, chat?.food_feedbacks, foodFeedbackHelper]);
 
-        const renderLinkedElements = () => {
+        useEffect(() => {
+                let isMounted = true;
+
+                const resolveLinkedAppFeedback = async () => {
+                        const appFeedbackId = getFirstRelatedEntityId(chat?.app_feedbacks);
+
+                        if (!appFeedbackId) {
+                                if (isMounted) {
+                                        setLinkedAppFeedback(null);
+                                }
+                                return;
+                        }
+
+                        try {
+                                const appFeedback = (await appFeedbackHelper.fetchAppFeedbackById(appFeedbackId, {
+                                        fields: ['id', 'title', 'content', 'positive'],
+                                })) as DatabaseTypes.AppFeedbacks;
+
+                                if (isMounted) {
+                                        setLinkedAppFeedback(appFeedback ?? null);
+                                }
+                        } catch (error) {
+                                console.error('Error resolving linked app feedback for chat:', error);
+                                if (isMounted) {
+                                        setLinkedAppFeedback(null);
+                                }
+                        }
+                };
+
+                resolveLinkedAppFeedback();
+
+                return () => {
+                        isMounted = false;
+                };
+        }, [chat, chat?.app_feedbacks, appFeedbackHelper]);
+
+        const renderShowMoreInformation = () => (
+                <View style={styles.linkedMoreInfoWrapper}>
+                        <Text style={[styles.linkedMoreInfoText, { color: theme.screen.placeholder }]} numberOfLines={1}>
+                                {translate(TranslationKeys.show_more_information)}
+                        </Text>
+                        <MaterialCommunityIcons name="chevron-right" size={24} color={theme.screen.icon} />
+                </View>
+        );
+
+        const renderLinkedFoodFeedback = (groupPosition: 'single' | 'top' | 'bottom' | 'middle') => {
                 if (!linkedFoodFeedback) {
                         return null;
                 }
@@ -471,41 +509,131 @@ const ChatDetailsScreen = () => {
                 };
 
                 return (
+                        <SettingsList
+                                leftIcon={
+                                        imageSource ? (
+                                                <MyImage remote_image_url={imageSource.uri} style={styles.linkedFoodImage} />
+                                        ) : (
+                                                <MaterialCommunityIcons
+                                                        name="silverware-fork-knife"
+                                                        size={20}
+                                                        color={theme.screen.icon}
+                                                />
+                                        )
+                                }
+                                title={foodName}
+                                titleNumberOfLines={1}
+                                rightElement={renderShowMoreInformation()}
+                                onPress={openDetailsModal}
+                                iconBackgroundColor={foodsAreaColor}
+                                groupPosition={groupPosition}
+                        />
+                );
+        };
+
+        const renderLinkedAppFeedback = (groupPosition: 'single' | 'top' | 'bottom' | 'middle') => {
+                if (!linkedAppFeedback) {
+                        return null;
+                }
+
+                const feedbackTitle = linkedAppFeedback.title?.trim() || translate(TranslationKeys.linked_elements_app_feedback);
+                // The content may carry the technical app state dump - only show what the user wrote.
+                const feedbackContent = AppFeedbackContentHelper.stripAppState(linkedAppFeedback.content);
+
+                let likeStatusValue: string;
+                if (linkedAppFeedback.positive === true) {
+                        likeStatusValue = translate(TranslationKeys.i_like_that);
+                } else if (linkedAppFeedback.positive === false) {
+                        likeStatusValue = translate(TranslationKeys.i_dislike_that);
+                } else {
+                        likeStatusValue = translate(TranslationKeys.no_value);
+                }
+
+                const openDetailsModal = () => {
+                        showModal({
+                                title: feedbackTitle,
+                                onClose: closeModal,
+                                children: (
+                                        <View>
+                                                <SettingsList
+                                                        label={translate(TranslationKeys.title)}
+                                                        value={linkedAppFeedback.title?.trim() || translate(TranslationKeys.no_value)}
+                                                        leftIcon={
+                                                                <MaterialCommunityIcons
+                                                                        name="format-title"
+                                                                        size={20}
+                                                                        color={theme.screen.icon}
+                                                                />
+                                                        }
+                                                        iconBackgroundColor={projectColor}
+                                                        groupPosition="top"
+                                                />
+                                                <SettingsList
+                                                        label={translate(TranslationKeys.feedback)}
+                                                        value={feedbackContent || translate(TranslationKeys.no_value)}
+                                                        leftIcon={
+                                                                <MaterialCommunityIcons
+                                                                        name="message-text"
+                                                                        size={20}
+                                                                        color={theme.screen.icon}
+                                                                />
+                                                        }
+                                                        iconBackgroundColor={projectColor}
+                                                        groupPosition="middle"
+                                                />
+                                                <SettingsList
+                                                        label={translate(TranslationKeys.like_status)}
+                                                        value={likeStatusValue}
+                                                        leftIcon={
+                                                                <MaterialCommunityIcons
+                                                                        name="thumb-up-outline"
+                                                                        size={20}
+                                                                        color={theme.screen.icon}
+                                                                />
+                                                        }
+                                                        iconBackgroundColor={projectColor}
+                                                        groupPosition="bottom"
+                                                        showSeparator={false}
+                                                />
+                                        </View>
+                                ),
+                        });
+                };
+
+                return (
+                        <SettingsList
+                                leftIcon={
+                                        <MaterialCommunityIcons
+                                                name="message-alert-outline"
+                                                size={20}
+                                                color={theme.screen.icon}
+                                        />
+                                }
+                                title={feedbackTitle}
+                                titleNumberOfLines={1}
+                                rightElement={renderShowMoreInformation()}
+                                onPress={openDetailsModal}
+                                iconBackgroundColor={projectColor}
+                                groupPosition={groupPosition}
+                        />
+                );
+        };
+
+        const renderLinkedElements = () => {
+                if (!linkedFoodFeedback && !linkedAppFeedback) {
+                        return null;
+                }
+
+                const hasBoth = !!linkedFoodFeedback && !!linkedAppFeedback;
+
+                return (
                         <View style={styles.linkedElementsContainer}>
                                 <Text style={[styles.linkedElementsTitle, { color: theme.screen.text }]}>
                                         {translate(TranslationKeys.linked_elements)}
                                 </Text>
                                 <View style={styles.linkedListWrapper}>
-                                        <SettingsList
-                                                leftIcon={
-                                                        imageSource ? (
-                                                                <MyImage remote_image_url={imageSource.uri} style={styles.linkedFoodImage} />
-                                                        ) : (
-                                                                <MaterialCommunityIcons
-                                                                        name="silverware-fork-knife"
-                                                                        size={20}
-                                                                        color={theme.screen.icon}
-                                                                />
-                                                        )
-                                                }
-                                                title={foodName}
-                                                titleNumberOfLines={1}
-                                                rightElement={
-                                                        <View style={styles.linkedMoreInfoWrapper}>
-                                                                <Text style={[styles.linkedMoreInfoText, { color: theme.screen.placeholder }]} numberOfLines={1}>
-                                                                        {translate(TranslationKeys.show_more_information)}
-                                                                </Text>
-                                                                <MaterialCommunityIcons
-                                                                        name="chevron-right"
-                                                                        size={24}
-                                                                        color={theme.screen.icon}
-                                                                />
-                                                        </View>
-                                                }
-                                                onPress={openDetailsModal}
-                                                iconBackgroundColor={foodsAreaColor}
-                                                groupPosition="single"
-                                        />
+                                        {renderLinkedFoodFeedback(hasBoth ? 'top' : 'single')}
+                                        {renderLinkedAppFeedback(hasBoth ? 'bottom' : 'single')}
                                 </View>
                         </View>
                 );
