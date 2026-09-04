@@ -297,7 +297,7 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
       [item, language, pirateLanguage, funLanguageMode, screenWidth]
     );
 
-    const priceLabel = useMemo(() => showPrice(item, profile), [item, profile]);
+    const priceLabel = useMemo(() => showPrice(item, profile, translate), [item, profile, translate]);
 
     const imageUri = useMemo(() => {
       return foodItem?.image_remote_url || getImageUrl(foodItem?.image as string) || defaultImage;

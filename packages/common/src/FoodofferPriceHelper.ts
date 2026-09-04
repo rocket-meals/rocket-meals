@@ -1,5 +1,7 @@
 import { NumberHelper } from './NumberHelper';
 import { StringHelper } from './StringHelper';
+import { CommonTranslationKeys } from './translations/CommonTranslationKeys';
+import type { Translator } from './translations/TranslationTypes';
 
 /**
  * FoodofferPriceHelper – builds the price labels shown on food offer cards and on the monitors.
@@ -15,6 +17,10 @@ import { StringHelper } from './StringHelper';
  *
  * This is deliberately language independent, so the monitors do not need a translated
  * "per"/"pro" (which would also be word-order dependent in tr/zh).
+ *
+ * The unit itself *is* translated where we know it: "g" reads as "г" in Russian and "克" in
+ * Chinese. Units we do not know - the Directus dropdown allows free input for cases like
+ * "Box" - are shown exactly as they were typed.
  */
 
 /** The price groups a food offer carries a price for. */
@@ -89,15 +95,46 @@ export class FoodofferPriceHelper {
     return NumberHelper.formatNumber(price ?? 0, FoodofferPriceHelper.CURRENCY_SYMBOL, true, ',', '.', 2);
   }
 
+  /**
+   * The units of the Directus dropdown and their translation key. Everything else a customer
+   * may type into the field (the dropdown allows free input, e.g. "Box") has no key and is
+   * shown unchanged.
+   */
+  private static readonly PRICE_REFERENCE_UNIT_TRANSLATION_KEYS: Record<string, string> = {
+    g: CommonTranslationKeys.unit_gram,
+    kg: CommonTranslationKeys.unit_kilogram,
+    ml: CommonTranslationKeys.unit_milliliter,
+    l: CommonTranslationKeys.unit_liter,
+  };
+
+  /**
+   * The unit as it should be shown: translated when we know it, otherwise exactly as it was
+   * typed. Without a `translate` the raw value is used, which is already correct for every
+   * language that writes the SI symbols in latin script.
+   */
+  static formatPriceReferenceUnit(unit: string, translate?: Translator | null): string {
+    if (!translate) {
+      return unit;
+    }
+    const translationKey = FoodofferPriceHelper.PRICE_REFERENCE_UNIT_TRANSLATION_KEYS[unit.toLowerCase()];
+    if (!translationKey) {
+      return unit;
+    }
+    // a translator that cannot resolve a key echoes the key back - never show that
+    const translatedUnit = translate(translationKey);
+    return translatedUnit && translatedUnit !== translationKey ? translatedUnit : unit;
+  }
+
   /** `{amount: 100, unit: 'g'}` -> `"100 g"`, `{amount: 1, unit: 'Box'}` -> `"Box"`. */
-  static formatPriceReference(reference: PriceReference | null | undefined): string {
+  static formatPriceReference(reference: PriceReference | null | undefined, translate?: Translator | null): string {
     if (!reference) {
       return '';
     }
+    const unit = FoodofferPriceHelper.formatPriceReferenceUnit(reference.unit, translate);
     if (reference.amount === 1) {
-      return reference.unit;
+      return unit;
     }
-    return FoodofferPriceHelper.formatReferenceAmount(reference.amount) + StringHelper.NONBREAKING_HALF_SPACE + reference.unit;
+    return FoodofferPriceHelper.formatReferenceAmount(reference.amount) + StringHelper.NONBREAKING_HALF_SPACE + unit;
   }
 
   /** `100` -> `"100"`, `0.5` -> `"0,5"` – reference amounts are counts, not currency. */
@@ -109,20 +146,20 @@ export class FoodofferPriceHelper {
   }
 
   /** Price label of one price group: `"1,20 €"` or `"0,40 €/100 g"`. */
-  static getPriceLabelForPriceGroup(foodoffer: FoodofferPriceFields | null | undefined, priceGroup: string | null | undefined): string {
+  static getPriceLabelForPriceGroup(foodoffer: FoodofferPriceFields | null | undefined, priceGroup: string | null | undefined, translate?: Translator | null): string {
     const priceLabel = FoodofferPriceHelper.formatPrice(FoodofferPriceHelper.getPriceForPriceGroup(foodoffer, priceGroup));
     const reference = FoodofferPriceHelper.getPriceReference(foodoffer);
     if (!reference) {
       return priceLabel;
     }
-    return priceLabel + '/' + FoodofferPriceHelper.formatPriceReference(reference);
+    return priceLabel + '/' + FoodofferPriceHelper.formatPriceReference(reference, translate);
   }
 
   /**
    * Price label of several price groups at once (monitors):
    * `"1,00 € / 2,00 € / 3,00 €"` or `"(0,40 € / 0,90 € / 1,28 €)/100 g"`.
    */
-  static getPriceLabelForPriceGroups(foodoffer: FoodofferPriceFields | null | undefined, priceGroups: readonly string[] = ALL_PRICE_GROUPS): string {
+  static getPriceLabelForPriceGroups(foodoffer: FoodofferPriceFields | null | undefined, priceGroups: readonly string[] = ALL_PRICE_GROUPS, translate?: Translator | null): string {
     const priceLabels = priceGroups.map(priceGroup => FoodofferPriceHelper.formatPrice(FoodofferPriceHelper.getPriceForPriceGroup(foodoffer, priceGroup)));
     const joinedPriceLabels = priceLabels.join(FoodofferPriceHelper.PRICE_GROUP_SEPARATOR);
     const reference = FoodofferPriceHelper.getPriceReference(foodoffer);
@@ -130,10 +167,10 @@ export class FoodofferPriceHelper {
       return joinedPriceLabels;
     }
     if (priceLabels.length < 2) {
-      return joinedPriceLabels + '/' + FoodofferPriceHelper.formatPriceReference(reference);
+      return joinedPriceLabels + '/' + FoodofferPriceHelper.formatPriceReference(reference, translate);
     }
     // brackets so the "per" slash cannot be confused with the price group separator
-    return '(' + joinedPriceLabels + ')/' + FoodofferPriceHelper.formatPriceReference(reference);
+    return '(' + joinedPriceLabels + ')/' + FoodofferPriceHelper.formatPriceReference(reference, translate);
   }
 
   /**

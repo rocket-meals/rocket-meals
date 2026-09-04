@@ -48,7 +48,8 @@ export function getVersionPatch() {
 	// 21: apostrophe-truncation check added to the shared translation validation
 	// 22: translation lookup accepts a language code in any case and region
 	// 23: shared food offer price helper added to repo-depkit-common
-	return 23;
+	// 24: shared translation catalogue gained the measurement unit symbols
+	return 24;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

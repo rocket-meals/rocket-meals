@@ -589,7 +589,7 @@ const Index = () => {
 										fontSize: priceFontSize,
 									}}
 								>
-									{showDayPlanPrice(currentFood, PriceGroupKey.student)}
+									{showDayPlanPrice(currentFood, PriceGroupKey.student, translate)}
 								</Text>
 								<Text
 									style={{
@@ -599,7 +599,7 @@ const Index = () => {
 									}}
 								>
 									{`${translate(TranslationKeys.price_group_employee)}: `}
-									{showDayPlanPrice(currentFood, PriceGroupKey.employee)}
+									{showDayPlanPrice(currentFood, PriceGroupKey.employee, translate)}
 								</Text>
 								<Text
 									style={{
@@ -609,7 +609,7 @@ const Index = () => {
 									}}
 								>
 									{`${translate(TranslationKeys.price_group_guest)}: `}
-									{showDayPlanPrice(currentFood, PriceGroupKey.guest)}
+									{showDayPlanPrice(currentFood, PriceGroupKey.guest, translate)}
 								</Text>
 								<Text
 									style={{

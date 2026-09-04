@@ -81,7 +81,8 @@ export function getVersionPatch() {
         // 23: 20 French texts repaired that were cut off at an apostrophe
         // 24: language codes matched case- and region-insensitively when picking a translation
         // 25: food offers sold by weight show a base price ("0,40 €/100 g")
-        return 25;
+        // 26: the unit of that base price is translated where it is a known unit
+        return 26;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

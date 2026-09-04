@@ -1,4 +1,4 @@
-import { FoodofferPriceHelper, PriceGroups, StringHelper } from 'repo-depkit-common';
+import { CommonTranslationKeys, commonTranslations, FoodofferPriceHelper, PriceGroups, StringHelper } from 'repo-depkit-common';
 
 const NBSP = StringHelper.NONBREAKING_SPACE;
 const HALF_SPACE = StringHelper.NONBREAKING_HALF_SPACE;
@@ -137,5 +137,50 @@ describe('FoodofferPriceHelper.getPriceReferenceFieldsForParser', () => {
 			price_reference_amount: 100,
 			price_reference_unit: 'g',
 		});
+	});
+});
+
+describe('FoodofferPriceHelper unit translation', () => {
+	/** Behaves like the apps' translator: resolves from the shared catalogue, echoes unknown keys. */
+	const createTranslator = (language: 'de' | 'ru' | 'zh') => (key: string) => commonTranslations[key]?.[language] ?? key;
+
+	it('translates a known unit into the language of the viewer', () => {
+		expect(FoodofferPriceHelper.getPriceLabelForPriceGroup(pastaBuffet, PriceGroups.student, createTranslator('ru'))).toBe(`0,40${NBSP}€/100${HALF_SPACE}г`);
+		expect(FoodofferPriceHelper.getPriceLabelForPriceGroup(pastaBuffet, PriceGroups.student, createTranslator('zh'))).toBe(`0,40${NBSP}€/100${HALF_SPACE}克`);
+	});
+
+	it('keeps the latin unit symbols unchanged where the language uses them', () => {
+		expect(FoodofferPriceHelper.getPriceLabelForPriceGroup(pastaBuffet, PriceGroups.student, createTranslator('de'))).toBe(`0,40${NBSP}€/100${HALF_SPACE}g`);
+	});
+
+	it('recognises a known unit regardless of its case', () => {
+		const literOffer = { price_student: 2, price_reference_amount: 1, price_reference_unit: 'L' };
+		expect(FoodofferPriceHelper.getPriceLabelForPriceGroup(literOffer, PriceGroups.student, createTranslator('ru'))).toBe(`2,00${NBSP}€/л`);
+	});
+
+	it('shows an unknown unit exactly as it was typed', () => {
+		const boxOffer = { price_student: 5, price_reference_unit: 'Box' };
+		const schaleOffer = { price_student: 3, price_reference_amount: 2, price_reference_unit: 'Schalen' };
+		expect(FoodofferPriceHelper.getPriceLabelForPriceGroup(boxOffer, PriceGroups.student, createTranslator('zh'))).toBe(`5,00${NBSP}€/Box`);
+		expect(FoodofferPriceHelper.getPriceLabelForPriceGroup(schaleOffer, PriceGroups.student, createTranslator('ru'))).toBe(`3,00${NBSP}€/2${HALF_SPACE}Schalen`);
+	});
+
+	it('falls back to the raw unit when no translator is passed', () => {
+		expect(FoodofferPriceHelper.getPriceLabelForPriceGroup(pastaBuffet, PriceGroups.student)).toBe(`0,40${NBSP}€/100${HALF_SPACE}g`);
+	});
+
+	it('falls back to the raw unit when the translator only echoes the key back', () => {
+		const echoingTranslator = (key: string) => key;
+		expect(FoodofferPriceHelper.getPriceLabelForPriceGroup(pastaBuffet, PriceGroups.student, echoingTranslator)).toBe(`0,40${NBSP}€/100${HALF_SPACE}g`);
+	});
+
+	it('translates the unit on the monitors as well', () => {
+		expect(FoodofferPriceHelper.getPriceLabelForPriceGroups(pastaBuffet, undefined, createTranslator('ru'))).toBe(`(0,40${NBSP}€ / 0,90${NBSP}€ / 1,28${NBSP}€)/100${HALF_SPACE}г`);
+	});
+
+	it('has a text for every unit of the Directus dropdown', () => {
+		for (const key of [CommonTranslationKeys.unit_gram, CommonTranslationKeys.unit_kilogram, CommonTranslationKeys.unit_milliliter, CommonTranslationKeys.unit_liter]) {
+			expect(commonTranslations[key]).toBeDefined();
+		}
 	});
 });

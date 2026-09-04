@@ -284,7 +284,7 @@ const Index = () => {
 	}, [foods, categories, isMobile, weekDayNames]); // <-- Dependencies for useCallback
 
 	const getPriceText = (food: any) => {
-		return showAllPriceGroupsPrice(food);
+		return showAllPriceGroupsPrice(food, translate);
 	};
 
 	const getMarkings = async () => {

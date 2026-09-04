@@ -792,7 +792,7 @@ const Index = () => {
 														},
 													]}
 												>
-													{showAllPriceGroupsPrice(item)}
+													{showAllPriceGroupsPrice(item, translate)}
 												</Text>
 											</View>
 										);
@@ -930,7 +930,7 @@ const Index = () => {
 													},
 												]}
 											>
-												{showAllPriceGroupsPrice(item)}
+												{showAllPriceGroupsPrice(item, translate)}
 											</Text>
 										</View>
 									))}
