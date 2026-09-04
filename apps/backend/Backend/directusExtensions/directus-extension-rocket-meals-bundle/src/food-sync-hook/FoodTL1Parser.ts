@@ -13,7 +13,7 @@ import {
 } from './FoodParserInterface';
 import {FoodTL1ParserGetRawReportInterface} from './FoodTL1Parser_GetRawReportInterface';
 import {TranslationsFromParsingType} from '../helpers/ContentTranslationHelper';
-import {LanguageCodes, StringHelper} from 'repo-depkit-common';
+import {FoodofferPriceHelper, LanguageCodes, StringHelper} from 'repo-depkit-common';
 import {PriceGroupEnum} from './PriceGroupEnum';
 import {DictHelper} from '../helpers/DictHelper';
 import {MarkingsTypeForParser} from './MarkingParserInterface';
@@ -73,6 +73,16 @@ export class FoodTL1Parser implements FoodParserInterface {
   static readonly DEFAULT_MARKING_NAMES_FIELD = 'ZSNAMEN';
 
   static readonly DEFAULT_MENU_LINE_FIELD = 'FREI1';
+
+  /**
+   * TL1 field carrying the price reference of a food offer ("100g", "pro 100 g", "Box"), for
+   * offers that are sold by weight instead of per dish (e.g. a pasta buffet).
+   *
+   * `null` means the customer has not agreed on a field yet, and no reference is imported. To
+   * switch it on, override {@link getPriceReferenceFieldName} in the customer's parser with the
+   * TL1 field the customer fills (most likely one of the free "FREI" fields).
+   */
+  static readonly DEFAULT_PRICE_REFERENCE_FIELD: string | null = null;
 
   static readonly DEFAULT_ZSNUMMERN_FIELD = 'ZSNUMMERN';
 
@@ -185,6 +195,29 @@ export class FoodTL1Parser implements FoodParserInterface {
     return DictHelper.getValueListFromDict(canteenLabelsDict);
   }
 
+  /**
+   * Name of the TL1 field a customer writes the price reference into, or `null` when the
+   * customer does not use the feature. Override this in a customer specific parser.
+   */
+  getPriceReferenceFieldName(): string | null {
+    return FoodTL1Parser.DEFAULT_PRICE_REFERENCE_FIELD;
+  }
+
+  /**
+   * The `price_reference_*` fields of a food offer, ready to be spread into the parsed offer.
+   *
+   * Returns an empty object whenever no reference is configured or the field is empty, so food
+   * offers priced per dish keep exactly the shape they had before - their `result_hash` must not
+   * change, otherwise every existing food offer would be deleted and recreated on the next sync.
+   */
+  getPriceReferenceFieldsFromParsedReportItem(parsedReportItem: RawTL1FoodofferType) {
+    const fieldName = this.getPriceReferenceFieldName();
+    if (!fieldName) {
+      return {};
+    }
+    return FoodofferPriceHelper.getPriceReferenceFieldsForParser(parsedReportItem?.[fieldName]);
+  }
+
   getFoodofferCategoryFromRawFoodoffer(rawFoodoffer: RawFoodofferInformationType): string | null {
     let parsedReportItem = FoodTL1Parser.getParsedReportItemFromrawFoodoffer(rawFoodoffer);
     return parsedReportItem?.[FoodTL1Parser.DEFAULT_FOODOFFER_CATEGORY_FIELD] || null;
@@ -206,6 +239,7 @@ export class FoodTL1Parser implements FoodParserInterface {
         price_employee: FoodTL1Parser.getPriceForGroup(parsedReportItem, PriceGroupEnum.PRICE_GROUP_EMPLOYEE),
         price_guest: FoodTL1Parser.getPriceForGroup(parsedReportItem, PriceGroupEnum.PRICE_GROUP_GUEST),
         price_student: FoodTL1Parser.getPriceForGroup(parsedReportItem, PriceGroupEnum.PRICE_GROUP_STUDENT),
+        ...this.getPriceReferenceFieldsFromParsedReportItem(parsedReportItem),
         foodoffer_components: [],
       };
 

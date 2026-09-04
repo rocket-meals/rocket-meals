@@ -9,6 +9,7 @@ export * from './src/databaseTypes/CollectionNames';
 export * from './src/AppLinks';
 export * from './src/GlobalParams';
 export * from './src/DistanceHelper';
+export * from './src/FoodofferPriceHelper';
 export * from './src/SortingHelper';
 export * from './src/SortingEnums';
 export * from './src/ServerHelper';

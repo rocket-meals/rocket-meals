@@ -80,7 +80,8 @@ export function getVersionPatch() {
         // 22: shared translation catalogue now also serves the backend; French texts repaired
         // 23: 20 French texts repaired that were cut off at an apostrophe
         // 24: language codes matched case- and region-insensitively when picking a translation
-        return 24;
+        // 25: food offers sold by weight show a base price ("0,40 €/100 g")
+        return 25;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
