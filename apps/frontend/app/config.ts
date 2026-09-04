@@ -82,7 +82,8 @@ export function getVersionPatch() {
         // 24: language codes matched case- and region-insensitively when picking a translation
         // 25: food offers sold by weight show a base price ("0,40 €/100 g")
         // 26: the unit of that base price is translated where it is a known unit
-        return 26;
+        // 27: narrow no-break space before the € symbol, as before a unit
+        return 27;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

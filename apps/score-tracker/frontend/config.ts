@@ -46,7 +46,8 @@ export function getVersionPatch() {
 	// 16: translation lookup accepts a language code in any case and region
 	// 17: shared food offer price helper added to repo-depkit-common
 	// 18: shared translation catalogue gained the measurement unit symbols
-	return 18;
+	// 19: shared price formatting uses a narrow no-break space before the symbol
+	return 19;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates
