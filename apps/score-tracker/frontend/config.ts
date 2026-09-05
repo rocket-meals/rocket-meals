@@ -47,7 +47,8 @@ export function getVersionPatch() {
 	// 17: shared food offer price helper added to repo-depkit-common
 	// 18: shared translation catalogue gained the measurement unit symbols
 	// 19: shared price formatting uses a narrow no-break space before the symbol
-	return 19;
+	// 20: NumberHelper sets every value/unit pair with a narrow no-break space
+	return 20;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

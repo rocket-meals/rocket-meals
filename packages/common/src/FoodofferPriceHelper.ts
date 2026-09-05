@@ -93,13 +93,11 @@ export class FoodofferPriceHelper {
   /**
    * `1` -> `"1,00 €"`, `null` -> `"0,00 €"` (the fallback the apps showed before).
    *
-   * The gap before the currency symbol is a narrow no-break space (U+202F), the same one that
-   * separates a reference amount from its unit - so "0,40 €/100 g" is spaced consistently.
-   * `NumberHelper.formatNumber` would use a full no-break space, hence the manual suffix.
+   * The gap before the currency symbol is the narrow no-break space `NumberHelper` puts between
+   * any value and its unit, so "0,40 €/100 g" is spaced the same on both sides of the slash.
    */
   static formatPrice(price: number | null | undefined): string {
-    const formattedAmount = NumberHelper.formatNumber(price ?? 0, null, true, ',', '.', 2);
-    return formattedAmount + StringHelper.NONBREAKING_HALF_SPACE + FoodofferPriceHelper.CURRENCY_SYMBOL;
+    return NumberHelper.formatNumber(price ?? 0, FoodofferPriceHelper.CURRENCY_SYMBOL, true, ',', '.', 2);
   }
 
   /**

@@ -20,7 +20,7 @@ export class NumberHelper {
   static formatNumber(value: number | null | undefined, unit: string | null | undefined, roundUpOrDown: boolean, fractionsSeparator: string = ',', thousandsSeparator: string | null = null, amountDecimals: number = 2): string {
     // Return early if value is null or undefined
     if (value == null) {
-      return `?${unit ? StringHelper.NONBREAKING_SPACE + unit : ''}`;
+      return `?${unit ? StringHelper.NONBREAKING_HALF_SPACE + unit : ''}`;
     }
 
     // Handle rounding based on roundUpOrDown flag
@@ -40,8 +40,9 @@ export class NumberHelper {
       }
     }
 
-    // Add unit suffix if provided
-    const suffix = unit ? StringHelper.NONBREAKING_SPACE + unit : '';
+    // Add unit suffix if provided. The gap is a narrow no-break space (U+202F): that is how a
+    // value and its unit are set typographically, and it keeps "100 g" from breaking across lines.
+    const suffix = unit ? StringHelper.NONBREAKING_HALF_SPACE + unit : '';
     return formattedValue + suffix;
   }
 

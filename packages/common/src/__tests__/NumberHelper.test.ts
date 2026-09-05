@@ -12,7 +12,7 @@ describe('NumberHelper.toFixedNoRounding', () => {
 
 describe('NumberHelper.formatNumber', () => {
   it('returns placeholder when value is null', () => {
-    expect(NumberHelper.formatNumber(null, 'kg', true)).toBe(`?${StringHelper.NONBREAKING_SPACE}kg`);
+    expect(NumberHelper.formatNumber(null, 'kg', true)).toBe(`?${StringHelper.NONBREAKING_HALF_SPACE}kg`);
   });
 
   it('formats number without rounding when roundUpOrDown is false', () => {
@@ -21,7 +21,7 @@ describe('NumberHelper.formatNumber', () => {
 
   it('applies rounding, thousands separator and unit when requested', () => {
     const result = NumberHelper.formatNumber(1234.556, 'm', true, ',', '.', 2);
-    expect(result).toBe(`1.234,56${StringHelper.NONBREAKING_SPACE}m`);
+    expect(result).toBe(`1.234,56${StringHelper.NONBREAKING_HALF_SPACE}m`);
   });
 });
 

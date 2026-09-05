@@ -83,7 +83,8 @@ export function getVersionPatch() {
         // 25: food offers sold by weight show a base price ("0,40 €/100 g")
         // 26: the unit of that base price is translated where it is a known unit
         // 27: narrow no-break space before the € symbol, as before a unit
-        return 27;
+        // 28: every value/unit pair uses the narrow no-break space, nutrients included
+        return 28;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
