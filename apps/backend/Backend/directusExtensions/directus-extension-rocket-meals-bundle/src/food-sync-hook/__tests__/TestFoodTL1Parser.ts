@@ -113,3 +113,44 @@ describe('FoodTL1Parser regex reliability (SonarCloud: super-linear regex backtr
     expect(durationMs).toBeLessThan(500);
   });
 });
+
+describe('FoodTL1Parser price reference', () => {
+  class PriceReferenceTestParser extends FoodTL1Parser {
+    static readonly TEST_PRICE_REFERENCE_FIELD = 'FREI2';
+
+    constructor() {
+      super({
+        getRawReport: async () => '',
+      } as never);
+    }
+
+    override getPriceReferenceFieldName(): string | null {
+      return PriceReferenceTestParser.TEST_PRICE_REFERENCE_FIELD;
+    }
+  }
+
+  it('imports no price reference while no TL1 field is configured', () => {
+    const parser = new FoodTL1Parser({ getRawReport: async () => '' } as never);
+    const parsedReportItem: RawTL1FoodofferType = { FREI2: '100g' };
+
+    // an empty object keeps the result_hash of per-dish foodoffers unchanged
+    expect(parser.getPriceReferenceFieldsFromParsedReportItem(parsedReportItem)).toEqual({});
+  });
+
+  it('imports the price reference from the configured TL1 field', () => {
+    const parser = new PriceReferenceTestParser();
+    const parsedReportItem: RawTL1FoodofferType = { FREI2: 'pro 100 g' };
+
+    expect(parser.getPriceReferenceFieldsFromParsedReportItem(parsedReportItem)).toEqual({
+      price_reference_amount: 100,
+      price_reference_unit: 'g',
+    });
+  });
+
+  it('imports no price reference when the configured TL1 field is empty', () => {
+    const parser = new PriceReferenceTestParser();
+
+    expect(parser.getPriceReferenceFieldsFromParsedReportItem({ FREI2: '' })).toEqual({});
+    expect(parser.getPriceReferenceFieldsFromParsedReportItem({})).toEqual({});
+  });
+});

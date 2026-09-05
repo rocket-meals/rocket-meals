@@ -85,10 +85,17 @@ describe('translation catalogue', () => {
 	it('contains no text cut off at an apostrophe', () => {
 		// A converter once read the texts as single-quoted strings and stopped at the first
 		// unescaped apostrophe, leaving French fragments like "Copier l" and "J".
+		// The shared unit symbols are exempt: "l" for litre is a whole text, not an elision.
 		expect(
 			findSuspectedApostropheTruncations({
 				resources: translationResources,
 				languages: SUPPORTED_TRANSLATION_LANGUAGES,
+				ignoredKeys: [
+					CommonTranslationKeys.unit_gram,
+					CommonTranslationKeys.unit_kilogram,
+					CommonTranslationKeys.unit_liter,
+					CommonTranslationKeys.unit_milliliter,
+				],
 			}),
 		).toEqual([]);
 	});

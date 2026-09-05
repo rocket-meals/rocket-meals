@@ -20,6 +20,18 @@ import {
 	validateTranslations,
 } from '../translations/TranslationValidationHelper';
 
+/**
+ * The measurement unit symbols. They are exempt from two of the guards below: they are the
+ * same string in every latin-script language, and "l" looks like a French elision to the
+ * apostrophe check.
+ */
+const MEASUREMENT_UNIT_KEYS = [
+	CommonTranslationKeys.unit_gram,
+	CommonTranslationKeys.unit_kilogram,
+	CommonTranslationKeys.unit_liter,
+	CommonTranslationKeys.unit_milliliter,
+];
+
 describe('CommonTranslationKeys', () => {
 	it('declares every key with its own name as the value', () => {
 		expect(findInvalidKeyDeclarations(CommonTranslationKeys)).toEqual([]);
@@ -55,7 +67,9 @@ describe('commonTranslations', () => {
 	it('contains no text cut off at an apostrophe', () => {
 		// A converter once read the texts as single-quoted strings and stopped at the first
 		// unescaped apostrophe, leaving French fragments like "Aujourd" and "jusqu".
-		expect(findSuspectedApostropheTruncations({ resources: commonTranslations })).toEqual([]);
+		// The unit symbols are exempt: "l" for litre is a whole text here, not the French
+		// elided article the check looks for.
+		expect(findSuspectedApostropheTruncations({ resources: commonTranslations, ignoredKeys: MEASUREMENT_UNIT_KEYS })).toEqual([]);
 	});
 
 	it('contains no text that is only whitespace or a leftover placeholder', () => {
@@ -125,6 +139,9 @@ describe('commonTranslations', () => {
 				CommonTranslationKeys.optional,
 				CommonTranslationKeys.support,
 				CommonTranslationKeys.updates,
+				// Unit symbols: "g", "kg", "ml" and "l" are the SI symbols and identical in
+				// every language that writes them in latin script.
+				...MEASUREMENT_UNIT_KEYS,
 			].sort(),
 		);
 	});

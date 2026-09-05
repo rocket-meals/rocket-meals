@@ -4,7 +4,7 @@ import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { useDispatch } from 'react-redux';
 import { fetchFoodsByCanteen } from '@/redux/actions/FoodOffers/FoodOffers';
-import { getImageUrl, showDayPlanPrice, showFormatedPrice } from '@/constants/HelperFunctions';
+import { getImageUrl, showDayPlanPrice } from '@/constants/HelperFunctions';
 import { getFoodOfferName, getTextFromTranslation } from '@/helper/resourceHelper';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useLocalSearchParams } from 'expo-router';
@@ -589,7 +589,7 @@ const Index = () => {
 										fontSize: priceFontSize,
 									}}
 								>
-									{showFormatedPrice(showDayPlanPrice(currentFood, PriceGroupKey.student))}
+									{showDayPlanPrice(currentFood, PriceGroupKey.student, translate)}
 								</Text>
 								<Text
 									style={{
@@ -599,7 +599,7 @@ const Index = () => {
 									}}
 								>
 									{`${translate(TranslationKeys.price_group_employee)}: `}
-									{showFormatedPrice(showDayPlanPrice(currentFood, PriceGroupKey.employee))}
+									{showDayPlanPrice(currentFood, PriceGroupKey.employee, translate)}
 								</Text>
 								<Text
 									style={{
@@ -609,7 +609,7 @@ const Index = () => {
 									}}
 								>
 									{`${translate(TranslationKeys.price_group_guest)}: `}
-									{showFormatedPrice(showDayPlanPrice(currentFood, PriceGroupKey.guest))}
+									{showDayPlanPrice(currentFood, PriceGroupKey.guest, translate)}
 								</Text>
 								<Text
 									style={{

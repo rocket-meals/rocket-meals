@@ -4,7 +4,7 @@ import { Animated, Dimensions, DimensionValue, Easing, ScrollView, Text, View } 
 import { useTheme } from '@/hooks/useTheme';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
-import { getImageUrl, showDayPlanPrice, showFormatedPrice } from '@/constants/HelperFunctions';
+import { getImageUrl, showAllPriceGroupsPrice } from '@/constants/HelperFunctions';
 import { getFoodAttributesTranslation, getFoodOfferName, getTextFromTranslation } from '@/helper/resourceHelper';
 import { myContrastColor } from '@/helper/ColorHelper';
 import styles from './styles';
@@ -24,7 +24,6 @@ import { FoodCategoriesHelper } from '@/redux/actions/FoodCategories/FoodCategor
 import { FoodOffersCategoriesHelper } from '@/redux/actions/FoodOffersCategories/FoodOffersCategories';
 import { SET_FOOD_CATEGORIES, SET_FOOD_OFFERS_CATEGORIES } from '@/redux/Types/types';
 import { MarkingGroupsHelper } from '@/redux/actions/MarkingGroups/MarkingGroups';
-import { PriceGroupKey } from '@/app/(app)/settings/types';
 
 const Index = () => {
 	useSetPageTitle('list-day-screen');
@@ -793,7 +792,7 @@ const Index = () => {
 														},
 													]}
 												>
-													{`${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.student))} / ${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.employee))} / ${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.guest))}`}
+													{showAllPriceGroupsPrice(item, translate)}
 												</Text>
 											</View>
 										);
@@ -931,7 +930,7 @@ const Index = () => {
 													},
 												]}
 											>
-												{`${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.student))} / ${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.employee))} / ${showFormatedPrice(showDayPlanPrice(item, PriceGroupKey.guest))}`}
+												{showAllPriceGroupsPrice(item, translate)}
 											</Text>
 										</View>
 									))}

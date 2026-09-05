@@ -2,7 +2,7 @@ import { UPDATE_LOGIN } from '@/redux/Types/types';
 import * as Crypto from 'expo-crypto';
 import { Platform } from 'react-native';
 import Server from './ServerUrl';
-import { DatabaseTypes, NumberHelper, StringHelper } from 'repo-depkit-common';
+import { DatabaseTypes, FoodofferPriceHelper, NumberHelper, StringHelper, type Translator } from 'repo-depkit-common';
 import { ServerAPI } from '@/redux/actions';
 import { buildDirectusUploadFormData } from '@/helper/fileUploadHelper';
 import { configureStore } from '@/redux/store';
@@ -259,24 +259,26 @@ export const getFoodOffer = (foodOffers: any, offerId: string) => {
 	}
 };
 
-export const showPrice = (item: any, profile: Partial<DatabaseTypes.Profiles>) => {
-	if (profile?.price_group === PriceGroupKey.guest) {
-		return item?.price_guest?.toFixed(2);
-	} else if (profile?.price_group === PriceGroupKey.employee) {
-		return item?.price_employee?.toFixed(2);
-	} else {
-		return item?.price_student?.toFixed(2);
-	}
+/**
+ * Price label of a food offer for the price group of the given profile, e.g. "1,20 €".
+ *
+ * Food offers that are sold by weight instead of per dish carry a price reference
+ * (`price_reference_amount` + `price_reference_unit`) and are shown as a base price
+ * ("0,40 €/100 g"); see {@link FoodofferPriceHelper}. Pass `translate` so a known unit is
+ * shown in the user's language ("г", "克"); an unknown unit is shown as it was typed.
+ */
+export const showPrice = (item: any, profile: Partial<DatabaseTypes.Profiles>, translate?: Translator) => {
+	return FoodofferPriceHelper.getPriceLabelForPriceGroup(item, profile?.price_group, translate);
 };
 
-export const showDayPlanPrice = (item: any, priceGroup: PriceGroupKey) => {
-	if (priceGroup === PriceGroupKey.guest) {
-		return item?.price_guest?.toFixed(2);
-	} else if (priceGroup === PriceGroupKey.employee) {
-		return item?.price_employee?.toFixed(2);
-	} else {
-		return item?.price_student?.toFixed(2);
-	}
+/** Price label of a food offer for one specific price group (monitors show them side by side). */
+export const showDayPlanPrice = (item: any, priceGroup: PriceGroupKey, translate?: Translator) => {
+	return FoodofferPriceHelper.getPriceLabelForPriceGroup(item, priceGroup, translate);
+};
+
+/** Price labels of all price groups in one string, e.g. "1,00 € / 2,00 € / 3,00 €". */
+export const showAllPriceGroupsPrice = (item: any, translate?: Translator) => {
+	return FoodofferPriceHelper.getPriceLabelForPriceGroups(item, [PriceGroupKey.student, PriceGroupKey.employee, PriceGroupKey.guest], translate);
 };
 
 export const formatPrice = (item: any) => {
@@ -286,15 +288,5 @@ export const formatPrice = (item: any) => {
 };
 
 export function showFormatedPrice(price: number | undefined | null): string {
-	if (price == null) return '0,00 €'; // Handle undefined or null gracefully
-
-	return new Intl.NumberFormat('de-DE', {
-		style: 'currency',
-		currency: 'EUR',
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2,
-	})
-		.format(Number(price))
-		.replace('€', '€') // Ensuring no space before €
-		.trim();
+	return FoodofferPriceHelper.formatPrice(price);
 }

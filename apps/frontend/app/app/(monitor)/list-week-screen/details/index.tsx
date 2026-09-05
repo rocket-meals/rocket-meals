@@ -8,7 +8,7 @@ import styles from './styles';
 import { FoodCategoriesHelper } from '@/redux/actions/FoodCategories/FoodCategories';
 import { fetchFoodsByCanteen } from '@/redux/actions/FoodOffers/FoodOffers';
 import { getFoodOfferName } from '@/helper/resourceHelper';
-import { getImageUrl, showDayPlanPrice, showFormatedPrice } from '@/constants/HelperFunctions';
+import { getImageUrl, showAllPriceGroupsPrice } from '@/constants/HelperFunctions';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { useLocalSearchParams } from 'expo-router';
 import moment from 'moment';
@@ -20,7 +20,6 @@ import { MarkingHelper } from '@/redux/actions/Markings/Markings';
 import { UPDATE_MARKINGS } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
-import { PriceGroupKey } from '@/app/(app)/settings/types';
 
 const fontSize = 10;
 
@@ -285,7 +284,7 @@ const Index = () => {
 	}, [foods, categories, isMobile, weekDayNames]); // <-- Dependencies for useCallback
 
 	const getPriceText = (food: any) => {
-		return `${showFormatedPrice(showDayPlanPrice(food, PriceGroupKey.student))} / ${showFormatedPrice(showDayPlanPrice(food, PriceGroupKey.employee))} / ${showFormatedPrice(showDayPlanPrice(food, PriceGroupKey.guest))}`;
+		return showAllPriceGroupsPrice(food, translate);
 	};
 
 	const getMarkings = async () => {

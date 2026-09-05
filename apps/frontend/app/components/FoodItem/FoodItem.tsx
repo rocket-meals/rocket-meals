@@ -6,7 +6,7 @@ import { isWeb } from '@/constants/Constants';
 import { useTheme } from '@/hooks/useTheme';
 import { AntDesign, Entypo, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { FoodItemProps } from './types';
-import { excerpt, getImageUrl, getpreviousFeedback, numToOneDecimal, showFormatedPrice, showPrice } from '@/constants/HelperFunctions';
+import { excerpt, getImageUrl, getpreviousFeedback, numToOneDecimal, showPrice } from '@/constants/HelperFunctions';
 import { getDescriptionFromTranslation, getFoodOfferName } from '@/helper/resourceHelper';
 import { applyFunModeTransformation, applyPirateTransformation } from '@/hooks/useLanguage';
 import { DatabaseTypes, RatingHelper, type TranslationLanguage } from 'repo-depkit-common';
@@ -297,7 +297,7 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
       [item, language, pirateLanguage, funLanguageMode, screenWidth]
     );
 
-    const priceLabel = useMemo(() => showFormatedPrice(showPrice(item, profile)), [item, profile]);
+    const priceLabel = useMemo(() => showPrice(item, profile, translate), [item, profile, translate]);
 
     const imageUri = useMemo(() => {
       return foodItem?.image_remote_url || getImageUrl(foodItem?.image as string) || defaultImage;

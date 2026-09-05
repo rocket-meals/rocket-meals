@@ -120,6 +120,12 @@ export const CommonTranslationKeys = {
 	update_available: 'update_available',
 	no_updates_available: 'no_updates_available',
 
+	// Measurement units, used e.g. for a price that refers to an amount ("0,40 €/100 g")
+	unit_gram: 'unit_gram',
+	unit_kilogram: 'unit_kilogram',
+	unit_milliliter: 'unit_milliliter',
+	unit_liter: 'unit_liter',
+
 	// Legal and app information
 	license: 'license',
 	license_information: 'license_information',

@@ -80,7 +80,11 @@ export function getVersionPatch() {
         // 22: shared translation catalogue now also serves the backend; French texts repaired
         // 23: 20 French texts repaired that were cut off at an apostrophe
         // 24: language codes matched case- and region-insensitively when picking a translation
-        return 24;
+        // 25: food offers sold by weight show a base price ("0,40 €/100 g")
+        // 26: the unit of that base price is translated where it is a known unit
+        // 27: narrow no-break space before the € symbol, as before a unit
+        // 28: every value/unit pair uses the narrow no-break space, nutrients included
+        return 28;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

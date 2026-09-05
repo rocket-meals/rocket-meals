@@ -888,6 +888,49 @@ export const commonTranslations: TranslationResources = {
 		zh: '应用已是最新版本',
 	},
 
+	// Measurement units. These are unit symbols, not words - most languages use the SI
+	// symbol unchanged, only the non-latin scripts differ.
+	unit_gram: {
+		de: 'g',
+		en: 'g',
+		ar: 'غ',
+		es: 'g',
+		fr: 'g',
+		ru: 'г',
+		tr: 'g',
+		zh: '克',
+	},
+	unit_kilogram: {
+		de: 'kg',
+		en: 'kg',
+		ar: 'كغ',
+		es: 'kg',
+		fr: 'kg',
+		ru: 'кг',
+		tr: 'kg',
+		zh: '千克',
+	},
+	unit_milliliter: {
+		de: 'ml',
+		en: 'ml',
+		ar: 'مل',
+		es: 'ml',
+		fr: 'ml',
+		ru: 'мл',
+		tr: 'ml',
+		zh: '毫升',
+	},
+	unit_liter: {
+		de: 'l',
+		en: 'l',
+		ar: 'ل',
+		es: 'l',
+		fr: 'l',
+		ru: 'л',
+		tr: 'l',
+		zh: '升',
+	},
+
 	// Legal and app information
 	license: {
 		de: 'Lizenz',
