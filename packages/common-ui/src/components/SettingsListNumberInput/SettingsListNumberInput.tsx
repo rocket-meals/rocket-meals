@@ -15,6 +15,7 @@ import SettingsList from '../SettingsList';
 import type { SettingsListProps } from '../SettingsList/types';
 import type { ModalSheetBaseProps, AffixProps } from '../SettingsList/formFieldTypes';
 import { borderRadiusContainer } from '../../constants/ui';
+import PrintHidden from '../PrintHidden';
 
 export interface SettingsListNumberInputProps extends Omit<SettingsListProps, 'onPress' | 'handleFunction'> {
 	modalTitle?: string;
@@ -216,7 +217,11 @@ const SettingsListNumberInput: React.FC<SettingsListNumberInputProps> = ({
 		if (rightElement) {
 			return undefined;
 		}
-		return <MaterialCommunityIcons name="pencil" size={20} color={theme.screen.icon} />;
+		return (
+			<PrintHidden>
+				<MaterialCommunityIcons name="pencil" size={20} color={theme.screen.icon} />
+			</PrintHidden>
+		);
 	}, [rightElement, rightIcon, theme.screen.icon]);
 
 	const handleOpen = useCallback(() => {

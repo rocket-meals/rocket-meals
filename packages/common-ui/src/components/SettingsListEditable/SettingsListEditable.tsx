@@ -4,6 +4,7 @@ import { useTheme } from '../../context/ThemeContext';
 import SettingsList from '../SettingsList';
 import type { SettingsListProps } from '../SettingsList/types';
 import type { PropsWithChildren } from 'react';
+import PrintHidden from '../PrintHidden';
 
 type SettingsListEditablePropsOwn = {
 	editable?: boolean;
@@ -20,7 +21,9 @@ const SettingsListEditable: React.FC<SettingsListEditableProps> = ({
 	const { theme } = useTheme();
 	const resolvedRightIcon =
 		editable && !rightElement && !rightIcon ? (
-			<MaterialCommunityIcons name="pencil" size={24} color={theme.screen.icon} />
+			<PrintHidden>
+				<MaterialCommunityIcons name="pencil" size={24} color={theme.screen.icon} />
+			</PrintHidden>
 		) : (
 			rightIcon
 		);

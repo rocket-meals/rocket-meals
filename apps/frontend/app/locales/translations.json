@@ -6198,5 +6198,565 @@
     "ru": "Перейти к чату",
     "tr": "Sohbete git",
     "zh": "前往聊天"
+  },
+  "housing_analytics": {
+    "de": "Wohnanlagen: Auswertungen",
+    "en": "Housing analytics",
+    "ar": "تحليلات المجمعات السكنية",
+    "es": "Análisis de residencias",
+    "fr": "Analyses des résidences",
+    "ru": "Аналитика общежитий",
+    "tr": "Yurt değerlendirmeleri",
+    "zh": "宿舍数据分析"
+  },
+  "housing_analytics_description": {
+    "de": "Auswertungen der Übergabeprotokolle – nach Wohnanlage und Zimmer, für einen frei wählbaren Zeitraum.",
+    "en": "Reports based on the handover protocols – by housing complex and room, for a freely chosen period.",
+    "ar": "تقارير مبنية على محاضر التسليم – حسب المجمع السكني والغرفة، لفترة زمنية تختارها.",
+    "es": "Informes basados en las actas de entrega: por residencia y habitación, para el periodo que elijas.",
+    "fr": "Analyses basées sur les procès-verbaux de remise : par résidence et par chambre, sur la période de votre choix.",
+    "ru": "Отчёты на основе актов приёма-передачи — по общежитию и комнате, за выбранный период.",
+    "tr": "Teslim tutanaklarına dayalı değerlendirmeler – yurt ve oda bazında, seçtiğiniz dönem için.",
+    "zh": "基于交接记录的分析——按宿舍楼和房间统计，时间段可自由选择。"
+  },
+  "housing_analytics_group_objects": {
+    "de": "Mietobjekte & Mängel",
+    "en": "Rental objects & defects",
+    "ar": "الوحدات السكنية والعيوب",
+    "es": "Objetos de alquiler y desperfectos",
+    "fr": "Logements et défauts",
+    "ru": "Объекты аренды и дефекты",
+    "tr": "Kiralık birimler ve kusurlar",
+    "zh": "出租单元与缺陷"
+  },
+  "housing_analytics_group_tenancy": {
+    "de": "Mietdauer & Leerstand",
+    "en": "Tenancy duration & vacancy",
+    "ar": "مدة الإيجار والشغور",
+    "es": "Duración del alquiler y desocupación",
+    "fr": "Durée de location et vacance",
+    "ru": "Срок аренды и простой",
+    "tr": "Kira süresi ve boşluk",
+    "zh": "租期与空置"
+  },
+  "housing_analytics_report_defect_rate": {
+    "de": "Mängelquote je Wohnanlage",
+    "en": "Defect rate per housing complex",
+    "ar": "نسبة العيوب لكل مجمع سكني",
+    "es": "Tasa de desperfectos por residencia",
+    "fr": "Taux de défauts par résidence",
+    "ru": "Доля дефектов по общежитиям",
+    "tr": "Yurt başına kusur oranı",
+    "zh": "各宿舍楼缺陷率"
+  },
+  "housing_analytics_report_defect_rate_description": {
+    "de": "Anteil der Abnahmen, bei denen Mängel festgestellt wurden.",
+    "en": "Share of handovers where defects were found.",
+    "ar": "نسبة عمليات التسليم التي رُصدت فيها عيوب.",
+    "es": "Porcentaje de entregas en las que se detectaron desperfectos.",
+    "fr": "Part des remises où des défauts ont été constatés.",
+    "ru": "Доля приёмок, в которых были выявлены дефекты.",
+    "tr": "Kusur tespit edilen teslimlerin oranı.",
+    "zh": "发现缺陷的交接所占比例。"
+  },
+  "housing_analytics_report_conspicuous_rooms": {
+    "de": "Auffällige Zimmer",
+    "en": "Conspicuous rooms",
+    "ar": "غرف لافتة للانتباه",
+    "es": "Habitaciones llamativas",
+    "fr": "Chambres problématiques",
+    "ru": "Проблемные комнаты",
+    "tr": "Dikkat çeken odalar",
+    "zh": "问题房间"
+  },
+  "housing_analytics_report_conspicuous_rooms_description": {
+    "de": "Zimmer, in denen bei mehreren Auszügen Mängel auftraten.",
+    "en": "Rooms with defects across several move-outs.",
+    "ar": "غرف ظهرت فيها عيوب عند عدة عمليات إخلاء.",
+    "es": "Habitaciones con desperfectos en varias mudanzas.",
+    "fr": "Chambres présentant des défauts lors de plusieurs départs.",
+    "ru": "Комнаты с дефектами при нескольких выездах.",
+    "tr": "Birden fazla çıkışta kusur görülen odalar.",
+    "zh": "多次退租均出现缺陷的房间。"
+  },
+  "housing_analytics_report_cleaning_effort": {
+    "de": "Reinigungsaufwand",
+    "en": "Cleaning effort",
+    "ar": "جهد التنظيف",
+    "es": "Esfuerzo de limpieza",
+    "fr": "Charge de nettoyage",
+    "ru": "Затраты на уборку",
+    "tr": "Temizlik eforu",
+    "zh": "清洁工作量"
+  },
+  "housing_analytics_report_cleaning_effort_description": {
+    "de": "Reinigungsstunden je Wohnanlage, umgerechnet in Kosten.",
+    "en": "Cleaning hours per housing complex, converted into costs.",
+    "ar": "ساعات التنظيف لكل مجمع سكني، محوَّلة إلى تكاليف.",
+    "es": "Horas de limpieza por residencia, convertidas en costes.",
+    "fr": "Heures de nettoyage par résidence, converties en coûts.",
+    "ru": "Часы уборки по общежитиям в пересчёте на затраты.",
+    "tr": "Yurt başına temizlik saatleri, maliyete dönüştürülmüş.",
+    "zh": "各宿舍楼的清洁工时并折算为成本。"
+  },
+  "housing_analytics_report_defect_photos": {
+    "de": "Mängelfotos je Abnahme",
+    "en": "Defect photos per handover",
+    "ar": "صور العيوب لكل تسليم",
+    "es": "Fotos de desperfectos por entrega",
+    "fr": "Photos de défauts par remise",
+    "ru": "Фотографии дефектов на приёмку",
+    "tr": "Teslim başına kusur fotoğrafı",
+    "zh": "每次交接的缺陷照片数"
+  },
+  "housing_analytics_report_defect_photos_description": {
+    "de": "Durchschnittlich dokumentierte Fotos – auch ein Hinweis auf die Dokumentationsdisziplin.",
+    "en": "Average number of documented photos – also a hint at documentation discipline.",
+    "ar": "متوسط عدد الصور الموثقة – وهو أيضاً مؤشر على انضباط التوثيق.",
+    "es": "Promedio de fotos documentadas: también indica la disciplina de documentación.",
+    "fr": "Nombre moyen de photos documentées – aussi un indice de la rigueur de documentation.",
+    "ru": "Среднее число задокументированных фотографий — заодно показатель дисциплины документирования.",
+    "tr": "Ortalama belgelenen fotoğraf sayısı – aynı zamanda belgeleme disiplininin göstergesi.",
+    "zh": "平均记录的照片数量——也反映记录的规范程度。"
+  },
+  "housing_analytics_report_rental_duration": {
+    "de": "Mietdauer",
+    "en": "Tenancy duration",
+    "ar": "مدة الإيجار",
+    "es": "Duración del alquiler",
+    "fr": "Durée de location",
+    "ru": "Срок аренды",
+    "tr": "Kira süresi",
+    "zh": "租期"
+  },
+  "housing_analytics_report_rental_duration_description": {
+    "de": "Median und Streuung der Mietdauer je Wohnanlage.",
+    "en": "Median and spread of the tenancy duration per housing complex.",
+    "ar": "الوسيط والتشتت لمدة الإيجار لكل مجمع سكني.",
+    "es": "Mediana y dispersión de la duración del alquiler por residencia.",
+    "fr": "Médiane et dispersion de la durée de location par résidence.",
+    "ru": "Медиана и разброс срока аренды по общежитиям.",
+    "tr": "Yurt başına kira süresinin medyanı ve dağılımı.",
+    "zh": "各宿舍楼租期的中位数与分布。"
+  },
+  "housing_analytics_report_early_move_outs": {
+    "de": "Vorzeitige Auszüge",
+    "en": "Early move-outs",
+    "ar": "الإخلاء المبكر",
+    "es": "Mudanzas anticipadas",
+    "fr": "Départs anticipés",
+    "ru": "Досрочные выезды",
+    "tr": "Erken çıkışlar",
+    "zh": "提前退租"
+  },
+  "housing_analytics_report_early_move_outs_description": {
+    "de": "Anteil der Auszüge vor Mietende, mit Kurzmieter-Quote.",
+    "en": "Share of move-outs before the contract ends, with the short-term rental share.",
+    "ar": "نسبة عمليات الإخلاء قبل انتهاء العقد، مع نسبة الإيجار قصير الأجل.",
+    "es": "Porcentaje de salidas antes del fin del contrato, con la cuota de alquileres cortos.",
+    "fr": "Part des départs avant la fin du bail, avec la part des locations courtes.",
+    "ru": "Доля выездов до окончания договора и доля краткосрочной аренды.",
+    "tr": "Sözleşme bitmeden yapılan çıkışların oranı ve kısa süreli kiracı oranı.",
+    "zh": "合同到期前退租的比例，并附短租比例。"
+  },
+  "housing_analytics_report_vacancy_days": {
+    "de": "Leerstandstage",
+    "en": "Vacancy days",
+    "ar": "أيام الشغور",
+    "es": "Días de desocupación",
+    "fr": "Jours de vacance",
+    "ru": "Дни простоя",
+    "tr": "Boş kalma günleri",
+    "zh": "空置天数"
+  },
+  "housing_analytics_report_vacancy_days_description": {
+    "de": "Tage zwischen Verfügbarkeit und nächstem Mietbeginn desselben Zimmers.",
+    "en": "Days between availability and the next tenancy start of the same room.",
+    "ar": "الأيام بين جاهزية الغرفة وبداية الإيجار التالي لها.",
+    "es": "Días entre la disponibilidad y el siguiente inicio de alquiler de la misma habitación.",
+    "fr": "Jours entre la disponibilité et le début de la location suivante de la même chambre.",
+    "ru": "Дни между освобождением комнаты и началом следующей аренды.",
+    "tr": "Odanın müsait olması ile bir sonraki kira başlangıcı arasındaki günler.",
+    "zh": "同一房间从可入住到下次起租之间的天数。"
+  },
+  "housing_analytics_period": {
+    "de": "Zeitraum",
+    "en": "Period",
+    "ar": "الفترة",
+    "es": "Periodo",
+    "fr": "Période",
+    "ru": "Период",
+    "tr": "Dönem",
+    "zh": "时间段"
+  },
+  "housing_analytics_period_last_12_months": {
+    "de": "Letzte 12 Monate",
+    "en": "Last 12 months",
+    "ar": "آخر 12 شهراً",
+    "es": "Últimos 12 meses",
+    "fr": "12 derniers mois",
+    "ru": "Последние 12 месяцев",
+    "tr": "Son 12 ay",
+    "zh": "最近 12 个月"
+  },
+  "housing_analytics_period_last_24_months": {
+    "de": "Letzte 24 Monate",
+    "en": "Last 24 months",
+    "ar": "آخر 24 شهراً",
+    "es": "Últimos 24 meses",
+    "fr": "24 derniers mois",
+    "ru": "Последние 24 месяца",
+    "tr": "Son 24 ay",
+    "zh": "最近 24 个月"
+  },
+  "housing_analytics_period_current_year": {
+    "de": "Laufendes Jahr",
+    "en": "Current year",
+    "ar": "السنة الجارية",
+    "es": "Año en curso",
+    "fr": "Année en cours",
+    "ru": "Текущий год",
+    "tr": "İçinde bulunulan yıl",
+    "zh": "本年度"
+  },
+  "housing_analytics_period_all_time": {
+    "de": "Gesamter Zeitraum",
+    "en": "All time",
+    "ar": "كل الفترات",
+    "es": "Todo el periodo",
+    "fr": "Toute la période",
+    "ru": "Весь период",
+    "tr": "Tüm zamanlar",
+    "zh": "全部时间"
+  },
+  "housing_analytics_period_custom": {
+    "de": "Benutzerdefiniert",
+    "en": "Custom",
+    "ar": "مخصص",
+    "es": "Personalizado",
+    "fr": "Personnalisé",
+    "ru": "Произвольный",
+    "tr": "Özel",
+    "zh": "自定义"
+  },
+  "housing_analytics_date_from": {
+    "de": "Von",
+    "en": "From",
+    "ar": "من",
+    "es": "Desde",
+    "fr": "Du",
+    "ru": "С",
+    "tr": "Başlangıç",
+    "zh": "起始"
+  },
+  "housing_analytics_date_to": {
+    "de": "Bis",
+    "en": "To",
+    "ar": "إلى",
+    "es": "Hasta",
+    "fr": "Au",
+    "ru": "По",
+    "tr": "Bitiş",
+    "zh": "结束"
+  },
+  "housing_analytics_grouping": {
+    "de": "Gruppierung",
+    "en": "Grouping",
+    "ar": "التجميع",
+    "es": "Agrupación",
+    "fr": "Regroupement",
+    "ru": "Группировка",
+    "tr": "Gruplama",
+    "zh": "分组"
+  },
+  "housing_analytics_grouping_building": {
+    "de": "Nach Wohnanlage",
+    "en": "By housing complex",
+    "ar": "حسب المجمع السكني",
+    "es": "Por residencia",
+    "fr": "Par résidence",
+    "ru": "По общежитию",
+    "tr": "Yurda göre",
+    "zh": "按宿舍楼"
+  },
+  "housing_analytics_grouping_room": {
+    "de": "Nach Zimmer",
+    "en": "By room",
+    "ar": "حسب الغرفة",
+    "es": "Por habitación",
+    "fr": "Par chambre",
+    "ru": "По комнате",
+    "tr": "Odaya göre",
+    "zh": "按房间"
+  },
+  "housing_analytics_search_building": {
+    "de": "Wohnanlage suchen",
+    "en": "Search housing complex",
+    "ar": "البحث عن مجمع سكني",
+    "es": "Buscar residencia",
+    "fr": "Rechercher une résidence",
+    "ru": "Поиск общежития",
+    "tr": "Yurt ara",
+    "zh": "搜索宿舍楼"
+  },
+  "housing_analytics_search_room": {
+    "de": "Zimmer suchen",
+    "en": "Search room",
+    "ar": "البحث عن غرفة",
+    "es": "Buscar habitación",
+    "fr": "Rechercher une chambre",
+    "ru": "Поиск комнаты",
+    "tr": "Oda ara",
+    "zh": "搜索房间"
+  },
+  "housing_analytics_result": {
+    "de": "Ergebnis",
+    "en": "Result",
+    "ar": "النتيجة",
+    "es": "Resultado",
+    "fr": "Résultat",
+    "ru": "Результат",
+    "tr": "Sonuç",
+    "zh": "结果"
+  },
+  "housing_analytics_data_basis": {
+    "de": "Datenbasis",
+    "en": "Data basis",
+    "ar": "البيانات المستخدمة",
+    "es": "Datos utilizados",
+    "fr": "Données utilisées",
+    "ru": "Объём данных",
+    "tr": "Kullanılan veri",
+    "zh": "数据范围"
+  },
+  "housing_analytics_overall": {
+    "de": "Gesamt",
+    "en": "Overall",
+    "ar": "الإجمالي",
+    "es": "Total",
+    "fr": "Total",
+    "ru": "Всего",
+    "tr": "Toplam",
+    "zh": "总计"
+  },
+  "housing_analytics_handovers": {
+    "de": "Abnahmen",
+    "en": "handovers",
+    "ar": "عمليات تسليم",
+    "es": "entregas",
+    "fr": "remises",
+    "ru": "приёмок",
+    "tr": "teslim",
+    "zh": "次交接"
+  },
+  "housing_analytics_vacancies": {
+    "de": "Leerstände",
+    "en": "vacancies",
+    "ar": "فترات شغور",
+    "es": "desocupaciones",
+    "fr": "périodes de vacance",
+    "ru": "простоев",
+    "tr": "boşluk",
+    "zh": "次空置"
+  },
+  "housing_analytics_without_answer": {
+    "de": "ohne Angabe",
+    "en": "without an answer",
+    "ar": "بدون بيانات",
+    "es": "sin datos",
+    "fr": "sans indication",
+    "ru": "без данных",
+    "tr": "veri yok",
+    "zh": "无数据"
+  },
+  "housing_analytics_load_error": {
+    "de": "Auswertung konnte nicht geladen werden",
+    "en": "The report could not be loaded",
+    "ar": "تعذر تحميل التقرير",
+    "es": "No se pudo cargar el análisis",
+    "fr": "L'analyse n'a pas pu être chargée",
+    "ru": "Не удалось загрузить отчёт",
+    "tr": "Değerlendirme yüklenemedi",
+    "zh": "无法加载分析结果"
+  },
+  "housing_analytics_hourly_rate": {
+    "de": "Stundensatz",
+    "en": "Hourly rate",
+    "ar": "أجر الساعة",
+    "es": "Tarifa por hora",
+    "fr": "Taux horaire",
+    "ru": "Ставка в час",
+    "tr": "Saatlik ücret",
+    "zh": "小时费率"
+  },
+  "housing_analytics_average": {
+    "de": "Durchschnitt",
+    "en": "Average",
+    "ar": "المتوسط",
+    "es": "Promedio",
+    "fr": "Moyenne",
+    "ru": "Среднее",
+    "tr": "Ortalama",
+    "zh": "平均"
+  },
+  "housing_analytics_median": {
+    "de": "Median",
+    "en": "Median",
+    "ar": "الوسيط",
+    "es": "Mediana",
+    "fr": "Médiane",
+    "ru": "Медиана",
+    "tr": "Medyan",
+    "zh": "中位数"
+  },
+  "housing_analytics_short_term_share": {
+    "de": "Kurzmieter (unter 6 Monate)",
+    "en": "Short-term tenants (under 6 months)",
+    "ar": "مستأجرون قصيرو الأجل (أقل من 6 أشهر)",
+    "es": "Inquilinos de corta duración (menos de 6 meses)",
+    "fr": "Locataires de courte durée (moins de 6 mois)",
+    "ru": "Краткосрочные жильцы (менее 6 месяцев)",
+    "tr": "Kısa süreli kiracılar (6 aydan az)",
+    "zh": "短租住户（不足 6 个月）"
+  },
+  "housing_analytics_unit_hours": {
+    "de": "Std.",
+    "en": "h",
+    "ar": "ساعة",
+    "es": "h",
+    "fr": "h",
+    "ru": "ч",
+    "tr": "sa",
+    "zh": "小时"
+  },
+  "housing_analytics_unit_days": {
+    "de": "Tage",
+    "en": "days",
+    "ar": "يوم",
+    "es": "días",
+    "fr": "jours",
+    "ru": "дн.",
+    "tr": "gün",
+    "zh": "天"
+  },
+  "housing_analytics_export": {
+    "de": "Exportieren",
+    "en": "Export",
+    "ar": "تصدير",
+    "es": "Exportar",
+    "fr": "Exporter",
+    "ru": "Экспорт",
+    "tr": "Dışa aktar",
+    "zh": "导出"
+  },
+  "housing_analytics_export_pdf": {
+    "de": "Als PDF speichern",
+    "en": "Save as PDF",
+    "ar": "حفظ بصيغة PDF",
+    "es": "Guardar como PDF",
+    "fr": "Enregistrer en PDF",
+    "ru": "Сохранить как PDF",
+    "tr": "PDF olarak kaydet",
+    "zh": "另存为 PDF"
+  },
+  "housing_analytics_export_csv": {
+    "de": "Auswertung als CSV speichern",
+    "en": "Save the report as CSV",
+    "ar": "حفظ التقرير بصيغة CSV",
+    "es": "Guardar el informe como CSV",
+    "fr": "Enregistrer l'analyse en CSV",
+    "ru": "Сохранить отчёт в CSV",
+    "tr": "Değerlendirmeyi CSV olarak kaydet",
+    "zh": "将分析结果另存为 CSV"
+  },
+  "housing_analytics_building": {
+    "de": "Wohnanlage",
+    "en": "Housing complex",
+    "ar": "مجمع سكني",
+    "es": "Residencia",
+    "fr": "Résidence",
+    "ru": "Общежитие",
+    "tr": "Yurt",
+    "zh": "宿舍楼"
+  },
+  "housing_analytics_room": {
+    "de": "Zimmer",
+    "en": "Room",
+    "ar": "غرفة",
+    "es": "Habitación",
+    "fr": "Chambre",
+    "ru": "Комната",
+    "tr": "Oda",
+    "zh": "房间"
+  },
+  "housing_analytics_matches": {
+    "de": "Betroffene Abnahmen",
+    "en": "Affected handovers",
+    "ar": "عمليات التسليم المعنية",
+    "es": "Entregas afectadas",
+    "fr": "Remises concernées",
+    "ru": "Затронутые приёмки",
+    "tr": "Etkilenen teslimler",
+    "zh": "受影响的交接"
+  },
+  "housing_analytics_share_percent": {
+    "de": "Anteil %",
+    "en": "Share %",
+    "ar": "النسبة %",
+    "es": "Porcentaje %",
+    "fr": "Part %",
+    "ru": "Доля %",
+    "tr": "Oran %",
+    "zh": "占比 %"
+  },
+  "housing_analytics_value": {
+    "de": "Wert",
+    "en": "Value",
+    "ar": "القيمة",
+    "es": "Valor",
+    "fr": "Valeur",
+    "ru": "Значение",
+    "tr": "Değer",
+    "zh": "数值"
+  },
+  "housing_analytics_sum": {
+    "de": "Summe",
+    "en": "Sum",
+    "ar": "المجموع",
+    "es": "Suma",
+    "fr": "Somme",
+    "ru": "Сумма",
+    "tr": "Toplam",
+    "zh": "合计"
+  },
+  "housing_analytics_minimum": {
+    "de": "Minimum",
+    "en": "Minimum",
+    "ar": "الحد الأدنى",
+    "es": "Mínimo",
+    "fr": "Minimum",
+    "ru": "Минимум",
+    "tr": "En düşük",
+    "zh": "最小值"
+  },
+  "housing_analytics_maximum": {
+    "de": "Maximum",
+    "en": "Maximum",
+    "ar": "الحد الأقصى",
+    "es": "Máximo",
+    "fr": "Maximum",
+    "ru": "Максимум",
+    "tr": "En yüksek",
+    "zh": "最大值"
+  },
+  "housing_analytics_costs": {
+    "de": "Kosten",
+    "en": "Costs",
+    "ar": "التكاليف",
+    "es": "Costes",
+    "fr": "Coûts",
+    "ru": "Затраты",
+    "tr": "Maliyet",
+    "zh": "成本"
   }
 }

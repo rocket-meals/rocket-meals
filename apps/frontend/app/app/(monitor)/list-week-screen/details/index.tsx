@@ -21,8 +21,21 @@ import { UPDATE_MARKINGS } from '@/redux/Types/types';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { PriceGroupKey } from '@/app/(app)/settings/types';
+import { printDomNode } from '@/helper/printDomNode';
 
 const fontSize = 10;
+
+/** Blocks of the food plan that must not be torn apart by a page break. */
+const FOOD_PLAN_PRINT_CSS = `
+@media print {
+	.food-item,
+	.food-text,
+	.price-text {
+		page-break-inside: avoid !important;
+		break-inside: avoid !important;
+	}
+}
+`;
 
 const buildFoodMarkingEntry = (food: any, markings: any[] | undefined, markingGroups: any, theme: any, mode: string) => {
 	// Extract marking IDs properly
@@ -349,89 +362,16 @@ const Index = () => {
 
 	const handlePrint = () => {
 		if (Platform.OS === 'web' && printRef.current) {
-			// Clone content so we can manipulate it
-			const contentNode = printRef.current.cloneNode(true) as HTMLElement;
-
-			// Add real class="no-break" to data-print-break elements
-			contentNode.querySelectorAll('[data-print-break="true"]').forEach(el => {
-				el.classList.add('no-break');
+			printDomNode(printRef.current, {
+				// The layout marks the blocks that must not be split across pages; the print
+				// stylesheet only knows the `no-break` class, so translate the one into the other.
+				transformClone: clone => {
+					clone.querySelectorAll('[data-print-break="true"]').forEach(element => {
+						element.classList.add('no-break');
+					});
+				},
+				extraPrintCss: FOOD_PLAN_PRINT_CSS,
 			});
-
-			const content = contentNode.outerHTML;
-
-			const stylesheets = Array.from(document.styleSheets)
-				.map(styleSheet => {
-					try {
-						return Array.from(styleSheet.cssRules || [])
-							.map(rule => rule.cssText)
-							.join('\n');
-					} catch (err) {
-						return '';
-					}
-				})
-				.join('\n');
-
-			const html = `
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <base href="${document.baseURI}">
-          <style>
-            ${stylesheets}
-            @media print {
-              * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                background-clip: padding-box !important;
-              }
-
-              body {
-                background-color: white !important;
-              }
-
-              .no-break,
-              .food-item,
-              .food-text,
-              .price-text,
-              tr {
-                page-break-inside: avoid !important;
-                break-inside: avoid !important;
-              }
-
-              thead {
-                display: table-header-group !important;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          ${content}
-          <script>
-            window.onload = function () {
-              var print = function () { window.print(); };
-              if (document.fonts && document.fonts.ready) {
-                document.fonts.ready.then(print, print);
-              } else {
-                print();
-              }
-            };
-          </script>
-        </body>
-      </html>
-    `;
-
-			// Load the print HTML via a Blob URL instead of `document.write` (deprecated):
-			// opening the window directly at the Blob URL still runs the inline
-			// `window.print()` script once the document has loaded, since the window
-			// navigates to a full HTML document rather than having markup injected.
-			// The <base href> above is required for this: a blob: document (unlike the
-			// about:blank window document.write used) does not inherit the opener's
-			// base URL, so without it the relative font URLs in the copied stylesheets
-			// (Poppins @font-face, @expo/vector-icons icon fonts) fail to resolve and
-			// the print falls back to default fonts without bold weights.
-			const blobUrl = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
-			const newWindow = window.open(blobUrl, '_blank');
-			newWindow?.addEventListener('load', () => URL.revokeObjectURL(blobUrl));
 		}
 	};
 

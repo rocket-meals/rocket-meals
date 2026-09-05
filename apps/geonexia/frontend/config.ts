@@ -47,7 +47,8 @@ export function getVersionPatch() {
 	// 20: repaired French texts in the shared translation catalogue
 	// 21: apostrophe-truncation check added to the shared translation validation
 	// 22: translation lookup accepts a language code in any case and region
-	return 22;
+	// 23: common-ui: PrintHidden keeps tap affordances off the printed page
+	return 23;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates
