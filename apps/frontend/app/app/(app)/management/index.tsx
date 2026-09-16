@@ -11,6 +11,7 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import SettingsList from '@/components/SettingsList';
+import { HOUSING_ANALYTICS_ROUTE } from '@/helper/housingAnalytics/HousingAnalyticsRoutes';
 
 const Index = () => {
 	useSetPageTitle(TranslationKeys.role_management);
@@ -147,7 +148,16 @@ const Index = () => {
                                                 onPress={() => {
                                                         router.navigate('/statistics');
                                                 }}
-                                                groupPosition="single"
+                                                groupPosition="top"
+                                        />
+                                        <SettingsList
+                                                leftIcon={<MaterialCommunityIcons name="home-analytics" size={24} />}
+                                                label={translate(TranslationKeys.housing_analytics)}
+                                                rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />}
+                                                onPress={() => {
+                                                        router.navigate(HOUSING_ANALYTICS_ROUTE);
+                                                }}
+                                                groupPosition="bottom"
                                         />
                                 </View>
 

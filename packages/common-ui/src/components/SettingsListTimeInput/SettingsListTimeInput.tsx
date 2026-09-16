@@ -9,6 +9,7 @@ import type { SettingsListProps } from '../SettingsList/types';
 import { CommonUiComponentIds } from '../../constants/ComponentIds';
 import TimeInputFields from './TimeInputFields';
 import { TimeUnitsEnabled, formatSecondsWithUnits } from './timeInputHelpers';
+import PrintHidden from '../PrintHidden';
 
 export interface SettingsListTimeInputProps extends Omit<SettingsListProps, 'onPress' | 'handleFunction'>, TimeUnitsEnabled {
 	modalTitle?: string;
@@ -107,7 +108,11 @@ const SettingsListTimeInput: React.FC<SettingsListTimeInputProps> = ({
 		if (rightElement) {
 			return undefined;
 		}
-		return <MaterialCommunityIcons name="clock-edit-outline" size={20} color={theme.screen.icon} />;
+		return (
+			<PrintHidden>
+				<MaterialCommunityIcons name="clock-edit-outline" size={20} color={theme.screen.icon} />
+			</PrintHidden>
+		);
 	}, [rightElement, rightIcon, theme.screen.icon]);
 
 	const handleOpen = useCallback(() => {

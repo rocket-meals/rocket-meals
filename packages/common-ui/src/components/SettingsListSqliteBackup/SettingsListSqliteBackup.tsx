@@ -9,6 +9,7 @@ import { createKvBackupJson, parseKvBackupJson, restoreKvBackup } from '../../he
 import type { KvBackupFile } from '../../helpers/KvBackupHelper';
 import { buildJsonExportFilename, pickJsonFromFile, saveJsonToFile } from '../../helpers/JsonFileTransferHelper';
 import type { SaveJsonResult } from '../../helpers/JsonFileTransferHelper';
+import PrintHidden from '../PrintHidden';
 
 export type SettingsListSqliteBackupTexts = Partial<{
 	exportLabel: string;
@@ -259,7 +260,11 @@ const SettingsListSqliteBackup: React.FC<SettingsListSqliteBackupProps> = ({
 				leftIcon={<MaterialCommunityIcons name="database-export-outline" size={24} color={iconColor} />}
 				label={texts.exportLabel}
 				value={isBusy ? '...' : texts.exportValue}
-				rightIcon={<Octicons name="chevron-right" size={24} color={iconColor} />}
+				rightIcon={
+					<PrintHidden>
+						<Octicons name="chevron-right" size={24} color={iconColor} />
+					</PrintHidden>
+				}
 				handleFunction={isBusy ? undefined : handleExport}
 				groupPosition={groupPositionExport}
 			/>
@@ -269,7 +274,11 @@ const SettingsListSqliteBackup: React.FC<SettingsListSqliteBackupProps> = ({
 				leftIcon={<MaterialCommunityIcons name="database-import-outline" size={24} color={iconColor} />}
 				label={texts.importLabel}
 				value={isBusy ? '...' : texts.importValue}
-				rightIcon={<Octicons name="chevron-right" size={24} color={iconColor} />}
+				rightIcon={
+					<PrintHidden>
+						<Octicons name="chevron-right" size={24} color={iconColor} />
+					</PrintHidden>
+				}
 				handleFunction={isBusy ? undefined : handleImport}
 				groupPosition={groupPositionImport}
 			/>

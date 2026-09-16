@@ -7,6 +7,7 @@ import { myContrastColor } from '../../helpers/ColorHelper';
 import { lightTheme } from '../../themes';
 import SettingsList from '../SettingsList';
 import type { SettingsListItemBaseProps, SettingsListProps, SettingsListSelectableItemBase } from '../SettingsList/types';
+import PrintHidden from '../PrintHidden';
 
 export type SettingsListLeftRightItem<T> = SettingsListSelectableItemBase<T>;
 
@@ -69,36 +70,41 @@ const SettingsListLeftRight = <T extends string | number>({
 	const resolvedIconBg = iconBgColor ?? settingsCtx?.primaryColor ?? lightTheme.primary;
 	const iconColor = myContrastColor(resolvedIconBg, theme, isDark);
 
+	// Paging arrows are the row's control, not its content - they say nothing on paper.
 	const leftArrow = (
-		<TouchableOpacity
-			onPress={handlePrevious}
-			style={styles.arrowButton}
-			hitSlop={8}
-			accessibilityRole="button"
-			accessibilityLabel={previousAccessibilityLabel}
-		>
-			<MaterialCommunityIcons
-				name="chevron-left"
-				size={28}
-				color={theme.screen.text}
-			/>
-		</TouchableOpacity>
+		<PrintHidden>
+			<TouchableOpacity
+				onPress={handlePrevious}
+				style={styles.arrowButton}
+				hitSlop={8}
+				accessibilityRole="button"
+				accessibilityLabel={previousAccessibilityLabel}
+			>
+				<MaterialCommunityIcons
+					name="chevron-left"
+					size={28}
+					color={theme.screen.text}
+				/>
+			</TouchableOpacity>
+		</PrintHidden>
 	);
 
 	const rightArrow = (
-		<TouchableOpacity
-			onPress={handleNext}
-			style={styles.arrowButton}
-			hitSlop={8}
-			accessibilityRole="button"
-			accessibilityLabel={nextAccessibilityLabel}
-		>
-			<MaterialCommunityIcons
-				name="chevron-right"
-				size={28}
-				color={theme.screen.text}
-			/>
-		</TouchableOpacity>
+		<PrintHidden>
+			<TouchableOpacity
+				onPress={handleNext}
+				style={styles.arrowButton}
+				hitSlop={8}
+				accessibilityRole="button"
+				accessibilityLabel={nextAccessibilityLabel}
+			>
+				<MaterialCommunityIcons
+					name="chevron-right"
+					size={28}
+					color={theme.screen.text}
+				/>
+			</TouchableOpacity>
+		</PrintHidden>
 	);
 
 	// When a leftIcon is provided render [←][Icon] together so the row layout

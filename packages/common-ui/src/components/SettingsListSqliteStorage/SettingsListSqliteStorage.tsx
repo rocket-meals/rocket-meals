@@ -7,6 +7,7 @@ import { useMyScrollViewModal } from '../GlobalModal/useMyScrollViewModal';
 import { DEFAULT_DB_NAME, getStorageUsage, clearStorage } from '../../helpers/SqliteKeyValueStorage';
 import type { SqliteStorageKeyUsage } from '../../helpers/SqliteKeyValueStorage';
 import { formatBytes } from '../../helpers/ByteSizeHelper';
+import PrintHidden from '../PrintHidden';
 
 export type SettingsListSqliteStorageTexts = Partial<{
 	total: string;
@@ -130,7 +131,11 @@ const SettingsListSqliteStorage: React.FC<SettingsListSqliteStorageProps> = ({
 				leftIcon={<MaterialCommunityIcons name="database" size={24} color={iconColor} />}
 				label={texts.total}
 				value={formatBytes(totalBytes)}
-				rightIcon={<Octicons name="chevron-right" size={24} color={iconColor} />}
+				rightIcon={
+					<PrintHidden>
+						<Octicons name="chevron-right" size={24} color={iconColor} />
+					</PrintHidden>
+				}
 				handleFunction={openKeysSheet}
 				groupPosition="top"
 			/>

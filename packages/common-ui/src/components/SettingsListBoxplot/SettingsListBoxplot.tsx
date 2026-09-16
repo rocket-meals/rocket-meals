@@ -8,6 +8,7 @@ import type { SettingsListProps } from '../SettingsList/types';
 import Boxplot from '../Boxplot';
 import type { BoxplotStyleProps } from '../Boxplot';
 import { borderRadiusContainer, horizontalScreenPadding } from '../../constants/ui';
+import PrintHidden from '../PrintHidden';
 
 const ICON_WIDTH = 34;
 const ICON_MARGIN_RIGHT = 10;
@@ -90,11 +91,13 @@ const SettingsListBoxplot: React.FC<SettingsListBoxplotProps> = ({
 					groupPosition={undefined}
 					onPress={() => setExpanded((current) => !current)}
 					rightIcon={
-						<MaterialCommunityIcons
-							name={expanded ? 'chevron-up' : 'chevron-down'}
-							size={22}
-							color={theme.screen.icon}
-						/>
+						<PrintHidden>
+							<MaterialCommunityIcons
+								name={expanded ? 'chevron-up' : 'chevron-down'}
+								size={22}
+								color={theme.screen.icon}
+							/>
+						</PrintHidden>
 					}
 				/>
 				<View style={styles.plotSection}>

@@ -13,6 +13,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 
 import { AppScreens } from 'repo-depkit-common';
+import { HOUSING_ANALYTICS_ROUTE } from '@/helper/housingAnalytics/HousingAnalyticsRoutes';
 
 const BackTriggerButton = ({ triggerProps, onPress, color }: { triggerProps: object; onPress: () => void; color: string }) => (
 	<TouchableOpacity activeOpacity={0.4} {...triggerProps} onPress={onPress} style={{ padding: 10 }}>
@@ -41,6 +42,9 @@ const GO_BACK_TARGET_RULES: { pathIncludes: string; target: string }[] = [
 	{ pathIncludes: `/${AppScreens.FOOD_PLAN_WEEK}`, target: `/${AppScreens.MANAGEMENT}` },
 	{ pathIncludes: `/${AppScreens.FORMS}`, target: `/${AppScreens.FORM_CATEGORIES}` },
 	{ pathIncludes: `/${AppScreens.FORM_CATEGORIES}`, target: `/${AppScreens.MANAGEMENT}` },
+	// Report detail -> report list -> management (the housing analytics screens are not in AppScreens).
+	{ pathIncludes: `${HOUSING_ANALYTICS_ROUTE}/`, target: HOUSING_ANALYTICS_ROUTE },
+	{ pathIncludes: HOUSING_ANALYTICS_ROUTE, target: `/${AppScreens.MANAGEMENT}` },
 	{ pathIncludes: '/chats/details', target: '/chats' },
 ];
 

@@ -8,6 +8,7 @@ import type { SettingsListItemBaseProps } from '../SettingsList/types';
 import CardWithText from '../CardWithText';
 import { useMyScrollViewModal } from '../GlobalModal/useMyScrollViewModal';
 import { useTheme } from '../../context/ThemeContext';
+import PrintHidden from '../PrintHidden';
 
 const DEFAULT_MAP_PREVIEW_CENTER = { lat: 52.662231, lng: 8.1244 };
 const DEFAULT_MAP_PREVIEW_ZOOM = 14;
@@ -114,7 +115,11 @@ const OsmConsentGate: React.FC<OsmConsentGateProps> = ({ onConsent, texts }) => 
 			<SettingsList
 				title={texts.consentAccept}
 				leftIcon={<MaterialCommunityIcons name="check-circle-outline" size={22} color={theme.screen.icon} />}
-				rightIcon={<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />}
+				rightIcon={
+					<PrintHidden>
+						<Entypo name="chevron-small-right" size={24} color={theme.screen.icon} />
+					</PrintHidden>
+				}
 				onPress={onConsent}
 				groupPosition="single"
 			/>
@@ -278,7 +283,11 @@ const SettingsListMyMapThemeSelection: React.FC<SettingsListMyMapThemeSelectionP
 			iconBgColor={iconBgColor}
 			label={label}
 			value={MAP_STYLE_DEFINITIONS[selectedMapStyleKey]?.label ?? ''}
-			rightIcon={<Ionicons name="chevron-forward" size={20} color="#9ca3af" />}
+			rightIcon={
+				<PrintHidden>
+					<Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+				</PrintHidden>
+			}
 			onPress={handleOpenSelection}
 			groupPosition={groupPosition}
 			nativeID={nativeID}

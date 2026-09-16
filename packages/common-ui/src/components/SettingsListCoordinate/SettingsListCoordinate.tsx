@@ -4,6 +4,7 @@ import { Entypo, Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
 import SettingsList from '../SettingsList';
 import type { SettingsListProps } from '../SettingsList/types';
+import PrintHidden from '../PrintHidden';
 
 export type LinkCoordinate = {
 	latitude: number;
@@ -50,7 +51,9 @@ const SettingsListCoordinate: React.FC<SettingsListCoordinateProps> = ({
 		<Ionicons name="location-sharp" size={24} color={theme.screen.icon} />
 	);
 	const resolvedRightIcon = rightIcon ?? (
-		<Entypo name="chevron-small-right" size={26} color={theme.screen.icon} />
+		<PrintHidden>
+			<Entypo name="chevron-small-right" size={26} color={theme.screen.icon} />
+		</PrintHidden>
 	);
 
 	return (

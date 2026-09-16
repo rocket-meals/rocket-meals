@@ -6,6 +6,7 @@ import type { SettingsListProps } from '../SettingsList/types';
 import type { LabeledAccentProps } from 'repo-depkit-common';
 import MyAvatar, { AvatarConfig, AvatarSize } from '../MyAvatar';
 import { useAvatarEditorModal, UseAvatarEditorModalOptions } from '../MyAvatarEditor';
+import PrintHidden from '../PrintHidden';
 
 export type SettingsListAvatarProps = LabeledAccentProps & {
 	/** Current avatar config, or null/undefined when no avatar has been set yet. */
@@ -119,7 +120,13 @@ const SettingsListAvatar: React.FC<SettingsListAvatarProps> = ({
 					/>
 				</View>
 			}
-			rightIcon={rightIcon ?? <MaterialCommunityIcons name="pencil" size={20} color="#ffffff" />}
+			rightIcon={
+				rightIcon ?? (
+					<PrintHidden>
+						<MaterialCommunityIcons name="pencil" size={20} color="#ffffff" />
+					</PrintHidden>
+				)
+			}
 			handleFunction={handlePress}
 			width={width}
 			backgroundColor={backgroundColor}
