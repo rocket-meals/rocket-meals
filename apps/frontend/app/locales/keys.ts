@@ -641,6 +641,7 @@ export const TranslationKeys = {
 	debug_request_default_content: 'debug_request_default_content',
 	feedback_open_chat: 'feedback_open_chat',
 	iban_invalid_length: 'iban_invalid_length',
+	iban_invalid_checksum: 'iban_invalid_checksum',
 	giro_card_scan_title: 'giro_card_scan_title',
 	giro_card_scan_hint: 'giro_card_scan_hint',
 	giro_card_iban_scanner_test: 'giro_card_iban_scanner_test',

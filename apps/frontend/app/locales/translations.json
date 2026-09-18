@@ -6209,6 +6209,16 @@
     "tr": "Geçersiz IBAN uzunluğu",
     "zh": "IBAN 长度无效"
   },
+  "iban_invalid_checksum": {
+    "de": "IBAN-Prüfziffern stimmen nicht",
+    "en": "The IBAN check digits do not add up",
+    "ar": "أرقام التحقق في الآيبان غير صحيحة",
+    "es": "Los dígitos de control del IBAN no coinciden",
+    "fr": "Les clés de contrôle de l’IBAN ne correspondent pas",
+    "ru": "Контрольные цифры IBAN не сходятся",
+    "tr": "IBAN kontrol haneleri uyuşmuyor",
+    "zh": "IBAN 校验位不正确"
+  },
   "giro_card_scan_title": {
     "de": "Girocard scannen",
     "en": "Scan giro card",

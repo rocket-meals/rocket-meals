@@ -19,6 +19,57 @@ Schalter „Prüfsumme ignorieren", die erkannten Zeilen im Klartext und das
 letzte Ergebnis — Musterkarten tragen Dummy-Prüfziffern und werden sonst
 zu Recht abgelehnt.
 
+### Wo im Formular das passiert
+
+`form-submission` zerlegt den `field_type` eines Feldes am ersten `-`: aus
+`value_string-bank_account_number` wird `custom_type` `value_string` und
+`custom_id` `bank_account_number`. Genau auf dieses `custom_id` hin rendert der
+Screen `IBANInput` — das Feld **mit** dem Kamera-Button. Jedes andere
+Stringfeld bekommt `SingleLineInput` und damit keinen.
+
+Der Scan landet über denselben Weg im Formular wie eine Tastatureingabe:
+`onIbanDetected` ruft `applyIban`, das ruft das `onChange` des Screens
+(`handleChange`), und das schreibt den Wert nach `formData[fieldId].value`.
+Eine eigene Sonderbehandlung für gescannte Werte gibt es nicht — und soll es
+nicht geben.
+
+Nicht gerendert werden derzeit `value_string-bic` und `value_string-address`:
+für diese beiden `custom_id`s hat der Screen keinen Zweig, das Feld bleibt leer.
+Das ist unabhängig von der IBAN und hier nicht angefasst.
+
+### Die Leerzeichen im Feld
+
+Der Wert trägt die gedruckte Gruppierung (`DE89 3704 0044 …`) — im Feld, im
+`formData` und in `value_string`. Das ist Absicht: so liest man eine IBAN zur
+Kontrolle ab. Nachgelagert stört es niemanden, der Server räumt es selbst weg:
+`FormHelper.generateBankAccountBoxesHtml` entfernt für die PDF-Kästchen jeden
+Whitespace, und der Markdown-Zweig ruft `FormHelperCommon.formatIban` auf den
+gespeicherten Wert — auf einen schon gruppierten Wert angewandt ändert das
+nichts, die Funktion ist idempotent.
+
+**Zwei Messungen waren aber am falschen String genommen**, und beide fielen erst
+mit den Leerzeichen auf:
+
+- `maxLength={34}` zählte die Leerzeichen mit. 34 ist die Länge der *Nummer*;
+  mit Gruppierung wird die längste IBAN 42 Zeichen lang. Von den Ländern im
+  Register sind zwölf lang genug, dass ihnen die letzte Gruppe abgeschnitten
+  wurde (BR, EG, JO, KW, LC, MT, MU, PS, QA, RU, SC, UA). Jetzt
+  `FormHelperCommon.IBAN_MAX_FORMATTED_LENGTH`.
+- Die Prüfung „kürzer als 15?" lief ebenfalls auf dem angezeigten String. Mit
+  Gruppierung ist ein 13-Zeichen-Fragment 16 Zeichen lang und rutschte durch;
+  effektiv prüfte die Regel „mindestens 12". Jetzt fragt das Feld
+  `IbanRecognitionHelper.getIbanFieldProblem`, und das normalisiert zuerst.
+
+Dabei ist auch ein zweiter Fehlerfall dazugekommen: eine IBAN mit richtiger
+Länge, aber falschen Prüfziffern, blieb vorher stumm — jetzt sagt das Feld
+`iban_invalid_checksum`.
+
+**Offen:** ein Feldfehler blockiert das Absenden nicht.
+`validateRequiredFormAnswers` prüft nur, ob Pflichtfelder überhaupt gefüllt
+sind; `formData[...].error` wird beim Absenden nicht angesehen. Eine IBAN mit
+falscher Prüfsumme lässt sich also weiterhin abschicken. Das betrifft alle
+Feldtypen gleichermaßen und ist bewusst nicht in diesem Zug geändert.
+
 ## Die Architektur in einem Satz
 
 **Bildaufnahme und Texterkennung sind getrennt.** Die App besorgt ein Bild —

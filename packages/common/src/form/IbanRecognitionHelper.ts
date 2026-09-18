@@ -50,6 +50,20 @@ interface IbanShapedRun {
   headIsOwnBlock: boolean;
 }
 
+/**
+ * What is wrong with an IBAN someone typed or scanned into a field, or `null`
+ * when nothing is.
+ *
+ * `empty` is deliberately not a problem: a field nobody has filled in yet has
+ * nothing to complain about, and whether it *must* be filled in is the form's
+ * question, not the IBAN's.
+ */
+export type IbanFieldProblem =
+  /** Not as long as its country prints it — which is also what a half-typed IBAN looks like. */
+  | 'invalid-length'
+  /** The right length for its country, but the mod-97 check digits do not add up. */
+  | 'invalid-checksum';
+
 export interface FindIbanOptions {
   /**
    * Accept a candidate whose mod-97 check digits do not match. Off by default —
@@ -124,12 +138,7 @@ export class IbanRecognitionHelper {
 
   /** Uppercases and drops everything that cannot be part of an IBAN. */
   static normalizeIban(text: string): string {
-    const withoutSeparators = StringHelper.replaceAllWithOptions({
-      str: text,
-      find: '[^A-Za-z0-9]',
-      replace: '',
-    });
-    return withoutSeparators.toUpperCase();
+    return FormHelperCommon.normalizeIban(text);
   }
 
   /** Groups an IBAN in blocks of four, the way it is printed on a card. */
@@ -176,6 +185,29 @@ export class IbanRecognitionHelper {
    */
   static hasNoLettersInBody(iban: string): boolean {
     return !/[A-Z]/.test(IbanRecognitionHelper.normalizeIban(iban).slice(4));
+  }
+
+  /**
+   * What is wrong with what is currently in an IBAN field.
+   *
+   * Asked of the **normalized** number, never of the string as it is displayed:
+   * the field carries the printed spacing, so measuring the displayed string
+   * counts the spaces as if they were characters of the number. That is how a
+   * thirteen-character fragment — `DE89 3704 0044 0` — passed a "shorter than
+   * fifteen" check: with its spaces it is sixteen characters long.
+   */
+  static getIbanFieldProblem(text: string): IbanFieldProblem | null {
+    const normalized = IbanRecognitionHelper.normalizeIban(text);
+    if (normalized.length === 0) {
+      return null;
+    }
+    if (!IbanRecognitionHelper.hasValidIbanLength(normalized)) {
+      return 'invalid-length';
+    }
+    if (!IbanRecognitionHelper.isValidIbanChecksum(normalized)) {
+      return 'invalid-checksum';
+    }
+    return null;
   }
 
   /** True when the length matches the registry entry for the country. */

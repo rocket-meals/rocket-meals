@@ -7,7 +7,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { isWeb } from '@/constants/Constants';
 import { TranslationKeys } from '@/locales/keys';
-import { FormHelperCommon } from 'repo-depkit-common';
+import { FormHelperCommon, IbanRecognitionHelper } from 'repo-depkit-common';
 import { useGiroCardIbanScannerModal } from '@/components/GiroCardIbanScanner';
 
 export interface IBANInputProps {
@@ -40,13 +40,24 @@ const IBANInput = ({ id, value, onChange, onError, error, isDisabled, custom_typ
 	// there wherever the field can be edited at all.
 	const isScanAvailable = !isDisabled;
 
-	const formatIBAN = (text: string) => FormHelperCommon.formatIban(text);
+	/**
+	 * The value as the field shows it and as the form stores it: uppercase, in
+	 * groups of four, the way a card prints it and the way anyone reads one back
+	 * to check it. The spacing survives into `value_string` — the backend strips
+	 * it again for the PDF boxes and re-groups it for the markdown, so nothing
+	 * downstream cares, and what the user sees is what the user typed.
+	 */
+	const formatIBAN = (text: string) => FormHelperCommon.formatIban(FormHelperCommon.normalizeIban(text));
 
 	const applyIban = (text: string) => {
 		const formattedText = formatIBAN(text);
 		onChange(id, formattedText, custom_type);
-		if (formattedText.length > 0 && formattedText.length < 15) {
+		// Asked of the number, not of the string with the spaces in it.
+		const problem = IbanRecognitionHelper.getIbanFieldProblem(formattedText);
+		if (problem === 'invalid-length') {
 			onError(id, translate(TranslationKeys.iban_invalid_length));
+		} else if (problem === 'invalid-checksum') {
+			onError(id, translate(TranslationKeys.iban_invalid_checksum));
 		} else {
 			onError(id, '');
 		}
@@ -55,6 +66,9 @@ const IBANInput = ({ id, value, onChange, onError, error, isDisabled, custom_typ
 	const handleScanPress = () => {
 		openGiroCardIbanScanner({
 			allowInvalidChecksum: allowInvalidScannedChecksum,
+			// Straight into the field, grouped as it was read off the card. The
+			// form's own `onChange` is what `applyIban` calls, so the scanned
+			// number lands in `formData` exactly like a typed one.
 			onIbanDetected: (formattedIban) => applyIban(formattedIban),
 		});
 	};
@@ -89,13 +103,20 @@ const IBANInput = ({ id, value, onChange, onError, error, isDisabled, custom_typ
 					cursorColor={theme.screen.text}
 					placeholderTextColor={theme.screen.placeholder}
 					onChangeText={applyIban}
-					value={value}
+					// Formatted on the way out too, so a value stored before this
+					// field grouped anything still reads as an IBAN. Idempotent, so
+					// typing is unaffected.
+					value={formatIBAN(value)}
 					placeholder={translate(TranslationKeys.iban_format)}
 					keyboardType="default"
 					enterKeyHint="next"
 					autoCapitalize="characters"
 					editable={!isDisabled}
-					maxLength={34} // IBAN max length
+					// The value carries the printed spacing, so the cap has to allow
+					// for it: the longest IBAN is 34 characters and 42 with its
+					// spaces. Capping at 34 cut the last group off the twelve
+					// countries whose IBAN is 29 characters or longer.
+					maxLength={FormHelperCommon.IBAN_MAX_FORMATTED_LENGTH}
 				/>
 				{suffix && (
 					<View

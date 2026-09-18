@@ -110,7 +110,9 @@ export function getVersionPatch() {
         // 36: onnxruntime-react-native patched for Gradle 9 (Android build)
         // 37: build number raised to 209
         // 38: the Gradle 9 patch compares integers now, not lists
-        return 38;
+        // 39: the IBAN form field keeps its printed spacing without being cut
+        //     short, and checks the number rather than the spaces
+        return 39;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

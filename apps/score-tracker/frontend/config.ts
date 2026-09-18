@@ -51,7 +51,8 @@ export function getVersionPatch() {
 	// 21: shared IBAN recognition helper added to repo-depkit-common
 	// 22: shared IBAN recognition no longer reads a number out of surrounding words
 	// 23: shared IBAN recognition reads welded groups, refuses lettered bodies
-	return 23;
+	// 24: shared IBAN form helpers: spacing-aware length and field validation
+	return 24;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates
