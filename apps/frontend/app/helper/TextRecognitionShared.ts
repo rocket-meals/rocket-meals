@@ -158,19 +158,21 @@ export interface RecognitionImage {
 }
 
 /** What a platform's `useTextRecognition` hook gives its caller. */
-export interface TextRecognitionApi {
+export interface TextRecognitionOptions {
 	/**
-	 * Whether the engine is running at all.
+	 * Whether a camera preview is on screen right now.
 	 *
-	 * On native it starts only when {@link startEngine} is called. The engine
-	 * lives in a WebView there, and a WebView that dies in its native layer
-	 * takes the app with it — no JavaScript can catch that. Opening the scanner
-	 * must not be able to do that, so the camera comes up first and the engine
-	 * is a deliberate second step.
+	 * Taking the picture and reading it are two separate jobs, and on Android
+	 * they cannot be done at the same time: the camera preview and the WebView
+	 * the engine runs in both want a hardware surface, and a screen holding both
+	 * shows an empty preview and takes the app down with it. The engine
+	 * therefore only exists while the preview does not — the caller says which
+	 * of the two it is showing, and the hook does the rest.
 	 */
-	isEngineStarted: boolean;
-	/** Starts the engine. Already started, or not needed: does nothing. */
-	startEngine: () => void;
+	isCameraActive: boolean;
+}
+
+export interface TextRecognitionApi {
 	/** Reads one frame: its text line by line, plus how sharp it was. */
 	recognizeImage: (image: RecognitionImage) => Promise<RecognitionResult>;
 	/** 0…1 while the engine loads or reads, `null` when it is idle. */
@@ -179,6 +181,12 @@ export interface TextRecognitionApi {
 	errorMessage: string | null;
 	/** Must be rendered by the caller — on native it carries the engine. */
 	engineElement: ReactNode;
+	/**
+	 * The engine may read while the camera preview is live, so frames can be
+	 * sampled continuously. False where the two cannot share a screen: there a
+	 * picture is taken first and read afterwards, one deliberate still at a time.
+	 */
+	runsAlongsideCamera: boolean;
 }
 
 /** What the WebView page posts back to the app. */

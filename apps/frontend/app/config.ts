@@ -88,7 +88,9 @@ export function getVersionPatch() {
         //     no native module - ships as an OTA update)
         // 30: the giro card scanner no longer reads a number out of the words
         //     printed around it (bank name, cardholder, "Gültig bis")
-        return 30;
+        // 31: taking the picture and reading it are separated - the camera
+        //     preview and the engine's WebView are never on screen together
+        return 31;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

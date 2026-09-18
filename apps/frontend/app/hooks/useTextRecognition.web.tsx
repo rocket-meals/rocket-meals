@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 
-import { ENGINE_FILE_NAMES, MAX_RECOGNITION_IMAGE_WIDTH, MINIMUM_SHARPNESS, RECOGNITION_IMAGE_COMPRESSION, RecognitionImage, RecognitionResult, SHARPNESS_MEASUREMENT_WIDTH, TESSERACT_LANGUAGE, TextRecognitionApi, buildWorkerOptions, measureImageSharpness, splitRecognizedText } from '@/helper/TextRecognitionShared';
+import { ENGINE_FILE_NAMES, MAX_RECOGNITION_IMAGE_WIDTH, MINIMUM_SHARPNESS, RECOGNITION_IMAGE_COMPRESSION, RecognitionImage, RecognitionResult, SHARPNESS_MEASUREMENT_WIDTH, TESSERACT_LANGUAGE, TextRecognitionApi, TextRecognitionOptions, buildWorkerOptions, measureImageSharpness, splitRecognizedText } from '@/helper/TextRecognitionShared';
 
 interface TesseractWorker {
 	recognize: (image: string) => Promise<{ data: { text: string } }>;
@@ -97,7 +97,7 @@ const prepareFrame = async (imageUri: string): Promise<{ dataUri: string; sharpn
  * origin, so no request for it ever leaves for a third party. Nothing to
  * render, so `engineElement` stays null.
  */
-export const useTextRecognition = (): TextRecognitionApi => {
+export const useTextRecognition = (_options: TextRecognitionOptions): TextRecognitionApi => {
 	const workerPromise = useRef<Promise<TesseractWorker> | null>(null);
 	const [progress, setProgress] = useState<number | null>(null);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -147,9 +147,9 @@ export const useTextRecognition = (): TextRecognitionApi => {
 		[getWorker],
 	);
 
-	// Nothing to gate on the web: the page loads the engine when it first reads,
-	// and a script tag cannot take the tab down the way a native WebView can.
-	return { isEngineStarted: true, startEngine: () => {}, recognizeImage, progress, errorMessage, engineElement: null };
+	// A browser runs the engine in a worker next to the video element without
+	// either getting in the other's way, so frames can be sampled continuously.
+	return { recognizeImage, progress, errorMessage, engineElement: null, runsAlongsideCamera: true };
 };
 
 export default useTextRecognition;

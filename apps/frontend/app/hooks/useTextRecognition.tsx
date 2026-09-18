@@ -7,10 +7,23 @@ import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
-import { ENGINE_FILE_NAMES, MAX_RECOGNITION_IMAGE_WIDTH, MINIMUM_SHARPNESS, RECOGNITION_IMAGE_COMPRESSION, RecognitionImage, RecognitionResult, TextRecognitionApi, TextRecognitionEngineMessage, buildTextRecognitionPageHtml, splitRecognizedText } from '@/helper/TextRecognitionShared';
+import { ENGINE_FILE_NAMES, MAX_RECOGNITION_IMAGE_WIDTH, MINIMUM_SHARPNESS, RECOGNITION_IMAGE_COMPRESSION, RecognitionImage, RecognitionResult, TextRecognitionApi, TextRecognitionEngineMessage, TextRecognitionOptions, buildTextRecognitionPageHtml, splitRecognizedText } from '@/helper/TextRecognitionShared';
 
 /** How long one recognition may take before it is given up on. */
 const RECOGNITION_TIMEOUT_IN_MS = 60_000;
+
+/** How long the engine page may take to load before it is given up on. */
+const ENGINE_START_TIMEOUT_IN_MS = 30_000;
+
+/**
+ * How long to leave the screen alone after the camera preview has gone before
+ * putting the WebView on it.
+ *
+ * React takes the preview out of the tree in one go, but the camera hands its
+ * hardware surface back to the system in its own time. Mounting the WebView
+ * into that gap is how the app goes down, so the gap is waited out.
+ */
+const SURFACE_SETTLE_IN_MS = 250;
 
 /** Where the engine is unpacked on the device. */
 const ENGINE_DIRECTORY_NAME = 'text-recognition-engine';
@@ -109,28 +122,34 @@ export const unpackEngine = async (): Promise<string> => {
  * no new binary, ships as an OTA update. The engine itself is unpacked out of
  * the app onto the device, so it works offline and tells no one about it.
  *
+ * Taking a picture and reading it are kept strictly apart. The camera is the
+ * platform's own (`expo-camera`) and has nothing to do with this file; what
+ * arrives here is a finished image. And the WebView only ever exists while the
+ * camera preview does not: on Android both want a hardware surface, and a
+ * screen holding both shows an empty preview and then takes the app down. The
+ * caller says which of the two it is showing through `isCameraActive`.
+ *
  * The caller must render `engineElement`; without it there is no WebView and
- * `recognizeImage` never resolves. And nothing happens at all until
- * `startEngine` is called: a WebView that dies in its native layer takes the
- * app with it, and merely opening the scanner must not be able to do that.
+ * `recognizeImage` never resolves.
  */
-export const useTextRecognition = (): TextRecognitionApi => {
+export const useTextRecognition = ({ isCameraActive }: TextRecognitionOptions): TextRecognitionApi => {
 	const webViewRef = useRef<WebView>(null);
-	const [isEngineStarted, setIsEngineStarted] = useState(false);
 	const [engineDirectory, setEngineDirectory] = useState<string | null>(null);
+	/** True once the camera has been gone long enough to hand the screen over. */
+	const [isSurfaceFree, setIsSurfaceFree] = useState(false);
 	const [progress, setProgress] = useState<number | null>(null);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	/** Requests waiting for their answer from the page, by request id. */
 	const pendingRequests = useRef(new Map<string, { resolve: (result: RecognitionResult) => void; reject: (error: Error) => void }>());
 	const nextRequestId = useRef(0);
-
-	const startEngine = useCallback(() => setIsEngineStarted(true), []);
+	/** Resolves once the page has reported that the engine is up. */
+	const engineStart = useRef<{ promise: Promise<void>; resolve: () => void; reject: (error: Error) => void } | null>(null);
 
 	useEffect(() => {
-		if (!isEngineStarted) {
-			return;
-		}
+		// Unpacking is nothing but file copies — no WebView, no surface, nothing
+		// that could fight with the camera — so it happens right away and the
+		// first reading does not have to wait for it.
 		let isMounted = true;
 		unpackEngine()
 			.then((directory) => {
@@ -146,7 +165,20 @@ export const useTextRecognition = (): TextRecognitionApi => {
 		return () => {
 			isMounted = false;
 		};
-	}, [isEngineStarted]);
+	}, []);
+
+	useEffect(() => {
+		if (isCameraActive) {
+			setIsSurfaceFree(false);
+			// The page goes with the WebView, so whatever was waiting on it has to
+			// wait on the next one instead.
+			engineStart.current?.reject(new Error('the text recognition engine was put away while the camera is in use'));
+			engineStart.current = null;
+			return;
+		}
+		const timeoutId = setTimeout(() => setIsSurfaceFree(true), SURFACE_SETTLE_IN_MS);
+		return () => clearTimeout(timeoutId);
+	}, [isCameraActive]);
 
 	const handleMessage = useCallback((event: WebViewMessageEvent) => {
 		let message: TextRecognitionEngineMessage;
@@ -157,8 +189,11 @@ export const useTextRecognition = (): TextRecognitionApi => {
 		}
 
 		if (message.type === 'ready') {
-			if (!message.engineLoaded) {
+			if (message.engineLoaded) {
+				engineStart.current?.resolve();
+			} else {
 				setErrorMessage('text recognition engine could not be loaded');
+				engineStart.current?.reject(new Error('text recognition engine could not be loaded'));
 			}
 			return;
 		}
@@ -182,8 +217,44 @@ export const useTextRecognition = (): TextRecognitionApi => {
 		if (message.id) {
 			pendingRequests.current.get(message.id)?.reject(new Error(message.message));
 			pendingRequests.current.delete(message.id);
+			return;
 		}
+		engineStart.current?.reject(new Error(message.message));
 	}, []);
+
+	/** Whatever went wrong while the page was coming up is reported here too. */
+	const failEngineStart = useCallback((detail: string) => {
+		setErrorMessage(detail);
+		engineStart.current?.reject(new Error(detail));
+	}, []);
+
+	/**
+	 * Waits until the page is up. It is mounted as soon as the camera preview is
+	 * gone, so the wait is for the page to load, not for the user to do anything.
+	 */
+	const waitForEngine = useCallback((): Promise<void> => {
+		if (isCameraActive) {
+			return Promise.reject(new Error('the text recognition engine cannot run while the camera preview is on screen'));
+		}
+		if (engineStart.current !== null) {
+			return engineStart.current.promise;
+		}
+		let resolve: () => void = () => undefined;
+		let reject: (error: Error) => void = () => undefined;
+		const promise = new Promise<void>((resolvePromise, rejectPromise) => {
+			const timeoutId = setTimeout(() => rejectPromise(new Error('the text recognition engine did not start up')), ENGINE_START_TIMEOUT_IN_MS);
+			resolve = () => {
+				clearTimeout(timeoutId);
+				resolvePromise();
+			};
+			reject = (error: Error) => {
+				clearTimeout(timeoutId);
+				rejectPromise(error);
+			};
+		});
+		engineStart.current = { promise, resolve, reject };
+		return promise;
+	}, [isCameraActive]);
 
 	/**
 	 * Scales the frame down before it crosses the bridge: a full-resolution photo
@@ -204,18 +275,17 @@ export const useTextRecognition = (): TextRecognitionApi => {
 
 	const recognizeImage = useCallback(
 		async (image: RecognitionImage): Promise<RecognitionResult> => {
-			const webView = webViewRef.current;
-			if (!webView) {
-				if (!isEngineStarted) {
-					throw new Error('the text recognition engine has not been started');
-				}
-				throw new Error(engineDirectory === null ? 'the text recognition engine is still being unpacked' : 'the text recognition engine is not mounted');
-			}
 			let dataUri: string;
 			try {
 				dataUri = await toDataUri(image);
 			} catch (error) {
 				throw new Error(describeFailure('the photo could not be prepared for reading', error));
+			}
+
+			await waitForEngine();
+			const webView = webViewRef.current;
+			if (!webView) {
+				throw new Error(engineDirectory === null ? 'the text recognition engine is still being unpacked' : 'the text recognition engine is not mounted');
 			}
 			const requestId = `request-${nextRequestId.current++}`;
 
@@ -240,7 +310,7 @@ export const useTextRecognition = (): TextRecognitionApi => {
 				webView.injectJavaScript(`window.recognizeImage(${request}); true;`);
 			});
 		},
-		[engineDirectory, isEngineStarted, toDataUri],
+		[engineDirectory, toDataUri, waitForEngine],
 	);
 
 	// The page is loaded out of the engine directory rather than handed over as
@@ -248,8 +318,8 @@ export const useTextRecognition = (): TextRecognitionApi => {
 	// neighbours. That needs the WebView to be allowed to read that directory,
 	// which is what the file-access props below are for.
 	const engineElement =
-		engineDirectory === null ? null : (
-			<ErrorBoundary onError={(error) => setErrorMessage(describeFailure('the engine view could not be started', error))}>
+		!isSurfaceFree || engineDirectory === null ? null : (
+			<ErrorBoundary onError={(error) => failEngineStart(describeFailure('the engine view could not be started', error))}>
 				<View style={styles.engineContainer} pointerEvents="none">
 					<WebView
 						ref={webViewRef}
@@ -262,16 +332,19 @@ export const useTextRecognition = (): TextRecognitionApi => {
 						javaScriptEnabled
 						domStorageEnabled
 						onMessage={handleMessage}
-						onError={(event) => setErrorMessage(describeFailure('the engine view could not be loaded', event.nativeEvent.description))}
-						onHttpError={(event) => setErrorMessage(describeFailure('the engine view could not be loaded', `HTTP ${event.nativeEvent.statusCode}`))}
-						onRenderProcessGone={() => setErrorMessage('the engine view was shut down by the system, most likely out of memory')}
-						onContentProcessDidTerminate={() => setErrorMessage('the engine view was shut down by the system, most likely out of memory')}
+						onError={(event) => failEngineStart(describeFailure('the engine view could not be loaded', event.nativeEvent.description))}
+						onHttpError={(event) => failEngineStart(describeFailure('the engine view could not be loaded', `HTTP ${event.nativeEvent.statusCode}`))}
+						onRenderProcessGone={() => failEngineStart('the engine view was shut down by the system, most likely out of memory')}
+						onContentProcessDidTerminate={() => failEngineStart('the engine view was shut down by the system, most likely out of memory')}
 					/>
 				</View>
 			</ErrorBoundary>
 		);
 
-	return { isEngineStarted, startEngine, recognizeImage, progress, errorMessage, engineElement };
+	// A camera preview and this WebView cannot be on screen together, so frames
+	// cannot be sampled while the preview runs: a picture is taken first and
+	// read afterwards.
+	return { recognizeImage, progress, errorMessage, engineElement, runsAlongsideCamera: false };
 };
 
 const styles = StyleSheet.create({

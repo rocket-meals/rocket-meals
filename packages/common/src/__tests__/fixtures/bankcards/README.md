@@ -52,9 +52,9 @@ Eleven of the fourteen cards print an IBAN. Five of those are read correctly:
 
 Four are not read at all, and the helper says nothing rather than guessing:
 
-- `Test_2` (sharpness 9) and `Test_11`, `Test_12` — too soft for the engine to
-  return a single usable line. Below `MINIMUM_SHARPNESS` the scanner turns the
-  frame away before the engine ever sees it.
+- `Test_2` — sharpness 9, below `MINIMUM_SHARPNESS`. The scanner turns a frame
+  like this away before the engine ever sees it; the engine, asked anyway,
+  returns the single line `La`.
 - `Test_9` — sharp enough, but the card is small in the frame; after the scale
   to 1600 px the number is too few pixels tall to resolve.
 - `Test_4` and `Test_13` — the engine dropped and swapped digits inside the
@@ -71,7 +71,9 @@ checksum would have caught:
   as `S`, which is a `5`.
 
 Three cards print no IBAN at all (`Test_10`, `Test_11`, `Test_12` — a Visa and
-two Mastercards). None of them produces one.
+two Mastercards). None of them produces one. All three are soft enough that the
+engine returns nothing usable anyway; `Test_11` at sharpness 7 would not even
+reach it.
 
 ## What this folder is really for
 

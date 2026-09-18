@@ -36,12 +36,22 @@ export interface GiroCardIbanScannerProps {
 /**
  * Camera preview that reads the IBAN off a giro card.
  *
- * Two ways to the same end. By default the preview is sampled continuously: a
- * frame is captured, read and searched for an IBAN, then the next one. And at
- * any moment the shutter button takes one deliberate still and reads that —
- * which is the better way to hold a card steady, because the frame stays put
- * while the engine works on it. Either way the first hit ends the scan: the
- * caller closes the sheet and fills its input field.
+ * Taking the picture and reading it are two separate jobs here. The picture
+ * comes from the platform's own camera (`expo-camera`) and from nothing else;
+ * what the engine gets handed is a finished image. Whether the two may happen
+ * at once is the engine's business, not this component's, and it says so
+ * through `runsAlongsideCamera`:
+ *
+ * - In a browser they may. The preview is then sampled continuously — capture,
+ *   read, search, next one — and the shutter is there for whoever wants to hold
+ *   the card still.
+ * - On a device they may not: the preview and the WebView the engine runs in
+ *   both want a hardware surface, and a screen holding both shows an empty
+ *   preview and then takes the app down. So there the shutter is the only way
+ *   in: one picture, the preview goes away, and the picture is read.
+ *
+ * Either way the first hit ends the scan: the caller closes the sheet and fills
+ * its input field.
  */
 /**
  * Says what went wrong, in words the user can act on and with the raw message
@@ -81,7 +91,10 @@ export const GiroCardIbanScanner: React.FC<GiroCardIbanScannerProps> = ({ onIban
 	/** True while the frames coming in are too soft for the engine to bother. */
 	const [isTooBlurry, setIsTooBlurry] = useState(false);
 
-	const { isEngineStarted, startEngine, recognizeImage, progress, errorMessage, engineElement } = useTextRecognition();
+	// The camera is on screen exactly while no still is: that is what the engine
+	// needs to know to stay out of its way.
+	const isCameraActive = capturedImage === null;
+	const { recognizeImage, progress, errorMessage, engineElement, runsAlongsideCamera } = useTextRecognition({ isCameraActive });
 
 	const cameraRef = useRef<CameraView>(null);
 	/** Set once the IBAN is found, so the loop stops and no second hit is reported. */
@@ -130,33 +143,66 @@ export const GiroCardIbanScanner: React.FC<GiroCardIbanScannerProps> = ({ onIban
 		[allowInvalidChecksum, onIbanDetected, onRecognizedLinesChange, recognizeImage],
 	);
 
-	/** The shutter: freeze one frame and read that instead of a moving preview. */
-	const captureAndRead = useCallback(async () => {
+	/** The still this component is reading right now, so it reads it only once. */
+	const stillBeingReadRef = useRef<RecognitionImage | null>(null);
+	/** The latest `readImage`, so that a new one does not restart a running read. */
+	const readImageRef = useRef(readImage);
+	useEffect(() => {
+		readImageRef.current = readImage;
+	}, [readImage]);
+
+	/**
+	 * The shutter, and nothing more: it takes the picture and puts it on screen.
+	 * Reading it is a separate step below, because it must not start before the
+	 * camera preview is actually gone.
+	 */
+	const capturePicture = useCallback(async () => {
 		const image = await takePicture();
 		if (!image) {
 			return;
 		}
-		setCapturedImage(image);
 		setIsCapturedImageRead(false);
-		try {
-			await readImage(image);
-		} catch {
-			// The hook reports what went wrong; the still stays up so the user can
-			// try again without hunting for the card a second time.
-		}
-		setIsCapturedImageRead(true);
-	}, [readImage, takePicture]);
+		setCapturedImage(image);
+	}, [takePicture]);
 
 	const discardCapturedImage = useCallback(() => {
+		// The preview is mounted again by this, which is also what puts the engine
+		// away where the two cannot share a screen.
+		stillBeingReadRef.current = null;
 		setCapturedImage(null);
 		setIsCapturedImageRead(false);
+		setIsCameraReady(false);
 		setIsTooBlurry(false);
 	}, []);
 
 	useEffect(() => {
-		// While a still is on screen the loop stands down: that frame is the one
-		// the user picked, and a second recognition would only compete with it.
-		if (!isCameraReady || !isPermissionGranted || !isEngineStarted || capturedImage !== null) {
+		// Runs one render after the shutter, which is the point: by now the camera
+		// preview has been taken off the screen and the engine can have it.
+		if (capturedImage === null || stillBeingReadRef.current === capturedImage) {
+			return;
+		}
+		stillBeingReadRef.current = capturedImage;
+
+		const readCapturedImage = async () => {
+			try {
+				await readImageRef.current(capturedImage);
+			} catch {
+				// The hook reports what went wrong; the still stays up so the user can
+				// try again without hunting for the card a second time.
+			}
+			if (stillBeingReadRef.current === capturedImage) {
+				setIsCapturedImageRead(true);
+			}
+		};
+		void readCapturedImage();
+	}, [capturedImage]);
+
+	useEffect(() => {
+		// Sampling the preview needs both of them alive at once, so this only runs
+		// where they can be. While a still is on screen the loop stands down: that
+		// frame is the one the user picked, and a second recognition would only
+		// compete with it.
+		if (!runsAlongsideCamera || !isCameraReady || !isPermissionGranted || capturedImage !== null) {
 			return;
 		}
 
@@ -192,7 +238,7 @@ export const GiroCardIbanScanner: React.FC<GiroCardIbanScannerProps> = ({ onIban
 				clearTimeout(timeoutId);
 			}
 		};
-	}, [capturedImage, isCameraReady, isEngineStarted, isPermissionGranted, readImage, takePicture]);
+	}, [capturedImage, isCameraReady, isPermissionGranted, readImage, runsAlongsideCamera, takePicture]);
 
 	if (!isPermissionGranted) {
 		return (
@@ -216,17 +262,17 @@ export const GiroCardIbanScanner: React.FC<GiroCardIbanScannerProps> = ({ onIban
 	// Once a pass has come back, the engine is there and every later gap between
 	// passes is just the scanner working.
 	let statusText = translate(TranslationKeys.giro_card_scan_searching);
-	if (!isEngineStarted) {
-		statusText = translate(TranslationKeys.giro_card_scan_start_engine_hint);
-	} else if (progress !== null) {
+	if (progress !== null) {
 		statusText = `${statusText} ${Math.round(progress * 100)} %`;
 	} else if (!hasRecognizedOnce) {
 		statusText = translate(TranslationKeys.giro_card_scan_preparing);
 	}
-	if (isEngineStarted && progress === null && !hasRecognizedOnce) {
-		statusText = translate(TranslationKeys.giro_card_scan_preparing);
-	}
 	const isReadingCapturedImage = capturedImage !== null && !isCapturedImageRead;
+	if (isCameraActive && !runsAlongsideCamera) {
+		// Nothing is happening and nothing is going to until the user takes a
+		// picture, so say that instead of pretending to search.
+		statusText = translate(TranslationKeys.giro_card_scan_ready_for_photo);
+	}
 	if (capturedImage !== null && isCapturedImageRead) {
 		statusText = translate(TranslationKeys.giro_card_scan_no_iban_in_photo);
 	}
@@ -241,24 +287,21 @@ export const GiroCardIbanScanner: React.FC<GiroCardIbanScannerProps> = ({ onIban
 		<View style={styles.container}>
 			{engineElement}
 			<View style={[styles.cameraWrapper, { borderColor: primaryColor }]}>
-				<CameraView ref={cameraRef} style={styles.camera} facing={facing} animateShutter={false} enableTorch={isTorchEnabled} onCameraReady={() => setIsCameraReady(true)} />
-				{capturedImage !== null && <Image source={{ uri: capturedImage.uri }} style={styles.capturedImage} resizeMode="cover" accessibilityLabel={translate(TranslationKeys.giro_card_scan_take_photo)} />}
+				{/* One or the other, never both: the still replaces the preview
+				    rather than covering it, so no camera is left running underneath
+				    while the engine reads. */}
+				{capturedImage === null ? <CameraView ref={cameraRef} style={styles.camera} facing={facing} animateShutter={false} enableTorch={isTorchEnabled} onCameraReady={() => setIsCameraReady(true)} /> : <Image source={{ uri: capturedImage.uri }} style={styles.capturedImage} resizeMode="cover" accessibilityLabel={translate(TranslationKeys.giro_card_scan_take_photo)} />}
 				<View pointerEvents="none" style={[styles.cardFrame, { borderColor: contrastColor }]} />
 			</View>
 
 			<View style={styles.statusRow}>
-				{isEngineStarted && (capturedImage === null || isReadingCapturedImage) && <ActivityIndicator size="small" color={primaryColor} />}
+				{(isReadingCapturedImage || (isCameraActive && runsAlongsideCamera)) && <ActivityIndicator size="small" color={primaryColor} />}
 				<Text style={[styles.statusText, { color: theme.screen.text }]}>{statusText}</Text>
 			</View>
 			<Text style={[styles.hintText, { color: theme.screen.text }]}>{translate(TranslationKeys.giro_card_scan_hint)}</Text>
 
-			{!isEngineStarted ? (
-				<TouchableOpacity style={[styles.actionButton, { backgroundColor: primaryColor }]} onPress={startEngine} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.giro_card_scan_start_engine)}>
-					<MaterialCommunityIcons name="text-recognition" size={20} color={contrastColor} />
-					<Text style={[styles.actionButtonText, { color: contrastColor }]}>{translate(TranslationKeys.giro_card_scan_start_engine)}</Text>
-				</TouchableOpacity>
-			) : capturedImage === null ? (
-				<TouchableOpacity style={[styles.actionButton, { backgroundColor: primaryColor }]} onPress={() => void captureAndRead()} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.giro_card_scan_take_photo)}>
+			{capturedImage === null ? (
+				<TouchableOpacity style={[styles.actionButton, { backgroundColor: primaryColor }]} onPress={() => void capturePicture()} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.giro_card_scan_take_photo)}>
 					<MaterialCommunityIcons name="camera-iris" size={20} color={contrastColor} />
 					<Text style={[styles.actionButtonText, { color: contrastColor }]}>{translate(TranslationKeys.giro_card_scan_take_photo)}</Text>
 				</TouchableOpacity>
