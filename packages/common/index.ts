@@ -21,6 +21,7 @@ export * from './src/EmailHelper';
 export * from './src/EventHelper';
 export * from './src/form/FormHelperCommon';
 export * from './src/form/IbanRecognitionHelper';
+export * from './src/form/IbanValidationHelper';
 export * from './src/RatingHelper';
 export * from './src/LanguageCodes';
 export * from './src/CollectibleEvents';

@@ -1,7 +1,7 @@
 # Girocard-IBAN-Scanner — Handover
 
-Stand: 2026-09-18. Branch `claude/giro-card-iban-paddleocr`.
-Die Vorgänger-PRs #4399 und #4400 sind geschlossen; alles steckt im neuen PR.
+Stand: 2026-09-18. Branch `claude/ocr-modal-iban-validation-im2jq0`.
+Die Vorgänger-PRs #4399 und #4400 sind geschlossen; #4401 ist gemergt.
 
 Dieses Dokument ist der Übergabepunkt: was gebaut ist, warum es so gebaut ist,
 was nachweislich funktioniert, was nachweislich nicht, und woran als Nächstes zu
@@ -56,11 +56,51 @@ wirklich mit IBANs zu tun hat: was als Fund zählt. Der Screen
 **Experimentell → Texterkennung testen** benutzt dieselbe Schicht ohne
 `findMatch` und zeigt einfach jede erkannte Zeile.
 
-### Die Vorschau ist auf 420 px gedeckelt
+### Das Modal sieht aus wie die Kamera-App des Telefons
 
-Ein Modal im Desktop-Browser ist so breit wie das Fenster. Eine ungedeckelte
-Vorschau drückt Statuszeile und Knöpfe unter den Rand — und die Lesung, die
-niemand sieht, ist die Lesung, die niemand bekommt.
+Die Vorschau nimmt die volle Breite des Modals (`disableHorizontalPadding`), die
+Bedienelemente sitzen dort, wo eine Hand sie ohne Hinsehen sucht: **Auslöser
+unten in der Mitte**, **Kamerawechsel unten rechts**, **Taschenlampe oben rechts
+im Bild**. Alle drei sind runde Knöpfe ohne Beschriftung — ein Auslöser, der
+sich erklären muss, steht an der falschen Stelle. Die Texte bleiben als
+`accessibilityLabel` erhalten.
+
+Die Statuszeile liegt als Pille oben links über der Vorschau.
+
+**Die Höhe ist gegen das Fenster gedeckelt** (55 % der Fensterhöhe), nicht mehr
+die Breite gegen 420 px: ein Modal im Desktop-Browser ist so breit wie das
+Fenster, und eine ungedeckelte Vorschau drückt den Auslöser unter den Rand — die
+Lesung, die niemand sieht, ist die Lesung, die niemand bekommt.
+
+**Den Rahmen über der Vorschau gibt es nur auf Wunsch** (`showFrame`). Er sagt,
+wo die Karte hingehalten werden soll, und das ergibt nur Sinn, wenn eine
+bestimmte Sache an einer bestimmten Stelle gesucht wird. „Lies, was vor der
+Linse ist" wird davon nur behindert — der Screen **Texterkennung testen** zeigt
+deshalb nur die Kamera.
+
+### Was das Modal sagt, und wann es sich schließt
+
+Drei Dinge, die vorher falsch waren:
+
+- **„Kein Text erkannt" stand da, auch wenn Text erkannt wurde.** Die Meldung
+  hing nur daran, dass ein Standbild fertig gelesen war. Jetzt werden drei
+  Ausgänge unterschieden: nichts gelesen, zu unscharf, oder gelesen — aber nicht
+  das Gesuchte (`ocr_no_match_in_photo`).
+- **Schließen schloss nur eine Ebene.** Der globale Modal-Stack nimmt pro
+  `close()` genau einen Eintrag herunter, und ein Scan hat zwei offen (die Frage
+  nach der Bildquelle, darüber die Kamera). Der Fund nahm also die Kamera
+  herunter und stellte die Quellenauswahl wieder hin. `useOcr` zählt jetzt mit,
+  wie viele Ebenen es selbst geöffnet hat, und schließt genau die — nicht
+  `closeAll()`, denn der Hook wird auch aus Screens geöffnet, die selbst in
+  einem Modal stehen.
+- **Ohne `findMatch` endete der Scan nie.** „Texterkennung testen" sucht nichts
+  Bestimmtes; damit war jede Lesung ein Misserfolg. Jetzt gilt: gibt es nichts
+  zu suchen, ist der Text selbst das Ergebnis — die erste nichtleere Lesung
+  schließt das Modal.
+
+Und ein Fund meldet sich: `onMatchFound` spielt beim IBAN-Scan eine
+Success-Vibration (`expo-haptics`), bevor das Modal weg ist. Wer eine Karte vor
+die Linse hält, schaut nicht auf den Bildschirm.
 
 ### Die Engine: PaddleOCR auf onnxruntime
 
@@ -117,13 +157,15 @@ lesen, ein Pfad würde die Engine also ins Netz schicken.
 
 | Datei | Wofür |
 | --- | --- |
-| `packages/common/src/form/IbanRecognitionHelper.ts` | Die IBAN aus erkannten Zeilen. Prüfsumme (mod-97), Längenregister, OCR-Verwechslungen, die beiden Formregeln unten. Ohne Kamera- oder OCR-Abhängigkeit, damit sie testbar bleibt. |
+| `packages/common/src/form/IbanValidationHelper.ts` | Ist das eine IBAN? Land, Länge, Zeichenmuster (aus dem `iban`-Paket) und Prüfsumme — mit einem Schalter, der nur die Prüfsumme abschaltet. |
+| `packages/common/src/form/IbanRecognitionHelper.ts` | Die IBAN aus erkannten Zeilen: OCR-Verwechslungen, die beiden Formregeln unten. Was eine IBAN *ist*, fragt sie den Validator. Ohne Kamera- oder OCR-Abhängigkeit, damit sie testbar bleibt. |
 | `apps/frontend/app/helper/TextRecognitionShared.ts` | Was sich Web und Native teilen: Modellnamen, Schärfemaß, `TextRecognitionApi`. |
 | `apps/frontend/app/hooks/useTextRecognition.tsx` | Native: Modelle aus dem Bundle lesen, onnxruntime-react-native, Schärfe über Skia. |
 | `apps/frontend/app/hooks/useTextRecognition.web.tsx` | Web: onnxruntime-web als Skript, dann `ppu-paddle-ocr/web`. |
 | `apps/frontend/app/helper/onnxruntimeFromPage.js` | Der Platzhalter, auf den Metro `onnxruntime-web` auflöst. |
 | `apps/frontend/app/public/paddleocr/` | Modelle und Runtime, mit README zu Herkunft und Größen. |
-| `apps/frontend/app/components/GiroCardIbanScanner/index.tsx` | Kamera-Vorschau, Auslöser, Kamerawechsel, Licht, Unschärfe-Hinweis. |
+| `apps/frontend/app/components/OcrCamera/index.tsx` | Kamera-Vorschau, Auslöser, Kamerawechsel, Licht, Statuszeile, Unschärfe-Hinweis. |
+| `apps/frontend/app/components/GiroCardIbanScanner/index.tsx` | Was als IBAN-Fund zählt, plus die Vibration dazu. |
 | `apps/frontend/app/components/IBANInput/IBANInput.tsx` | Der Kamera-Button neben dem Feld. |
 | `apps/frontend/app/app/(app)/experimentell/giro-card-iban/` | Der Testscreen. |
 
@@ -133,9 +175,21 @@ lesen, ein Pfad würde die Engine also ins Netz schicken.
   steht nach 5,5 s im Feld, der Auslöser liest sein Standbild, meldet die
   Unschärfe, und „Neues Foto" bringt die Vorschau zurück. **Sechs Anfragen für
   die Engine, alle vom eigenen Origin.**
+- **Das Kamera-Modal, am gebauten Export nachgemessen** (Screenshots in
+  `docs/screenshots/giro-card-iban/07`–`10`): Vorschau über die volle Breite,
+  Auslöser unten mittig, Kamerawechsel unten rechts, Licht oben rechts; der
+  Rahmen nur beim Kartenscan. Der Auslöser auf dem Girocard-Screen liefert
+  „Text erkannt, aber nicht das Gesuchte" statt „kein Text erkannt", und auf
+  **Texterkennung testen** schließt dieselbe Aufnahme *beide* Modal-Ebenen und
+  legt die Zeile auf dem Screen ab — die Quellenauswahl kommt nicht zurück.
+- **Eine Falle, die genau hier zuschlug:** die Höhe der Vorschau kam zuerst aus
+  einem `onLayout` auf dem Container. Im Bottom Sheet kam der Callback nie an,
+  `height` blieb 0, und sichtbar war nur die schwarze Leiste mit den Knöpfen.
+  Jetzt rechnet die Layout-Engine sie über `aspectRatio` aus, gedeckelt per
+  `maxHeight` — nichts wird mehr gemessen.
 - **Nativer Export gebaut:** 100 Assets, darin die beiden `.ort`-Modelle und das
   Wörterbuch. Keine Tesseract-Reste, keine Testbilder.
-- 384 Tests in `packages/common`, 103 im Frontend.
+- 401 Tests in `packages/common`, 103 im Frontend, 80 in `common-ui`.
 
 ## Was nachweislich nicht funktioniert
 
@@ -148,13 +202,47 @@ lesen, ein Pfad würde die Engine also ins Netz schicken.
   wenn nichts gelesen wurde. Der alte Schwellwert hätte `Test_2` (Schärfe 9)
   abgewiesen, das PaddleOCR korrekt liest.
 
+## Der Validator: was überhaupt eine IBAN sein kann
+
+`IbanValidationHelper.isValidIban(wert, { ignoreChecksum })` ist die eine Frage,
+die alle anderen stellen. Sie hat zwei Hälften, und OCR ist der Grund, warum sie
+getrennt gestellt werden:
+
+- **Die Prüfziffern** (mod-97) fangen ein verlesenes Zeichen. Nur sie schaltet
+  `ignoreChecksum` ab — für Musterkarten mit Dummy-Prüfziffern.
+- **Die Struktur**: ISO 13616 legt pro Land nicht nur eine Länge fest, sondern
+  ein Zeichenmuster. Deutschland ist achtzehn Ziffern, die Niederlande tragen
+  vier Buchstaben mitten drin. Eine Lesung, die dagegen verstößt, war nie eine
+  IBAN — egal, was ihre Prüfsumme sagt.
+
+Die Muster kommen aus dem **`iban`-Paket** (npm), das das SWIFT-Register trägt.
+Dessen eigenes `isValid` verlangt immer beide Hälften auf einmal, also genau
+das, was eine Musterkarte nicht liefern kann; `isValidBBAN` fragt nur nach der
+Struktur, und aus beidem wird hier eine Frage mit Schalter.
+
+**Das Längenregister bleibt unseres und schlägt das Paket.** Das Paket wurde
+zuletzt 2019 veröffentlicht: ihm fehlen DJ, LY, MN, NI, RU, SD und SO, es hat
+Burundi noch bei 16 statt 27 Zeichen, und es führt zwei Dutzend Länder, die gar
+keine IBAN ausgeben. Also gilt die Länge aus unserer Tabelle, und die
+Strukturprüfung läuft nur dort, wo beide sich über die Länge einig sind — sonst
+wird wie vorher allein nach Länge geprüft. Das Ergebnis ist strikt strenger als
+eine reine Längenprüfung und nie lockerer.
+
+**Reichte unsere eigene Prüfung?** Für echte Karten ja — die Prüfsumme trägt
+dort alles. Für den Fall „Prüfsumme ignorieren" nicht: `SE16 ITOC ARDR OBER TSCH
+UMAN` (aus „girocard Robert Schumann") hatte die richtige Länge für Schweden und
+war nur deshalb kein Treffer, weil die Formregeln es abfingen. Jetzt ist es
+nicht einmal mehr ein Kandidat. Und die handgepflegte Liste „Länder mit rein
+numerischer BBAN" hatte GR, LU, LV, NL und RO **falsch** drin — dort wurden
+Buchstaben eines legitimen Kontoteils auf Ziffern abgebildet. Die Liste ist weg,
+die Antwort kommt aus dem Register.
+
 ## Die zwei Formregeln, und warum es sie gibt
 
 An den 14 Kartenfotos gemessen hat die Erkennung IBANs *erfunden*: aus
 „Volksbanken / Eva Oberberg eG" wurde `NO53VAOBERBERGE`, aus dem „Gültig bis"
-über der Nummer `GI11TIGBIS…`, aus „girocard Robert Schumann"
-`SE16ITOCARDROBERTSCHUMAN` — jedes in der richtigen Länge für sein Land, keines
-auf der Karte. Etwa eine von 97 solchen Erfindungen besteht die Prüfsumme
+über der Nummer `GI11TIGBIS…` — jedes in der richtigen Länge für sein Land,
+keines auf der Karte. Etwa eine von 97 solchen Erfindungen besteht die Prüfsumme
 zufällig, und der Scanner sieht mehrere Bilder pro Sekunde an.
 
 1. **Eine Lesung beginnt dort, wo die Karte anfängt etwas zu drucken** — nie

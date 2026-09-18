@@ -78,14 +78,13 @@ describe('the photographed bank cards', () => {
 	});
 
 	it('never hands over a number assembled out of the text around the number', () => {
-		// These four do still turn up as candidates - `Gültig bis` in front of the
-		// number really does read as `GI11 TIGB IS…`, and `girocard` plus a
-		// cardholder really does read as `SE16 ITOC ARD…`. What keeps them away
-		// from the user is that none of them sits on the card the way a printed
-		// number does, so nothing but a valid checksum could ever accept them - and
+		// Three of these do still turn up as candidates - `Gültig bis` in front of
+		// the number really does read as `GI11 TIGB IS…`. What keeps them away from
+		// the user is that none of them sits on the card the way a printed number
+		// does, so nothing but a valid checksum could ever accept them - and
 		// roughly one reading in ninety-seven passes mod-97 by chance, while the
 		// scanner looks at several frames a second.
-		const assembled = ['GI11TIGBISDEQO012345678', 'GI11TIGBISDEN0123456780', 'SE16ITOCARDROBERTSCHUMAN', 'BI50EN0123456780123567000VI'];
+		const assembled = ['GI11TIGBISDEQO012345678', 'GI11TIGBISDEN0123456780', 'BI50EN0123456780123567000VI'];
 		const candidates = fixture.cards.flatMap((card) => IbanRecognitionHelper.findIbanCandidates(card.recognizedLines));
 		for (const fabrication of assembled) {
 			const found = candidates.find((candidate) => candidate.iban === fabrication);
@@ -96,6 +95,16 @@ describe('the photographed bank cards', () => {
 		for (const fabrication of assembled) {
 			expect(accepted).not.toContain(fabrication);
 		}
+	});
+
+	it('does not even collect a fabrication whose country could not print those characters', () => {
+		// `girocard` plus the cardholder `Robert Schumann` reads as
+		// `SE16 ITOC ARDR OBER TSCH UMAN` - the right length for Sweden, and for a
+		// while a candidate on nothing but that. Sweden's account part is
+		// twenty digits and no letters, so the character pattern of the registry
+		// throws this out before the shape rules ever have to.
+		const candidates = fixture.cards.flatMap((card) => IbanRecognitionHelper.findIbanCandidates(card.recognizedLines).map((candidate) => candidate.iban));
+		expect(candidates).not.toContain('SE16ITOCARDROBERTSCHUMAN');
 	});
 
 	it('reads the number off the cards the engine could resolve', () => {

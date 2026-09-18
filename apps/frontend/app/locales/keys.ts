@@ -663,6 +663,7 @@ export const TranslationKeys = {
 	ocr_toggle_torch: 'ocr_toggle_torch',
 	ocr_too_blurry: 'ocr_too_blurry',
 	ocr_nothing_in_photo: 'ocr_nothing_in_photo',
+	ocr_no_match_in_photo: 'ocr_no_match_in_photo',
 	ocr_engine_failed: 'ocr_engine_failed',
 	ocr_camera_permission_required: 'ocr_camera_permission_required',
 	ocr_gallery_permission_required: 'ocr_gallery_permission_required',

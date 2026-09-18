@@ -83,7 +83,7 @@ const GiroCardIbanScreen = () => {
 							<>
 								<Text style={{ ...styles.logEntry, color: theme.screen.text }}>{lastCandidate.formatted}</Text>
 								<Text style={{ ...styles.logEntry, color: theme.screen.text }}>
-									{lastCandidate.countryCode} · checksum {String(lastCandidate.checksumValid)} · length {String(lastCandidate.lengthValid)}
+									{lastCandidate.countryCode} · checksum {String(lastCandidate.checksumValid)} · length {String(lastCandidate.lengthValid)} · structure {String(lastCandidate.structureValid)}
 								</Text>
 							</>
 						) : (

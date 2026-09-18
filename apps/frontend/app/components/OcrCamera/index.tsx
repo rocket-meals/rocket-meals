@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -14,6 +14,19 @@ import type { RecognitionImage, RecognitionResult } from '@/helper/TextRecogniti
 const SCAN_PAUSE_IN_MS = 300;
 /** Quality of the captured frame: enough detail to read, small enough to stay quick. */
 const CAPTURE_QUALITY = 0.8;
+/**
+ * The shape a phone camera fills, and the shape this preview keeps. Width over
+ * height, the way the layout engine reads it: taller than it is wide.
+ */
+const PREVIEW_ASPECT_RATIO = 3 / 4;
+/** How much of the window the preview may take, so the controls stay in view. */
+const MAX_PREVIEW_HEIGHT_RATIO = 0.55;
+
+/** What the controls are drawn on, whatever is behind them. Deliberately not themed: a camera is black. */
+const CONTROL_BACKGROUND_COLOR = '#000000';
+const CONTROL_FOREGROUND_COLOR = '#FFFFFF';
+const ROUND_BUTTON_BACKGROUND_COLOR = 'rgba(0,0,0,0.45)';
+const STATUS_BACKGROUND_COLOR = 'rgba(0,0,0,0.55)';
 
 export interface OcrCameraProps {
 	/** Reads one frame. Comes from the engine the caller already holds. */
@@ -27,6 +40,12 @@ export interface OcrCameraProps {
 	onRecognized: (lines: string[]) => boolean;
 	/** What to hold in front of the camera, in the caller's words. */
 	hint?: string;
+	/**
+	 * Draw the rectangle that says where to hold the card. Only worth it when
+	 * the caller is after one specific thing in one specific place — reading
+	 * whatever is in front of the lens is only hindered by a frame.
+	 */
+	showFrame?: boolean;
 	/** Whatever the engine has to say about itself, shown under the preview. */
 	engineError?: string | null;
 }
@@ -44,21 +63,31 @@ export interface OcrCameraProps {
  * own, which is the better way to hold something steady because the frame stays
  * put while the engine works on it. While a still is up the preview is gone, not
  * merely covered: one picture is being looked at, and that is the one.
+ *
+ * The controls are laid out the way a phone's own camera lays them out, because
+ * that is what a hand reaches for without looking: the shutter in the middle
+ * underneath, the lens switch in the corner beside it, the light in the corner
+ * of the picture itself. None of them carries a caption — a shutter that has to
+ * explain itself is in the wrong place.
  */
-export const OcrCamera: React.FC<OcrCameraProps> = ({ recognizeImage, isAutomatic, onRecognized, hint, engineError }) => {
+export const OcrCamera: React.FC<OcrCameraProps> = ({ recognizeImage, isAutomatic, onRecognized, hint, showFrame = false, engineError }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const { primaryColor, selectedTheme } = useAppSelector((state) => state.settings);
 	const contrastColor = myContrastColor(primaryColor, theme, selectedTheme === 'dark');
+	const { height: windowHeight } = useWindowDimensions();
 
 	const [permission, requestPermission] = useCameraPermissions();
 	const [isCameraReady, setIsCameraReady] = useState(false);
 	const [isTorchEnabled, setIsTorchEnabled] = useState(false);
 	const [facing, setFacing] = useState<CameraType>('back');
-	const [hasReadOnce, setHasReadOnce] = useState(false);
+	/** True once the engine has answered at all, however empty that answer was. */
+	const [hasEngineAnswered, setHasEngineAnswered] = useState(false);
 	/** The still the shutter took, held on screen while it is read. */
 	const [capturedImage, setCapturedImage] = useState<RecognitionImage | null>(null);
 	const [isCapturedImageRead, setIsCapturedImageRead] = useState(false);
+	/** How many lines the last reading gave up, so "nothing there" and "not what you wanted" stay apart. */
+	const [lastReadingLineCount, setLastReadingLineCount] = useState(0);
 	/** True when the last frame was too soft for the engine to make anything of. */
 	const [isTooBlurry, setIsTooBlurry] = useState(false);
 
@@ -88,11 +117,12 @@ export const OcrCamera: React.FC<OcrCameraProps> = ({ recognizeImage, isAutomati
 	const readImage = useCallback(
 		async (image: RecognitionImage): Promise<boolean> => {
 			const result = await recognizeImage(image);
+			setHasEngineAnswered(true);
 			setIsTooBlurry(result.tooBlurry);
+			setLastReadingLineCount(result.lines.length);
 			if (result.lines.length === 0) {
 				return false;
 			}
-			setHasReadOnce(true);
 			if (!onRecognized(result.lines)) {
 				return false;
 			}
@@ -120,6 +150,7 @@ export const OcrCamera: React.FC<OcrCameraProps> = ({ recognizeImage, isAutomati
 			return;
 		}
 		setIsCapturedImageRead(false);
+		setLastReadingLineCount(0);
 		setCapturedImage(image);
 	}, [takePicture]);
 
@@ -127,6 +158,7 @@ export const OcrCamera: React.FC<OcrCameraProps> = ({ recognizeImage, isAutomati
 		stillBeingReadRef.current = null;
 		setCapturedImage(null);
 		setIsCapturedImageRead(false);
+		setLastReadingLineCount(0);
 		setIsCameraReady(false);
 		setIsTooBlurry(false);
 	}, []);
@@ -193,15 +225,13 @@ export const OcrCamera: React.FC<OcrCameraProps> = ({ recognizeImage, isAutomati
 
 	if (!isPermissionGranted) {
 		return (
-			<View style={styles.container}>
-				<View style={styles.hintContainer}>
-					<MaterialCommunityIcons name="camera-off-outline" size={40} color={theme.screen.icon} />
-					<Text style={[styles.hintText, { color: theme.screen.text }]}>{translate(TranslationKeys.ocr_camera_permission_required)}</Text>
-				</View>
+			<View style={styles.permissionContainer}>
+				<MaterialCommunityIcons name="camera-off-outline" size={40} color={theme.screen.icon} />
+				<Text style={[styles.hintText, { color: theme.screen.text }]}>{translate(TranslationKeys.ocr_camera_permission_required)}</Text>
 				{!isPermissionPending && (
-					<TouchableOpacity style={[styles.actionButton, { backgroundColor: primaryColor }]} onPress={requestPermission} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.friendships_allow_camera)}>
+					<TouchableOpacity style={[styles.permissionButton, { backgroundColor: primaryColor }]} onPress={requestPermission} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.friendships_allow_camera)}>
 						<MaterialCommunityIcons name="camera" size={20} color={contrastColor} />
-						<Text style={[styles.actionButtonText, { color: contrastColor }]}>{translate(TranslationKeys.friendships_allow_camera)}</Text>
+						<Text style={[styles.permissionButtonText, { color: contrastColor }]}>{translate(TranslationKeys.friendships_allow_camera)}</Text>
 					</TouchableOpacity>
 				)}
 			</View>
@@ -209,65 +239,97 @@ export const OcrCamera: React.FC<OcrCameraProps> = ({ recognizeImage, isAutomati
 	}
 
 	const isReadingCapturedImage = capturedImage !== null && !isCapturedImageRead;
-	let statusText = translate(TranslationKeys.ocr_searching);
-	if (!hasReadOnce) {
-		// Loading the engine is the slow part of the first pass; say so instead of
-		// leaving the user in front of a silent preview.
-		statusText = translate(TranslationKeys.ocr_preparing);
-	}
-	if (!isAutomatic && isCameraActive) {
-		statusText = translate(TranslationKeys.ocr_ready_for_photo);
-	}
+	const isBusy = isReadingCapturedImage || (isCameraActive && isAutomatic);
+
+	/** Loading the engine is the slow part of the first pass; say so instead of leaving the user in front of a silent preview. */
+	const busyText = hasEngineAnswered ? translate(TranslationKeys.ocr_searching) : translate(TranslationKeys.ocr_preparing);
+	let statusText = busyText;
 	if (capturedImage !== null && isCapturedImageRead) {
-		statusText = translate(TranslationKeys.ocr_nothing_in_photo);
-	}
-	// A frame too soft to read is the common case on a front camera, which cannot
-	// focus at the distance something is held at. Say so rather than searching on.
-	if (isTooBlurry) {
+		// Three different outcomes, and telling them apart is the whole point: the
+		// picture was too soft to read, or the engine read nothing at all, or it
+		// read plenty and none of it was what the caller is after. Saying "no text"
+		// to someone looking at their own recognized text is how this looked broken.
+		if (lastReadingLineCount > 0) {
+			statusText = translate(TranslationKeys.ocr_no_match_in_photo);
+		} else if (isTooBlurry) {
+			// A frame too soft to read is the common case on a front camera, which
+			// cannot focus at the distance something is held at.
+			statusText = translate(TranslationKeys.ocr_too_blurry);
+		} else {
+			statusText = translate(TranslationKeys.ocr_nothing_in_photo);
+		}
+	} else if (isCameraActive && !isAutomatic) {
+		// Nothing is being read until the shutter says so.
+		statusText = translate(TranslationKeys.ocr_ready_for_photo);
+	} else if (isCameraActive && isTooBlurry && lastReadingLineCount === 0) {
 		statusText = translate(TranslationKeys.ocr_too_blurry);
 	}
 
+	// The height follows from the width through the aspect ratio, and is capped
+	// against the window: the modal is as wide as the window on a desktop browser,
+	// and an uncapped preview pushes the shutter below the fold - the reading
+	// nobody can see is the reading nobody gets. Measuring the width instead (an
+	// `onLayout` on this container) looked equivalent and was not: inside the
+	// bottom sheet the callback never arrived, and the preview stayed at zero
+	// height with only the controls under it showing.
+	const maxPreviewHeight = windowHeight * MAX_PREVIEW_HEIGHT_RATIO;
+
 	return (
 		<View style={styles.container}>
-			<View style={[styles.cameraWrapper, { borderColor: primaryColor }]}>
+			<View style={[styles.preview, { maxHeight: maxPreviewHeight }]}>
 				{/* One or the other, never both: the still replaces the preview
 				    rather than covering it, so no camera is left running underneath
 				    while the engine reads. */}
-				{isCameraActive ? <CameraView ref={cameraRef} style={styles.camera} facing={facing} animateShutter={false} enableTorch={isTorchEnabled} onCameraReady={() => setIsCameraReady(true)} /> : <Image source={{ uri: capturedImage.uri }} style={styles.capturedImage} resizeMode="cover" accessibilityLabel={translate(TranslationKeys.ocr_take_photo)} />}
-				<View pointerEvents="none" style={[styles.frame, { borderColor: contrastColor }]} />
+				{isCameraActive ? <CameraView ref={cameraRef} style={styles.fill} facing={facing} animateShutter={false} enableTorch={isTorchEnabled} onCameraReady={() => setIsCameraReady(true)} /> : <Image source={{ uri: capturedImage.uri }} style={styles.fill} resizeMode="cover" accessibilityLabel={translate(TranslationKeys.ocr_take_photo)} />}
+
+				{showFrame && <View pointerEvents="none" style={[styles.frame, { borderColor: contrastColor }]} />}
+
+				<View pointerEvents="none" style={styles.statusPill}>
+					{isBusy && <ActivityIndicator size="small" color={CONTROL_FOREGROUND_COLOR} />}
+					<Text style={styles.statusText}>{statusText}</Text>
+				</View>
+
+				{isCameraActive && (
+					<TouchableOpacity style={[styles.roundButton, styles.torchButton]} onPress={() => setIsTorchEnabled((enabled) => !enabled)} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.ocr_toggle_torch)} accessibilityState={{ selected: isTorchEnabled }}>
+						<MaterialCommunityIcons name={isTorchEnabled ? 'flashlight' : 'flashlight-off'} size={24} color={isTorchEnabled ? primaryColor : CONTROL_FOREGROUND_COLOR} />
+					</TouchableOpacity>
+				)}
 			</View>
 
-			<View style={styles.statusRow}>
-				{(isReadingCapturedImage || (isCameraActive && isAutomatic)) && <ActivityIndicator size="small" color={primaryColor} />}
-				<Text style={[styles.statusText, { color: theme.screen.text }]}>{statusText}</Text>
-			</View>
-			{hint !== undefined && <Text style={[styles.hintText, { color: theme.screen.text }]}>{hint}</Text>}
+			<View style={styles.controlBar}>
+				{/* An empty corner opposite the lens switch, so the shutter stays in
+				    the middle of the bar rather than in the middle of what is left. */}
+				<View style={styles.controlSlot} />
 
-			{isCameraActive ? (
-				<TouchableOpacity style={[styles.actionButton, { backgroundColor: primaryColor }]} onPress={() => void capturePicture()} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.ocr_take_photo)}>
-					<MaterialCommunityIcons name="camera-iris" size={20} color={contrastColor} />
-					<Text style={[styles.actionButtonText, { color: contrastColor }]}>{translate(TranslationKeys.ocr_take_photo)}</Text>
-				</TouchableOpacity>
-			) : (
-				<TouchableOpacity style={[styles.actionButton, { backgroundColor: primaryColor }]} onPress={discardCapturedImage} disabled={isReadingCapturedImage} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.ocr_retry)}>
-					<MaterialCommunityIcons name="camera-retake-outline" size={20} color={contrastColor} />
-					<Text style={[styles.actionButtonText, { color: contrastColor }]}>{translate(TranslationKeys.ocr_retry)}</Text>
-				</TouchableOpacity>
-			)}
+				<View style={styles.controlSlot}>
+					{isCameraActive ? (
+						// Nothing to press while the preview reads itself: an automatic
+						// scan ends when it finds something, not when a finger says so.
+						!isAutomatic && (
+							<TouchableOpacity style={styles.shutterButton} onPress={() => void capturePicture()} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.ocr_take_photo)}>
+								<View style={styles.shutterButtonCore} />
+							</TouchableOpacity>
+						)
+					) : (
+						<TouchableOpacity style={[styles.roundButton, styles.retryButton]} onPress={discardCapturedImage} disabled={isReadingCapturedImage} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.ocr_retry)}>
+							<MaterialCommunityIcons name="camera-retake-outline" size={26} color={CONTROL_FOREGROUND_COLOR} />
+						</TouchableOpacity>
+					)}
+				</View>
 
-			<View style={styles.secondaryRow}>
-				<TouchableOpacity style={[styles.secondaryButton, { borderColor: theme.screen.icon }]} onPress={() => setFacing((current) => (current === 'back' ? 'front' : 'back'))} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.ocr_switch_camera)}>
-					<MaterialCommunityIcons name="camera-flip-outline" size={20} color={theme.screen.icon} />
-					<Text style={[styles.secondaryButtonText, { color: theme.screen.text }]}>{translate(TranslationKeys.ocr_switch_camera)}</Text>
-				</TouchableOpacity>
-				<TouchableOpacity style={[styles.secondaryButton, { borderColor: theme.screen.icon }]} onPress={() => setIsTorchEnabled((enabled) => !enabled)} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.ocr_toggle_torch)}>
-					<MaterialCommunityIcons name={isTorchEnabled ? 'flashlight-off' : 'flashlight'} size={20} color={theme.screen.icon} />
-					<Text style={[styles.secondaryButtonText, { color: theme.screen.text }]}>{translate(TranslationKeys.ocr_toggle_torch)}</Text>
-				</TouchableOpacity>
+				<View style={styles.controlSlot}>
+					{isCameraActive && (
+						<TouchableOpacity style={[styles.roundButton, styles.flipButton]} onPress={() => setFacing((current) => (current === 'back' ? 'front' : 'back'))} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.ocr_switch_camera)}>
+							<MaterialCommunityIcons name="camera-flip-outline" size={24} color={CONTROL_FOREGROUND_COLOR} />
+						</TouchableOpacity>
+					)}
+				</View>
 			</View>
+
+			{hint !== undefined && <Text style={[styles.hintText, styles.belowCamera, { color: theme.screen.text }]}>{hint}</Text>}
 
 			{engineError !== null && engineError !== undefined && (
-				<View style={styles.failureContainer}>
+				<View style={[styles.failureContainer, styles.belowCamera]}>
 					<MaterialCommunityIcons name="alert-circle-outline" size={40} color={theme.screen.icon} />
 					<Text style={[styles.hintText, { color: theme.screen.text }]}>{translate(TranslationKeys.ocr_engine_failed)}</Text>
 					<Text selectable style={[styles.errorText, { color: theme.screen.text }]}>
@@ -279,30 +341,25 @@ export const OcrCamera: React.FC<OcrCameraProps> = ({ recognizeImage, isAutomati
 	);
 };
 
+/** The lens switch and the light: same circle, different corner. */
+const ROUND_BUTTON_SIZE = 48;
+/** The shutter, as big as a thumb expects it to be. */
+const SHUTTER_SIZE = 68;
+const SHUTTER_RING_WIDTH = 4;
+/** The bar the shutter sits in, tall enough to give it air on both sides. */
+const CONTROL_BAR_HEIGHT = 96;
+
 const styles = StyleSheet.create({
 	container: {
 		width: '100%',
-		alignItems: 'center',
-		gap: 12,
-		paddingVertical: 8,
 	},
-	cameraWrapper: {
+	preview: {
 		width: '100%',
-		// Capped, because a modal on a desktop browser is as wide as the window:
-		// an uncapped preview pushes the status line and the buttons below the
-		// fold, and the reading nobody can see is the reading nobody gets.
-		maxWidth: 420,
-		alignSelf: 'center',
-		aspectRatio: 16 / 10,
-		borderRadius: 12,
-		borderWidth: 2,
+		aspectRatio: PREVIEW_ASPECT_RATIO,
+		backgroundColor: CONTROL_BACKGROUND_COLOR,
 		overflow: 'hidden',
 	},
-	camera: {
-		width: '100%',
-		height: '100%',
-	},
-	capturedImage: {
+	fill: {
 		position: 'absolute',
 		top: 0,
 		right: 0,
@@ -319,19 +376,94 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		opacity: 0.7,
 	},
-	statusRow: {
+	statusPill: {
+		position: 'absolute',
+		top: 12,
+		left: 12,
+		// Stops short of the light in the opposite corner.
+		right: 12 + ROUND_BUTTON_SIZE + 12,
 		flexDirection: 'row',
 		alignItems: 'center',
 		gap: 8,
+		paddingHorizontal: 12,
+		paddingVertical: 8,
+		borderRadius: 999,
+		backgroundColor: STATUS_BACKGROUND_COLOR,
 	},
 	statusText: {
-		fontSize: 16,
+		flexShrink: 1,
+		fontSize: 14,
 		fontFamily: 'Poppins_400Regular',
+		color: CONTROL_FOREGROUND_COLOR,
 	},
-	hintContainer: {
+	controlBar: {
+		width: '100%',
+		height: CONTROL_BAR_HEIGHT,
+		flexDirection: 'row',
+		alignItems: 'center',
+		backgroundColor: CONTROL_BACKGROUND_COLOR,
+	},
+	controlSlot: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	roundButton: {
+		width: ROUND_BUTTON_SIZE,
+		height: ROUND_BUTTON_SIZE,
+		borderRadius: ROUND_BUTTON_SIZE / 2,
+		alignItems: 'center',
+		justifyContent: 'center',
+		backgroundColor: ROUND_BUTTON_BACKGROUND_COLOR,
+	},
+	torchButton: {
+		position: 'absolute',
+		top: 12,
+		right: 12,
+	},
+	flipButton: {
+		backgroundColor: 'rgba(255,255,255,0.18)',
+	},
+	retryButton: {
+		backgroundColor: 'rgba(255,255,255,0.18)',
+	},
+	shutterButton: {
+		width: SHUTTER_SIZE,
+		height: SHUTTER_SIZE,
+		borderRadius: SHUTTER_SIZE / 2,
+		borderWidth: SHUTTER_RING_WIDTH,
+		borderColor: CONTROL_FOREGROUND_COLOR,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	shutterButtonCore: {
+		width: SHUTTER_SIZE - 2 * SHUTTER_RING_WIDTH - 6,
+		height: SHUTTER_SIZE - 2 * SHUTTER_RING_WIDTH - 6,
+		borderRadius: SHUTTER_SIZE,
+		backgroundColor: CONTROL_FOREGROUND_COLOR,
+	},
+	belowCamera: {
+		paddingHorizontal: 20,
+		paddingTop: 12,
+	},
+	permissionContainer: {
+		width: '100%',
 		alignItems: 'center',
 		gap: 12,
-		paddingVertical: 16,
+		paddingVertical: 24,
+		paddingHorizontal: 20,
+	},
+	permissionButton: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 8,
+		borderRadius: 10,
+		paddingHorizontal: 18,
+		height: 44,
+	},
+	permissionButtonText: {
+		fontSize: 16,
+		fontFamily: 'Poppins_400Regular',
 	},
 	failureContainer: {
 		width: '100%',
@@ -349,37 +481,6 @@ const styles = StyleSheet.create({
 		fontFamily: 'Poppins_400Regular',
 		textAlign: 'center',
 		opacity: 0.8,
-	},
-	actionButton: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 8,
-		borderRadius: 10,
-		paddingHorizontal: 18,
-		height: 44,
-	},
-	actionButtonText: {
-		fontSize: 16,
-		fontFamily: 'Poppins_400Regular',
-	},
-	secondaryRow: {
-		flexDirection: 'row',
-		flexWrap: 'wrap',
-		justifyContent: 'center',
-		gap: 10,
-	},
-	secondaryButton: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 8,
-		borderRadius: 10,
-		borderWidth: 1,
-		paddingHorizontal: 14,
-		height: 40,
-	},
-	secondaryButtonText: {
-		fontSize: 14,
-		fontFamily: 'Poppins_400Regular',
 	},
 });
 

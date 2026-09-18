@@ -6429,6 +6429,16 @@
     "tr": "Bu fotoğrafta okunabilir metin yok.",
     "zh": "这张照片中没有可读取的文字。"
   },
+  "ocr_no_match_in_photo": {
+    "de": "Text erkannt, aber nicht das Gesuchte.",
+    "en": "Text was read, but not what we are looking for.",
+    "ar": "تم التعرف على نص، لكنه ليس المطلوب.",
+    "es": "Se reconoció texto, pero no lo que buscamos.",
+    "fr": "Du texte a été reconnu, mais pas celui recherché.",
+    "ru": "Текст распознан, но не тот, который нужен.",
+    "tr": "Metin tanındı, ancak aranan metin değil.",
+    "zh": "已识别到文字，但不是要找的内容。"
+  },
   "ocr_engine_failed": {
     "de": "Die Texterkennung konnte nicht gestartet werden.",
     "en": "Text recognition could not be started.",
@@ -6490,14 +6500,14 @@
     "zh": "识别文字"
   },
   "text_recognition_test_hint": {
-    "de": "Halte den Text so in den Rahmen, dass er gut lesbar ist.",
-    "en": "Hold the text in the frame so that it is clearly readable.",
-    "ar": "ضع النص داخل الإطار بحيث يكون واضحًا.",
-    "es": "Coloca el texto en el marco de forma que se lea con claridad.",
-    "fr": "Placez le texte dans le cadre de façon à ce qu’il soit bien lisible.",
-    "ru": "Держите текст в рамке так, чтобы он был хорошо читаем.",
-    "tr": "Metni çerçeve içinde okunaklı olacak şekilde tut.",
-    "zh": "把文字放在取景框内，使其清晰可读。"
+    "de": "Halte den Text so vor die Kamera, dass er gut lesbar ist.",
+    "en": "Hold the text in front of the camera so that it is clearly readable.",
+    "ar": "ضع النص أمام الكاميرا بحيث يكون واضحًا.",
+    "es": "Coloca el texto delante de la cámara de forma que se lea con claridad.",
+    "fr": "Placez le texte devant l’appareil photo de façon à ce qu’il soit bien lisible.",
+    "ru": "Держите текст перед камерой так, чтобы он был хорошо читаем.",
+    "tr": "Metni kameranın önünde okunaklı olacak şekilde tut.",
+    "zh": "把文字放在摄像头前，使其清晰可读。"
   },
   "text_recognition_test_result": {
     "de": "Erkannte Textzeilen",

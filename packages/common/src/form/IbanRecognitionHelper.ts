@@ -1,5 +1,6 @@
 import { StringHelper } from '../StringHelper';
 import { FormHelperCommon } from './FormHelperCommon';
+import { IbanValidationHelper } from './IbanValidationHelper';
 
 /**
  * A single IBAN found in recognized text.
@@ -20,6 +21,11 @@ export interface IbanCandidate {
   checksumValid: boolean;
   /** The length matches the IBAN registry entry for `countryCode`. */
   lengthValid: boolean;
+  /**
+   * Length *and* character pattern match what the country prints — the check
+   * digits' own arithmetic left aside. See {@link IbanValidationHelper}.
+   */
+  structureValid: boolean;
   /**
    * The reading sits on the card the way a printed number does: in groups of at
    * most four, ending where one of the groups ends. A reading that fails this
@@ -54,6 +60,9 @@ export interface FindIbanOptions {
   /**
    * Accept a candidate whose mod-97 check digits do not match. Off by default —
    * a failing checksum is the cheapest signal that OCR misread a character.
+   *
+   * It waives the check digits and nothing else: country, length and character
+   * pattern still have to hold, and so does the printed shape below.
    */
   allowInvalidChecksum?: boolean;
 }
@@ -68,22 +77,11 @@ export interface FindIbanOptions {
  */
 export class IbanRecognitionHelper {
   /** Shortest and longest IBAN in the registry — used to bound the scan regex. */
-  static readonly MIN_IBAN_LENGTH = 15;
-  static readonly MAX_IBAN_LENGTH = 34;
+  static readonly MIN_IBAN_LENGTH = IbanValidationHelper.MIN_IBAN_LENGTH;
+  static readonly MAX_IBAN_LENGTH = IbanValidationHelper.MAX_IBAN_LENGTH;
 
-  /** IBAN length per country, from the SWIFT IBAN registry. */
-  static readonly IBAN_LENGTH_BY_COUNTRY: Readonly<Record<string, number>> = {
-    AD: 24, AE: 23, AL: 28, AT: 20, AZ: 28, BA: 20, BE: 16, BG: 22, BH: 22,
-    BI: 27, BR: 29, BY: 28, CH: 21, CR: 22, CY: 28, CZ: 24, DE: 22, DJ: 27,
-    DK: 18, DO: 28, EE: 20, EG: 29, ES: 24, FI: 18, FO: 18, FR: 27, GB: 22,
-    GE: 22, GI: 23, GL: 18, GR: 27, GT: 28, HR: 21, HU: 28, IE: 22, IL: 23,
-    IQ: 23, IS: 26, IT: 27, JO: 30, KW: 30, KZ: 20, LB: 28, LC: 32, LI: 21,
-    LT: 20, LU: 20, LV: 21, LY: 25, MC: 27, MD: 24, ME: 22, MK: 19, MN: 20,
-    MR: 27, MT: 31, MU: 30, NI: 28, NL: 18, NO: 15, PK: 24, PL: 28, PS: 29,
-    PT: 25, QA: 29, RO: 24, RS: 22, RU: 33, SA: 24, SC: 31, SD: 18, SE: 24,
-    SI: 19, SK: 24, SM: 27, SO: 23, ST: 25, SV: 28, TL: 23, TN: 24, TR: 26,
-    UA: 29, VA: 22, VG: 24, XK: 20,
-  };
+  /** IBAN length per country. Kept in {@link IbanValidationHelper}, which owns validation. */
+  static readonly IBAN_LENGTH_BY_COUNTRY = IbanValidationHelper.IBAN_LENGTH_BY_COUNTRY;
 
   /**
    * Glyphs an OCR engine confuses with a digit. Applied only where the IBAN
@@ -101,18 +99,6 @@ export class IbanRecognitionHelper {
   };
 
   /**
-   * Countries whose BBAN (everything after the check digits) is purely numeric.
-   * For those, a letter anywhere in the number is certainly an OCR slip and can
-   * be mapped back to its digit — which is what rescues a German giro card shot
-   * at an angle, where `0` regularly comes back as `O`.
-   */
-  private static readonly NUMERIC_BBAN_COUNTRIES: ReadonlySet<string> = new Set([
-    'AT', 'BE', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FO', 'GL', 'GR', 'HR',
-    'HU', 'IS', 'LT', 'LU', 'LV', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI',
-    'SK', 'TN',
-  ]);
-
-  /**
    * What a card prints directly in front of the number. Kept as a list rather
    * than stripped by a pattern: only a label that is actually printed may make
    * a reading start somewhere other than at the beginning of a word.
@@ -124,12 +110,7 @@ export class IbanRecognitionHelper {
 
   /** Uppercases and drops everything that cannot be part of an IBAN. */
   static normalizeIban(text: string): string {
-    const withoutSeparators = StringHelper.replaceAllWithOptions({
-      str: text,
-      find: '[^A-Za-z0-9]',
-      replace: '',
-    });
-    return withoutSeparators.toUpperCase();
+    return IbanValidationHelper.normalize(text);
   }
 
   /** Groups an IBAN in blocks of four, the way it is printed on a card. */
@@ -139,24 +120,7 @@ export class IbanRecognitionHelper {
 
   /** Verifies the ISO 13616 / ISO 7064 mod-97-10 check digits. */
   static isValidIbanChecksum(iban: string): boolean {
-    const normalized = IbanRecognitionHelper.normalizeIban(iban);
-    if (normalized.length < IbanRecognitionHelper.MIN_IBAN_LENGTH) {
-      return false;
-    }
-    const rearranged = normalized.slice(4) + normalized.slice(0, 4);
-    let remainder = 0;
-    for (const character of rearranged) {
-      const codePoint = character.charCodeAt(0);
-      // 'A'..'Z' expand to 10..35, digits stay as they are.
-      const isLetter = codePoint >= 65 && codePoint <= 90;
-      const isDigit = codePoint >= 48 && codePoint <= 57;
-      if (!isLetter && !isDigit) {
-        return false;
-      }
-      const value = isLetter ? codePoint - 55 : codePoint - 48;
-      remainder = (remainder * (value > 9 ? 100 : 10) + value) % 97;
-    }
-    return remainder === 1;
+    return IbanValidationHelper.hasValidChecksum(iban);
   }
 
   /**
@@ -180,12 +144,7 @@ export class IbanRecognitionHelper {
 
   /** True when the length matches the registry entry for the country. */
   static hasValidIbanLength(iban: string): boolean {
-    const normalized = IbanRecognitionHelper.normalizeIban(iban);
-    const expectedLength = IbanRecognitionHelper.IBAN_LENGTH_BY_COUNTRY[normalized.slice(0, 2)];
-    if (expectedLength === undefined) {
-      return false;
-    }
-    return normalized.length === expectedLength;
+    return IbanValidationHelper.hasValidLength(iban);
   }
 
   /**
@@ -219,7 +178,7 @@ export class IbanRecognitionHelper {
     const headRepaired = IbanRecognitionHelper.repairOcrConfusions(normalized);
     const readings = [headRepaired, normalized];
 
-    if (IbanRecognitionHelper.NUMERIC_BBAN_COUNTRIES.has(headRepaired.slice(0, 2))) {
+    if (IbanValidationHelper.hasNumericBban(headRepaired.slice(0, 2))) {
       const body = headRepaired.slice(4).split('');
       for (let index = 0; index < body.length; index++) {
         const character = body[index];
@@ -247,6 +206,7 @@ export class IbanRecognitionHelper {
       countryCode: iban.slice(0, 2),
       checksumValid: IbanRecognitionHelper.isValidIbanChecksum(iban),
       lengthValid: IbanRecognitionHelper.hasValidIbanLength(iban),
+      structureValid: IbanValidationHelper.hasValidStructure(iban),
       looksPrinted,
     };
   }
@@ -296,11 +256,13 @@ export class IbanRecognitionHelper {
           }
           headIsOwnBlockByReading.set(reading, shapedRun.headIsOwnBlock);
           const described = IbanRecognitionHelper.describeCandidate(reading, looksPrinted);
-          // Only a reading whose length matches its country is a candidate. A
-          // reading that is one character too long can still pass mod-97 by
-          // chance - the fixture card does, when the `G` of the `Gültig bis`
-          // below the number is read into it.
-          if (described.lengthValid) {
+          // Only a reading the standard could have produced is a candidate:
+          // right country, right length, and every position carrying the kind
+          // of character that country prints there. A reading that is one
+          // character too long can still pass mod-97 by chance - the fixture
+          // card does, when the `G` of the `Gültig bis` below the number is
+          // read into it.
+          if (described.structureValid) {
             byReading.set(reading, described);
           }
         }
@@ -331,13 +293,16 @@ export class IbanRecognitionHelper {
   static findIban(lines: string[], options?: FindIbanOptions): IbanCandidate | null {
     const candidates = IbanRecognitionHelper.findIbanCandidates(lines);
     const accepted = candidates.find((candidate) => {
-      if (candidate.checksumValid) {
-        return true;
+      // What an IBAN is, the validator decides - country, length, character
+      // pattern, and the check digits unless the caller waived them.
+      if (!IbanValidationHelper.isValidIban(candidate.iban, { ignoreChecksum: options?.allowInvalidChecksum })) {
+        return false;
       }
-      // Nothing vouches for this number but its shape, so the shape has to
-      // hold up: a caller that waives the checksum must not be handed a
+      // Where it came from is this helper's own question, and with the checksum
+      // waived nothing vouches for the number but its shape - so the shape has
+      // to hold up. A caller that waives the checksum must not be handed a
       // Burundian IBAN assembled out of `bis`, `den` and `VISA`.
-      return Boolean(options?.allowInvalidChecksum) && candidate.looksPrinted;
+      return candidate.checksumValid || candidate.looksPrinted;
     });
     return accepted ?? null;
   }
@@ -407,7 +372,7 @@ export class IbanRecognitionHelper {
           endsCleanly: blockEnds.has(start + length) || isInsideTokenWithLetter[start + length] === false,
           headIsOwnBlock,
         });
-        const expectedLength = IbanRecognitionHelper.IBAN_LENGTH_BY_COUNTRY[repairedHead.slice(0, 2)];
+        const expectedLength = IbanValidationHelper.getIbanLength(repairedHead.slice(0, 2));
         if (expectedLength !== undefined && expectedLength <= run.length) {
           // The number ends where its country says it ends; what follows is
           // the next thing printed on the card, usually the validity date.

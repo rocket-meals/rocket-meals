@@ -110,7 +110,12 @@ export function getVersionPatch() {
         // 36: onnxruntime-react-native patched for Gradle 9 (Android build)
         // 37: build number raised to 209
         // 38: the Gradle 9 patch compares integers now, not lists
-        return 38;
+        // 39: the OCR modal says what it read, closes itself for good, and wears
+        //     the phone camera's own controls; IBANs are validated against the
+        //     IBAN registry's character patterns
+        // 40: the camera preview had no height at all in the sheet - its size
+        //     comes from the aspect ratio now, not from a layout callback
+        return 40;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

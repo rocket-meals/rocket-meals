@@ -10098,6 +10098,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/iban@npm:^0.0.35":
+  version: 0.0.35
+  resolution: "@types/iban@npm:0.0.35"
+  checksum: 10c0/56bc10502f5518a0beeb7e49b9e1cacaf86cfc11b86c456d2067025ad7b93baa59b00758d14077f46af0dd371482d2073f65c519db730a638ec404cbbe618119
+  languageName: node
+  linkType: hard
+
 "@types/istanbul-lib-coverage@npm:*, @types/istanbul-lib-coverage@npm:^2.0.0, @types/istanbul-lib-coverage@npm:^2.0.1":
   version: 2.0.6
   resolution: "@types/istanbul-lib-coverage@npm:2.0.6"
@@ -17639,6 +17646,13 @@ __metadata:
     typescript:
       optional: true
   checksum: 10c0/7ac11a67d618ec714beef303aa497c1249bf5f1977dd3ebe9ca2673dfa6cadbba9e2d39ec1337688903ae3866ce9c1bc22cd6b265e66cce54c5db3a9bbedd390
+  languageName: node
+  linkType: hard
+
+"iban@npm:^0.0.14":
+  version: 0.0.14
+  resolution: "iban@npm:0.0.14"
+  checksum: 10c0/de632ad5b25f36ccdfbded0991065b91c05d376a5c1f0058d2139a9ccdb305ebc1b857aaa30452d723886d3f75096d04e868c5024b5552543ec03958239047f1
   languageName: node
   linkType: hard
 
@@ -25238,9 +25252,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "repo-depkit-common@workspace:packages/common"
   dependencies:
+    "@types/iban": "npm:^0.0.35"
     "@types/jest": "npm:^29.5.12"
     "@types/markdown-it": "npm:^14"
     "@types/node": "npm:^24.9.1"
+    iban: "npm:^0.0.14"
     jest: "npm:^29.7.0"
     markdown-it: "npm:^14.1.0"
     moment-timezone: "npm:^0.5.48"

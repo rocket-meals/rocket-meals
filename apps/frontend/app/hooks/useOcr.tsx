@@ -39,6 +39,12 @@ export interface OpenOcrOptions<TMatch> {
 	/** A line under the preview saying what to hold in front of the camera. */
 	hint?: string;
 	/**
+	 * Draw the rectangle that says where to hold the thing. Right for a card,
+	 * whose number sits in one place; wrong for "read whatever is in front of
+	 * the lens", where it only gets in the way.
+	 */
+	showFrame?: boolean;
+	/**
 	 * Asked of every reading. A non-null answer ends the scan at once — which is
 	 * what makes the automatic camera possible, and why that option is missing
 	 * when this is.
@@ -48,6 +54,8 @@ export interface OpenOcrOptions<TMatch> {
 	onRecognized: (reading: OcrReading<TMatch>) => void;
 	/** Every batch of recognized lines, for a caller that wants to show its work. */
 	onLinesRecognized?: (lines: string[]) => void;
+	/** Run when a reading was accepted, before the modal is gone. For a success chime or a buzz. */
+	onMatchFound?: (reading: OcrReading<TMatch>) => void;
 }
 
 /** Quality of a picked photo. Full detail: it is read once, not sampled. */
@@ -64,18 +72,71 @@ export const useOcr = () => {
 	const errorMessageRef = useRef(errorMessage);
 	errorMessageRef.current = errorMessage;
 
+	/**
+	 * How many modals this scan currently has on the global stack.
+	 *
+	 * The stack pops one level per `close()`. A scan that put the source picker
+	 * up and then the camera on top of it is two levels deep, so finishing with a
+	 * single `close()` took the camera down and left the user looking at the
+	 * source picker again — which reads as "the modal did not close". Counting
+	 * what we opened closes exactly that and nothing underneath it, which
+	 * `closeAll()` could not promise: this hook is also opened from screens that
+	 * are themselves inside a modal.
+	 */
+	const openLevelsRef = useRef(0);
+
 	const openOcr = useCallback(
 		<TMatch,>(options: OpenOcrOptions<TMatch>) => {
+			/** Puts one modal up and remembers that it is this scan's to close. */
+			const showLevel = (content: React.ReactNode, isFullWidth: boolean) => {
+				openLevelsRef.current += 1;
+				show(
+					{
+						title: options.title,
+						disableHorizontalPadding: isFullWidth,
+						children: content,
+					},
+					{
+						onClosed: () => {
+							openLevelsRef.current = Math.max(0, openLevelsRef.current - 1);
+						},
+					},
+				);
+			};
+
+			/** Takes down every modal this scan opened, the source picker included. */
+			const closeOwnLevels = () => {
+				const levels = openLevelsRef.current;
+				for (let level = 0; level < levels; level++) {
+					close();
+				}
+			};
+
 			/** Ends the modal with whatever was read. */
 			const finish = (lines: string[], match: TMatch | null) => {
-				close();
-				options.onRecognized({ lines, match });
+				const reading: OcrReading<TMatch> = { lines, match };
+				if (match !== null) {
+					options.onMatchFound?.(reading);
+				}
+				closeOwnLevels();
+				options.onRecognized(reading);
 			};
 
 			/** Handed every reading; says whether that was enough to stop. */
 			const handleLines = (lines: string[]): boolean => {
+				if (lines.length === 0) {
+					return false;
+				}
 				options.onLinesRecognized?.(lines);
-				const match = options.findMatch ? options.findMatch(lines) : null;
+				if (!options.findMatch) {
+					// Nothing to look for means the text itself was the answer, and a
+					// reading that produced text has therefore produced it. Carrying on
+					// would leave the user in front of a preview that has already found
+					// what they came for.
+					finish(lines, null);
+					return true;
+				}
+				const match = options.findMatch(lines);
 				if (match === null) {
 					return false;
 				}
@@ -84,17 +145,14 @@ export const useOcr = () => {
 			};
 
 			const showCamera = (isAutomatic: boolean) => {
-				show({
-					title: options.title,
-					onClose: close,
-					children: (
-						// The camera, the file system and a native engine can all fail in
-						// ways this app cannot control. None of them may take it down.
-						<ErrorBoundary>
-							<OcrCamera recognizeImage={(image) => recognizeImageRef.current(image)} isAutomatic={isAutomatic} onRecognized={handleLines} hint={options.hint} engineError={errorMessageRef.current} />
-						</ErrorBoundary>
-					),
-				});
+				showLevel(
+					// The camera, the file system and a native engine can all fail in
+					// ways this app cannot control. None of them may take it down.
+					<ErrorBoundary>
+						<OcrCamera recognizeImage={(image) => recognizeImageRef.current(image)} isAutomatic={isAutomatic} onRecognized={handleLines} hint={options.hint} showFrame={options.showFrame} engineError={errorMessageRef.current} />
+					</ErrorBoundary>,
+					true,
+				);
 			};
 
 			const pickPhoto = async () => {
@@ -147,17 +205,14 @@ export const useOcr = () => {
 			// A browser has no camera roll to open and its `getUserMedia` preview is
 			// the same device either way, so the camera rows stay — what changes is
 			// only which of them makes sense, and that is the user's call.
-			show({
-				title: options.title,
-				onClose: close,
-				children: (
-					<View style={{ width: '100%' }}>
-						{sources.map((source, index) => (
-							<SettingsList key={source.key} label={source.label} leftIcon={source.icon} groupPosition={sources.length === 1 ? 'single' : index === 0 ? 'top' : index === sources.length - 1 ? 'bottom' : 'middle'} showSeparator={index !== sources.length - 1} handleFunction={source.onPress} />
-						))}
-					</View>
-				),
-			});
+			showLevel(
+				<View style={{ width: '100%' }}>
+					{sources.map((source, index) => (
+						<SettingsList key={source.key} label={source.label} leftIcon={source.icon} groupPosition={sources.length === 1 ? 'single' : index === 0 ? 'top' : index === sources.length - 1 ? 'bottom' : 'middle'} showSeparator={index !== sources.length - 1} handleFunction={source.onPress} />
+					))}
+				</View>,
+				false,
+			);
 		},
 		[close, show, translate],
 	);

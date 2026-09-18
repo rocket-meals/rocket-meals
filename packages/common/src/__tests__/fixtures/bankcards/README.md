@@ -96,13 +96,18 @@ the test holds them in place:
   `Volksbanken` to `Eva Oberberg eG` and slide a window through it, and you
   eventually land on `NO53VAOBERBERGE` — a Norwegian IBAN, correct length,
   nowhere on the card.
+- **Every reading has to be shaped like an IBAN of its country.** ISO 13616
+  fixes not only a length per country but a character pattern: Sweden's account
+  part is twenty digits and no letters, so `girocard` plus a cardholder, which
+  really does read as `SE16 ITOC ARDR OBER TSCH UMAN`, is not a candidate at
+  all. That table comes from the `iban` package — see `IbanValidationHelper`.
 - **Without a checksum, a reading has to look printed**: it stops where a group
   stops (or inside a group of digits an engine welded to the date behind it),
   and it carries letters only where every IBAN does, in its first four
   characters. `Gültig bis` in front of the number really does weld into
-  `LT16BISDE00012345678`, and `girocard` plus a cardholder really does read as
-  `SE16ITOCARD…`. Roughly one such invention in ninety-seven passes mod-97 by
-  chance, and the scanner looks at several frames a second.
+  `LT16BISDE00012345678`, and Gibraltar's account part does allow the letters
+  in it. Roughly one such invention in ninety-seven passes mod-97 by chance,
+  and the scanner looks at several frames a second.
 
   The price is that a country whose account part legitimately carries letters
   (GB, NL, GI and others) is not read without a valid checksum. A real card

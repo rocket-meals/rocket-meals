@@ -5,6 +5,7 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "@types/iban": "^0.0.35",
     "@types/jest": "^29.5.12",
     "@types/markdown-it": "^14",
     "@types/node": "^24.9.1",
@@ -14,6 +15,7 @@
     "typescript": "*"
   },
   "dependencies": {
+    "iban": "^0.0.14",
     "markdown-it": "^14.1.0",
     "moment-timezone": "^0.5.48",
     "short-unique-id": "^5.2.2"
