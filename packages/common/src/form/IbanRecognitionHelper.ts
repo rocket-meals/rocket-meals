@@ -20,6 +20,31 @@ export interface IbanCandidate {
   checksumValid: boolean;
   /** The length matches the IBAN registry entry for `countryCode`. */
   lengthValid: boolean;
+  /**
+   * The reading sits on the card the way a printed number does: in groups of at
+   * most four, ending where one of the groups ends. A reading that fails this
+   * has grown into the text around the number — a bank name, a cardholder, a
+   * `Gültig bis` — and is only ever accepted because its checksum vouches for
+   * it.
+   */
+  looksPrinted: boolean;
+}
+
+/** One IBAN-shaped run of characters, as it was found in the recognized text. */
+interface IbanShapedRun {
+  /** Letters and digits only, the printed blocks already glued together. */
+  run: string;
+  /**
+   * The run stops where one of the printed blocks stops, rather than somewhere
+   * inside one. A number printed on a card always does.
+   */
+  endsAtPrintedBlock: boolean;
+  /**
+   * Every block the run covers is at most four characters long. A card prints
+   * its IBAN in groups of four; a run reaching across a longer block is
+   * reaching across a word.
+   */
+  coversPrintedBlocksOnly: boolean;
 }
 
 export interface FindIbanOptions {
@@ -83,6 +108,16 @@ export class IbanRecognitionHelper {
     'HU', 'IS', 'LT', 'LU', 'LV', 'NL', 'NO', 'PL', 'PT', 'RO', 'SE', 'SI',
     'SK', 'TN',
   ]);
+
+  /**
+   * What a card prints directly in front of the number. Kept as a list rather
+   * than stripped by a pattern: only a label that is actually printed may make
+   * a reading start somewhere other than at the beginning of a word.
+   */
+  private static readonly PRINTED_LABELS: readonly string[] = ['IBAN'];
+
+  /** A card prints its IBAN in groups of four. */
+  private static readonly PRINTED_BLOCK_LENGTH = 4;
 
   /** Uppercases and drops everything that cannot be part of an IBAN. */
   static normalizeIban(text: string): string {
@@ -177,8 +212,12 @@ export class IbanRecognitionHelper {
     return readings;
   }
 
-  /** Describes a normalized string as an {@link IbanCandidate}. */
-  static describeCandidate(candidate: string): IbanCandidate {
+  /**
+   * Describes a normalized string as an {@link IbanCandidate}. `looksPrinted`
+   * cannot be seen from the string alone - it says where the reading came from
+   * in the recognized text - so a caller holding a bare string says so.
+   */
+  static describeCandidate(candidate: string, looksPrinted = true): IbanCandidate {
     const iban = IbanRecognitionHelper.normalizeIban(candidate);
     return {
       iban,
@@ -186,6 +225,7 @@ export class IbanRecognitionHelper {
       countryCode: iban.slice(0, 2),
       checksumValid: IbanRecognitionHelper.isValidIbanChecksum(iban),
       lengthValid: IbanRecognitionHelper.hasValidIbanLength(iban),
+      looksPrinted,
     };
   }
 
@@ -198,8 +238,8 @@ export class IbanRecognitionHelper {
    * then glued to their neighbour, so a torn number is still found.
    *
    * Only readings whose length matches their country are returned, best-first:
-   * the ones whose checksum adds up come before the ones that merely have the
-   * right shape.
+   * the ones whose checksum adds up, then the ones that at least sit on the
+   * card the way a printed number does.
    */
   static findIbanCandidates(lines: string[]): IbanCandidate[] {
     const searchSpaces: string[] = [];
@@ -212,28 +252,38 @@ export class IbanRecognitionHelper {
       }
     }
 
-    const seen = new Set<string>();
-    const candidates: IbanCandidate[] = [];
+    // The same reading turns up in several search spaces - as its own line and
+    // again in the pair it forms with its neighbour. It is kept once, with the
+    // best shape any of those runs gave it.
+    const byReading = new Map<string, IbanCandidate>();
     for (const searchSpace of searchSpaces) {
-      for (const rawCandidate of IbanRecognitionHelper.extractIbanShapedRuns(searchSpace)) {
-        for (const reading of IbanRecognitionHelper.buildReadings(rawCandidate)) {
-          if (seen.has(reading)) {
+      for (const shapedRun of IbanRecognitionHelper.extractIbanShapedRuns(searchSpace)) {
+        const looksPrinted = shapedRun.coversPrintedBlocksOnly && shapedRun.endsAtPrintedBlock;
+        for (const reading of IbanRecognitionHelper.buildReadings(shapedRun.run)) {
+          const known = byReading.get(reading);
+          if (known !== undefined) {
+            known.looksPrinted = known.looksPrinted || looksPrinted;
             continue;
           }
-          seen.add(reading);
-          const described = IbanRecognitionHelper.describeCandidate(reading);
+          const described = IbanRecognitionHelper.describeCandidate(reading, looksPrinted);
           // Only a reading whose length matches its country is a candidate. A
           // reading that is one character too long can still pass mod-97 by
           // chance - the fixture card does, when the `G` of the `Gültig bis`
           // below the number is read into it.
           if (described.lengthValid) {
-            candidates.push(described);
+            byReading.set(reading, described);
           }
         }
       }
     }
 
-    return candidates.sort((a, b) => Number(b.checksumValid) - Number(a.checksumValid));
+    return Array.from(byReading.values()).sort((a, b) => {
+      const byChecksum = Number(b.checksumValid) - Number(a.checksumValid);
+      if (byChecksum !== 0) {
+        return byChecksum;
+      }
+      return Number(b.looksPrinted) - Number(a.looksPrinted);
+    });
   }
 
   /**
@@ -243,62 +293,104 @@ export class IbanRecognitionHelper {
    */
   static findIban(lines: string[], options?: FindIbanOptions): IbanCandidate | null {
     const candidates = IbanRecognitionHelper.findIbanCandidates(lines);
-    const accepted = candidates.find((candidate) => candidate.checksumValid || Boolean(options?.allowInvalidChecksum));
+    const accepted = candidates.find((candidate) => {
+      if (candidate.checksumValid) {
+        return true;
+      }
+      // Nothing vouches for this number but its shape, so the shape has to
+      // hold up: a caller that waives the checksum must not be handed a
+      // Burundian IBAN assembled out of `bis`, `den` and `VISA`.
+      return Boolean(options?.allowInvalidChecksum) && candidate.looksPrinted;
+    });
     return accepted ?? null;
   }
 
   /**
    * Finds the runs of letters and digits that could be an IBAN.
    *
-   * Every separator a card prints between the blocks is dropped first, so
-   * `DE00 0123 4567 …` collapses into a single run. Words collapse the same
-   * way — the sliding window below throws them out again, because a run only
-   * counts from a position that reads like `XX00`.
+   * A number is only ever read from where the card starts printing one. The
+   * blocks of four are glued back together, and a run may begin at the first
+   * character of a printed word — never in the middle of one. Without that
+   * rule, `Volksbank Oberberg` collapses into `...NKOBERBERG...`, and a window
+   * sliding through it eventually lands on something shaped like `NO53` and
+   * hands back an IBAN that is nowhere on the card. Roughly one in ninety-seven
+   * of those inventions passes the mod-97 check by chance, and the scanner
+   * looks at several frames a second.
    */
-  private static extractIbanShapedRuns(text: string): string[] {
+  private static extractIbanShapedRuns(text: string): IbanShapedRun[] {
     const upperCased = text.toUpperCase();
-    // Keep alphanumerics, turn every separator that a card prints between the
-    // blocks (space, dot, dash, thin space) into nothing, everything else into
-    // a boundary.
-    const glued = StringHelper.replaceAllWithOptions({
+    // Everything that is neither a letter nor a digit separates two tokens:
+    // the spaces between the printed blocks as well as the colon behind a
+    // label and the slash inside a validity date.
+    const cleaned = StringHelper.replaceAllWithOptions({
       str: upperCased,
-      find: '[ .\\-\\u00a0\\u202f\\u2009]',
-      replace: '',
-    });
-    const boundaryCleaned = StringHelper.replaceAllWithOptions({
-      str: glued,
       find: '[^A-Z0-9]',
       replace: ' ',
     });
+    const tokens = cleaned.split(' ').filter((token) => token.length > 0);
 
-    const runs: string[] = [];
-    for (const run of boundaryCleaned.split(' ')) {
-      if (run.length < IbanRecognitionHelper.MIN_IBAN_LENGTH) {
-        continue;
+    const shapedRuns: IbanShapedRun[] = [];
+    for (let first = 0; first < tokens.length; first++) {
+      // The blocks of a printed number come back as separate tokens, so they
+      // are glued to the token they start at. Twice the longest IBAN is more
+      // than any of the readings below can use, and bounds the work.
+      let glued = '';
+      const blockEnds = new Set<number>();
+      let longestBlockLength = 0;
+      const blockLengthUpTo: number[] = [0];
+      for (let index = first; index < tokens.length && glued.length < IbanRecognitionHelper.MAX_IBAN_LENGTH * 2; index++) {
+        const token = tokens[index] ?? '';
+        glued += token;
+        blockEnds.add(glued.length);
+        longestBlockLength = Math.max(longestBlockLength, token.length);
+        // The longest block anywhere in the first `position` characters, so
+        // that a run can ask the question for the part of the text it covers.
+        while (blockLengthUpTo.length <= glued.length) {
+          blockLengthUpTo.push(longestBlockLength);
+        }
       }
-      // The run may carry a prefix such as `IBAN` or a trailing validity date.
-      // Slide a window over it and keep every window that starts like an IBAN.
-      for (let start = 0; start + IbanRecognitionHelper.MIN_IBAN_LENGTH <= run.length; start++) {
-        const head = run.slice(start, start + 4);
-        const repairedHead = IbanRecognitionHelper.repairOcrConfusions(head);
+
+      for (const start of IbanRecognitionHelper.readingStartsOf(glued)) {
+        const run = glued.slice(start, start + IbanRecognitionHelper.MAX_IBAN_LENGTH);
+        if (run.length < IbanRecognitionHelper.MIN_IBAN_LENGTH) {
+          continue;
+        }
+        const repairedHead = IbanRecognitionHelper.repairOcrConfusions(run.slice(0, 4));
         if (!/^[A-Z]{2}\d{2}$/.test(repairedHead)) {
           continue;
         }
+        const describeRun = (length: number): IbanShapedRun => ({
+          run: run.slice(0, length),
+          endsAtPrintedBlock: blockEnds.has(start + length),
+          coversPrintedBlocksOnly: (blockLengthUpTo[start + length] ?? Number.MAX_SAFE_INTEGER) <= IbanRecognitionHelper.PRINTED_BLOCK_LENGTH,
+        });
         const expectedLength = IbanRecognitionHelper.IBAN_LENGTH_BY_COUNTRY[repairedHead.slice(0, 2)];
-        const lengths = expectedLength === undefined ? [] : [expectedLength];
-        for (const length of lengths) {
-          if (start + length <= run.length) {
-            runs.push(run.slice(start, start + length));
-          }
+        if (expectedLength !== undefined && expectedLength <= run.length) {
+          // The number ends where its country says it ends; what follows is
+          // the next thing printed on the card, usually the validity date.
+          shapedRuns.push(describeRun(expectedLength));
         }
-        // Also offer the rest of the run, for a country we do not know the
-        // length of, or a number that OCR cut short.
-        const rest = run.slice(start);
-        if (rest.length <= IbanRecognitionHelper.MAX_IBAN_LENGTH) {
-          runs.push(rest);
-        }
+        // Also offer the run as it stands, for a country whose length is not
+        // in the registry or a number the engine cut short.
+        shapedRuns.push(describeRun(run.length));
       }
     }
-    return runs;
+    return shapedRuns;
+  }
+
+  /**
+   * The positions inside a glued run at which a number may begin: its first
+   * character, and whatever follows a label the card prints in front of the
+   * number. OCR regularly loses the colon and the space behind such a label,
+   * which welds it to the first block.
+   */
+  private static readingStartsOf(run: string): number[] {
+    const starts = [0];
+    for (const label of IbanRecognitionHelper.PRINTED_LABELS) {
+      if (run.startsWith(label) && !starts.includes(label.length)) {
+        starts.push(label.length);
+      }
+    }
+    return starts;
   }
 }

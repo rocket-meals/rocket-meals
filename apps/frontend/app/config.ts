@@ -86,7 +86,9 @@ export function getVersionPatch() {
         // 28: every value/unit pair uses the narrow no-break space, nutrients included
         // 29: IBAN form field scans a giro card with the camera (Tesseract OCR,
         //     no native module - ships as an OTA update)
-        return 29;
+        // 30: the giro card scanner no longer reads a number out of the words
+        //     printed around it (bank name, cardholder, "Gültig bis")
+        return 30;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

@@ -43,7 +43,8 @@ export function getVersionPatch() {
 	// 14: shared price formatting uses a narrow no-break space before the symbol
 	// 15: NumberHelper sets every value/unit pair with a narrow no-break space
 	// 16: shared IBAN recognition helper added to repo-depkit-common
-	return 16;
+	// 17: shared IBAN recognition no longer reads a number out of surrounding words
+	return 17;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

@@ -1,0 +1,261 @@
+{
+	"engine": "Tesseract 7.0.0, eng, via tesseract.js",
+	"description": "What Tesseract actually returns for the card photos in this folder, recorded in one run of the bundled engine under the conditions the app uses: the frame scaled to 1600 px, JPEG quality 0.8. Every card is a public specimen or a marketing render; every printed IBAN is a dummy whose mod-97 check digits cannot validate, which is why no card here is recognized without allowInvalidChecksum.",
+	"cards": [
+		{
+			"file": "Test_1_DE00012345678901234567.png",
+			"description": "Volksbank specimen card, \"Toni Raiffeisen\", photographed head-on.",
+			"printedIban": "DE00012345678901234567",
+			"sharpness": 412,
+			"recognizedLines": [
+				"ETA Berliner Volksbank",
+				"mR",
+				"A I FY",
+				"girocard",
+				"Toni Raiffeisen",
+				"—",
+				"DEQD 0123 4567 8901 2345 67 00/00"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": "DE00012345678901234567"
+			}
+		},
+		{
+			"file": "Test_2_DE09123456780000000000.png",
+			"description": "Deutsche Bank specimen card held into a camera, \"Max Mustermann\".",
+			"printedIban": "DE09123456780000000000",
+			"sharpness": 9,
+			"recognizedLines": [
+				"La"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": null
+			}
+		},
+		{
+			"file": "Test_3_DE123456678901234567890.png",
+			"description": "Musterbank specimen card, a flat render, \"Maxi Muster\".",
+			"printedIban": "DE12345678901234567890",
+			"sharpness": 1012,
+			"recognizedLines": [
+				"UST AlN w",
+				"girocard",
+				"eam",
+				"US yi )) )",
+				"BR VISA",
+				"Maxi Muster",
+				"bEI2 3456 7890 1234 5678 90"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": "BE12345678901234"
+			}
+		},
+		{
+			"file": "Test_4_DE9912354678123456780.png",
+			"description": "Sparkasse Musterstadt specimen card, a flat render, \"Ute Mustermann\".",
+			"printedIban": "DE99123546781234567890",
+			"sharpness": 8264,
+			"recognizedLines": [
+				"Sparkasse",
+				"Musterstadt",
+				"222",
+				"=",
+				"Nes - girocard",
+				"D000 000 G10 00",
+				"ik ie ras",
+				"DE99 1235 46787Y23475678 90 12/ XX"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": null
+			}
+		},
+		{
+			"file": "Test_5_DE99123546781234567890.png",
+			"description": "The same Sparkasse card, photographed at an angle.",
+			"printedIban": "DE99123546781234567890",
+			"sharpness": 574,
+			"recognizedLines": [
+				"am or T\\ ME",
+				"pr BY | = B",
+				"hs: ) q el",
+				"wy “maestro. NN",
+				"DE9S 1235 4678 1234 5678 90  12/XX"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": "DE95123546781234567890"
+			}
+		},
+		{
+			"file": "Test_6_DE00012345678901234567.png",
+			"description": "Volksbank Oberberg specimen card, photographed at an angle.",
+			"printedIban": "DE00012345678901234567",
+			"sharpness": 142,
+			"recognizedLines": [
+				"Volksbanken os",
+				"Eva Oberberg eG MeinPlus ese",
+				"Wir machen den Weg frei.",
+				"I EE )))",
+				"J a1! J",
+				".",
+				"g",
+				"Toni Rai ffeisen",
+				"DEOD 0123 4567 8901 2345 67 00/00 NG"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": "DE00012345678901234567"
+			}
+		},
+		{
+			"file": "Test_7_DE00012345678901234567.png",
+			"description": "VR-Bank Mitte specimen card, \"Max Mustermann\".",
+			"printedIban": "DE00012345678901234567",
+			"sharpness": 267,
+			"recognizedLines": [
+				"EY] VR-Bank Mitte eG .",
+				"Mein Plus",
+				"pL",
+				"african",
+				"Max Mustermann",
+				"IBAN: Giiltig bis",
+				"DEQO 0123 4567 8901 2345 67 2030",
+				"Be as E 4"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": "DE00012345678901234567"
+			}
+		},
+		{
+			"file": "Test_8_DE00012345678901234567.png",
+			"description": "Volksbank Bergisches Land specimen card, \"Robert Schumann\".",
+			"printedIban": "DE00012345678901234567",
+			"sharpness": 874,
+			"recognizedLines": [
+				"1 a EE h",
+				"ETA jn Bergischentand “ar a",
+				"“ » SSeS gl ;",
+				"— § TY i , hE",
+				"EE) i)",
+				"= SEI gitocard",
+				"Robert Schumann i",
+				"IBAN: Gultig bis",
+				"mm DE00 0123 4567 8901 2345 67 0000",
+				"No maestro.",
+				"NE ae a= ENT"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": "DE00012345678901234567"
+			}
+		},
+		{
+			"file": "Test_9_DE99123546781234567890.png",
+			"description": "The Sparkasse card held in front of a terminal, small in the frame.",
+			"printedIban": "DE99123546781234567890",
+			"sharpness": 209,
+			"recognizedLines": [
+				"7 - 2) af",
+				"SN 3"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": null
+			}
+		},
+		{
+			"file": "Test_10_4724123456789123.png",
+			"description": "A Visa debit specimen card without an IBAN, \"G Raymond\", card number 4724 1234 5678 9123.",
+			"printedIban": null,
+			"sharpness": 16,
+			"recognizedLines": [
+				"D =",
+				"|",
+				"EH -",
+				"$128 Te Rl",
+				"ope VISA",
+				"5 RAYNORD A DEBIT"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": null
+			}
+		},
+		{
+			"file": "Test_11_1234567800000000.png",
+			"description": "A Mastercard specimen card without an IBAN, \"A N Other\", card number 1234 5678 0000 0000.",
+			"printedIban": null,
+			"sharpness": 7,
+			"recognizedLines": [
+				"a Ty",
+				"4 wo. ¢",
+				"iy 9",
+				"» 0p",
+				"ey YO",
+				"0%",
+				"ON"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": null
+			}
+		},
+		{
+			"file": "Test_12_5310435678543801.png",
+			"description": "A Mastercard marketing render without an IBAN, card number 5310 4356 7854 3801.",
+			"printedIban": null,
+			"sharpness": 27,
+			"recognizedLines": [
+				"| Va i (",
+				"ow »"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": null
+			}
+		},
+		{
+			"file": "Test_13_DE000123456778901234567.png",
+			"description": "Volksbanken Raiffeisenbanken specimen card, a flat render, \"Toni Raiffeisen\".",
+			"printedIban": "DE00012345678901234567",
+			"sharpness": 1082,
+			"recognizedLines": [
+				"EVd Volksbanken |",
+				"== == Raiffeisenbanken",
+				"- Wir machen den Weg frei.",
+				"gE»",
+				"girocard",
+				"Toni Raiffeisen",
+				"IBAN: Gilltig bis",
+				"den 0123 4567 801 235 67 00/0 VISA"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": null
+			}
+		},
+		{
+			"file": "Test_14_DE12345678901234567890.png",
+			"description": "Musterbank specimen card, a second render, \"Maxi Muster\".",
+			"printedIban": "DE12345678901234567890",
+			"sharpness": 524,
+			"recognizedLines": [
+				"Musterbank n |",
+				"= |",
+				"oo) (CD)",
+				"27) |",
+				"Maxi Muster",
+				"DE12 3456 7890 1234 5678 90"
+			],
+			"recognized": {
+				"withValidChecksumOnly": null,
+				"allowingDummyChecksum": "DE12345678901234567890"
+			}
+		}
+	]
+}

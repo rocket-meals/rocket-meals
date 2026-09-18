@@ -134,6 +134,38 @@ describe('IbanRecognitionHelper', () => {
 			expect(found?.lengthValid).toBe(true);
 		});
 
+		it('never starts a number in the middle of a printed word', () => {
+			// `Volksbanken` and `Eva Oberberg eG` glued together carry `NO53VAOBERBERGE`
+			// inside them, and Norway's IBANs are fifteen characters long. A reading
+			// begins where the card begins printing something, so nothing here is a
+			// candidate at all.
+			const lines = ['Volksbanken os', 'Eva Oberberg eG MeinPlus ese'];
+			expect(IbanRecognitionHelper.findIbanCandidates(lines)).toHaveLength(0);
+		});
+
+		it('still reads a number the engine welded to the label in front of it', () => {
+			expect(IbanRecognitionHelper.findIban(['IBANDE89 3704 0044 0532 0130 00'])?.iban).toBe(VALID_DE_IBAN);
+		});
+
+		it('reports whether a reading sits on the card the way a printed number does', () => {
+			const printed = IbanRecognitionHelper.findIbanCandidates(['DE89 3704 0044 0532 0130 00', 'Gültig bis 12/29']);
+			expect(printed[0]?.looksPrinted).toBe(true);
+
+			// `Gültig bis` in front of the number reads as `GI11 TIGB IS…`, and
+			// Gibraltar's IBANs are twenty-three characters long - the shape of the
+			// thing is all that gives it away.
+			const assembled = IbanRecognitionHelper.findIbanCandidates(['IBAN: Giiltig bis', 'DEQO 0123 4567 8901 2345 67 2030']);
+			expect(assembled.find((candidate) => candidate.iban.startsWith('GI11'))?.looksPrinted).toBe(false);
+		});
+
+		it('refuses a reading without a checksum that does not look printed', () => {
+			// The caller waived the checksum, so the shape is the only thing left
+			// that can speak for the number.
+			const lines = ['IBAN: Gilltig bis', 'den 0123 4567 801 235 67 00/0 VISA'];
+			expect(IbanRecognitionHelper.findIbanCandidates(lines).length).toBeGreaterThan(0);
+			expect(IbanRecognitionHelper.findIban(lines, { allowInvalidChecksum: true })).toBeNull();
+		});
+
 		it('prefers the checksum-valid candidate when the card shows several numbers', () => {
 			const lines = ['Kartennummer 6789 0123 4567 8901 2345 67', 'DE89 3704 0044 0532 0130 00'];
 			expect(IbanRecognitionHelper.findIban(lines, { allowInvalidChecksum: true })?.iban).toBe(VALID_DE_IBAN);
