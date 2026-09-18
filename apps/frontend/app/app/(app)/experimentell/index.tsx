@@ -98,6 +98,12 @@ const Index = () => {
 			onPress: () => router.push('/experimentell/app-download'),
 		},
 		{
+			key: 'text-recognition-diagnose',
+			label: translate(TranslationKeys.text_recognition_diagnose),
+			leftIcon: <MaterialCommunityIcons name="stethoscope" size={24} color={theme.screen.icon} />,
+			onPress: () => router.push('/experimentell/text-recognition-diagnose'),
+		},
+		{
 			key: 'giro-card-iban',
 			label: translate(TranslationKeys.giro_card_iban_scanner_test),
 			leftIcon: <MaterialCommunityIcons name="credit-card-scan-outline" size={24} color={theme.screen.icon} />,

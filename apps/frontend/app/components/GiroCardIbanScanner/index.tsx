@@ -81,7 +81,7 @@ export const GiroCardIbanScanner: React.FC<GiroCardIbanScannerProps> = ({ onIban
 	/** True while the frames coming in are too soft for the engine to bother. */
 	const [isTooBlurry, setIsTooBlurry] = useState(false);
 
-	const { recognizeImage, progress, errorMessage, engineElement } = useTextRecognition();
+	const { isEngineStarted, startEngine, recognizeImage, progress, errorMessage, engineElement } = useTextRecognition();
 
 	const cameraRef = useRef<CameraView>(null);
 	/** Set once the IBAN is found, so the loop stops and no second hit is reported. */
@@ -156,7 +156,7 @@ export const GiroCardIbanScanner: React.FC<GiroCardIbanScannerProps> = ({ onIban
 	useEffect(() => {
 		// While a still is on screen the loop stands down: that frame is the one
 		// the user picked, and a second recognition would only compete with it.
-		if (!isCameraReady || !isPermissionGranted || capturedImage !== null) {
+		if (!isCameraReady || !isPermissionGranted || !isEngineStarted || capturedImage !== null) {
 			return;
 		}
 
@@ -192,7 +192,7 @@ export const GiroCardIbanScanner: React.FC<GiroCardIbanScannerProps> = ({ onIban
 				clearTimeout(timeoutId);
 			}
 		};
-	}, [capturedImage, isCameraReady, isPermissionGranted, readImage, takePicture]);
+	}, [capturedImage, isCameraReady, isEngineStarted, isPermissionGranted, readImage, takePicture]);
 
 	if (!isPermissionGranted) {
 		return (
@@ -216,9 +216,14 @@ export const GiroCardIbanScanner: React.FC<GiroCardIbanScannerProps> = ({ onIban
 	// Once a pass has come back, the engine is there and every later gap between
 	// passes is just the scanner working.
 	let statusText = translate(TranslationKeys.giro_card_scan_searching);
-	if (progress !== null) {
+	if (!isEngineStarted) {
+		statusText = translate(TranslationKeys.giro_card_scan_start_engine_hint);
+	} else if (progress !== null) {
 		statusText = `${statusText} ${Math.round(progress * 100)} %`;
 	} else if (!hasRecognizedOnce) {
+		statusText = translate(TranslationKeys.giro_card_scan_preparing);
+	}
+	if (isEngineStarted && progress === null && !hasRecognizedOnce) {
 		statusText = translate(TranslationKeys.giro_card_scan_preparing);
 	}
 	const isReadingCapturedImage = capturedImage !== null && !isCapturedImageRead;
@@ -242,12 +247,17 @@ export const GiroCardIbanScanner: React.FC<GiroCardIbanScannerProps> = ({ onIban
 			</View>
 
 			<View style={styles.statusRow}>
-				{(capturedImage === null || isReadingCapturedImage) && <ActivityIndicator size="small" color={primaryColor} />}
+				{isEngineStarted && (capturedImage === null || isReadingCapturedImage) && <ActivityIndicator size="small" color={primaryColor} />}
 				<Text style={[styles.statusText, { color: theme.screen.text }]}>{statusText}</Text>
 			</View>
 			<Text style={[styles.hintText, { color: theme.screen.text }]}>{translate(TranslationKeys.giro_card_scan_hint)}</Text>
 
-			{capturedImage === null ? (
+			{!isEngineStarted ? (
+				<TouchableOpacity style={[styles.actionButton, { backgroundColor: primaryColor }]} onPress={startEngine} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.giro_card_scan_start_engine)}>
+					<MaterialCommunityIcons name="text-recognition" size={20} color={contrastColor} />
+					<Text style={[styles.actionButtonText, { color: contrastColor }]}>{translate(TranslationKeys.giro_card_scan_start_engine)}</Text>
+				</TouchableOpacity>
+			) : capturedImage === null ? (
 				<TouchableOpacity style={[styles.actionButton, { backgroundColor: primaryColor }]} onPress={() => void captureAndRead()} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.giro_card_scan_take_photo)}>
 					<MaterialCommunityIcons name="camera-iris" size={20} color={contrastColor} />
 					<Text style={[styles.actionButtonText, { color: contrastColor }]}>{translate(TranslationKeys.giro_card_scan_take_photo)}</Text>

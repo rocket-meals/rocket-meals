@@ -159,6 +159,18 @@ export interface RecognitionImage {
 
 /** What a platform's `useTextRecognition` hook gives its caller. */
 export interface TextRecognitionApi {
+	/**
+	 * Whether the engine is running at all.
+	 *
+	 * On native it starts only when {@link startEngine} is called. The engine
+	 * lives in a WebView there, and a WebView that dies in its native layer
+	 * takes the app with it — no JavaScript can catch that. Opening the scanner
+	 * must not be able to do that, so the camera comes up first and the engine
+	 * is a deliberate second step.
+	 */
+	isEngineStarted: boolean;
+	/** Starts the engine. Already started, or not needed: does nothing. */
+	startEngine: () => void;
 	/** Reads one frame: its text line by line, plus how sharp it was. */
 	recognizeImage: (image: RecognitionImage) => Promise<RecognitionResult>;
 	/** 0…1 while the engine loads or reads, `null` when it is idle. */

@@ -50,7 +50,7 @@ const describeFailure = (step: string, error: unknown): string => `${step}: ${er
  * library fall back to its CDN defaults, which is the one thing this must not
  * do.
  */
-const unpackEngine = async (): Promise<string> => {
+export const unpackEngine = async (): Promise<string> => {
 	const cacheDirectory = FileSystem.cacheDirectory;
 	if (!cacheDirectory) {
 		throw new Error('this device has no cache directory to unpack the text recognition engine into');
@@ -110,10 +110,13 @@ const unpackEngine = async (): Promise<string> => {
  * the app onto the device, so it works offline and tells no one about it.
  *
  * The caller must render `engineElement`; without it there is no WebView and
- * `recognizeImage` never resolves.
+ * `recognizeImage` never resolves. And nothing happens at all until
+ * `startEngine` is called: a WebView that dies in its native layer takes the
+ * app with it, and merely opening the scanner must not be able to do that.
  */
 export const useTextRecognition = (): TextRecognitionApi => {
 	const webViewRef = useRef<WebView>(null);
+	const [isEngineStarted, setIsEngineStarted] = useState(false);
 	const [engineDirectory, setEngineDirectory] = useState<string | null>(null);
 	const [progress, setProgress] = useState<number | null>(null);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -122,7 +125,12 @@ export const useTextRecognition = (): TextRecognitionApi => {
 	const pendingRequests = useRef(new Map<string, { resolve: (result: RecognitionResult) => void; reject: (error: Error) => void }>());
 	const nextRequestId = useRef(0);
 
+	const startEngine = useCallback(() => setIsEngineStarted(true), []);
+
 	useEffect(() => {
+		if (!isEngineStarted) {
+			return;
+		}
 		let isMounted = true;
 		unpackEngine()
 			.then((directory) => {
@@ -138,7 +146,7 @@ export const useTextRecognition = (): TextRecognitionApi => {
 		return () => {
 			isMounted = false;
 		};
-	}, []);
+	}, [isEngineStarted]);
 
 	const handleMessage = useCallback((event: WebViewMessageEvent) => {
 		let message: TextRecognitionEngineMessage;
@@ -198,6 +206,9 @@ export const useTextRecognition = (): TextRecognitionApi => {
 		async (image: RecognitionImage): Promise<RecognitionResult> => {
 			const webView = webViewRef.current;
 			if (!webView) {
+				if (!isEngineStarted) {
+					throw new Error('the text recognition engine has not been started');
+				}
 				throw new Error(engineDirectory === null ? 'the text recognition engine is still being unpacked' : 'the text recognition engine is not mounted');
 			}
 			let dataUri: string;
@@ -229,7 +240,7 @@ export const useTextRecognition = (): TextRecognitionApi => {
 				webView.injectJavaScript(`window.recognizeImage(${request}); true;`);
 			});
 		},
-		[engineDirectory, toDataUri],
+		[engineDirectory, isEngineStarted, toDataUri],
 	);
 
 	// The page is loaded out of the engine directory rather than handed over as
@@ -260,7 +271,7 @@ export const useTextRecognition = (): TextRecognitionApi => {
 			</ErrorBoundary>
 		);
 
-	return { recognizeImage, progress, errorMessage, engineElement };
+	return { isEngineStarted, startEngine, recognizeImage, progress, errorMessage, engineElement };
 };
 
 const styles = StyleSheet.create({

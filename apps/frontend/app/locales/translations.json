@@ -6408,5 +6408,115 @@
     "ru": "Изображение слишком размыто. Используйте заднюю камеру и держите небольшое расстояние.",
     "tr": "Görüntü çok bulanık. Arka kamerayı kullanın ve biraz mesafe bırakın.",
     "zh": "图像太模糊。请使用后置摄像头，并保持一些距离。"
+  },
+  "giro_card_scan_start_engine": {
+    "de": "Texterkennung starten",
+    "en": "Start text recognition",
+    "ar": "بدء التعرف على النص",
+    "es": "Iniciar el reconocimiento de texto",
+    "fr": "Démarrer la reconnaissance de texte",
+    "ru": "Запустить распознавание текста",
+    "tr": "Metin tanımayı başlat",
+    "zh": "启动文字识别"
+  },
+  "giro_card_scan_start_engine_hint": {
+    "de": "Die Texterkennung läuft noch nicht. Starte sie, um die Karte lesen zu lassen.",
+    "en": "Text recognition is not running yet. Start it to have the card read.",
+    "ar": "لم يبدأ التعرف على النص بعد. ابدأه لقراءة البطاقة.",
+    "es": "El reconocimiento de texto aún no está activo. Inícialo para que se lea la tarjeta.",
+    "fr": "La reconnaissance de texte n'est pas encore active. Démarrez-la pour faire lire la carte.",
+    "ru": "Распознавание текста ещё не запущено. Запустите его, чтобы прочитать карту.",
+    "tr": "Metin tanıma henüz çalışmıyor. Kartın okunması için başlatın.",
+    "zh": "文字识别尚未启动。启动后即可读取卡片。"
+  },
+  "text_recognition_diagnose": {
+    "de": "Texterkennung – Diagnose",
+    "en": "Text recognition diagnostics",
+    "ar": "تشخيص التعرف على النص",
+    "es": "Diagnóstico del reconocimiento de texto",
+    "fr": "Diagnostic de la reconnaissance de texte",
+    "ru": "Диагностика распознавания текста",
+    "tr": "Metin tanıma tanılaması",
+    "zh": "文字识别诊断"
+  },
+  "text_recognition_diagnose_description": {
+    "de": "Jeder Schritt einzeln, nichts läuft von allein. Stürzt die App bei einem Schritt ab, ist genau der die Ursache – der zuletzt angezeigte Schritt sagt es.",
+    "en": "One step at a time, nothing runs on its own. If the app goes down on a step, that step is the cause — the last one shown tells you which.",
+    "ar": "خطوة واحدة في كل مرة، ولا يعمل شيء من تلقاء نفسه. إذا تعطل التطبيق عند خطوة، فتلك الخطوة هي السبب.",
+    "es": "Un paso cada vez, nada se ejecuta solo. Si la app se cae en un paso, ese paso es la causa: el último mostrado lo dice.",
+    "fr": "Une étape à la fois, rien ne démarre tout seul. Si l'app tombe sur une étape, c'est celle-là la cause : la dernière affichée vous le dit.",
+    "ru": "По одному шагу, ничего не запускается само. Если приложение падает на шаге, именно он и есть причина.",
+    "tr": "Her seferinde tek adım, hiçbir şey kendiliğinden çalışmaz. Uygulama bir adımda çökerse, sebep o adımdır.",
+    "zh": "每次只跑一步，没有任何步骤会自动开始。若应用在某一步崩溃，那一步就是原因。"
+  },
+  "text_recognition_diagnose_run": {
+    "de": "Schritt ausführen",
+    "en": "Run step",
+    "ar": "تنفيذ الخطوة",
+    "es": "Ejecutar el paso",
+    "fr": "Exécuter l'étape",
+    "ru": "Выполнить шаг",
+    "tr": "Adımı çalıştır",
+    "zh": "执行此步"
+  },
+  "text_recognition_diagnose_unpack": {
+    "de": "1. Engine auspacken",
+    "en": "1. Unpack the engine",
+    "ar": "1. فك حزمة المحرك",
+    "es": "1. Descomprimir el motor",
+    "fr": "1. Décompresser le moteur",
+    "ru": "1. Распаковать движок",
+    "tr": "1. Motoru çıkar",
+    "zh": "1. 解包识别引擎"
+  },
+  "text_recognition_diagnose_unpack_hint": {
+    "de": "Kopiert die Engine-Dateien in den Cache-Ordner. Nur Dateisystem, kein WebView.",
+    "en": "Copies the engine files into the cache directory. File system only, no WebView.",
+    "ar": "ينسخ ملفات المحرك إلى مجلد التخزين المؤقت. نظام الملفات فقط، بدون WebView.",
+    "es": "Copia los archivos del motor en la caché. Solo sistema de archivos, sin WebView.",
+    "fr": "Copie les fichiers du moteur dans le cache. Système de fichiers seulement, pas de WebView.",
+    "ru": "Копирует файлы движка в кэш. Только файловая система, без WebView.",
+    "tr": "Motor dosyalarını önbellek klasörüne kopyalar. Yalnızca dosya sistemi, WebView yok.",
+    "zh": "把引擎文件复制到缓存目录。只涉及文件系统，不涉及 WebView。"
+  },
+  "text_recognition_diagnose_plain_webview": {
+    "de": "2. Leeres WebView starten",
+    "en": "2. Start an empty WebView",
+    "ar": "2. تشغيل WebView فارغ",
+    "es": "2. Iniciar un WebView vacío",
+    "fr": "2. Démarrer un WebView vide",
+    "ru": "2. Запустить пустой WebView",
+    "tr": "2. Boş bir WebView başlat",
+    "zh": "2. 启动空的 WebView"
+  },
+  "text_recognition_diagnose_plain_webview_hint": {
+    "de": "Eine Seite ohne Engine. Scheitert schon das, liegt es am WebView selbst, nicht an der Texterkennung.",
+    "en": "A page with no engine in it. If even this fails, the WebView itself is the problem, not the recognition.",
+    "ar": "صفحة بلا محرك. إذا فشلت هذه أيضًا، فالمشكلة في WebView نفسه وليس في التعرف على النص.",
+    "es": "Una página sin motor. Si ya esto falla, el problema es el WebView, no el reconocimiento.",
+    "fr": "Une page sans moteur. Si même cela échoue, le problème vient du WebView, pas de la reconnaissance.",
+    "ru": "Страница без движка. Если и это не работает, дело в самом WebView, а не в распознавании.",
+    "tr": "Motor içermeyen bir sayfa. Bu bile başarısızsa sorun WebView'in kendisidir.",
+    "zh": "一个不含引擎的页面。若连它也失败，问题出在 WebView 本身，而非识别。"
+  },
+  "text_recognition_diagnose_engine_page": {
+    "de": "3. Engine-Seite laden",
+    "en": "3. Load the engine page",
+    "ar": "3. تحميل صفحة المحرك",
+    "es": "3. Cargar la página del motor",
+    "fr": "3. Charger la page du moteur",
+    "ru": "3. Загрузить страницу движка",
+    "tr": "3. Motor sayfasını yükle",
+    "zh": "3. 加载引擎页面"
+  },
+  "text_recognition_diagnose_engine_page_hint": {
+    "de": "Lädt die ausgepackte Seite samt WebAssembly. Braucht Schritt 1.",
+    "en": "Loads the unpacked page together with its WebAssembly. Needs step 1.",
+    "ar": "يحمّل الصفحة المفكوكة مع WebAssembly. يتطلب الخطوة 1.",
+    "es": "Carga la página descomprimida junto con su WebAssembly. Necesita el paso 1.",
+    "fr": "Charge la page décompressée avec son WebAssembly. Nécessite l'étape 1.",
+    "ru": "Загружает распакованную страницу вместе с WebAssembly. Требуется шаг 1.",
+    "tr": "Çıkarılan sayfayı WebAssembly ile birlikte yükler. 1. adımı gerektirir.",
+    "zh": "加载已解包的页面及其 WebAssembly。需要先完成第 1 步。"
   }
 }

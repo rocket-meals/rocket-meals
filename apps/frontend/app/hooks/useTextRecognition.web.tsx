@@ -147,7 +147,9 @@ export const useTextRecognition = (): TextRecognitionApi => {
 		[getWorker],
 	);
 
-	return { recognizeImage, progress, errorMessage, engineElement: null };
+	// Nothing to gate on the web: the page loads the engine when it first reads,
+	// and a script tag cannot take the tab down the way a native WebView can.
+	return { isEngineStarted: true, startEngine: () => {}, recognizeImage, progress, errorMessage, engineElement: null };
 };
 
 export default useTextRecognition;
