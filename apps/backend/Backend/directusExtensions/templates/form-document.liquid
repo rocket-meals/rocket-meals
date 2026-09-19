@@ -1,0 +1,387 @@
+{% comment %}
+  form-document.liquid – das Layout für ausgefüllte Formulare als PDF.
+
+  Vorbild ist das gedruckte Protokoll, das in den Wohnheimen ausgefüllt und unterschrieben wird:
+  Titel oben links, Logo oben rechts, fette Beschriftung mit Doppelpunkt in einer festen Spalte,
+  der Wert daneben. Wo nichts eingetragen wurde, steht – wie auf Papier – eine Schreiblinie bis
+  zum rechten Rand. Deshalb ist das Dokument schwarzweiß: eine Behördenvorlage, kein Web-Layout.
+
+  Das Template bekommt ein fertiges Datenmodell (siehe `FormPdfDocumentHelper.ts`) und kümmert
+  sich ausschließlich um Struktur und Aussehen. Alle Werte kommen als reiner Text herein und
+  werden hier mit `escape` ausgegeben – das Backend baut kein HTML mehr zusammen.
+
+  Erwartete Variablen:
+    documentTitle, documentSubtitle, projectName, projectLogo
+    sections[]      – { title, rows[] }
+    row             – { type: 'text' | 'multiline' | 'boolean' | 'character_boxes',
+                        label, text, options[], boxGroups[] }
+    signatures[]    – { label, imageUrl }
+    attachments[]   – { label, imageUrl }
+    attachmentsTitle
+{% endcomment %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ documentTitle | escape }}</title>
+    <style>
+        :root {
+            --text-color: #000000;
+            --line-color: #000000;
+            --muted-color: #555555;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
+            font-size: 10.5pt;
+            line-height: 1.35;
+            color: var(--text-color);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Kopfzeile ───────────────────────────────────────────────────── */
+
+        .doc-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10mm;
+            margin-bottom: 9mm;
+        }
+
+        .doc-header__title {
+            margin: 0;
+            font-size: 22pt;
+            font-weight: 800;
+            letter-spacing: -0.2pt;
+            line-height: 1.1;
+        }
+
+        .doc-header__subtitle {
+            margin: 1.5mm 0 0 0;
+            font-size: 9.5pt;
+            color: var(--muted-color);
+        }
+
+        .doc-header__logo {
+            max-height: 18mm;
+            max-width: 45mm;
+            height: auto;
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* ── Abschnitte ──────────────────────────────────────────────────── */
+
+        .section {
+            margin: 0 0 5mm 0;
+        }
+
+        .section + .section {
+            margin-top: 5mm;
+        }
+
+        .section__title {
+            margin: 0 0 2.5mm 0;
+            font-size: 11.5pt;
+            font-weight: 700;
+            break-after: avoid;
+            page-break-after: avoid;
+        }
+
+        /* ── Formularzeilen ──────────────────────────────────────────────── */
+
+        .field {
+            display: flex;
+            align-items: baseline;
+            gap: 2mm;
+            margin: 0 0 1.4mm 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .field__label {
+            flex: 0 0 58mm;
+            font-weight: 700;
+        }
+
+        .field__value {
+            flex: 1 1 auto;
+            min-height: 4.6mm;
+            word-break: break-word;
+        }
+
+        /*
+           Wie auf dem Papierformular: die Linie gehört dem leeren Feld. Ein eingetragener Wert
+           steht einfach da, so wie der Vordruck seine bereits bekannten Angaben zeigt.
+        */
+        .field__value--empty {
+            border-bottom: 0.3mm solid var(--line-color);
+        }
+
+        .field--boxes {
+            align-items: center;
+        }
+
+        /* Mehrzeiliger Text bekommt ein Linienraster über die volle Breite. */
+        .field--block {
+            display: block;
+            margin-bottom: 3mm;
+        }
+
+        .field--block .field__label {
+            margin-bottom: 1.5mm;
+        }
+
+        .field--block .field__value {
+            min-height: 0;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        /* Leerer Freitext: drei Schreiblinien, wie sie der Vordruck dafür vorsieht. */
+        .writing-line {
+            height: 6mm;
+            border-bottom: 0.3mm solid var(--line-color);
+        }
+
+        /* ── Ankreuzfelder ───────────────────────────────────────────────── */
+
+        .checkbox-option {
+            display: inline-block;
+            margin-right: 10mm;
+            white-space: nowrap;
+        }
+
+        .checkbox {
+            display: inline-block;
+            width: 3.8mm;
+            height: 3.8mm;
+            margin-right: 1.5mm;
+            border: 0.3mm solid var(--line-color);
+            text-align: center;
+            line-height: 3.4mm;
+            font-size: 9pt;
+            font-weight: 700;
+            vertical-align: -0.4mm;
+        }
+
+        /* ── IBAN-/BIC-Kästchen ──────────────────────────────────────────── */
+
+        .boxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5mm;
+        }
+
+        /*
+           Eine Vierergruppe ist ein zusammenhängender Kasten: die Kästchen teilen sich ihre
+           senkrechten Striche, oben bleibt er offen – so sind Bankdaten auf Formularen gesetzt.
+        */
+        .boxes__group {
+            display: flex;
+            gap: 0;
+        }
+
+        .box {
+            width: 4.3mm;
+            height: 6mm;
+            border: 0.3mm solid var(--line-color);
+            border-top: none;
+            border-left: none;
+            text-align: center;
+            line-height: 6mm;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 9pt;
+        }
+
+        .boxes__group .box:first-child {
+            border-left: 0.3mm solid var(--line-color);
+        }
+
+        /* ── Unterschriften ──────────────────────────────────────────────── */
+
+        /*
+           Bewusst kein Flexbox: Chromium bricht Flex-Container im Druck ungern sauber um und
+           lässt dann angeschnittene Unterschriften am Seitenende stehen. Inline-Blöcke halten
+           `page-break-inside: avoid` zuverlässig ein.
+        */
+        .signatures {
+            margin: 10mm 0 0 0;
+            font-size: 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .signature {
+            display: inline-block;
+            width: 48%;
+            margin: 0 4% 6mm 0;
+            vertical-align: bottom;
+            font-size: 10.5pt;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .signature:nth-child(even) {
+            margin-right: 0;
+        }
+
+        .signature__row {
+            display: flex;
+            align-items: flex-end;
+            gap: 2mm;
+        }
+
+        .signature__label {
+            flex: 0 0 auto;
+            padding-bottom: 1mm;
+        }
+
+        .signature__line {
+            flex: 1 1 auto;
+            height: 18mm;
+            line-height: 18mm;
+            white-space: nowrap;
+            overflow: hidden;
+            border-bottom: 0.3mm solid var(--line-color);
+        }
+
+        .signature__line img {
+            max-height: 18mm;
+            max-width: 100%;
+            vertical-align: bottom;
+        }
+
+        /* ── Anhänge ─────────────────────────────────────────────────────── */
+
+        .attachments {
+            break-before: page;
+            page-break-before: always;
+        }
+
+        .attachment {
+            margin: 0 0 6mm 0;
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .attachment img {
+            max-width: 100%;
+            max-height: 105mm;
+            height: auto;
+            border: 0.3mm solid var(--line-color);
+        }
+
+        .attachment__caption {
+            margin-top: 1.2mm;
+            font-size: 9pt;
+            color: var(--muted-color);
+        }
+    </style>
+</head>
+<body>
+<header class="doc-header">
+    <div>
+        <h1 class="doc-header__title">{{ documentTitle | escape }}</h1>
+        {% if documentSubtitle %}
+            <p class="doc-header__subtitle">{{ documentSubtitle | escape }}</p>
+        {% endif %}
+    </div>
+    {% if projectLogo %}
+        <img class="doc-header__logo" src="{{ projectLogo | escape }}" alt="{{ projectName | escape }}" />
+    {% endif %}
+</header>
+
+{% for section in sections %}
+    <section class="section">
+        {% if section.title %}
+            <h2 class="section__title">{{ section.title | escape }}:</h2>
+        {% endif %}
+        {% for row in section.rows %}
+            {% if row.type == 'multiline' %}
+                <div class="field field--block">
+                    <div class="field__label">{{ row.label | escape }}:</div>
+                    {% if row.text == '' %}
+                        <div class="writing-line"></div>
+                        <div class="writing-line"></div>
+                        <div class="writing-line"></div>
+                    {% else %}
+                        <div class="field__value">{{ row.text | escape }}</div>
+                    {% endif %}
+                </div>
+            {% elsif row.type == 'boolean' %}
+                <div class="field">
+                    <div class="field__label">{{ row.label | escape }}:</div>
+                    <div class="field__value">
+                        {% for option in row.options %}
+                            <span class="checkbox-option">
+                                <span class="checkbox">{% if option.checked %}X{% endif %}</span>{{ option.label | escape }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% elsif row.type == 'character_boxes' %}
+                <div class="field field--boxes">
+                    <div class="field__label">{{ row.label | escape }}:</div>
+                    <div class="field__value">
+                        <span class="boxes">
+                            {% for group in row.boxGroups %}
+                                <span class="boxes__group">
+                                    {% for character in group %}<span class="box">{{ character | escape }}</span>{% endfor %}
+                                </span>
+                            {% endfor %}
+                        </span>
+                    </div>
+                </div>
+            {% else %}
+                <div class="field">
+                    <div class="field__label">{{ row.label | escape }}:</div>
+                    <div class="field__value{% if row.text == '' %} field__value--empty{% endif %}">{{ row.text | escape }}</div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </section>
+{% endfor %}
+
+{% if signatures.size > 0 %}
+    <div class="signatures">
+        {% for signature in signatures %}
+            <div class="signature">
+                <div class="signature__row">
+                    <div class="signature__label">{{ signature.label | escape }}:</div>
+                    <div class="signature__line">
+                        {% if signature.imageUrl %}
+                            <img src="{{ signature.imageUrl | escape }}" alt="{{ signature.label | escape }}" />
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if attachments.size > 0 %}
+    <section class="section attachments">
+        <h2 class="section__title">{{ attachmentsTitle | escape }}:</h2>
+        {% for attachment in attachments %}
+            <figure class="attachment">
+                <img src="{{ attachment.imageUrl | escape }}" alt="{{ attachment.label | escape }}" />
+                <figcaption class="attachment__caption">{{ attachment.label | escape }}</figcaption>
+            </figure>
+        {% endfor %}
+    </section>
+{% endif %}
+</body>
+</html>

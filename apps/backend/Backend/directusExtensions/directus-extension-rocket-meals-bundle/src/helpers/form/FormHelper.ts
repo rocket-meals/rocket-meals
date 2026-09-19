@@ -1,12 +1,13 @@
 import { FormExtractFormAnswer, FormExtractFormAnswerValueFileSingle, FormExtractFormAnswerValueFileSingleOrString, FormExtractRelevantInformation, FormExtractRelevantInformationSingle } from '../../forms-sync-hook';
-import { BaseGermanMarkdownTemplateHelper, DEFAULT_HTML_TEMPLATE, HtmlGenerator } from '../html/HtmlGenerator';
+import { HtmlGenerator, HtmlTemplatesEnum } from '../html/HtmlGenerator';
 import { PdfGeneratorHelper } from '../pdf/PdfGeneratorHelper';
-import { RequestOptions } from '../pdf/PdfGeneratorInterfaces';
+import { PdfGeneratorOptions, RequestOptions } from '../pdf/PdfGeneratorInterfaces';
+import { FormGenerationParams, FormPdfDocumentHelper } from './FormPdfDocumentHelper';
 import { DirectusFilesAssetHelper } from '../DirectusFilesAssetHelper';
 import { MarkdownHelper } from '../html/MarkdownHelper';
 import { MyDatabaseTestableHelperInterface } from '../MyDatabaseHelperInterface';
 import { BackendTranslationKeys, BackendTranslator } from '../translations';
-import {DatabaseTypes, DateHelper, DateHelperTimezone, FormHelperCommon, MathHelper, NumberHelper, StringHelper} from 'repo-depkit-common';
+import {DatabaseTypes, DateHelper, DateHelperTimezone, FormHelperCommon, MathHelper, NumberHelper} from 'repo-depkit-common';
 import { EnvVariableHelper } from '../EnvVariableHelper';
 import { HashHelper } from '../HashHelper';
 import {GeneratePdfFromHtmlProps} from "../pdf/HtmlPdfGeneratorInterface";
@@ -45,11 +46,7 @@ type AddFormFieldParams = {
   index: number;
 };
 
-export type FormGenerationParams = {
-  form: DatabaseTypes.Forms;
-  formExtractRelevantInformation: FormExtractRelevantInformation;
-  myDatabaseHelperInterface: MyDatabaseTestableHelperInterface;
-};
+export type { FormGenerationParams };
 
 export class FormHelper {
   private static readonly FORM_IMAGE_TRANSFORM_OPTIONS = DirectusFilesAssetHelper.PRESET_FILE_TRANSFORMATION_IMAGE_HD;
@@ -326,211 +323,6 @@ export class FormHelper {
     return `${prefix}${formattedValue}${suffix}`;
   }
 
-  // ── HTML generation helpers ────────────────────────────────────────────────
-
-  private static readonly FIELD_NAME_STYLE =
-    'font-weight: 900; font-size: inherit;';
-
-  /** Base style shared by every IBAN/BIC character box (no top border = open top). */
-  private static readonly BANK_ACCOUNT_BOX_BASE_STYLE =
-    'display:inline-block; border-bottom:1px solid #555; border-left:1px solid #555;' +
-    ' width:14px; height:18px; text-align:center; font-family:monospace; font-size:11px;' +
-    ' line-height:18px; margin:0; vertical-align:bottom;';
-
-  /** Extra style appended to the last box in each group to close the right side. */
-  private static readonly BANK_ACCOUNT_BOX_RIGHT_BORDER = 'border-right:1px solid #555;';
-
-  /** Shared style for the empty/checked boolean checkbox square. */
-  private static readonly BOOLEAN_CHECKBOX_STYLE =
-    'display:inline-block; width:18px; height:18px; border:2px solid #333;' +
-    ' vertical-align:middle; line-height:18px; text-align:center; font-size:14px; font-weight:900;';
-
-  private static generateFieldNameHtml(fieldName: string): string {
-    return `<strong style="${FormHelper.FIELD_NAME_STYLE}">${fieldName}:</strong>`;
-  }
-
-  /**
-   * Renders a bank-account string (IBAN or BIC) as a row of bordered single-
-   * character boxes, grouped in fours to match printed form conventions.
-   * Only as many boxes as there are characters are rendered.
-   * Each box has no top border (open top). Boxes within a group share borders
-   * (collapsed) for a connected look; groups are separated by a small gap.
-   */
-  private static generateBankAccountBoxesHtml(value: string): string {
-    const cleaned = StringHelper.replaceAllWithOptions({ str: value, find: String.raw`\s`, replace: '' }).toUpperCase();
-    const total = cleaned.length;
-
-    let html = '<span style="display:inline-flex; flex-wrap:nowrap; align-items:flex-end; gap:0; line-height:0;">';
-    for (let i = 0; i < total; i++) {
-      const posInGroup = i % 4;
-      const isLastInGroup = posInGroup === 3 || i === total - 1;
-
-      if (i > 0 && posInGroup === 0) {
-        // gap between groups
-        html += '<span style="display:inline-block; width:5px;"></span>';
-      }
-
-      const boxStyle = isLastInGroup
-        ? `${FormHelper.BANK_ACCOUNT_BOX_BASE_STYLE} ${FormHelper.BANK_ACCOUNT_BOX_RIGHT_BORDER}`
-        : FormHelper.BANK_ACCOUNT_BOX_BASE_STYLE;
-      html += `<span style="${boxStyle}">${cleaned[i]}</span>`;
-    }
-    html += '</span>';
-    return html;
-  }
-
-  /**
-   * Renders a boolean value as two labelled checkboxes:
-   *   ☑ Nein   ☐ Ja   (when false)
-   *   ☐ Nein   ☑ Ja   (when true)
-   * The check symbol is rendered large and bold via CSS.
-   */
-  private static generateBooleanCheckboxHtml(value: boolean): string {
-    const checkSymbol = '&#x2713;'; // ✓  thick check mark
-    const checkStyle = FormHelper.BOOLEAN_CHECKBOX_STYLE;
-    const emptyBox   = `<span style="${checkStyle}"></span>`;
-    const checkedBox = `<span style="${checkStyle}">${checkSymbol}</span>`;
-
-    const neinBox = value ? emptyBox : checkedBox;
-    const jaBox   = value ? checkedBox : emptyBox;
-    const noLabel = BackendTranslator.translate(BackendTranslationKeys.no);
-    const yesLabel = BackendTranslator.translate(BackendTranslationKeys.yes);
-    return (
-      `<span style="margin-right:20px;">${neinBox}&nbsp;${noLabel}</span>` +
-      `<span>${jaBox}&nbsp;${yesLabel}</span>`
-    );
-  }
-
-  private static generateHtmlForStringField(
-    fieldName: string,
-    formExtract: FormExtractRelevantInformationSingle,
-  ): string {
-    const value = formExtract.form_answer.value_string;
-    if (!value) return '';
-    const fieldType = formExtract.form_field.field_type;
-    let valueHtml: string;
-    if (fieldType === FormHelperCommon.FORM_FIELD_TYPE.STRING_BANK_ACCOUNT) {
-      valueHtml = this.generateBankAccountBoxesHtml(value);
-    } else if (fieldType === FormHelperCommon.FORM_FIELD_TYPE.STRING_BIC) {
-      valueHtml = this.generateBankAccountBoxesHtml(value);
-    } else {
-      const formatted = this.formatValueWithPrefixAndSuffix(value, formExtract.form_field);
-      valueHtml = `<span>${formatted}</span>`;
-    }
-    return `<div style="margin:4px 0 10px 0;">${this.generateFieldNameHtml(fieldName)} ${valueHtml}</div>\n`;
-  }
-
-  private static generateHtmlForNumberField(
-    fieldName: string,
-    formExtract: FormExtractRelevantInformationSingle,
-  ): string {
-    const value = formExtract.form_answer.value_number;
-    if (value === null || value === undefined) return '';
-    const formatted = this.formatValueWithPrefixAndSuffix(value, formExtract.form_field);
-    return `<div style="margin:4px 0 10px 0;">${this.generateFieldNameHtml(fieldName)} <span>${formatted}</span></div>\n`;
-  }
-
-  private static generateHtmlForBooleanField(
-    fieldName: string,
-    value: boolean | null | undefined,
-  ): string {
-    if (value !== true && value !== false) return '';
-    return `<div style="margin:4px 0 10px 0;">${this.generateFieldNameHtml(fieldName)}&nbsp;&nbsp;&nbsp;${this.generateBooleanCheckboxHtml(value)}</div>\n`;
-  }
-
-  private static generateHtmlForDateField(
-    fieldName: string,
-    formExtract: FormExtractRelevantInformationSingle,
-  ): string {
-    const value = formExtract.form_answer.value_date;
-    if (!value) return '';
-    let momentFormat = DateHelper.MOMENT_FORMAT.DATE_ONLY;
-    switch (formExtract.form_field.field_type) {
-      case FormHelperCommon.FORM_FIELD_TYPE.DATE_HH_MM:
-        momentFormat = DateHelper.MOMENT_FORMAT.DATE_HH_MM;
-        break;
-      case FormHelperCommon.FORM_FIELD_TYPE.DATE_DATE_AND_HH_MM:
-        momentFormat = DateHelper.MOMENT_FORMAT.DATE_AND_HH_MM;
-        break;
-      case FormHelperCommon.FORM_FIELD_TYPE.DATE_TIMESTAMP:
-        momentFormat = DateHelper.MOMENT_FORMAT.DATE_TIMESTAMP;
-        break;
-      case FormHelperCommon.FORM_FIELD_TYPE.DATE:
-        momentFormat = DateHelper.MOMENT_FORMAT.DATE_ONLY;
-        break;
-    }
-    const dateString = DateHelper.formatDateToTimeZoneReadable(
-      new Date(value),
-      EnvVariableHelper.getTimeZoneString(),
-      momentFormat,
-    );
-    return `<div style="margin:4px 0 10px 0;">${this.generateFieldNameHtml(fieldName)} <span>${dateString}</span></div>\n`;
-  }
-
-  private static generateHtmlForImageUrl(fieldName: string, imageUrl: string | undefined, isSignature = false): string {
-    if (!imageUrl) return '';
-    if (isSignature) {
-      // Signature layout: field name label, then the image sitting on a bottom-border line
-      return (
-        `<div style="margin:8px 0 0 0;">${this.generateFieldNameHtml(fieldName)}</div>\n` +
-        `<div style="display:inline-block; border-bottom:1px solid #000; min-width:200px; vertical-align:bottom; margin:2px 0 14px 0;">` +
-        `<img src="${imageUrl}" alt="${fieldName}" style="max-height:80px; width:auto; display:block; max-width:100%;"/>` +
-        `</div>\n`
-      );
-    }
-    return (
-      `<div style="margin:4px 0 4px 0;">${this.generateFieldNameHtml(fieldName)}</div>\n` +
-      `<div style="margin:4px 0 10px 0;"><img src="${imageUrl}" alt="${fieldName}" style="max-width:100%; height:auto;"/></div>\n`
-    );
-  }
-
-  private static generateHtmlForImageValue(
-    context: ImageFieldContext,
-    isSignature = false,
-  ): string {
-    const { fieldName, value_image, myDatabaseHelperInterface } = context;
-    let assetUrl: string | undefined;
-    if (value_image) {
-      if (typeof value_image === 'string' && (value_image.startsWith('http') || value_image.startsWith('data:'))) {
-        assetUrl = value_image;
-      } else if (isSignature) {
-        // The signature should not be in a 1:1 format and shall not use Form_IMAGE_TRANSFORM_OPTIONS
-        assetUrl = DirectusFilesAssetHelper.getDirectAssetUrlByObjectOrId(
-            value_image,
-            myDatabaseHelperInterface,
-            FormHelper.FORM_IMAGE_SIGNATURE_TRANSFORM_OPTIONS,
-        );
-      } else {
-        assetUrl = DirectusFilesAssetHelper.getDirectAssetUrlByObjectOrId(
-            value_image,
-            myDatabaseHelperInterface,
-            FormHelper.FORM_IMAGE_TRANSFORM_OPTIONS,
-        );
-      }
-    }
-    return this.generateHtmlForImageUrl(fieldName, assetUrl, isSignature);
-  }
-
-  private static generateHtmlForFileValue(
-    context: FileValueContext,
-  ): string {
-    const { fieldName, value_file, myDatabaseHelperInterface } = context;
-    let assetUrl: string | undefined;
-    if (value_file) {
-      if (typeof value_file === 'string' && value_file.startsWith('http')) {
-        assetUrl = value_file;
-      } else {
-        const valueFileAsObject = value_file as FormExtractFormAnswerValueFileSingle;
-        assetUrl = DirectusFilesAssetHelper.getDirectAssetUrlByObjectOrId(
-          valueFileAsObject.directus_files_id,
-          myDatabaseHelperInterface,
-          FormHelper.FORM_IMAGE_TRANSFORM_OPTIONS,
-        );
-      }
-    }
-    return this.generateHtmlForImageUrl(fieldName, assetUrl);
-  }
-
   // ── Markdown generation (kept for backward compatibility) ─────────────────
 
   private static generateMarkdownForTypeStringValue(fieldName: string, formExtract: FormExtractRelevantInformationSingle): string {
@@ -696,49 +488,7 @@ export class FormHelper {
     return markdownContent;
   }
 
-  /**
-   * Generates HTML content directly for a form, enabling richer rendering than
-   * the markdown-based approach (e.g. IBAN/BIC character boxes, boolean
-   * checkboxes, bold field names).
-   */
-  public static async generateHtmlContentFromForm(
-    params: FormGenerationParams,
-  ): Promise<string> {
-    const { form, formExtractRelevantInformation, myDatabaseHelperInterface } = params;
-    let html = '';
-
-    html += `<h1 style="font-size:1.6em; margin-bottom:12px;">${form.alias || form.id}</h1>\n`;
-    html += '<div style="font-size:14px; line-height:1.7;">\n';
-
-    for (const formExtract of formExtractRelevantInformation) {
-      const fieldName = formExtract.form_field.alias || formExtract.form_field.id;
-
-      html += this.generateHtmlForStringField(fieldName, formExtract);
-      html += this.generateHtmlForNumberField(fieldName, formExtract);
-      html += this.generateHtmlForBooleanField(fieldName, formExtract.form_answer.value_boolean);
-      html += this.generateHtmlForDateField(fieldName, formExtract);
-      const isSignature = formExtract.form_field.field_type === FormHelperCommon.FORM_FIELD_TYPE.FILES_IMAGE_SIGNATURE;
-      html += this.generateHtmlForImageValue({ fieldName, value_image: formExtract.form_answer.value_image, myDatabaseHelperInterface }, isSignature);
-      if (formExtract.form_answer.value_files && formExtract.form_answer.value_files.length > 0) {
-        for (const file of formExtract.form_answer.value_files) {
-          html += this.generateHtmlForFileValue({ fieldName, value_file: file, myDatabaseHelperInterface });
-        }
-      }
-    }
-
-    html += '</div>\n';
-
-    // footer
-    html += '<hr style="margin:24px 0 12px 0;"/>\n';
-    const generatedAtDateString = DateHelper.formatDateToTimeZoneReadable(new Date(), DateHelperTimezone.GERMANY);
-    html += `<p style="font-size:12px; color:#555;">Generiert am ${generatedAtDateString}</p>\n`;
-    const hashValue = HashHelper.getHashFromObject(formExtractRelevantInformation);
-    html += `<p style="font-size:12px; color:#555;">Hash: ${hashValue}</p>\n`;
-
-    return html;
-  }
-
-  public static async generatePdfFromHtml(html: string, myDatabaseHelperInterface: MyDatabaseTestableHelperInterface, requestOptions?: RequestOptions): Promise<Buffer> {
+  public static async generatePdfFromHtml(html: string, myDatabaseHelperInterface: MyDatabaseTestableHelperInterface, requestOptions?: RequestOptions, options?: PdfGeneratorOptions): Promise<Buffer> {
     if (!requestOptions) {
       requestOptions = {};
     }
@@ -753,30 +503,71 @@ export class FormHelper {
     let data: GeneratePdfFromHtmlProps = {
       html: html,
       requestOptions: requestOptions,
+      options: options,
     };
     let pdfBuffer = await PdfGeneratorHelper.generatePdfFromHtml(data);
     return pdfBuffer;
   }
 
+  /**
+   * Renders the filled form as a print-ready A4 document.
+   *
+   * The layout – label column, writing lines, checkboxes, IBAN boxes, signature fields – lives
+   * in `templates/form-document.liquid`; this method only hands over the content model that
+   * {@link FormPdfDocumentHelper} builds from the answers.
+   */
   public static async generateHtmlFromForm(params: FormGenerationParams): Promise<string> {
     const { myDatabaseHelperInterface } = params;
-    const htmlContent = await this.generateHtmlContentFromForm(params);
-    let template = DEFAULT_HTML_TEMPLATE;
-    // Pass the generated HTML directly into the template field.
-    // Note: despite the field name containing "Markdown", the Liquid template simply
-    // outputs the value as-is ({{ mailContentFieldRenderedAsHtml }}), so both
-    // markdown-converted HTML and raw HTML are accepted here.
-    let templateData = { [BaseGermanMarkdownTemplateHelper.TEMPLATE_MARKDOWN_FIELD]: htmlContent };
-    let html = await HtmlGenerator.generateHtml(templateData, myDatabaseHelperInterface, template);
+    const formDocument = FormPdfDocumentHelper.buildFormDocument(params);
+    return await HtmlGenerator.generateHtml({ ...formDocument }, myDatabaseHelperInterface, HtmlTemplatesEnum.FORM_DOCUMENT);
+  }
 
-    return html;
+  /**
+   * The footer Chromium repeats on every page: when the document was created, the checksum over
+   * the answers, and the page number. It is rendered as its own document, hence the inline styles.
+   */
+  private static getPdfFooterTemplate(formExtractRelevantInformation: FormExtractRelevantInformation): string {
+    const generatedAtDateString = DateHelper.formatDateToTimeZoneReadable(new Date(), DateHelperTimezone.GERMANY);
+    const generatedAtText = BackendTranslator.translate(BackendTranslationKeys.form_pdf_generated_at, undefined, { date: generatedAtDateString });
+    const checksumText = BackendTranslator.translate(BackendTranslationKeys.form_pdf_checksum, undefined, { hash: HashHelper.getHashFromObject(formExtractRelevantInformation) });
+    const pageText = BackendTranslator.translate(BackendTranslationKeys.form_pdf_page, undefined, {
+      page: '<span class="pageNumber"></span>',
+      pages: '<span class="totalPages"></span>',
+    });
+
+    return (
+      '<div style="width:100%; font-family: Helvetica, Arial, sans-serif; font-size:7pt; color:#5c6169;' +
+      ' padding:0 14mm; display:flex; justify-content:space-between; align-items:center;">' +
+      `<span>${generatedAtText} &middot; ${checksumText}</span>` +
+      `<span>${pageText}</span>` +
+      '</div>'
+    );
+  }
+
+  /** Page setup of the form PDF: A4 with room for the repeated footer. */
+  private static getPdfGeneratorOptionsForForm(formExtractRelevantInformation: FormExtractRelevantInformation): PdfGeneratorOptions {
+    return {
+      format: 'A4',
+      landscape: false,
+      printBackground: true,
+      margin: {
+        top: '16mm',
+        bottom: '18mm',
+        left: '16mm',
+        right: '16mm',
+      },
+      displayHeaderFooter: true,
+      headerTemplate: '<span></span>',
+      footerTemplate: FormHelper.getPdfFooterTemplate(formExtractRelevantInformation),
+    };
   }
 
   public static async generatePdfFromForm(params: FormGenerationParams & { requestOptions?: RequestOptions }): Promise<Buffer> {
     let { requestOptions, ...formGenerationParams } = params;
-    let { myDatabaseHelperInterface } = formGenerationParams;
+    let { myDatabaseHelperInterface, formExtractRelevantInformation } = formGenerationParams;
     let html = await this.generateHtmlFromForm(formGenerationParams);
-    let pdfBuffer = await this.generatePdfFromHtml(html, myDatabaseHelperInterface, requestOptions);
+    let options = FormHelper.getPdfGeneratorOptionsForForm(formExtractRelevantInformation);
+    let pdfBuffer = await this.generatePdfFromHtml(html, myDatabaseHelperInterface, requestOptions, options);
     return pdfBuffer;
   }
 }

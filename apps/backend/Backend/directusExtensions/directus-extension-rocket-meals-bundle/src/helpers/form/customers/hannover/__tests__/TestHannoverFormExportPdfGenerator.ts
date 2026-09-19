@@ -49,6 +49,7 @@ function buildExtract(
   formField: DatabaseTypes.FormFields,
   submissionId: string,
   index: number,
+  fillWithExampleValues = true,
 ): FormExtractRelevantInformationSingle {
   const ft = formField.field_type ?? '';
   const FT = FormHelperCommon.FORM_FIELD_TYPE;
@@ -60,7 +61,9 @@ function buildExtract(
   let value_image: string | null    = null;
   let value_files: string[]         = [];
 
-  switch (ft) {
+  // Ein unausgefülltes Formular ist der zweite Fall, den das Layout können muss: es druckt die
+  // Beschriftungen mit leeren Linien, statt die Zeilen wegzulassen.
+  switch (fillWithExampleValues ? ft : '') {
     case FT.STRING:
     case FT.STRING_ADDRESS:
       value_string = EXAMPLE_STRING;
@@ -137,17 +140,39 @@ function buildExtract(
   };
 }
 
-function buildFormExtract(form: DatabaseTypes.Forms): FormExtractRelevantInformation {
+function buildFormExtract(form: DatabaseTypes.Forms, fillWithExampleValues = true): FormExtractRelevantInformation {
   const submissionId = `test-submission-${form.id}`;
   const fields: DatabaseTypes.FormFields[] = (form.form_fields ?? []) as DatabaseTypes.FormFields[];
   return fields
     .filter(ff => ff.status === 'published' && ff.is_visible_in_export !== false)
-    .map((ff, idx) => buildExtract(ff, submissionId, idx));
+    .map((ff, idx) => buildExtract(ff, submissionId, idx, fillWithExampleValues));
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
 const FORMS_EXPORT_PATH = path.join(__dirname, '../reference_form/forms_export.json');
+
+async function generatePdfsForAllForms(fillWithExampleValues: boolean, fileNameSuffix: string): Promise<void> {
+  const raw = fs.readFileSync(FORMS_EXPORT_PATH, 'utf-8');
+  const forms: DatabaseTypes.Forms[] = JSON.parse(raw);
+  expect(forms.length).toBeGreaterThan(0);
+
+  const myDatabaseHelper = new MyDatabaseTestableHelper();
+  const requestOptions = { mockImageResolution: true };
+
+  for (const form of forms) {
+    const formExtract = buildFormExtract(form, fillWithExampleValues);
+    const pdfBuffer = await FormHelper.generatePdfFromForm({
+      form,
+      formExtractRelevantInformation: formExtract,
+      myDatabaseHelperInterface: myDatabaseHelper,
+      requestOptions,
+    });
+    expect(pdfBuffer).toBeTruthy();
+    const safeName = StringHelper.replaceAllWithOptions({ str: (form.alias ?? form.id ?? 'unknown'), find: '[^a-z0-9_\\-]', replace: '_', flags: 'gi' });
+    TestArtifacts.saveTestArtifact(pdfBuffer, `form/pdf/hannover/${safeName}${fileNameSuffix}.pdf`);
+  }
+}
 
 describe('Hannover forms_export PDF Generator', () => {
   it('forms_export.json exists', () => {
@@ -155,24 +180,10 @@ describe('Hannover forms_export PDF Generator', () => {
   });
 
   it('generates a PDF for every form in forms_export.json', async () => {
-    const raw = fs.readFileSync(FORMS_EXPORT_PATH, 'utf-8');
-    const forms: DatabaseTypes.Forms[] = JSON.parse(raw);
-    expect(forms.length).toBeGreaterThan(0);
+    await generatePdfsForAllForms(true, '');
+  });
 
-    const myDatabaseHelper = new MyDatabaseTestableHelper();
-    const requestOptions = { mockImageResolution: true };
-
-    for (const form of forms) {
-      const formExtract = buildFormExtract(form);
-      const pdfBuffer = await FormHelper.generatePdfFromForm({
-        form,
-        formExtractRelevantInformation: formExtract,
-        myDatabaseHelperInterface: myDatabaseHelper,
-        requestOptions,
-      });
-      expect(pdfBuffer).toBeTruthy();
-      const safeName = StringHelper.replaceAllWithOptions({ str: (form.alias ?? form.id ?? 'unknown'), find: '[^a-z0-9_\\-]', replace: '_', flags: 'gi' });
-      TestArtifacts.saveTestArtifact(pdfBuffer, `form/pdf/hannover/${safeName}.pdf`);
-    }
+  it('generates a PDF for every form without any answers', async () => {
+    await generatePdfsForAllForms(false, '_leer');
   });
 });

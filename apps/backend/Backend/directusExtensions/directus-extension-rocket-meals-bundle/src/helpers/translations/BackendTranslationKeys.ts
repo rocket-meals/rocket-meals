@@ -25,6 +25,12 @@ export const BackendTranslationKeys = {
   notification_foodoffer_body: 'notification_foodoffer_body',
   notification_foodoffer_unknown_food: 'notification_foodoffer_unknown_food',
 
+  // Texts of the generated form PDF (Abnahme-/Übergabeprotokoll and friends)
+  form_pdf_attachments: 'form_pdf_attachments',
+  form_pdf_generated_at: 'form_pdf_generated_at',
+  form_pdf_checksum: 'form_pdf_checksum',
+  form_pdf_page: 'form_pdf_page',
+
   // Protection of the dashboards shipped with Rocket Meals
   dashboard_system_edit_forbidden: 'dashboard_system_edit_forbidden',
   dashboard_system_panel_edit_forbidden: 'dashboard_system_panel_edit_forbidden',

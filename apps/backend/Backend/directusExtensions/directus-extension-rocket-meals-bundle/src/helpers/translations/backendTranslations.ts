@@ -12,6 +12,57 @@
 import type { TranslationResources } from 'repo-depkit-common';
 
 export const backendTranslations: TranslationResources = {
+  /** Überschrift des Anhangs im Formular-PDF, unter dem die hochgeladenen Fotos stehen. */
+  form_pdf_attachments: {
+    de: 'Anhänge',
+    en: 'Attachments',
+    ar: 'المرفقات',
+    es: 'Anexos',
+    fr: 'Pièces jointes',
+    ru: 'Приложения',
+    tr: 'Ekler',
+    zh: '附件',
+  },
+
+  /** Fußzeile des Formular-PDFs. `{{date}}` ist der Zeitpunkt, zu dem das PDF entstanden ist. */
+  form_pdf_generated_at: {
+    de: 'Erstellt am {{date}}',
+    en: 'Created on {{date}}',
+    ar: 'أُنشئ في {{date}}',
+    es: 'Creado el {{date}}',
+    fr: 'Créé le {{date}}',
+    ru: 'Создано {{date}}',
+    tr: '{{date}} tarihinde oluşturuldu',
+    zh: '创建于 {{date}}',
+  },
+
+  /**
+   * Prüfsumme in der Fußzeile des Formular-PDFs. Sie belegt, dass zwei Ausdrucke desselben
+   * Formulars denselben Inhalt haben. `{{hash}}` ist der Hash über die Antworten.
+   */
+  form_pdf_checksum: {
+    de: 'Prüfsumme: {{hash}}',
+    en: 'Checksum: {{hash}}',
+    ar: 'المجموع الاختباري: {{hash}}',
+    es: 'Suma de verificación: {{hash}}',
+    fr: 'Somme de contrôle : {{hash}}',
+    ru: 'Контрольная сумма: {{hash}}',
+    tr: 'Sağlama toplamı: {{hash}}',
+    zh: '校验和：{{hash}}',
+  },
+
+  /** Seitenzahl in der Fußzeile des Formular-PDFs. */
+  form_pdf_page: {
+    de: 'Seite {{page}} von {{pages}}',
+    en: 'Page {{page}} of {{pages}}',
+    ar: 'صفحة {{page}} من {{pages}}',
+    es: 'Página {{page}} de {{pages}}',
+    fr: 'Page {{page}} sur {{pages}}',
+    ru: 'Страница {{page}} из {{pages}}',
+    tr: 'Sayfa {{page}} / {{pages}}',
+    zh: '第 {{page}} 页，共 {{pages}} 页',
+  },
+
   /**
    * Body of the "your meal is served soon" push notification.
    * `{{date}}` is a day the user recognises ("Morgen", "24.08.2026"), `{{food}}` the meal name.

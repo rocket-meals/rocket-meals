@@ -11,6 +11,7 @@ export enum HtmlTemplatesEnum {
   BASE_GERMAN = 'base-german',
   BASE_GERMAN_MARKDOWN_CONTENT = 'base-german-markdown-content',
   CANTEEN_FOOD_FEEDBACK_REPORT = 'canteen-food-feedback-report',
+  FORM_DOCUMENT = 'form-document',
   APP_FEEDBACKS = 'app-feedbacks',
 }
 
