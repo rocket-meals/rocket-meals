@@ -3,8 +3,10 @@ name: "🔁 Daily Backend Restart"
 # Restarts every backend server daily at 19:00 German time by running the same
 # SSH deploy as "🚀 Deploy Backend (Manual)": scripts/update-and-generate-env.sh
 # pulls the server's repository, regenerates .env, rebuilds and restarts all
-# containers. The fork sync (sync-fork.yml) runs one hour earlier at 18:00,
-# so the swosy and studi-futter servers pick up the latest upstream state.
+# containers. The deploy-server action syncs the customer fork (swosy,
+# studi-futter) with upstream right before each deploy, so the servers always
+# get the latest upstream state - the scheduled fork sync (sync-fork.yml) at
+# 18:00 is only a safety net and can be delayed or skipped.
 #
 # Only runs on rocket-meals/rocket-meals - forks receive this file through the
 # fork sync, but must never restart the servers themselves.
@@ -68,3 +70,4 @@ jobs:
         with:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_SERVER_HOST: ${{ matrix.host }}
+          FORK_SYNC_TOKEN: ${{ secrets.PRIVATE_ACCESS_TOKEN }}

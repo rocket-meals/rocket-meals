@@ -8,10 +8,54 @@ inputs:
   DEPLOY_SERVER_HOST:
     description: 'Hostname or IP of the target server'
     required: true
+  FORK_SYNC_TOKEN:
+    description: 'Token with write access to the customer forks (rocket-meals/swosy, rocket-meals/studi-futter). Required when deploying a customer server.'
+    required: false
+    default: ''
 
 runs:
   using: 'composite'
   steps:
+    # Customer servers pull their fork, not rocket-meals/rocket-meals. Without
+    # syncing the fork first, a deploy right after a merge (or a daily restart
+    # whose scheduled fork sync was delayed or skipped) restarts the server on
+    # the old fork state - e.g. without the latest directus-sync settings and
+    # policies.
+    - name: "🔄 Sync customer fork with upstream"
+      shell: bash
+      env:
+        DEPLOY_SERVER_HOST: ${{ inputs.DEPLOY_SERVER_HOST }}
+        GH_TOKEN: ${{ inputs.FORK_SYNC_TOKEN }}
+      run: |
+        case "$DEPLOY_SERVER_HOST" in
+          swosy.rocket-meals.de) FORK_REPO="rocket-meals/swosy" ;;
+          studi-futter.rocket-meals.de) FORK_REPO="rocket-meals/studi-futter" ;;
+          *) FORK_REPO="" ;;
+        esac
+
+        if [ -z "$FORK_REPO" ]; then
+          echo "ℹ️ $DEPLOY_SERVER_HOST is not a customer fork server - nothing to sync"
+          exit 0
+        fi
+
+        if [ -z "$GH_TOKEN" ]; then
+          echo "❌ FORK_SYNC_TOKEN is empty - cannot sync $FORK_REPO before deploying $DEPLOY_SERVER_HOST"
+          echo "   Add the PRIVATE_ACCESS_TOKEN secret (write access to $FORK_REPO) to rocket-meals/rocket-meals."
+          exit 1
+        fi
+
+        echo "🔄 Syncing $FORK_REPO (master) with rocket-meals/rocket-meals"
+        gh repo sync "$FORK_REPO" -b master
+
+        UPSTREAM_SHA=$(gh api repos/rocket-meals/rocket-meals/commits/master --jq .sha)
+        COMPARE_STATUS=$(gh api "repos/$FORK_REPO/compare/$UPSTREAM_SHA...master" --jq .status)
+        echo "Upstream master: $UPSTREAM_SHA - fork compared to upstream: $COMPARE_STATUS"
+        if [ "$COMPARE_STATUS" != "identical" ] && [ "$COMPARE_STATUS" != "ahead" ]; then
+          echo "❌ $FORK_REPO does not contain upstream master $UPSTREAM_SHA after the sync - aborting deploy"
+          exit 1
+        fi
+        echo "✅ $FORK_REPO is up to date"
+
     - name: "🔑 Setup SSH Key"
       shell: bash
       env:

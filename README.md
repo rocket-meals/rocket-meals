@@ -279,8 +279,11 @@ Der Workflow `🔁 Daily Backend Restart` (`.github/workflows/backend-daily-rest
 also Update + Neustart. Er läuft nur im Repository `rocket-meals/rocket-meals`, nicht in Forks, und lässt sich
 zusätzlich manuell starten.
 
-Eine Stunde vorher, um **18:00 Uhr**, läuft die Fork-Synchronisierung (`.github/workflows/sync-fork.yml`), damit
-die Kunden-Server (`rocket-meals/swosy`, `rocket-meals/studi-futter`) beim Neustart den aktuellen Stand holen.
+Die Kunden-Server (`rocket-meals/swosy`, `rocket-meals/studi-futter`) ziehen ihren Fork, nicht dieses Repository.
+Deshalb synchronisiert `.github/actions/deploy-server` den Fork direkt vor jedem Deploy und Neustart mit `master`
+(auch beim manuellen `🚀 Deploy Backend (Manual)`) und bricht ab, wenn der Fork danach nicht den aktuellen Stand
+enthält. Dafür braucht `rocket-meals/rocket-meals` das Secret `PRIVATE_ACCESS_TOKEN` mit Schreibrechten auf beide
+Forks. Die Fork-Synchronisierung um **18:00 Uhr** (`.github/workflows/sync-fork.yml`) ist nur noch ein Sicherheitsnetz.
 
 GitHub-Cron rechnet in UTC ohne Sommerzeit. Beide Workflows planen deshalb die Sommer- und die Winterzeit-Variante
 ein; die Action `.github/actions/berlin-time-schedule-gate` lässt nur die zur aktuellen Berliner Zeit passende durch.

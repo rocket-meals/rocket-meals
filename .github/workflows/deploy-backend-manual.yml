@@ -74,3 +74,4 @@ jobs:
         with:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_SERVER_HOST: ${{ matrix.host }}
+          FORK_SYNC_TOKEN: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
