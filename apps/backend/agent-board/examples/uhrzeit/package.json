@@ -1,0 +1,23 @@
+{
+  "name": "uhrzeit",
+  "version": "1.0.0",
+  "description": "Mini-Testprogramm für das Agent Board: fragt nach Datum und Uhrzeit, wartet auf die Antwort und vergleicht sie mit der lokalen Uhr.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/uhrzeit.ts",
+    "typecheck": "tsc --noEmit",
+    "web": "tsx src/web.ts"
+  },
+  "dependencies": {
+    "@nils/agent-board-client": "file:../../client",
+    "tsx": "^4.23.15"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

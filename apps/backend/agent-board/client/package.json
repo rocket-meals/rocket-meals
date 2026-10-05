@@ -1,0 +1,34 @@
+{
+  "name": "@nils/agent-board-client",
+  "version": "1.0.0",
+  "description": "TypeScript-Client für das Agent Board (lokales Issue-Board): Issues, Kommentare, Dateien, Long-Poll, SSE.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepare": "tsc -p tsconfig.json",
+    "prepublishOnly": "node -e \"console.error('Paket ist nur zur lokalen Einbindung gedacht (file:/npm pack) – nicht veröffentlichen.');process.exit(1)\""
+  },
+  "license": "UNLICENSED",
+  "private": false,
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false
+}

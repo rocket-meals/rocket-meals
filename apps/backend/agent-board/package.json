@@ -1,0 +1,38 @@
+{
+  "name": "agent-board",
+  "version": "1.0.0",
+  "description": "Agent Board: lokales Issue-Board – Programme legen Issues an (REST/OpenAI-kompatibel), ein KI-Agent arbeitet sie per MCP ab.",
+  "scripts": {
+    "start": "tsx src/server/index.ts",
+    "dev": "tsx watch src/server/index.ts",
+    "mcp": "tsx src/mcp/index.ts",
+    "watch": "tsx src/cli/index.ts watch",
+    "cli": "tsx src/cli/index.ts",
+    "key": "tsx src/cli/key.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "e2e": "tsx scripts/e2e.ts"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.0",
+    "heic-decode": "^2.1.0",
+    "jpeg-js": "^0.4.4",
+    "pngjs": "^7.0.0",
+    "tsx": "^4.23.15",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "@types/pngjs": "^6.0.5",
+    "openai": "^7.28.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  },
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  }
+}

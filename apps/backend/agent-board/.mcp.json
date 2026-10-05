@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "agent-board": {
+      "command": "npx",
+      "args": ["tsx", "src/mcp/index.ts"],
+      "env": {
+        "AB_URL": "${AB_URL:-http://127.0.0.1:4317}",
+        "AB_AGENT_KEY": "${AB_AGENT_KEY:-}"
+      }
+    }
+  }
+}

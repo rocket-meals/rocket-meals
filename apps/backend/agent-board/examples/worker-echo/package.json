@@ -1,0 +1,22 @@
+{
+  "name": "worker-echo",
+  "version": "1.0.0",
+  "description": "Beispiel-Worker für einen eigenen Provider (echo/v1): übernimmt Issues des Providers echo und antwortet mit dem umgedrehten Text – Vorlage z. B. für einen Whisper-Dienst.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/worker.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nils/agent-board-client": "file:../../client",
+    "tsx": "^4.23.15"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

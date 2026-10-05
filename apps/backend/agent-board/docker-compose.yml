@@ -1,0 +1,29 @@
+# Board-Server im Container:  cp .env.example .env  →  Schlüssel setzen (AB_API_KEY und/oder AB_KEYS)  →  docker compose up -d --build
+# Weitere Schlüssel im laufenden Container: docker compose exec agent-board node --import tsx src/cli/key.ts create --name … --role …
+name: agent-board
+services:
+  agent-board:
+    build: .
+    image: agent-board:latest
+    container_name: agent-board
+    init: true
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Pflicht ist mindestens ein Schlüssel (der Server lauscht im Container auf 0.0.0.0 und bricht sonst ab):
+      # AB_API_KEY (admin), AB_KEYS (JSON mit Rollen) oder /data/keys.json (npm run key im Container)
+      AB_API_KEY: ${AB_API_KEY:-}
+      AB_KEYS: ${AB_KEYS:-}
+    ports:
+      # Standard: nur von diesem Rechner erreichbar.
+      # Für das iPhone im WLAN in .env AB_BIND=0.0.0.0 setzen – dann Schlüssel wirklich geheim/zufällig wählen
+      # und AB_PUBLIC_URL=http://<mac-ip>:4317 setzen (Download-Links im HTTP-MCP).
+      - "${AB_BIND:-127.0.0.1}:4317:4317"
+    volumes:
+      - agent-board-data:/data
+
+volumes:
+  agent-board-data:
+    name: agent-board-data

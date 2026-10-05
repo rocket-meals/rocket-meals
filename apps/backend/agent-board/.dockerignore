@@ -1,0 +1,19 @@
+# nur package*.json und src/ gehören ins Image
+node_modules
+**/node_modules
+data
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+.mcp.json
+tests
+scripts
+examples
+client
+*.md
+*.log
+Dockerfile
+docker-compose.yml
+.dockerignore

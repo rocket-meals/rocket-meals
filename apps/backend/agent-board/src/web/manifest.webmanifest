@@ -1,0 +1,9 @@
+{
+  "name": "Agent Board",
+  "short_name": "Agent Board",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#111317",
+  "theme_color": "#111317",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

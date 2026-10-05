@@ -1,0 +1,20 @@
+# systemd-User-Dienst: startet die Claude-Sitzung (tmux „board“) nach jedem Booten.
+# Installation (als normaler Nutzer, nicht root):
+#   mkdir -p ~/.config/systemd/user
+#   cp deploy/agent-board-claude.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now agent-board-claude.service
+#   sudo loginctl enable-linger "$USER"   # startet auch ohne Anmeldung
+[Unit]
+Description=Claude-Code-Sitzung für das Agent Board (tmux)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=%h/agent-board/deploy/start-claude.sh
+ExecStop=/usr/bin/tmux kill-session -t board
+
+[Install]
+WantedBy=default.target
