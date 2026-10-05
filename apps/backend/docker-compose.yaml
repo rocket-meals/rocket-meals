@@ -182,6 +182,50 @@ services:
       AUTH_DFN_LABEL: "Uni/Hochschule"
       AUTH_DFN_ALLOW_PUBLIC_REGISTRATION: "true"
 
+  # Experimental: Agent Board (simple issue board that Claude works through via MCP) - https://<MYHOST>/<ROCKET_MEALS_PATH>/ai/
+  # Source: ./agent-board - web login with the same ADMIN_EMAIL / ADMIN_PASSWORD as the Directus admin
+  rocket-meals-agent-board:
+    build:
+      context: ./agent-board
+    restart: ${RESTART}
+    init: true
+    networks:
+      - traefik
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: traefik
+      traefik.http.middlewares.https-redirect.redirectscheme.scheme: https
+
+      traefik.http.routers.rocket-meals-agent-board.entrypoints: web
+      traefik.http.routers.rocket-meals-agent-board.rule: Host(`${MYHOST}`) && PathPrefix(`/${ROCKET_MEALS_PATH}/ai`)
+      traefik.http.routers.rocket-meals-agent-board.middlewares: https-redirect
+
+      traefik.http.routers.rocket-meals-agent-board-secure.entrypoints: websecure
+      traefik.http.routers.rocket-meals-agent-board-secure.rule: Host(`${MYHOST}`) && (Path(`/${ROCKET_MEALS_PATH}/ai`) || PathPrefix(`/${ROCKET_MEALS_PATH}/ai/`))
+      traefik.http.routers.rocket-meals-agent-board-secure.middlewares: rocket-meals-agent-board-slash,rocket-meals-agent-board-stripprefix
+      traefik.http.routers.rocket-meals-agent-board-secure.tls: "true"
+      traefik.http.routers.rocket-meals-agent-board-secure.tls.certresolver: "${RESOLVER}"
+      traefik.http.services.rocket-meals-agent-board-secure.loadbalancer.server.port: "4317"
+      # The web UI uses relative URLs, so /ai must become /ai/ ($$ = literal $ in compose)
+      traefik.http.middlewares.rocket-meals-agent-board-slash.redirectregex.regex: "^(https?://[^/]+/${ROCKET_MEALS_PATH}/ai)$$"
+      traefik.http.middlewares.rocket-meals-agent-board-slash.redirectregex.replacement: "$${1}/"
+      traefik.http.middlewares.rocket-meals-agent-board-slash.redirectregex.permanent: "true"
+      traefik.http.middlewares.rocket-meals-agent-board-stripprefix.stripprefix.prefixes: /${ROCKET_MEALS_PATH}/ai
+    volumes:
+      # Issues, comments, attachments and keys.json - kept apart from data/ at rocket-meals/data-ai-agent (not backed up)
+      - ./../../data-ai-agent:/data
+    environment:
+      # Web login with username/password = Directus admin from the .env
+      AB_LOGIN_USER: "${ADMIN_EMAIL}"
+      AB_LOGIN_PASSWORD: "${ADMIN_PASSWORD}"
+      # Base URL for download links in the HTTP MCP
+      AB_PUBLIC_URL: "https://${MYHOST}/${ROCKET_MEALS_PATH}/ai"
+      # Behind Traefik: rate limit of failed logins per client IP from X-Forwarded-For
+      AB_TRUST_PROXY: "1"
+      # Name for mentions (@name) and the view "Für mich"
+      AB_USER: "${AGENT_BOARD_USER:-nils}"
+      TZ: "Europe/Berlin"
+
   # The Directus database - postgres with data volume
   # https://docs.directus.io/self-hosted/docker-guide.html#example-docker-compose
   rocket-meals-database:

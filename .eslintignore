@@ -5,3 +5,6 @@ apps/*/dist/
 packages/*/dist/
 **/*.js
 apps/frontend/app/
+
+# Experimental agent board (own npm project)
+apps/backend/agent-board/

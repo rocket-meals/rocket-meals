@@ -50,3 +50,6 @@ Dockerfile*
 .git/
 .gitignore
 .github/
+
+# Experimental agent board (own npm project)
+apps/backend/agent-board/

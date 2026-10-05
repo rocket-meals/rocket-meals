@@ -88,3 +88,6 @@ tmp/
 appdrawer-screenshot.png
 apps/frontend/app/server.log
 apps/frontend/app/serveDist/
+
+# Experimental agent board data (not backed up)
+data-ai-agent/

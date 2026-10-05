@@ -4,6 +4,7 @@ services:
     volumes:
       - ./preparePermission.sh:/preparePermission.sh
       - ./data:/data
+      - ./data-ai-agent:/data-ai-agent
       - .env:/.env
     working_dir: /
     entrypoint: ["/bin/sh", "-c", "chmod +x ./preparePermission.sh && ./preparePermission.sh"]
@@ -62,6 +63,16 @@ services:
         condition: service_completed_successfully
     extends:
       service: rocket-meals-database-backup
+      file: apps/backend/docker-compose.yaml
+
+  rocket-meals-agent-board:
+    env_file:
+      - .env
+    depends_on:
+      prepare-data:
+        condition: service_completed_successfully
+    extends:
+      service: rocket-meals-agent-board
       file: apps/backend/docker-compose.yaml
 
   rocket-meals-cache:

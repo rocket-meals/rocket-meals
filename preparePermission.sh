@@ -18,6 +18,12 @@ mkdir -p ./data/database_backups/
 # Set read/write/execute permissions for owner and group
 chmod -R 770 ./data/database_backups/
 
+echo "Setting read/write permission for agent board (data-ai-agent, not backed up)"
+mkdir -p ./data-ai-agent/
+# The agent board runs as the 'node' user (UID 1000) inside the container.
+chown -R 1000:1000 ./data-ai-agent/
+chmod -R 770 ./data-ai-agent/
+
 echo "Setting read/write permission for .env file"
 # Set read/write permissions for owner and group on the .env file
 chmod 660 .env
