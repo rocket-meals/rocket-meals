@@ -3839,6 +3839,16 @@
     "tr": "Tüm mesajları okunmadı olarak işaretle",
     "zh": "将所有消息标记为未读"
   },
+  "chat_initial_message": {
+    "de": "Anlass dieses Chats",
+    "en": "Reason for this chat",
+    "ar": "سبب هذه المحادثة",
+    "es": "Motivo de este chat",
+    "fr": "Motif de cette discussion",
+    "ru": "Повод для этого чата",
+    "tr": "Bu sohbetin nedeni",
+    "zh": "此聊天的起因"
+  },
   "linked_elements": {
     "de": "Verknüpfte Elemente",
     "en": "Linked elements",

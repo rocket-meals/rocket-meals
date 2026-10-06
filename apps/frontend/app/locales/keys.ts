@@ -422,6 +422,7 @@ export const TranslationKeys = {
 	avatar_cat_style: 'avatar_cat_style',
 	chats: 'chats',
 	chat: 'chat',
+	chat_initial_message: 'chat_initial_message',
 	linked_elements: 'linked_elements',
 	linked_elements_food_image: 'linked_elements_food_image',
 	linked_elements_rating: 'linked_elements_rating',

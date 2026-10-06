@@ -279,14 +279,20 @@ const ChatDetailsScreen = () => {
                         return null;
                 }
 
-                const bgColor = theme.card.background;
-                const textColor = myContrastColor(bgColor, theme, mode === 'dark');
+                // The initial message is the request that opened the chat (e.g. the comment of a food
+                // feedback). It belongs to neither side of the conversation, so it is shown as a
+                // labelled context card instead of a chat bubble.
+                const contextColor = theme.screen.placeholder;
 
                 return (
-                        <View style={styles.initialMessageWrapper}>
-                                <View style={[styles.bubble, styles.initialMessageBubble, { backgroundColor: bgColor }]}>
-                                        <MyMarkdownProjectColored content={initialMessage} textColor={textColor} />
+                        <View style={[styles.initialMessageContainer, { borderColor: contextColor }]}>
+                                <View style={styles.initialMessageHeader}>
+                                        <MaterialCommunityIcons name="information-outline" size={16} color={contextColor} />
+                                        <Text style={[styles.initialMessageLabel, { color: contextColor }]}>
+                                                {translate(TranslationKeys.chat_initial_message)}
+                                        </Text>
                                 </View>
+                                <MyMarkdownProjectColored content={initialMessage} textColor={theme.screen.text} />
                         </View>
                 );
         };

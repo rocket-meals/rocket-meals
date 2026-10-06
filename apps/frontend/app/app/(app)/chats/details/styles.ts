@@ -37,12 +37,22 @@ export default StyleSheet.create({
                 padding: 10,
                 borderRadius: 3,
         },
-        initialMessageWrapper: {
-                alignItems: 'center',
-                marginBottom: 12,
+        initialMessageContainer: {
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderRadius: 8,
+                padding: 10,
+                gap: 4,
+                marginBottom: 16,
         },
-        initialMessageBubble: {
-                alignSelf: 'center',
+        initialMessageHeader: {
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+        },
+        initialMessageLabel: {
+                fontSize: 12,
+                fontFamily: 'Poppins_400Regular',
         },
         timestamp: {
                 fontSize: 12,
