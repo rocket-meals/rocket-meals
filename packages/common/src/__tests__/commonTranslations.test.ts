@@ -133,6 +133,7 @@ describe('commonTranslations', () => {
 				CommonTranslationKeys.Sep,
 				CommonTranslationKeys.September,
 				CommonTranslationKeys.account,
+				CommonTranslationKeys.mcp_account,
 				CommonTranslationKeys.feedback,
 				CommonTranslationKeys.no_value,
 				CommonTranslationKeys.okay,

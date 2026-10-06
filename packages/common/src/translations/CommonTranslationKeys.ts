@@ -26,7 +26,12 @@
  * second, unrelated app.
  */
 
+import { McpInstructionTranslationKeys } from './McpInstructionTranslationKeys';
+
 export const CommonTranslationKeys = {
+	// Instruction "connect an AI assistant via MCP" – shared by the apps and the Directus module
+	...McpInstructionTranslationKeys,
+
 	// Generic actions
 	save: 'save',
 	cancel: 'cancel',

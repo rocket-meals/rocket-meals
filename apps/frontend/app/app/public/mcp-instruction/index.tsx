@@ -4,7 +4,7 @@ import * as Clipboard from 'expo-clipboard';
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useDispatch } from 'react-redux';
-import { McpAccessHelper } from 'repo-depkit-common';
+import { McpAccessHelper, McpInstructionHelper, type McpAccessMode, type McpHttpClient, type McpProvider, type McpProviderOption } from 'repo-depkit-common';
 import { CollapsibleView } from 'repo-depkit-common-ui';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -27,134 +27,37 @@ import ClaudeSymbol from '@/assets/icons/brands/claude-symbol.svg';
 import OpenAiSymbol from '@/assets/icons/brands/openai-symbol.svg';
 import { performLogout } from '@/helper/logoutHelper';
 
-type McpProvider = 'claude' | 'openai' | 'other';
-
-/** Values the steps offer to copy. The token-based ones exist only once a token (or its placeholder) is known. */
-type CopyValueKind = 'appName' | 'serverUrl' | 'authorizationHeader' | 'serverUrlWithToken';
-
-type McpStep = {
-	textKey: TranslationKeys;
-	copy?: CopyValueKind;
-};
-
 type ProviderLogoProps = { size: number; color: string };
 
 /**
  * Brand symbols, used exactly as the companies provide them and only to identify their service
  * (OpenAI/Anthropic brand rules) - not recolored, not on our primary color. OpenAI's symbol has no
  * own color: OpenAI offers it in black and in white, so it takes the text color of the theme.
+ * Providers, steps and the token flow come from `McpInstructionHelper`, shared with the Directus module.
  */
-const PROVIDER_OPTIONS: { provider: McpProvider; label: string | TranslationKeys; renderLogo: (props: ProviderLogoProps) => React.ReactNode }[] = [
-	// Brand names, not translated.
-	{ provider: 'openai', label: 'OpenAI (ChatGPT)', renderLogo: ({ size, color }) => <OpenAiSymbol width={size} height={size} fill={color} /> },
-	{ provider: 'claude', label: 'Claude', renderLogo: ({ size }) => <ClaudeSymbol width={size} height={size} /> },
-	{
-		provider: 'other',
-		label: TranslationKeys.mcp_provider_other,
-		renderLogo: ({ size, color }) => <MaterialCommunityIcons name="dots-horizontal-circle-outline" size={size} color={color} />,
-	},
-];
-
-const STEPS_BY_PROVIDER: Record<McpProvider, McpStep[]> = {
-	claude: [
-		{ textKey: TranslationKeys.mcp_claude_step_open_connectors },
-		{ textKey: TranslationKeys.mcp_claude_step_add_custom },
-		{ textKey: TranslationKeys.mcp_claude_step_name, copy: 'appName' },
-		{ textKey: TranslationKeys.mcp_claude_step_url, copy: 'serverUrl' },
-		{ textKey: TranslationKeys.mcp_claude_step_continue },
-		{ textKey: TranslationKeys.mcp_claude_step_authentication },
-		{ textKey: TranslationKeys.mcp_claude_step_header, copy: 'authorizationHeader' },
-		{ textKey: TranslationKeys.mcp_claude_step_finish },
-	],
-	openai: [
-		{ textKey: TranslationKeys.mcp_openai_step_open_settings },
-		{ textKey: TranslationKeys.mcp_openai_step_plugins },
-		{ textKey: TranslationKeys.mcp_openai_step_add },
-		{ textKey: TranslationKeys.mcp_openai_step_name, copy: 'appName' },
-		{ textKey: TranslationKeys.mcp_openai_step_url, copy: 'serverUrlWithToken' },
-		{ textKey: TranslationKeys.mcp_openai_step_authentication },
-		{ textKey: TranslationKeys.mcp_openai_step_use },
-	],
-	other: [
-		{ textKey: TranslationKeys.mcp_other_step_url, copy: 'serverUrl' },
-		{ textKey: TranslationKeys.mcp_other_step_header, copy: 'authorizationHeader' },
-		{ textKey: TranslationKeys.mcp_other_step_url_with_token, copy: 'serverUrlWithToken' },
-	],
+const PROVIDER_LOGOS: Record<McpProvider, (props: ProviderLogoProps) => React.ReactNode> = {
+	openai: ({ size, color }) => <OpenAiSymbol width={size} height={size} fill={color} />,
+	claude: ({ size }) => <ClaudeSymbol width={size} height={size} />,
+	other: ({ size, color }) => <MaterialCommunityIcons name="dots-horizontal-circle-outline" size={size} color={color} />,
 };
 
-/**
- * Whether the user already has a token. Directus returns a set token concealed (`**********`),
- * so the app can tell that one exists, but never show it again.
- */
-async function fetchHasPersonalMcpToken(): Promise<boolean> {
-	const response = await authorizedFetch(McpAccessHelper.OWN_TOKEN_PATH);
+async function readJsonResponse(response: Response): Promise<unknown> {
 	if (!response.ok) {
-		throw new Error('MCP token status request failed with status ' + response.status);
+		throw new Error('MCP request ' + response.url + ' failed with status ' + response.status);
 	}
-	return McpAccessHelper.hasTokenInOwnUserResponse(await response.json());
+	return await response.json();
 }
 
-/** Saves `token` on the user's own `directus_users` entry (the `User` policy may write `token`); `null` revokes it. */
-async function saveOwnMcpToken(token: string | null): Promise<void> {
-	const response = await authorizedFetch(McpAccessHelper.OWN_TOKEN_PATH, {
-		method: 'PATCH',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ token }),
-	});
-	if (!response.ok) {
-		throw new Error('Saving the MCP token failed with status ' + response.status);
-	}
-}
-
-/** Sets a new token for the user: a random string from Directus. Replaces an existing token. */
-async function createPersonalMcpToken(): Promise<string> {
-	const randomResponse = await authorizedFetch(McpAccessHelper.buildRandomStringPath());
-	if (!randomResponse.ok) {
-		throw new Error('Random string request failed with status ' + randomResponse.status);
-	}
-	const token = McpAccessHelper.parseRandomStringResponse(await randomResponse.json());
-	if (!token) {
-		throw new Error('Random string response is invalid');
-	}
-	await saveOwnMcpToken(token);
-	return token;
-}
-
-/**
- * Asks the server to make sure the public MCP user exists and returns its current token. No login
- * needed - the token is public anyway.
- */
-async function ensurePublicMcpUser(): Promise<string> {
-	const response = await fetch(Server.ServerUrl + McpAccessHelper.buildPublicUserPath(), { method: 'POST' });
-	if (!response.ok) {
-		throw new Error('Public MCP user request failed with status ' + response.status);
-	}
-	const token = McpAccessHelper.parsePublicUserResponse(await response.json());
-	if (!token) {
-		throw new Error('Public MCP user response is invalid');
-	}
-	return token;
-}
-
-/** `?assistant=claude` preselects the assistant, so a link can lead straight to its steps. */
-const ASSISTANT_PARAM = 'assistant';
-/** Former name of `assistant` - still read, so links shared with it keep working. */
-const LEGACY_ASSISTANT_PARAM = 'ai-agent';
-
-const ASSISTANT_PARAM_VALUES: Record<string, McpProvider> = {
-	claude: 'claude',
-	openai: 'openai',
-	chatgpt: 'openai',
-	other: 'other',
+/** The app's way to the server for `McpInstructionHelper`: `fetch` with the token of the signed-in user. */
+const mcpHttpClient: McpHttpClient = {
+	get: async (path) => readJsonResponse(await authorizedFetch(path)),
+	patch: async (path, body) =>
+		readJsonResponse(await authorizedFetch(path, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })),
+	// Only the public MCP user is posted to - no login needed, the token is public anyway.
+	post: async (path) => readJsonResponse(await fetch(Server.ServerUrl + path, { method: 'POST' })),
 };
 
-function parseAssistantParam(value: string | string[] | undefined): McpProvider | null {
-	const raw = Array.isArray(value) ? value[0] : value;
-	return raw ? (ASSISTANT_PARAM_VALUES[raw.trim().toLowerCase()] ?? null) : null;
-}
-
-/** Whether the AI assistant connects with the user's own account or with the public MCP user. */
-type McpAccessMode = 'personal' | 'public';
+const { ASSISTANT_PARAM, LEGACY_ASSISTANT_PARAM } = McpInstructionHelper;
 
 /** Tokens have no spaces - zero-width spaces let a long one wrap inside its row. Display only, the copy keeps the raw value. */
 function makeWrappable(value: string): string {
@@ -178,11 +81,11 @@ const McpInstruction = () => {
 
 	const { [ASSISTANT_PARAM]: assistantParamValue, [LEGACY_ASSISTANT_PARAM]: legacyAssistantParamValue } = useLocalSearchParams();
 	const assistantParam = assistantParamValue ?? legacyAssistantParamValue;
-	const [provider, setProvider] = useState<McpProvider | null>(() => parseAssistantParam(assistantParam));
+	const [provider, setProvider] = useState<McpProvider | null>(() => McpInstructionHelper.parseAssistantParam(assistantParam));
 	const [accessMode, setAccessMode] = useState<McpAccessMode | null>(null);
 	// A section folds itself away once something is picked in it (a preselected assistant starts
 	// folded) and can be opened again by hand. Without a pick it always stays open.
-	const [isProviderSectionCollapsed, setIsProviderSectionCollapsed] = useState(() => parseAssistantParam(assistantParam) !== null);
+	const [isProviderSectionCollapsed, setIsProviderSectionCollapsed] = useState(() => McpInstructionHelper.parseAssistantParam(assistantParam) !== null);
 	const [isAccountSectionCollapsed, setIsAccountSectionCollapsed] = useState(false);
 	// Only set right after it was created - Directus never shows a saved token again.
 	const [personalToken, setPersonalToken] = useState<string | null>(null);
@@ -195,17 +98,11 @@ const McpInstruction = () => {
 	const hasEnsuredPublicUser = useRef(false);
 
 	const appName = ServerInfoHelper.getServerName(serverInfo || {}, customerConfig);
-	const serverUrl = McpAccessHelper.buildServerUrl(Server.ServerUrl);
-	let token: string | null = null;
-	if (accessMode === 'public') {
-		token = publicToken;
-	} else if (accessMode === 'personal') {
-		token = personalToken ?? (usesKnownToken ? McpAccessHelper.TOKEN_PLACEHOLDER : null);
-	}
+	const token = McpInstructionHelper.resolveToken({ accessMode, publicToken, personalToken, usesKnownToken });
 	const isTokenPlaceholder = accessMode === 'personal' && !personalToken && usesKnownToken;
 
 	useEffect(() => {
-		const providerFromParam = parseAssistantParam(assistantParam);
+		const providerFromParam = McpInstructionHelper.parseAssistantParam(assistantParam);
 		if (providerFromParam) {
 			setProvider(providerFromParam);
 			setIsProviderSectionCollapsed(true);
@@ -228,16 +125,13 @@ const McpInstruction = () => {
 		}
 		let cancelled = false;
 		const load = async () => {
+			setIsLoadingToken(true);
 			try {
-				const hasToken = await fetchHasPersonalMcpToken();
+				const state = await McpInstructionHelper.loadOrCreatePersonalToken(mcpHttpClient);
 				if (cancelled) return;
-				setHasPersonalToken(hasToken);
-				if (!hasToken) {
-					setIsLoadingToken(true);
-					const createdToken = await createPersonalMcpToken();
-					if (cancelled) return;
-					setPersonalToken(createdToken);
-					setHasPersonalToken(true);
+				setHasPersonalToken(true);
+				if (state.kind === 'created') {
+					setPersonalToken(state.token);
 				}
 			} catch (error) {
 				console.error('Could not load the MCP token:', error);
@@ -259,7 +153,7 @@ const McpInstruction = () => {
 			return;
 		}
 		hasEnsuredPublicUser.current = true;
-		ensurePublicMcpUser()
+		McpInstructionHelper.ensurePublicUser(mcpHttpClient)
 			.then(setPublicToken)
 			.catch((error) => {
 				// The fixed token from McpAccessHelper stays in place - it is right on every up-to-date server.
@@ -275,7 +169,7 @@ const McpInstruction = () => {
 	};
 
 	// Brand names stay as they are, only "Andere" is translated.
-	const getProviderLabel = (option: (typeof PROVIDER_OPTIONS)[number]) => (option.provider === 'other' ? translate(option.label) : option.label);
+	const getProviderLabel = (option: McpProviderOption) => option.brandName ?? (option.labelKey ? translate(option.labelKey) : option.provider);
 
 	const selectAccessMode = (selected: McpAccessMode) => {
 		setAccessMode(selected);
@@ -284,7 +178,7 @@ const McpInstruction = () => {
 
 	/** Opens the support form with the assistant already named in the title, so a ticket says where it got stuck. */
 	const openSupport = () => {
-		const providerOption = PROVIDER_OPTIONS.find((option) => option.provider === provider);
+		const providerOption = McpInstructionHelper.getProviderOption(provider);
 		const providerLabel = providerOption ? getProviderLabel(providerOption) : '';
 		const title = `${translate(TranslationKeys.mcp_instruction)} – ${providerLabel}`;
 		router.push({ pathname: '/feedback-support', params: { title } });
@@ -302,7 +196,7 @@ const McpInstruction = () => {
 	const createPersonalToken = useCallback(async () => {
 		setIsLoadingToken(true);
 		try {
-			setPersonalToken(await createPersonalMcpToken());
+			setPersonalToken(await McpInstructionHelper.createPersonalToken(mcpHttpClient));
 			setHasPersonalToken(true);
 			setUsesKnownToken(false);
 		} catch (error) {
@@ -317,7 +211,7 @@ const McpInstruction = () => {
 		closeModal();
 		setIsLoadingToken(true);
 		try {
-			await saveOwnMcpToken(null);
+			await McpInstructionHelper.revokePersonalToken(mcpHttpClient);
 			setPersonalToken(null);
 			setHasPersonalToken(false);
 			setUsesKnownToken(false);
@@ -356,18 +250,7 @@ const McpInstruction = () => {
 		[toast, translate]
 	);
 
-	const getCopyValue = (kind: CopyValueKind): string | null => {
-		switch (kind) {
-			case 'appName':
-				return appName;
-			case 'serverUrl':
-				return serverUrl;
-			case 'authorizationHeader':
-				return token ? McpAccessHelper.buildAuthorizationHeaderValue(token) : null;
-			case 'serverUrlWithToken':
-				return token ? McpAccessHelper.buildServerUrlWithToken(Server.ServerUrl, token) : null;
-		}
-	};
+	const copyValueContext = { appName, backendUrl: Server.ServerUrl, token };
 
 	/** Just the value and a copy icon on the right - the step text above already says what it is for. */
 	const renderCopyRow = (value: string, showTapHint: boolean) => (
@@ -400,7 +283,7 @@ const McpInstruction = () => {
 		/>
 	);
 
-	const selectedProviderOption = PROVIDER_OPTIONS.find((option) => option.provider === provider);
+	const selectedProviderOption = McpInstructionHelper.getProviderOption(provider);
 	const accessModeLabels: Record<McpAccessMode, string> = {
 		personal: translate(TranslationKeys.mcp_connect_with_account),
 		public: translate(TranslationKeys.mcp_continue_without_account),
@@ -486,7 +369,7 @@ const McpInstruction = () => {
 		if (!provider || token === null) {
 			return null;
 		}
-		const firstCopyIndex = STEPS_BY_PROVIDER[provider].findIndex((step) => step.copy);
+		const firstCopyIndex = McpInstructionHelper.getFirstCopyStepIndex(provider);
 		return (
 			<>
 				<SettingsGroupTitle>{translate(TranslationKeys.mcp_steps_title)}</SettingsGroupTitle>
@@ -496,8 +379,8 @@ const McpInstruction = () => {
 					</View>
 				) : null}
 				<View style={styles.groupContainer}>
-					{STEPS_BY_PROVIDER[provider].map((step, index) => {
-						const copyValue = step.copy ? getCopyValue(step.copy) : null;
+					{McpInstructionHelper.STEPS_BY_PROVIDER[provider].map((step, index) => {
+						const copyValue = step.copy ? McpInstructionHelper.getCopyValue(step.copy, copyValueContext) : null;
 						return (
 							<View key={step.textKey} style={styles.step}>
 								<View style={styles.stepRow}>
@@ -562,7 +445,7 @@ const McpInstruction = () => {
 						translate(TranslationKeys.mcp_provider),
 						selectedProviderOption ? getProviderLabel(selectedProviderOption) : undefined,
 						selectedProviderOption ? (
-							selectedProviderOption.renderLogo({ size: 24, color: theme.screen.text })
+							PROVIDER_LOGOS[selectedProviderOption.provider]({ size: 24, color: theme.screen.text })
 						) : (
 							<MaterialCommunityIcons name="robot-outline" size={24} color={theme.screen.text} />
 						),
@@ -573,13 +456,13 @@ const McpInstruction = () => {
 						<View style={styles.sectionContent}>
 							<MyMarkdownProjectColored content={translate(TranslationKeys.mcp_choose_provider)} />
 							<View style={styles.choiceGroup}>
-								{PROVIDER_OPTIONS.map((option, index) => {
-									const groupPosition = index === 0 ? 'top' : index === PROVIDER_OPTIONS.length - 1 ? 'bottom' : 'middle';
+								{McpInstructionHelper.PROVIDERS.map((option, index) => {
+									const groupPosition = index === 0 ? 'top' : index === McpInstructionHelper.PROVIDERS.length - 1 ? 'bottom' : 'middle';
 									return (
 										<SettingsList
 											key={option.provider}
 											iconBgColor="transparent"
-											leftIcon={option.renderLogo({ size: 24, color: theme.screen.text })}
+											leftIcon={PROVIDER_LOGOS[option.provider]({ size: 24, color: theme.screen.text })}
 											title={getProviderLabel(option)}
 											rightIcon={renderRadioIcon(option.provider === provider)}
 											handleFunction={() => selectProvider(option.provider)}

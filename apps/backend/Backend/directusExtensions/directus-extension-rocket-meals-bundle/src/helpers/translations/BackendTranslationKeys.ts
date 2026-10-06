@@ -69,6 +69,7 @@ export const BackendTranslationKeys = {
   // Module "Rocket Meals" in the Directus app (src/rocket-meals-module)
   rocket_meals_module_food_feedbacks: 'rocket_meals_module_food_feedbacks',
   rocket_meals_module_food_feedbacks_description: 'rocket_meals_module_food_feedbacks_description',
+  rocket_meals_module_mcp_instruction_description: 'rocket_meals_module_mcp_instruction_description',
   rocket_meals_module_status_new: 'rocket_meals_module_status_new',
   rocket_meals_module_status_waiting_for_support: 'rocket_meals_module_status_waiting_for_support',
   rocket_meals_module_status_waiting_for_user: 'rocket_meals_module_status_waiting_for_user',

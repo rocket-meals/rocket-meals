@@ -1,8 +1,8 @@
 Key,Message,Component,Line
 "AaETNWslJDcE9FBfZ2AU","Unexpected `await` inside a loop.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/FoodFeedbackChatActions.ts",93
 "AaETNWslJDcE9FBfZ2AV","Unexpected `await` inside a loop.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/FoodFeedbackChatActions.ts",94
+"AaETYERN0O90mfPbLPig","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:apps/frontend/app/app/public/mcp-instruction/index.tsx",460
 "AaESKxMHygOMAbVLDWkz","Async arrow function has no 'await' expression.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/mcp-public-user-hook/index.ts",16
-"AaESKy6JygOMAbVLDWk2","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:apps/frontend/app/app/public/mcp-instruction/index.tsx",577
 "AaERrVvctla_SBaQ5Fc1","Consider removing 'undefined' type or '?' specifier, one of them is redundant.","rocket-meals_rocket-meals:packages/common/src/ChatHelper.ts",6
 "AaEQnkw_-6tQcR7ajnBm","`optionalDependencies` should be a `Set`, and use `optionalDependencies.has()` to check existence or non-existence.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/extension.config.mjs",66
 "AaEQnkw_-6tQcR7ajnBn","Prefer using an optional chain expression instead, as it's more concise and easier to read.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/extension.config.mjs",71

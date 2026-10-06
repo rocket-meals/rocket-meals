@@ -10,8 +10,12 @@
  */
 
 import type { TranslationResources } from './TranslationTypes';
+import { mcpInstructionTranslations } from './mcpInstructionTranslations';
 
 export const commonTranslations: TranslationResources = {
+	// Instruction "connect an AI assistant via MCP"
+	...mcpInstructionTranslations,
+
 	// Generic actions
 	save: {
 		de: 'Speichern',

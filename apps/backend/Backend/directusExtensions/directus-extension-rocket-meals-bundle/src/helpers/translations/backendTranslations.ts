@@ -442,6 +442,16 @@ export const backendTranslations: TranslationResources = {
     tr: 'Yemeklerle ilgili yorumları okuyun ve kullanıcılara doğrudan sohbette yanıt verin.',
     zh: '阅读菜品评论，并直接在聊天中回复用户。',
   },
+  rocket_meals_module_mcp_instruction_description: {
+    de: 'KI-Assistenten wie ChatGPT oder Claude mit deinem Directus-Account oder öffentlich mit dem MCP-Server verbinden.',
+    en: 'Connect AI assistants such as ChatGPT or Claude to the MCP server, with your Directus account or publicly.',
+    ar: 'اربط مساعدي الذكاء الاصطناعي مثل ChatGPT أو Claude بخادم MCP، بحساب Directus الخاص بك أو بشكل عام.',
+    es: 'Conecta asistentes de IA como ChatGPT o Claude al servidor MCP, con tu cuenta de Directus o de forma pública.',
+    fr: 'Connecte des assistants IA comme ChatGPT ou Claude au serveur MCP, avec ton compte Directus ou en accès public.',
+    ru: 'Подключи ИИ-ассистентов, например ChatGPT или Claude, к MCP-серверу: со своим аккаунтом Directus или публично.',
+    tr: 'ChatGPT veya Claude gibi yapay zekâ asistanlarını MCP sunucusuna Directus hesabınla ya da herkese açık olarak bağla.',
+    zh: '将 ChatGPT 或 Claude 等 AI 助手连接到 MCP 服务器，可使用你的 Directus 账户或公开访问。',
+  },
   rocket_meals_module_status_new: {
     de: 'Neu',
     en: 'New',

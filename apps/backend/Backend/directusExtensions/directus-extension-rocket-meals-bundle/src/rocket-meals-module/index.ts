@@ -3,6 +3,7 @@ import { RocketMealsModulePages } from '../helpers/rocket-meals-module/RocketMea
 import OverviewPage from './overview-page.vue';
 import FoodFeedbacksPage from './food-feedbacks/food-feedbacks-page.vue';
 import FoodFeedbackChatPage from './food-feedbacks/food-feedback-chat-page.vue';
+import McpInstructionPage from './mcp-instruction/mcp-instruction-page.vue';
 
 /**
  * Module `Rocket Meals` – our own area in the Directus app, with a side navigation like the content
@@ -29,6 +30,10 @@ export default defineModule({
       path: `${RocketMealsModulePages.FOOD_FEEDBACKS.path}/:feedbackId`,
       component: FoodFeedbackChatPage,
       props: true,
+    },
+    {
+      path: RocketMealsModulePages.MCP_INSTRUCTION.path,
+      component: McpInstructionPage,
     },
   ],
 });
