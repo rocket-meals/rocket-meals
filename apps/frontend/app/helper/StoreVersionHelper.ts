@@ -9,12 +9,55 @@ export type StoreVersionResult = {
 	error: string | null;
 };
 
+// Which app to look up in the stores. The App Store finds an app by bundle id
+// or by its numeric Apple id (the id in an apps.apple.com link).
+export type StoreAppRef = {
+	bundleIdIos?: string;
+	appleAppId?: string;
+	bundleIdAndroid?: string;
+};
+
 export type StoreVersionComparison = 'newer_in_store' | 'up_to_date' | 'older_in_store' | 'unknown';
 
+export type InstalledAppIds = {
+	bundleIdIos: string | undefined;
+	bundleIdAndroid: string | undefined;
+};
+
+type ExpoConfigLike = {
+	ios?: { bundleIdentifier?: string } | null;
+	android?: { package?: string } | null;
+} | null;
+
 export class StoreVersionHelper {
-	static getAppStoreLookupUrl(bundleIdIos: string): string {
+	// The ids of the app that is actually installed. They come from the app
+	// config the binary (or its OTA update) was built with, so the in-app
+	// customer switcher does not change them. The build-time customer config is
+	// the fallback when no app config is embedded.
+	static getInstalledAppIds(expoConfig: ExpoConfigLike | undefined, buildTimeConfig: InstalledAppIds): InstalledAppIds {
+		return {
+			bundleIdIos: expoConfig?.ios?.bundleIdentifier || buildTimeConfig.bundleIdIos,
+			bundleIdAndroid: expoConfig?.android?.package || buildTimeConfig.bundleIdAndroid,
+		};
+	}
+
+	static findConfigForInstalledApp<T extends InstalledAppIds>(configs: T[], installed: InstalledAppIds): T | undefined {
+		return configs.find(config => (!!installed.bundleIdIos && config.bundleIdIos === installed.bundleIdIos) || (!!installed.bundleIdAndroid && config.bundleIdAndroid === installed.bundleIdAndroid));
+	}
+
+	// The app the server links to in app_settings (app download banner).
+	static getStoreAppRefFromStoreUrls(appleUrl: string | null | undefined, googleUrl: string | null | undefined): StoreAppRef {
+		return {
+			appleAppId: appleUrl ? /\/id(\d+)/.exec(appleUrl)?.[1] : undefined,
+			bundleIdAndroid: googleUrl ? /[?&]id=([^&#]+)/.exec(googleUrl)?.[1] : undefined,
+		};
+	}
+
+	static getAppStoreLookupUrl(ref: StoreAppRef): string | null {
 		// country=de: the lookup only finds apps that are listed in that storefront
-		return `https://itunes.apple.com/lookup?bundleId=${encodeURIComponent(bundleIdIos)}&country=de`;
+		if (ref.bundleIdIos) return `https://itunes.apple.com/lookup?bundleId=${encodeURIComponent(ref.bundleIdIos)}&country=de`;
+		if (ref.appleAppId) return `https://itunes.apple.com/lookup?id=${encodeURIComponent(ref.appleAppId)}&country=de`;
+		return null;
 	}
 
 	static getGooglePlayUrl(bundleIdAndroid: string): string {
@@ -58,10 +101,11 @@ export class StoreVersionHelper {
 		return 'up_to_date';
 	}
 
-	static async fetchAppStoreVersion(bundleIdIos: string | undefined): Promise<StoreVersionResult> {
-		if (!bundleIdIos) return { version: null, storeUrl: null, error: 'No iOS bundle id configured' };
+	static async fetchAppStoreVersion(ref: StoreAppRef): Promise<StoreVersionResult> {
+		const lookupUrl = StoreVersionHelper.getAppStoreLookupUrl(ref);
+		if (!lookupUrl) return { version: null, storeUrl: null, error: 'No iOS app id configured' };
 		try {
-			const response = await fetch(StoreVersionHelper.getAppStoreLookupUrl(bundleIdIos));
+			const response = await fetch(lookupUrl);
 			if (!response.ok) return { version: null, storeUrl: null, error: `HTTP ${response.status}` };
 			const parsed = StoreVersionHelper.parseAppStoreLookup(await response.json());
 			return { ...parsed, error: parsed.version ? null : 'App not found in the App Store' };

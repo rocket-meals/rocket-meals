@@ -925,14 +925,17 @@ export const TranslationKeys = {
 	housing_free_apartments_notification_enabled: 'housing_free_apartments_notification_enabled',
 	store_versions: 'store_versions',
 	store_versions_installed: 'store_versions_installed',
-	store_versions_store_version: 'store_versions_store_version',
-	store_versions_status: 'store_versions_status',
 	store_versions_newer_in_store: 'store_versions_newer_in_store',
 	store_versions_up_to_date: 'store_versions_up_to_date',
 	store_versions_older_in_store: 'store_versions_older_in_store',
-	store_versions_open_store: 'store_versions_open_store',
 	store_versions_reload: 'store_versions_reload',
 	store_versions_hint: 'store_versions_hint',
+	store_versions_server_app: 'store_versions_server_app',
+	store_versions_this_device: 'store_versions_this_device',
+	store_versions_installed_app: 'store_versions_installed_app',
+	store_versions_app: 'store_versions_app',
+	store_versions_app_id: 'store_versions_app_id',
+	store_versions_differs_from_installed_app: 'store_versions_differs_from_installed_app',
 } as const;
 
 export type TranslationKeys = (typeof TranslationKeys)[keyof typeof TranslationKeys];

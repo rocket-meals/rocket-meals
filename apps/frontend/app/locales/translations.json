@@ -9009,26 +9009,6 @@
     "tr": "Yüklü sürüm",
     "zh": "已安装版本"
   },
-  "store_versions_store_version": {
-    "de": "Version im Store",
-    "en": "Version in the store",
-    "ar": "الإصدار في المتجر",
-    "es": "Versión en la tienda",
-    "fr": "Version dans le store",
-    "ru": "Версия в магазине",
-    "tr": "Mağazadaki sürüm",
-    "zh": "商店中的版本"
-  },
-  "store_versions_status": {
-    "de": "Vergleich",
-    "en": "Comparison",
-    "ar": "المقارنة",
-    "es": "Comparación",
-    "fr": "Comparaison",
-    "ru": "Сравнение",
-    "tr": "Karşılaştırma",
-    "zh": "比较"
-  },
   "store_versions_newer_in_store": {
     "de": "Neuere Version im Store",
     "en": "Newer version in the store",
@@ -9059,16 +9039,6 @@
     "tr": "Yüklü sürüm daha yeni",
     "zh": "已安装的版本更新"
   },
-  "store_versions_open_store": {
-    "de": "Im Store öffnen",
-    "en": "Open in the store",
-    "ar": "افتح في المتجر",
-    "es": "Abrir en la tienda",
-    "fr": "Ouvrir dans le store",
-    "ru": "Открыть в магазине",
-    "tr": "Mağazada aç",
-    "zh": "在商店中打开"
-  },
   "store_versions_reload": {
     "de": "Erneut laden",
     "en": "Load again",
@@ -9088,5 +9058,65 @@
     "ru": "Сравниваются только основная версия и номер сборки. Номер патча приходит через OTA-обновление и никогда не попадает в магазин.",
     "tr": "Yalnızca ana sürüm ve derleme numarası karşılaştırılır. Yama numarası OTA güncellemesiyle gelir ve hiçbir zaman mağazada yer almaz.",
     "zh": "只比较主版本号和构建号。补丁号通过 OTA 更新提供，从不出现在商店中。"
+  },
+  "store_versions_installed_app": {
+    "de": "Installierte App",
+    "en": "Installed app",
+    "ar": "التطبيق المثبت",
+    "es": "App instalada",
+    "fr": "Application installée",
+    "ru": "Установленное приложение",
+    "tr": "Yüklü uygulama",
+    "zh": "已安装的应用"
+  },
+  "store_versions_app": {
+    "de": "App",
+    "en": "App",
+    "ar": "التطبيق",
+    "es": "App",
+    "fr": "Application",
+    "ru": "Приложение",
+    "tr": "Uygulama",
+    "zh": "应用"
+  },
+  "store_versions_app_id": {
+    "de": "App-ID",
+    "en": "App ID",
+    "ar": "معرّف التطبيق",
+    "es": "ID de la app",
+    "fr": "ID de l'application",
+    "ru": "ID приложения",
+    "tr": "Uygulama kimliği",
+    "zh": "应用 ID"
+  },
+  "store_versions_differs_from_installed_app": {
+    "de": "nicht die installierte App",
+    "en": "not the installed app",
+    "ar": "ليس التطبيق المثبت",
+    "es": "no es la app instalada",
+    "fr": "pas l'application installée",
+    "ru": "не установленное приложение",
+    "tr": "yüklü uygulama değil",
+    "zh": "不是已安装的应用"
+  },
+  "store_versions_server_app": {
+    "de": "Server (App-Einstellungen)",
+    "en": "Server (app settings)",
+    "ar": "الخادم (إعدادات التطبيق)",
+    "es": "Servidor (ajustes de la app)",
+    "fr": "Serveur (paramètres de l'application)",
+    "ru": "Сервер (настройки приложения)",
+    "tr": "Sunucu (uygulama ayarları)",
+    "zh": "服务器（应用设置）"
+  },
+  "store_versions_this_device": {
+    "de": "Dieses Gerät",
+    "en": "This device",
+    "ar": "هذا الجهاز",
+    "es": "Este dispositivo",
+    "fr": "Cet appareil",
+    "ru": "Это устройство",
+    "tr": "Bu cihaz",
+    "zh": "本设备"
   }
 }

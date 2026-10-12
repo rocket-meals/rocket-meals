@@ -22,4 +22,37 @@ describe('StoreVersionHelper', () => {
 		expect(StoreVersionHelper.compare('21.210.140', null)).toBe('unknown');
 		expect(StoreVersionHelper.compare('21.210.140', 'Varies with device')).toBe('unknown');
 	});
+
+	it('takes the installed app ids from the embedded app config, not from the selected customer', () => {
+		const buildTime = { bundleIdIos: 'de.build.ios', bundleIdAndroid: 'de.build.android' };
+		expect(StoreVersionHelper.getInstalledAppIds({ ios: { bundleIdentifier: 'de.embedded.ios' }, android: { package: 'de.embedded.android' } }, buildTime)).toEqual({
+			bundleIdIos: 'de.embedded.ios',
+			bundleIdAndroid: 'de.embedded.android',
+		});
+		expect(StoreVersionHelper.getInstalledAppIds(null, buildTime)).toEqual(buildTime);
+	});
+
+	it('finds the customer config the installed app was built for', () => {
+		const configs = [
+			{ projectName: 'A', bundleIdIos: 'de.a', bundleIdAndroid: 'de.a.android' },
+			{ projectName: 'B', bundleIdIos: 'de.b', bundleIdAndroid: 'de.b.android' },
+		];
+		expect(StoreVersionHelper.findConfigForInstalledApp(configs, { bundleIdIos: undefined, bundleIdAndroid: 'de.b.android' })?.projectName).toBe('B');
+		expect(StoreVersionHelper.findConfigForInstalledApp(configs, { bundleIdIos: 'de.a', bundleIdAndroid: undefined })?.projectName).toBe('A');
+		expect(StoreVersionHelper.findConfigForInstalledApp(configs, { bundleIdIos: 'de.x', bundleIdAndroid: undefined })).toBeUndefined();
+	});
+
+	it('reads the linked apps out of the store urls in the app settings', () => {
+		expect(StoreVersionHelper.getStoreAppRefFromStoreUrls('https://apps.apple.com/de/app/swosy/id6667117575?uo=4', 'https://play.google.com/store/apps/details?id=de.baumgartnersoftware.swosy&hl=de')).toEqual({
+			appleAppId: '6667117575',
+			bundleIdAndroid: 'de.baumgartnersoftware.swosy',
+		});
+		expect(StoreVersionHelper.getStoreAppRefFromStoreUrls(null, undefined)).toEqual({ appleAppId: undefined, bundleIdAndroid: undefined });
+	});
+
+	it('looks an app up by bundle id first, else by Apple id', () => {
+		expect(StoreVersionHelper.getAppStoreLookupUrl({ bundleIdIos: 'de.a', appleAppId: '1' })).toContain('bundleId=de.a');
+		expect(StoreVersionHelper.getAppStoreLookupUrl({ appleAppId: '1' })).toContain('id=1');
+		expect(StoreVersionHelper.getAppStoreLookupUrl({})).toBeNull();
+	});
 });
