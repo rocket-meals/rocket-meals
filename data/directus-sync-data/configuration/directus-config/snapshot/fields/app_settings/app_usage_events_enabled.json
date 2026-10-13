@@ -15,12 +15,8 @@
     "options": {
       "choices": [
         {
-          "text": "Alle",
-          "value": "group_all",
           "children": [
             {
-              "text": "Bildschirme",
-              "value": "group_screens",
               "children": [
                 {
                   "text": "Lageplan",
@@ -62,11 +58,11 @@
                   "text": "Essgewohnheiten",
                   "value": "eating_habits_screen_opened"
                 }
-              ]
+              ],
+              "text": "Bildschirme",
+              "value": "group_screens"
             },
             {
-              "text": "Details geöffnet",
-              "value": "group_details",
               "children": [
                 {
                   "text": "Speise",
@@ -80,13 +76,17 @@
                   "text": "Kennzeichnung",
                   "value": "marking_details_opened"
                 }
-              ]
+              ],
+              "text": "Details geöffnet",
+              "value": "group_details"
             },
             {
               "text": "App-Bewertung: Store-Bewertungsdialog angefragt",
               "value": "native_review_prompt_requested"
             }
-          ]
+          ],
+          "text": "Alle",
+          "value": "group_all"
         }
       ],
       "valueCombining": "leaf"

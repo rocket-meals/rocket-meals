@@ -1,3 +1,22 @@
+export type ActionRecommendations = {
+  action?: string | null;
+  action_payload?: unknown | null;
+  collection?: string | null;
+  date_created?: string | null;
+  date_updated?: string | null;
+  draft_reply?: string | null;
+  id: string;
+  item?: string | null;
+  logs?: string | null;
+  reason?: string | null;
+  recommended_by_ai?: string | null;
+  recommended_by_profile?: string | Profiles | null;
+  sort?: number | null;
+  status: string;
+  user_created?: string | DirectusUsers | null;
+  user_updated?: string | DirectusUsers | null;
+};
+
 export type Apartments = {
   available_from?: string | null;
   available_from_notified?: string | null;
@@ -77,6 +96,7 @@ export type AppFeedbacks = {
 };
 
 export type AppSettings = {
+  ai_action_recommendations_enabled?: boolean | null;
   animations_auto_start?: boolean | null;
   app_stores: string;
   app_stores_url_to_apple?: string | null;
@@ -2130,6 +2150,7 @@ export type WorkflowsRuns = {
 };
 
 export type CustomDirectusTypes = {
+  action_recommendations: ActionRecommendations[];
   apartments: Apartments[];
   app_elements: AppElements[];
   app_elements_translations: AppElementsTranslations[];

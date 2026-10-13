@@ -85,6 +85,29 @@ export class SupportChatActions {
     return { resolvedIds, failedIds };
   }
 
+  /**
+   * Opens done feedbacks again: their chats go back to "Wartet auf Antwort", one request for all.
+   * Feedbacks without chat (never done) or a failing request are reported in `failedIds`.
+   */
+  static async reopen<T extends FeedbackWithSupportChat>(api: SupportChatApiClient, feedbacks: readonly T[]): Promise<MarkResolvedResult> {
+    const withChat = feedbacks.map(feedback => ({ feedbackId: feedback.id, chatId: RelationHelper.getId(feedback.chat as RelationValue) }));
+    const failedIds = withChat.filter(entry => !entry.chatId).map(entry => entry.feedbackId);
+    const toReopen = withChat.filter((entry): entry is { feedbackId: string; chatId: string } => !!entry.chatId);
+    if (toReopen.length === 0) {
+      return { resolvedIds: [], failedIds };
+    }
+    try {
+      await api.patch(SupportChatActions.CHATS_ENDPOINT, {
+        keys: toReopen.map(entry => entry.chatId),
+        data: { conversation_state: ChatConversationState.WAITING_FOR_SUPPORT },
+      });
+      return { resolvedIds: toReopen.map(entry => entry.feedbackId), failedIds };
+    } catch (error) {
+      console.error('[rocket-meals-module] reopening chats failed', error);
+      return { resolvedIds: [], failedIds: [...failedIds, ...toReopen.map(entry => entry.feedbackId)] };
+    }
+  }
+
   /** Marks chats as done in one request (page "Chats"). On failure all of them are reported in `failedIds`. */
   static async markChatsResolved(api: SupportChatApiClient, chatIds: readonly string[]): Promise<MarkResolvedResult> {
     if (chatIds.length === 0) {

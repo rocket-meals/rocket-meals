@@ -9,7 +9,7 @@
  */
 import { useApi, useStores } from '@directus/extensions-sdk';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { ChatConversationState } from 'repo-depkit-common/src/ChatConversationState';
 import { ChatHelper } from 'repo-depkit-common/src/ChatHelper';
 import { FoodFeedbackChatStatus, FoodFeedbackChatStatusHelper } from 'repo-depkit-common/src/FoodFeedbackChatStatusHelper';
@@ -18,6 +18,9 @@ import { useAppExtensionTranslate } from '../../helpers/app-extensions/useAppExt
 import { FoodFeedbackChatActions } from '../../helpers/rocket-meals-module/FoodFeedbackChatActions';
 import { FoodFeedbackChatHelper, type FoodFeedbackChatMessage, type FoodFeedbackListItem } from '../../helpers/rocket-meals-module/FoodFeedbackChatHelper';
 import { ChatQueryHelper } from '../../helpers/rocket-meals-module/ChatQueryHelper';
+import { ActionRecommendationModuleHelper, type ModuleActionRecommendation } from '../../helpers/rocket-meals-module/ActionRecommendationModuleHelper';
+import { ActionRecommendationAction } from '../../helpers/action-recommendations/ActionRecommendationDefinitions';
+import { CollectionNames } from 'repo-depkit-common/src/databaseTypes/CollectionNames';
 import { SupportChatActions } from '../../helpers/rocket-meals-module/SupportChatActions';
 import { ModuleDeleteActions } from '../../helpers/rocket-meals-module/ModuleDeleteActions';
 import { RocketMealsModulePages } from '../../helpers/rocket-meals-module/RocketMealsModulePages';
@@ -35,6 +38,7 @@ const api = useApi();
 const { useNotificationsStore } = useStores();
 const notificationsStore = useNotificationsStore();
 const router = useRouter();
+const route = useRoute();
 
 const deleteDialogOpen = ref(false);
 const deleting = ref(false);
@@ -58,7 +62,7 @@ async function deleteCurrent() {
     deleting.value = false;
   }
 }
-const { translate, formatDateTime } = useAppExtensionTranslate();
+const { language, translate, formatDateTime } = useAppExtensionTranslate();
 
 const page = RocketMealsModulePages.FOOD_FEEDBACKS;
 
@@ -71,6 +75,76 @@ const loading = ref(false);
 const loadError = ref(false);
 const sending = ref(false);
 const updatingState = ref(false);
+
+/** The open AI recommendation of this feedback: its draft reply is offered in the input. */
+const recommendation = ref<ModuleActionRecommendation | null>(null);
+const draftReply = computed(() => ActionRecommendationModuleHelper.getDraftReply(recommendation.value));
+/** Set by "Chat mit Vorschlag starten" in the list. */
+const useDraft = computed(() => route.query[ActionRecommendationModuleHelper.USE_DRAFT_QUERY] !== undefined);
+
+async function loadRecommendation() {
+  const byItem = await ActionRecommendationModuleHelper.loadOpen(api, CollectionNames.FOODS_FEEDBACKS, [props.feedbackId]);
+  recommendation.value = byItem[props.feedbackId] ?? null;
+}
+
+/** Whether a provider is configured under Settings → AI: the button "Vorschlag generieren" is greyed out otherwise. */
+const aiConfigured = ref(false);
+const requestingRecommendation = ref(false);
+const recommendationBusy = computed(() => requestingRecommendation.value || ActionRecommendationModuleHelper.isProcessing(recommendation.value));
+
+/**
+ * Asks the AI what to do with this feedback (reply with a draft, or mark as done), knowing the comment
+ * and the whole chat. The row appears right away as "Die KI wird gefragt", the page reloads it until done.
+ */
+async function requestRecommendation() {
+  if (!aiConfigured.value || recommendationBusy.value) {
+    return;
+  }
+  requestingRecommendation.value = true;
+  try {
+    await ActionRecommendationModuleHelper.requestRecommendations(api, CollectionNames.FOODS_FEEDBACKS, [props.feedbackId], language.value);
+    await loadRecommendation();
+  } catch (error) {
+    console.error('[rocket-meals-module] requesting the action recommendation failed', error);
+    notificationsStore.add({ title: translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_generate_failed), type: 'error' });
+  } finally {
+    requestingRecommendation.value = false;
+  }
+}
+
+/** While the AI is still being asked, the recommendation is reloaded until it answered. */
+let processingRefresh: ReturnType<typeof setTimeout> | undefined;
+watch(recommendation, current => {
+  clearTimeout(processingRefresh);
+  if (ActionRecommendationModuleHelper.isProcessing(current)) {
+    processingRefresh = setTimeout(() => {
+      loadRecommendation().catch(() => undefined);
+    }, ActionRecommendationModuleHelper.PROCESSING_REFRESH_INTERVAL_MS);
+  }
+});
+onBeforeUnmount(() => clearTimeout(processingRefresh));
+
+/** Whether the reason of the recommendation is shown; folded away by default. */
+const reasonExpanded = ref(false);
+
+/** Turned down: the recommendation no longer shows up. */
+async function dismissRecommendation() {
+  await archiveRecommendation();
+}
+
+/** Once support answered or closed the feedback, the recommendation is used up. */
+async function archiveRecommendation() {
+  if (!recommendation.value) {
+    return;
+  }
+  try {
+    await ActionRecommendationModuleHelper.archive(api, [recommendation.value]);
+    recommendation.value = null;
+  } catch (error) {
+    console.error('[rocket-meals-module] archiving the action recommendation failed', error);
+    notificationsStore.add({ title: translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_update_failed), type: 'warning' });
+  }
+}
 
 const chatId = computed(() => RelationHelper.getId(feedback.value?.chat));
 const status = computed(() => (feedback.value ? FoodFeedbackChatStatusHelper.getStatus(feedback.value) : FoodFeedbackChatStatus.NEW));
@@ -99,6 +173,7 @@ async function load() {
   try {
     await loadFeedback();
     await loadMessages();
+    await loadRecommendation();
     loadError.value = false;
   } catch (error) {
     console.error('[rocket-meals-module] loading food feedback chat failed', error);
@@ -132,6 +207,7 @@ async function sendMessage(text: string): Promise<boolean> {
   try {
     const targetChatId = await ensureChat();
     await api.post(ChatQueryHelper.CHAT_MESSAGES_ENDPOINT, { chat: targetChatId, message: text });
+    await archiveRecommendation();
   } catch (error) {
     console.error('[rocket-meals-module] sending chat message failed', error);
     notificationsStore.add({ title: translate(BackendTranslationKeys.rocket_meals_module_send_failed), type: 'error' });
@@ -171,6 +247,9 @@ async function changeStatus(nextStatus: FoodFeedbackChatStatus) {
     }
     await setConversationState(nextState);
     await loadFeedback();
+    if (nextStatus === FoodFeedbackChatStatus.RESOLVED) {
+      await archiveRecommendation();
+    }
   } catch (error) {
     console.error('[rocket-meals-module] updating chat state failed', error);
     notificationsStore.add({ title: translate(BackendTranslationKeys.rocket_meals_module_status_change_failed), type: 'error' });
@@ -182,6 +261,9 @@ async function changeStatus(nextStatus: FoodFeedbackChatStatus) {
 let refreshInterval: ReturnType<typeof setInterval> | undefined;
 onMounted(() => {
   load();
+  ActionRecommendationModuleHelper.loadAiStatus(api).then(status => {
+    aiConfigured.value = status.ai_configured;
+  });
   refreshInterval = setInterval(() => {
     if (!sending.value) {
       loadMessages().catch(() => undefined);
@@ -233,6 +315,56 @@ watch(() => props.feedbackId, load);
             <template v-if="FoodFeedbackChatHelper.getCanteenName(feedback)"> {{ translate(BackendTranslationKeys.rocket_meals_module_canteen) }}: {{ FoodFeedbackChatHelper.getCanteenName(feedback) }} · </template>
             {{ formatDateTime(feedback.date_created) }}
           </span>
+          <div class="feedback-actions">
+            <!-- The wrapper carries the tooltip: a disabled button gets no mouse events. -->
+            <span v-tooltip.bottom="aiConfigured ? undefined : translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_ai_not_configured)">
+              <v-button small secondary :disabled="!aiConfigured || !FoodFeedbackChatStatusHelper.hasComment(feedback)" :loading="recommendationBusy" @click="requestRecommendation">
+                <v-icon :name="ActionRecommendationModuleHelper.ICON" left small />
+                {{ translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_generate) }}
+              </v-button>
+            </span>
+            <v-button v-if="FoodFeedbackChatHelper.canReopen(feedback)" small secondary :loading="updatingState" @click="changeStatus(FoodFeedbackChatStatus.WAITING_FOR_SUPPORT)">
+              <v-icon name="undo" left small />
+              {{ translate(BackendTranslationKeys.rocket_meals_module_reopen) }}
+            </v-button>
+            <v-button v-else-if="FoodFeedbackChatHelper.canMarkResolved(feedback)" small secondary :loading="updatingState" @click="changeStatus(FoodFeedbackChatStatus.RESOLVED)">
+              <v-icon name="task_alt" left small />
+              {{ translate(BackendTranslationKeys.rocket_meals_module_mark_resolved) }}
+              <v-icon v-if="ActionRecommendationModuleHelper.isAction(recommendation, ActionRecommendationAction.MARK_RESOLVED)" v-tooltip="translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_recommended)" :name="ActionRecommendationModuleHelper.ICON" right small />
+            </v-button>
+          </div>
+        </div>
+
+        <div v-if="ActionRecommendationModuleHelper.isProcessing(recommendation)" class="recommendation recommendation-state type-note">
+          <v-progress-circular indeterminate x-small />
+          <span>{{ translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_processing) }}</span>
+        </div>
+        <div v-else-if="recommendation" class="recommendation" :class="{ 'recommendation-failed': ActionRecommendationModuleHelper.isFailed(recommendation) }">
+          <div class="recommendation-header type-note">
+            <v-icon :name="ActionRecommendationModuleHelper.isFailed(recommendation) ? 'error' : ActionRecommendationModuleHelper.ICON" x-small />
+            <span v-if="ActionRecommendationModuleHelper.isFailed(recommendation)">{{ translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_failed) }}</span>
+            <span v-else>
+              {{ translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_title) }}<template v-if="ActionRecommendationModuleHelper.getActionLabelKey(recommendation)">: {{ translate(ActionRecommendationModuleHelper.getActionLabelKey(recommendation)!) }}</template>
+            </span>
+            <span v-if="ActionRecommendationModuleHelper.getRecommendedBy(recommendation)" class="recommendation-by">
+              · {{ translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_recommended_by, { by: ActionRecommendationModuleHelper.getRecommendedBy(recommendation) ?? '' }) }}
+            </span>
+            <span class="spacer" />
+            <v-button v-tooltip.bottom="translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_dismiss)" x-small icon secondary :aria-label="translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_dismiss)" @click="dismissRecommendation">
+              <v-icon name="close" small />
+            </v-button>
+          </div>
+          <div v-if="ActionRecommendationModuleHelper.isFailed(recommendation)" class="recommendation-log type-note">{{ ActionRecommendationModuleHelper.getLastLogLine(recommendation) }}</div>
+          <template v-else-if="recommendation.reason">
+            <!-- The reason stays folded away, the recommended action is what matters at a glance. -->
+            <div class="recommendation-reason-toggle">
+              <v-button x-small secondary :aria-expanded="reasonExpanded" @click.stop="reasonExpanded = !reasonExpanded">
+                <v-icon :name="reasonExpanded ? 'expand_less' : 'expand_more'" left x-small />
+                {{ reasonExpanded ? translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_hide_reason) : translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_show_reason) }}
+              </v-button>
+            </div>
+            <div v-if="reasonExpanded">{{ recommendation.reason }}</div>
+          </template>
         </div>
 
         <support-chat-conversation
@@ -242,6 +374,8 @@ watch(() => props.feedbackId, load);
           :can-write="canWrite"
           :empty-text="canWrite ? translate(BackendTranslationKeys.rocket_meals_module_chat_empty) : translate(BackendTranslationKeys.rocket_meals_module_chat_not_possible)"
           :send="sendMessage"
+          :suggestion="draftReply"
+          :use-suggestion="useDraft"
         />
       </template>
 
@@ -274,5 +408,59 @@ watch(() => props.feedbackId, load);
 
 .spacer {
   flex: 1;
+}
+
+.feedback-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  inline-size: 100%;
+  justify-content: flex-end;
+}
+
+.recommendation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  overflow-wrap: anywhere;
+  background: var(--theme--primary-background);
+  border-inline-start: 3px solid var(--theme--primary);
+  border-radius: var(--theme--border-radius);
+}
+
+.recommendation-state {
+  flex-direction: row;
+  align-items: center;
+  color: var(--theme--primary);
+}
+
+.recommendation-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  align-items: center;
+  color: var(--theme--primary);
+}
+
+.recommendation-by {
+  color: var(--theme--foreground-subdued);
+}
+
+.recommendation-failed {
+  background: var(--theme--danger-background);
+  border-inline-start-color: var(--theme--danger);
+}
+
+.recommendation-failed .recommendation-header {
+  color: var(--theme--danger);
+}
+
+.recommendation-reason-toggle {
+  display: flex;
+}
+
+.recommendation-log {
+  font-family: var(--theme--fonts--monospace--font-family, monospace);
 }
 </style>

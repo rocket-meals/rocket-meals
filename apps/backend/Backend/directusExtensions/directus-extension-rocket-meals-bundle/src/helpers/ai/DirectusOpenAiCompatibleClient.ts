@@ -117,6 +117,22 @@ export class DirectusOpenAiCompatibleClient {
   }
 
   /**
+   * Who answered, for `action_recommendations.recommended_by_ai`: the provider name from the
+   * settings (or the host of its URL) and the model, e.g. `OpenRouter · gpt-4o`.
+   */
+  getRecommenderLabel(model: string | null = this.getDefaultModel()): string {
+    let provider = this.settings.name?.trim() || '';
+    if (!provider) {
+      try {
+        provider = new URL(this.settings.baseUrl).host;
+      } catch {
+        provider = this.settings.baseUrl;
+      }
+    }
+    return model ? `${provider} · ${model}` : provider;
+  }
+
+  /**
    * The content of the first ``` code block (an optional `json` tag right after the opening fence is
    * dropped), or `null` without a complete block. Done with `indexOf` because the equivalent regex
    * backtracks super-linearly.

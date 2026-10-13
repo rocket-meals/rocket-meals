@@ -30,6 +30,11 @@
     "entries": [
       {
         "type": "hook",
+        "name": "action-recommendations-hook",
+        "source": "src/action-recommendations-hook/index.ts"
+      },
+      {
+        "type": "hook",
         "name": "activity-auto-cleanup-schedule",
         "source": "src/activity-auto-cleanup-schedule/index.ts"
       },
@@ -117,6 +122,11 @@
         "type": "hook",
         "name": "feature-wishes-daily-workflow",
         "source": "src/feature-wishes-daily-workflow/index.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "action-recommendations-endpoint",
+        "source": "src/action-recommendations-endpoint/index.ts"
       },
       {
         "type": "endpoint",

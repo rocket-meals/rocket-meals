@@ -8,6 +8,7 @@ export function getAllCollectionNames() {
 }
 
 export enum CollectionNames {
+  ACTION_RECOMMENDATIONS = 'action_recommendations',
   AUTO_TRANSLATION_SETTINGS = 'auto_translation_settings',
   APP_SETTINGS = 'app_settings',
   APP_FEEDBACKS = 'app_feedbacks',

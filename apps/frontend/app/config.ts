@@ -263,10 +263,11 @@ export function getVersionPatch() {
         //      project logo and color kept when the server info cannot be loaded
         // 142: experimental screen "Store-Versionen" compares the installed version with the
         //      App Store and Google Play versions (major and build number only)
-        // 143: the store versions screen shows the installed app (app id), and the store versions
-        //      of the installed app, of the selected customer and of the app the server links to
-        // 144: the store versions screen also shows the star rating of each store
-        return 144;
+        // 143-147: other changes on master
+        // 148: the store versions screen shows the installed app (app id), the store versions of the
+        //      installed app, of the selected customer and of the app the server links to, and the
+        //      star rating of each store
+        return 148;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

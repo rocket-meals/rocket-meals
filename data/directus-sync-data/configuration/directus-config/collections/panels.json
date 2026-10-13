@@ -20,8 +20,8 @@
       "sortField": null,
       "suffix": " "
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Speise Label Rückmeldungen: Anzahl",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -49,8 +49,8 @@
         ]
       }
     },
-    "type": "list",
     "color": null,
+    "type": "list",
     "icon": null,
     "name": "Profile mit höchstem Guthaben",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -82,8 +82,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Profile ohne ausgelesenes Guthaben",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -138,8 +138,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Rückmeldungen: Anzahl Dislikes",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -166,8 +166,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Aktuell Laufender Waschmaschienen",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -196,8 +196,8 @@
         ]
       }
     },
-    "type": "metric-list",
     "color": null,
+    "type": "metric-list",
     "icon": null,
     "name": "Speisen mit meisten Feedback Labels: Dislikes",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -227,8 +227,8 @@
         ]
       }
     },
-    "type": "line-chart",
     "color": null,
+    "type": "line-chart",
     "icon": null,
     "name": "iOS System Versionen Verteilung",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -249,8 +249,8 @@
       "filter": null,
       "range": "1 day"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Kassentransaktionen der letzen 24 Stunden (Stunden-Präzision)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -271,8 +271,8 @@
       "precision": "week",
       "range": "3 months"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Waschvorgänge Startzeiten der letzen 3 Monate (Wochen-Präzision)",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -292,8 +292,8 @@
       "function": "countDistinct",
       "filter": null
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Dateien - Geänderte ID",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -313,8 +313,8 @@
       "defaultValue": "$NOW()",
       "options": {}
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Endzeit",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -330,8 +330,8 @@
     "options": {
       "text": "Mensa Verabredungen"
     },
-    "type": "label",
     "color": null,
+    "type": "label",
     "icon": null,
     "name": null,
     "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
@@ -353,8 +353,8 @@
       "field": "display_width",
       "function": "avg"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Geräte Bildschirm Breite (Durchschnitt)",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -375,8 +375,8 @@
       "precision": "day",
       "range": "1 month"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Waschvorgänge Startzeiten der letzen 1 Monat (Tages-Präzision)",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -411,8 +411,8 @@
       "sortField": null,
       "suffix": " "
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Speise Label Feedbacks: Anzahl",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -460,8 +460,8 @@
       "min": 0,
       "max": "{{CUSTOM_Y_MAX}}"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Auslastung: Reale Werte: Y-Achse Max Fixiert",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -480,8 +480,8 @@
       "displayTemplate": "{{alias}} ({{id}})",
       "limit": 100
     },
-    "type": "relational-variable",
     "color": null,
+    "type": "relational-variable",
     "icon": null,
     "name": "Mensa: Auswahl",
     "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
@@ -500,8 +500,8 @@
       "sortField": "id",
       "function": "countDistinct"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Speisen",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -526,8 +526,8 @@
       "curveType": "stepline",
       "precision": "minute"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Aktivitäten der letzten 1 Stunde (Minuten-Präzision)",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -577,8 +577,8 @@
       "legend": "right",
       "showLabels": true
     },
-    "type": "pie-chart",
     "color": null,
+    "type": "pie-chart",
     "icon": null,
     "name": "Label Feedbacks | Like (true), Dislike (false)",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -599,8 +599,8 @@
       "valueField": "id",
       "range": "12 month"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Anzahl Speiseangebote der letzen 12 Monate (Monats-Präzision)",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -622,8 +622,8 @@
       "field": "display_height",
       "function": "avg"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Geräte Bildschirm Breite (Durchschnitt)",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -654,8 +654,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Waschmaschinen gestartet Dienstags",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -684,8 +684,8 @@
       "conditionalFill": null,
       "horizontal": true
     },
-    "type": "bar-chart",
     "color": null,
+    "type": "bar-chart",
     "icon": null,
     "name": "Verteilung der Nutzer auf die Mensen",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -745,8 +745,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Dislikes: Samstags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -785,8 +785,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Neue Nutzer Erstellungen mit Google in den letzten 31 Tagen",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -819,8 +819,8 @@
       "sortField": "date_updated",
       "limit": 10
     },
-    "type": "list",
     "color": null,
+    "type": "list",
     "icon": null,
     "name": "Speise Kommentare",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -880,8 +880,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Likes: Samstags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -900,8 +900,8 @@
       "function": "countDistinct",
       "sortField": "id"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Speiseangebote",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -930,8 +930,8 @@
         ]
       }
     },
-    "type": "metric-list",
     "color": null,
+    "type": "metric-list",
     "icon": null,
     "name": "Speisen mit meisten Feedback Labels: Likes",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -950,8 +950,8 @@
       "displayTemplate": "{{alias}} ({{id}})",
       "limit": 100
     },
-    "type": "relational-variable",
     "color": null,
+    "type": "relational-variable",
     "icon": null,
     "name": "Mensa: Auswahl",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -991,8 +991,8 @@
         "allowOther": true
       }
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Präzision",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -1019,8 +1019,8 @@
       },
       "function": "max"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Visuelles Maximum",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -1051,8 +1051,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Waschmaschinen gestartet Samstags",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -1112,8 +1112,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Dislikes: Dienstags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -1159,8 +1159,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Guthaben: [10,25[ €",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -1220,8 +1220,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Dislikes: Sonntags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -1271,8 +1271,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Rückmeldungen: Anzahl Bewertungen",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -1300,8 +1300,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Durchschnitt Speisebewertung",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -1323,8 +1323,8 @@
       "precision": "day",
       "curveType": "stepline"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Kassentransaktionen der letzen 1 Woche (Tages-Präzision)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -1346,8 +1346,8 @@
       "range": "1 month",
       "valueField": "id"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Anzahl: App Feedbacks",
     "dashboard": "2b4f29a0-8fb8-4ed2-8a6c-6244b788c9cd",
@@ -1371,8 +1371,8 @@
       "yAxis": "provider",
       "xAxis": "provider"
     },
-    "type": "bar-chart",
     "color": null,
+    "type": "bar-chart",
     "icon": null,
     "name": "Genutzte Login Anbieter",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -1391,8 +1391,8 @@
       "displayTemplate": "{{alias}} ({{id}})",
       "limit": 100
     },
-    "type": "relational-variable",
     "color": null,
+    "type": "relational-variable",
     "icon": null,
     "name": "Mensa: Auswahl",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -1417,8 +1417,8 @@
       "precision": "week",
       "range": "3 months"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Aktivitäten der letzten 3 Monate (Wochen-Präzision)",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -1459,8 +1459,8 @@
       "legend": "right",
       "showLabels": true
     },
-    "type": "pie-chart",
     "color": null,
+    "type": "pie-chart",
     "icon": null,
     "name": "Alle Mensa Rückmeldungen | Like (true), Dislike (false)",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -1483,8 +1483,8 @@
       "curveType": "straight",
       "range": "auto"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Kassentransaktionen Insgesamt (Jahres-Präzision)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -1525,8 +1525,8 @@
       "legend": "right",
       "showLabels": true
     },
-    "type": "pie-chart",
     "color": null,
+    "type": "pie-chart",
     "icon": null,
     "name": "Alle Speise Feedback Labels | Like (true), Dislike (false)",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -1550,8 +1550,8 @@
       "range": "1 day",
       "curveType": "stepline"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Aktivitäten der letzten 24 Stunden (Stunden-Präzision)",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -1592,8 +1592,8 @@
       "min": 0,
       "missingData": "0"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Verabredungen (Ohne Mensa Filter)",
     "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
@@ -1639,8 +1639,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Guthaben: [25,75] €",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -1659,8 +1659,8 @@
       "inter": "datetime",
       "defaultValue": "$NOW()"
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Endzeit",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -1688,8 +1688,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Kassentransaktionen (Letze 24 Stunden)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -1721,8 +1721,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Geräte: Simulatoren",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -1777,8 +1777,8 @@
       "valueField": "id",
       "color": "#E35169"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Mensa Rückmeldung: Anzahl Dislikes",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -1818,8 +1818,8 @@
       "curveType": "stepline",
       "precision": "{{CUSTOM_DIRECTUS_ACTIVITY_PRECISION}}"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Aktivitäten: (Nutzerspezifische Präzision)",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -1858,8 +1858,8 @@
       "precision": "{{CUSTOM_CASHREGISTERS_TRANSACTIONS_PRECISION}}",
       "range": "auto"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Kassentransaktionen: (Nutzerspezifische Präzision)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -1882,8 +1882,8 @@
       "curveType": "stepline",
       "range": "3 months"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Kassentransaktionen der letzen 3 Monate (Wochen-Präzision)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -1943,8 +1943,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Likes: Montags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -1980,8 +1980,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl IP-Adressen in den vergangen 90 Tagen",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -2032,8 +2032,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Geräte: Tablets",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -2081,8 +2081,8 @@
       "min": 0,
       "missingData": "0"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Verabredungen (Gefiltert)",
     "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
@@ -2103,8 +2103,8 @@
       "precision": "month",
       "range": "auto"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Waschvorgänge Startzeiten Insgesamt (Monats-Präzision)",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -2143,8 +2143,8 @@
       "precision": "day",
       "curveType": "stepline"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Anzahl Speise Kommentare über die letzten 31 Tage (Tages Präzision)",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -2163,8 +2163,8 @@
       "inter": "datetime",
       "defaultValue": "$NOW()"
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Endzeit",
     "dashboard": "b46df209-45f2-4a9e-ba1b-dfbc7d78602d",
@@ -2201,8 +2201,8 @@
         ]
       }
     },
-    "type": "list",
     "color": null,
+    "type": "list",
     "icon": null,
     "name": "Beliebteste Speisen",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -2220,8 +2220,8 @@
       "field": "id",
       "function": "countDistinct"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl: Push-Nachrichten",
     "dashboard": "2b4f29a0-8fb8-4ed2-8a6c-6244b788c9cd",
@@ -2248,8 +2248,8 @@
       },
       "function": "max"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Y-Achse Maximum Vorschlag",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -2268,8 +2268,8 @@
       "function": "countDistinct",
       "filter": null
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Speisen",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -2329,8 +2329,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Dislikes: Freitags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -2361,8 +2361,8 @@
         ]
       }
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Anzahl:  Feedbacks Negativ",
     "dashboard": "2b4f29a0-8fb8-4ed2-8a6c-6244b788c9cd",
@@ -2381,8 +2381,8 @@
       "displayTemplate": "{{alias}}",
       "limit": 100
     },
-    "type": "relational-variable",
     "color": null,
+    "type": "relational-variable",
     "icon": null,
     "name": "Mensa: Auswahl",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -2400,8 +2400,8 @@
       "field": "id",
       "function": "count"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Waschvorgänge",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -2419,8 +2419,8 @@
       "field": "runtime_in_seconds",
       "function": "sum"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Laufzeit in Sekunden: Gesamt",
     "dashboard": "107ae978-0259-41e8-9bf0-3b4f0830112b",
@@ -2441,8 +2441,8 @@
       "sortDirection": "asc",
       "xAxis": "alias"
     },
-    "type": "list",
     "color": null,
+    "type": "list",
     "icon": null,
     "name": "Verteilung der Nutzer auf die Mensen",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -2498,8 +2498,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Geräte: Browser",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -2531,8 +2531,8 @@
       "sortField": "brand",
       "decimals": 0
     },
-    "type": "bar-chart",
     "color": null,
+    "type": "bar-chart",
     "icon": null,
     "name": "Anzahl Geräte Marken",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -2551,8 +2551,8 @@
       "function": "sum",
       "suffix": "min"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Summe Waschzeit",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -2614,8 +2614,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Rückmeldungen: Anzahl Likes",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -2634,8 +2634,8 @@
       "inter": "datetime",
       "defaultValue": "$NOW(-31 day)"
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Startzeit",
     "dashboard": "b46df209-45f2-4a9e-ba1b-dfbc7d78602d",
@@ -2666,8 +2666,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Waschmaschinen gestartet Monatgs",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -2685,8 +2685,8 @@
       "field": "id",
       "function": "countDistinct"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Verabredungen (insgesamt)",
     "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
@@ -2714,8 +2714,8 @@
         ]
       }
     },
-    "type": "list",
     "color": null,
+    "type": "list",
     "icon": null,
     "name": "Am Häufigsten Bewertet",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -2736,8 +2736,8 @@
       "valueField": "id",
       "range": "auto"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Anzahl Speiseangebote Insgesamt (Monats-Präzision)",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -2766,8 +2766,8 @@
         ]
       }
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Profil Aktualisierungen",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -2788,8 +2788,8 @@
       "valueField": "id",
       "range": "12 month"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Anzahl Speiseangebote der letzen 12 Monate (Wochen-Präzision)",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -2813,8 +2813,8 @@
       "yAxis": "id",
       "xAxis": "platform"
     },
-    "type": "bar-chart",
     "color": null,
+    "type": "bar-chart",
     "icon": null,
     "name": "Anzahl Geräte Typen (von Profilen)",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -2849,8 +2849,8 @@
       "maximumFractionDigits": 2,
       "suffix": " "
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Sternebewertung Anzahl",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -2901,8 +2901,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Geräte: Handy",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -2937,8 +2937,8 @@
       "maximumFractionDigits": 2,
       "suffix": " "
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Sternebewertung Anzahl",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -2959,8 +2959,8 @@
       "inter": "datetime",
       "defaultValue": "$NOW()"
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Mensa Rückmeldungen: Start Zeit (Standart: Heute)",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -3006,8 +3006,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Guthaben: [5,10[ €",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -3028,8 +3028,8 @@
       "precision": "day",
       "range": "3 months"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Waschvorgänge Startzeiten der letzen 3 Monate (Tages-Präzision)",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -3075,8 +3075,8 @@
       "maximumFractionDigits": 2,
       "suffix": "⭐"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Sternebewertung Durchschnitt",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -3115,8 +3115,8 @@
         ]
       }
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Anzahl Bewertungen",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -3177,8 +3177,8 @@
       "grouping": "like",
       "showLegend": true
     },
-    "type": "line-chart",
     "color": null,
+    "type": "line-chart",
     "icon": null,
     "name": "Mensa Rückmeldung: Likes (true) vs Dislikes (false)",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -3209,8 +3209,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Waschmaschinen gestartet Donnerstags",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -3258,8 +3258,8 @@
         "allowOther": true
       }
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Präzision",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -3278,8 +3278,8 @@
       "function": "countDistinct",
       "sortField": null
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl: App Feedbacks",
     "dashboard": "2b4f29a0-8fb8-4ed2-8a6c-6244b788c9cd",
@@ -3311,8 +3311,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Neue Profile in den letzen 31 Tagen",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -3332,8 +3332,8 @@
       "sortField": "id",
       "filter": null
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Profile",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -3349,8 +3349,8 @@
     "options": {
       "text": "Speise Feedback Labels"
     },
-    "type": "label",
     "color": null,
+    "type": "label",
     "icon": null,
     "name": null,
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -3369,8 +3369,8 @@
       "inter": "datetime",
       "defaultValue": "$NOW(-1 day)"
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Startzeit",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -3409,8 +3409,8 @@
         ]
       }
     },
-    "type": "list",
     "color": null,
+    "type": "list",
     "icon": null,
     "name": null,
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -3441,8 +3441,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Bewerteter Speisen",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -3490,8 +3490,8 @@
         "allowOther": true
       }
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Präzision",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -3513,8 +3513,8 @@
       },
       "defaultValue": 1500
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Y-Achse Maximum",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -3533,8 +3533,8 @@
       "displayTemplate": "{{alias}} ({{id}})",
       "limit": 100
     },
-    "type": "relational-variable",
     "color": null,
+    "type": "relational-variable",
     "icon": null,
     "name": "Mensa Rückmeldungen: Label",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -3563,8 +3563,8 @@
         ]
       }
     },
-    "type": "metric-list",
     "color": null,
+    "type": "metric-list",
     "icon": null,
     "name": "Häufigste Ungewollte Kennzeichnungen",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -3583,8 +3583,8 @@
       "displayTemplate": "{{alias}} ({{id}})",
       "limit": 100
     },
-    "type": "relational-variable",
     "color": null,
+    "type": "relational-variable",
     "icon": null,
     "name": "Speise: Auswahl",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -3637,8 +3637,8 @@
       ],
       "sortField": null
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Label Feedbacks: Dislikes",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -3675,8 +3675,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Profile mit Nicknamen",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -3714,8 +3714,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Rückmeldungen: Anzahl Dislikes",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -3755,8 +3755,8 @@
       "curveType": "straight",
       "range": "auto"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Kassentransaktionen der letzen 12 Monate (Monats-Präzision)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -3787,8 +3787,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Freundschaften (durch 2 teilen)",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -3850,8 +3850,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Rückmeldungen: Anzahl Dislikes",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -3887,8 +3887,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl IP-Adressen in den vergangen 31 Tagen",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -3913,8 +3913,8 @@
       "curveType": "stepline",
       "precision": "minute"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Aktivitäten der letzten 24 Stunden (Minuten-Präzision)",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -3934,8 +3934,8 @@
       "defaultValue": "$NOW(-1 day)",
       "options": {}
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Startzeit",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -3961,8 +3961,8 @@
       "min": 0,
       "max": 500
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Anzahl Bewertungen Feedback Labels",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -3983,8 +3983,8 @@
       "sortField": "timestamp",
       "displayTemplate": "{{timestamp}} - {{action}} - Profil: {{user.profile.id}}"
     },
-    "type": "list",
     "color": null,
+    "type": "list",
     "icon": null,
     "name": "Letzte Aktivitäten",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -4004,8 +4004,8 @@
       "aggregation": "count",
       "grouping": null
     },
-    "type": "line-chart",
     "color": null,
+    "type": "line-chart",
     "icon": null,
     "name": "Geräte Bildschirm Breite Verteilung",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -4053,8 +4053,8 @@
       "max": "{{CUSTOM_Y_MAX}}",
       "min": 0
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Auslastung: Prognose: Y-Achse Max Fixiert",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -4085,8 +4085,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Waschmaschinen gestartet Freitags",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -4105,8 +4105,8 @@
       "function": "min",
       "suffix": "min"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Kürzeste Waschzeit",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -4125,8 +4125,8 @@
       "function": "countDistinct",
       "sortField": "id"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Geräte (von Profilen)",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -4165,8 +4165,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Neue Nutzer Erstellungen mit Apple in den letzten 31 Tagen",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -4197,8 +4197,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Durchschnittliche Anzahl Speise Bewertungen pro Speise",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -4256,8 +4256,8 @@
         }
       ]
     },
-    "type": "bar-chart",
     "color": null,
+    "type": "bar-chart",
     "icon": null,
     "name": "Mensa Rückmeldung: Anzahl Likes",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -4305,8 +4305,8 @@
         "allowOther": true
       }
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Präzision",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -4322,8 +4322,8 @@
     "options": {
       "text": "Mensa Auslatungen"
     },
-    "type": "label",
     "color": null,
+    "type": "label",
     "icon": null,
     "name": null,
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -4342,8 +4342,8 @@
       "function": "count",
       "valueField": "id"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Waschvorgänge Startzeiten der letzen 1 Woche (Stunden-Präzision)",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -4403,8 +4403,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Likes: Sonntags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -4434,8 +4434,8 @@
       "suffix": "€",
       "maximumFractionDigits": 2
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Gesamt Guthaben",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -4455,8 +4455,8 @@
       "aggregateField": "id",
       "aggregateFunction": "count"
     },
-    "type": "metric-list",
     "color": null,
+    "type": "metric-list",
     "icon": null,
     "name": "Anzahl Waschvorgänge pro Waschmaschine",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -4480,8 +4480,8 @@
       "groupByField": "recipient",
       "aggregateFunction": "count"
     },
-    "type": "metric-list",
     "color": null,
+    "type": "metric-list",
     "icon": null,
     "name": "Anzahl E-Mails pro Adresse",
     "dashboard": "b46df209-45f2-4a9e-ba1b-dfbc7d78602d",
@@ -4497,8 +4497,8 @@
     "options": {
       "text": "Speiseplan"
     },
-    "type": "label",
     "color": null,
+    "type": "label",
     "icon": null,
     "name": null,
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -4517,8 +4517,8 @@
       "dateField": "date_created",
       "valueField": "id"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Anzahl: Push-Nachrichten",
     "dashboard": "2b4f29a0-8fb8-4ed2-8a6c-6244b788c9cd",
@@ -4552,8 +4552,8 @@
       },
       "curveType": "stepline"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Letzte Guthaben Aktualisierungen",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -4608,8 +4608,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Rückmeldungen: Anzahl Likes",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -4637,8 +4637,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Speise Bewertungen",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -4657,8 +4657,8 @@
       "function": "count",
       "sortField": "id"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Kassentransaktionen (Insgesamt)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -4677,8 +4677,8 @@
       "function": "count",
       "sortField": "id"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Kassen",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -4709,8 +4709,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Waschmaschinen gestartet Sonntags",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -4745,8 +4745,8 @@
       "curveType": "stepline",
       "field": "id"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Nutzer mit Guthaben Aktualisierungen in den letzten 31 Tagen",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -4762,8 +4762,8 @@
     "options": {
       "text": "Rückmeldungen Mensa"
     },
-    "type": "label",
     "color": null,
+    "type": "label",
     "icon": null,
     "name": null,
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -4783,8 +4783,8 @@
       "aggregateFunction": "count",
       "limit": 10
     },
-    "type": "metric-list",
     "color": null,
+    "type": "metric-list",
     "icon": null,
     "name": "Speisen mit meisten Feedback Labels",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -4837,8 +4837,8 @@
       "legend": "right",
       "showLabels": true
     },
-    "type": "pie-chart",
     "color": null,
+    "type": "pie-chart",
     "icon": null,
     "name": "Mensa Rückmeldungen | Like (true), Dislike (false)",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -4858,8 +4858,8 @@
       "xAxis": "duration_in_minutes_rounded_10min_calculated",
       "yAxis": "id"
     },
-    "type": "bar-chart",
     "color": null,
+    "type": "bar-chart",
     "icon": null,
     "name": "Waschmaschienen Vorgänge Verteilung (in Minuten, gerundet)",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -4887,8 +4887,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl: App Feedbacks",
     "dashboard": "2b4f29a0-8fb8-4ed2-8a6c-6244b788c9cd",
@@ -4946,8 +4946,8 @@
         }
       ]
     },
-    "type": "bar-chart",
     "color": null,
+    "type": "bar-chart",
     "icon": null,
     "name": "Mensa Rückmeldung: Anzahl Dislikes",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -4970,8 +4970,8 @@
       "filter": null,
       "curveType": "stepline"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Aktivitäten der letzten 7 Tage (Stunden-Präzision)",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -5010,8 +5010,8 @@
       "precision": "{{CUSTOM_MAILS_PRECISION}}",
       "range": "auto"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Mails: (Nutzerspezifische Präzision)",
     "dashboard": "b46df209-45f2-4a9e-ba1b-dfbc7d78602d",
@@ -5048,8 +5048,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Kassentransaktionen: (Nutzerspezifische Präzision)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -5109,8 +5109,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Dislikes: Donnerstags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -5131,8 +5131,8 @@
       "precision": "year",
       "range": "auto"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Waschvorgänge Startzeiten Insgesamt (Jahres-Präzision)",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -5164,8 +5164,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Profile mit ausgelesenem Guthaben",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -5188,8 +5188,8 @@
       "range": "1 month",
       "curveType": "stepline"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Kassentransaktionen der letzen 1 Monat (Tages-Präzision)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -5237,8 +5237,8 @@
         "allowOther": true
       }
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Präzision",
     "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
@@ -5257,8 +5257,8 @@
       "function": "countDistinct",
       "sortField": "id"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Speise Feedback Label Bewertungen",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -5311,8 +5311,8 @@
       ],
       "sortField": null
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Label Feedbacks: Dislikes",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -5331,8 +5331,8 @@
       "function": "count",
       "sortField": "id"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Mails versendet",
     "dashboard": "b46df209-45f2-4a9e-ba1b-dfbc7d78602d",
@@ -5374,8 +5374,8 @@
       "sortField": null,
       "suffix": " "
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Label Feedbacks: Anzahl",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -5429,8 +5429,8 @@
       "sortField": null,
       "suffix": null
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Label Feedbacks: Likes",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -5477,8 +5477,8 @@
       "precision": "{{CUSTOM_PRECISION}}",
       "min": 0
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Auslastung: Reale Werte",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -5498,8 +5498,8 @@
       "valueField": "id",
       "precision": "day"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Waschvorgänge Startzeiten der letzen 1 Woche (Tages-Präzision)",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -5519,8 +5519,8 @@
       "sortField": "id",
       "suffix": "min"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Durschnittliche Waschzeit",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -5557,8 +5557,8 @@
         ]
       }
     },
-    "type": "list",
     "color": null,
+    "type": "list",
     "icon": null,
     "name": "Unbeliebteste Speisen",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -5590,8 +5590,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Speise Kommentare",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -5612,8 +5612,8 @@
       "inter": "datetime",
       "defaultValue": "$NOW(-8 hours)"
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Mensa Rückmeldungen: Start Zeit (Standart: Vor 1 Tag)",
     "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
@@ -5652,8 +5652,8 @@
       "precision": "week",
       "range": "auto"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Kassentransaktionen der letzen 12 Monat (Wochen-Präzision)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -5675,8 +5675,8 @@
       "displayTemplate": "{{title}} - {{content}}",
       "linkToItem": true
     },
-    "type": "list",
     "color": null,
+    "type": "list",
     "icon": null,
     "name": "Anzahl: App Feedbacks",
     "dashboard": "2b4f29a0-8fb8-4ed2-8a6c-6244b788c9cd",
@@ -5714,8 +5714,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Rückmeldungen: Anzahl Likes",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -5734,8 +5734,8 @@
       "displayTemplate": "{{alias}} ({{id}})",
       "limit": 100
     },
-    "type": "relational-variable",
     "color": null,
+    "type": "relational-variable",
     "icon": null,
     "name": "Speise Feedback: Label",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -5774,8 +5774,8 @@
         }
       ]
     },
-    "type": "bar-chart",
     "color": null,
+    "type": "bar-chart",
     "icon": null,
     "name": "Durchschnittliche Zufriedenheit aller Speisen",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -5821,8 +5821,8 @@
       "maximumFractionDigits": 2,
       "suffix": "⭐"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Sternebewertung Durchschnitt",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -5844,8 +5844,8 @@
       "range": "1 hour",
       "precision": "minute"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Kassentransaktionen der letzen 1 Stunde (Minuten-Präzision)",
     "dashboard": "7026c43d-e7ca-41e8-aaab-aeb7dacf17ab",
@@ -5866,8 +5866,8 @@
       "inter": "datetime",
       "defaultValue": "$NOW(-31 days)"
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Mensa Rückmeldungen: Start Zeit (Standart: Vor 31 Tagen)",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -5927,8 +5927,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Likes: Donnerstags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -5948,8 +5948,8 @@
       "legend": "right",
       "donut": true
     },
-    "type": "pie-chart",
     "color": null,
+    "type": "pie-chart",
     "icon": null,
     "name": null,
     "dashboard": "107ae978-0259-41e8-9bf0-3b4f0830112b",
@@ -5968,8 +5968,8 @@
       "function": "max",
       "suffix": "min"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Längste Waschzeit",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -6024,8 +6024,8 @@
       "range": "auto",
       "color": "#2ECDA7"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Mensa Rückmeldung: Anzahl Likes",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -6046,8 +6046,8 @@
       "inter": "datetime",
       "defaultValue": "$NOW(-8 hours)"
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Mensa Rückmeldungen: Start Zeit (Standart: Vor 1 Tag)",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -6072,8 +6072,8 @@
       "precision": "day",
       "range": "1 month"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Aktivitäten der letzten 31 Tage (Tages-Präzision)",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -6116,8 +6116,8 @@
       "legend": "right",
       "showLabels": true
     },
-    "type": "pie-chart",
     "color": null,
+    "type": "pie-chart",
     "icon": null,
     "name": "Speise Label Feedbacks | Like (true), Dislike (false)",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -6149,8 +6149,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzah gesetzter Benachrichtigungen für Speisen",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -6179,8 +6179,8 @@
         ]
       }
     },
-    "type": "metric-list",
     "color": null,
+    "type": "metric-list",
     "icon": null,
     "name": "Häufigste Gewollte Kennzeichnungen",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -6205,8 +6205,8 @@
       "precision": "day",
       "range": "3 months"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Aktivitäten der letzten 3 Monate (Tages-Präzision)",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -6253,8 +6253,8 @@
       "sortField": null,
       "suffix": null
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Rückmeldungen: Anzahl Likes",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -6281,8 +6281,8 @@
       },
       "function": "max"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Allzeit Maximum: Real",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -6302,8 +6302,8 @@
       "function": "count",
       "sortField": "id"
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Waschmaschienen",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -6319,8 +6319,8 @@
     "options": {
       "text": "Mensa Spezifisch"
     },
-    "type": "label",
     "color": null,
+    "type": "label",
     "icon": null,
     "name": null,
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -6340,8 +6340,8 @@
       "function": "count",
       "valueField": "id"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Neue Profile",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -6401,8 +6401,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Likes: Freitags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -6422,8 +6422,8 @@
       "aggregation": "count",
       "grouping": null
     },
-    "type": "line-chart",
     "color": null,
+    "type": "line-chart",
     "icon": null,
     "name": "Geräte Bildschirm Höhe Verteilung",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -6454,8 +6454,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Waschmaschinen gestartet Mittwochs",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -6496,8 +6496,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Guthaben: > 75 €",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -6527,8 +6527,8 @@
         ]
       }
     },
-    "type": "line-chart",
     "color": null,
+    "type": "line-chart",
     "icon": null,
     "name": "Android System Versionen Verteilung",
     "dashboard": "7d491bcd-3b15-4cc7-bb1b-26b8a4cf9c25",
@@ -6565,8 +6565,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Aktivitäten: (Nutzerspezifische Präzision)",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -6609,8 +6609,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Rückmeldungen: Anzahl Bewertungen",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -6637,8 +6637,8 @@
       "aggregateFunction": "count",
       "limit": -1
     },
-    "type": "pie-chart",
     "color": null,
+    "type": "pie-chart",
     "icon": null,
     "name": "Verteilung gewählter Sprachen",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -6688,8 +6688,8 @@
       "legend": "right",
       "showLabels": true
     },
-    "type": "pie-chart",
     "color": null,
+    "type": "pie-chart",
     "icon": null,
     "name": "Label Feedbacks | Like (true), Dislike (false)",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -6710,8 +6710,8 @@
       "valueField": "id",
       "range": "1 month"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Anzahl Speiseangebote der letzen 1 Monate (Tages-Präzision)",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -6736,8 +6736,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Rückmeldungen: Anzahl Bewertungen",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -6762,8 +6762,8 @@
       "precision": "week",
       "range": "12 months"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Aktivitäten der letzten 12 Monate (Wochen-Präzision)",
     "dashboard": "1cb996b1-a7d4-4f7c-b0ee-651f31b4db62",
@@ -6823,8 +6823,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Likes: Mittwochs",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -6843,8 +6843,8 @@
       "displayTemplate": "{{alias}} ({{id}})",
       "limit": 100
     },
-    "type": "relational-variable",
     "color": null,
+    "type": "relational-variable",
     "icon": null,
     "name": "Speise: Auswahl",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -6904,8 +6904,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Likes: Dienstags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -6933,8 +6933,8 @@
         ]
       }
     },
-    "type": "metric-list",
     "color": null,
+    "type": "metric-list",
     "icon": null,
     "name": "Workflow Durchschnitt Zeit",
     "dashboard": "107ae978-0259-41e8-9bf0-3b4f0830112b",
@@ -6974,8 +6974,8 @@
       "sortField": null,
       "suffix": null
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Speise Label Feedbacks: Anzahl Dislikes",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -7012,8 +7012,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Mails: (Nutzerspezifische Präzision)",
     "dashboard": "b46df209-45f2-4a9e-ba1b-dfbc7d78602d",
@@ -7034,8 +7034,8 @@
       "precision": "month",
       "range": "12 months"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Waschvorgänge Startzeiten der letzen 12 Monate (Monats-Präzision)",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -7095,8 +7095,8 @@
       "legend": "right",
       "showLabels": true
     },
-    "type": "pie-chart",
     "color": null,
+    "type": "pie-chart",
     "icon": null,
     "name": "Mensa Rückmeldungen | Like (true), Dislike (false)",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -7156,8 +7156,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Dislikes: Mittwochs",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -7176,8 +7176,8 @@
       "groupByField": "workflow",
       "aggregateFunction": "sum"
     },
-    "type": "metric-list",
     "color": null,
+    "type": "metric-list",
     "icon": null,
     "name": "Workflow Summe Zeit",
     "dashboard": "107ae978-0259-41e8-9bf0-3b4f0830112b",
@@ -7224,8 +7224,8 @@
       "sortField": null,
       "suffix": null
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Mensa Rückmeldungen: Anzahl Dislikes",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -7267,8 +7267,8 @@
       "sortField": null,
       "suffix": " "
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Label Feedbacks: Anzahl",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -7289,8 +7289,8 @@
       "inter": "datetime",
       "defaultValue": "$NOW(+4 hours)"
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Mensa Rückmeldungen: Start Zeit (Standart: Heute)",
     "dashboard": "a3d32433-5676-4bc7-8aaf-cef6425a78dd",
@@ -7338,8 +7338,8 @@
         "allowOther": true
       }
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Präzision",
     "dashboard": "b46df209-45f2-4a9e-ba1b-dfbc7d78602d",
@@ -7360,8 +7360,8 @@
       "precision": "week",
       "range": "12 months"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Waschvorgänge Startzeiten der letzen 12 Monate (Wochen-Präzision)",
     "dashboard": "e337cf40-e1f1-4381-9e20-6f50a19aebc4",
@@ -7415,8 +7415,8 @@
       "sortField": null,
       "suffix": null
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Label Feedbacks: Likes",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -7437,8 +7437,8 @@
       "inter": "datetime",
       "defaultValue": "$NOW(+4 hours)"
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Mensa Rückmeldungen: Start Zeit (Standart: Heute)",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -7498,8 +7498,8 @@
         }
       ]
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Dislikes: Montags",
     "dashboard": "09b59cc1-13e5-4210-84b8-ad6704b867e4",
@@ -7532,8 +7532,8 @@
       },
       "range": "1 day"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Login Zeiten",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -7554,8 +7554,8 @@
       "inter": "datetime",
       "defaultValue": "$NOW()"
     },
-    "type": "variable",
     "color": null,
+    "type": "variable",
     "icon": null,
     "name": "Tag: Speiseangebote",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -7602,8 +7602,8 @@
       "precision": "{{CUSTOM_PRECISION}}",
       "min": 0
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Auslastung: Prognose",
     "dashboard": "43d488cb-5723-455c-a1f0-db366bf32512",
@@ -7623,8 +7623,8 @@
       "function": "count",
       "valueField": "id"
     },
-    "type": "time-series",
     "color": null,
+    "type": "time-series",
     "icon": null,
     "name": "Anzahl Speiseangebote der letzen 1 Woche (Tages-Präzision)",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -7640,8 +7640,8 @@
     "options": {
       "text": "Speisen Spezifisch"
     },
-    "type": "label",
     "color": null,
+    "type": "label",
     "icon": null,
     "name": null,
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",
@@ -7687,8 +7687,8 @@
         ]
       }
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Anzahl Guthaben: ]0,5[ €",
     "dashboard": "116a8172-4d9a-4e62-adeb-24160389d016",
@@ -7709,8 +7709,8 @@
       "max": 5,
       "strokeWidth": 8
     },
-    "type": "meter",
     "color": null,
+    "type": "meter",
     "icon": null,
     "name": "Durchschnittliche Zufriedenheit aller Speisen",
     "dashboard": "e64e5e4c-7a81-43ce-aa89-85ae27971add",
@@ -7750,8 +7750,8 @@
       "sortField": null,
       "suffix": null
     },
-    "type": "metric",
     "color": null,
+    "type": "metric",
     "icon": null,
     "name": "Speise Label Feedbacks: Anzahl Likes",
     "dashboard": "11c0294b-0d31-4145-81e4-5a52b9180af1",

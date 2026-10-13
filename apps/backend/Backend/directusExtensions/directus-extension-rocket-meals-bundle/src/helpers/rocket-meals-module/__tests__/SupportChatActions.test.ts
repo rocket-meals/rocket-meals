@@ -40,3 +40,29 @@ describe('SupportChatActions.markChatsResolved', () => {
     expect(patch).not.toHaveBeenCalled();
   });
 });
+
+describe('SupportChatActions.reopen', () => {
+  it('sets the chats of done feedbacks back to waiting for support in one request', async () => {
+    const patch = jest.fn(async () => ({ data: {} }));
+    const api = { post: jest.fn(async () => ({ data: {} })), patch };
+    const result = await SupportChatActions.reopen(api, [
+      { id: 'f1', chat: 'c1' },
+      { id: 'f2', chat: { id: 'c2', conversation_state: 'resolved' } },
+      { id: 'f3', chat: null },
+    ]);
+    expect(patch).toHaveBeenCalledWith('/items/chats', { keys: ['c1', 'c2'], data: { conversation_state: 'waiting_for_support' } });
+    expect(result).toEqual({ resolvedIds: ['f1', 'f2'], failedIds: ['f3'] });
+  });
+
+  it('reports all as failed when the request fails', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const api = {
+      post: jest.fn(async () => ({ data: {} })),
+      patch: jest.fn(async () => {
+        throw new Error('403');
+      }),
+    };
+    expect(await SupportChatActions.reopen(api, [{ id: 'f1', chat: 'c1' }])).toEqual({ resolvedIds: [], failedIds: ['f1'] });
+    consoleError.mockRestore();
+  });
+});

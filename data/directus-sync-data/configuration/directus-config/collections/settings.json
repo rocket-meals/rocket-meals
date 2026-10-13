@@ -1,14 +1,17 @@
 [
   {
-    "product_updates": false,
-    "collaborative_editing_enabled": false,
     "public_registration": false,
     "mcp_allow_deletes": false,
+    "mcp_system_prompt_enabled": true,
     "mcp_enabled": true,
     "public_registration_verify_email": true,
-    "mcp_system_prompt_enabled": true,
-    "custom_css": null,
+    "product_updates": false,
+    "collaborative_editing_enabled": false,
     "auth_login_attempts": 25,
+    "public_note": null,
+    "mcp_system_prompt": null,
+    "custom_css": null,
+    "ai_system_prompt": null,
     "basemaps": null,
     "module_bar": [
       {
@@ -59,18 +62,17 @@
       }
     ],
     "custom_aspect_ratios": null,
-    "mcp_system_prompt": null,
-    "ai_system_prompt": null,
-    "public_note": null,
     "theme_light_overrides": null,
+    "theme_dark_overrides": null,
+    "public_registration_email_filter": null,
+    "ai_anthropic_allowed_models": [
+      "claude-haiku-4-5",
+      "claude-sonnet-4-5"
+    ],
     "ai_openai_allowed_models": [
       "gpt-5-nano",
       "gpt-5-mini",
       "gpt-5"
-    ],
-    "ai_anthropic_allowed_models": [
-      "claude-haiku-4-5",
-      "claude-sonnet-4-5"
     ],
     "ai_google_allowed_models": [
       "gemini-flash-latest",
@@ -78,9 +80,8 @@
       "gemini-3.6-flash",
       "gemini-3.5-flash"
     ],
-    "theme_dark_overrides": null,
-    "public_registration_email_filter": null,
     "storage_asset_presets": null,
+    "auth_password_policy": null,
     "project_status": null,
     "org_name": "Baumgartner Software UG (haftungsbeschränkt)",
     "project_usage": "commercial",
@@ -95,7 +96,6 @@
     "default_language": "de-DE",
     "mapbox_key": null,
     "storage_asset_transform": "all",
-    "auth_password_policy": null,
     "storage_default_folder": null,
     "public_registration_role": null,
     "_syncId": "_sync_default_settings"

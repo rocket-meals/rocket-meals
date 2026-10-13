@@ -46,6 +46,11 @@ export class FoodFeedbackChatActions {
     return createdChatId;
   }
 
+  /** Opens done feedbacks again ("Wartet auf Antwort"), see {@link SupportChatActions.reopen}. */
+  static async reopen(api: FoodFeedbackApiClient, feedbacks: readonly FoodFeedbackListItem[]): Promise<MarkResolvedResult> {
+    return SupportChatActions.reopen(api, feedbacks);
+  }
+
   /** Marks feedbacks as done, see {@link SupportChatActions.markResolved}. */
   static async markResolved(api: FoodFeedbackApiClient, feedbacks: readonly FoodFeedbackListItem[]): Promise<MarkResolvedResult> {
     return SupportChatActions.markResolved(api, feedbacks, {

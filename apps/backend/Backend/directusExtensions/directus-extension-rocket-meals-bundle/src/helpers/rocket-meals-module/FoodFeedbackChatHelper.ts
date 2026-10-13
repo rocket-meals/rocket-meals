@@ -337,6 +337,11 @@ export class FoodFeedbackChatHelper {
   }
 
   /** Whether a feedback can be marked as done from the list: not done yet, and someone to show the chat to. */
+  /** Only a done feedback can be opened again; it always has a chat, the status lives there. */
+  static canReopen(feedback: FoodFeedbackListItem): boolean {
+    return FoodFeedbackChatStatusHelper.getStatus(feedback) === FoodFeedbackChatStatus.RESOLVED;
+  }
+
   static canMarkResolved(feedback: FoodFeedbackListItem): boolean {
     return FoodFeedbackChatStatusHelper.getStatus(feedback) !== FoodFeedbackChatStatus.RESOLVED && FoodFeedbackChatStatusHelper.canStartChat(feedback);
   }

@@ -6,9 +6,9 @@
 |----------|-------------|-------|
 | 🔒 Security | 2 | 2 |
 | 🐛 Reliability | 5 | 5 |
-| 🔧 Maintainability | 6 | 6 |
+| 🔧 Maintainability | 11 | 11 |
 
-**Total issues:** 13
+**Total issues:** 18
 
 ---
 
@@ -44,11 +44,31 @@
   apps/maintenance-server/server.mjs:303
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/maintenance-server/server.mjs#L303
 
-## 🔧 Maintainability (6/6)
+## 🔧 Maintainability (11/11)
 
 - **Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/feature-wishes-hook/index.ts:76
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/feature-wishes-hook/index.ts#L76
+
+- **'raw.id' will use Object's default stringification format ('[object Object]') when stringified.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationPrompt.ts:114
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationPrompt.ts#L114
+
+- **Move this array "reverse" operation to a separate statement or replace it with "toReversed".**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts:209
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts#L209
+
+- **Extract the assignment of "messagesByItem[item]" from this expression.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts:214
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts#L214
+
+- **Refactor this code to not use nested template literals.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts:161
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts#L161
+
+- **Extract this nested ternary operation into an independent statement.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts:171
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts#L171
 
 - **Extract this nested ternary operation into an independent statement.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/LivePulseHelper.ts:810

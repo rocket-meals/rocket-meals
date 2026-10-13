@@ -1,0 +1,113 @@
+{
+  "collection": "action_recommendations",
+  "field": "status",
+  "type": "string",
+  "meta": {
+    "collection": "action_recommendations",
+    "conditions": null,
+    "display": "labels",
+    "display_options": {
+      "choices": [
+        {
+          "background": "var(--theme--primary-background)",
+          "color": "var(--theme--primary)",
+          "foreground": "var(--theme--primary)",
+          "text": "$t:published",
+          "value": "published"
+        },
+        {
+          "background": "var(--theme--background-normal)",
+          "color": "var(--theme--foreground)",
+          "foreground": "var(--theme--foreground)",
+          "text": "$t:draft",
+          "value": "draft"
+        },
+        {
+          "background": "var(--theme--warning-background)",
+          "color": "var(--theme--warning)",
+          "foreground": "var(--theme--warning)",
+          "text": "$t:archived",
+          "value": "archived"
+        },
+        {
+          "background": "var(--theme--primary-background)",
+          "color": "var(--theme--primary)",
+          "foreground": "var(--theme--primary)",
+          "text": "KI wird gefragt",
+          "value": "processing"
+        },
+        {
+          "background": "var(--theme--danger-background)",
+          "color": "var(--theme--danger)",
+          "foreground": "var(--theme--danger)",
+          "text": "KI fehlgeschlagen",
+          "value": "failed"
+        }
+      ],
+      "showAsDot": true
+    },
+    "field": "status",
+    "group": null,
+    "hidden": false,
+    "interface": "select-dropdown",
+    "note": null,
+    "options": {
+      "choices": [
+        {
+          "color": "var(--theme--primary)",
+          "text": "$t:published",
+          "value": "published"
+        },
+        {
+          "color": "var(--theme--foreground)",
+          "text": "$t:draft",
+          "value": "draft"
+        },
+        {
+          "color": "var(--theme--warning)",
+          "text": "$t:archived",
+          "value": "archived"
+        },
+        {
+          "color": "var(--theme--primary)",
+          "icon": "hourglass_top",
+          "text": "KI wird gefragt",
+          "value": "processing"
+        },
+        {
+          "color": "var(--theme--danger)",
+          "icon": "error",
+          "text": "KI fehlgeschlagen",
+          "value": "failed"
+        }
+      ]
+    },
+    "readonly": false,
+    "required": false,
+    "searchable": true,
+    "sort": 2,
+    "special": null,
+    "translations": null,
+    "validation": null,
+    "validation_message": null,
+    "width": "full"
+  },
+  "schema": {
+    "name": "status",
+    "table": "action_recommendations",
+    "data_type": "character varying",
+    "default_value": "draft",
+    "max_length": 255,
+    "numeric_precision": null,
+    "numeric_scale": null,
+    "is_nullable": false,
+    "is_unique": false,
+    "is_indexed": false,
+    "is_primary_key": false,
+    "is_generated": false,
+    "generation_expression": null,
+    "has_auto_increment": false,
+    "foreign_key_table": null,
+    "foreign_key_column": null
+  }
+}
