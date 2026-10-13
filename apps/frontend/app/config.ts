@@ -274,7 +274,8 @@ export function getVersionPatch() {
         //      canteen image), without the version line
         // 152: outdated app notice inside the safe area, store button pinned to the bottom,
         //      icon and text scroll above it on small displays
-        return 152;
+        // 153: outdated app notice without a heading, only the message on the panel
+        return 153;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

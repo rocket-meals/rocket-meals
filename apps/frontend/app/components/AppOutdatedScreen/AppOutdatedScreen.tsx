@@ -69,7 +69,6 @@ export const AppOutdatedScreen = ({ visible, storeUrl, onClosePreview }: AppOutd
 					<View style={styles.content}>
 						<Image source={iconSource} style={styles.appIcon} />
 						<View style={styles.panel}>
-							<Text style={styles.title}>{translate(TranslationKeys.app_outdated_title)}</Text>
 							<Text style={styles.message}>{translate(TranslationKeys.app_outdated_message)}</Text>
 						</View>
 					</View>
@@ -141,16 +140,9 @@ const styles = StyleSheet.create({
 		borderColor: PANEL_BORDER_COLOR,
 		backgroundColor: PANEL_COLOR,
 	},
-	title: {
-		fontSize: 26,
-		fontFamily: 'Poppins_700Bold',
-		color: TEXT_COLOR,
-		textAlign: 'center',
-		marginBottom: 12,
-	},
 	message: {
-		fontSize: 16,
-		lineHeight: 24,
+		fontSize: 17,
+		lineHeight: 26,
 		fontFamily: 'Poppins_400Regular',
 		color: TEXT_COLOR,
 		textAlign: 'center',

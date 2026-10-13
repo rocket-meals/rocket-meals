@@ -9189,16 +9189,6 @@
     "tr": "Önizlemeyi bitir",
     "zh": "结束预览"
   },
-  "app_outdated_title": {
-    "de": "Neue Version verfügbar",
-    "en": "New version available",
-    "ar": "إصدار جديد متاح",
-    "es": "Nueva versión disponible",
-    "fr": "Nouvelle version disponible",
-    "ru": "Доступна новая версия",
-    "tr": "Yeni sürüm mevcut",
-    "zh": "有新版本可用"
-  },
   "app_outdated_message": {
     "de": "Für die App gibt es eine neue Version. Bitte aktualisiere die App, damit alles wie gewohnt funktioniert.",
     "en": "A new version of the app is available. Please update the app so that everything keeps working as usual.",
