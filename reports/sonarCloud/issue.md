@@ -6,9 +6,9 @@
 |----------|-------------|-------|
 | 🔒 Security | 2 | 2 |
 | 🐛 Reliability | 5 | 5 |
-| 🔧 Maintainability | 11 | 11 |
+| 🔧 Maintainability | 12 | 12 |
 
-**Total issues:** 18
+**Total issues:** 19
 
 ---
 
@@ -44,7 +44,7 @@
   apps/maintenance-server/server.mjs:303
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/maintenance-server/server.mjs#L303
 
-## 🔧 Maintainability (11/11)
+## 🔧 Maintainability (12/12)
 
 - **Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/feature-wishes-hook/index.ts:76
@@ -77,6 +77,10 @@
 - **Replace this union type with a type alias.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/LivePulseHelper.ts:689
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/LivePulseHelper.ts#L689
+
+- **Unexpected `await` inside a loop.**
+  apps/frontend/app/helper/chatReadStatus.ts:90
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/helper/chatReadStatus.ts#L90
 
 - **Async method 'handleNotification' has no 'await' expression.**
   apps/frontend/app/helper/NotificationHelper.ts:87

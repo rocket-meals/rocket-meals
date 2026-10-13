@@ -1,4 +1,5 @@
 Key,Message,Component,Line
+"AaE0snQ2reFZwbJUSfQv","Unexpected `await` inside a loop.","rocket-meals_rocket-meals:apps/frontend/app/helper/chatReadStatus.ts",90
 "AaEx0MPdBO4LJR5ytLlu","Move this array ""reverse"" operation to a separate statement or replace it with ""toReversed"".","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts",209
 "AaEx0MPdBO4LJR5ytLlv","Extract the assignment of ""messagesByItem[item]"" from this expression.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts",214
 "AaEwuCxKDxZ9SeKVEXh3","Refactor this code to not use nested template literals.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts",161
