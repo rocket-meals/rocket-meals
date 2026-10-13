@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
@@ -32,8 +33,13 @@ const DARK_TEXT_COLOR = '#000000';
 // nothing to tap except the store button: no close button, and the Android back
 // button does nothing (onRequestClose is a no-op). The selected canteen shows
 // blurred behind it, so the user still sees where they are.
+//
+// Layout, inside the safe area: the store button is pinned to the bottom and
+// laid out first, icon and text take the space left above it. On a small
+// display that space scrolls, so the text can never cover the button.
 export const AppOutdatedScreen = ({ visible, storeUrl, onClosePreview }: AppOutdatedScreenProps) => {
 	const { translate } = useLanguage();
+	const insets = useSafeAreaInsets();
 	const { primaryColor, serverInfo } = useAppSelector(state => state.settings);
 	const { buildingsDict } = useAppSelector(state => state.canteenReducer);
 	const selectedCanteen = useSelectedCanteen();
@@ -51,15 +57,24 @@ export const AppOutdatedScreen = ({ visible, storeUrl, onClosePreview }: AppOutd
 
 	return (
 		<Modal visible={visible} transparent={false} animationType="fade" statusBarTranslucent onRequestClose={() => {}}>
-			<View style={[styles.container, { backgroundColor: primaryColor }]}>
+			<View
+				style={[
+					styles.container,
+					{ backgroundColor: primaryColor, paddingTop: insets.top, paddingBottom: insets.bottom, paddingLeft: insets.left, paddingRight: insets.right },
+				]}
+			>
 				{canteenImageUrl && <Image source={{ uri: canteenImageUrl }} style={StyleSheet.absoluteFill} blurRadius={BACKGROUND_BLUR_RADIUS} resizeMode="cover" />}
 				<View style={[StyleSheet.absoluteFill, { backgroundColor: SCRIM_COLOR }]} />
-				<View style={styles.content}>
-					<Image source={iconSource} style={styles.appIcon} />
-					<View style={styles.panel}>
-						<Text style={styles.title}>{translate(TranslationKeys.app_outdated_title)}</Text>
-						<Text style={styles.message}>{translate(TranslationKeys.app_outdated_message)}</Text>
+				<ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+					<View style={styles.content}>
+						<Image source={iconSource} style={styles.appIcon} />
+						<View style={styles.panel}>
+							<Text style={styles.title}>{translate(TranslationKeys.app_outdated_title)}</Text>
+							<Text style={styles.message}>{translate(TranslationKeys.app_outdated_message)}</Text>
+						</View>
 					</View>
+				</ScrollView>
+				<View style={styles.footer}>
 					<TouchableOpacity
 						style={[styles.updateButton, { backgroundColor: primaryColor }]}
 						onPress={() => storeUrl && CommonSystemActionHelper.openExternalURL(storeUrl, true)}
@@ -86,20 +101,36 @@ export default AppOutdatedScreen;
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		alignItems: 'center',
+	},
+	scroll: {
+		flex: 1,
+	},
+	scrollContent: {
+		flexGrow: 1,
 		justifyContent: 'center',
+		alignItems: 'center',
+		paddingHorizontal: 24,
+		paddingVertical: 24,
 	},
 	content: {
 		width: '100%',
 		maxWidth: 420,
-		paddingHorizontal: 32,
 		alignItems: 'center',
+	},
+	footer: {
+		width: '100%',
+		maxWidth: 420 + 2 * 24,
+		alignSelf: 'center',
+		alignItems: 'center',
+		paddingHorizontal: 24,
+		paddingTop: 8,
+		paddingBottom: 24,
 	},
 	appIcon: {
 		width: 96,
 		height: 96,
 		borderRadius: 22,
-		marginBottom: 28,
+		marginBottom: 24,
 	},
 	panel: {
 		width: '100%',
@@ -109,7 +140,6 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderColor: PANEL_BORDER_COLOR,
 		backgroundColor: PANEL_COLOR,
-		marginBottom: 32,
 	},
 	title: {
 		fontSize: 26,
@@ -140,8 +170,7 @@ const styles = StyleSheet.create({
 	},
 	previewCloseButton: {
 		width: 'auto',
-		marginTop: 24,
-		marginBottom: 0,
+		marginTop: 16,
 		paddingVertical: 10,
 		paddingHorizontal: 18,
 	},

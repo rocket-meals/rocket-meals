@@ -272,7 +272,9 @@ export function getVersionPatch() {
         //      "App veraltet Test" with a full screen notice when the store has a newer version
         // 151: the outdated app notice shows title and text on a dark panel (readable on any
         //      canteen image), without the version line
-        return 151;
+        // 152: outdated app notice inside the safe area, store button pinned to the bottom,
+        //      icon and text scroll above it on small displays
+        return 152;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
