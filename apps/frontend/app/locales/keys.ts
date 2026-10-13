@@ -932,6 +932,7 @@ export const TranslationKeys = {
 	store_versions_hint: 'store_versions_hint',
 	store_versions_server_app: 'store_versions_server_app',
 	store_versions_this_device: 'store_versions_this_device',
+	store_versions_rating: 'store_versions_rating',
 	store_versions_installed_app: 'store_versions_installed_app',
 	store_versions_app: 'store_versions_app',
 	store_versions_app_id: 'store_versions_app_id',

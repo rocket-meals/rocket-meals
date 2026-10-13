@@ -3,11 +3,19 @@
 // number are compared (e.g. "21.210" of "21.210.0"): the patch number is an OTA
 // update and never reaches the stores.
 
-export type StoreVersionResult = {
+export type StoreRating = {
+	// average stars, 1 to 5
+	rating: number | null;
+	ratingCount: number | null;
+};
+
+export type StoreVersionResult = StoreRating & {
 	version: string | null;
 	storeUrl: string | null;
 	error: string | null;
 };
+
+const NO_RATING: StoreRating = { rating: null, ratingCount: null };
 
 // Which app to look up in the stores. The App Store finds an app by bundle id
 // or by its numeric Apple id (the id in an apps.apple.com link).
@@ -64,12 +72,14 @@ export class StoreVersionHelper {
 		return `https://play.google.com/store/apps/details?id=${encodeURIComponent(bundleIdAndroid)}&hl=en&gl=DE`;
 	}
 
-	static parseAppStoreLookup(json: unknown): { version: string | null; storeUrl: string | null } {
-		const results = (json as { results?: { version?: unknown; trackViewUrl?: unknown }[] } | null)?.results;
+	static parseAppStoreLookup(json: unknown): StoreRating & { version: string | null; storeUrl: string | null } {
+		const results = (json as { results?: { version?: unknown; trackViewUrl?: unknown; averageUserRating?: unknown; userRatingCount?: unknown }[] } | null)?.results;
 		const first = Array.isArray(results) ? results[0] : undefined;
 		return {
 			version: typeof first?.version === 'string' ? first.version : null,
 			storeUrl: typeof first?.trackViewUrl === 'string' ? first.trackViewUrl : null,
+			rating: typeof first?.averageUserRating === 'number' ? first.averageUserRating : null,
+			ratingCount: typeof first?.userRatingCount === 'number' ? first.userRatingCount : null,
 		};
 	}
 
@@ -79,6 +89,19 @@ export class StoreVersionHelper {
 	static parseGooglePlayHtml(html: string): string | null {
 		const match = /\[\[\["(\d+(?:\.\d+)+)"\]\]/.exec(html);
 		return match?.[1] ?? null;
+	}
+
+	// The details page embeds the rating as [["3.1",3.1153846],[null,<five star
+	// buckets>],["57",57]: the exact average, the count per star, the total.
+	static parseGooglePlayRating(html: string): StoreRating {
+		const match = /\[\["[\d.,]+",(\d+(?:\.\d+)?)\],\[null,(?:\["[^"]*",\d+\],?){5}\],\["[^"]*",(\d+)\]/.exec(html);
+		if (!match) return NO_RATING;
+		const rating = Number.parseFloat(match[1] ?? '');
+		const ratingCount = Number.parseInt(match[2] ?? '', 10);
+		return {
+			rating: Number.isNaN(rating) ? null : rating,
+			ratingCount: Number.isNaN(ratingCount) ? null : ratingCount,
+		};
 	}
 
 	static parseMajorAndBuild(version: string | null | undefined): [number, number] | null {
@@ -103,28 +126,29 @@ export class StoreVersionHelper {
 
 	static async fetchAppStoreVersion(ref: StoreAppRef): Promise<StoreVersionResult> {
 		const lookupUrl = StoreVersionHelper.getAppStoreLookupUrl(ref);
-		if (!lookupUrl) return { version: null, storeUrl: null, error: 'No iOS app id configured' };
+		if (!lookupUrl) return { ...NO_RATING, version: null, storeUrl: null, error: 'No iOS app id configured' };
 		try {
 			const response = await fetch(lookupUrl);
-			if (!response.ok) return { version: null, storeUrl: null, error: `HTTP ${response.status}` };
+			if (!response.ok) return { ...NO_RATING, version: null, storeUrl: null, error: `HTTP ${response.status}` };
 			const parsed = StoreVersionHelper.parseAppStoreLookup(await response.json());
 			return { ...parsed, error: parsed.version ? null : 'App not found in the App Store' };
 		} catch (error) {
-			return { version: null, storeUrl: null, error: (error as Error).message };
+			return { ...NO_RATING, version: null, storeUrl: null, error: (error as Error).message };
 		}
 	}
 
 	static async fetchGooglePlayVersion(bundleIdAndroid: string | undefined): Promise<StoreVersionResult> {
-		if (!bundleIdAndroid) return { version: null, storeUrl: null, error: 'No Android package configured' };
+		if (!bundleIdAndroid) return { ...NO_RATING, version: null, storeUrl: null, error: 'No Android package configured' };
 		const storeUrl = StoreVersionHelper.getGooglePlayUrl(bundleIdAndroid);
 		try {
 			// On the web this is blocked by CORS - Google Play sends no CORS headers.
 			const response = await fetch(storeUrl);
-			if (!response.ok) return { version: null, storeUrl, error: `HTTP ${response.status}` };
-			const version = StoreVersionHelper.parseGooglePlayHtml(await response.text());
-			return { version, storeUrl, error: version ? null : 'Version not found on the Google Play page' };
+			if (!response.ok) return { ...NO_RATING, version: null, storeUrl, error: `HTTP ${response.status}` };
+			const html = await response.text();
+			const version = StoreVersionHelper.parseGooglePlayHtml(html);
+			return { ...StoreVersionHelper.parseGooglePlayRating(html), version, storeUrl, error: version ? null : 'Version not found on the Google Play page' };
 		} catch (error) {
-			return { version: null, storeUrl, error: (error as Error).message };
+			return { ...NO_RATING, version: null, storeUrl, error: (error as Error).message };
 		}
 	}
 }

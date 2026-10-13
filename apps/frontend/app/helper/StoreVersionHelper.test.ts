@@ -2,16 +2,23 @@ import { StoreVersionHelper } from './StoreVersionHelper';
 
 describe('StoreVersionHelper', () => {
 	it('reads version and store url from the App Store lookup', () => {
-		const json = { resultCount: 1, results: [{ version: '21.210.0', trackViewUrl: 'https://apps.apple.com/de/app/id1' }] };
-		expect(StoreVersionHelper.parseAppStoreLookup(json)).toEqual({ version: '21.210.0', storeUrl: 'https://apps.apple.com/de/app/id1' });
-		expect(StoreVersionHelper.parseAppStoreLookup({ resultCount: 0, results: [] })).toEqual({ version: null, storeUrl: null });
-		expect(StoreVersionHelper.parseAppStoreLookup(null)).toEqual({ version: null, storeUrl: null });
+		const json = { resultCount: 1, results: [{ version: '21.210.0', trackViewUrl: 'https://apps.apple.com/de/app/id1', averageUserRating: 3.44737, userRatingCount: 76 }] };
+		expect(StoreVersionHelper.parseAppStoreLookup(json)).toEqual({ version: '21.210.0', storeUrl: 'https://apps.apple.com/de/app/id1', rating: 3.44737, ratingCount: 76 });
+		const empty = { version: null, storeUrl: null, rating: null, ratingCount: null };
+		expect(StoreVersionHelper.parseAppStoreLookup({ resultCount: 0, results: [] })).toEqual(empty);
+		expect(StoreVersionHelper.parseAppStoreLookup(null)).toEqual(empty);
 	});
 
 	it('reads the version out of the Google Play page', () => {
 		const html = '<script>AF_initDataCallback({data:[null,[[["Mensa"]],[[["21.210.0"]],[[[34,"14"]]]]]});</script>';
 		expect(StoreVersionHelper.parseGooglePlayHtml(html)).toBe('21.210.0');
 		expect(StoreVersionHelper.parseGooglePlayHtml('<html></html>')).toBeNull();
+	});
+
+	it('reads the rating out of the Google Play page', () => {
+		const html = 'data:[[[[]]],[null,null,[{"52":[["3.1",3.1153846],[null,["19",19],["7",7],["1",1],["3",3],["25",25]],["57",57],["23",2';
+		expect(StoreVersionHelper.parseGooglePlayRating(html)).toEqual({ rating: 3.1153846, ratingCount: 57 });
+		expect(StoreVersionHelper.parseGooglePlayRating('<html></html>')).toEqual({ rating: null, ratingCount: null });
 	});
 
 	it('compares major and build number only, never the patch', () => {

@@ -50,11 +50,23 @@ type StoreRowsProps = {
 	isLast: boolean;
 };
 
-// Two rows per store: the id that was looked up, then the version found in the
-// store compared with the installed one. Tapping the version opens the store.
+const MAX_STARS = 5;
+
+// "3,4 ★★★☆☆ (76)" - the average rounded to whole stars for the symbols
+const formatRating = (rating: number | null, ratingCount: number | null, language: string): string | null => {
+	if (rating === null) return null;
+	const fullStars = Math.min(MAX_STARS, Math.max(0, Math.round(rating)));
+	const stars = '★'.repeat(fullStars) + '☆'.repeat(MAX_STARS - fullStars);
+	const average = rating.toLocaleString(language, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+	return ratingCount === null ? `${average} ${stars}` : `${average} ${stars} (${ratingCount})`;
+};
+
+// Three rows per store: the id that was looked up, the version found in the
+// store compared with the installed one (tapping it opens the store) and the
+// star rating.
 const StoreRows = ({ storeName, appId, installedVersion, result, isFirst, isLast }: StoreRowsProps) => {
 	const { theme } = useTheme();
-	const { translate } = useLanguage();
+	const { translate, language } = useLanguage();
 
 	let valueText = translate(TranslationKeys.loading);
 	if (result) {
@@ -63,6 +75,11 @@ const StoreRows = ({ storeName, appId, installedVersion, result, isFirst, isLast
 	}
 	const comparison = result ? StoreVersionHelper.compare(installedVersion, result.version) : 'unknown';
 	const storeUrl = result?.storeUrl;
+
+	let ratingText = translate(TranslationKeys.loading);
+	if (result) {
+		ratingText = formatRating(result.rating, result.ratingCount, language) ?? translate(TranslationKeys.unknown);
+	}
 
 	return (
 		<>
@@ -78,9 +95,17 @@ const StoreRows = ({ storeName, appId, installedVersion, result, isFirst, isLast
 				label={storeName}
 				value={valueText}
 				handleFunction={storeUrl ? () => CommonSystemActionHelper.openExternalURL(storeUrl, true) : undefined}
+				groupPosition="middle"
+				showSeparator
+				leftIcon={<MaterialCommunityIcons name={COMPARISON_ICONS[comparison]} size={22} color={theme.screen.icon} />}
+				iconBgColor="transparent"
+			/>
+			<SettingsList
+				label={`${storeName} · ${translate(TranslationKeys.store_versions_rating)}`}
+				value={ratingText}
 				groupPosition={isLast ? 'bottom' : 'middle'}
 				showSeparator={!isLast}
-				leftIcon={<MaterialCommunityIcons name={COMPARISON_ICONS[comparison]} size={22} color={theme.screen.icon} />}
+				leftIcon={<MaterialCommunityIcons name="star-outline" size={22} color={theme.screen.icon} />}
 				iconBgColor="transparent"
 			/>
 		</>

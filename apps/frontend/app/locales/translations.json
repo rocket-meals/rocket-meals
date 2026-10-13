@@ -9118,5 +9118,15 @@
     "ru": "Это устройство",
     "tr": "Bu cihaz",
     "zh": "本设备"
+  },
+  "store_versions_rating": {
+    "de": "Bewertung",
+    "en": "Rating",
+    "ar": "التقييم",
+    "es": "Valoración",
+    "fr": "Note",
+    "ru": "Оценка",
+    "tr": "Puan",
+    "zh": "评分"
   }
 }
