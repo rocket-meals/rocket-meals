@@ -22,7 +22,8 @@ import { AppFeedback } from '@/redux/actions/AppFeedback/AppFeedback';
 import { loadFoodById } from '@/helper/FoodHelper';
 import styles from './styles';
 import { MARK_CHAT_AS_READ } from '@/redux/Types/types';
-import { persistChatReadStatus } from '@/helper/chatReadStatus';
+import { persistChatReadStatus, syncChatReadUntilToServer } from '@/helper/chatReadStatus';
+import { getChatTimestamp } from '@/hooks/useChatUnreadStatus';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 
 type LinkedFoodInfo = {
@@ -145,13 +146,13 @@ const ChatDetailsScreen = () => {
 
         const sortedMessages = useMemo(() => ChatHelper.sortMessagesChronologically(messages), [messages]);
 
+        // Read up to the newest message shown, and at least as far as the chat list knows of, so
+        // the chat is not unread again right after it was opened.
         const latestMessageTimestamp = useMemo(() => {
-                if (sortedMessages.length > 0) {
-                        const latest = sortedMessages[0];
-                        return latest.date_updated || latest.date_created || null;
-                }
-                return chat?.date_updated || chat?.date_created || null;
-        }, [sortedMessages, chat?.date_updated, chat?.date_created]);
+                const latest = sortedMessages.length > 0 ? sortedMessages[sortedMessages.length - 1] : undefined;
+                const latestMessageDate = latest ? latest.date_updated || latest.date_created : null;
+                return ChatHelper.getLaterDate(latestMessageDate, chat ? getChatTimestamp(chat) : null) || null;
+        }, [sortedMessages, chat?.date_last_message, chat?.date_updated, chat?.date_created]);
 
         useEffect(() => {
                 if (!chat_id || !chat?.id || !latestMessageTimestamp) {
@@ -177,6 +178,7 @@ const ChatDetailsScreen = () => {
                 });
 
                 void persistChatReadStatus(updatedStatus);
+                void syncChatReadUntilToServer(chats, profile?.id, { [chat.id]: latestMessageTimestamp });
         }, [chat_id, chat?.id, latestMessageTimestamp, dispatch, readStatus, chat?.date_updated]);
 
         const scrollToBottom = useCallback((animated = true) => {

@@ -264,12 +264,13 @@ export function getVersionPatch() {
         // 142: experimental screen "Store-Versionen" compares the installed version with the
         //      App Store and Google Play versions (major and build number only)
         // 143-147: other changes on master
-        // 148: the store versions screen shows the installed app (app id), the store versions of the
+        // 148: chats: read status per participant (read_until) synced with the server, chats refetched on foreground
+        // 149: the store information screen shows the installed app (app id), the store versions of the
         //      installed app, of the selected customer and of the app the server links to, and the
         //      star rating of each store
-        // 149: experimental screen renamed to "Store Information", new experimental screen
+        // 150: experimental screen renamed to "Store Information", new experimental screen
         //      "App veraltet Test" with a full screen notice when the store has a newer version
-        return 149;
+        return 150;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

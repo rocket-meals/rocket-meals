@@ -59,4 +59,49 @@ export class ChatHelper {
   static buildParticipant(chatId: string, profileId: string) {
     return { chats_id: chatId, profiles_id: profileId };
   }
+
+  /** The `chats_participants` row of a profile in a chat, when `participants` was loaded as rows. */
+  static findParticipant<T extends ChatParticipantLike>(participants: readonly (T | string | number)[] | null | undefined, profileId: string | null | undefined): T | undefined {
+    if (!participants || !profileId) {
+      return undefined;
+    }
+    for (const participant of participants) {
+      if (typeof participant === 'object' && participant !== null && RelationHelper.getId(participant.profiles_id) === profileId) {
+        return participant;
+      }
+    }
+    return undefined;
+  }
+
+  /** The later of two dates (ISO strings); empty values are ignored. */
+  static getLaterDate(a: string | null | undefined, b: string | null | undefined): string | undefined {
+    if (!a) {
+      return b || undefined;
+    }
+    if (!b) {
+      return a;
+    }
+    return new Date(b).getTime() > new Date(a).getTime() ? b : a;
+  }
+
+  /**
+   * Whether a chat has a message newer than what the participant read (`chats_participants.read_until`).
+   * Without any message there is nothing to read; without `readUntil` everything is unread.
+   */
+  static isUnread(lastMessageDate: string | null | undefined, readUntil: string | null | undefined): boolean {
+    if (!lastMessageDate) {
+      return false;
+    }
+    if (!readUntil) {
+      return true;
+    }
+    return new Date(lastMessageDate).getTime() > new Date(readUntil).getTime();
+  }
 }
+
+/** Just the fields of a `chats_participants` row the read status looks at. */
+export type ChatParticipantLike = {
+  id?: string | number;
+  profiles_id?: Exclude<RelationValue, undefined>;
+  read_until?: string | null;
+};

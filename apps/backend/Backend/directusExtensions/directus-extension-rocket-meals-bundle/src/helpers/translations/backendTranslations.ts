@@ -852,6 +852,16 @@ export const backendTranslations: TranslationResources = {
     tr: 'Geri bildirim kaydını aç',
     zh: '打开反馈记录',
   },
+  rocket_meals_module_open_food_item: {
+    de: 'Speise öffnen',
+    en: 'Open food',
+    ar: 'فتح الطبق',
+    es: 'Abrir el plato',
+    fr: 'Ouvrir le plat',
+    ru: 'Открыть блюдо',
+    tr: 'Yemeği aç',
+    zh: '打开菜品',
+  },
   rocket_meals_module_food_feedback_chat_alias: {
     de: 'Feedback zu {{food}}',
     en: 'Feedback on {{food}}',

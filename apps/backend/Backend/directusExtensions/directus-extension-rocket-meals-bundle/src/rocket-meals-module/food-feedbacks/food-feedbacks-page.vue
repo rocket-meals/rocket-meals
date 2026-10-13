@@ -7,7 +7,8 @@
  *
  * An open AI recommendation of a feedback (`action_recommendations`, see `action-recommendations-hook`)
  * marks the recommended button with ✨ and shows its reason and draft reply below the comment; the
- * draft can be taken straight into the chat. Answering, marking as done or dismissing archives it.
+ * draft can be taken straight into the chat, and only the recommended button is highlighted. Marking as
+ * done or answering closes it: accepted when that was recommended, rejected otherwise or when dismissed.
  */
 import { useApi, useStores } from '@directus/extensions-sdk';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
@@ -35,6 +36,7 @@ import DeleteConfirmDialog from '../module-list/delete-confirm-dialog.vue';
 import StatusFilterChips from '../module-list/status-filter-chips.vue';
 import FoodFeedbackRating from './food-feedback-rating.vue';
 import FoodFeedbackStatusChip from './food-feedback-status-chip.vue';
+import FoodImageLink from './food-image-link.vue';
 
 const api = useApi();
 const router = useRouter();
@@ -136,6 +138,12 @@ function isRecommended(feedback: FoodFeedbackListItem, action: ActionRecommendat
   return ActionRecommendationModuleHelper.isAction(getRecommendation(feedback), action);
 }
 
+/** The recommended button is the primary one; without a recommendation answering a new feedback is. */
+function isHighlighted(feedback: FoodFeedbackListItem, action: ActionRecommendationAction): boolean {
+  const defaultAction = FoodFeedbackChatStatusHelper.getStatus(feedback) === FoodFeedbackChatStatus.NEW ? ActionRecommendationAction.REPLY : null;
+  return ActionRecommendationModuleHelper.isHighlighted(getRecommendation(feedback), action, defaultAction);
+}
+
 async function loadRecommendations() {
   recommendations.value = await ActionRecommendationModuleHelper.loadOpen(
     api,
@@ -156,12 +164,15 @@ watch(recommendations, current => {
 });
 onBeforeUnmount(() => clearTimeout(processingRefresh));
 
-/** Archives the recommendations of the feedbacks; a failure only costs a stale hint, so it is a warning. */
-async function archiveRecommendations(feedbacksDone: readonly FoodFeedbackListItem[]) {
+/**
+ * Closes the recommendations of the feedbacks after `takenAction` (`null`: turned down); a failure only
+ * costs a stale hint, so it is a warning.
+ */
+async function closeRecommendations(feedbacksDone: readonly FoodFeedbackListItem[], takenAction: ActionRecommendationAction | null) {
   try {
-    await ActionRecommendationModuleHelper.archive(api, feedbacksDone.map(getRecommendation));
+    await ActionRecommendationModuleHelper.close(api, feedbacksDone.map(getRecommendation), takenAction);
   } catch (error) {
-    console.error('[rocket-meals-module] archiving action recommendations failed', error);
+    console.error('[rocket-meals-module] closing action recommendations failed', error);
     notificationsStore.add({ title: translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_update_failed), type: 'warning' });
   }
 }
@@ -177,20 +188,23 @@ function toggleReason(feedback: FoodFeedbackListItem) {
 async function dismissRecommendation(feedback: FoodFeedbackListItem) {
   dismissingIds.value = [...dismissingIds.value, feedback.id];
   try {
-    await archiveRecommendations([feedback]);
+    await closeRecommendations([feedback], null);
     await loadRecommendations();
   } finally {
     dismissingIds.value = dismissingIds.value.filter(id => id !== feedback.id);
   }
 }
 
-/** Marks as done; the recommendations of the feedbacks that were marked are used up. */
+/** Marks as done; the recommendations of the feedbacks that were marked are closed (accepted when they recommended it). */
 function markResolved(feedbacksToResolve: readonly FoodFeedbackListItem[]) {
   return runUpdate(
     feedbacksToResolve,
     async pending => {
       const result = await FoodFeedbackChatActions.markResolved(api, pending);
-      await archiveRecommendations(pending.filter(feedback => !result.failedIds.includes(feedback.id)));
+      await closeRecommendations(
+        pending.filter(feedback => !result.failedIds.includes(feedback.id)),
+        ActionRecommendationAction.MARK_RESOLVED
+      );
       return result;
     },
     BackendTranslationKeys.rocket_meals_module_mark_resolved_failed
@@ -324,10 +338,7 @@ watch(feedbacks, loadRecommendations);
 
       <list-content :loading="loading" :load-error="loadError" :empty="feedbacks.length === 0">
         <list-row v-for="feedback in feedbacks" :key="feedback.id" selectable :selected="isSelected(feedback)" @open="openChat(feedback)" @update:selected="toggleSelected(feedback, $event)">
-          <div class="food-image">
-            <img v-if="FoodFeedbackChatHelper.getFoodImageUrl(feedback, apiRoot)" :src="FoodFeedbackChatHelper.getFoodImageUrl(feedback, apiRoot)" :alt="FoodFeedbackChatHelper.getFoodName(feedback) ?? ''" loading="lazy" />
-            <v-icon v-else name="restaurant" />
-          </div>
+          <food-image-link :feedback="feedback" :api-root="apiRoot" />
           <div class="feedback-content">
             <div class="feedback-header">
               <food-feedback-status-chip :status="FoodFeedbackChatStatusHelper.getStatus(feedback)" />
@@ -392,12 +403,12 @@ watch(feedbacks, loadRecommendations);
                 <v-icon name="undo" left small />
                 {{ translate(BackendTranslationKeys.rocket_meals_module_reopen) }}
               </v-button>
-              <v-button v-if="FoodFeedbackChatHelper.canMarkResolved(feedback)" small secondary :loading="isUpdating(feedback)" @click.stop="markResolved([feedback])">
+              <v-button v-if="FoodFeedbackChatHelper.canMarkResolved(feedback)" small :secondary="!isHighlighted(feedback, ActionRecommendationAction.MARK_RESOLVED)" :loading="isUpdating(feedback)" @click.stop="markResolved([feedback])">
                 <v-icon name="task_alt" left small />
                 {{ translate(BackendTranslationKeys.rocket_meals_module_mark_resolved) }}
                 <v-icon v-if="isRecommended(feedback, ActionRecommendationAction.MARK_RESOLVED)" v-tooltip="translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_recommended)" class="recommended-badge" :name="ActionRecommendationModuleHelper.ICON" right small />
               </v-button>
-              <v-button small :secondary="FoodFeedbackChatStatusHelper.getStatus(feedback) !== FoodFeedbackChatStatus.NEW" :disabled="!FoodFeedbackChatStatusHelper.canStartChat(feedback)" @click.stop="openChat(feedback)">
+              <v-button small :secondary="!isHighlighted(feedback, ActionRecommendationAction.REPLY)" :disabled="!FoodFeedbackChatStatusHelper.canStartChat(feedback)" @click.stop="openChat(feedback)">
                 <v-icon name="forum" left small />
                 {{ FoodFeedbackChatStatusHelper.getStatus(feedback) === FoodFeedbackChatStatus.NEW ? translate(BackendTranslationKeys.rocket_meals_module_reply) : translate(BackendTranslationKeys.rocket_meals_module_to_chat) }}
                 <v-icon v-if="isRecommended(feedback, ActionRecommendationAction.REPLY)" v-tooltip="translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_recommended)" class="recommended-badge" :name="ActionRecommendationModuleHelper.ICON" right small />
@@ -435,25 +446,6 @@ watch(feedbacks, loadRecommendations);
 
 .toolbar-wide {
   flex-basis: 13rem;
-}
-
-.food-image {
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  inline-size: 4rem;
-  block-size: 4rem;
-  overflow: hidden;
-  color: var(--theme--foreground-subdued);
-  background: var(--theme--background-normal);
-  border-radius: var(--theme--border-radius);
-}
-
-.food-image img {
-  inline-size: 100%;
-  block-size: 100%;
-  object-fit: cover;
 }
 
 .feedback-content {

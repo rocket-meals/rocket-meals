@@ -31,10 +31,12 @@ import ProfileAvatar from '../profiles/profile-avatar.vue';
 import SupportChatConversation from '../support-chat/support-chat-conversation.vue';
 import SupportChatStatusMenu from '../support-chat/support-chat-status-menu.vue';
 import FoodFeedbackRating from './food-feedback-rating.vue';
+import FoodImageLink from './food-image-link.vue';
 
 const props = defineProps<{ feedbackId: string }>();
 
 const api = useApi();
+const apiRoot = String(api.defaults?.baseURL ?? '/');
 const { useNotificationsStore } = useStores();
 const notificationsStore = useNotificationsStore();
 const router = useRouter();
@@ -127,21 +129,24 @@ onBeforeUnmount(() => clearTimeout(processingRefresh));
 /** Whether the reason of the recommendation is shown; folded away by default. */
 const reasonExpanded = ref(false);
 
-/** Turned down: the recommendation no longer shows up. */
+/** Turned down: the recommendation is closed as rejected and no longer shows up. */
 async function dismissRecommendation() {
-  await archiveRecommendation();
+  await closeRecommendation(null);
 }
 
-/** Once support answered or closed the feedback, the recommendation is used up. */
-async function archiveRecommendation() {
+/**
+ * Once support answered or closed the feedback, the recommendation is used up: accepted when
+ * `takenAction` is the recommended one, rejected otherwise (`null`: turned down).
+ */
+async function closeRecommendation(takenAction: ActionRecommendationAction | null) {
   if (!recommendation.value) {
     return;
   }
   try {
-    await ActionRecommendationModuleHelper.archive(api, [recommendation.value]);
+    await ActionRecommendationModuleHelper.close(api, [recommendation.value], takenAction);
     recommendation.value = null;
   } catch (error) {
-    console.error('[rocket-meals-module] archiving the action recommendation failed', error);
+    console.error('[rocket-meals-module] closing the action recommendation failed', error);
     notificationsStore.add({ title: translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_update_failed), type: 'warning' });
   }
 }
@@ -207,7 +212,7 @@ async function sendMessage(text: string): Promise<boolean> {
   try {
     const targetChatId = await ensureChat();
     await api.post(ChatQueryHelper.CHAT_MESSAGES_ENDPOINT, { chat: targetChatId, message: text });
-    await archiveRecommendation();
+    await closeRecommendation(ActionRecommendationAction.REPLY);
   } catch (error) {
     console.error('[rocket-meals-module] sending chat message failed', error);
     notificationsStore.add({ title: translate(BackendTranslationKeys.rocket_meals_module_send_failed), type: 'error' });
@@ -248,7 +253,7 @@ async function changeStatus(nextStatus: FoodFeedbackChatStatus) {
     await setConversationState(nextState);
     await loadFeedback();
     if (nextStatus === FoodFeedbackChatStatus.RESOLVED) {
-      await archiveRecommendation();
+      await closeRecommendation(ActionRecommendationAction.MARK_RESOLVED);
     }
   } catch (error) {
     console.error('[rocket-meals-module] updating chat state failed', error);
@@ -306,6 +311,7 @@ watch(() => props.feedbackId, load);
 
       <template v-else-if="feedback">
         <div class="feedback-info">
+          <food-image-link :feedback="feedback" :api-root="apiRoot" />
           <support-chat-status-menu :status="status" :can-write="canWrite" :updating="updatingState" @change="changeStatus" />
           <span class="type-label">{{ foodName }}</span>
           <food-feedback-rating :rating="feedback.rating" />
@@ -327,7 +333,7 @@ watch(() => props.feedbackId, load);
               <v-icon name="undo" left small />
               {{ translate(BackendTranslationKeys.rocket_meals_module_reopen) }}
             </v-button>
-            <v-button v-else-if="FoodFeedbackChatHelper.canMarkResolved(feedback)" small secondary :loading="updatingState" @click="changeStatus(FoodFeedbackChatStatus.RESOLVED)">
+            <v-button v-else-if="FoodFeedbackChatHelper.canMarkResolved(feedback)" small :secondary="!ActionRecommendationModuleHelper.isHighlighted(recommendation, ActionRecommendationAction.MARK_RESOLVED, null)" :loading="updatingState" @click="changeStatus(FoodFeedbackChatStatus.RESOLVED)">
               <v-icon name="task_alt" left small />
               {{ translate(BackendTranslationKeys.rocket_meals_module_mark_resolved) }}
               <v-icon v-if="ActionRecommendationModuleHelper.isAction(recommendation, ActionRecommendationAction.MARK_RESOLVED)" v-tooltip="translate(BackendTranslationKeys.rocket_meals_module_action_recommendation_recommended)" :name="ActionRecommendationModuleHelper.ICON" right small />

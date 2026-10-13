@@ -42,6 +42,20 @@
           "foreground": "var(--theme--danger)",
           "text": "KI fehlgeschlagen",
           "value": "failed"
+        },
+        {
+          "background": "var(--theme--success-background)",
+          "color": "var(--theme--success)",
+          "foreground": "var(--theme--success)",
+          "text": "Angenommen",
+          "value": "accepted"
+        },
+        {
+          "background": "var(--theme--background-normal)",
+          "color": "var(--theme--foreground-subdued)",
+          "foreground": "var(--theme--foreground-subdued)",
+          "text": "Abgelehnt",
+          "value": "rejected"
         }
       ],
       "showAsDot": true
@@ -79,6 +93,18 @@
           "icon": "error",
           "text": "KI fehlgeschlagen",
           "value": "failed"
+        },
+        {
+          "color": "var(--theme--success)",
+          "icon": "thumb_up",
+          "text": "Angenommen",
+          "value": "accepted"
+        },
+        {
+          "color": "var(--theme--foreground-subdued)",
+          "icon": "thumb_down",
+          "text": "Abgelehnt",
+          "value": "rejected"
         }
       ]
     },

@@ -135,6 +135,13 @@ describe('FoodFeedbackChatHelper', () => {
     expect(FoodFeedbackChatHelper.buildCanteensQuery().fields).toBe('id,alias,image,image_remote_url');
   });
 
+  it('links the food image to the food in the content area', () => {
+    expect(FoodFeedbackChatHelper.getFoodRoute({ food: { id: 'food 1', alias: 'Schnitzel' } })).toBe('/content/foods/food%201');
+    expect(FoodFeedbackChatHelper.getFoodRoute({ food: 'f2' })).toBe('/content/foods/f2');
+    expect(FoodFeedbackChatHelper.getFoodRoute({ food: null })).toBeUndefined();
+    expect(FoodFeedbackChatHelper.getFoodRoute({})).toBeUndefined();
+  });
+
   it('can mark open feedbacks with an author as done', () => {
     expect(FoodFeedbackChatHelper.canMarkResolved({ id: '1', comment: 'x', profile: 'p', chat: null })).toBe(true);
     expect(FoodFeedbackChatHelper.canMarkResolved({ id: '1', comment: 'x', profile: null, chat: null })).toBe(false);

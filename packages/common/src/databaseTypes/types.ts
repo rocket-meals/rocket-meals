@@ -529,6 +529,7 @@ export type Chats = {
   app_feedbacks: any[] | AppFeedbacks[];
   conversation_state?: string | null;
   date_created?: string | null;
+  date_last_message?: string | null;
   date_updated?: string | null;
   food_feedbacks: any[] | FoodsFeedbacks[];
   id: string;
@@ -548,6 +549,7 @@ export type ChatsParticipants = {
   chats_id?: string | Chats | null;
   id: number;
   profiles_id?: string | Profiles | null;
+  read_until?: string | null;
 };
 
 export type CollectibleEventParticipants = {

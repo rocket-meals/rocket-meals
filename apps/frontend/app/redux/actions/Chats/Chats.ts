@@ -9,7 +9,8 @@ export class ChatsHelper extends CollectionHelper<DatabaseTypes.Chats> {
 
 	async fetchChatsByProfile(profileId: string, queryOverride: any = {}) {
 		const defaultQuery = {
-			fields: ['*'],
+			// The participant rows carry `read_until`, so unread chats show on every device.
+			fields: ['*', 'participants.id', 'participants.profiles_id', 'participants.read_until'],
 			deep: {
 				messages: {
 					_limit: 10,
@@ -20,7 +21,13 @@ export class ChatsHelper extends CollectionHelper<DatabaseTypes.Chats> {
 			sort: ['-date_updated'],
 		};
 		const query = { ...defaultQuery, ...queryOverride };
-		return await this.readItems(query);
+		try {
+			return await this.readItems(query);
+		} catch (error) {
+			// A server without `read_until` yet rejects the field, the chats are still wanted.
+			console.warn('Fetching chats with read status failed, retrying without it', error);
+			return await this.readItems({ ...query, fields: ['*'] });
+		}
 	}
 
 	async fetchChatById(id: string, queryOverride: any = {}) {

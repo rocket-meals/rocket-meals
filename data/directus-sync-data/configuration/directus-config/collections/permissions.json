@@ -957,7 +957,8 @@
     "fields": [
       "id",
       "chats_id",
-      "profiles_id"
+      "profiles_id",
+      "read_until"
     ],
     "presets": null,
     "validation": null,
@@ -985,6 +986,28 @@
   },
   {
     "fields": [
+      "read_until"
+    ],
+    "presets": null,
+    "validation": null,
+    "permissions": {
+      "_and": [
+        {
+          "profiles_id": {
+            "id": {
+              "_eq": "$CURRENT_USER.profile"
+            }
+          }
+        }
+      ]
+    },
+    "action": "update",
+    "collection": "chats_participants",
+    "policy": "abe3a726-f85c-4d70-a86c-15e7092e5da2",
+    "_syncId": "c800999c-8ae8-429e-9d59-0da77ee3d8ca"
+  },
+  {
+    "fields": [
       "id",
       "status",
       "sort",
@@ -999,7 +1022,8 @@
       "conversation_state",
       "initial_message",
       "food_feedbacks",
-      "linked_entities"
+      "linked_entities",
+      "date_last_message"
     ],
     "presets": null,
     "validation": null,

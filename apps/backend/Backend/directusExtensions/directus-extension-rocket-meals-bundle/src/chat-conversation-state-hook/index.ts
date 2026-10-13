@@ -74,14 +74,19 @@ export default MyDefineHook.defineHookWithAllTablesExisting(HOOK_NAME, ({ action
 
     console.log(`${HOOK_NAME}: Conversation state:`, conversationState);
 
-    await chatsHelper.updateOne(chatId, { conversation_state: conversationState });
+    const messageDate = message?.date_created || new Date().toISOString();
+    // `date_last_message` tells the apps a chat has something new; `date_updated` is no help there,
+    // the mail digest below changes it minutes later without a new message.
+    await chatsHelper.updateOne(chatId, { conversation_state: conversationState, date_last_message: messageDate });
+
+    // Whoever writes has read the chat up to the own message, so it does not show as unread to them.
+    await markReadBySender(chatId, message, messageDate, myDatabaseHelper);
 
     // Mails are not sent here but once the chat was quiet for a few minutes, so an active
     // conversation does not send a mail per message (see ChatMailDigestHelper). The timer runs on
     // this instance only, the check for a newer message goes through the shared database.
     try {
       const chat = await chatsHelper.readOne(chatId, { fields: ['id', 'mail_pending_since'] });
-      const messageDate = message?.date_created || new Date().toISOString();
       if (!chat?.mail_pending_since) {
         await chatsHelper.updateOne(chatId, { mail_pending_since: messageDate });
       }
@@ -121,6 +126,23 @@ function scheduleMails(apiContext: ApiContext, chatId: string, messageId: string
   }, ChatMailDigestHelper.QUIET_MS);
   // A pending timer must not keep the process alive on shutdown.
   (timer as unknown as { unref?: () => void }).unref?.();
+}
+
+/** Sets `read_until` of the sender in `chats_participants`; support messages have no sender profile. */
+async function markReadBySender(chatId: string, message: DatabaseTypes.ChatMessages, messageDate: string, myDatabaseHelper: MyDatabaseHelper): Promise<void> {
+  const senderProfileId = ItemsServiceHelper.getPrimaryKeyFromItemOrString(message?.profile);
+  if (!senderProfileId) {
+    return;
+  }
+  try {
+    const chatParticipantsHelper = new ItemsServiceHelper<DatabaseTypes.ChatsParticipants>(myDatabaseHelper, CollectionNames.CHATS_PARTICIPANTS);
+    const participantLinks = await chatParticipantsHelper.findItems({ chats_id: chatId, profiles_id: String(senderProfileId) });
+    for (const participantLink of participantLinks) {
+      await chatParticipantsHelper.updateOne(participantLink.id, { read_until: messageDate }); // NOSONAR S9382 - sequential on purpose: normally exactly one row per profile and chat
+    }
+  } catch (error) {
+    console.error(`${HOOK_NAME}: Failed to mark chat ${chatId} as read for the sender ${senderProfileId}`, error);
+  }
 }
 
 /** The feedbacks a chat belongs to; empty when they cannot be read – notifications are best effort. */
@@ -172,6 +194,8 @@ async function pushAnswerToProfiles(
         expo_push_tokens: expoPushTokens,
         message_title: language.translate(BackendTranslationKeys.notification_support_answer_title),
         message_body: messageBody,
+        // Shows the app icon with a badge until the app is opened, which resets it to 0.
+        ios_badge_count: 1,
       });
       console.log(`${HOOK_NAME}: Sent a push about the support answer to profile ${profileId}`);
     } catch (error) {

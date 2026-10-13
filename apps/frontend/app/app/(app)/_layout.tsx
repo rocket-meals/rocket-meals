@@ -36,7 +36,7 @@ import { isWeb } from '@/constants/Constants';
 import { fetchSpecificField } from '@/redux/actions/Fields/Fields';
 import { BusinessHoursGroupsHelper } from '@/redux/actions/BusinessHours/BusinessHoursGroups';
 import { PopupEventsHelper } from '@/redux/actions/PopupEvents/PopupEvents';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { AppElementsHelper } from '@/redux/actions/AppElements/AppElements';
 import { TranslationKeys } from '@/locales/keys';
 import { CollectionLastUpdateHelper } from '@/redux/actions/CollectionLastUpdate/CollectionLastUpdate';
@@ -51,7 +51,7 @@ import { OrganizationsHelper } from '@/redux/actions/Organizations/Organizations
 import { HashHelper } from '@/helper/hashHelper';
 import { CollectionKeys } from '@/constants/collectionKeys';
 import { loadFeatureWishFieldChoices } from '@/redux/actions/FeatureWishes/FeatureWishes';
-import { loadChatReadStatus } from '@/helper/chatReadStatus';
+import { loadChatReadStatus, mergeServerChatReadStatus, persistChatReadStatus } from '@/helper/chatReadStatus';
 import { FriendshipsHelper } from '@/redux/actions/Friendships/Friendships';
 import { PriceGroupKey } from '@/app/(app)/settings/types';
 import { UserHelper } from '@/helper/UserHelper';
@@ -308,6 +308,9 @@ export default function Layout() {
                                 const result = (await chatsHelper.fetchChatsByProfile(user.profile)) as DatabaseTypes.Chats[];
                                 if (result) {
                                         dispatch({ type: SET_CHATS, payload: result });
+                                        const mergedStatus = mergeServerChatReadStatus(storedStatus, result, user.profile);
+                                        dispatch({ type: SET_CHAT_READ_STATUS, payload: mergedStatus });
+                                        await persistChatReadStatus(mergedStatus);
                                 }
 			}
 		} catch (error) {
@@ -693,6 +696,23 @@ export default function Layout() {
 		}
 		resetCalendarSelectedDate();
 		void getAllCollectionDatesLastUpdate();
+	}, [user]);
+
+	// An answer in a chat usually arrives as push while the app is in the background: fetch the
+	// chats again when it comes back, so the unread dot shows right away.
+	useEffect(() => {
+		if (!user?.profile) {
+			return;
+		}
+		let previousState = AppState.currentState;
+		const subscription = AppState.addEventListener('change', nextState => {
+			const cameToForeground = previousState !== 'active' && nextState === 'active';
+			previousState = nextState;
+			if (cameToForeground) {
+				void fetchChats();
+			}
+		});
+		return () => subscription.remove();
 	}, [user]);
 
 	const drawerScreenOptions = useMemo(

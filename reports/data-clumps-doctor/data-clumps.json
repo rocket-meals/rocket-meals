@@ -1,6 +1,6 @@
 {
   "report_version": "^0.1.103",
-  "report_timestamp": "2026-10-12T20:30:28.106Z",
+  "report_timestamp": "2026-10-13T09:39:42.892Z",
   "target_language": "typescript",
   "report_summary": {
     "additional": {
@@ -15,8 +15,8 @@
         "invertedParameterToMethods": {
           "median": 1,
           "maximum": 80,
-          "average": 2.2518955349620895,
-          "amountSavedValuesForKeys": 2673,
+          "average": 2.2548359966358285,
+          "amountSavedValuesForKeys": 2681,
           "amountKeys": 25
         },
         "invertedParameterToClasses": {
@@ -28,18 +28,18 @@
         }
       },
       "timer_information": {
-        "ast_generation_time_ms": 4755,
-        "detection_time_ms": 112,
+        "ast_generation_time_ms": 3567,
+        "detection_time_ms": 84,
         "machine_information": {
           "os": "Linux",
           "os_release": "6.17.0-1022-azure",
           "os_platform": "linux",
           "os_arch": "x64",
-          "os_uptime": 145.7,
-          "os_memory_free": 14768545792,
+          "os_uptime": 110.43,
+          "os_memory_free": 14687531008,
           "os_memory_total": 16766414848,
           "os_cpu_cores": 4,
-          "os_cpu_model": "AMD EPYC 9V74 80-Core Processor",
+          "os_cpu_model": "AMD EPYC 9V45 96-Core Processor",
           "os_cpu_speed": 0
         }
       }
@@ -55,18 +55,18 @@
   "project_info": {
     "project_url": "https://github.com/rocket-meals/rocket-meals",
     "project_name": "rocket-meals",
-    "project_version": "18b1733d3a6362982a7c054e40577487fe2c071b",
-    "project_commit_hash": "18b1733d3a6362982a7c054e40577487fe2c071b",
+    "project_version": "0a7260a82c7bab0193ad0bb5854a48cee046559b",
+    "project_commit_hash": "0a7260a82c7bab0193ad0bb5854a48cee046559b",
     "project_tag": null,
-    "project_commit_date": "1791836898",
+    "project_commit_date": "1791884281",
     "additional": {
       "relative_path_to_source_folder_in_project": ""
     },
     "number_of_files": 799,
     "number_of_classes_or_interfaces": 1843,
-    "number_of_methods": 2268,
+    "number_of_methods": 2272,
     "number_of_data_fields": 5705,
-    "number_of_method_parameters": 2673
+    "number_of_method_parameters": 2681
   },
   "detector": {
     "name": "data-clumps-doctor",

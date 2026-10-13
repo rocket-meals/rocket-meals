@@ -1,7 +1,9 @@
 <script setup lang="ts">
 /**
  * One row of a list of the module `Rocket Meals`: a card that opens the item on click, with a
- * checkbox in front when the item can be selected. The content goes into the default slot.
+ * checkbox in front when the item can be selected. The content goes into the default slot. An element
+ * of the content with its own target (class `row-link`, e.g. the food image) highlights itself on
+ * hover instead of the row.
  */
 defineProps<{ selectable?: boolean; selected?: boolean }>();
 defineEmits<{ open: []; 'update:selected': [selected: boolean] }>();
@@ -29,7 +31,7 @@ defineEmits<{ open: []; 'update:selected': [selected: boolean] }>();
   transition: border-color var(--fast) var(--transition);
 }
 
-.row:hover,
+.row:hover:not(:has(.row-link:hover)),
 .row:focus-visible,
 .row.selected {
   border-color: var(--theme--primary);

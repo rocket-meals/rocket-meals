@@ -1,10 +1,11 @@
 import { useCallback, useMemo } from 'react';
 import { useAppSelector } from '@/redux/hooks';
-import { DatabaseTypes } from 'repo-depkit-common';
+import { ChatHelper, DatabaseTypes } from 'repo-depkit-common';
 
 
+/** Date of the newest message; older servers without `date_last_message` fall back to the chat dates. */
 export const getChatTimestamp = (chat: DatabaseTypes.Chats): string | null => {
-        return chat?.date_updated || chat?.date_created || null;
+        return chat?.date_last_message || chat?.date_updated || chat?.date_created || null;
 };
 
 const useChatUnreadStatus = () => {
@@ -13,23 +14,7 @@ const useChatUnreadStatus = () => {
         const readStatusMap = readStatus ?? {};
 
         const hasUnreadChats = useMemo(() => {
-                return chats.some(chat => {
-                        if (!chat?.id) {
-                                return false;
-                        }
-
-                        const latestTimestamp = getChatTimestamp(chat);
-                        if (!latestTimestamp) {
-                                return false;
-                        }
-
-                        const lastRead = readStatusMap[chat.id];
-                        if (!lastRead) {
-                                return true;
-                        }
-
-                        return new Date(latestTimestamp).getTime() > new Date(lastRead).getTime();
-                });
+                return chats.some(chat => Boolean(chat?.id) && ChatHelper.isUnread(getChatTimestamp(chat), readStatusMap[chat.id]));
         }, [chats, readStatus]);
 
         const isChatUnread = useCallback(
@@ -37,18 +22,7 @@ const useChatUnreadStatus = () => {
                         if (!chat?.id) {
                                 return false;
                         }
-
-                        const latestTimestamp = getChatTimestamp(chat);
-                        if (!latestTimestamp) {
-                                return false;
-                        }
-
-                        const lastRead = readStatusMap[chat.id];
-                        if (!lastRead) {
-                                return true;
-                        }
-
-                        return new Date(latestTimestamp).getTime() > new Date(lastRead).getTime();
+                        return ChatHelper.isUnread(getChatTimestamp(chat), readStatusMap[chat.id]);
                 },
                 [readStatus],
         );

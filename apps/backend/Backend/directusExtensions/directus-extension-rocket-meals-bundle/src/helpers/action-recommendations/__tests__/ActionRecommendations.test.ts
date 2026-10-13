@@ -147,13 +147,42 @@ describe('ActionRecommendationModuleHelper', () => {
     expect(ActionRecommendationModuleHelper.getRecommendedBy({ id: '1' })).toBeNull();
   });
 
-  it('archives the given recommendations in one request and skips missing ones', async () => {
+  it('closes a recommendation as accepted when its action was taken, as rejected otherwise', () => {
+    const markResolved = { id: 'r1', status: 'draft', action: 'mark_resolved' };
+    const reply = { id: 'r2', status: 'draft', action: 'reply', draft_reply: 'Danke' };
+    expect(ActionRecommendationModuleHelper.getClosingStatus(markResolved, ActionRecommendationAction.MARK_RESOLVED)).toBe('accepted');
+    expect(ActionRecommendationModuleHelper.getClosingStatus(markResolved, ActionRecommendationAction.REPLY)).toBe('rejected');
+    expect(ActionRecommendationModuleHelper.getClosingStatus(reply, ActionRecommendationAction.REPLY)).toBe('accepted');
+    expect(ActionRecommendationModuleHelper.getClosingStatus(reply, ActionRecommendationAction.MARK_RESOLVED)).toBe('rejected');
+    expect(ActionRecommendationModuleHelper.getClosingStatus(reply, null)).toBe('rejected');
+    // Nothing was recommended yet: there is nothing to accept or reject.
+    expect(ActionRecommendationModuleHelper.getClosingStatus({ id: 'r3', status: 'processing' }, ActionRecommendationAction.REPLY)).toBe('archived');
+    expect(ActionRecommendationModuleHelper.getClosingStatus({ id: 'r4', status: 'failed' }, null)).toBe('archived');
+  });
+
+  it('closes the given recommendations with one request per status and skips missing ones', async () => {
     const patch = jest.fn(async () => ({ data: {} }));
     const api = { get: jest.fn(async () => ({ data: {} })), patch };
-    await ActionRecommendationModuleHelper.archive(api, [{ id: 'r1' }, null, undefined]);
-    expect(patch).toHaveBeenCalledWith('/items/action_recommendations', { keys: ['r1'], data: { status: 'archived' } });
-    await ActionRecommendationModuleHelper.archive(api, [null]);
-    expect(patch).toHaveBeenCalledTimes(1);
+    await ActionRecommendationModuleHelper.close(
+      api,
+      [{ id: 'r1', status: 'draft', action: 'mark_resolved' }, { id: 'r2', status: 'draft', action: 'reply' }, { id: 'r3', status: 'draft', action: 'mark_resolved' }, { id: 'r4', status: 'failed' }, null, undefined],
+      ActionRecommendationAction.MARK_RESOLVED
+    );
+    expect(patch).toHaveBeenCalledTimes(3);
+    expect(patch).toHaveBeenCalledWith('/items/action_recommendations', { keys: ['r1', 'r3'], data: { status: 'accepted' } });
+    expect(patch).toHaveBeenCalledWith('/items/action_recommendations', { keys: ['r2'], data: { status: 'rejected' } });
+    expect(patch).toHaveBeenCalledWith('/items/action_recommendations', { keys: ['r4'], data: { status: 'archived' } });
+    await ActionRecommendationModuleHelper.close(api, [null], null);
+    expect(patch).toHaveBeenCalledTimes(3);
+  });
+
+  it('highlights only the recommended button, otherwise the default one', () => {
+    const markResolved = { id: 'r1', status: 'draft', action: 'mark_resolved' };
+    expect(ActionRecommendationModuleHelper.isHighlighted(markResolved, ActionRecommendationAction.MARK_RESOLVED, ActionRecommendationAction.REPLY)).toBe(true);
+    expect(ActionRecommendationModuleHelper.isHighlighted(markResolved, ActionRecommendationAction.REPLY, ActionRecommendationAction.REPLY)).toBe(false);
+    expect(ActionRecommendationModuleHelper.isHighlighted({ id: 'r2', status: 'processing' }, ActionRecommendationAction.REPLY, ActionRecommendationAction.REPLY)).toBe(true);
+    expect(ActionRecommendationModuleHelper.isHighlighted(null, ActionRecommendationAction.MARK_RESOLVED, ActionRecommendationAction.REPLY)).toBe(false);
+    expect(ActionRecommendationModuleHelper.isHighlighted(null, ActionRecommendationAction.REPLY, null)).toBe(false);
   });
 
   it('loads nothing without items and survives a failing read', async () => {
@@ -188,16 +217,21 @@ describe('reply language', () => {
 
   it('tells the AI the reply language per item, never the profile', () => {
     const prompt = ActionRecommendationPrompt.buildRecommendationPrompt(foodFeedbacks, [{ id: 'f1', comment: 'Too cold', rating: 2, profile: { language: 'en' } }], 'de', { f1: 'en' });
-    expect(JSON.parse(prompt.user).items).toEqual([{ id: 'f1', reply_language: 'en', comment: 'Too cold', rating: 2, 'food.alias': null }]);
+    expect(JSON.parse(prompt.user).items).toEqual([{ id: 'f1', reply_language: 'en', comment: 'Too cold', rating: 2, 'food.alias': null, 'canteen.alias': null, 'foodoffer.date': null }]);
     expect(prompt.system).toContain('reply_language');
   });
 });
 
 describe('chat history and batches', () => {
-  it('food feedbacks send the name of the food and read their chat', () => {
+  it('food feedbacks send the name of the food, the canteen and the date of the offer and read their chat', () => {
     expect(foodFeedbacks.fields).toContain('food.alias');
     expect(foodFeedbacks.chat?.field).toBe('chat');
-    expect(ActionRecommendationDefinitions.getReadFields(foodFeedbacks)).toEqual(['id', 'comment', 'rating', 'food.alias', 'chat']);
+    expect(ActionRecommendationDefinitions.getReadFields(foodFeedbacks)).toEqual(['id', 'comment', 'rating', 'food.alias', 'canteen.alias', 'foodoffer.date', 'chat']);
+    const prompt = ActionRecommendationPrompt.buildRecommendationPrompt(foodFeedbacks, [{ id: 'f1', comment: 'Nicht gekennzeichnet', canteen: { alias: 'Mensa Haste' }, foodoffer: { date: '2026-10-13' } }], 'de');
+    const [item] = JSON.parse(prompt.user).items;
+    expect(item['canteen.alias']).toBe('Mensa Haste');
+    expect(item['foodoffer.date']).toBe('2026-10-13');
+    expect(prompt.system).toContain('foodoffer.date');
   });
 
   it('reads dotted paths and stops at missing relations', () => {

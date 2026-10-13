@@ -320,6 +320,13 @@ export class FoodFeedbackChatHelper {
     return FoodFeedbackChatHelper.getImageUrl(food, apiRoot, FoodFeedbackChatHelper.FOOD_IMAGE_SIZE);
   }
 
+  /** The food in the content area of Directus, the target of a click on the food image; `undefined` without food. */
+  static getFoodRoute(feedback: Pick<FoodFeedbackListItem, 'food'>): string | undefined {
+    const food = feedback.food;
+    const foodId = typeof food === 'string' ? food : food?.id;
+    return foodId ? `/content/${CollectionNames.FOODS}/${encodeURIComponent(foodId)}` : undefined;
+  }
+
   /** The URL of the canteen picture in the canteen filter, like {@link getFoodImageUrl}. */
   static getCanteenImageUrl(canteen: FoodFeedbackCanteenOption, apiRoot: string = '/'): string | undefined {
     return FoodFeedbackChatHelper.getImageUrl(canteen, apiRoot, FoodFeedbackChatHelper.CANTEEN_IMAGE_SIZE);

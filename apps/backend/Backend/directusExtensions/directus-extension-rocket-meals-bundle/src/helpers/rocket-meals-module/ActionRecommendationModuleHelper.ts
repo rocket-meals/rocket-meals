@@ -1,7 +1,8 @@
 /**
  * ActionRecommendationModuleHelper.ts – what the endpoint `action-recommendations` and the module
  * pages share: routes, the fields of a stored recommendation, error codes, and the reads and writes
- * of the pages (open recommendations of the listed items, archive one once it was used or turned down).
+ * of the pages (open recommendations of the listed items, close one as accepted or rejected once its item
+ * was dealt with).
  *
  * Takes the Directus app's API client (`useApi()`) as parameter, so it has no Vue imports and runs in
  * the Node tests.
@@ -132,13 +133,36 @@ export class ActionRecommendationModuleHelper {
     }
   }
 
-  /** Archives recommendations that were taken over or turned down, so they no longer show up. */
-  static async archive(api: ActionRecommendationApiClient, recommendations: readonly (ModuleActionRecommendation | null | undefined)[]): Promise<void> {
-    const keys = recommendations.filter((recommendation): recommendation is ModuleActionRecommendation => !!recommendation?.id).map(recommendation => recommendation.id);
-    if (keys.length === 0) {
-      return;
+  /**
+   * How a recommendation is closed once someone dealt with its item: `accepted` when `takenAction` is
+   * the recommended one, `rejected` when another action was taken or it was turned down (`null`),
+   * `archived` when it recommended nothing yet (still processing or failed).
+   */
+  static getClosingStatus(recommendation: ModuleActionRecommendation | null | undefined, takenAction: ActionRecommendationAction | null): ActionRecommendationStatus {
+    const recommendedAction = ActionRecommendationModuleHelper.getRecommendedAction(recommendation);
+    if (!recommendedAction) {
+      return ActionRecommendationStatus.ARCHIVED;
     }
-    await api.patch(ActionRecommendationModuleHelper.ITEMS_ENDPOINT, { keys, data: { status: ActionRecommendationStatus.ARCHIVED } });
+    return recommendedAction === takenAction ? ActionRecommendationStatus.ACCEPTED : ActionRecommendationStatus.REJECTED;
+  }
+
+  /**
+   * Closes the recommendations of items someone dealt with, so they no longer show up: one request per
+   * closing status (see {@link getClosingStatus}). `takenAction` is what was done, `null` when the
+   * recommendation was turned down without doing anything.
+   */
+  static async close(api: ActionRecommendationApiClient, recommendations: readonly (ModuleActionRecommendation | null | undefined)[], takenAction: ActionRecommendationAction | null): Promise<void> {
+    const keysByStatus = new Map<ActionRecommendationStatus, string[]>();
+    for (const recommendation of recommendations) {
+      if (!recommendation?.id) {
+        continue;
+      }
+      const status = ActionRecommendationModuleHelper.getClosingStatus(recommendation, takenAction);
+      keysByStatus.set(status, [...(keysByStatus.get(status) ?? []), recommendation.id]);
+    }
+    for (const [status, keys] of keysByStatus) {
+      await api.patch(ActionRecommendationModuleHelper.ITEMS_ENDPOINT, { keys, data: { status } }); // NOSONAR S9382 - at most three statuses, one after the other
+    }
   }
 
   /** The AI is still being asked. */
@@ -159,6 +183,22 @@ export class ActionRecommendationModuleHelper {
 
   static isAction(recommendation: ModuleActionRecommendation | null | undefined, action: ActionRecommendationAction): boolean {
     return recommendation?.action === action;
+  }
+
+  /** The action an answered recommendation recommends; null while processing, after a failure or for an unknown action. */
+  static getRecommendedAction(recommendation: ModuleActionRecommendation | null | undefined): ActionRecommendationAction | null {
+    if (recommendation?.status !== ActionRecommendationStatus.DRAFT || !ActionRecommendationDefinitions.isAction(recommendation.action)) {
+      return null;
+    }
+    return recommendation.action;
+  }
+
+  /**
+   * Whether the button of `action` is the highlighted (primary) one: with an answered recommendation
+   * only the recommended action, otherwise `defaultAction` (what the page highlights without AI).
+   */
+  static isHighlighted(recommendation: ModuleActionRecommendation | null | undefined, action: ActionRecommendationAction, defaultAction: ActionRecommendationAction | null): boolean {
+    return (ActionRecommendationModuleHelper.getRecommendedAction(recommendation) ?? defaultAction) === action;
   }
 
   /** The draft reply of a recommendation to reply, otherwise null. */

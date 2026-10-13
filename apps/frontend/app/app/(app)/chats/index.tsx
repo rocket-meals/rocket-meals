@@ -12,7 +12,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { DatabaseTypes } from 'repo-depkit-common';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { MARK_ALL_CHATS_AS_READ, MARK_ALL_CHATS_AS_UNREAD } from '@/redux/Types/types';
-import { persistChatReadStatus } from '@/helper/chatReadStatus';
+import { persistChatReadStatus, syncChatReadUntilToServer } from '@/helper/chatReadStatus';
 import styles from './styles';
 import useChatUnreadStatus, { getChatTimestamp } from '@/hooks/useChatUnreadStatus';
 import { MyAvatar } from 'repo-depkit-common-ui';
@@ -28,7 +28,7 @@ const ChatsScreen = () => {
 
         const { chats, readStatus, hasUnreadChats, isChatUnread } = useChatUnreadStatus();
         const { primaryColor, selectedTheme } = useAppSelector((state) => state.settings);
-        const { user } = useAppSelector((state) => state.authReducer);
+        const { user, profile } = useAppSelector((state) => state.authReducer);
         const isRegisteredUser = UserHelper.isRegisteredUser(user);
 
         const { avatarConfig: ownAvatarConfig, openEditor: openAvatarEditor } = useAvatarProfileEditor();
@@ -61,6 +61,7 @@ const ChatsScreen = () => {
                                 payload: updates,
                         });
                         await persistChatReadStatus(nextStatus);
+                        await syncChatReadUntilToServer(sortedChats, profile?.id, updates);
                 }
         };
 
@@ -88,6 +89,13 @@ const ChatsScreen = () => {
                         });
                         await persistChatReadStatus(updatedStatus);
                 }
+                const serverUpdates = sortedChats.reduce((acc, chat) => {
+                        if (chat?.id) {
+                                acc[chat.id] = null;
+                        }
+                        return acc;
+                }, {} as Record<string, string | null>);
+                await syncChatReadUntilToServer(sortedChats, profile?.id, serverUpdates);
         };
 
         const renderHeader = () => {

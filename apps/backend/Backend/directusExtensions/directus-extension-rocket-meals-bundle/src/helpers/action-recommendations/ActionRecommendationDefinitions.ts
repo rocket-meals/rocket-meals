@@ -23,7 +23,9 @@ export enum ActionRecommendationAction {
 /**
  * The status of a recommendation, stored in `action_recommendations.status` (the archive field of the
  * collection): `processing` while the AI is asked, then a `draft` with the recommendation or `failed`
- * (see `logs`). Once someone took it over or turned it down it is `archived`.
+ * (see `logs`). Once someone dealt with the item it is closed: `accepted` when the recommended action
+ * was taken, `rejected` when another one was taken or it was turned down, `archived` when there was
+ * nothing to take (still processing or failed).
  */
 export enum ActionRecommendationStatus {
   PROCESSING = 'processing',
@@ -31,6 +33,8 @@ export enum ActionRecommendationStatus {
   FAILED = 'failed',
   PUBLISHED = 'published',
   ARCHIVED = 'archived',
+  ACCEPTED = 'accepted',
+  REJECTED = 'rejected',
 }
 
 /** The statuses of a recommendation nobody has dealt with yet: shown in the module, replaced by a new one. */
@@ -83,8 +87,8 @@ export class ActionRecommendationDefinitions {
   static readonly DEFINITIONS: readonly ActionRecommendationDefinition[] = [
     {
       collection: CollectionNames.FOODS_FEEDBACKS,
-      promptContext: 'Rückmeldungen von Gästen einer Mensa zu einer Speise: ein Kommentar, eine Bewertung von 1 (schlecht) bis 5 (gut) und der Name der Speise ("food.alias").',
-      fields: ['comment', 'rating', 'food.alias'],
+      promptContext: 'Rückmeldungen von Gästen einer Mensa zu einer Speise: ein Kommentar, eine Bewertung von 1 (schlecht) bis 5 (gut), der Name der Speise ("food.alias"), die Mensa ("canteen.alias") und der Tag, an dem die Speise angeboten wurde ("foodoffer.date").',
+      fields: ['comment', 'rating', 'food.alias', 'canteen.alias', 'foodoffer.date'],
       textFields: ['comment'],
       actions: [ActionRecommendationAction.REPLY, ActionRecommendationAction.MARK_RESOLVED],
       summaryGroupField: 'food',

@@ -95,7 +95,8 @@ export function getVersionPatch() {
 	// 68: common: app_settings.app_usage_events_enabled is a checkbox tree ("Alle" on top), nothing ticked collects nothing
 	// 69: common-ui: silhouette avatar config (SilhouetteAvatar), used by the Live-Puls page
 	// 70: common: app_settings.maintenance_message type
-	return 75;
+	// 76: common: ChatHelper read status helpers, chats.date_last_message and chats_participants.read_until types
+	return 76;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates
