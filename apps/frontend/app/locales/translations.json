@@ -9170,14 +9170,14 @@
     "zh": "检查结果"
   },
   "app_outdated_show_preview": {
-    "de": "Hinweis anzeigen",
-    "en": "Show notice",
-    "ar": "عرض الإشعار",
-    "es": "Mostrar aviso",
-    "fr": "Afficher l'avis",
-    "ru": "Показать уведомление",
-    "tr": "Bildirimi göster",
-    "zh": "显示提示"
+    "de": "Hinweis anzeigen (Sheet)",
+    "en": "Show notice (sheet)",
+    "ar": "عرض الإشعار (نافذة)",
+    "es": "Mostrar aviso (hoja)",
+    "fr": "Afficher l'avis (feuille)",
+    "ru": "Показать уведомление (панель)",
+    "tr": "Bildirimi göster (sayfa)",
+    "zh": "显示提示（底部面板）"
   },
   "app_outdated_message": {
     "de": "Für die App gibt es eine neue Version. Bitte aktualisiere die App, damit alles wie gewohnt funktioniert.",
@@ -9208,5 +9208,15 @@
     "ru": "В вебе нет магазина",
     "tr": "Web'de mağaza yok",
     "zh": "网页版没有应用商店"
+  },
+  "app_outdated_show_preview_canteen_background": {
+    "de": "Hinweis mit Mensa-Hintergrund anzeigen",
+    "en": "Show notice with canteen background",
+    "ar": "عرض الإشعار بخلفية المطعم",
+    "es": "Mostrar aviso con fondo del comedor",
+    "fr": "Afficher l'avis avec le restaurant en arrière-plan",
+    "ru": "Показать уведомление на фоне столовой",
+    "tr": "Bildirimi yemekhane arka planıyla göster",
+    "zh": "以食堂为背景显示提示"
   }
 }

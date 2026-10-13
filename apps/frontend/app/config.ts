@@ -278,7 +278,8 @@ export function getVersionPatch() {
         // 154: the "new version in the store" notice is a sheet now, checked once per app start
         //      (login screen included, not on the web or in kiosk mode) and shown before the
         //      popup events. The full screen version is gone.
-        return 154;
+        // 155: "App veraltet Test" also previews the sheet on the blurred canteen image
+        return 155;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

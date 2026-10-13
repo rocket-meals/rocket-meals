@@ -94,9 +94,17 @@ const AppOutdatedTest = () => {
 				<SettingsList
 					label={translate(TranslationKeys.app_outdated_show_preview)}
 					handleFunction={() => showAppOutdatedSheet(previewStoreUrl)}
+					groupPosition="middle"
+					showSeparator
+					leftIcon={<MaterialCommunityIcons name="cellphone-arrow-down" size={22} color={theme.screen.icon} />}
+					iconBgColor="transparent"
+				/>
+				<SettingsList
+					label={translate(TranslationKeys.app_outdated_show_preview_canteen_background)}
+					handleFunction={() => showAppOutdatedSheet(previewStoreUrl, undefined, 'canteenBackground')}
 					groupPosition="bottom"
 					showSeparator={false}
-					leftIcon={<MaterialCommunityIcons name="cellphone-arrow-down" size={22} color={theme.screen.icon} />}
+					leftIcon={<MaterialCommunityIcons name="image-filter-hdr" size={22} color={theme.screen.icon} />}
 					iconBgColor="transparent"
 				/>
 			</View>
