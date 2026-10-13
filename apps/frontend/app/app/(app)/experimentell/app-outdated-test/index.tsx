@@ -7,7 +7,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import SettingsList from '@/components/SettingsList/SettingsList';
-import AppOutdatedScreen from '@/components/AppOutdatedScreen/AppOutdatedScreen';
+import { useShowAppOutdatedSheet } from '@/components/AppOutdatedSheet/AppOutdatedSheet';
 import { getCustomerConfig, getCustomerConfigurations, getVersionInternalForAppsettingsScreen } from '@/config';
 import { InstalledAppStoreCheck, StoreVersionComparison, StoreVersionHelper } from '@/helper/StoreVersionHelper';
 
@@ -18,9 +18,9 @@ const COMPARISON_TEXT_KEYS: Record<StoreVersionComparison, TranslationKeys> = {
 	unknown: TranslationKeys.unknown,
 };
 
-// Lets you try the full screen "new version available" notice. The check below
-// is the real one (installed app against its own store), the preview shows the
-// notice whatever the check says, with a button to end it.
+// Lets you try the "new version available" sheet. The check below is the real
+// one (installed app against its own store, the same AppOutdatedNotice runs on
+// app start), the button shows the sheet whatever the check says.
 const AppOutdatedTest = () => {
 	useSetPageTitle(TranslationKeys.app_outdated_test);
 	const { theme } = useTheme();
@@ -29,7 +29,7 @@ const AppOutdatedTest = () => {
 	const installedAppIds = useMemo(() => StoreVersionHelper.getInstalledAppIds(Constants.expoConfig, getCustomerConfig()), []);
 
 	const [check, setCheck] = useState<InstalledAppStoreCheck | null>(null);
-	const [previewVisible, setPreviewVisible] = useState(false);
+	const showAppOutdatedSheet = useShowAppOutdatedSheet();
 
 	const runCheck = useCallback(() => {
 		setCheck(null);
@@ -93,18 +93,13 @@ const AppOutdatedTest = () => {
 				/>
 				<SettingsList
 					label={translate(TranslationKeys.app_outdated_show_preview)}
-					handleFunction={() => setPreviewVisible(true)}
+					handleFunction={() => showAppOutdatedSheet(previewStoreUrl)}
 					groupPosition="bottom"
 					showSeparator={false}
 					leftIcon={<MaterialCommunityIcons name="cellphone-arrow-down" size={22} color={theme.screen.icon} />}
 					iconBgColor="transparent"
 				/>
 			</View>
-			<AppOutdatedScreen
-				visible={previewVisible}
-				storeUrl={previewStoreUrl}
-				onClosePreview={() => setPreviewVisible(false)}
-			/>
 		</ScrollView>
 	);
 };

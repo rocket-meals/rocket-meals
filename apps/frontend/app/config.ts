@@ -275,7 +275,10 @@ export function getVersionPatch() {
         // 152: outdated app notice inside the safe area, store button pinned to the bottom,
         //      icon and text scroll above it on small displays
         // 153: outdated app notice without a heading, only the message on the panel
-        return 153;
+        // 154: the "new version in the store" notice is a sheet now, checked once per app start
+        //      (login screen included, not on the web or in kiosk mode) and shown before the
+        //      popup events. The full screen version is gone.
+        return 154;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

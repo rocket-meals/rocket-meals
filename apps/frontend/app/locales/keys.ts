@@ -938,7 +938,6 @@ export const TranslationKeys = {
 	app_outdated_store_version: 'app_outdated_store_version',
 	app_outdated_check_result: 'app_outdated_check_result',
 	app_outdated_show_preview: 'app_outdated_show_preview',
-	app_outdated_end_preview: 'app_outdated_end_preview',
 	app_outdated_message: 'app_outdated_message',
 	app_outdated_update_now: 'app_outdated_update_now',
 	app_outdated_no_store_on_web: 'app_outdated_no_store_on_web',

@@ -9140,14 +9140,14 @@
     "zh": "应用过期测试"
   },
   "app_outdated_test_hint": {
-    "de": "Die Prüfung vergleicht die installierte App mit ihrem Store. Die Vorschau zeigt den Vollbild-Hinweis auch dann, wenn die App aktuell ist.",
-    "en": "The check compares the installed app with its store. The preview shows the full screen notice even if the app is up to date.",
-    "ar": "يقارن الفحص التطبيق المثبت بمتجره. تعرض المعاينة الإشعار بملء الشاشة حتى إذا كان التطبيق محدثًا.",
-    "es": "La comprobación compara la app instalada con su tienda. La vista previa muestra el aviso a pantalla completa aunque la app esté actualizada.",
-    "fr": "La vérification compare l'application installée avec son store. L'aperçu affiche l'avis en plein écran même si l'application est à jour.",
-    "ru": "Проверка сравнивает установленное приложение с его магазином. Предпросмотр показывает полноэкранное уведомление, даже если приложение актуально.",
-    "tr": "Kontrol, yüklü uygulamayı mağazasıyla karşılaştırır. Önizleme, uygulama güncel olsa bile tam ekran bildirimi gösterir.",
-    "zh": "检查会将已安装的应用与其商店进行比较。即使应用已是最新，预览也会显示全屏提示。"
+    "de": "Die Prüfung vergleicht die installierte App mit ihrem Store, genau wie beim App-Start. Hat der Store eine neuere Version, erscheint der Hinweis dort vor den Popup-Events. Hier lässt er sich auch anzeigen, wenn die App aktuell ist.",
+    "en": "The check compares the installed app with its store, just like on app start. If the store has a newer version, the notice shows there before the popup events. Here it can also be shown when the app is up to date.",
+    "ar": "يقارن الفحص التطبيق المثبت بمتجره، تمامًا كما عند بدء التطبيق. إذا كان في المتجر إصدار أحدث، يظهر الإشعار هناك قبل الإشعارات المنبثقة. هنا يمكن عرضه أيضًا عندما يكون التطبيق محدثًا.",
+    "es": "La comprobación compara la app instalada con su tienda, igual que al iniciar la app. Si la tienda tiene una versión más reciente, el aviso aparece allí antes de los avisos emergentes. Aquí también se puede mostrar aunque la app esté actualizada.",
+    "fr": "La vérification compare l'application installée avec son store, comme au démarrage de l'application. Si le store a une version plus récente, l'avis s'affiche alors avant les fenêtres d'événements. Ici, il peut aussi être affiché quand l'application est à jour.",
+    "ru": "Проверка сравнивает установленное приложение с его магазином, как при запуске приложения. Если в магазине есть более новая версия, уведомление появляется там раньше всплывающих событий. Здесь его можно показать, даже если приложение актуально.",
+    "tr": "Kontrol, yüklü uygulamayı tıpkı uygulama başlatılırken olduğu gibi mağazasıyla karşılaştırır. Mağazada daha yeni bir sürüm varsa bildirim, açılır etkinliklerden önce orada görünür. Burada uygulama güncel olsa bile gösterilebilir.",
+    "zh": "检查会像应用启动时一样，将已安装的应用与其商店进行比较。如果商店中有更新的版本，提示会在弹出活动之前显示。在这里，即使应用已是最新，也可以显示该提示。"
   },
   "app_outdated_store_version": {
     "de": "Version im Store",
@@ -9170,24 +9170,14 @@
     "zh": "检查结果"
   },
   "app_outdated_show_preview": {
-    "de": "Vollbild-Hinweis anzeigen",
-    "en": "Show full screen notice",
-    "ar": "عرض الإشعار بملء الشاشة",
-    "es": "Mostrar aviso a pantalla completa",
-    "fr": "Afficher l'avis en plein écran",
-    "ru": "Показать полноэкранное уведомление",
-    "tr": "Tam ekran bildirimi göster",
-    "zh": "显示全屏提示"
-  },
-  "app_outdated_end_preview": {
-    "de": "Vorschau beenden",
-    "en": "End preview",
-    "ar": "إنهاء المعاينة",
-    "es": "Terminar vista previa",
-    "fr": "Quitter l'aperçu",
-    "ru": "Закрыть предпросмотр",
-    "tr": "Önizlemeyi bitir",
-    "zh": "结束预览"
+    "de": "Hinweis anzeigen",
+    "en": "Show notice",
+    "ar": "عرض الإشعار",
+    "es": "Mostrar aviso",
+    "fr": "Afficher l'avis",
+    "ru": "Показать уведомление",
+    "tr": "Bildirimi göster",
+    "zh": "显示提示"
   },
   "app_outdated_message": {
     "de": "Für die App gibt es eine neue Version. Bitte aktualisiere die App, damit alles wie gewohnt funktioniert.",
