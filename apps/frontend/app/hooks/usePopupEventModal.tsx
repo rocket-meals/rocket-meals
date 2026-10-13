@@ -5,12 +5,15 @@ import { useDispatch, shallowEqual } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import { SET_POPUP_EVENTS } from '@/redux/Types/types';
 import useKioskMode from '@/hooks/useKioskMode';
+import { useAppOutdatedNoticeDone } from '@/helper/appOutdatedNoticeGate';
 import type { ModalCloseReason } from 'repo-depkit-common-ui';
 import { DatabaseTypes } from 'repo-depkit-common';
 
 const usePopupEventModal = () => {
 	const dispatch = useDispatch();
 	const kioskMode = useKioskMode();
+	// The "new version in the store" notice goes first (see AppOutdatedNotice).
+	const appOutdatedNoticeDone = useAppOutdatedNoticeDone();
 	const popupEvents = useAppSelector((state) => state.food.popupEvents, shallowEqual);
 	const { showAndDiscardOthers: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
 	const popupEventShownIdRef = useRef<string | null>(null);
@@ -123,6 +126,7 @@ const usePopupEventModal = () => {
 
 	const openActiveModal = useCallback(() => {
 		if (kioskMode) return;
+		if (!appOutdatedNoticeDone) return;
 
 		const nextEvent = popupEvents?.find(isEventPending);
 		if (!nextEvent) return;
@@ -131,7 +135,7 @@ const usePopupEventModal = () => {
 		if (popupEventShownIdRef.current === eventId) return;
 
 		showEvent(nextEvent);
-	}, [kioskMode, popupEvents, showEvent]);
+	}, [kioskMode, appOutdatedNoticeDone, popupEvents, showEvent]);
 
 	return { openActiveModal, activePopupEvent: currentPopupEvent, popupEvents };
 };

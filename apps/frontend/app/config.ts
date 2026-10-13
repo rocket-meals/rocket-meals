@@ -263,8 +263,23 @@ export function getVersionPatch() {
         //      project logo and color kept when the server info cannot be loaded
         // 142: experimental screen "Store-Versionen" compares the installed version with the
         //      App Store and Google Play versions (major and build number only)
+        // 143-147: other changes on master
         // 148: chats: read status per participant (read_until) synced with the server, chats refetched on foreground
-        return 148;
+        // 149: the store information screen shows the installed app (app id), the store versions of the
+        //      installed app, of the selected customer and of the app the server links to, and the
+        //      star rating of each store
+        // 150: experimental screen renamed to "Store Information", new experimental screen
+        //      "App veraltet Test" with a full screen notice when the store has a newer version
+        // 151: the outdated app notice shows title and text on a dark panel (readable on any
+        //      canteen image), without the version line
+        // 152: outdated app notice inside the safe area, store button pinned to the bottom,
+        //      icon and text scroll above it on small displays
+        // 153: outdated app notice without a heading, only the message on the panel
+        // 154: the "new version in the store" notice is a sheet now, checked once per app start
+        //      (login screen included, not on the web or in kiosk mode) and shown before the
+        //      popup events. The full screen version is gone.
+        // 155: "App veraltet Test" also previews the sheet on the blurred canteen image
+        return 155;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

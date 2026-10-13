@@ -8989,15 +8989,15 @@
     "tr": "Bir daire boşaldığında sana anlık bildirim göndereceğiz.",
     "zh": "有房间空出时，我们会给你发送推送通知。"
   },
-  "store_versions": {
-    "de": "Store-Versionen",
-    "en": "Store versions",
-    "ar": "إصدارات المتجر",
-    "es": "Versiones en las tiendas",
-    "fr": "Versions dans les stores",
-    "ru": "Версии в магазинах",
-    "tr": "Mağaza sürümleri",
-    "zh": "应用商店版本"
+  "store_information": {
+    "de": "Store Information",
+    "en": "Store information",
+    "ar": "معلومات المتجر",
+    "es": "Información de la tienda",
+    "fr": "Informations du store",
+    "ru": "Информация из магазина",
+    "tr": "Mağaza bilgileri",
+    "zh": "商店信息"
   },
   "store_versions_installed": {
     "de": "Installierte Version",
@@ -9008,26 +9008,6 @@
     "ru": "Установленная версия",
     "tr": "Yüklü sürüm",
     "zh": "已安装版本"
-  },
-  "store_versions_store_version": {
-    "de": "Version im Store",
-    "en": "Version in the store",
-    "ar": "الإصدار في المتجر",
-    "es": "Versión en la tienda",
-    "fr": "Version dans le store",
-    "ru": "Версия в магазине",
-    "tr": "Mağazadaki sürüm",
-    "zh": "商店中的版本"
-  },
-  "store_versions_status": {
-    "de": "Vergleich",
-    "en": "Comparison",
-    "ar": "المقارنة",
-    "es": "Comparación",
-    "fr": "Comparaison",
-    "ru": "Сравнение",
-    "tr": "Karşılaştırma",
-    "zh": "比较"
   },
   "store_versions_newer_in_store": {
     "de": "Neuere Version im Store",
@@ -9059,16 +9039,6 @@
     "tr": "Yüklü sürüm daha yeni",
     "zh": "已安装的版本更新"
   },
-  "store_versions_open_store": {
-    "de": "Im Store öffnen",
-    "en": "Open in the store",
-    "ar": "افتح في المتجر",
-    "es": "Abrir en la tienda",
-    "fr": "Ouvrir dans le store",
-    "ru": "Открыть в магазине",
-    "tr": "Mağazada aç",
-    "zh": "在商店中打开"
-  },
   "store_versions_reload": {
     "de": "Erneut laden",
     "en": "Load again",
@@ -9088,5 +9058,165 @@
     "ru": "Сравниваются только основная версия и номер сборки. Номер патча приходит через OTA-обновление и никогда не попадает в магазин.",
     "tr": "Yalnızca ana sürüm ve derleme numarası karşılaştırılır. Yama numarası OTA güncellemesiyle gelir ve hiçbir zaman mağazada yer almaz.",
     "zh": "只比较主版本号和构建号。补丁号通过 OTA 更新提供，从不出现在商店中。"
+  },
+  "store_versions_installed_app": {
+    "de": "Installierte App",
+    "en": "Installed app",
+    "ar": "التطبيق المثبت",
+    "es": "App instalada",
+    "fr": "Application installée",
+    "ru": "Установленное приложение",
+    "tr": "Yüklü uygulama",
+    "zh": "已安装的应用"
+  },
+  "store_versions_app": {
+    "de": "App",
+    "en": "App",
+    "ar": "التطبيق",
+    "es": "App",
+    "fr": "Application",
+    "ru": "Приложение",
+    "tr": "Uygulama",
+    "zh": "应用"
+  },
+  "store_versions_app_id": {
+    "de": "App-ID",
+    "en": "App ID",
+    "ar": "معرّف التطبيق",
+    "es": "ID de la app",
+    "fr": "ID de l'application",
+    "ru": "ID приложения",
+    "tr": "Uygulama kimliği",
+    "zh": "应用 ID"
+  },
+  "store_versions_differs_from_installed_app": {
+    "de": "nicht die installierte App",
+    "en": "not the installed app",
+    "ar": "ليس التطبيق المثبت",
+    "es": "no es la app instalada",
+    "fr": "pas l'application installée",
+    "ru": "не установленное приложение",
+    "tr": "yüklü uygulama değil",
+    "zh": "不是已安装的应用"
+  },
+  "store_versions_server_app": {
+    "de": "Server (App-Einstellungen)",
+    "en": "Server (app settings)",
+    "ar": "الخادم (إعدادات التطبيق)",
+    "es": "Servidor (ajustes de la app)",
+    "fr": "Serveur (paramètres de l'application)",
+    "ru": "Сервер (настройки приложения)",
+    "tr": "Sunucu (uygulama ayarları)",
+    "zh": "服务器（应用设置）"
+  },
+  "store_versions_this_device": {
+    "de": "Dieses Gerät",
+    "en": "This device",
+    "ar": "هذا الجهاز",
+    "es": "Este dispositivo",
+    "fr": "Cet appareil",
+    "ru": "Это устройство",
+    "tr": "Bu cihaz",
+    "zh": "本设备"
+  },
+  "store_versions_rating": {
+    "de": "Bewertung",
+    "en": "Rating",
+    "ar": "التقييم",
+    "es": "Valoración",
+    "fr": "Note",
+    "ru": "Оценка",
+    "tr": "Puan",
+    "zh": "评分"
+  },
+  "app_outdated_test": {
+    "de": "App veraltet Test",
+    "en": "App outdated test",
+    "ar": "اختبار التطبيق القديم",
+    "es": "Prueba de app desactualizada",
+    "fr": "Test application obsolète",
+    "ru": "Тест устаревшего приложения",
+    "tr": "Eski uygulama testi",
+    "zh": "应用过期测试"
+  },
+  "app_outdated_test_hint": {
+    "de": "Die Prüfung vergleicht die installierte App mit ihrem Store, genau wie beim App-Start. Hat der Store eine neuere Version, erscheint der Hinweis dort vor den Popup-Events. Hier lässt er sich auch anzeigen, wenn die App aktuell ist.",
+    "en": "The check compares the installed app with its store, just like on app start. If the store has a newer version, the notice shows there before the popup events. Here it can also be shown when the app is up to date.",
+    "ar": "يقارن الفحص التطبيق المثبت بمتجره، تمامًا كما عند بدء التطبيق. إذا كان في المتجر إصدار أحدث، يظهر الإشعار هناك قبل الإشعارات المنبثقة. هنا يمكن عرضه أيضًا عندما يكون التطبيق محدثًا.",
+    "es": "La comprobación compara la app instalada con su tienda, igual que al iniciar la app. Si la tienda tiene una versión más reciente, el aviso aparece allí antes de los avisos emergentes. Aquí también se puede mostrar aunque la app esté actualizada.",
+    "fr": "La vérification compare l'application installée avec son store, comme au démarrage de l'application. Si le store a une version plus récente, l'avis s'affiche alors avant les fenêtres d'événements. Ici, il peut aussi être affiché quand l'application est à jour.",
+    "ru": "Проверка сравнивает установленное приложение с его магазином, как при запуске приложения. Если в магазине есть более новая версия, уведомление появляется там раньше всплывающих событий. Здесь его можно показать, даже если приложение актуально.",
+    "tr": "Kontrol, yüklü uygulamayı tıpkı uygulama başlatılırken olduğu gibi mağazasıyla karşılaştırır. Mağazada daha yeni bir sürüm varsa bildirim, açılır etkinliklerden önce orada görünür. Burada uygulama güncel olsa bile gösterilebilir.",
+    "zh": "检查会像应用启动时一样，将已安装的应用与其商店进行比较。如果商店中有更新的版本，提示会在弹出活动之前显示。在这里，即使应用已是最新，也可以显示该提示。"
+  },
+  "app_outdated_store_version": {
+    "de": "Version im Store",
+    "en": "Version in the store",
+    "ar": "الإصدار في المتجر",
+    "es": "Versión en la tienda",
+    "fr": "Version dans le store",
+    "ru": "Версия в магазине",
+    "tr": "Mağazadaki sürüm",
+    "zh": "商店中的版本"
+  },
+  "app_outdated_check_result": {
+    "de": "Ergebnis der Prüfung",
+    "en": "Check result",
+    "ar": "نتيجة الفحص",
+    "es": "Resultado de la comprobación",
+    "fr": "Résultat de la vérification",
+    "ru": "Результат проверки",
+    "tr": "Kontrol sonucu",
+    "zh": "检查结果"
+  },
+  "app_outdated_show_preview": {
+    "de": "Hinweis anzeigen (Sheet)",
+    "en": "Show notice (sheet)",
+    "ar": "عرض الإشعار (نافذة)",
+    "es": "Mostrar aviso (hoja)",
+    "fr": "Afficher l'avis (feuille)",
+    "ru": "Показать уведомление (панель)",
+    "tr": "Bildirimi göster (sayfa)",
+    "zh": "显示提示（底部面板）"
+  },
+  "app_outdated_message": {
+    "de": "Für die App gibt es eine neue Version. Bitte aktualisiere die App, damit alles wie gewohnt funktioniert.",
+    "en": "A new version of the app is available. Please update the app so that everything keeps working as usual.",
+    "ar": "يتوفر إصدار جديد من التطبيق. يرجى تحديث التطبيق ليستمر كل شيء في العمل كالمعتاد.",
+    "es": "Hay una nueva versión de la app. Actualiza la app para que todo siga funcionando como siempre.",
+    "fr": "Une nouvelle version de l'application est disponible. Merci de mettre l'application à jour pour que tout continue de fonctionner comme d'habitude.",
+    "ru": "Доступна новая версия приложения. Пожалуйста, обнови приложение, чтобы всё работало как обычно.",
+    "tr": "Uygulamanın yeni bir sürümü var. Her şeyin her zamanki gibi çalışması için lütfen uygulamayı güncelle.",
+    "zh": "应用有新版本可用。请更新应用，以确保一切照常运行。"
+  },
+  "app_outdated_update_now": {
+    "de": "Jetzt aktualisieren",
+    "en": "Update now",
+    "ar": "حدّث الآن",
+    "es": "Actualizar ahora",
+    "fr": "Mettre à jour",
+    "ru": "Обновить сейчас",
+    "tr": "Şimdi güncelle",
+    "zh": "立即更新"
+  },
+  "app_outdated_no_store_on_web": {
+    "de": "Im Web gibt es keinen Store",
+    "en": "There is no store on the web",
+    "ar": "لا يوجد متجر على الويب",
+    "es": "En la web no hay tienda",
+    "fr": "Il n'y a pas de store sur le web",
+    "ru": "В вебе нет магазина",
+    "tr": "Web'de mağaza yok",
+    "zh": "网页版没有应用商店"
+  },
+  "app_outdated_show_preview_canteen_background": {
+    "de": "Hinweis mit Mensa-Hintergrund anzeigen",
+    "en": "Show notice with canteen background",
+    "ar": "عرض الإشعار بخلفية المطعم",
+    "es": "Mostrar aviso con fondo del comedor",
+    "fr": "Afficher l'avis avec le restaurant en arrière-plan",
+    "ru": "Показать уведомление на фоне столовой",
+    "tr": "Bildirimi yemekhane arka planıyla göster",
+    "zh": "以食堂为背景显示提示"
   }
 }

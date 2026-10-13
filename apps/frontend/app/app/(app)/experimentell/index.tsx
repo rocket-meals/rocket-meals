@@ -93,10 +93,16 @@ const Index = () => {
 			onPress: () => router.push('/experimentell/rate-app'),
 		},
 		{
-			key: 'store-versions',
-			label: translate(TranslationKeys.store_versions),
+			key: 'store-information',
+			label: translate(TranslationKeys.store_information),
 			leftIcon: <MaterialCommunityIcons name="store-search-outline" size={24} color={theme.screen.icon} />,
-			onPress: () => router.push('/experimentell/store-versions'),
+			onPress: () => router.push('/experimentell/store-information'),
+		},
+		{
+			key: 'app-outdated-test',
+			label: translate(TranslationKeys.app_outdated_test),
+			leftIcon: <MaterialCommunityIcons name="cellphone-arrow-down" size={24} color={theme.screen.icon} />,
+			onPress: () => router.push('/experimentell/app-outdated-test'),
 		},
 		{
 			key: 'app-download',
