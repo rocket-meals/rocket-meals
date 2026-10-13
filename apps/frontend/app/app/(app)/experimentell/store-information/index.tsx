@@ -132,8 +132,8 @@ const loadStoreResults = async (appRef: StoreAppRef): Promise<StoreResults> => {
 	return { appStore, googlePlay };
 };
 
-const StoreVersions = () => {
-	useSetPageTitle(TranslationKeys.store_versions);
+const StoreInformation = () => {
+	useSetPageTitle(TranslationKeys.store_information);
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
 	const { appSettings } = useAppSelector(state => state.settings);
@@ -184,7 +184,7 @@ const StoreVersions = () => {
 	return (
 		<ScrollView style={[styles.container, { backgroundColor: theme.screen.background }]} contentContainerStyle={{ backgroundColor: theme.screen.background }}>
 			<View style={styles.content}>
-				<Text style={[styles.heading, { color: theme.screen.text }]}>{translate(TranslationKeys.store_versions)}</Text>
+				<Text style={[styles.heading, { color: theme.screen.text }]}>{translate(TranslationKeys.store_information)}</Text>
 				<Text style={[styles.hint, { color: theme.screen.text }]}>{translate(TranslationKeys.store_versions_hint)}</Text>
 				<SettingsListGroupTitle title={translate(TranslationKeys.store_versions_this_device)} />
 				<SettingsList
@@ -237,7 +237,7 @@ const StoreVersions = () => {
 	);
 };
 
-export default StoreVersions;
+export default StoreInformation;
 
 const styles = StyleSheet.create({
 	container: {

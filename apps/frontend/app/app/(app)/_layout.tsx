@@ -842,10 +842,17 @@ export default function Layout() {
 					}}
 				/>
 				<Drawer.Screen
-					name="experimentell/store-versions/index"
+					name="experimentell/app-outdated-test/index"
 					options={{
-						header: makeTranslatedStackHeader(TranslationKeys.store_versions, 'store_versions'),
-						title: translate(TranslationKeys.store_versions),
+						header: makeTranslatedStackHeader(TranslationKeys.app_outdated_test, 'app_outdated_test'),
+						title: translate(TranslationKeys.app_outdated_test),
+					}}
+				/>
+				<Drawer.Screen
+					name="experimentell/store-information/index"
+					options={{
+						header: makeTranslatedStackHeader(TranslationKeys.store_information, 'store_information'),
+						title: translate(TranslationKeys.store_information),
 					}}
 				/>
 				<Drawer.Screen

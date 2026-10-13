@@ -267,7 +267,9 @@ export function getVersionPatch() {
         // 148: the store versions screen shows the installed app (app id), the store versions of the
         //      installed app, of the selected customer and of the app the server links to, and the
         //      star rating of each store
-        return 148;
+        // 149: experimental screen renamed to "Store Information", new experimental screen
+        //      "App veraltet Test" with a full screen notice when the store has a newer version
+        return 149;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

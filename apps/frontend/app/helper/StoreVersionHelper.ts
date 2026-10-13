@@ -37,6 +37,13 @@ type ExpoConfigLike = {
 	android?: { package?: string } | null;
 } | null;
 
+export type InstalledAppStoreCheck = {
+	comparison: StoreVersionComparison;
+	storeVersion: string | null;
+	storeUrl: string | null;
+	error: string | null;
+};
+
 export class StoreVersionHelper {
 	// The ids of the app that is actually installed. They come from the app
 	// config the binary (or its OTA update) was built with, so the in-app
@@ -122,6 +129,26 @@ export class StoreVersionHelper {
 		if (diff > 0) return 'newer_in_store';
 		if (diff < 0) return 'older_in_store';
 		return 'up_to_date';
+	}
+
+	// The store the installed app comes from: the App Store on iOS, Google Play
+	// on Android. The web has no store version.
+	static async checkInstalledAppAgainstStore(platform: string, installedAppIds: InstalledAppIds, installedVersion: string): Promise<InstalledAppStoreCheck> {
+		let result: StoreVersionResult | null = null;
+		if (platform === 'ios') result = await StoreVersionHelper.fetchAppStoreVersion({ bundleIdIos: installedAppIds.bundleIdIos });
+		if (platform === 'android') result = await StoreVersionHelper.fetchGooglePlayVersion(installedAppIds.bundleIdAndroid);
+		return {
+			comparison: result ? StoreVersionHelper.compare(installedVersion, result.version) : 'unknown',
+			storeVersion: result?.version ?? null,
+			storeUrl: result?.storeUrl ?? null,
+			error: result ? result.error : 'No store on this platform',
+		};
+	}
+
+	// "21.210.143" -> "21.210": the part of a version the stores know
+	static getMajorAndBuildText(version: string | null | undefined): string | null {
+		const majorAndBuild = StoreVersionHelper.parseMajorAndBuild(version);
+		return majorAndBuild ? `${majorAndBuild[0]}.${majorAndBuild[1]}` : null;
 	}
 
 	static async fetchAppStoreVersion(ref: StoreAppRef): Promise<StoreVersionResult> {

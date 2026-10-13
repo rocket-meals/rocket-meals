@@ -62,4 +62,15 @@ describe('StoreVersionHelper', () => {
 		expect(StoreVersionHelper.getAppStoreLookupUrl({ appleAppId: '1' })).toContain('id=1');
 		expect(StoreVersionHelper.getAppStoreLookupUrl({})).toBeNull();
 	});
+
+	it('shows only the part of a version the stores know', () => {
+		expect(StoreVersionHelper.getMajorAndBuildText('21.210.143')).toBe('21.210');
+		expect(StoreVersionHelper.getMajorAndBuildText(null)).toBeNull();
+	});
+
+	it('has no store to check against on the web', async () => {
+		const check = await StoreVersionHelper.checkInstalledAppAgainstStore('web', { bundleIdIos: 'de.a', bundleIdAndroid: 'de.a' }, '21.210.143');
+		expect(check.comparison).toBe('unknown');
+		expect(check.storeVersion).toBeNull();
+	});
 });

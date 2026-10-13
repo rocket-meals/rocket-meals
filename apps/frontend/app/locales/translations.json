@@ -8989,15 +8989,15 @@
     "tr": "Bir daire boşaldığında sana anlık bildirim göndereceğiz.",
     "zh": "有房间空出时，我们会给你发送推送通知。"
   },
-  "store_versions": {
-    "de": "Store-Versionen",
-    "en": "Store versions",
-    "ar": "إصدارات المتجر",
-    "es": "Versiones en las tiendas",
-    "fr": "Versions dans les stores",
-    "ru": "Версии в магазинах",
-    "tr": "Mağaza sürümleri",
-    "zh": "应用商店版本"
+  "store_information": {
+    "de": "Store Information",
+    "en": "Store information",
+    "ar": "معلومات المتجر",
+    "es": "Información de la tienda",
+    "fr": "Informations du store",
+    "ru": "Информация из магазина",
+    "tr": "Mağaza bilgileri",
+    "zh": "商店信息"
   },
   "store_versions_installed": {
     "de": "Installierte Version",
@@ -9128,5 +9128,105 @@
     "ru": "Оценка",
     "tr": "Puan",
     "zh": "评分"
+  },
+  "app_outdated_test": {
+    "de": "App veraltet Test",
+    "en": "App outdated test",
+    "ar": "اختبار التطبيق القديم",
+    "es": "Prueba de app desactualizada",
+    "fr": "Test application obsolète",
+    "ru": "Тест устаревшего приложения",
+    "tr": "Eski uygulama testi",
+    "zh": "应用过期测试"
+  },
+  "app_outdated_test_hint": {
+    "de": "Die Prüfung vergleicht die installierte App mit ihrem Store. Die Vorschau zeigt den Vollbild-Hinweis auch dann, wenn die App aktuell ist.",
+    "en": "The check compares the installed app with its store. The preview shows the full screen notice even if the app is up to date.",
+    "ar": "يقارن الفحص التطبيق المثبت بمتجره. تعرض المعاينة الإشعار بملء الشاشة حتى إذا كان التطبيق محدثًا.",
+    "es": "La comprobación compara la app instalada con su tienda. La vista previa muestra el aviso a pantalla completa aunque la app esté actualizada.",
+    "fr": "La vérification compare l'application installée avec son store. L'aperçu affiche l'avis en plein écran même si l'application est à jour.",
+    "ru": "Проверка сравнивает установленное приложение с его магазином. Предпросмотр показывает полноэкранное уведомление, даже если приложение актуально.",
+    "tr": "Kontrol, yüklü uygulamayı mağazasıyla karşılaştırır. Önizleme, uygulama güncel olsa bile tam ekran bildirimi gösterir.",
+    "zh": "检查会将已安装的应用与其商店进行比较。即使应用已是最新，预览也会显示全屏提示。"
+  },
+  "app_outdated_store_version": {
+    "de": "Version im Store",
+    "en": "Version in the store",
+    "ar": "الإصدار في المتجر",
+    "es": "Versión en la tienda",
+    "fr": "Version dans le store",
+    "ru": "Версия в магазине",
+    "tr": "Mağazadaki sürüm",
+    "zh": "商店中的版本"
+  },
+  "app_outdated_check_result": {
+    "de": "Ergebnis der Prüfung",
+    "en": "Check result",
+    "ar": "نتيجة الفحص",
+    "es": "Resultado de la comprobación",
+    "fr": "Résultat de la vérification",
+    "ru": "Результат проверки",
+    "tr": "Kontrol sonucu",
+    "zh": "检查结果"
+  },
+  "app_outdated_show_preview": {
+    "de": "Vollbild-Hinweis anzeigen",
+    "en": "Show full screen notice",
+    "ar": "عرض الإشعار بملء الشاشة",
+    "es": "Mostrar aviso a pantalla completa",
+    "fr": "Afficher l'avis en plein écran",
+    "ru": "Показать полноэкранное уведомление",
+    "tr": "Tam ekran bildirimi göster",
+    "zh": "显示全屏提示"
+  },
+  "app_outdated_end_preview": {
+    "de": "Vorschau beenden",
+    "en": "End preview",
+    "ar": "إنهاء المعاينة",
+    "es": "Terminar vista previa",
+    "fr": "Quitter l'aperçu",
+    "ru": "Закрыть предпросмотр",
+    "tr": "Önizlemeyi bitir",
+    "zh": "结束预览"
+  },
+  "app_outdated_title": {
+    "de": "Neue Version verfügbar",
+    "en": "New version available",
+    "ar": "إصدار جديد متاح",
+    "es": "Nueva versión disponible",
+    "fr": "Nouvelle version disponible",
+    "ru": "Доступна новая версия",
+    "tr": "Yeni sürüm mevcut",
+    "zh": "有新版本可用"
+  },
+  "app_outdated_message": {
+    "de": "Für die App gibt es eine neue Version. Bitte aktualisiere die App, damit alles wie gewohnt funktioniert.",
+    "en": "A new version of the app is available. Please update the app so that everything keeps working as usual.",
+    "ar": "يتوفر إصدار جديد من التطبيق. يرجى تحديث التطبيق ليستمر كل شيء في العمل كالمعتاد.",
+    "es": "Hay una nueva versión de la app. Actualiza la app para que todo siga funcionando como siempre.",
+    "fr": "Une nouvelle version de l'application est disponible. Merci de mettre l'application à jour pour que tout continue de fonctionner comme d'habitude.",
+    "ru": "Доступна новая версия приложения. Пожалуйста, обнови приложение, чтобы всё работало как обычно.",
+    "tr": "Uygulamanın yeni bir sürümü var. Her şeyin her zamanki gibi çalışması için lütfen uygulamayı güncelle.",
+    "zh": "应用有新版本可用。请更新应用，以确保一切照常运行。"
+  },
+  "app_outdated_update_now": {
+    "de": "Jetzt aktualisieren",
+    "en": "Update now",
+    "ar": "حدّث الآن",
+    "es": "Actualizar ahora",
+    "fr": "Mettre à jour",
+    "ru": "Обновить сейчас",
+    "tr": "Şimdi güncelle",
+    "zh": "立即更新"
+  },
+  "app_outdated_no_store_on_web": {
+    "de": "Im Web gibt es keinen Store",
+    "en": "There is no store on the web",
+    "ar": "لا يوجد متجر على الويب",
+    "es": "En la web no hay tienda",
+    "fr": "Il n'y a pas de store sur le web",
+    "ru": "В вебе нет магазина",
+    "tr": "Web'de mağaza yok",
+    "zh": "网页版没有应用商店"
   }
 }
