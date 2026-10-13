@@ -40,14 +40,6 @@ const AppOutdatedTest = () => {
 		runCheck();
 	}, [runCheck]);
 
-	// Without a newer store version (up to date, or the web) the preview shows
-	// the next build number, so the version line can be seen as well.
-	const previewStoreVersion = useMemo(() => {
-		if (check?.comparison === 'newer_in_store' && check.storeVersion) return check.storeVersion;
-		const majorAndBuild = StoreVersionHelper.parseMajorAndBuild(installedVersion);
-		return majorAndBuild ? `${majorAndBuild[0]}.${majorAndBuild[1] + 1}.0` : null;
-	}, [check, installedVersion]);
-
 	const previewStoreUrl = useMemo(() => {
 		if (check?.storeUrl) return check.storeUrl;
 		if (Platform.OS === 'android' && installedAppIds.bundleIdAndroid) return StoreVersionHelper.getGooglePlayUrl(installedAppIds.bundleIdAndroid);
@@ -110,8 +102,6 @@ const AppOutdatedTest = () => {
 			</View>
 			<AppOutdatedScreen
 				visible={previewVisible}
-				installedVersion={installedVersion}
-				storeVersion={previewStoreVersion}
 				storeUrl={previewStoreUrl}
 				onClosePreview={() => setPreviewVisible(false)}
 			/>

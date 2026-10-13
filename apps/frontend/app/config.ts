@@ -270,7 +270,9 @@ export function getVersionPatch() {
         //      star rating of each store
         // 150: experimental screen renamed to "Store Information", new experimental screen
         //      "App veraltet Test" with a full screen notice when the store has a newer version
-        return 150;
+        // 151: the outdated app notice shows title and text on a dark panel (readable on any
+        //      canteen image), without the version line
+        return 151;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

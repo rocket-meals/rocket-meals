@@ -9,12 +9,9 @@ import useCustomerConfig from '@/hooks/useCustomerConfig';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { getContrastRatio } from '@/helper/ColorHelper';
 import { CommonSystemActionHelper } from '@/helper/SystemActionHelper';
-import { StoreVersionHelper } from '@/helper/StoreVersionHelper';
 
 export type AppOutdatedScreenProps = {
 	visible: boolean;
-	installedVersion: string;
-	storeVersion: string | null;
 	storeUrl: string | null;
 	// Only for the experimental preview: the real screen cannot be closed.
 	onClosePreview?: () => void;
@@ -22,6 +19,12 @@ export type AppOutdatedScreenProps = {
 
 const BACKGROUND_BLUR_RADIUS = 18;
 const SCRIM_COLOR = 'rgba(0, 0, 0, 0.55)';
+// The text sits on a dark panel on top of the scrim, so it stays readable on
+// any canteen image: even over a pure white image, scrim and panel together
+// leave about #2E2E2E behind the white text, a contrast of about 13:1 (WCAG AA
+// asks for 4.5:1).
+const PANEL_COLOR = 'rgba(0, 0, 0, 0.6)';
+const PANEL_BORDER_COLOR = 'rgba(255, 255, 255, 0.15)';
 const TEXT_COLOR = '#FFFFFF';
 const DARK_TEXT_COLOR = '#000000';
 
@@ -29,7 +32,7 @@ const DARK_TEXT_COLOR = '#000000';
 // nothing to tap except the store button: no close button, and the Android back
 // button does nothing (onRequestClose is a no-op). The selected canteen shows
 // blurred behind it, so the user still sees where they are.
-export const AppOutdatedScreen = ({ visible, installedVersion, storeVersion, storeUrl, onClosePreview }: AppOutdatedScreenProps) => {
+export const AppOutdatedScreen = ({ visible, storeUrl, onClosePreview }: AppOutdatedScreenProps) => {
 	const { translate } = useLanguage();
 	const { primaryColor, serverInfo } = useAppSelector(state => state.settings);
 	const { buildingsDict } = useAppSelector(state => state.canteenReducer);
@@ -46,9 +49,6 @@ export const AppOutdatedScreen = ({ visible, installedVersion, storeVersion, sto
 	const projectLogo = serverInfo?.info?.project?.project_logo ? getImageUrl(serverInfo.info.project.project_logo) : null;
 	const iconSource = projectLogo ? { uri: projectLogo } : customerConfig.images.icon_logo_source_get_for_react_native();
 
-	const installedText = StoreVersionHelper.getMajorAndBuildText(installedVersion);
-	const storeText = StoreVersionHelper.getMajorAndBuildText(storeVersion);
-
 	return (
 		<Modal visible={visible} transparent={false} animationType="fade" statusBarTranslucent onRequestClose={() => {}}>
 			<View style={[styles.container, { backgroundColor: primaryColor }]}>
@@ -56,15 +56,10 @@ export const AppOutdatedScreen = ({ visible, installedVersion, storeVersion, sto
 				<View style={[StyleSheet.absoluteFill, { backgroundColor: SCRIM_COLOR }]} />
 				<View style={styles.content}>
 					<Image source={iconSource} style={styles.appIcon} />
-					<Text style={styles.title}>{translate(TranslationKeys.app_outdated_title)}</Text>
-					<Text style={styles.message}>{translate(TranslationKeys.app_outdated_message)}</Text>
-					{installedText && storeText && (
-						<View style={styles.versionRow}>
-							<Text style={styles.versionText}>{installedText}</Text>
-							<MaterialCommunityIcons name="arrow-right" size={18} color={TEXT_COLOR} />
-							<Text style={[styles.versionText, styles.versionTextNew]}>{storeText}</Text>
-						</View>
-					)}
+					<View style={styles.panel}>
+						<Text style={styles.title}>{translate(TranslationKeys.app_outdated_title)}</Text>
+						<Text style={styles.message}>{translate(TranslationKeys.app_outdated_message)}</Text>
+					</View>
 					<TouchableOpacity
 						style={[styles.updateButton, { backgroundColor: primaryColor }]}
 						onPress={() => storeUrl && CommonSystemActionHelper.openExternalURL(storeUrl, true)}
@@ -76,7 +71,7 @@ export const AppOutdatedScreen = ({ visible, installedVersion, storeVersion, sto
 						<Text style={[styles.updateButtonText, { color: buttonTextColor }]}>{translate(TranslationKeys.app_outdated_update_now)}</Text>
 					</TouchableOpacity>
 					{onClosePreview && (
-						<TouchableOpacity style={styles.previewCloseButton} onPress={onClosePreview} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.app_outdated_end_preview)}>
+						<TouchableOpacity style={[styles.panel, styles.previewCloseButton]} onPress={onClosePreview} accessibilityRole="button" accessibilityLabel={translate(TranslationKeys.app_outdated_end_preview)}>
 							<Text style={styles.previewCloseText}>{translate(TranslationKeys.app_outdated_end_preview)}</Text>
 						</TouchableOpacity>
 					)}
@@ -106,6 +101,16 @@ const styles = StyleSheet.create({
 		borderRadius: 22,
 		marginBottom: 28,
 	},
+	panel: {
+		width: '100%',
+		paddingVertical: 20,
+		paddingHorizontal: 20,
+		borderRadius: 20,
+		borderWidth: 1,
+		borderColor: PANEL_BORDER_COLOR,
+		backgroundColor: PANEL_COLOR,
+		marginBottom: 32,
+	},
 	title: {
 		fontSize: 26,
 		fontFamily: 'Poppins_700Bold',
@@ -119,25 +124,6 @@ const styles = StyleSheet.create({
 		fontFamily: 'Poppins_400Regular',
 		color: TEXT_COLOR,
 		textAlign: 'center',
-		marginBottom: 20,
-	},
-	versionRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 10,
-		paddingVertical: 6,
-		paddingHorizontal: 14,
-		borderRadius: 16,
-		backgroundColor: 'rgba(255, 255, 255, 0.15)',
-		marginBottom: 32,
-	},
-	versionText: {
-		fontSize: 15,
-		fontFamily: 'Poppins_400Regular',
-		color: TEXT_COLOR,
-	},
-	versionTextNew: {
-		fontFamily: 'Poppins_700Bold',
 	},
 	updateButton: {
 		flexDirection: 'row',
@@ -153,8 +139,11 @@ const styles = StyleSheet.create({
 		fontFamily: 'Poppins_700Bold',
 	},
 	previewCloseButton: {
+		width: 'auto',
 		marginTop: 24,
-		padding: 12,
+		marginBottom: 0,
+		paddingVertical: 10,
+		paddingHorizontal: 18,
 	},
 	previewCloseText: {
 		fontSize: 14,

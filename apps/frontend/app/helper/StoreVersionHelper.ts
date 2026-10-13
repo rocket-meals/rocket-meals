@@ -145,12 +145,6 @@ export class StoreVersionHelper {
 		};
 	}
 
-	// "21.210.143" -> "21.210": the part of a version the stores know
-	static getMajorAndBuildText(version: string | null | undefined): string | null {
-		const majorAndBuild = StoreVersionHelper.parseMajorAndBuild(version);
-		return majorAndBuild ? `${majorAndBuild[0]}.${majorAndBuild[1]}` : null;
-	}
-
 	static async fetchAppStoreVersion(ref: StoreAppRef): Promise<StoreVersionResult> {
 		const lookupUrl = StoreVersionHelper.getAppStoreLookupUrl(ref);
 		if (!lookupUrl) return { ...NO_RATING, version: null, storeUrl: null, error: 'No iOS app id configured' };
