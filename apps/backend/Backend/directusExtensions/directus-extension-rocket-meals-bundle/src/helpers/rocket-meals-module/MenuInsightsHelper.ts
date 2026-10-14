@@ -101,6 +101,8 @@ export type MenuInsights = {
     food_distribution: MenuInsightsStarCount[];
     rated_foods: number;
     min_ratings: number;
+    /** Share (0–1) of the single ratings with 4 or 5 stars, `null` without ratings. */
+    good_share: number | null;
     top: MenuInsightsFood[];
     flop: MenuInsightsFood[];
   };
@@ -120,6 +122,57 @@ export type MenuInsights = {
   };
   languages: MenuInsightsNamedCount[];
   profiles_total: number;
+  /** The same numbers for the period of the same length right before, for the trends. */
+  previous: MenuInsightsComparison;
+  /** The planned offers of the current and the next calendar week. */
+  upcoming: { from: string; to: string; days: MenuInsightsUpcomingDay[] };
+};
+
+export type MenuInsightsComparison = {
+  from: string;
+  to: string;
+  offers: number;
+  distinct_foods: number;
+  rating_count: number;
+  rating_average: number | null;
+  good_share: number | null;
+  visits: number;
+};
+
+export type MenuInsightsUpcomingMarking = { id: string; name: string; short_code: string | null };
+
+export type MenuInsightsUpcomingOffer = {
+  /** The food with its rating of all time and the profiles waiting for it. */
+  food: MenuInsightsFood;
+  markings: MenuInsightsUpcomingMarking[];
+};
+
+export type MenuInsightsUpcomingDay = {
+  date: string;
+  offers: MenuInsightsUpcomingOffer[];
+  /** At least one offer carries a vegetarian or vegan marking, see `DIET_MARKING_HINTS`. */
+  has_diet_option: boolean;
+};
+
+export enum MenuInsightsHighlightTone {
+  POSITIVE = 'positive',
+  WARNING = 'warning',
+  INFO = 'info',
+}
+
+/** One sentence of the summary "Auffälligkeiten", already with its formatted values. */
+export type MenuInsightsHighlight = {
+  key: string;
+  tone: MenuInsightsHighlightTone;
+  icon: string;
+  textKey: BackendTranslationKeys;
+  params: Record<string, string | number>;
+};
+
+export type MenuInsightsTrend = {
+  /** Difference to the previous period, `null` when there is nothing to compare. */
+  delta: number | null;
+  direction: 'up' | 'down' | 'flat' | null;
 };
 
 export type MenuInsightsResponse = { data: MenuInsights };
@@ -173,6 +226,18 @@ export class MenuInsightsHelper {
   public static readonly LIST_LIMIT = 10;
 
   public static readonly STARS: readonly number[] = [5, 4, 3, 2, 1];
+
+  /** A food with at least `MIN_RATINGS` ratings counts as weak up to this average and as favourite from `STRONG_RATING`. */
+  public static readonly WEAK_RATING = 2.5;
+  public static readonly STRONG_RATING = 4.2;
+
+  /** Days of the planning overview: the current and the next calendar week. */
+  public static readonly UPCOMING_DAYS = 14;
+
+  /** A change of the average rating below this is shown as unchanged. */
+  public static readonly RATING_TREND_THRESHOLD = 0.05;
+  /** A relative change of a count below this (10 %) is shown as unchanged. */
+  public static readonly COUNT_TREND_THRESHOLD = 0.1;
 
   /**
    * Markings that stand for a meat free choice, matched case-insensitively against alias, short code
@@ -419,6 +484,158 @@ export class MenuInsightsHelper {
       }
     }
     return { total: totals.count, perWeekday, perCanteen };
+  }
+
+  /** The period of the same length right before `period`. */
+  static getPreviousPeriod(period: { from: string; days: number }): { from: string; to: string; days: number } {
+    const from = new Date(`${period.from}T00:00:00Z`);
+    const to = new Date(from.getTime() - 24 * 60 * 60 * 1000);
+    return MenuInsightsHelper.getPeriod(period.days, to);
+  }
+
+  /** Monday of the current calendar week until Sunday of the next one. */
+  static getUpcomingRange(today: Date = new Date()): { from: string; to: string } {
+    const day = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const monday = new Date(day.getTime() - ((day.getUTCDay() + 6) % 7) * 24 * 60 * 60 * 1000);
+    const sunday = new Date(monday.getTime() + (MenuInsightsHelper.UPCOMING_DAYS - 1) * 24 * 60 * 60 * 1000);
+    return { from: MenuInsightsHelper.toDateString(monday), to: MenuInsightsHelper.toDateString(sunday) };
+  }
+
+  /** All dates of a range as `YYYY-MM-DD`, both ends included. */
+  static getDates(range: { from: string; to: string }): string[] {
+    const start = new Date(`${range.from}T00:00:00Z`).getTime();
+    const end = new Date(`${range.to}T00:00:00Z`).getTime();
+    const count = Math.max(0, Math.round((end - start) / (24 * 60 * 60 * 1000)) + 1);
+    return Array.from({ length: count }, (_, index) => MenuInsightsHelper.toDateString(new Date(start + index * 24 * 60 * 60 * 1000)));
+  }
+
+  /** Share of the single ratings with 4 or 5 stars. */
+  static getGoodShare(distribution: readonly MenuInsightsStarCount[]): number | null {
+    const total = distribution.reduce((sum, entry) => sum + entry.count, 0);
+    if (total === 0) {
+      return null;
+    }
+    return distribution.filter(entry => entry.stars >= 4).reduce((sum, entry) => sum + entry.count, 0) / total;
+  }
+
+  /** Whether a food is rated badly by enough people. */
+  static isWeak(food: Pick<MenuInsightsFood, 'rating_average' | 'rating_count'>): boolean {
+    return food.rating_average !== null && food.rating_count >= MenuInsightsHelper.MIN_RATINGS && food.rating_average <= MenuInsightsHelper.WEAK_RATING;
+  }
+
+  /** Whether a food is a favourite of enough people. */
+  static isStrong(food: Pick<MenuInsightsFood, 'rating_average' | 'rating_count'>): boolean {
+    return food.rating_average !== null && food.rating_count >= MenuInsightsHelper.MIN_RATINGS && food.rating_average >= MenuInsightsHelper.STRONG_RATING;
+  }
+
+  /** Change of an average (absolute) or a count (`relative`: share of the previous value). */
+  static getTrend(current: number | null, previous: number | null, relative = false): MenuInsightsTrend {
+    if (current === null || previous === null || (relative && previous === 0)) {
+      return { delta: null, direction: null };
+    }
+    const delta = relative ? (current - previous) / previous : current - previous;
+    const threshold = relative ? MenuInsightsHelper.COUNT_TREND_THRESHOLD : MenuInsightsHelper.RATING_TREND_THRESHOLD;
+    return { delta, direction: Math.abs(delta) < threshold ? 'flat' : delta > 0 ? 'up' : 'down' };
+  }
+
+  /** The label with the most dislikes, when it has more dislikes than likes. */
+  static getTopComplaint(labels: readonly MenuInsightsLabel[]): MenuInsightsLabel | undefined {
+    return [...labels].filter(label => label.dislikes > label.likes).sort((a, b) => b.dislikes - a.dislikes)[0];
+  }
+
+  /** Offers of the upcoming days whose food is rated badly, each food once. */
+  static getWeakUpcomingFoods(days: readonly MenuInsightsUpcomingDay[], from?: string): MenuInsightsFood[] {
+    const foods = new Map<string, MenuInsightsFood>();
+    for (const day of days) {
+      if (from && day.date < from) {
+        continue;
+      }
+      for (const offer of day.offers) {
+        if (MenuInsightsHelper.isWeak(offer.food)) {
+          foods.set(offer.food.id, offer.food);
+        }
+      }
+    }
+    return [...foods.values()];
+  }
+
+  /** Days of the upcoming range from `from` on with offers but without a vegetarian or vegan one. */
+  static getUpcomingDaysWithoutDietOption(days: readonly MenuInsightsUpcomingDay[], from?: string): MenuInsightsUpcomingDay[] {
+    return days.filter(day => (!from || day.date >= from) && day.offers.length > 0 && !day.has_diet_option);
+  }
+
+  /**
+   * The summary "Auffälligkeiten" for the controller: what changed against the previous period and
+   * what needs attention in the coming days. Warnings first.
+   */
+  static getHighlights(insights: MenuInsights, language: string | undefined, today: Date = new Date()): MenuInsightsHighlight[] {
+    const highlights: MenuInsightsHighlight[] = [];
+    const number = (value: number, digits = 0) => MenuInsightsHelper.formatNumber(value, language, digits);
+    const percent = (share: number) => MenuInsightsHelper.formatPercent(share, language);
+    const todayString = MenuInsightsHelper.toDateString(today);
+
+    const ratingTrend = MenuInsightsHelper.getTrend(insights.ratings.average, insights.previous.rating_average);
+    if (insights.ratings.average !== null && insights.previous.rating_average !== null && ratingTrend.direction && ratingTrend.direction !== 'flat') {
+      highlights.push({
+        key: 'rating-trend',
+        tone: ratingTrend.direction === 'up' ? MenuInsightsHighlightTone.POSITIVE : MenuInsightsHighlightTone.WARNING,
+        icon: ratingTrend.direction === 'up' ? 'trending_up' : 'trending_down',
+        textKey: ratingTrend.direction === 'up' ? BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_rating_up : BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_rating_down,
+        params: { before: number(insights.previous.rating_average, 2), after: number(insights.ratings.average, 2) },
+      });
+    } else if (insights.ratings.average !== null) {
+      highlights.push({ key: 'rating', tone: MenuInsightsHighlightTone.INFO, icon: 'star', textKey: BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_rating_stable, params: { value: number(insights.ratings.average, 2) } });
+    }
+
+    if (insights.ratings.good_share !== null) {
+      const share = insights.ratings.good_share;
+      highlights.push({
+        key: 'good-share',
+        tone: share >= 0.6 ? MenuInsightsHighlightTone.POSITIVE : share < 0.4 ? MenuInsightsHighlightTone.WARNING : MenuInsightsHighlightTone.INFO,
+        icon: 'sentiment_satisfied',
+        textKey: BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_good_share,
+        params: { share: percent(share) },
+      });
+    }
+
+    const foodComplaint = MenuInsightsHelper.getTopComplaint(insights.food_labels);
+    if (foodComplaint) {
+      highlights.push({ key: 'food-complaint', tone: MenuInsightsHighlightTone.WARNING, icon: 'restaurant', textKey: BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_food_complaint, params: { label: foodComplaint.name, count: number(foodComplaint.dislikes) } });
+    }
+    const canteenComplaint = MenuInsightsHelper.getTopComplaint(insights.canteen_labels);
+    if (canteenComplaint) {
+      highlights.push({ key: 'canteen-complaint', tone: MenuInsightsHighlightTone.WARNING, icon: 'storefront', textKey: BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_canteen_complaint, params: { label: canteenComplaint.name, count: number(canteenComplaint.dislikes) } });
+    }
+
+    const weakPlanned = MenuInsightsHelper.getWeakUpcomingFoods(insights.upcoming.days, todayString);
+    if (weakPlanned.length > 0) {
+      highlights.push({ key: 'weak-planned', tone: MenuInsightsHighlightTone.WARNING, icon: 'thumb_down', textKey: BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_weak_planned, params: { count: weakPlanned.length } });
+    }
+    const noDietDays = MenuInsightsHelper.getUpcomingDaysWithoutDietOption(insights.upcoming.days, todayString);
+    if (noDietDays.length > 0) {
+      highlights.push({ key: 'no-diet', tone: MenuInsightsHighlightTone.WARNING, icon: 'eco', textKey: BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_no_diet_upcoming, params: { count: noDietDays.length } });
+    }
+    const awaitedWithoutDate = insights.awaited.filter(food => !food.next_offered);
+    if (awaitedWithoutDate.length > 0) {
+      highlights.push({ key: 'awaited', tone: MenuInsightsHighlightTone.INFO, icon: 'notifications_active', textKey: BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_awaited_unplanned, params: { count: awaitedWithoutDate.length, waiting: number(awaitedWithoutDate.reduce((sum, food) => sum + food.waiting_count, 0)) } });
+    }
+
+    const visitTrend = MenuInsightsHelper.getTrend(insights.visits.total, insights.previous.visits, true);
+    if (visitTrend.delta !== null && visitTrend.direction && visitTrend.direction !== 'flat') {
+      highlights.push({
+        key: 'visits',
+        tone: visitTrend.direction === 'up' ? MenuInsightsHighlightTone.POSITIVE : MenuInsightsHighlightTone.INFO,
+        icon: 'groups',
+        textKey: visitTrend.direction === 'up' ? BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_visits_up : BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_visits_down,
+        params: { change: percent(Math.abs(visitTrend.delta)) },
+      });
+    }
+
+    const order = { [MenuInsightsHighlightTone.WARNING]: 0, [MenuInsightsHighlightTone.POSITIVE]: 1, [MenuInsightsHighlightTone.INFO]: 2 };
+    return highlights
+      .map((highlight, index) => ({ highlight, index }))
+      .sort((a, b) => order[a.highlight.tone] - order[b.highlight.tone] || a.index - b.index)
+      .map(entry => entry.highlight);
   }
 
   /** Share (0–1) of `part` in `total`, 0 without total. */

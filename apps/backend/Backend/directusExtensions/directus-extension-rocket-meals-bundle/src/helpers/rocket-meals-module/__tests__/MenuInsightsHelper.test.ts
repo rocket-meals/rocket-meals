@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { MenuInsightsHelper, MenuInsightsPeriod } from '../MenuInsightsHelper';
+import { MenuInsightsHelper, MenuInsightsHighlightTone, MenuInsightsPeriod, type MenuInsights, type MenuInsightsFood } from '../MenuInsightsHelper';
+import { BackendTranslationKeys } from '../../translations/BackendTranslationKeys';
 import { RocketMealsModulePages } from '../RocketMealsModulePages';
 
 describe('MenuInsightsHelper', () => {
@@ -198,5 +199,104 @@ describe('MenuInsightsHelper', () => {
     expect(MenuInsightsHelper.getImageUrl({ image: 'file', image_remote_url: 'https://x' }, '/api', 20)).toBe('/api/assets/file?width=40&height=40&fit=cover&quality=80');
     expect(MenuInsightsHelper.getImageUrl({ image: null, image_remote_url: 'https://x' })).toBe('https://x');
     expect(MenuInsightsHelper.getImageUrl({})).toBeUndefined();
+  });
+
+  describe('periods', () => {
+    it('getPreviousPeriod is the period of the same length right before', () => {
+      expect(MenuInsightsHelper.getPreviousPeriod({ from: '2026-10-08', days: 7 })).toEqual({ from: '2026-10-01', to: '2026-10-07', days: 7 });
+    });
+
+    it('getUpcomingRange starts on Monday of the current week and covers two weeks', () => {
+      expect(MenuInsightsHelper.getUpcomingRange(new Date('2026-10-14T12:00:00Z'))).toEqual({ from: '2026-10-12', to: '2026-10-25' });
+      expect(MenuInsightsHelper.getUpcomingRange(new Date('2026-10-18T12:00:00Z'))).toEqual({ from: '2026-10-12', to: '2026-10-25' });
+    });
+
+    it('getDates lists every day of a range', () => {
+      expect(MenuInsightsHelper.getDates({ from: '2026-10-30', to: '2026-11-02' })).toEqual(['2026-10-30', '2026-10-31', '2026-11-01', '2026-11-02']);
+    });
+  });
+
+  it('getGoodShare is the share of 4 and 5 stars', () => {
+    expect(
+      MenuInsightsHelper.getGoodShare([
+        { stars: 5, count: 2 },
+        { stars: 4, count: 1 },
+        { stars: 1, count: 1 },
+      ])
+    ).toBe(0.75);
+    expect(MenuInsightsHelper.getGoodShare([{ stars: 5, count: 0 }])).toBeNull();
+  });
+
+  it('isWeak and isStrong need enough ratings', () => {
+    expect(MenuInsightsHelper.isWeak({ rating_average: 2.1, rating_count: 5 })).toBe(true);
+    expect(MenuInsightsHelper.isWeak({ rating_average: 2.1, rating_count: 1 })).toBe(false);
+    expect(MenuInsightsHelper.isStrong({ rating_average: 4.5, rating_count: 5 })).toBe(true);
+    expect(MenuInsightsHelper.isStrong({ rating_average: null, rating_count: 5 })).toBe(false);
+  });
+
+  it('getTrend compares averages absolutely and counts relatively', () => {
+    expect(MenuInsightsHelper.getTrend(3.9, 3.7)).toEqual({ delta: expect.closeTo(0.2), direction: 'up' });
+    expect(MenuInsightsHelper.getTrend(3.71, 3.7).direction).toBe('flat');
+    expect(MenuInsightsHelper.getTrend(80, 100, true)).toEqual({ delta: -0.2, direction: 'down' });
+    expect(MenuInsightsHelper.getTrend(5, 0, true)).toEqual({ delta: null, direction: null });
+    expect(MenuInsightsHelper.getTrend(null, 3)).toEqual({ delta: null, direction: null });
+  });
+
+  it('getTopComplaint takes the label with the most dislikes, only when dislikes win', () => {
+    const labels = [
+      { id: 'a', name: 'Lecker', icon: null, likes: 50, dislikes: 10 },
+      { id: 'b', name: 'Zu salzig', icon: null, likes: 2, dislikes: 8 },
+      { id: 'c', name: 'Kalt', icon: null, likes: 1, dislikes: 5 },
+    ];
+    expect(MenuInsightsHelper.getTopComplaint(labels)?.id).toBe('b');
+    expect(MenuInsightsHelper.getTopComplaint([labels[0]!])).toBeUndefined();
+  });
+
+  describe('highlights', () => {
+    const food = (id: string, rating: number | null, extra: Partial<MenuInsightsFood> = {}): MenuInsightsFood => ({ id, name: id, image: null, image_remote_url: null, rating_average: rating, rating_count: 10, offer_count: 1, waiting_count: 0, last_offered: null, next_offered: null, ...extra });
+
+    function createInsights(): MenuInsights {
+      return {
+        period: { from: '2026-09-15', to: '2026-10-14', days: 30 },
+        canteen: null,
+        offers: { total: 100, distinct_foods: 30, offer_days: 20, average_per_day: 5, foods_offered_once: 3, most_offered: [] },
+        ratings: { count: 200, average: 3.6, distribution: [], food_distribution: [], rated_foods: 20, min_ratings: 3, good_share: 0.65, top: [], flop: [] },
+        awaited: [food('pizza', 4, { waiting_count: 7 }), food('curry', 4, { waiting_count: 3, next_offered: '2026-10-20' })],
+        markings: [],
+        days_without_diet_option: 0,
+        food_labels: [{ id: 'salt', name: 'Zu salzig', icon: null, likes: 1, dislikes: 9 }],
+        canteen_labels: [],
+        visits: { total: 50, profiles: 20, per_weekday: [], per_canteen: [] },
+        languages: [],
+        profiles_total: 0,
+        previous: { from: '2026-08-16', to: '2026-09-14', offers: 90, distinct_foods: 28, rating_count: 180, rating_average: 3.9, good_share: 0.7, visits: 40 },
+        upcoming: {
+          from: '2026-10-12',
+          to: '2026-10-25',
+          days: [
+            { date: '2026-10-13', offers: [{ food: food('old', 1.5), markings: [] }], has_diet_option: false },
+            { date: '2026-10-15', offers: [{ food: food('bad', 2.0), markings: [] }], has_diet_option: false },
+            { date: '2026-10-16', offers: [{ food: food('good', 4.5), markings: [] }], has_diet_option: true },
+          ],
+        },
+      };
+    }
+
+    it('summarises trends and what needs attention, warnings first', () => {
+      const highlights = MenuInsightsHelper.getHighlights(createInsights(), 'de-DE', new Date('2026-10-14T10:00:00Z'));
+      const keys = highlights.map(highlight => highlight.key);
+      expect(keys).toEqual(['rating-trend', 'food-complaint', 'weak-planned', 'no-diet', 'good-share', 'visits', 'awaited']);
+      expect(highlights[0]).toMatchObject({ tone: MenuInsightsHighlightTone.WARNING, textKey: BackendTranslationKeys.rocket_meals_module_menu_insights_highlight_rating_down, params: { before: '3,90', after: '3,60' } });
+      // Days before today do not count any more.
+      expect(highlights.find(highlight => highlight.key === 'weak-planned')?.params).toEqual({ count: 1 });
+      expect(highlights.find(highlight => highlight.key === 'awaited')?.params).toEqual({ count: 1, waiting: '7' });
+    });
+
+    it('reports a stable rating without a previous period', () => {
+      const insights = createInsights();
+      insights.previous.rating_average = null;
+      const highlights = MenuInsightsHelper.getHighlights(insights, 'en-US', new Date('2026-10-14T10:00:00Z'));
+      expect(highlights.find(highlight => highlight.key === 'rating')?.params).toEqual({ value: '3.60' });
+    });
   });
 });

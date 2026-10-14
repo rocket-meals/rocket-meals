@@ -14,7 +14,7 @@ import { CollectionNames } from 'repo-depkit-common';
 import type { ApiContext } from '../ApiContext';
 import { ContentTranslationHelper, type ExistingTranslation } from '../ContentTranslationHelper';
 import { DirectusOpenAiCompatibleClient } from '../ai/DirectusOpenAiCompatibleClient';
-import { MenuInsightsHelper, type MenuInsights, type MenuInsightsFood, type MenuInsightsLabel, type MenuInsightsLabelRow, type MenuInsightsMarking, type MenuInsightsNamedCount, type MenuInsightsOfferMarkingRow, type MenuInsightsOfferRow, type MenuInsightsProfileMarkingRow, type MenuInsightsRatingRow, type MenuInsightsVisitRow } from '../rocket-meals-module/MenuInsightsHelper';
+import { MenuInsightsHelper, type MenuInsightsUpcomingDay, type MenuInsights, type MenuInsightsFood, type MenuInsightsLabel, type MenuInsightsLabelRow, type MenuInsightsMarking, type MenuInsightsNamedCount, type MenuInsightsOfferMarkingRow, type MenuInsightsOfferRow, type MenuInsightsProfileMarkingRow, type MenuInsightsRatingRow, type MenuInsightsVisitRow } from '../rocket-meals-module/MenuInsightsHelper';
 import { MenuPlanningErrorCode, MenuPlanningHelper, type MenuPlanningContext, type MenuPlanningPastDay, type MenuPlanningRequest, type MenuPlanningResult } from '../rocket-meals-module/MenuPlanningHelper';
 
 type DirectusFilter = Record<string, unknown>;
@@ -157,7 +157,21 @@ export class MenuInsightsService {
     const { canteen, language } = options;
     const period = MenuInsightsHelper.getPeriod(options.days, options.today);
     const today = period.to;
+    const previousPeriod = MenuInsightsHelper.getPreviousPeriod(period);
+    const upcomingRange = MenuInsightsHelper.getUpcomingRange(options.today);
     const canteenFilter = canteen ? { canteen: { _eq: canteen } } : undefined;
+
+    const [[previousOfferRows, previousRatingRows, previousVisitRows], [upcomingOfferRows, upcomingMarkingRows]] = await Promise.all([
+      Promise.all([this.readSafe(CollectionNames.FOODOFFERS, { aggregate: { count: ['id'], countDistinct: ['food'] }, filter: MenuInsightsService.buildOfferFilter(previousPeriod, canteen) }), this.readSafe(CollectionNames.FOODS_FEEDBACKS, { aggregate: { count: ['id'] }, group: ['rating'], filter: MenuInsightsService.and([{ rating: { _nnull: true } }, canteenFilter, MenuInsightsService.buildChangedInRangeFilter(previousPeriod)]), limit: -1 }), this.readSafe(CANTEEN_VISITS, { aggregate: { count: ['id'] }, filter: MenuInsightsService.and([MenuInsightsService.buildVisitDateFilter(previousPeriod), canteenFilter]) })]),
+      Promise.all([
+        this.readSafe(CollectionNames.FOODOFFERS, { fields: ['id', 'date', 'food'], filter: MenuInsightsService.buildOfferFilter(upcomingRange, canteen), sort: ['date'], limit: -1 }),
+        this.readSafe(CollectionNames.FOODOFFER_MARKINGS, {
+          fields: ['foodoffers_id', 'markings_id'],
+          filter: MenuInsightsService.and([{ foodoffers_id: { date: { _between: [upcomingRange.from, upcomingRange.to] } } }, canteen ? { foodoffers_id: { canteen: { _eq: canteen } } } : undefined]),
+          limit: -1,
+        }),
+      ]),
+    ]);
 
     const [offerRows, offerMarkingRows, ratingRows, waitingRows, markingRows, profileMarkingRows, foodLabelRows, canteenLabelRows, visitRows, visitProfileRows, languageRows, languages, canteens, foodLabels, canteenLabels] = await Promise.all([
       this.readOffers(period, canteen, ['id', 'date', 'food']),
@@ -204,7 +218,8 @@ export class MenuInsightsService {
     const awaitedIds = MenuInsightsHelper.getTopIds(waitingPerFood, MenuInsightsHelper.LIST_LIMIT);
     const mostOfferedIds = MenuInsightsHelper.getTopIds(offerSummary.countPerFood, MenuInsightsHelper.LIST_LIMIT);
     const listedIds = [...new Set([...topIds, ...flopIds, ...awaitedIds, ...mostOfferedIds])];
-    const [foods, offerDates] = await Promise.all([this.readFoods(listedIds, language), this.readOfferDates(listedIds, canteen, today)]);
+    const upcomingFoodIds = upcomingOfferRows.map(row => MenuInsightsHelper.readId(row.food)).filter((id): id is string => !!id);
+    const [foods, offerDates] = await Promise.all([this.readFoods([...new Set([...listedIds, ...upcomingFoodIds])], language), this.readOfferDates(listedIds, canteen, today)]);
 
     /** `allTime`: the stored average of all ratings instead of the ones in the period (for awaited foods). */
     const toFood = (id: string, allTime = false): MenuInsightsFood => {
@@ -255,6 +270,39 @@ export class MenuInsightsService {
       .sort((a, b) => b.offer_count - a.offer_count || a.name.localeCompare(b.name));
     const dietMarkingIds = markings.filter(marking => MenuInsightsHelper.isDietMarking(marking)).map(marking => marking.id);
 
+    // Upcoming offers, each food once per day (several canteens may offer it)
+    const markingsById = new Map(
+      markingRows.map(row => {
+        const id = String(row.id);
+        const name = MenuInsightsService.getName(row, language) ?? id;
+        return [id, { id, name, short_code: typeof row.short_code === 'string' ? row.short_code : null, diet: MenuInsightsHelper.isDietMarking({ alias: typeof row.alias === 'string' ? row.alias : null, short_code: typeof row.short_code === 'string' ? row.short_code : null, name }) }];
+      })
+    );
+    const markingIdsByOffer = new Map<string, string[]>();
+    for (const row of upcomingMarkingRows) {
+      const offerId = MenuInsightsHelper.readId(row.foodoffers_id);
+      const markingId = MenuInsightsHelper.readId(row.markings_id);
+      if (offerId && markingId) {
+        markingIdsByOffer.set(offerId, [...(markingIdsByOffer.get(offerId) ?? []), markingId]);
+      }
+    }
+    const upcomingByDate = new Map<string, MenuInsightsUpcomingDay>(MenuInsightsHelper.getDates(upcomingRange).map(date => [date, { date, offers: [], has_diet_option: false }]));
+    for (const row of upcomingOfferRows) {
+      const date = typeof row.date === 'string' ? row.date.slice(0, 10) : null;
+      const foodId = MenuInsightsHelper.readId(row.food);
+      const day = date ? upcomingByDate.get(date) : undefined;
+      if (!day || !foodId || day.offers.some(offer => offer.food.id === foodId)) {
+        continue;
+      }
+      const offerMarkingList = (markingIdsByOffer.get(String(row.id)) ?? []).map(id => markingsById.get(id)).filter((marking): marking is NonNullable<typeof marking> => !!marking);
+      day.offers.push({ food: toFood(foodId, true), markings: offerMarkingList.map(({ diet: _diet, ...marking }) => marking) });
+      day.has_diet_option = day.has_diet_option || offerMarkingList.some(marking => marking.diet);
+    }
+
+    // Previous period
+    const previousRatings = MenuInsightsHelper.getRatingDistribution(previousRatingRows.map(row => ({ food: null, rating: MenuInsightsHelper.readRating(row.rating), count: MenuInsightsHelper.readCount(row) })));
+    const previousOffers = previousOfferRows[0] as { count?: unknown; countDistinct?: unknown } | undefined;
+
     // Visits
     const visits: MenuInsightsVisitRow[] = visitRows.map(row => ({ date: typeof row.date === 'string' ? row.date : null, canteen: MenuInsightsHelper.readId(row.canteen), count: MenuInsightsHelper.readCount(row) }));
     const visitSummary = MenuInsightsHelper.summarizeVisits(visits);
@@ -288,6 +336,7 @@ export class MenuInsightsService {
         food_distribution: MenuInsightsHelper.getFoodStarDistribution(ratingsPerFood),
         rated_foods: [...ratingsPerFood.values()].filter(entry => entry.count >= MenuInsightsHelper.MIN_RATINGS).length,
         min_ratings: MenuInsightsHelper.MIN_RATINGS,
+        good_share: MenuInsightsHelper.getGoodShare(ratingDistribution.distribution),
         top: topIds.map(id => toFood(id)),
         flop: flopIds.map(id => toFood(id)),
       },
@@ -304,6 +353,17 @@ export class MenuInsightsService {
       },
       languages: languageCounts,
       profiles_total: languageCounts.reduce((sum, entry) => sum + entry.count, 0),
+      previous: {
+        from: previousPeriod.from,
+        to: previousPeriod.to,
+        offers: MenuInsightsHelper.readCount({ count: previousOffers?.count }),
+        distinct_foods: MenuInsightsHelper.readCount({ count: previousOffers?.countDistinct }),
+        rating_count: previousRatings.count,
+        rating_average: previousRatings.average,
+        good_share: MenuInsightsHelper.getGoodShare(previousRatings.distribution),
+        visits: MenuInsightsHelper.readCount(previousVisitRows[0]),
+      },
+      upcoming: { from: upcomingRange.from, to: upcomingRange.to, days: [...upcomingByDate.values()] },
     };
   }
 
