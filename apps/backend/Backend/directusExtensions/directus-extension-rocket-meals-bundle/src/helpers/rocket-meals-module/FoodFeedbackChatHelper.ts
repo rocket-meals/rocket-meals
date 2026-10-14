@@ -222,7 +222,8 @@ export class FoodFeedbackChatHelper {
 
   /** URL parameters to load the canteens for the canteen filter. */
   static buildCanteensQuery() {
-    return { fields: 'id,alias,image,image_remote_url', sort: 'sort,alias', limit: -1 };
+    // `canteens` has no picture fields: asking for them is answered with 403 and an empty filter.
+    return { fields: 'id,alias', sort: 'sort,alias', limit: -1 };
   }
 
   static getSortLabelKey(sort: FoodFeedbackListSort): BackendTranslationKeys {

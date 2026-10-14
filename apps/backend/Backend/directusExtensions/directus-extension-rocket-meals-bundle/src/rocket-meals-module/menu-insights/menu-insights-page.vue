@@ -248,55 +248,6 @@ const rangeText = computed(() => {
             <insight-food-list :foods="insights.offers.most_offered" mode="offers" />
           </insight-card>
 
-          <insight-card :title="translate(BackendTranslationKeys.rocket_meals_module_menu_insights_markings)" icon="label_important" :note="translate(BackendTranslationKeys.rocket_meals_module_menu_insights_markings_note)" :empty="markingRows.length === 0" wide>
-            <v-notice v-if="dietNote" :type="insights.days_without_diet_option > 0 ? 'warning' : 'success'">{{ dietNote }}</v-notice>
-            <div class="table-scroll">
-              <table class="markings">
-                <thead>
-                  <tr>
-                    <th />
-                    <th class="type-label">{{ translate(BackendTranslationKeys.rocket_meals_module_menu_insights_markings_offers) }}</th>
-                    <th class="type-label">{{ translate(BackendTranslationKeys.rocket_meals_module_menu_insights_markings_days) }}</th>
-                    <th class="type-label">{{ translate(BackendTranslationKeys.rocket_meals_module_menu_insights_likes) }} / {{ translate(BackendTranslationKeys.rocket_meals_module_menu_insights_dislikes) }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="marking in markingRows" :key="marking.id">
-                    <td class="marking-name">
-                      <img v-if="MenuInsightsHelper.getImageUrl(marking, apiRoot, 24)" class="marking-image" :src="MenuInsightsHelper.getImageUrl(marking, apiRoot, 24)" alt="" loading="lazy" />
-                      <span v-else-if="marking.short_code" class="short-code">{{ marking.short_code }}</span>
-                      <span class="marking-text">
-                        <span>{{ marking.name }}</span>
-                        <span v-if="marking.group_name" class="type-note">{{ marking.group_name }}</span>
-                      </span>
-                    </td>
-                    <td>
-                      <span class="cell-bar">
-                        <span class="track"><span class="fill" :style="{ inlineSize: `${Math.round(marking.offer_share * 100)}%` }" /></span>
-                        <span class="type-note">{{ formatPercent(marking.offer_share) }} · {{ formatNumber(marking.offer_count) }}</span>
-                      </span>
-                    </td>
-                    <td>
-                      <span class="cell-bar">
-                        <span class="track"><span class="fill days" :style="{ inlineSize: `${Math.round(marking.day_coverage * 100)}%` }" /></span>
-                        <span class="type-note">{{ formatPercent(marking.day_coverage) }}</span>
-                      </span>
-                    </td>
-                    <td>
-                      <span class="cell-bar">
-                        <span class="track">
-                          <span class="fill like" :style="{ inlineSize: `${MenuInsightsHelper.getBarPercent(marking.profile_likes, maxMarkingPreference)}%` }" />
-                          <span class="fill dislike" :style="{ inlineSize: `${MenuInsightsHelper.getBarPercent(marking.profile_dislikes, maxMarkingPreference)}%` }" />
-                        </span>
-                        <span class="type-note">👍 {{ formatNumber(marking.profile_likes) }} · 👎 {{ formatNumber(marking.profile_dislikes) }}</span>
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </insight-card>
-
           <insight-card :title="translate(BackendTranslationKeys.rocket_meals_module_menu_insights_food_labels)" icon="sell" :empty="foodLabelItems.length === 0">
             <insight-bar-list :items="foodLabelItems" />
           </insight-card>
@@ -326,6 +277,55 @@ const rangeText = computed(() => {
             <insight-bar-list :items="languageItems" />
           </insight-card>
         </div>
+
+        <insight-card :title="translate(BackendTranslationKeys.rocket_meals_module_menu_insights_markings)" icon="label_important" :note="translate(BackendTranslationKeys.rocket_meals_module_menu_insights_markings_note)" :empty="markingRows.length === 0" :class="{ stale: loading }">
+          <v-notice v-if="dietNote" :type="insights.days_without_diet_option > 0 ? 'warning' : 'success'">{{ dietNote }}</v-notice>
+          <div class="table-scroll">
+            <table class="markings">
+              <thead>
+                <tr>
+                  <th />
+                  <th class="type-label">{{ translate(BackendTranslationKeys.rocket_meals_module_menu_insights_markings_offers) }}</th>
+                  <th class="type-label">{{ translate(BackendTranslationKeys.rocket_meals_module_menu_insights_markings_days) }}</th>
+                  <th class="type-label">{{ translate(BackendTranslationKeys.rocket_meals_module_menu_insights_likes) }} / {{ translate(BackendTranslationKeys.rocket_meals_module_menu_insights_dislikes) }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="marking in markingRows" :key="marking.id">
+                  <td class="marking-name">
+                    <img v-if="MenuInsightsHelper.getImageUrl(marking, apiRoot, 24)" class="marking-image" :src="MenuInsightsHelper.getImageUrl(marking, apiRoot, 24)" alt="" loading="lazy" />
+                    <span v-else-if="marking.short_code" class="short-code">{{ marking.short_code }}</span>
+                    <span class="marking-text">
+                      <span>{{ marking.name }}</span>
+                      <span v-if="marking.group_name" class="type-note">{{ marking.group_name }}</span>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="cell-bar">
+                      <span class="track"><span class="fill" :style="{ inlineSize: `${Math.round(marking.offer_share * 100)}%` }" /></span>
+                      <span class="type-note">{{ formatPercent(marking.offer_share) }} · {{ formatNumber(marking.offer_count) }}</span>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="cell-bar">
+                      <span class="track"><span class="fill days" :style="{ inlineSize: `${Math.round(marking.day_coverage * 100)}%` }" /></span>
+                      <span class="type-note">{{ formatPercent(marking.day_coverage) }}</span>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="cell-bar">
+                      <span class="track">
+                        <span class="fill like" :style="{ inlineSize: `${MenuInsightsHelper.getBarPercent(marking.profile_likes, maxMarkingPreference)}%` }" />
+                        <span class="fill dislike" :style="{ inlineSize: `${MenuInsightsHelper.getBarPercent(marking.profile_dislikes, maxMarkingPreference)}%` }" />
+                      </span>
+                      <span class="type-note">👍 {{ formatNumber(marking.profile_likes) }} · 👎 {{ formatNumber(marking.profile_dislikes) }}</span>
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </insight-card>
       </template>
 
       <div v-else-if="loading" class="cards">
@@ -398,16 +398,18 @@ const rangeText = computed(() => {
 }
 
 .key-label {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 .cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
-  gap: 1rem;
-  align-items: start;
+  column-gap: 1rem;
+  columns: 24rem;
+}
+
+/* Masonry like columns: cards of different height do not leave gaps. */
+.cards > * {
+  margin-block-end: 1rem;
+  break-inside: avoid;
 }
 
 h3 {

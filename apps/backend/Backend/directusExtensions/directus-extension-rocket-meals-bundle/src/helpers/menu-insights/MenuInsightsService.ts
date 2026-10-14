@@ -4,7 +4,7 @@
  * of `menu-insights-endpoint`.
  *
  * Everything is read with the permissions of the person asking (`accountability`), so the page only
- * shows what they may read anyway. Counts are Directus aggregate queries (`groupBy`), only offers and
+ * shows what they may read anyway. Counts are Directus aggregate queries (`group`), only offers and
  * their markings are read row by row (the days a marking covers need both). A section whose
  * collection cannot be read (no permission, older schema) stays empty instead of failing the page.
  */
@@ -40,6 +40,10 @@ export class MenuInsightsService {
     return (await DirectusOpenAiCompatibleClient.fromDirectusSettings(apiContext)) !== null;
   }
 
+  /**
+   * Note: the internal ItemsService takes `group` for grouped aggregates. `groupBy` is only the REST
+   * parameter (translated by `sanitizeQuery`) and is silently ignored here.
+   */
   private async read(collection: string, query: Record<string, unknown>): Promise<Row[]> {
     const service = new this.apiContext.services.ItemsService(collection, { schema: await this.apiContext.getSchema(), accountability: this.accountability });
     return ((await service.readByQuery(query)) ?? []) as Row[];
@@ -71,6 +75,11 @@ export class MenuInsightsService {
   private static buildChangedInRangeFilter(range: { from: string; to: string }): DirectusFilter {
     const between = { _between: [`${range.from}T00:00:00`, `${range.to}T23:59:59.999`] };
     return { _or: [{ date_updated: between }, { _and: [{ date_updated: { _null: true } }, { date_created: between }] }] };
+  }
+
+  /** `canteen_visits.date` is a timestamp: the whole last day counts. */
+  private static buildVisitDateFilter(range: { from: string; to: string }): DirectusFilter {
+    return { date: { _between: [`${range.from}T00:00:00`, `${range.to}T23:59:59.999`] } };
   }
 
   private static getName(row: Row | undefined, language: string, field = 'name'): string | undefined {
@@ -105,7 +114,7 @@ export class MenuInsightsService {
       return { last, next };
     }
     const base = [{ food: { _in: [...foodIds] } }, canteen ? { canteen: { _eq: canteen } } : undefined, MenuInsightsService.NOT_A_COMPONENT];
-    const [lastRows, nextRows] = await Promise.all([this.readSafe(CollectionNames.FOODOFFERS, { aggregate: { max: ['date'] }, groupBy: ['food'], filter: MenuInsightsService.and([...base, { date: { _lte: today } }]), limit: -1 }), this.readSafe(CollectionNames.FOODOFFERS, { aggregate: { min: ['date'] }, groupBy: ['food'], filter: MenuInsightsService.and([...base, { date: { _gt: today } }]), limit: -1 })]);
+    const [lastRows, nextRows] = await Promise.all([this.readSafe(CollectionNames.FOODOFFERS, { aggregate: { max: ['date'] }, group: ['food'], filter: MenuInsightsService.and([...base, { date: { _lte: today } }]), limit: -1 }), this.readSafe(CollectionNames.FOODOFFERS, { aggregate: { min: ['date'] }, group: ['food'], filter: MenuInsightsService.and([...base, { date: { _gt: today } }]), limit: -1 })]);
     for (const row of lastRows) {
       const date = (row.max as { date?: unknown } | undefined)?.date;
       if (row.food && date) {
@@ -157,15 +166,15 @@ export class MenuInsightsService {
         filter: MenuInsightsService.and([{ foodoffers_id: { date: { _between: [period.from, period.to] } } }, canteen ? { foodoffers_id: { canteen: { _eq: canteen } } } : undefined]),
         limit: -1,
       }),
-      this.readSafe(CollectionNames.FOODS_FEEDBACKS, { aggregate: { count: ['id'] }, groupBy: ['food', 'rating'], filter: MenuInsightsService.and([{ rating: { _nnull: true } }, canteenFilter, MenuInsightsService.buildChangedInRangeFilter(period)]), limit: -1 }),
-      this.readSafe(CollectionNames.FOODS_FEEDBACKS, { aggregate: { count: ['id'] }, groupBy: ['food'], filter: { notify: { _eq: true } }, limit: -1 }),
+      this.readSafe(CollectionNames.FOODS_FEEDBACKS, { aggregate: { count: ['id'] }, group: ['food', 'rating'], filter: MenuInsightsService.and([{ rating: { _nnull: true } }, canteenFilter, MenuInsightsService.buildChangedInRangeFilter(period)]), limit: -1 }),
+      this.readSafe(CollectionNames.FOODS_FEEDBACKS, { aggregate: { count: ['id'] }, group: ['food'], filter: { notify: { _eq: true } }, limit: -1 }),
       this.readSafe(CollectionNames.MARKINGS, { fields: ['id', 'alias', 'short_code', 'image', 'image_remote_url', 'sort', 'group.id', 'group.alias', 'group.translations.languages_code', 'group.translations.name', ...TRANSLATION_FIELDS], sort: ['sort', 'alias'], limit: -1 }),
-      this.readSafe(PROFILES_MARKINGS, { aggregate: { count: ['id'] }, groupBy: ['markings_id', 'like', 'dislike'], limit: -1 }),
-      this.readSafe(CollectionNames.FOODS_FEEDBACKS_LABELS_ENTRIES, { aggregate: { count: ['id'] }, groupBy: ['label', 'like', 'dislike'], filter: MenuInsightsService.and([canteenFilter, MenuInsightsService.buildChangedInRangeFilter(period)]), limit: -1 }),
-      this.readSafe(CollectionNames.CANTEENS_FEEDBACKS_LABELS_ENTRIES, { aggregate: { count: ['id'] }, groupBy: ['label', 'like', 'dislike'], filter: MenuInsightsService.and([canteenFilter, MenuInsightsService.buildChangedInRangeFilter(period)]), limit: -1 }),
-      this.readSafe(CANTEEN_VISITS, { aggregate: { count: ['id'] }, groupBy: ['date', 'canteen'], filter: MenuInsightsService.and([{ date: { _between: [period.from, period.to] } }, canteenFilter]), limit: -1 }),
-      this.readSafe(CANTEEN_VISITS, { aggregate: { countDistinct: ['profile'] }, filter: MenuInsightsService.and([{ date: { _between: [period.from, period.to] } }, canteenFilter]) }),
-      this.readSafe(CollectionNames.PROFILES, { aggregate: { count: ['id'] }, groupBy: ['language'], limit: -1 }),
+      this.readSafe(PROFILES_MARKINGS, { aggregate: { count: ['id'] }, group: ['markings_id', 'like', 'dislike'], limit: -1 }),
+      this.readSafe(CollectionNames.FOODS_FEEDBACKS_LABELS_ENTRIES, { aggregate: { count: ['id'] }, group: ['label', 'like', 'dislike'], filter: MenuInsightsService.and([canteenFilter, MenuInsightsService.buildChangedInRangeFilter(period)]), limit: -1 }),
+      this.readSafe(CollectionNames.CANTEENS_FEEDBACKS_LABELS_ENTRIES, { aggregate: { count: ['id'] }, group: ['label', 'like', 'dislike'], filter: MenuInsightsService.and([canteenFilter, MenuInsightsService.buildChangedInRangeFilter(period)]), limit: -1 }),
+      this.readSafe(CANTEEN_VISITS, { aggregate: { count: ['id'] }, group: ['date', 'canteen'], filter: MenuInsightsService.and([MenuInsightsService.buildVisitDateFilter(period), canteenFilter]), limit: -1 }),
+      this.readSafe(CANTEEN_VISITS, { aggregate: { countDistinct: ['profile'] }, filter: MenuInsightsService.and([MenuInsightsService.buildVisitDateFilter(period), canteenFilter]) }),
+      this.readSafe(CollectionNames.PROFILES, { aggregate: { count: ['id'] }, group: ['language'], limit: -1 }),
       this.readSafe(CollectionNames.LANGUAGES, { fields: ['code', 'name'], limit: -1 }),
       this.readSafe(CollectionNames.CANTEENS, { fields: ['id', 'alias'], limit: -1 }),
       this.readLabels(CollectionNames.FOODS_FEEDBACK_LABELS, language),

@@ -59,7 +59,7 @@ const weekItems = computed(() =>
   Array.from({ length: MenuPlanningHelper.getIsoWeeksInYear(year.value) }, (_, index) => {
     const value = index + 1;
     const range = MenuPlanningHelper.getRange(year.value, value, 1);
-    return { text: `${translate(BackendTranslationKeys.rocket_meals_module_menu_planning_week_label, { week: value, year: year.value })} (${formatDate(range.from, { day: '2-digit', month: '2-digit' })} ${formatDate(range.to, { day: '2-digit', month: '2-digit' })})`, value, icon: 'date_range' };
+    return { text: `${translate(BackendTranslationKeys.rocket_meals_module_menu_planning_week_label, { week: value, year: year.value })} (${translate(BackendTranslationKeys.rocket_meals_module_menu_insights_range, { from: formatDate(range.from, { day: '2-digit', month: '2-digit' }), to: formatDate(range.to, { day: '2-digit', month: '2-digit' }) })})`, value, icon: 'date_range' };
   })
 );
 const weeksItems = Array.from({ length: MenuPlanningHelper.MAX_WEEKS }, (_, index) => ({ text: String(index + 1), value: index + 1, icon: 'view_week' }));
@@ -118,7 +118,8 @@ const errorText = computed(() => {
   }
   switch (result.value?.error_code) {
     case MenuPlanningErrorCode.AI_NOT_CONFIGURED:
-      return translate(BackendTranslationKeys.rocket_meals_module_menu_planning_ai_not_configured);
+      // Already shown at the top of the page since the status check.
+      return aiConfigured.value === false ? undefined : translate(BackendTranslationKeys.rocket_meals_module_menu_planning_ai_not_configured);
     case MenuPlanningErrorCode.AI_FAILED:
       return translate(BackendTranslationKeys.rocket_meals_module_menu_planning_ai_failed);
     default:
@@ -155,7 +156,7 @@ const errorText = computed(() => {
           <span class="type-label">{{ translate(BackendTranslationKeys.rocket_meals_module_menu_planning_year) }}</span>
           <filter-select v-model="year" :items="yearItems" :disabled="planning" />
         </div>
-        <div class="field">
+        <div class="field wide">
           <span class="type-label">{{ translate(BackendTranslationKeys.rocket_meals_module_menu_planning_week) }}</span>
           <filter-select v-model="week" :items="weekItems" :disabled="planning" />
         </div>
@@ -260,6 +261,16 @@ const errorText = computed(() => {
   flex-direction: column;
   gap: 0.375rem;
   min-inline-size: 0;
+}
+
+.field.wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 40rem) {
+  .field.wide {
+    grid-column: 1 / -1;
+  }
 }
 
 .field.full {

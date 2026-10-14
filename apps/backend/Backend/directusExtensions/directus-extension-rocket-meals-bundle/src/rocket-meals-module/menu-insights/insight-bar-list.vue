@@ -18,8 +18,8 @@ const max = computed(() => Math.max(0, ...props.items.map(item => item.segments.
       <span class="bar-label">
         <img v-if="item.imageUrl" class="bar-image" :src="item.imageUrl" alt="" loading="lazy" />
         <v-icon v-else-if="item.icon" :name="item.icon" small class="bar-icon" />
-        <router-link v-if="item.to" :to="item.to" class="label-text link">{{ item.label }}</router-link>
-        <span v-else class="label-text">{{ item.label }}</span>
+        <router-link v-if="item.to" :to="item.to" class="label-text link" :title="item.label">{{ item.label }}</router-link>
+        <span v-else class="label-text" :title="item.label">{{ item.label }}</span>
       </span>
       <span class="bar-track">
         <span v-for="(segment, index) in item.segments" :key="index" v-tooltip.bottom="segment.title" class="bar-segment" :style="{ inlineSize: `${MenuInsightsHelper.getBarPercent(segment.value, max)}%`, background: segment.color ?? 'var(--theme--primary)' }" />
@@ -41,7 +41,7 @@ const max = computed(() => Math.max(0, ...props.items.map(item => item.segments.
 
 .bar-row {
   display: grid;
-  grid-template-columns: minmax(6rem, 2fr) minmax(4rem, 3fr) auto;
+  grid-template-columns: minmax(8rem, 1fr) minmax(4rem, 1fr) auto;
   gap: 0.75rem;
   align-items: center;
 }

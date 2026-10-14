@@ -133,7 +133,7 @@ describe('FoodFeedbackChatHelper', () => {
     expect(FoodFeedbackChatHelper.getCanteenImageUrl({ id: 'c', image: 'file-3' }, '/api/')).toBe('/api/assets/file-3?width=48&height=48&fit=cover&quality=80');
     expect(FoodFeedbackChatHelper.getCanteenImageUrl({ id: 'c', image_remote_url: 'https://x/c.jpg' })).toBe('https://x/c.jpg');
     expect(FoodFeedbackChatHelper.getCanteenImageUrl({ id: 'c' })).toBeUndefined();
-    expect(FoodFeedbackChatHelper.buildCanteensQuery().fields).toBe('id,alias,image,image_remote_url');
+    expect(FoodFeedbackChatHelper.buildCanteensQuery().fields).toBe('id,alias');
   });
 
   it('links the food image to the food in the content area', () => {
