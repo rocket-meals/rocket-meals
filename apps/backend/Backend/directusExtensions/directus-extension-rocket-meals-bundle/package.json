@@ -139,6 +139,11 @@
         "source": "src/app-store-ratings-endpoint/index.ts"
       },
       {
+        "type": "endpoint",
+        "name": "menu-insights-endpoint",
+        "source": "src/menu-insights-endpoint/index.ts"
+      },
+      {
         "type": "hook",
         "name": "users-inactive-cleanup-workflow",
         "source": "src/users-inactive-cleanup-workflow/index.ts"
