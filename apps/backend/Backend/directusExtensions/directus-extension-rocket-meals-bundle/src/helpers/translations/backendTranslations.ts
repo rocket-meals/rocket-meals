@@ -4849,17 +4849,6 @@ export const backendTranslations: TranslationResources = {
     tr: 'Neler sunuldu ve nasıl değerlendirildi: işaretlemeler, en sevilen ve en az sevilen yemekler, beklenen yemekler, geri bildirim etiketleri, buluşmalar ve kullanıcı dilleri.',
     zh: '提供了什么以及评价如何：标识、最受欢迎和最不受欢迎的菜品、期待的菜品、反馈标签、约饭和用户语言。',
   },
-  /** Rocket-Meals-Modul, Speiseplan-Analyse: Beschriftung der Auswahl des Zeitraums. */
-  rocket_meals_module_menu_insights_period: {
-    de: 'Zeitraum',
-    en: 'Period',
-    ar: 'الفترة',
-    es: 'Periodo',
-    fr: 'Période',
-    ru: 'Период',
-    tr: 'Dönem',
-    zh: '时间段',
-  },
   /** Rocket-Meals-Modul, Speiseplan-Analyse: Zeitraum der letzten 30 Tage. */
   rocket_meals_module_menu_insights_period_30: {
     de: 'Letzte 30 Tage',
@@ -5047,39 +5036,6 @@ export const backendTranslations: TranslationResources = {
     tr: '{{count}} puan',
     zh: '{{count}} 条评分',
   },
-  /** Rocket-Meals-Modul, Speiseplan-Analyse: Abschnitt mit den beliebtesten Speisen. */
-  rocket_meals_module_menu_insights_top: {
-    de: 'Beliebteste Speisen',
-    en: 'Favourite dishes',
-    ar: 'الأطباق الأكثر شعبية',
-    es: 'Platos favoritos',
-    fr: 'Plats préférés',
-    ru: 'Самые любимые блюда',
-    tr: 'En sevilen yemekler',
-    zh: '最受欢迎的菜品',
-  },
-  /** Rocket-Meals-Modul, Speiseplan-Analyse: Abschnitt mit den unbeliebtesten Speisen. */
-  rocket_meals_module_menu_insights_flop: {
-    de: 'Unbeliebteste Speisen',
-    en: 'Least liked dishes',
-    ar: 'الأطباق الأقل شعبية',
-    es: 'Platos menos queridos',
-    fr: 'Plats les moins aimés',
-    ru: 'Наименее любимые блюда',
-    tr: 'En az sevilen yemekler',
-    zh: '最不受欢迎的菜品',
-  },
-  /** Rocket-Meals-Modul, Speiseplan-Analyse: Abschnitt mit den Speisen, auf die die meisten Nutzer per Push-Nachricht warten. */
-  rocket_meals_module_menu_insights_awaited: {
-    de: 'Wunschspeisen (Push-Erinnerung)',
-    en: 'Awaited dishes (push reminder)',
-    ar: 'الأطباق المنتظرة (تذكير إشعار)',
-    es: 'Platos esperados (aviso push)',
-    fr: 'Plats attendus (rappel push)',
-    ru: 'Ожидаемые блюда (push-напоминание)',
-    tr: 'Beklenen yemekler (anlık bildirim)',
-    zh: '期待的菜品（推送提醒）',
-  },
   /** Rocket-Meals-Modul, Speiseplan-Analyse: Erklärung unter den Wunschspeisen. */
   rocket_meals_module_menu_insights_awaited_note: {
     de: 'So viele Profile möchten eine Push-Nachricht, sobald die Speise wieder angeboten wird. Bewertung über alle Zeit.',
@@ -5178,17 +5134,6 @@ export const backendTranslations: TranslationResources = {
     ru: 'Маркировки и сбалансированность',
     tr: 'İşaretlemeler ve denge',
     zh: '标识与均衡',
-  },
-  /** Rocket-Meals-Modul, Speiseplan-Analyse: Erklärung der Spalten der Kennzeichnungen. */
-  rocket_meals_module_menu_insights_markings_note: {
-    de: 'Anteil der Angebote mit der Kennzeichnung, Anteil der Tage, an denen es mindestens ein solches Angebot gab, und wie viele Profile die Kennzeichnung mögen oder meiden.',
-    en: 'Share of offers with the marking, share of days with at least one such offer, and how many profiles like or avoid the marking.',
-    ar: 'نسبة العروض التي تحمل العلامة، ونسبة الأيام التي توفر فيها عرض واحد على الأقل منها، وعدد الملفات الشخصية التي تحب العلامة أو تتجنبها.',
-    es: 'Porcentaje de ofertas con el distintivo, porcentaje de días con al menos una oferta así y cuántos perfiles lo prefieren o lo evitan.',
-    fr: 'Part des offres avec le marquage, part des jours avec au moins une telle offre, et combien de profils aiment ou évitent ce marquage.',
-    ru: 'Доля предложений с маркировкой, доля дней хотя бы с одним таким предложением и сколько профилей её любят или избегают.',
-    tr: 'İşaretlemeye sahip tekliflerin oranı, en az bir böyle teklif olan günlerin oranı ve kaç profilin bu işaretlemeyi sevdiği ya da kaçındığı.',
-    zh: '带有该标识的供应占比、至少有一个此类供应的天数占比，以及喜欢或避免该标识的用户数。',
   },
   /** Rocket-Meals-Modul, Speiseplan-Analyse: Spalte Anteil der Angebote. */
   rocket_meals_module_menu_insights_markings_offers: {
@@ -5420,28 +5365,6 @@ export const backendTranslations: TranslationResources = {
     ru: 'ИИ получает меню тех же недель прошлого года с оценками и комментариями, самые любимые и нелюбимые блюда, ожидаемые блюда, маркировки и языки пользователей. Его предложение служит отправной точкой и не сохраняется.',
     tr: 'Yapay zekâ, geçen yılın aynı haftalarının menüsünü puan ve yorumlarla, en sevilen ve en az sevilen yemekleri, beklenen yemekleri, işaretlemeleri ve kullanıcı dillerini alır. Önerisi planlama için bir başlangıç noktasıdır ve kaydedilmez.',
     zh: 'AI 会获得去年同期各周的菜单及评分和评论、最受欢迎和最不受欢迎的菜品、期待的菜品、标识以及用户语言。其建议仅作为规划起点，不会被保存。',
-  },
-  /** Rocket-Meals-Modul, Speiseplan-Planung: Eingabe des Jahres. */
-  rocket_meals_module_menu_planning_year: {
-    de: 'Jahr',
-    en: 'Year',
-    ar: 'السنة',
-    es: 'Año',
-    fr: 'Année',
-    ru: 'Год',
-    tr: 'Yıl',
-    zh: '年份',
-  },
-  /** Rocket-Meals-Modul, Speiseplan-Planung: Eingabe der ersten Kalenderwoche. */
-  rocket_meals_module_menu_planning_week: {
-    de: 'Ab Kalenderwoche',
-    en: 'From calendar week',
-    ar: 'من أسبوع التقويم',
-    es: 'Desde la semana',
-    fr: 'À partir de la semaine',
-    ru: 'С недели',
-    tr: 'Başlangıç haftası',
-    zh: '起始周',
   },
   /** Rocket-Meals-Modul, Speiseplan-Planung: Eingabe der Anzahl der Wochen. */
   rocket_meals_module_menu_planning_weeks: {
@@ -5685,28 +5608,6 @@ export const backendTranslations: TranslationResources = {
     tr: 'Seçilen dönemin tüm rakamları ayrıntılı olarak.',
     zh: '所选时段的全部详细数据。',
   },
-  /** Rocket-Meals-Modul, Speiseplan-Analyse: Überschrift der automatisch erstellten Zusammenfassung. */
-  rocket_meals_module_menu_insights_highlights: {
-    de: 'Auffälligkeiten',
-    en: 'Highlights',
-    ar: 'أبرز الملاحظات',
-    es: 'Aspectos destacados',
-    fr: 'Points marquants',
-    ru: 'Главное',
-    tr: 'Öne çıkanlar',
-    zh: '要点',
-  },
-  /** Rocket-Meals-Modul, Speiseplan-Analyse: Es gibt keine Auffälligkeiten. */
-  rocket_meals_module_menu_insights_highlights_none: {
-    de: 'Keine Auffälligkeiten im Zeitraum.',
-    en: 'Nothing stands out in this period.',
-    ar: 'لا توجد ملاحظات لافتة في هذه الفترة.',
-    es: 'Nada destacable en este periodo.',
-    fr: 'Rien de marquant sur cette période.',
-    ru: 'За этот период ничего примечательного.',
-    tr: 'Bu dönemde öne çıkan bir şey yok.',
-    zh: '此期间无特别事项。',
-  },
   /** Rocket-Meals-Modul, Speiseplan-Analyse: Die Durchschnittsbewertung ist gestiegen. {{before}} und {{after}} sind Zahlen. */
   rocket_meals_module_menu_insights_highlight_rating_up: {
     de: 'Die Ø Bewertung ist von {{before}} auf {{after}} gestiegen.',
@@ -5861,17 +5762,6 @@ export const backendTranslations: TranslationResources = {
     tr: '{{from}} ile {{to}} arası ile karşılaştırıldı',
     zh: '与 {{from}} 至 {{to}} 对比',
   },
-  /** Rocket-Meals-Modul, Speiseplan-Analyse: Abschnitt mit den häufigsten Kritikpunkten (Labels mit Daumen runter). */
-  rocket_meals_module_menu_insights_top_complaints: {
-    de: 'Häufigste Kritikpunkte',
-    en: 'Most frequent criticism',
-    ar: 'أكثر الانتقادات شيوعًا',
-    es: 'Críticas más frecuentes',
-    fr: 'Critiques les plus fréquentes',
-    ru: 'Самая частая критика',
-    tr: 'En sık eleştiriler',
-    zh: '最常见的批评',
-  },
   /** Rocket-Meals-Modul, Speiseplan-Analyse: Auswahl der aktuellen Kalenderwoche. */
   rocket_meals_module_menu_insights_this_week: {
     de: 'Diese Woche',
@@ -5960,17 +5850,6 @@ export const backendTranslations: TranslationResources = {
     tr: 'Favori',
     zh: '最受欢迎',
   },
-  /** Rocket-Meals-Modul, Speiseplan-Analyse: Abschnitt mit Wunschspeisen, die nicht geplant sind. */
-  rocket_meals_module_menu_insights_awaited_unplanned: {
-    de: 'Wunschspeisen ohne Termin',
-    en: 'Awaited dishes without a date',
-    ar: 'أطباق منتظرة بلا موعد',
-    es: 'Platos esperados sin fecha',
-    fr: 'Plats attendus sans date',
-    ru: 'Ожидаемые блюда без даты',
-    tr: 'Tarihi olmayan beklenen yemekler',
-    zh: '无日期的期待菜品',
-  },
   /** Rocket-Meals-Modul, Speiseplan-Analyse: Erklärung zu Wunschspeisen ohne Termin. */
   rocket_meals_module_menu_insights_awaited_unplanned_note: {
     de: 'Gäste haben eine Push-Erinnerung aktiviert, die Speise ist aber nicht geplant. Ein guter Kandidat für die nächsten Wochen.',
@@ -5982,17 +5861,6 @@ export const backendTranslations: TranslationResources = {
     tr: 'Misafirler anlık hatırlatma açtı ama yemek planlanmadı. Önümüzdeki haftalar için iyi bir aday.',
     zh: '用餐者开启了推送提醒，但该菜品尚未计划。是未来几周的好选择。',
   },
-  /** Rocket-Meals-Modul, Speiseplan-Analyse: Abschnitt mit gut bewerteten Speisen ohne Termin. */
-  rocket_meals_module_menu_insights_top_unplanned: {
-    de: 'Favoriten ohne Termin',
-    en: 'Favourites without a date',
-    ar: 'المفضلة بلا موعد',
-    es: 'Favoritos sin fecha',
-    fr: 'Favoris sans date',
-    ru: 'Любимые блюда без даты',
-    tr: 'Tarihi olmayan favoriler',
-    zh: '无日期的最受欢迎菜品',
-  },
   /** Rocket-Meals-Modul, Speiseplan-Analyse: Erklärung zu Favoriten ohne Termin. */
   rocket_meals_module_menu_insights_top_unplanned_note: {
     de: 'Im Zeitraum gut bewertet, aber nicht wieder geplant.',
@@ -6003,17 +5871,6 @@ export const backendTranslations: TranslationResources = {
     ru: 'Хорошо оценены за период, но больше не запланированы.',
     tr: 'Dönemde iyi puan aldı ama yeniden planlanmadı.',
     zh: '此期间评分良好，但未再次计划。',
-  },
-  /** Rocket-Meals-Modul, Speiseplan-Analyse: Abschnitt mit schwach bewerteten Speisen, die geplant sind. */
-  rocket_meals_module_menu_insights_weak_planned: {
-    de: 'Schwach bewertet und geplant',
-    en: 'Poorly rated and planned',
-    ar: 'ضعيفة التقييم ومخطط لها',
-    es: 'Mal valorados y previstos',
-    fr: 'Mal notés et prévus',
-    ru: 'Низкая оценка и в плане',
-    tr: 'Düşük puanlı ve planlanmış',
-    zh: '评分较低且已计划',
   },
   /** Rocket-Meals-Modul, Speiseplan-Analyse: Erklärung zu schwach bewerteten, geplanten Speisen. */
   rocket_meals_module_menu_insights_weak_planned_note: {
@@ -6036,5 +5893,137 @@ export const backendTranslations: TranslationResources = {
     ru: 'Планировать с ИИ',
     tr: 'Yapay zekâ ile planla',
     zh: '用 AI 规划',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Umschalter: alle Einträge zeigen. */
+  rocket_meals_module_menu_insights_filter_all: {
+    de: 'Alle',
+    en: 'All',
+    ar: 'الكل',
+    es: 'Todos',
+    fr: 'Tous',
+    ru: 'Все',
+    tr: 'Tümü',
+    zh: '全部',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Umschalter: Speisen, auf die Gäste warten. */
+  rocket_meals_module_menu_insights_filter_awaited: {
+    de: 'Gewünscht',
+    en: 'Awaited',
+    ar: 'مطلوبة',
+    es: 'Esperados',
+    fr: 'Attendus',
+    ru: 'Ожидаемые',
+    tr: 'Beklenen',
+    zh: '期待',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Umschalter: beliebte Speisen. */
+  rocket_meals_module_menu_insights_toggle_top: {
+    de: 'Beliebt',
+    en: 'Popular',
+    ar: 'الأكثر شعبية',
+    es: 'Populares',
+    fr: 'Populaires',
+    ru: 'Популярные',
+    tr: 'Sevilen',
+    zh: '受欢迎',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Umschalter: unbeliebte Speisen. */
+  rocket_meals_module_menu_insights_toggle_flop: {
+    de: 'Unbeliebt',
+    en: 'Unpopular',
+    ar: 'الأقل شعبية',
+    es: 'Impopulares',
+    fr: 'Impopulaires',
+    ru: 'Непопулярные',
+    tr: 'Sevilmeyen',
+    zh: '不受欢迎',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Umschalter: Kritikpunkte aus den Feedback-Labels. */
+  rocket_meals_module_menu_insights_toggle_criticism: {
+    de: 'Kritik',
+    en: 'Criticism',
+    ar: 'انتقادات',
+    es: 'Críticas',
+    fr: 'Critiques',
+    ru: 'Критика',
+    tr: 'Eleştiri',
+    zh: '批评',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Überschrift der Karte mit Speisen und Kritik. */
+  rocket_meals_module_menu_insights_dishes: {
+    de: 'Speisen',
+    en: 'Dishes',
+    ar: 'الأطباق',
+    es: 'Platos',
+    fr: 'Plats',
+    ru: 'Блюда',
+    tr: 'Yemekler',
+    zh: '菜品',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Überschrift der Karte mit dem, was in der Planung zu tun ist. */
+  rocket_meals_module_menu_insights_todo: {
+    de: 'Handlungsbedarf',
+    en: 'Needs action',
+    ar: 'يتطلب إجراء',
+    es: 'Requiere acción',
+    fr: 'À traiter',
+    ru: 'Требует внимания',
+    tr: 'Eylem gerekli',
+    zh: '待处理',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Umschalter: schwach bewertete Speisen, die geplant sind. */
+  rocket_meals_module_menu_insights_todo_weak: {
+    de: 'Schwach und geplant',
+    en: 'Poor and planned',
+    ar: 'ضعيفة ومخطط لها',
+    es: 'Mal valorados y previstos',
+    fr: 'Mal notés et prévus',
+    ru: 'Слабые и в плане',
+    tr: 'Zayıf ve planlı',
+    zh: '较差且已计划',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Umschalter: Wunschspeisen ohne Termin. */
+  rocket_meals_module_menu_insights_todo_awaited: {
+    de: 'Wunsch ohne Termin',
+    en: 'Awaited, no date',
+    ar: 'منتظرة بلا موعد',
+    es: 'Esperados sin fecha',
+    fr: 'Attendus sans date',
+    ru: 'Ожидаемые без даты',
+    tr: 'Beklenen, tarihsiz',
+    zh: '期待但无日期',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Umschalter: Favoriten ohne Termin. */
+  rocket_meals_module_menu_insights_todo_top: {
+    de: 'Favorit ohne Termin',
+    en: 'Favourite, no date',
+    ar: 'مفضلة بلا موعد',
+    es: 'Favoritos sin fecha',
+    fr: 'Favoris sans date',
+    ru: 'Любимые без даты',
+    tr: 'Favori, tarihsiz',
+    zh: '最受欢迎但无日期',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Knopf, der weitere Details aufklappt. */
+  rocket_meals_module_menu_insights_more_details: {
+    de: 'Details',
+    en: 'Details',
+    ar: 'التفاصيل',
+    es: 'Detalles',
+    fr: 'Détails',
+    ru: 'Подробнее',
+    tr: 'Ayrıntılar',
+    zh: '详情',
+  },
+  /** Rocket-Meals-Modul, Speiseplan-Analyse: Umschalter für die Labels der Speise- und Mensa-Feedbacks. */
+  rocket_meals_module_menu_insights_section_labels: {
+    de: 'Feedback-Labels',
+    en: 'Feedback labels',
+    ar: 'تصنيفات الملاحظات',
+    es: 'Etiquetas de opinión',
+    fr: "Étiquettes d'avis",
+    ru: 'Метки отзывов',
+    tr: 'Geri bildirim etiketleri',
+    zh: '反馈标签',
   },
 };

@@ -7,9 +7,10 @@
 import { computed } from 'vue';
 import { MenuInsightsHelper, type InsightBarItem } from '../../helpers/rocket-meals-module/MenuInsightsHelper';
 
-const props = defineProps<{ items: readonly InsightBarItem[] }>();
+/** `max`: the value of a full bar, e.g. 1 for shares; by default the largest row. */
+const props = defineProps<{ items: readonly InsightBarItem[]; max?: number }>();
 
-const max = computed(() => Math.max(0, ...props.items.map(item => item.segments.reduce((sum, segment) => sum + segment.value, 0))));
+const max = computed(() => props.max ?? Math.max(0, ...props.items.map(item => item.segments.reduce((sum, segment) => sum + segment.value, 0))));
 </script>
 
 <template>

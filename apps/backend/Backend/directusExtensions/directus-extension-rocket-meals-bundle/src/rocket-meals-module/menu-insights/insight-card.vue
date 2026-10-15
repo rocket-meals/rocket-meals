@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
  * One section of the pages "Speiseplan-Analyse" and "Speiseplan-Planung (KI)": a card with icon and
- * title, an optional note below the title and the content. With `empty` the content is replaced by
+ * title and the content. The optional note is no paragraph but the tooltip of an info icon next to
+ * the title, so the cards stay short. With `empty` the content is replaced by
  * the hint "no data in this period".
  */
 import { useAppExtensionTranslate } from '../../helpers/app-extensions/useAppExtensionTranslate';
@@ -15,12 +16,14 @@ const { translate } = useAppExtensionTranslate();
 <template>
   <section class="insight-card" :class="{ wide }">
     <header class="card-header">
-      <v-icon :name="icon" class="card-icon" />
-      <h2 class="type-title">{{ title }}</h2>
+      <span class="title-group">
+        <v-icon :name="icon" class="card-icon" />
+        <h2 class="type-title">{{ title }}</h2>
+        <v-icon v-if="note" v-tooltip.bottom="note" name="info" small class="note-icon" :aria-label="note" />
+      </span>
       <span class="spacer" />
       <slot name="header" />
     </header>
-    <p v-if="note" class="note type-note">{{ note }}</p>
     <p v-if="empty" class="empty type-note">{{ translate(BackendTranslationKeys.rocket_meals_module_menu_insights_no_data) }}</p>
     <slot v-else />
   </section>
@@ -49,6 +52,13 @@ const { translate } = useAppExtensionTranslate();
   align-items: center;
 }
 
+.title-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  min-inline-size: 0;
+}
+
 .card-header h2 {
   font-size: 1rem;
 }
@@ -61,7 +71,12 @@ const { translate } = useAppExtensionTranslate();
   flex: 1;
 }
 
-.note,
+.note-icon {
+  --v-icon-color: var(--theme--foreground-subdued);
+
+  cursor: help;
+}
+
 .empty {
   margin: 0;
   color: var(--theme--foreground-subdued);

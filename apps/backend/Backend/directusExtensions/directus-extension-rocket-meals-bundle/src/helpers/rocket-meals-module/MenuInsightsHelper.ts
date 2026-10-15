@@ -185,6 +185,12 @@ export type MenuInsightsLabelRow = { label: string | null; like: boolean | null;
 export type MenuInsightsVisitRow = { date: string | null; canteen: string | null; count: number };
 export type MenuInsightsProfileMarkingRow = { markings_id: string | null; like: boolean | null; dislike: boolean | null; count: number };
 
+/** Which dishes `insight-week-plan.vue` highlights, the others are dimmed. */
+export type WeekPlanHighlight = 'all' | 'weak' | 'strong' | 'awaited';
+
+/** One option of `segmented-control.vue`. */
+export type SegmentedControlOption = { value: string | number; text: string; icon?: string; count?: number };
+
 /** One segment of a bar of `insight-bar-list.vue`. */
 export type InsightBarSegment = {
   value: number;
