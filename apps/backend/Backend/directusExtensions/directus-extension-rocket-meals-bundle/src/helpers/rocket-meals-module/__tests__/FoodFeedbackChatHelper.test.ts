@@ -133,7 +133,7 @@ describe('FoodFeedbackChatHelper', () => {
     expect(FoodFeedbackChatHelper.getCanteenImageUrl({ id: 'c', image: 'file-3' }, '/api/')).toBe('/api/assets/file-3?width=48&height=48&fit=cover&quality=80');
     expect(FoodFeedbackChatHelper.getCanteenImageUrl({ id: 'c', image_remote_url: 'https://x/c.jpg' })).toBe('https://x/c.jpg');
     expect(FoodFeedbackChatHelper.getCanteenImageUrl({ id: 'c' })).toBeUndefined();
-    expect(FoodFeedbackChatHelper.buildCanteensQuery().fields).toBe('id,alias,image,image_remote_url');
+    expect(FoodFeedbackChatHelper.buildCanteensQuery().fields).toBe('id,alias');
   });
 
   it('links the food image to the food in the content area', () => {
@@ -224,7 +224,7 @@ describe('RocketMealsModulePages', () => {
   });
 
   it('lists the app feedbacks after the food feedbacks, then the feature wishes, the chats, the profiles, the MCP instruction, the live pulse, the friendship network and the workflows last', () => {
-    expect(RocketMealsModulePages.PAGES).toEqual([RocketMealsModulePages.FOOD_FEEDBACKS, RocketMealsModulePages.APP_FEEDBACKS, RocketMealsModulePages.FEATURE_WISHES, RocketMealsModulePages.CHATS, RocketMealsModulePages.PROFILES, RocketMealsModulePages.MCP_INSTRUCTION, RocketMealsModulePages.LIVE_PULSE, RocketMealsModulePages.FRIENDSHIP_NETWORK, RocketMealsModulePages.WORKFLOWS]);
+    expect(RocketMealsModulePages.PAGES).toEqual([RocketMealsModulePages.FOOD_FEEDBACKS, RocketMealsModulePages.APP_FEEDBACKS, RocketMealsModulePages.FEATURE_WISHES, RocketMealsModulePages.CHATS, RocketMealsModulePages.PROFILES, RocketMealsModulePages.MENU_INSIGHTS, RocketMealsModulePages.MENU_PLANNING, RocketMealsModulePages.MCP_INSTRUCTION, RocketMealsModulePages.LIVE_PULSE, RocketMealsModulePages.FRIENDSHIP_NETWORK, RocketMealsModulePages.WORKFLOWS]);
   });
 });
 

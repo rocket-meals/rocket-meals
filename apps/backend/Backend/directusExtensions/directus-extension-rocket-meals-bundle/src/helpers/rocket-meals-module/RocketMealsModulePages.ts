@@ -2,7 +2,7 @@
  * RocketMealsModulePages.ts – the pages of the `Rocket Meals` module in the Directus app.
  *
  * The module is the place for backend tools that do not fit Directus' generic content views:
- * today the food and app feedback chats, the feature wishes, the other chats, the profiles (with push messages), the MCP instruction, the live pulse, the friendship network and the workflows, later e.g. housing management or top/flop lists of dishes.
+ * today the food and app feedback chats, the feature wishes, the other chats, the profiles (with push messages), the MCP instruction, the live pulse, the friendship network, the workflows, the menu insights (with top/flop lists of dishes) and the experimental AI menu planning, later e.g. housing management.
  * A new page is one entry here plus a route in `src/rocket-meals-module/index.ts`; the side
  * navigation and the overview page are built from this list.
  */
@@ -103,6 +103,25 @@ export class RocketMealsModulePages {
     descriptionKey: BackendTranslationKeys.rocket_meals_module_mcp_instruction_description,
   };
 
+  /**
+   * Numbers about the menu of a canteen (or all): offers and variety, ratings, top and flop dishes,
+   * awaited dishes, markings and balance, feedback labels, canteen visits and the languages of the users.
+   */
+  public static readonly MENU_INSIGHTS: RocketMealsModulePage = {
+    path: 'menu-insights',
+    icon: 'insights',
+    labelKey: BackendTranslationKeys.rocket_meals_module_menu_insights,
+    descriptionKey: BackendTranslationKeys.rocket_meals_module_menu_insights_description,
+  };
+
+  /** Experimental: a suggestion of the AI for the menu of the coming calendar weeks, based on last year. */
+  public static readonly MENU_PLANNING: RocketMealsModulePage = {
+    path: 'menu-planning',
+    icon: 'auto_awesome',
+    labelKey: BackendTranslationKeys.rocket_meals_module_menu_planning,
+    descriptionKey: BackendTranslationKeys.rocket_meals_module_menu_planning_description,
+  };
+
   /** The background jobs (`workflows`): status, next run, start by hand, and the runs with their log. */
   public static readonly WORKFLOWS: RocketMealsModulePage = {
     path: 'workflows',
@@ -112,7 +131,7 @@ export class RocketMealsModulePages {
   };
 
   /** All pages, in the order of the navigation. */
-  public static readonly PAGES: readonly RocketMealsModulePage[] = [RocketMealsModulePages.FOOD_FEEDBACKS, RocketMealsModulePages.APP_FEEDBACKS, RocketMealsModulePages.FEATURE_WISHES, RocketMealsModulePages.CHATS, RocketMealsModulePages.PROFILES, RocketMealsModulePages.MCP_INSTRUCTION, RocketMealsModulePages.LIVE_PULSE, RocketMealsModulePages.FRIENDSHIP_NETWORK, RocketMealsModulePages.WORKFLOWS];
+  public static readonly PAGES: readonly RocketMealsModulePage[] = [RocketMealsModulePages.FOOD_FEEDBACKS, RocketMealsModulePages.APP_FEEDBACKS, RocketMealsModulePages.FEATURE_WISHES, RocketMealsModulePages.CHATS, RocketMealsModulePages.PROFILES, RocketMealsModulePages.MENU_INSIGHTS, RocketMealsModulePages.MENU_PLANNING, RocketMealsModulePages.MCP_INSTRUCTION, RocketMealsModulePages.LIVE_PULSE, RocketMealsModulePages.FRIENDSHIP_NETWORK, RocketMealsModulePages.WORKFLOWS];
 
   /**
    * The full URL of a page, e.g. for a link in a mail to support:
