@@ -169,6 +169,10 @@ export class MyDatabaseHelper implements MyDatabaseHelperInterface {
     return new AutoTranslationSettingsHelper(this.apiContext);
   }
 
+  getAiAssistantConversationsHelper() {
+    return new ItemsServiceHelper<DatabaseTypes.AiAssistantConversations>(this, CollectionNames.AI_ASSISTANT_CONVERSATIONS);
+  }
+
   getAppFeedbacksHelper() {
     return new ItemsServiceHelper<DatabaseTypes.AppFeedbacks>(this, CollectionNames.APP_FEEDBACKS);
   }

@@ -1,0 +1,28 @@
+{
+  "collection": "ai_assistant_conversations",
+  "meta": {
+    "accountability": null,
+    "archive_app_filter": true,
+    "archive_field": null,
+    "archive_value": null,
+    "collapse": "open",
+    "collection": "ai_assistant_conversations",
+    "color": null,
+    "display_template": "{{title}}",
+    "group": "folder_system",
+    "hidden": false,
+    "icon": "smart_toy",
+    "item_duplication_fields": null,
+    "note": "Verlauf des Directus KI-Assistenten (nur Admins). Wird nach 90 Tagen automatisch gelöscht.",
+    "preview_url": null,
+    "singleton": false,
+    "sort": 10,
+    "sort_field": null,
+    "translations": null,
+    "unarchive_value": null,
+    "versioning": false
+  },
+  "schema": {
+    "name": "ai_assistant_conversations"
+  }
+}

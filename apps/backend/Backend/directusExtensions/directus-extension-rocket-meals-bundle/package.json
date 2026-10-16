@@ -40,6 +40,16 @@
       },
       {
         "type": "hook",
+        "name": "ai-assistant-history-hook",
+        "source": "src/ai-assistant-history-hook/index.ts"
+      },
+      {
+        "type": "hook",
+        "name": "ai-assistant-history-cleanup-schedule",
+        "source": "src/ai-assistant-history-cleanup-schedule/index.ts"
+      },
+      {
+        "type": "hook",
         "name": "apple-secret-rotator",
         "source": "src/apple-secret-rotator/index.ts"
       },

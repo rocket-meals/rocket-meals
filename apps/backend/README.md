@@ -117,6 +117,24 @@ ROCKET_MEALS_AI_OPENAI_COMPATIBLE_MODELS="model-a,model-b"
 ROCKET_MEALS_AI_OPENAI_COMPATIBLE_HEADERS='{"X-Custom-Header":"value"}'
 ```
 
+### AI assistant chat history
+
+Directus itself does not store the conversations of its AI assistant (the chat in the Studio):
+they only live in the browser tab. The `ai-assistant-history-hook` saves them in the collection
+`ai_assistant_conversations` (admins only, in the system folder), one row per conversation:
+user, model, a readable `transcript`, the full `messages` (AI SDK `UIMessage[]`), the page
+context of the last request and the token usage.
+
+- The hook sits as an Express middleware in front of `POST /ai/chat` and reads the streamed
+  answer. Directus fires no hook events for the assistant, and `/ai/chat` is an internal route:
+  after a Directus update, check that new conversations still show up. Errors are only logged,
+  the chat itself keeps working.
+- The Studio sends no chat id, so a conversation is recognised by the id of its first message.
+  When a conversation gets too long for the model, the Studio drops the oldest messages and the
+  rest is saved as a new row.
+- Embedded files (`data:` URLs) are not stored.
+- `ai-assistant-history-cleanup-schedule` deletes conversations that were not continued for 90 days.
+
 ### Legal documents (privacy policy, imprint, accessibility)
 
 The privacy policy (`privacy-policy`), the imprint (`about-us`) and the accessibility statement

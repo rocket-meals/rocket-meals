@@ -93,7 +93,8 @@ export function getVersionPatch() {
 	// 68: common: LegalEntities (company data for imprints and legal documents)
 	// 69: common: a support reaction alone no longer marks a food feedback as done
 	// 70: common: full language codes ("de-DE"), name sorting finds "de-DE" rows for "de"
-	return 70;
+	// 71: common: database types for the stored Directus AI assistant conversations
+	return 71;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

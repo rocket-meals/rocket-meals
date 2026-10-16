@@ -1,0 +1,25 @@
+{
+  "collection": "ai_assistant_conversations",
+  "field": "user",
+  "related_collection": "directus_users",
+  "meta": {
+    "junction_field": null,
+    "many_collection": "ai_assistant_conversations",
+    "many_field": "user",
+    "one_allowed_collections": null,
+    "one_collection": "directus_users",
+    "one_collection_field": null,
+    "one_deselect_action": "nullify",
+    "one_field": null,
+    "sort_field": null
+  },
+  "schema": {
+    "table": "ai_assistant_conversations",
+    "column": "user",
+    "foreign_key_table": "directus_users",
+    "foreign_key_column": "id",
+    "constraint_name": "ai_assistant_conversations_user_foreign",
+    "on_update": "NO ACTION",
+    "on_delete": "CASCADE"
+  }
+}

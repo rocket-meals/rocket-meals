@@ -17,6 +17,25 @@ export type ActionRecommendations = {
   user_updated?: string | DirectusUsers | null;
 };
 
+export type AiAssistantConversations = {
+  chat_key?: string | null;
+  context?: unknown | null;
+  date_created?: string | null;
+  date_updated?: string | null;
+  id: string;
+  input_tokens?: number | null;
+  last_error?: string | null;
+  message_count?: number | null;
+  messages?: unknown | null;
+  model?: string | null;
+  output_tokens?: number | null;
+  provider?: string | null;
+  request_count?: number | null;
+  title?: string | null;
+  transcript?: string | null;
+  user?: string | DirectusUsers | null;
+};
+
 export type Apartments = {
   available_from?: string | null;
   available_from_notified?: string | null;
@@ -2156,6 +2175,7 @@ export type WorkflowsRuns = {
 
 export type CustomDirectusTypes = {
   action_recommendations: ActionRecommendations[];
+  ai_assistant_conversations: AiAssistantConversations[];
   apartments: Apartments[];
   app_elements: AppElements[];
   app_elements_translations: AppElementsTranslations[];
