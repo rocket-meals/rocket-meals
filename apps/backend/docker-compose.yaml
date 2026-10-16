@@ -100,6 +100,9 @@ services:
       AUTO_TRANSLATE_PROVIDER: "${AUTO_TRANSLATE_PROVIDER}" # "ai" (default): provider from Directus Settings → AI, falls back to DeepL when none is configured. "deepl": always DeepL
       AUTO_TRANSLATE_MODEL: "${AUTO_TRANSLATE_MODEL}" # Optional: model for the auto translation, default is the first model of Directus Settings → AI
       AUTO_TRANSLATE_API_KEY: "${AUTO_TRANSLATE_API_KEY}" # DeepL key for the auto translation plugin (provider "deepl" or fallback)
+      AI_ASSISTANT_ANTHROPIC_ADMIN_API_KEY: "${AI_ASSISTANT_ANTHROPIC_ADMIN_API_KEY}" # Optional: Anthropic Admin API key (sk-ant-admin...) for the usage on the page "KI-Assistent" of the Rocket Meals module. Read only for the Usage & Cost reports
+      AI_ASSISTANT_CREDIT_USD: "${AI_ASSISTANT_CREDIT_USD}" # Optional: the Anthropic credit in USD, e.g. "200" (Anthropic has no API for the balance)
+      AI_ASSISTANT_CREDIT_SINCE: "${AI_ASSISTANT_CREDIT_SINCE}" # Optional: the day the credit was topped up, e.g. "2026-10-16". The page subtracts the costs since then
 
       SYNC_FOR_CUSTOMER: "${SYNC_FOR_CUSTOMER}" # For which customer the sync is for
 

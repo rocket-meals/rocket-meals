@@ -280,6 +280,11 @@
       },
       {
         "type": "endpoint",
+        "name": "ai-assistant-usage-endpoint",
+        "source": "src/ai-assistant-usage-endpoint/index.ts"
+      },
+      {
+        "type": "endpoint",
         "name": "mcp-public-user-endpoint",
         "source": "src/mcp-public-user-endpoint/index.ts"
       },

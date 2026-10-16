@@ -8,6 +8,7 @@ import AppFeedbackChatPage from './app-feedbacks/app-feedback-chat-page.vue';
 import FeatureWishesPage from './feature-wishes/feature-wishes-page.vue';
 import FeatureWishPage from './feature-wishes/feature-wish-page.vue';
 import McpInstructionPage from './mcp-instruction/mcp-instruction-page.vue';
+import AiAssistantPage from './ai-assistant/ai-assistant-page.vue';
 import LivePulsePage from './live-pulse/live-pulse-page.vue';
 import FriendshipNetworkPage from './friendship-network/friendship-network-page.vue';
 import WorkflowsPage from './workflows/workflows-page.vue';
@@ -106,6 +107,10 @@ export default defineModule({
       path: `${RocketMealsModulePages.WORKFLOWS.path}/:workflowId`,
       component: WorkflowDetailPage,
       props: true,
+    },
+    {
+      path: RocketMealsModulePages.AI_ASSISTANT.path,
+      component: AiAssistantPage,
     },
     {
       path: RocketMealsModulePages.MCP_INSTRUCTION.path,
