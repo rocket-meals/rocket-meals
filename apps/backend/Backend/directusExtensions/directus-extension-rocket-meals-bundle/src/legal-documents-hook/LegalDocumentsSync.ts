@@ -7,8 +7,9 @@
  *   look (position, icon, ...) of a wiki that had the same `custom_id` before.
  * - The visibility (`LEGAL_WIKI_SETTINGS`: public, at the bottom of the drawer) is enforced on every
  *   start: a legal document must stay reachable for everybody, also without an account.
- * - Every other wiki with that `custom_id` is archived and renamed (`legacy-<custom_id>`), so the
- *   app only finds the one from code.
+ * - Every other wiki with that `custom_id` is archived, renamed (`legacy-<custom_id>`) and taken out
+ *   of the drawer and the footer, so the app only finds and lists the one from code. Wikis archived
+ *   earlier (`legacy-<custom_id>`) are checked too, so an old one still in the footer gets hidden.
  * - Per language of the `languages` collection the translation is created or updated, but only when
  *   title or content changed. The rows are excluded from the auto translation, the texts come from code.
  *
@@ -38,13 +39,21 @@ export const LEGAL_WIKI_SETTINGS = {
   url: null,
 } as const;
 
+/** Written to every replaced wiki: archived, renamed and out of the drawer and the footer, also for app versions that do not filter by status. */
+export const LEGACY_WIKI_SETTINGS = {
+  status: STATUS_ARCHIVED,
+  show_in_drawer: false,
+  show_in_drawer_as_bottom_item: false,
+} as const;
+
 export type LegalWikiTranslation = { id: number; languages_code: string | null; title: string | null; content: string | null };
 export type LegalWiki = { id: string; custom_id: string | null } & Partial<Record<(typeof WIKI_DISPLAY_FIELDS)[number] | keyof typeof LEGAL_WIKI_SETTINGS, unknown>>;
 
 /** What the sync needs from the database. Implemented with Directus services in `DirectusLegalDocumentsDatabase`. */
 export interface LegalDocumentsDatabase {
   readLanguageCodes(): Promise<string[]>;
-  readWikisByIdOrCustomId(id: string, customId: string): Promise<LegalWiki[]>;
+  /** The wiki with the id plus every wiki with one of the custom ids, oldest first. */
+  readWikisByIdOrCustomIds(id: string, customIds: readonly string[]): Promise<LegalWiki[]>;
   readTranslations(wikiId: string): Promise<LegalWikiTranslation[]>;
   createWiki(wiki: Record<string, unknown>): Promise<void>;
   updateWiki(id: string, update: Record<string, unknown>): Promise<void>;
@@ -88,7 +97,8 @@ export class LegalDocumentsSync {
     // Rendered first: a missing placeholder value must not leave a half migrated wiki behind.
     const rendered = LegalDocumentsSync.renderForLanguages(document, values, languageCodes);
 
-    const wikis = await this.database.readWikisByIdOrCustomId(document.wikiId, document.customId);
+    const legacyCustomId = LEGACY_CUSTOM_ID_PREFIX + document.customId;
+    const wikis = await this.database.readWikisByIdOrCustomIds(document.wikiId, [document.customId, legacyCustomId]);
     const others = wikis.filter(wiki => wiki.id !== document.wikiId);
     const wiki = wikis.find(candidate => candidate.id === document.wikiId);
     if (wiki) {
@@ -104,8 +114,11 @@ export class LegalDocumentsSync {
       log.push(`${document.customId}: created wiki ${document.wikiId}` + (replaced ? ` at the position of ${replaced.id}` : ''));
     }
     for (const other of others) {
-      await this.database.updateWiki(other.id, { custom_id: LEGACY_CUSTOM_ID_PREFIX + document.customId, status: STATUS_ARCHIVED }); // NOSONAR S9382 - sequential on purpose: usually one old wiki
-      log.push(`${document.customId}: archived the old wiki ${other.id}`);
+      const changedLegacySettings = Object.entries({ ...LEGACY_WIKI_SETTINGS, custom_id: legacyCustomId }).filter(([field, value]) => (other[field as keyof LegalWiki] ?? null) !== value);
+      if (changedLegacySettings.length > 0) {
+        await this.database.updateWiki(other.id, Object.fromEntries(changedLegacySettings)); // NOSONAR S9382 - sequential on purpose: usually one old wiki
+        log.push(`${document.customId}: archived the old wiki ${other.id}`);
+      }
     }
 
     const translations = await this.database.readTranslations(document.wikiId);

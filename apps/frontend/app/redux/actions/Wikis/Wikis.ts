@@ -12,9 +12,12 @@ export class WikisHelper extends CollectionHelper<DatabaseTypes.Wikis> {
 	// markdown body): this list is kept in redux for the drawer/footer menus and only
 	// needs the title, not the full page - the content is fetched on demand for whichever
 	// wiki the user actually opens, see fetchWikiWithContent().
+	// Only published wikis: archived ones (e.g. a legal document replaced by the one from code,
+	// custom_id "legacy-...") would otherwise show up a second time in the footer and the drawer.
 	async fetchWikis(queryOverride?: Query<DatabaseTypes.Wikis>) {
 		const defaultQuery = {
 			fields: ['*', 'translations.id', 'translations.languages_code', 'translations.title'],
+			filter: { status: { _eq: 'published' } },
 			limit: -1, // Fetch all
 		};
 

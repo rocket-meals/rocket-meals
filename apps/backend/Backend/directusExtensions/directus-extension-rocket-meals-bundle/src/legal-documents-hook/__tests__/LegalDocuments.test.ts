@@ -30,8 +30,8 @@ class InMemoryDatabase implements LegalDocumentsDatabase {
   async readLanguageCodes() {
     return this.languageCodes;
   }
-  async readWikisByIdOrCustomId(id: string, customId: string) {
-    return this.wikis.filter(wiki => wiki.id === id || wiki.custom_id === customId);
+  async readWikisByIdOrCustomIds(id: string, customIds: readonly string[]) {
+    return this.wikis.filter(wiki => wiki.id === id || customIds.includes(wiki.custom_id ?? ''));
   }
   async readTranslations(wikiId: string) {
     return this.translations.filter(translation => translation.wikis_id === wikiId);
@@ -121,13 +121,26 @@ describe('LegalDocumentsSync', () => {
 
     const created = database.wikis.find(wiki => wiki.id === PRIVACY_POLICY.wikiId);
     expect(created).toMatchObject({ ...LEGAL_WIKI_SETTINGS, custom_id: 'privacy-policy', position: 3 });
-    expect(database.wikis.find(wiki => wiki.id === 'old')).toMatchObject({ custom_id: LEGACY_CUSTOM_ID_PREFIX + 'privacy-policy', status: 'archived' });
+    expect(database.wikis.find(wiki => wiki.id === 'old')).toMatchObject({ custom_id: LEGACY_CUSTOM_ID_PREFIX + 'privacy-policy', status: 'archived', show_in_drawer_as_bottom_item: false });
     expect(database.translations.map(translation => translation.languages_code)).toEqual(['de-DE', 'EN-us']);
     const german = database.translations[0]!;
     expect(german.title).toBe(PRIVACY_POLICY.texts.de.title);
     expect(german.content).toContain(CUSTOMER.name);
     expect(german.content).not.toContain('{{');
     expect(result.log.some(line => line.includes('failed'))).toBe(false);
+  });
+
+  it('takes a wiki archived earlier out of the footer', async () => {
+    const database = new InMemoryDatabase(['de-DE']);
+    database.wikis.push({ id: 'legacy', custom_id: LEGACY_CUSTOM_ID_PREFIX + 'privacy-policy', status: 'archived', show_in_drawer: false, show_in_drawer_as_bottom_item: true });
+    const sync = new LegalDocumentsSync(database);
+
+    await sync.syncAll([PRIVACY_POLICY], CUSTOMER);
+
+    expect(database.wikis.find(wiki => wiki.id === 'legacy')).toMatchObject({ status: 'archived', show_in_drawer_as_bottom_item: false });
+    database.writes = [];
+    await sync.syncAll([PRIVACY_POLICY], CUSTOMER);
+    expect(database.writes).toEqual([]);
   });
 
   it('writes nothing when everything is up to date', async () => {

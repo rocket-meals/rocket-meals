@@ -292,7 +292,8 @@ export function getVersionPatch() {
         // 170: feature wish form says it is about app features (not meals), hint text in contrast color
         // 171: the feature wishes tile in the food offers has no "Hide" button anymore
         // 172: food details show the name again (translation matched on the base language of "de-DE")
-        return 172;
+        // 173: wikis list only published wikis, archived legal documents no longer show up twice in the footer
+        return 173;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

@@ -22,9 +22,9 @@ export class DirectusLegalDocumentsDatabase implements LegalDocumentsDatabase {
     return languages.map(language => language.code).filter((code): code is string => typeof code === 'string' && code.length > 0);
   }
 
-  async readWikisByIdOrCustomId(id: string, customId: string): Promise<LegalWiki[]> {
+  async readWikisByIdOrCustomIds(id: string, customIds: readonly string[]): Promise<LegalWiki[]> {
     const wikis = await this.wikis.readByQuery({
-      filter: { _or: [{ id: { _eq: id } }, { custom_id: { _eq: customId } }] },
+      filter: { _or: [{ id: { _eq: id } }, { custom_id: { _in: [...customIds] } }] },
       fields: ['id', 'custom_id', ...WIKI_DISPLAY_FIELDS, ...Object.keys(LEGAL_WIKI_SETTINGS)],
       sort: ['date_created'],
       limit: -1,
