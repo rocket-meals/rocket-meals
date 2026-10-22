@@ -110,7 +110,8 @@ export function getVersionPatch() {
 	// 88: common: popup events merged into news (display_locations, date_end, canteens)
 	// 89: common: popup_events types removed
 	// 90: common-ui: SettingsList accentColor
-	return 90;
+	// 91: common/common-ui: block dangerous URL schemes (javascript:, data:) before opening links
+	return 91;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

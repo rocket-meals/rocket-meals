@@ -1,4 +1,5 @@
 export * from './src/StringHelper';
+export * from './src/UrlSchemeHelper';
 export * from './src/FileNameHelper';
 export * from './src/DateHelper';
 export * from './src/NumberHelper';

@@ -90,26 +90,30 @@ export class RedirectWhitelistHelper {
       const replacedRedirect_whitelist_entry_URLPathname = replacedRedirect_whitelist_entry_URL.pathname;
       const replacedRedirect_whitelist_entry_URLSearch = replacedRedirect_whitelist_entry_URL.search;
 
-      // check if the protocol matches
-      const protocolMatches = RedirectWhitelistHelper.startsWithUntilWildcardReplacement(redirectUrlProtocol, replacedRedirect_whitelist_entry_URLProtocol);
+      // Protocol and host must match exactly (unless the whitelist entry uses a
+      // wildcard in that very component). A bare prefix match on the host would
+      // let `https://myapp.com/*` also accept `https://myapp.com.attacker.de`,
+      // because that host still starts with `myapp.com`.
+      const protocolMatches = RedirectWhitelistHelper.componentMatches(redirectUrlProtocol, replacedRedirect_whitelist_entry_URLProtocol, false);
       if (!protocolMatches) {
         return false;
       }
 
-      // check if the host matches
-      const hostMatches = RedirectWhitelistHelper.startsWithUntilWildcardReplacement(redirectUrlHost, replacedRedirect_whitelist_entry_URLHost);
+      const hostMatches = RedirectWhitelistHelper.componentMatches(redirectUrlHost, replacedRedirect_whitelist_entry_URLHost, false);
       if (!hostMatches) {
         return false;
       }
 
-      // check if the pathname matches
-      const pathnameMatches = RedirectWhitelistHelper.startsWithUntilWildcardReplacement(redirectUrlPathname, replacedRedirect_whitelist_entry_URLPathname);
+      // Path and query keep the looser behaviour: an empty whitelist component
+      // (e.g. `myapp://*`, which puts the wildcard in the host and leaves path
+      // and query empty) means "no constraint" and matches anything. A
+      // non-empty component without a wildcard must match exactly.
+      const pathnameMatches = RedirectWhitelistHelper.componentMatches(redirectUrlPathname, replacedRedirect_whitelist_entry_URLPathname, true);
       if (!pathnameMatches) {
         return false;
       }
 
-      // check if the search matches
-      const searchMatches = RedirectWhitelistHelper.startsWithUntilWildcardReplacement(redirectUrlSearch, replacedRedirect_whitelist_entry_URLSearch);
+      const searchMatches = RedirectWhitelistHelper.componentMatches(redirectUrlSearch, replacedRedirect_whitelist_entry_URLSearch, true);
       if (!searchMatches) {
         return false;
       }
@@ -119,19 +123,36 @@ export class RedirectWhitelistHelper {
     }
   }
 
-  private static startsWithUntilWildcardReplacement(inputStr: string, whitelistStrWithWildcardReplacement: string): boolean {
-    // redirectUrl could be "/rocket-meals/login/.../"
-    // redirect_whitelist_entry_with_possible_wildcard_replacement could be "/rocket-meals/WILDCARD_REPLACEMENT/.../"
-    // we need to check if the redirectUrl starts with the redirect_whitelist_entry_with_possible_wildcard_replacement
-    let split = whitelistStrWithWildcardReplacement.split(WILDCARD_REPLACEMENT);
-    let first_part: string = split.length > 1 ? (split[0] as string) : whitelistStrWithWildcardReplacement;
-    // so /rocket-meals/ is the first part and the rest is the second part
-    // remove the last char if it is a slash
-    if (first_part.endsWith('/')) {
-      first_part = first_part.slice(0, -1);
+  /**
+   * Match a single URL component (protocol, host, path or query) of the redirect
+   * URL against the same component of a whitelist entry.
+   *
+   * - A component that contains a wildcard matches when the input starts with
+   *   the part before the wildcard and ends with the part after it.
+   * - A component without a wildcard must match exactly, so a prefix like
+   *   `myapp.com` can never accept `myapp.com.attacker.de`.
+   * - `emptyMatchesAny` keeps the previous "no constraint" behaviour for the
+   *   path and query (an empty whitelist component then matches anything),
+   *   which is needed for host-only wildcards such as `myapp://*`.
+   *
+   * @param inputStr The redirect URL's component.
+   * @param whitelistStrWithWildcardReplacement The whitelist entry's component, wildcards already replaced.
+   * @param emptyMatchesAny Whether an empty whitelist component matches any input.
+   * @returns True when the component matches.
+   */
+  private static componentMatches(inputStr: string, whitelistStrWithWildcardReplacement: string, emptyMatchesAny: boolean): boolean {
+    const wildcardIndex = whitelistStrWithWildcardReplacement.indexOf(WILDCARD_REPLACEMENT);
+    if (wildcardIndex !== -1) {
+      const before = whitelistStrWithWildcardReplacement.slice(0, wildcardIndex);
+      const after = whitelistStrWithWildcardReplacement.slice(wildcardIndex + WILDCARD_REPLACEMENT.length);
+      return inputStr.length >= before.length + after.length && inputStr.startsWith(before) && inputStr.endsWith(after);
     }
-    // check if the redirectUrl starts with the first part
-    return inputStr.startsWith(first_part);
+
+    if (whitelistStrWithWildcardReplacement === '' && emptyMatchesAny) {
+      return true;
+    }
+
+    return inputStr === whitelistStrWithWildcardReplacement;
   }
 
   static getUrlFromString(url: string): URL | null {

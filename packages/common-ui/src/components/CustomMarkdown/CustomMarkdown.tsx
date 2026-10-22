@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { DimensionValue, Image, Linking, Text, View, useWindowDimensions } from 'react-native';
 import RenderHtml, { CustomBlockRenderer, HTMLContentModel, HTMLElementModel, defaultSystemFonts } from 'react-native-render-html';
-import { MarkdownBlockNode, parseMarkdownToBlocks } from 'repo-depkit-common';
+import { MarkdownBlockNode, UrlSchemeHelper, parseMarkdownToBlocks } from 'repo-depkit-common';
 import { useTheme } from '../../context/ThemeContext';
 import { myContrastColor } from '../../helpers/ColorHelper';
 import { FontHelper } from '../../helpers/FontHelper';
@@ -14,6 +14,13 @@ import { CustomMarkdownProps, MarkdownLinkKind } from './types';
 export type { CustomMarkdownProps, MarkdownLinkKind, MarkdownLinkRenderProps, MarkdownImageRenderProps, MarkdownTextRenderProps } from './types';
 
 function openLinkSafely(url: string) {
+	// Links in markdown come from user-/server-supplied content, so refuse
+	// dangerous schemes (javascript:, data:, ...) before handing the url to the
+	// platform, which would otherwise run them as script on web.
+	if (UrlSchemeHelper.isDangerousUrl(url)) {
+		console.warn('Blocked opening of unsafe URL:', url);
+		return;
+	}
 	Linking.openURL(url).catch((err) => console.error('Failed to open URL:', err));
 }
 
