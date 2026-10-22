@@ -9278,5 +9278,15 @@
     "ru": "Запросить",
     "tr": "Getir",
     "zh": "获取"
+  },
+  "sign_in_completed_close_window": {
+    "de": "Anmeldung abgeschlossen. Du kannst dieses Fenster schließen.",
+    "en": "Sign-in complete. You can close this window.",
+    "ar": "اكتمل تسجيل الدخول. يمكنك إغلاق هذه النافذة.",
+    "es": "Inicio de sesión completado. Puedes cerrar esta ventana.",
+    "fr": "Connexion terminée. Tu peux fermer cette fenêtre.",
+    "ru": "Вход выполнен. Можешь закрыть это окно.",
+    "tr": "Giriş tamamlandı. Bu pencereyi kapatabilirsin.",
+    "zh": "登录完成。你可以关闭此窗口。"
   }
 }

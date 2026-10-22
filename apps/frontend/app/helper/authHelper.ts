@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import { getPlatformHelper } from './platformHelper';
 import { fetchToken } from '@/redux/actions/ApiService/ApiService';
 import { addLoginLog, describeError } from './loginDebug';
+import { waitForWebLoginCode } from './webLoginRelay';
 
 const preferInkognitoMode = true;
 
@@ -164,28 +165,39 @@ const dismissBrowserSafely = () => {
 export const handleWebLogin = async (loginUrl: string, redirectUrl: string, codeVerifier: string, getToken: (codeVerifier: string, code: string) => void) => {
 	const WEB_CHECK_INTERVAL = 25;
 
+	const handleCode = (code: string) => {
+		if (handledCodes.has(code)) return;
+		handledCodes.add(code);
+		getToken(codeVerifier, code);
+	};
+
 	return new Promise<void>(resolve => {
+		// The popup passes the code on itself (see webLoginRelay): with Cross-Origin-Opener-Policy
+		// on the backend this window loses the popup and sees it as closed. So the relay keeps
+		// waiting after `closed` and is only stopped by a code or its timeout.
+		const stopRelay = waitForWebLoginCode(handleCode);
 		const windowFeatures = 'width=500,height=600';
 		const authWindow = window.open(loginUrl, '_blank', windowFeatures);
 		const authCheckInterval = setInterval(() => {
-			if (authWindow) {
-				if (authWindow?.closed) {
+			if (!authWindow || authWindow.closed) {
+				clearInterval(authCheckInterval);
+				resolve();
+				return;
+			}
+			try {
+				const currentLocation = new URL(authWindow.location.href);
+				if (currentLocation.href.startsWith(redirectUrl)) {
+					authWindow.close();
+					const code = new URLSearchParams(currentLocation.search).get('code');
+					if (code) {
+						stopRelay();
+						handleCode(code);
+					}
 					clearInterval(authCheckInterval);
 					resolve();
-				} else {
-					try {
-						const currentLocation = new URL(authWindow.location.href);
-						if (currentLocation.href.startsWith(redirectUrl)) {
-							authWindow.close();
-							const code = new URLSearchParams(currentLocation.search).get('code');
-							if (code) getToken(codeVerifier, code);
-							clearInterval(authCheckInterval);
-							resolve();
-						}
-					} catch {
-						// Cross-origin access error during redirect, ignored.
-					}
 				}
+			} catch {
+				// Cross-origin access error during redirect, ignored.
 			}
 		}, WEB_CHECK_INTERVAL);
 	});
