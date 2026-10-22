@@ -1,5 +1,6 @@
 import { createURL } from 'expo-linking';
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import { EnvHelper } from './EnvHelper';
 
 // import app.json
@@ -22,9 +23,10 @@ export class UrlHelper {
 			// example: urlWithoutBaseUrl = "https://localhost:3000/login"
 			const urlWithoutPath = urlWithoutBaseUrl.replace(path, ''); // remove the path from the url
 			// example: urlWithoutPath = "https://localhost:3000"
-			// const baseUrl = EnvHelper.getBaseUrl();
-			const baseUrl = '/rocket-meals';
-			// example: baseUrl = "/rocket-meals"
+			// The path the web app is served under, e.g. "/rocket-meals", "/studi-futter" or a PR preview
+			// "/rocket-meals/pr-4783". Before, "/rocket-meals" was fixed here, so the login popup of
+			// every other web app ended in the rocket-meals app.
+			const baseUrl = (Constants.expoConfig?.experiments?.baseUrl as string | undefined) || EnvHelper.getBaseUrl();
 			const url = urlWithoutPath + baseUrl + path;
 			// example: url = "https://localhost:3000/rocket-meals/login"
 

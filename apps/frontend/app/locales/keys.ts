@@ -487,6 +487,7 @@ export const TranslationKeys = {
 	rating_requires_account_title: 'rating_requires_account_title',
 	rating_requires_account_description: 'rating_requires_account_description',
 	sign_in_with: 'sign_in_with',
+	sign_in_completed_close_window: 'sign_in_completed_close_window',
 	canteens: 'canteens',
 	buildings: 'buildings',
 	building_details: 'building_details',

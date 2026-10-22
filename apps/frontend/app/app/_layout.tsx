@@ -47,6 +47,8 @@ import { ConfigCustomerEnum, getCompanyLogoLocalSaved, getCustomerConfig, getCus
 import { SET_SELECTED_CUSTOMER } from '@/redux/Types/types';
 import { useLanguageProfileSync } from '@/hooks/useLanguageProfileSync';
 import { useUniversityStatusTracking } from '@/hooks/useUniversityStatusTracking';
+import { relayWebLoginCodeFromLocation } from '@/helper/webLoginRelay';
+import WebLoginRelayDone from '@/components/WebLoginRelayDone';
 import { SettingsProvider } from 'repo-depkit-common-ui';
 import { useAppSelector } from '@/redux/hooks';
 import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
@@ -102,6 +104,10 @@ function ThemeSyncBridge() {
 
 	return null;
 }
+
+// A web login popup that ended on `…/login?code=…` hands the code to the app window that opened
+// it (see webLoginRelay). Checked once at the start, before the router may leave `/login`.
+const isRelayedWebLoginPopup = Platform.OS === 'web' && relayWebLoginCodeFromLocation();
 
 export default function Layout() {
 	const { theme } = useTheme();
@@ -225,7 +231,7 @@ export default function Layout() {
 															<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.iconBg }} edges={pathname?.includes('image-full-screen') ? ['bottom'] : ['top', 'bottom']}>
 																<AppDownloadBanner />
 																<MaintenanceBanner />
-																<Slot />
+																{isRelayedWebLoginPopup ? <WebLoginRelayDone /> : <Slot />}
 																{/* The WebView the text recognition runs in on a device; renders nothing until a scan asks for it. */}
 																<TextRecognitionWebViewHost />
 															</SafeAreaView>

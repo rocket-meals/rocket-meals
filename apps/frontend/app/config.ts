@@ -305,7 +305,9 @@ export function getVersionPatch() {
         // 183: feedback labels in the food offers with the side spacing of the food cards
         // 184: experimental screen "API-Abfrage", usage event university_status_checked sent by the app
         //      once per start for logins via university (DFN)
-        return 184;
+        // 185: web SSO login: the popup hands the code to the app window (BroadcastChannel), so it
+        //      works with Cross-Origin-Opener-Policy on the backend; login URL uses the real base path
+        return 185;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

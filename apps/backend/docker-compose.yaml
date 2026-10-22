@@ -83,11 +83,6 @@ services:
       MAX_PAYLOAD_SIZE: "80mb"
       CORS_ENABLED: "true" # Enable CORS - which means that the frontend does not have to be on the same domain
       CORS_ORIGIN: "true" # Allow all origins - which means that the frontend does not have to be on the same domain
-      # Directus 11 sends "Cross-Origin-Opener-Policy: same-origin-allow-popups" by default. The web
-      # app opens the SSO login (e.g. "Uni/Hochschule") in a popup on another origin and reads the
-      # code from its URL - with that header the browser cuts the link: the app sees the popup as
-      # closed and the popup stays open on the login page. Native apps are not affected.
-      CROSS_ORIGIN_OPENER_POLICY_ENABLED: "false"
       REFRESH_TOKEN_COOKIE_SAME_SITE: "lax" # "lax" means that the cookie is sent with same-site requests, and with cross-site top-level navigations
       # Directus cache configuration
       CACHE_ENABLED: "true"
