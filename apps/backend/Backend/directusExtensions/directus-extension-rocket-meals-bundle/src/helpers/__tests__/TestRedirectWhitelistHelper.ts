@@ -72,4 +72,25 @@ describe('RedirectWhitelistHelper Test', () => {
     const result = RedirectWhitelistHelper.isRedirectUrlAllowedForWhitelistEntriesWithSimpleWildcards(redirectWhitelist, new URL(redirectUrl));
     expect(result).toBe(false);
   });
+
+  it('Path wildcard allows a path under the same host', async () => {
+    const redirectUrl = 'https://myapp.com/angreifer.de';
+    const redirectWhitelist = ['https://myapp.com/*'];
+    const result = RedirectWhitelistHelper.isRedirectUrlAllowedForWhitelistEntriesWithSimpleWildcards(redirectWhitelist, new URL(redirectUrl));
+    expect(result).toBe(true);
+  });
+
+  it('Path wildcard does not allow a look-alike host (suffix attack)', async () => {
+    const redirectUrl = 'https://myapp.com.angreifer.de/login';
+    const redirectWhitelist = ['https://myapp.com/*'];
+    const result = RedirectWhitelistHelper.isRedirectUrlAllowedForWhitelistEntriesWithSimpleWildcards(redirectWhitelist, new URL(redirectUrl));
+    expect(result).toBe(false);
+  });
+
+  it('Exact host entry does not allow a subdomain-suffix host', async () => {
+    const redirectUrl = 'https://www.google.com.angreifer.de';
+    const redirectWhitelist = ['https://www.google.com'];
+    const result = RedirectWhitelistHelper.isRedirectUrlAllowedForWhitelistEntriesWithSimpleWildcards(redirectWhitelist, new URL(redirectUrl));
+    expect(result).toBe(false);
+  });
 });

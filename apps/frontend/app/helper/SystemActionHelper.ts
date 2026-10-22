@@ -2,6 +2,7 @@ import { Linking } from 'react-native';
 // import {LocationType} from '@/helper/geo/LocationType';
 import { getPlatformHelper } from '@/helper/platformHelper';
 import * as IntentLauncher from 'expo-intent-launcher';
+import { UrlSchemeHelper } from 'repo-depkit-common';
 
 const { isAndroid, isIOS } = getPlatformHelper();
 
@@ -22,6 +23,12 @@ const ANDROID_PARAM_NEW_ACTIVITY = {
 
 export class CommonSystemActionHelper {
 	static async openExternalURL(url: string, newWindow = false) {
+		// These urls often come from server-/feed-controlled fields (news, map
+		// and organization links), so refuse dangerous schemes before opening.
+		if (UrlSchemeHelper.isDangerousUrl(url)) {
+			console.warn('Blocked opening of unsafe URL:', url);
+			return;
+		}
 		if (isMobile) {
 			await Linking.openURL(url);
 		} else {

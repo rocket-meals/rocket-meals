@@ -75,6 +75,13 @@ export class PuppeteerGenerator implements HtmlPdfGeneratorInterface {
 
       const page = await browser.newPage();
 
+      // The PDF is rendered from static HTML, so page scripts are never needed.
+      // Disabling JavaScript stops any markup that slipped into the content
+      // (e.g. a `<script>` or an `onerror` handler from a user-supplied form
+      // answer) from executing inside this server-side browser, which would
+      // otherwise be an SSRF / data-exfiltration vector.
+      await page.setJavaScriptEnabled(false);
+
       // Log failed image loads
       page.on('requestfailed', (request: any) => {
         if (request.resourceType() === 'image') {

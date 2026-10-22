@@ -305,7 +305,8 @@ export function getVersionPatch() {
         // 183: feedback labels in the food offers with the side spacing of the food cards
         // 184: experimental screen "API-Abfrage", usage event university_status_checked sent by the app
         //      once per start for logins via university (DFN)
-        return 184;
+        // 185: common/common-ui: block dangerous URL schemes (javascript:, data:) before opening links
+        return 185;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

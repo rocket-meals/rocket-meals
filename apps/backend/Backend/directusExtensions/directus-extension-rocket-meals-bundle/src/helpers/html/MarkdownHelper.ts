@@ -7,7 +7,12 @@ export class MarkdownHelper {
   }
 
   public static renderMarkdownTextToHtml(markdownText: string): string {
-    const md = new MarkdownIt({ html: true });
+    // No raw HTML passthrough: this output is rendered in a real browser
+    // (Puppeteer, for PDFs) and in e-mails, and the markdown content can carry
+    // user-supplied text (e.g. form answers). With `html: true` an answer like
+    // `<img src=x onerror=...>` or a `<script>` would execute server-side.
+    // Markdown image/link syntax (`![](...)`, `[..](..)`) still works.
+    const md = new MarkdownIt({ html: false });
     let html = md.render(markdownText);
 
     // <img ...> → <img style="max-width:100%;" ...>
