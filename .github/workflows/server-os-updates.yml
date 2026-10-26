@@ -1,0 +1,212 @@
+name: "🛡️ Server OS Updates"
+
+# Checks which operating system updates (apt) the backend servers need and,
+# when apply_updates is set, installs them. Runs scripts/server-os-updates.sh
+# on each server over SSH (as the deploy user with sudo, same key as
+# "🚀 Deploy Backend (Manual)"). The script is sent over stdin, so the version
+# from this checkout runs, not the one in the server's repository.
+#
+# - Check only (default): lists pending updates per server in the run summary,
+#   security updates marked with 🔒, plus whether a reboot is needed and
+#   whether the distribution still gets security updates.
+# - apply_updates: installs the updates (apt-get upgrade --with-new-pkgs, never
+#   removes packages), restarts containers a Docker update stopped, and waits
+#   until the backend is reachable again.
+# - reboot_if_required: after applying, reboots the servers that need it,
+#   starts the containers again (they have no restart policy) and waits until
+#   the backend is reachable again.
+#
+# Only runs on rocket-meals/rocket-meals - forks receive this file through the
+# fork sync, but must never touch the servers themselves.
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_preset:
+        description: 'Backend server (preset); "all" checks every preset server'
+        required: true
+        type: choice
+        default: 'all'
+        options:
+          - all
+          - test.rocket-meals.de
+          - swosy.rocket-meals.de
+          - studi-futter.rocket-meals.de
+          - custom
+      server_host:
+        description: 'Custom backend host (overrides preset when set)'
+        required: false
+        type: string
+        default: ''
+      apply_updates:
+        description: 'Install the pending updates (otherwise only check)'
+        required: false
+        type: boolean
+        default: false
+      reboot_if_required:
+        description: 'Reboot after installing when the server needs it (only with apply_updates)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  resolve-hosts:
+    name: "🔍 Resolve target hosts"
+    runs-on: ubuntu-latest
+    if: github.repository == 'rocket-meals/rocket-meals'
+    outputs:
+      hosts: ${{ steps.resolve-hosts.outputs.hosts }}
+    steps:
+      - name: "🔍 Resolve target hosts"
+        id: resolve-hosts
+        env:
+          CUSTOM: ${{ inputs.server_host }}
+          PRESET: ${{ inputs.server_preset }}
+          # Keep in sync with ALL_HOSTS in deploy-backend-manual.yml.
+          ALL_HOSTS: '["test.rocket-meals.de","swosy.rocket-meals.de","studi-futter.rocket-meals.de"]'
+        run: |
+          if [ -n "$CUSTOM" ]; then
+            HOSTS=$(jq -cn --arg host "$CUSTOM" '[$host]')
+          elif [ "$PRESET" = "all" ]; then
+            HOSTS="$ALL_HOSTS"
+          elif [ "$PRESET" = "custom" ]; then
+            echo "::error::Preset 'custom' requires a custom backend host"
+            exit 1
+          else
+            HOSTS=$(jq -cn --arg host "$PRESET" '[$host]')
+          fi
+          echo "ℹ️ Target hosts: $HOSTS"
+          echo "hosts=$HOSTS" >> "$GITHUB_OUTPUT"
+
+  os-updates:
+    name: "${{ inputs.apply_updates && '🛠️ Update' || '🔎 Check' }} ${{ matrix.host }}"
+    needs: resolve-hosts
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      # One unreachable server must not cancel the others.
+      fail-fast: false
+      matrix:
+        host: ${{ fromJSON(needs.resolve-hosts.outputs.hosts) }}
+    # Shared with the deploy workflows: never update packages while a deploy
+    # runs on the same server.
+    concurrency:
+      group: deploy-backend-${{ matrix.host }}
+      cancel-in-progress: false
+    env:
+      HOST: ${{ matrix.host }}
+      MODE: ${{ inputs.apply_updates && 'apply' || 'check' }}
+      REBOOT: ${{ inputs.apply_updates && inputs.reboot_if_required && 'true' || 'false' }}
+      HEALTH_URL: https://${{ matrix.host }}/rocket-meals/api/server/health
+      SSH_OPTS: -o StrictHostKeyChecking=accept-new -o ConnectTimeout=30 -o ServerAliveInterval=60 -o ServerAliveCountMax=10 -i /home/runner/.ssh/deploy_key
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "🔑 Setup SSH Key"
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: "${{ inputs.apply_updates && '🛠️ Install updates' || '🔎 Check updates' }}"
+        id: run
+        run: |
+          set -uo pipefail
+          LOG="$RUNNER_TEMP/os-updates.log"
+          # shellcheck disable=SC2086
+          ssh $SSH_OPTS deploy@"$HOST" "sudo bash -s -- $MODE" \
+            < scripts/server-os-updates.sh 2>&1 | tee "$LOG"
+          EXIT=${PIPESTATUS[0]}
+
+          {
+            echo "### ${{ inputs.apply_updates && '🛠️' || '🔎' }} $HOST"
+            echo
+            sed -n '/^ROCKET_MEALS_SUMMARY_BEGIN$/,/^ROCKET_MEALS_SUMMARY_END$/p' "$LOG" \
+              | sed '1d;$d'
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$EXIT" -ne 0 ]; then
+            echo "::error::OS update script on $HOST failed with exit code $EXIT"
+            echo "❌ Script failed with exit code $EXIT" >> "$GITHUB_STEP_SUMMARY"
+            exit "$EXIT"
+          fi
+
+          SECURITY=$(sed -n 's/^ROCKET_MEALS_SECURITY_UPDATES=\([0-9]*\)$/\1/p' "$LOG")
+          if [ "${SECURITY:-0}" -gt 0 ]; then
+            echo "::warning::$HOST: $SECURITY security updates pending"
+          fi
+          if grep -q '^ROCKET_MEALS_OS_UNSUPPORTED$' "$LOG"; then
+            echo "::warning::$HOST: the distribution no longer receives security updates"
+          fi
+          if grep -q '^ROCKET_MEALS_REBOOT_REQUIRED$' "$LOG"; then
+            echo "reboot_required=true" >> "$GITHUB_OUTPUT"
+            if [ "$REBOOT" != "true" ]; then
+              echo "::warning::$HOST needs a reboot (run again with apply_updates and reboot_if_required)"
+            fi
+          fi
+
+      - name: "🔁 Reboot"
+        if: env.REBOOT == 'true' && steps.run.outputs.reboot_required == 'true'
+        run: |
+          set -uo pipefail
+          # systemd-run returns right away, so the SSH session ends cleanly
+          # before the server goes down.
+          # shellcheck disable=SC2086
+          ssh $SSH_OPTS deploy@"$HOST" "sudo systemd-run --on-active=5 /bin/systemctl reboot"
+          echo "⏳ Waiting for $HOST to go down..."
+          DEADLINE=$(( $(date +%s) + 300 ))
+          # shellcheck disable=SC2086
+          while ssh $SSH_OPTS -o ConnectTimeout=5 deploy@"$HOST" true 2>/dev/null; do
+            if [ "$(date +%s)" -ge "$DEADLINE" ]; then
+              echo "::error::$HOST did not go down within 300s"
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "⏳ Waiting for $HOST to come back (timeout 900s)..."
+          DEADLINE=$(( $(date +%s) + 900 ))
+          # shellcheck disable=SC2086
+          until ssh $SSH_OPTS -o ConnectTimeout=5 deploy@"$HOST" true 2>/dev/null; do
+            if [ "$(date +%s)" -ge "$DEADLINE" ]; then
+              echo "::error::$HOST is not reachable over SSH 900s after the reboot"
+              echo "❌ $HOST not reachable after reboot" >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+            sleep 10
+          done
+          # The containers have no restart policy and stay down after a reboot.
+          echo "🚀 Starting containers on $HOST (docker compose up -d)"
+          # shellcheck disable=SC2086
+          ssh $SSH_OPTS deploy@"$HOST" "sudo bash -l -c 'cd /root/rocket-meals && docker compose up -d'"
+          echo "🔁 $HOST rebooted (kernel $(ssh $SSH_OPTS deploy@"$HOST" uname -r))" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: "🩺 Wait until backend is reachable"
+        if: env.MODE == 'apply'
+        run: |
+          # Reachable = /server/health answers HTTP 200 with status "ok" or
+          # "warn" (same rule as backend-daily-health-check.yml).
+          echo "⏳ Waiting for $HEALTH_URL (timeout 900s)..."
+          DEADLINE=$(( $(date +%s) + 900 ))
+          while true; do
+            CODE=$(curl -sS -m 10 -o body.json -w '%{http_code}' "$HEALTH_URL" 2>/dev/null || true)
+            STATUS=$(jq -r '.status // empty' body.json 2>/dev/null || true)
+            if [ "$CODE" = "200" ] && { [ "$STATUS" = "ok" ] || [ "$STATUS" = "warn" ]; }; then
+              echo "✅ $HOST: backend reachable" >> "$GITHUB_STEP_SUMMARY"
+              break
+            fi
+            if [ "$(date +%s)" -ge "$DEADLINE" ]; then
+              echo "::error::$HOST backend not reachable within 900s ($HEALTH_URL)"
+              echo "❌ $HOST: backend not reachable after the update" >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+            sleep 5
+          done
+
+      - name: "🧹 Cleanup SSH Key"
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
