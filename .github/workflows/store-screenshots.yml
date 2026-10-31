@@ -1,0 +1,200 @@
+name: "🖼️ Store Screenshots: Generate & Upload"
+
+# Renders the app store screenshots of every rocket-meals tenant from its public web app
+# (kiosk mode), commits them to store-screenshots/<tenant>/ and uploads them to the
+# stores - see docs/STORE_SCREENSHOTS.md.
+#
+# After every successful CI run on master the generator checks each tenant: only when
+# its store version (config.ts getVersion() = major.build.0) or its selection of screens
+# (app_settings flags of the tenant backend) changed, it renders again. So a new app
+# version brings new screenshots, a plain OTA patch does not. The commit shows in the
+# history exactly when the screenshots changed.
+#
+# Automatic uploads only happen for tenants with autoUpload: true in
+# apps/frontend/app/store-screenshots.ts; a manual run with "upload" uploads regardless.
+#
+# Upload: Google takes the screenshots right away. Apple only accepts them while an App
+# Store version is editable - when there is none, the iOS submit workflow uploads them
+# right before the next review submission (STORE_SCREENSHOTS_MODULE).
+#
+# Only runs on rocket-meals/rocket-meals: one place renders for all tenants, the forks
+# receive the files through the fork sync.
+
+on:
+  workflow_run:
+    workflows: ["🚀 CI"]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      tenant:
+        description: "Welcher Tenant"
+        type: choice
+        required: true
+        default: "all"
+        options:
+          - all
+          - test
+          - swosy
+          - studi-futter
+      force:
+        description: "Neu rendern, auch wenn Version und Screens unverändert sind"
+        type: boolean
+        required: false
+        default: false
+      upload:
+        description: "Danach in App Store / Play Store hochladen (nur geänderte Bilder)"
+        type: boolean
+        required: false
+        default: true
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    name: "📸 Render screenshots"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    if: >-
+      github.repository == 'rocket-meals/rocket-meals' &&
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+    outputs:
+      rendered: ${{ steps.render.outputs.rendered }}
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: "📸 Render changed tenants"
+        id: render
+        env:
+          TENANT: ${{ inputs.tenant || 'all' }}
+          FORCE: ${{ inputs.force || false }}
+        run: |
+          set -euo pipefail
+          ARGS=()
+          if [ "$TENANT" != "all" ]; then
+            ARGS+=(--tenant "$TENANT")
+          fi
+          if [ "$FORCE" = "true" ]; then
+            ARGS+=(--force)
+          fi
+          yarn store-screenshots:generate "${ARGS[@]}"
+
+      - name: "📝 Summary"
+        env:
+          RENDERED: ${{ steps.render.outputs.rendered }}
+        run: |
+          if [ -z "$RENDERED" ]; then
+            echo "✅ Keine neuen Screenshots: Version und Screens aller Tenants unverändert." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "📸 Neu gerendert: $RENDERED" >> "$GITHUB_STEP_SUMMARY"
+            git status --short store-screenshots >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: "💾 Stage screenshots"
+        if: steps.render.outputs.rendered != ''
+        uses: ./.github/actions/stage-changes
+        with:
+          name: store-screenshots
+          paths: store-screenshots
+          description: "update store screenshots (${{ steps.render.outputs.rendered }})"
+
+  publish-staged-changes:
+    name: "📤 Commit screenshots"
+    runs-on: ubuntu-latest
+    needs: generate
+    if: needs.generate.outputs.rendered != ''
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      # fetch-depth: 0 is required - `git apply --3way` needs the blobs the staged
+      # patch was built against.
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: "📤 Apply and push staged screenshots"
+        uses: ./.github/actions/publish-staged-changes
+        with:
+          branch: master
+          commit-message: "chore: update store screenshots [skip ci]"
+
+  upload:
+    name: "☁️ Upload to the stores"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: [generate, publish-staged-changes]
+    # Automatic runs upload what was just rendered; a manual run uploads the selected
+    # tenants even without new renders (e.g. to retry a failed upload).
+    if: >-
+      always() && needs.generate.result == 'success' &&
+      (needs.publish-staged-changes.result == 'success' || needs.publish-staged-changes.result == 'skipped') &&
+      (
+        (github.event_name == 'workflow_run' && needs.generate.outputs.rendered != '') ||
+        (github.event_name == 'workflow_dispatch' && inputs.upload)
+      )
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: "⚙️ Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.16.0"
+
+      - name: "⚙️ Enable Corepack for Yarn v2"
+        run: corepack enable
+
+      - name: "📦 Install dependencies"
+        # --mode=skip-build disables dependency lifecycle scripts (supply-chain hardening);
+        # the upload script only needs ts-node/typescript.
+        run: yarn install --immutable --mode=skip-build
+
+      - name: "🔐 Check App Store Connect credentials"
+        id: asc-guard
+        env:
+          ASC_KEY: ${{ secrets.EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT }}
+        run: |
+          if [ -n "$ASC_KEY" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️ Secret EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT ist nicht gesetzt - Apple wird übersprungen."
+          fi
+
+      - name: "🔐 Prepare Apple App Store Connect API key"
+        if: steps.asc-guard.outputs.available == 'true'
+        uses: ./.github/actions/prepare-asc-api-key
+        with:
+          EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT: ${{ secrets.EXPO_APPLE_APPSTORECONNECT_API_KEY_CONTENT }}
+
+      - name: "☁️ Upload screenshots"
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RENDERED: ${{ needs.generate.outputs.rendered }}
+          TENANT: ${{ inputs.tenant || 'all' }}
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -euo pipefail
+          ARGS=()
+          if [ "$EVENT_NAME" = "workflow_run" ]; then
+            # Automatic runs only upload tenants with autoUpload: true (store-screenshots.ts).
+            ARGS+=(--tenant "$RENDERED" --auto)
+          elif [ "$TENANT" != "all" ]; then
+            ARGS+=(--tenant "$TENANT")
+          fi
+          yarn store-screenshots:push "${ARGS[@]}"

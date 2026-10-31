@@ -29,7 +29,9 @@
     "ios-credentials:rocket-meals": "yarn workspace rocket-meals-scripts generate:eas && bash scripts/eas-ios-credentials.sh apps/frontend/app",
     "ios-credentials:geonexia": "bash scripts/eas-ios-credentials.sh apps/geonexia/frontend",
     "ios-credentials:score-tracker": "bash scripts/eas-ios-credentials.sh apps/score-tracker/frontend",
-    "ios-credentials:tag-und-jahr": "bash scripts/eas-ios-credentials.sh apps/tag-und-jahr/frontend"
+    "ios-credentials:tag-und-jahr": "bash scripts/eas-ios-credentials.sh apps/tag-und-jahr/frontend",
+    "store-screenshots:generate": "yarn workspace screenshotgenerator store",
+    "store-screenshots:push": "yarn workspace rocket-meals-scripts store-screenshots push"
   },
   "workspaces": [
     "apps/frontend/app",

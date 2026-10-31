@@ -17,7 +17,7 @@ import { AttributeChange, computeAttributeChanges, formatChanges } from './store
 // have NO public API - those stay manual in the Play Console. Listings, contact details
 // and default language are fully automatable and handled here.
 
-const API_BASE = 'https://androidpublisher.googleapis.com/androidpublisher/v3';
+export const API_BASE = 'https://androidpublisher.googleapis.com/androidpublisher/v3';
 const SCOPE = 'https://www.googleapis.com/auth/androidpublisher';
 
 function readServiceAccount(): GoogleServiceAccountKey {
@@ -66,7 +66,7 @@ export async function createGooglePlayAccessToken(): Promise<string> {
   return (JSON.parse(text) as { access_token: string }).access_token;
 }
 
-async function googleRequest(accessToken: string, method: string, path: string, body?: unknown): Promise<any> {
+export async function googleRequest(accessToken: string, method: string, path: string, body?: unknown): Promise<any> {
   const response = await fetch(`${API_BASE}${path}`, {
     method,
     headers: {
@@ -98,12 +98,12 @@ export type GooglePullResult = {
   listings: GooglePlayListingSnapshot[];
 };
 
-async function createEdit(accessToken: string, packageName: string): Promise<string> {
+export async function createEdit(accessToken: string, packageName: string): Promise<string> {
   const edit = await googleRequest(accessToken, 'POST', `/applications/${packageName}/edits`, {});
   return edit.id as string;
 }
 
-async function deleteEdit(accessToken: string, packageName: string, editId: string): Promise<void> {
+export async function deleteEdit(accessToken: string, packageName: string, editId: string): Promise<void> {
   try {
     await googleRequest(accessToken, 'DELETE', `/applications/${packageName}/edits/${editId}`);
   } catch {

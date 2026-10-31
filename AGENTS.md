@@ -9,6 +9,7 @@ Diese Datei enthält Arbeitsregeln für KI-Agenten in diesem Repository.
 ## Wichtige Referenzen
 - Für visuelle Änderungen und Screenshots: `SCREENSHOTS_PLAYWRIGHT.md`
 - Für das Abarbeiten von SonarCloud-Maintainability-Issues: `docs/SONARCLOUD_MAINTAINABILITY_WORKFLOW.md`
+- Für App-Store-Screenshots pro Tenant (Rendern, Ablage im Repo, Upload): `docs/STORE_SCREENSHOTS.md`
 
 ## React-Dateien (verbindliche Konvention)
 Bei React-Dateien sollen **Styles, Export und Logik in derselben Datei** bleiben.

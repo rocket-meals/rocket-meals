@@ -307,7 +307,8 @@ export function getVersionPatch() {
         //      once per start for logins via university (DFN)
         // 185: common: food feedback reaction 😢 (FoodFeedbackReactionHelper)
         // 186: common: ten more food feedback reactions (FoodFeedbackReactionHelper)
-        return 186;
+        // 187: store screenshots per tenant (store-screenshots.ts, not part of the bundle)
+        return 187;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
