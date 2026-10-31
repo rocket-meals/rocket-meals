@@ -1,7 +1,8 @@
 name: "🖼️ Store Screenshots: Generate & Upload"
 
-# Renders the app store screenshots of every rocket-meals tenant from its public web app
-# (kiosk mode), commits them to store-screenshots/<tenant>/ and uploads them to the
+# Renders the app store screenshots of every rocket-meals tenant from the web app of the
+# checked out code (expo export per tenant, served on localhost, data from the tenant's
+# backend server, kiosk mode), commits them to store-screenshots/<tenant>/ and uploads them to the
 # stores - see docs/STORE_SCREENSHOTS.md.
 #
 # After every successful CI run on master the generator checks each tenant: only when

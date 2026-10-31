@@ -91,19 +91,22 @@ const ApartmentItem: React.FC<BuildingItemProps> = ({
 								<MaterialCommunityIcons name="image-edit" size={20} color="white" />
 							</TouchableOpacity>
 						)}
-						<View style={styles.distanceActions}>
-							<TouchableOpacity
-								style={{
-									...styles.directionButton,
-									backgroundColor: housingAreaColor,
-								}}
-								onPress={openDistanceInformationModal}
-								onLongPress={openDistanceSheet}
-							>
-								<MaterialCommunityIcons name="map-marker-distance" size={20} color={contrastColor} />
-								<Text style={{ ...styles.distance, color: contrastColor }}>{getDistanceUnit(apartment?.distance)}</Text>
-							</TouchableOpacity>
-						</View>
+						{/* No distance without a reference point (no canteen chosen yet, no location) - "NaN m" otherwise. */}
+						{Number.isFinite(apartment?.distance) && (
+							<View style={styles.distanceActions}>
+								<TouchableOpacity
+									style={{
+										...styles.directionButton,
+										backgroundColor: housingAreaColor,
+									}}
+									onPress={openDistanceInformationModal}
+									onLongPress={openDistanceSheet}
+								>
+									<MaterialCommunityIcons name="map-marker-distance" size={20} color={contrastColor} />
+									<Text style={{ ...styles.distance, color: contrastColor }}>{getDistanceUnit(apartment?.distance)}</Text>
+								</TouchableOpacity>
+							</View>
+						)}
 					</>
 				}
 			>

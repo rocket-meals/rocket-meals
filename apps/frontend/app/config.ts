@@ -308,7 +308,10 @@ export function getVersionPatch() {
         // 185: common: food feedback reaction 😢 (FoodFeedbackReactionHelper)
         // 186: common: ten more food feedback reactions (FoodFeedbackReactionHelper)
         // 187: store screenshots per tenant (store-screenshots.ts, not part of the bundle)
-        return 187;
+        // 188: housing loads on the web again (no unstable_batchedUpdates), campus and housing
+        //      fetch the canteen's building once a canteen is chosen and hide unknown
+        //      distances instead of "NaN m", kiosk demo balance date stored as ISO
+        return 188;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

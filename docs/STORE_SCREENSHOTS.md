@@ -45,21 +45,28 @@ Speisen ist es ein Bruchteil der PNG-Größe.
 
 ## Wie gerendert wird
 
-- Quelle ist die öffentliche Web-App, z. B. `https://rocket-meals.de/studi-futter/foodoffers?kioskMode=true`.
-  Der Kiosk-Modus meldet einen Demo-Nutzer an und wählt die erste Mensa, ganz ohne Login.
+- Quelle ist die **Web-App aus dem ausgecheckten Code**: Pro Tenant baut der Generator
+  sie mit `expo export` (`CUSTOMER`/`EXPO_PUBLIC_CUSTOMER` gesetzt) und liefert sie lokal
+  unter `http://127.0.0.1:<port>/<tenant>` aus. Die **Daten kommen vom Backend-Server
+  des Tenants** (`server_url` aus `config.ts`). So muss niemand auf das Web-Deployment
+  unter `rocket-meals.de` warten, und die Bilder zeigen genau den Code des Commits.
+  Gebaut wird nur, wenn der Tenant wirklich neu gerendert werden muss (ein paar Minuten
+  pro Tenant). `--source live` nimmt stattdessen `https://rocket-meals.de/<tenant>`.
+- Aufgerufen wird jeder Screen mit `?kioskMode=true`. Der Kiosk-Modus meldet einen
+  Demo-Nutzer an und wählt die erste veröffentlichte Mensa, ganz ohne Login.
 - Jeder Screenshot läuft in einem frischen Browser-Kontext. Alle Tenants liegen unter
-  derselben Domain `rocket-meals.de` und würden sich sonst über den LocalStorage die
-  gewählte Mensa und gecachte News teilen.
+  derselben Origin und würden sich sonst über den LocalStorage die gewählte Mensa und
+  gecachte News teilen.
+- Der Browser meldet als Bildschirmgröße die Viewport-Größe wie ein echtes Gerät.
+  Headless Chrome sagt sonst 800 x 600, React Native Web nimmt das als Bildschirmhöhe,
+  und geschlossene Bottom-Sheets (z. B. „Entfernung“ auf dem Campus-Screen) standen
+  dann sichtbar mitten im Bild.
 - Die Uhr der Seite wird auf **11:30 Uhr des nächsten Werktags** (Berlin) gestellt. Am
   Wochenende sind die Mensen zu, und ein leerer Speiseplan verkauft nichts.
 - Der Generator wartet, bis keine Ladeanzeige mehr sichtbar ist (höchstens 15 s), und
-  danach noch 7 s, damit Fehler-Toasts der Kiosk-Sitzung verschwunden sind.
+  danach noch 7 s, damit kurze Toasts verschwunden sind.
 - Ein Tenant wird in einen temporären Ordner gerendert und ersetzt die Dateien im Repo
   erst, wenn alle Bilder geklappt haben.
-
-**Wichtig:** Gerendert wird, was unter `rocket-meals.de/<tenant>` gerade live ist. Ist
-das Web-Deployment noch nicht aktualisiert, zeigen die Bilder den alten Stand. Dann den
-Workflow nach dem Deployment manuell mit `force` starten.
 
 ## Wann neu gerendert wird
 
@@ -78,8 +85,8 @@ committet.
 ## Upload
 
 **Automatisch hochgeladen wird nur für Tenants in `AUTO_UPLOAD_TENANTS`**
-(`store-screenshots.ts`). Die Liste ist anfangs leer: erst die Bilder im Repo ansehen,
-dann den Tenant eintragen. Ein manueller Workflow-Lauf mit `upload` lädt unabhängig
+(`store-screenshots.ts`). Ein neuer Tenant kommt erst dort hinein, wenn seine Bilder im
+Repo einmal angesehen wurden. Ein manueller Workflow-Lauf mit `upload` lädt unabhängig
 davon hoch, ebenso `yarn store-screenshots:push` ohne `--auto`.
 
 - **Google** übernimmt die Screenshots sofort, für jede Sprache des Store-Eintrags.
@@ -105,7 +112,8 @@ yarn store-screenshots:push --dry-run
 yarn store-screenshots:push --tenant studi-futter --store google
 ```
 
-Lokal ohne Puppeteer-Chrome: `PUPPETEER_EXECUTABLE_PATH=/pfad/zu/chrome` setzen.
+Lokal ohne Puppeteer-Chrome: `PUPPETEER_EXECUTABLE_PATH=/pfad/zu/chrome` setzen. Für
+den lokalen Build braucht es ein vollständiges `yarn install`.
 Zugangsdaten wie bei den Store-Metadaten (siehe `docs/STORE_METADATA.md`):
 `EXPO_ASC_API_KEY_PATH` für Apple, `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON(_PATH)` für Google.
 Der Google-Service-Account braucht das Recht, den Store-Eintrag zu bearbeiten.

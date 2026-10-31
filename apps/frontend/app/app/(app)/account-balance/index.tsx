@@ -327,7 +327,10 @@ const AccountBalanceScreen: React.FC<AccountBalanceScreenProps> = ({ autoStartNf
 
 			return () => {
 				setAutoPlay(false); // Reset when leaving
-				setAnimationJson(null);
+				// No setAnimationJson(null) here: this cleanup also runs when the app settings
+				// arrive after the screen opened, and the animation was then gone for good (the
+				// effect that picks it only re-runs on a new balance). Leaving the screen clears
+				// it in that effect's own cleanup.
 			};
 		}, [appSettings?.animations_auto_start])
 	);

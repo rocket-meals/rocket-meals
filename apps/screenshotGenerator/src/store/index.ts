@@ -1,7 +1,12 @@
 // Renders the app store screenshots of every rocket-meals tenant into
 // store-screenshots/<tenant>/ (see docs/STORE_SCREENSHOTS.md).
 //
-//   yarn workspace screenshotgenerator store [--tenant swosy] [--force]
+//   yarn workspace screenshotgenerator store [--tenant swosy] [--force] [--source local|live]
+//
+// --source local (default) builds the web app of the checked out code per tenant
+// (expo export) and serves it on localhost - the data still comes from the tenant's
+// backend server. --source live shoots https://rocket-meals.de/<tenant> instead, which
+// is faster but shows whatever is deployed there.
 //
 // A tenant is only rendered again when its store version (config.ts getVersion()) or its
 // selection of screens (app_settings flags of its backend) differs from the committed
@@ -15,6 +20,7 @@ import { StringHelper } from 'repo-depkit-common';
 import sharp from 'sharp';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { exportWebApp, LocalWebApp, serveWebApp } from './localWebApp';
 import type { StoreScreenshotDevice, StoreScreenshotScreen, StoreScreenshotTenant } from '../../../frontend/app/store-screenshots';
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..', '..');
@@ -26,6 +32,8 @@ export type StoreScreenshotManifest = {
   tenant: string;
   displayName: string;
   appVersion: string;
+  /** local = built from this commit, live = rocket-meals.de */
+  source: 'local' | 'live';
   webUrl: string;
   /** Day the app believed it was while rendering (weekday, so the canteens are open). */
   simulatedDate: string;
@@ -39,6 +47,7 @@ const argv = yargs(hideBin(process.argv))
   .option('force', { type: 'boolean', default: false, description: 'Render even if version and screens are unchanged' })
   .option('module', { type: 'string', default: DEFAULT_MODULE, description: 'Ground truth module' })
   .option('outDir', { type: 'string', default: DEFAULT_OUT_DIR, description: 'Output folder (relative to the repository root)' })
+  .option('source', { choices: ['local', 'live'] as const, default: 'local' as const, description: 'local = build this commit, live = rocket-meals.de' })
   .help()
   .parseSync();
 
@@ -128,12 +137,12 @@ function clockShiftScript(targetTime: number): string {
   })();`;
 }
 
-function screenUrl(tenant: StoreScreenshotTenant, screen: StoreScreenshotScreen, device: StoreScreenshotDevice): string {
+function screenUrl(webUrl: string, screen: StoreScreenshotScreen, device: StoreScreenshotDevice): string {
   const params = new URLSearchParams({ kioskMode: 'true' });
   if (device.iphoneStatusBar) {
     params.set('deviceMock', 'iphone');
   }
-  return `${tenant.webUrl}/${screen.route}?${params}`;
+  return `${webUrl}/${screen.route}?${params}`;
 }
 
 function fileName(position: number, route: string): string {
@@ -151,6 +160,20 @@ async function renderScreenshot(browser: Browser, url: string, device: StoreScre
     await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'light' }]);
     await page.evaluateOnNewDocument(clockShiftScript(targetTime));
     await page.setViewport({ width: device.viewportWidth, height: device.viewportHeight, deviceScaleFactor: device.deviceScaleFactor });
+    // setViewport leaves window.screen at headless Chrome's 800x600. React Native Web
+    // takes the screen height for Dimensions, and @gorhom/bottom-sheet parks a closed
+    // sheet at that height - inside a taller viewport the closed sheet ("Entfernung" on
+    // the campus screen) then sat visibly in the middle of the screenshot. A real device
+    // has screen = viewport, so emulate that.
+    const cdp = await page.createCDPSession();
+    await cdp.send('Emulation.setDeviceMetricsOverride', {
+      width: device.viewportWidth,
+      height: device.viewportHeight,
+      deviceScaleFactor: device.deviceScaleFactor,
+      mobile: false,
+      screenWidth: device.viewportWidth,
+      screenHeight: device.viewportHeight,
+    });
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 90_000 });
     // React Native Web renders ActivityIndicator with role="progressbar" - wait until the
     // screen has finished loading its data, but never longer than 15 s
@@ -175,7 +198,25 @@ async function readManifest(file: string): Promise<StoreScreenshotManifest | und
   return JSON.parse(await fs.readFile(file, 'utf8')) as StoreScreenshotManifest;
 }
 
-async function renderTenant(browser: Browser, tenant: StoreScreenshotTenant, devices: StoreScreenshotDevice[], outDir: string, force: boolean): Promise<boolean> {
+const FRONTEND_DIR = path.join(REPO_ROOT, 'apps', 'frontend', 'app');
+
+async function startWebApp(tenant: StoreScreenshotTenant, source: 'local' | 'live'): Promise<LocalWebApp> {
+  if (source === 'live') {
+    return { url: tenant.webUrl, close: async () => undefined };
+  }
+  const distDir = await exportWebApp(FRONTEND_DIR, tenant.tenant);
+  const app = await serveWebApp(distDir, tenant.webBasePath);
+  console.log(`   🌐 Lokale Web-App: ${app.url}`);
+  return {
+    url: app.url,
+    close: async () => {
+      await app.close();
+      await fs.rm(distDir, { recursive: true, force: true });
+    },
+  };
+}
+
+async function renderTenant(browser: Browser, tenant: StoreScreenshotTenant, devices: StoreScreenshotDevice[], outDir: string, force: boolean, source: 'local' | 'live'): Promise<boolean> {
   console.log(`\n📱 ${tenant.displayName} (${tenant.tenant}) - Version ${tenant.appVersion}`);
   const appSettings = await fetchAppSettings(tenant.serverUrl);
   const { selected, skipped } = selectScreens(tenant.screens, appSettings);
@@ -194,6 +235,26 @@ async function renderTenant(browser: Browser, tenant: StoreScreenshotTenant, dev
     return false;
   }
 
+  // Only now, when something has to be rendered, is the web app built (a few minutes).
+  const webApp = await startWebApp(tenant, source);
+  try {
+    return await renderTenantScreens(browser, tenant, devices, tenantDir, outDir, selected, skipped, source, webApp.url);
+  } finally {
+    await webApp.close();
+  }
+}
+
+async function renderTenantScreens(
+  browser: Browser,
+  tenant: StoreScreenshotTenant,
+  devices: StoreScreenshotDevice[],
+  tenantDir: string,
+  outDir: string,
+  selected: StoreScreenshotScreen[],
+  skipped: { route: string; reason: string }[],
+  source: 'local' | 'live',
+  webUrl: string
+): Promise<boolean> {
   const simulated = getSimulatedLunchTime();
   const tmpDir = path.join(outDir, `.tmp-${tenant.tenant}`);
   await fs.rm(tmpDir, { recursive: true, force: true });
@@ -202,6 +263,7 @@ async function renderTenant(browser: Browser, tenant: StoreScreenshotTenant, dev
     tenant: tenant.tenant,
     displayName: tenant.displayName,
     appVersion: tenant.appVersion,
+    source,
     webUrl: tenant.webUrl,
     simulatedDate: simulated.toISOString().slice(0, 10),
     screens: selected.map((screen, index) => ({ position: index + 1, route: screen.route, file: fileName(index + 1, screen.route) })),
@@ -219,7 +281,7 @@ async function renderTenant(browser: Browser, tenant: StoreScreenshotTenant, dev
     const deviceDir = path.join(tmpDir, device.key);
     await fs.mkdir(deviceDir, { recursive: true }); // NOSONAR S9382 - sequential on purpose: one shared browser, stable timing
     for (const screen of manifest.screens) {
-      const url = screenUrl(tenant, { route: screen.route }, device);
+      const url = screenUrl(webUrl, { route: screen.route }, device);
       console.log(`   📸 ${device.key} ${screen.file}  ${url}`);
       await renderScreenshot(browser, url, device, simulated.getTime(), path.join(deviceDir, screen.file)); // NOSONAR S9382 - sequential on purpose
     }
@@ -248,7 +310,7 @@ async function main(): Promise<void> {
   try {
     for (const tenant of tenants) {
       try {
-        if (await renderTenant(browser, tenant, devices, outDir, argv.force)) rendered.push(tenant.tenant); // NOSONAR S9382 - sequential on purpose
+        if (await renderTenant(browser, tenant, devices, outDir, argv.force, argv.source)) rendered.push(tenant.tenant); // NOSONAR S9382 - sequential on purpose
       } catch (error) {
         console.error(`   ❌ ${tenant.tenant}: ${(error as Error).message}`);
         failed.push(tenant.tenant);

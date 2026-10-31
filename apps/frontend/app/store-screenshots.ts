@@ -4,7 +4,8 @@
 //   yarn store-screenshots:generate          (renders into store-screenshots/<tenant>/)
 //   yarn store-screenshots:push              (uploads the committed files to the stores)
 //
-// The screenshots are rendered from the public tenant web app in kiosk mode and are
+// The screenshots are rendered from the web app of the checked out code (built per tenant
+// and served on localhost, data from the tenant backend) in kiosk mode and are
 // committed to the repository, so every change is visible in the git history. Which
 // screens a tenant gets is decided by its backend: a screen whose app_settings flag is
 // off (e.g. course_timetable_enabled at Studi|Futter) is left out, exactly like the
@@ -71,7 +72,9 @@ export type StoreScreenshotTenant = {
 	/** Folder name below store-screenshots/, same as CUSTOMER / EXPO_PUBLIC_CUSTOMER. */
 	tenant: ConfigCustomerEnum;
 	displayName: string;
-	/** Public web app the screenshots are rendered from, e.g. https://rocket-meals.de/swosy */
+	/** Base path of the tenant web app, e.g. /swosy - the local build is served under it too. */
+	webBasePath: string;
+	/** Public web app, e.g. https://rocket-meals.de/swosy (only used with --source live). */
 	webUrl: string;
 	/** Directus api of the tenant, its app_settings decide which screens are shot. */
 	serverUrl: string;
@@ -89,7 +92,7 @@ export type StoreScreenshotTenant = {
 };
 
 // Tenants whose screenshots go to the stores without a human in the loop.
-const AUTO_UPLOAD_TENANTS: ConfigCustomerEnum[] = [];
+const AUTO_UPLOAD_TENANTS: ConfigCustomerEnum[] = [ConfigCustomerEnum.TEST, ConfigCustomerEnum.SWOSY, ConfigCustomerEnum.STUDI_FUTTER];
 
 // Screens a tenant never wants in the store although its backend has them switched on.
 // Leave empty unless a screen looks bad for that tenant.
@@ -100,6 +103,7 @@ function tenantScreenshots(tenant: ConfigCustomerEnum, config: CustomerConfig): 
 	return {
 		tenant,
 		displayName: config.projectName,
+		webBasePath: config.baseUrl,
 		webUrl: `${ROCKET_MEALS_WEB_HOST}${config.baseUrl}`,
 		serverUrl: config.server_url,
 		bundleIdIos: config.bundleIdIos,

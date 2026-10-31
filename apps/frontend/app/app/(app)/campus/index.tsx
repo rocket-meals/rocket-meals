@@ -244,6 +244,16 @@ const Index: React.FC = () => {
 		return () => { mounted = false; };
 	}, []); // Run once
 
+	// The canteen can be chosen after this screen mounted (kiosk mode picks one
+	// asynchronously, a new user picks one later) - fetch its building then, otherwise
+	// no distance is ever shown.
+	const selectedCanteenBuildingId = selectedCanteen?.building ? String(selectedCanteen.building) : null;
+	useEffect(() => {
+		if (selectedCanteenBuildingId && String(selectedBuilding?.id ?? '') !== selectedCanteenBuildingId) {
+			void fetchSelectedBuilding();
+		}
+	}, [selectedCanteenBuildingId]); // NOSONAR - only the building id of the chosen canteen matters here
+
 	// Sorting Logic
 	const sortCampuses = useCallback((list: BuildingWithDistance[], sortBy: CampusSortOption) => {
 		 const newList = [...list];
