@@ -21,6 +21,7 @@ import sharp from 'sharp';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { exportWebApp, LocalWebApp, serveWebApp } from './localWebApp';
+import { findShowcaseDay, lunchTimeOn, ShowcaseDay } from './showcaseDay';
 import type { StoreScreenshotDevice, StoreScreenshotScreen, StoreScreenshotTenant } from '../../../frontend/app/store-screenshots';
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..', '..', '..');
@@ -35,8 +36,10 @@ export type StoreScreenshotManifest = {
   /** local = built from this commit, live = rocket-meals.de */
   source: 'local' | 'live';
   webUrl: string;
-  /** Day the app believed it was while rendering (weekday, so the canteens are open). */
+  /** Day the app believed it was while rendering (a past Monday with photos, see showcaseDay.ts). */
   simulatedDate: string;
+  /** Canteen shown (?canteens_id=), undefined = the app's own kiosk choice. */
+  canteen?: { id: string; alias: string; offers: number; offersWithPhoto: number };
   screens: { position: number; route: string; file: string }[];
   skippedScreens: { route: string; reason: string }[];
   devices: { key: string; store: string; storeType: string; width: number; height: number }[];
@@ -112,7 +115,8 @@ function timeZoneOffset(instant: Date): string {
 }
 
 /**
- * Today at 11:30 in Berlin, moved to the next Monday on weekends: canteens are closed on
+ * Fallback when no past Monday with offers exists (see showcaseDay.ts):
+ * today at 11:30 in Berlin, moved to the next Monday on weekends: canteens are closed on
  * weekends and a screenshot of an empty food plan sells nothing.
  */
 export function getSimulatedLunchTime(now: Date = new Date()): Date {
@@ -137,8 +141,11 @@ function clockShiftScript(targetTime: number): string {
   })();`;
 }
 
-function screenUrl(webUrl: string, screen: StoreScreenshotScreen, device: StoreScreenshotDevice): string {
+function screenUrl(webUrl: string, screen: StoreScreenshotScreen, device: StoreScreenshotDevice, showcase: ShowcaseDay | undefined): string {
   const params = new URLSearchParams({ kioskMode: 'true' });
+  if (showcase) {
+    params.set('canteens_id', showcase.canteenId);
+  }
   if (device.iphoneStatusBar) {
     params.set('deviceMock', 'iphone');
   }
@@ -255,7 +262,18 @@ async function renderTenantScreens(
   source: 'local' | 'live',
   webUrl: string
 ): Promise<boolean> {
-  const simulated = getSimulatedLunchTime();
+  // A past Monday on which a canteen had its dishes photographed - today's plan often
+  // has no photos yet. Without one (new backend, no history) the next weekday is used.
+  const showcase = await findShowcaseDay(tenant.serverUrl).catch(error => {
+    console.warn(`   ⚠️ Kein Vorzeige-Montag ermittelbar: ${(error as Error).message}`);
+    return undefined;
+  });
+  const simulated = showcase ? lunchTimeOn(showcase.date) : getSimulatedLunchTime();
+  console.log(
+    showcase
+      ? `   🍽️ Tag ${showcase.date}, ${showcase.canteenAlias}: ${showcase.offersWithPhoto} von ${showcase.offers} Gerichten mit Foto`
+      : `   🍽️ Kein vergangener Montag mit Angeboten, nehme ${simulated.toISOString().slice(0, 10)} und die Kiosk-Mensa`
+  );
   const tmpDir = path.join(outDir, `.tmp-${tenant.tenant}`);
   await fs.rm(tmpDir, { recursive: true, force: true });
 
@@ -266,6 +284,7 @@ async function renderTenantScreens(
     source,
     webUrl: tenant.webUrl,
     simulatedDate: simulated.toISOString().slice(0, 10),
+    canteen: showcase ? { id: showcase.canteenId, alias: showcase.canteenAlias, offers: showcase.offers, offersWithPhoto: showcase.offersWithPhoto } : undefined,
     screens: selected.map((screen, index) => ({ position: index + 1, route: screen.route, file: fileName(index + 1, screen.route) })),
     skippedScreens: skipped,
     devices: devices.map(d => ({
@@ -281,7 +300,7 @@ async function renderTenantScreens(
     const deviceDir = path.join(tmpDir, device.key);
     await fs.mkdir(deviceDir, { recursive: true }); // NOSONAR S9382 - sequential on purpose: one shared browser, stable timing
     for (const screen of manifest.screens) {
-      const url = screenUrl(webUrl, { route: screen.route }, device);
+      const url = screenUrl(webUrl, { route: screen.route }, device, showcase);
       console.log(`   📸 ${device.key} ${screen.file}  ${url}`);
       await renderScreenshot(browser, url, device, simulated.getTime(), path.join(deviceDir, screen.file)); // NOSONAR S9382 - sequential on purpose
     }

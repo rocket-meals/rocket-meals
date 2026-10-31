@@ -61,8 +61,14 @@ Speisen ist es ein Bruchteil der PNG-Größe.
   Headless Chrome sagt sonst 800 x 600, React Native Web nimmt das als Bildschirmhöhe,
   und geschlossene Bottom-Sheets (z. B. „Entfernung“ auf dem Campus-Screen) standen
   dann sichtbar mitten im Bild.
-- Die Uhr der Seite wird auf **11:30 Uhr des nächsten Werktags** (Berlin) gestellt. Am
-  Wochenende sind die Mensen zu, und ein leerer Speiseplan verkauft nichts.
+- **Tag und Mensa** wählt der Generator selbst (`showcaseDay.ts`): Der aktuelle
+  Speiseplan hat oft noch keine Fotos. Deshalb schaut er die letzten acht Montage
+  zurück und nimmt den jüngsten, an dem eine veröffentlichte Mensa mindestens vier
+  Gerichte mit Foto hatte, und davon die Mensa mit den meisten Fotos. Die Uhr der Seite
+  wird auf **11:30 Uhr dieses Montags** (Berlin) gestellt, die Mensa kommt per
+  `?canteens_id=` mit. Welcher Tag und welche Mensa es wurde, steht in `manifest.json`.
+  Gibt es keinen Montag mit Angeboten, nimmt er den nächsten Werktag und die Mensa, die
+  der Kiosk-Modus selbst wählt.
 - Der Generator wartet, bis keine Ladeanzeige mehr sichtbar ist (höchstens 15 s), und
   danach noch 7 s, damit kurze Toasts verschwunden sind.
 - Ein Tenant wird in einen temporären Ordner gerendert und ersetzt die Dateien im Repo
