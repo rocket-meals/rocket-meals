@@ -1,0 +1,73 @@
+{
+  "tenant": "studi-futter",
+  "displayName": "Studi|Futter",
+  "appVersion": "21.210.0",
+  "webUrl": "https://rocket-meals.de/studi-futter",
+  "simulatedDate": "2026-11-02",
+  "screens": [
+    {
+      "position": 1,
+      "route": "foodoffers",
+      "file": "01-foodoffers.jpg"
+    },
+    {
+      "position": 2,
+      "route": "news",
+      "file": "02-news.jpg"
+    },
+    {
+      "position": 3,
+      "route": "account-balance",
+      "file": "03-account-balance.jpg"
+    },
+    {
+      "position": 4,
+      "route": "settings",
+      "file": "04-settings.jpg"
+    }
+  ],
+  "skippedScreens": [
+    {
+      "route": "campus",
+      "reason": "app_settings.campus_enabled ist nicht aktiv"
+    },
+    {
+      "route": "housing",
+      "reason": "app_settings.housing_enabled ist nicht aktiv"
+    },
+    {
+      "route": "course-timetable",
+      "reason": "app_settings.course_timetable_enabled ist nicht aktiv"
+    }
+  ],
+  "devices": [
+    {
+      "key": "apple-iphone-6.7",
+      "store": "apple",
+      "storeType": "APP_IPHONE_67",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "key": "apple-ipad-12.9",
+      "store": "apple",
+      "storeType": "APP_IPAD_PRO_3GEN_129",
+      "width": 2048,
+      "height": 2732
+    },
+    {
+      "key": "google-phone",
+      "store": "google",
+      "storeType": "phoneScreenshots",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "key": "google-tablet-10",
+      "store": "google",
+      "storeType": "tenInchScreenshots",
+      "width": 1080,
+      "height": 1920
+    }
+  ]
+}

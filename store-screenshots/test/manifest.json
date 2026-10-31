@@ -1,0 +1,75 @@
+{
+  "tenant": "test",
+  "displayName": "Rocket Meals",
+  "appVersion": "21.210.0",
+  "webUrl": "https://rocket-meals.de/rocket-meals",
+  "simulatedDate": "2026-11-02",
+  "screens": [
+    {
+      "position": 1,
+      "route": "foodoffers",
+      "file": "01-foodoffers.jpg"
+    },
+    {
+      "position": 2,
+      "route": "campus",
+      "file": "02-campus.jpg"
+    },
+    {
+      "position": 3,
+      "route": "housing",
+      "file": "03-housing.jpg"
+    },
+    {
+      "position": 4,
+      "route": "course-timetable",
+      "file": "04-course-timetable.jpg"
+    },
+    {
+      "position": 5,
+      "route": "news",
+      "file": "05-news.jpg"
+    },
+    {
+      "position": 6,
+      "route": "account-balance",
+      "file": "06-account-balance.jpg"
+    },
+    {
+      "position": 7,
+      "route": "settings",
+      "file": "07-settings.jpg"
+    }
+  ],
+  "skippedScreens": [],
+  "devices": [
+    {
+      "key": "apple-iphone-6.7",
+      "store": "apple",
+      "storeType": "APP_IPHONE_67",
+      "width": 1290,
+      "height": 2796
+    },
+    {
+      "key": "apple-ipad-12.9",
+      "store": "apple",
+      "storeType": "APP_IPAD_PRO_3GEN_129",
+      "width": 2048,
+      "height": 2732
+    },
+    {
+      "key": "google-phone",
+      "store": "google",
+      "storeType": "phoneScreenshots",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "key": "google-tablet-10",
+      "store": "google",
+      "storeType": "tenInchScreenshots",
+      "width": 1080,
+      "height": 1920
+    }
+  ]
+}
