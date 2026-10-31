@@ -2,6 +2,7 @@
   "tenant": "studi-futter",
   "displayName": "Studi|Futter",
   "appVersion": "21.210.0",
+  "source": "local",
   "webUrl": "https://rocket-meals.de/studi-futter",
   "simulatedDate": "2026-11-02",
   "screens": [

@@ -2,6 +2,7 @@
   "tenant": "swosy",
   "displayName": "SWOSY 2.0",
   "appVersion": "21.210.0",
+  "source": "local",
   "webUrl": "https://rocket-meals.de/swosy",
   "simulatedDate": "2026-11-02",
   "screens": [
