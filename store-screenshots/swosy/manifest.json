@@ -4,7 +4,13 @@
   "appVersion": "21.210.0",
   "source": "local",
   "webUrl": "https://rocket-meals.de/swosy",
-  "simulatedDate": "2026-11-02",
+  "simulatedDate": "2026-10-26",
+  "canteen": {
+    "id": "125e152b-e20d-4afd-9c2b-aa917fedcd37",
+    "alias": "Mensa Vechta",
+    "offers": 12,
+    "offersWithPhoto": 11
+  },
   "screens": [
     {
       "position": 1,

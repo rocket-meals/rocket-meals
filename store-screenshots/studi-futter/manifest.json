@@ -4,7 +4,13 @@
   "appVersion": "21.210.0",
   "source": "local",
   "webUrl": "https://rocket-meals.de/studi-futter",
-  "simulatedDate": "2026-11-02",
+  "simulatedDate": "2026-10-26",
+  "canteen": {
+    "id": "e0d50d77-1a1f-427c-8fb5-7d94fd2e66fb",
+    "alias": "Hauptmensa",
+    "offers": 8,
+    "offersWithPhoto": 8
+  },
   "screens": [
     {
       "position": 1,
