@@ -1,16 +1,16 @@
 {
   "report_version": "^0.1.103",
-  "report_timestamp": "2026-10-30T09:54:43.186Z",
+  "report_timestamp": "2026-11-01T22:06:20.232Z",
   "target_language": "typescript",
   "report_summary": {
     "additional": {
       "invertedIndexSoftwareProjectStatistics": {
         "invertedFieldToClasses": {
           "median": 1.5,
-          "maximum": 139,
-          "average": 1.4946373850868233,
-          "amountSavedValuesForKeys": 5853,
-          "amountKeys": 31
+          "maximum": 141,
+          "average": 1.499240890688259,
+          "amountSavedValuesForKeys": 5925,
+          "amountKeys": 32
         },
         "invertedParameterToMethods": {
           "median": 1.5,
@@ -21,51 +21,51 @@
         },
         "invertedParameterToClasses": {
           "median": 1.5,
-          "maximum": 139,
-          "average": 1.506951596292482,
-          "amountSavedValuesForKeys": 5853,
-          "amountKeys": 31
+          "maximum": 141,
+          "average": 1.5114795918367347,
+          "amountSavedValuesForKeys": 5925,
+          "amountKeys": 32
         }
       },
       "timer_information": {
-        "ast_generation_time_ms": 3686,
-        "detection_time_ms": 105,
+        "ast_generation_time_ms": 3229,
+        "detection_time_ms": 91,
         "machine_information": {
           "os": "Linux",
           "os_release": "7.0.0-1017-azure",
           "os_platform": "linux",
           "os_arch": "x64",
-          "os_uptime": 110.44,
-          "os_memory_free": 14800551936,
-          "os_memory_total": 16760340480,
+          "os_uptime": 171.07,
+          "os_memory_free": 14649544704,
+          "os_memory_total": 16759443456,
           "os_cpu_cores": 4,
           "os_cpu_model": "AMD EPYC 9V45 96-Core Processor",
           "os_cpu_speed": 0
         }
       }
     },
-    "amount_classes_or_interfaces_with_data_clumps": 7,
-    "amount_files_with_data_clumps": 6,
+    "amount_classes_or_interfaces_with_data_clumps": 13,
+    "amount_files_with_data_clumps": 11,
     "amount_methods_with_data_clumps": 8,
-    "fields_to_fields_data_clump": 4,
+    "fields_to_fields_data_clump": 12,
     "parameters_to_fields_data_clump": 0,
     "parameters_to_parameters_data_clump": 16,
-    "amount_data_clumps": 20
+    "amount_data_clumps": 28
   },
   "project_info": {
     "project_url": "https://github.com/rocket-meals/rocket-meals",
     "project_name": "rocket-meals",
-    "project_version": "b25614ead60109cbdb55f6ad47bc962bcb9d1be8",
-    "project_commit_hash": "b25614ead60109cbdb55f6ad47bc962bcb9d1be8",
+    "project_version": "cb1729d1aa9c033fb2cfa3fa14b970b06a78f184",
+    "project_commit_hash": "cb1729d1aa9c033fb2cfa3fa14b970b06a78f184",
     "project_tag": null,
-    "project_commit_date": "1793353968",
+    "project_commit_date": "1793570675",
     "additional": {
       "relative_path_to_source_folder_in_project": ""
     },
-    "number_of_files": 825,
-    "number_of_classes_or_interfaces": 1907,
+    "number_of_files": 833,
+    "number_of_classes_or_interfaces": 1925,
     "number_of_methods": 2427,
-    "number_of_data_fields": 5853,
+    "number_of_data_fields": 5925,
     "number_of_method_parameters": 2876
   },
   "detector": {
@@ -1837,6 +1837,832 @@
         "cluster_type": 2
       }
     },
+    "fields_to_fields_data_clump-apps/frontend/app/store-screenshots.ts-apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant-apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest-displayNamewebUrlappVersion": {
+      "type": "data_clump",
+      "key": "fields_to_fields_data_clump-apps/frontend/app/store-screenshots.ts-apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant-apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest-displayNamewebUrlappVersion",
+      "probability": 1,
+      "from_file_path": "apps/frontend/app/store-screenshots.ts",
+      "from_class_or_interface_key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant",
+      "from_class_or_interface_name": "StoreScreenshotTenant",
+      "from_method_name": null,
+      "from_method_key": null,
+      "to_file_path": "apps/screenshotGenerator/src/store/index.ts",
+      "to_class_or_interface_key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest",
+      "to_class_or_interface_name": "StoreScreenshotManifest",
+      "to_method_key": null,
+      "to_method_name": null,
+      "data_clump_type": "fields_to_fields_data_clump",
+      "data_clump_data": {
+        "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/displayName": {
+          "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/displayName",
+          "name": "displayName",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/displayName",
+            "name": "displayName",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 34,
+              "startColumn": 3,
+              "endLine": 34,
+              "endColumn": 23
+            }
+          },
+          "position": {
+            "startLine": 74,
+            "startColumn": 2,
+            "endLine": 74,
+            "endColumn": 22
+          }
+        },
+        "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/webUrl": {
+          "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/webUrl",
+          "name": "webUrl",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/webUrl",
+            "name": "webUrl",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 38,
+              "startColumn": 3,
+              "endLine": 38,
+              "endColumn": 18
+            }
+          },
+          "position": {
+            "startLine": 78,
+            "startColumn": 2,
+            "endLine": 78,
+            "endColumn": 17
+          }
+        },
+        "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/appVersion": {
+          "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/appVersion",
+          "name": "appVersion",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/appVersion",
+            "name": "appVersion",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 35,
+              "startColumn": 3,
+              "endLine": 35,
+              "endColumn": 22
+            }
+          },
+          "position": {
+            "startLine": 90,
+            "startColumn": 2,
+            "endLine": 90,
+            "endColumn": 21
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 4,
+        "cluster_type": 3
+      }
+    },
+    "fields_to_fields_data_clump-apps/frontend/app/store-screenshots.ts-apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant-apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry-displayNamebundleIdIospackageNameAndroidautoUpload": {
+      "type": "data_clump",
+      "key": "fields_to_fields_data_clump-apps/frontend/app/store-screenshots.ts-apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant-apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry-displayNamebundleIdIospackageNameAndroidautoUpload",
+      "probability": 1,
+      "from_file_path": "apps/frontend/app/store-screenshots.ts",
+      "from_class_or_interface_key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant",
+      "from_class_or_interface_name": "StoreScreenshotTenant",
+      "from_method_name": null,
+      "from_method_key": null,
+      "to_file_path": "apps/scripts/store-screenshots-load.ts",
+      "to_class_or_interface_key": "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry",
+      "to_class_or_interface_name": "StoreScreenshotTenantEntry",
+      "to_method_key": null,
+      "to_method_name": null,
+      "data_clump_type": "fields_to_fields_data_clump",
+      "data_clump_data": {
+        "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/displayName": {
+          "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/displayName",
+          "name": "displayName",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/displayName",
+            "name": "displayName",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 15,
+              "startColumn": 3,
+              "endLine": 15,
+              "endColumn": 23
+            }
+          },
+          "position": {
+            "startLine": 74,
+            "startColumn": 2,
+            "endLine": 74,
+            "endColumn": 22
+          }
+        },
+        "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/bundleIdIos": {
+          "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/bundleIdIos",
+          "name": "bundleIdIos",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/bundleIdIos",
+            "name": "bundleIdIos",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 16,
+              "startColumn": 3,
+              "endLine": 16,
+              "endColumn": 24
+            }
+          },
+          "position": {
+            "startLine": 81,
+            "startColumn": 2,
+            "endLine": 81,
+            "endColumn": 23
+          }
+        },
+        "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/packageNameAndroid": {
+          "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/packageNameAndroid",
+          "name": "packageNameAndroid",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/packageNameAndroid",
+            "name": "packageNameAndroid",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 17,
+              "startColumn": 3,
+              "endLine": 17,
+              "endColumn": 31
+            }
+          },
+          "position": {
+            "startLine": 82,
+            "startColumn": 2,
+            "endLine": 82,
+            "endColumn": 30
+          }
+        },
+        "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/autoUpload": {
+          "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/autoUpload",
+          "name": "autoUpload",
+          "type": "boolean",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/autoUpload",
+            "name": "autoUpload",
+            "type": "boolean",
+            "modifiers": [],
+            "position": {
+              "startLine": 18,
+              "startColumn": 3,
+              "endLine": 18,
+              "endColumn": 24
+            }
+          },
+          "position": {
+            "startLine": 88,
+            "startColumn": 2,
+            "endLine": 88,
+            "endColumn": 22
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 4,
+        "cluster_type": 3
+      }
+    },
+    "fields_to_fields_data_clump-apps/screenshotGenerator/src/store/index.ts-apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest-apps/scripts/store-screenshots-load.ts/interface/Manifest-tenantappVersionscreens": {
+      "type": "data_clump",
+      "key": "fields_to_fields_data_clump-apps/screenshotGenerator/src/store/index.ts-apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest-apps/scripts/store-screenshots-load.ts/interface/Manifest-tenantappVersionscreens",
+      "probability": 1,
+      "from_file_path": "apps/screenshotGenerator/src/store/index.ts",
+      "from_class_or_interface_key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest",
+      "from_class_or_interface_name": "StoreScreenshotManifest",
+      "from_method_name": null,
+      "from_method_key": null,
+      "to_file_path": "apps/scripts/store-screenshots-load.ts",
+      "to_class_or_interface_key": "apps/scripts/store-screenshots-load.ts/interface/Manifest",
+      "to_class_or_interface_name": "Manifest",
+      "to_method_key": null,
+      "to_method_name": null,
+      "data_clump_type": "fields_to_fields_data_clump",
+      "data_clump_data": {
+        "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/tenant": {
+          "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/tenant",
+          "name": "tenant",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-screenshots-load.ts/interface/Manifest/memberField/tenant",
+            "name": "tenant",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 22,
+              "startColumn": 19,
+              "endLine": 22,
+              "endColumn": 34
+            }
+          },
+          "position": {
+            "startLine": 33,
+            "startColumn": 3,
+            "endLine": 33,
+            "endColumn": 18
+          }
+        },
+        "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/appVersion": {
+          "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/appVersion",
+          "name": "appVersion",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-screenshots-load.ts/interface/Manifest/memberField/appVersion",
+            "name": "appVersion",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 22,
+              "startColumn": 35,
+              "endLine": 22,
+              "endColumn": 54
+            }
+          },
+          "position": {
+            "startLine": 35,
+            "startColumn": 3,
+            "endLine": 35,
+            "endColumn": 22
+          }
+        },
+        "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/screens": {
+          "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/screens",
+          "name": "screens",
+          "type": "{ position: number; route: string; file: string }[]",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-screenshots-load.ts/interface/Manifest/memberField/screens",
+            "name": "screens",
+            "type": "{ position: number; route: string; file: string }[]",
+            "modifiers": [],
+            "position": {
+              "startLine": 22,
+              "startColumn": 55,
+              "endLine": 22,
+              "endColumn": 116
+            }
+          },
+          "position": {
+            "startLine": 43,
+            "startColumn": 3,
+            "endLine": 43,
+            "endColumn": 64
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 4,
+        "cluster_type": 3
+      }
+    },
+    "fields_to_fields_data_clump-apps/screenshotGenerator/src/store/index.ts-apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest-apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant-displayNameappVersionwebUrl": {
+      "type": "data_clump",
+      "key": "fields_to_fields_data_clump-apps/screenshotGenerator/src/store/index.ts-apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest-apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant-displayNameappVersionwebUrl",
+      "probability": 1,
+      "from_file_path": "apps/screenshotGenerator/src/store/index.ts",
+      "from_class_or_interface_key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest",
+      "from_class_or_interface_name": "StoreScreenshotManifest",
+      "from_method_name": null,
+      "from_method_key": null,
+      "to_file_path": "apps/frontend/app/store-screenshots.ts",
+      "to_class_or_interface_key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant",
+      "to_class_or_interface_name": "StoreScreenshotTenant",
+      "to_method_key": null,
+      "to_method_name": null,
+      "data_clump_type": "fields_to_fields_data_clump",
+      "data_clump_data": {
+        "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/displayName": {
+          "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/displayName",
+          "name": "displayName",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/displayName",
+            "name": "displayName",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 74,
+              "startColumn": 2,
+              "endLine": 74,
+              "endColumn": 22
+            }
+          },
+          "position": {
+            "startLine": 34,
+            "startColumn": 3,
+            "endLine": 34,
+            "endColumn": 23
+          }
+        },
+        "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/appVersion": {
+          "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/appVersion",
+          "name": "appVersion",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/appVersion",
+            "name": "appVersion",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 90,
+              "startColumn": 2,
+              "endLine": 90,
+              "endColumn": 21
+            }
+          },
+          "position": {
+            "startLine": 35,
+            "startColumn": 3,
+            "endLine": 35,
+            "endColumn": 22
+          }
+        },
+        "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/webUrl": {
+          "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/webUrl",
+          "name": "webUrl",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/webUrl",
+            "name": "webUrl",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 78,
+              "startColumn": 2,
+              "endLine": 78,
+              "endColumn": 17
+            }
+          },
+          "position": {
+            "startLine": 38,
+            "startColumn": 3,
+            "endLine": 38,
+            "endColumn": 18
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 4,
+        "cluster_type": 3
+      }
+    },
+    "fields_to_fields_data_clump-apps/scripts/store-metadata.ts-apps/scripts/store-metadata.ts/interface/CliOptions-apps/scripts/store-screenshots.ts/interface/CliOptions-modulePathstoredryRun": {
+      "type": "data_clump",
+      "key": "fields_to_fields_data_clump-apps/scripts/store-metadata.ts-apps/scripts/store-metadata.ts/interface/CliOptions-apps/scripts/store-screenshots.ts/interface/CliOptions-modulePathstoredryRun",
+      "probability": 1,
+      "from_file_path": "apps/scripts/store-metadata.ts",
+      "from_class_or_interface_key": "apps/scripts/store-metadata.ts/interface/CliOptions",
+      "from_class_or_interface_name": "CliOptions",
+      "from_method_name": null,
+      "from_method_key": null,
+      "to_file_path": "apps/scripts/store-screenshots.ts",
+      "to_class_or_interface_key": "apps/scripts/store-screenshots.ts/interface/CliOptions",
+      "to_class_or_interface_name": "CliOptions",
+      "to_method_key": null,
+      "to_method_name": null,
+      "data_clump_type": "fields_to_fields_data_clump",
+      "data_clump_data": {
+        "apps/scripts/store-metadata.ts/interface/CliOptions/memberField/modulePath": {
+          "key": "apps/scripts/store-metadata.ts/interface/CliOptions/memberField/modulePath",
+          "name": "modulePath",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-screenshots.ts/interface/CliOptions/memberField/modulePath",
+            "name": "modulePath",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 25,
+              "startColumn": 3,
+              "endLine": 25,
+              "endColumn": 22
+            }
+          },
+          "position": {
+            "startLine": 34,
+            "startColumn": 3,
+            "endLine": 34,
+            "endColumn": 22
+          }
+        },
+        "apps/scripts/store-metadata.ts/interface/CliOptions/memberField/store": {
+          "key": "apps/scripts/store-metadata.ts/interface/CliOptions/memberField/store",
+          "name": "store",
+          "type": "'apple' | 'google' | 'all'",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-screenshots.ts/interface/CliOptions/memberField/store",
+            "name": "store",
+            "type": "'apple' | 'google' | 'all'",
+            "modifiers": [],
+            "position": {
+              "startLine": 27,
+              "startColumn": 3,
+              "endLine": 27,
+              "endColumn": 37
+            }
+          },
+          "position": {
+            "startLine": 35,
+            "startColumn": 3,
+            "endLine": 35,
+            "endColumn": 37
+          }
+        },
+        "apps/scripts/store-metadata.ts/interface/CliOptions/memberField/dryRun": {
+          "key": "apps/scripts/store-metadata.ts/interface/CliOptions/memberField/dryRun",
+          "name": "dryRun",
+          "type": "boolean",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-screenshots.ts/interface/CliOptions/memberField/dryRun",
+            "name": "dryRun",
+            "type": "boolean",
+            "modifiers": [],
+            "position": {
+              "startLine": 28,
+              "startColumn": 3,
+              "endLine": 28,
+              "endColumn": 19
+            }
+          },
+          "position": {
+            "startLine": 37,
+            "startColumn": 3,
+            "endLine": 37,
+            "endColumn": 19
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 5,
+        "cluster_type": 2
+      }
+    },
+    "fields_to_fields_data_clump-apps/scripts/store-screenshots-load.ts-apps/scripts/store-screenshots-load.ts/interface/Manifest-apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest-tenantappVersionscreens": {
+      "type": "data_clump",
+      "key": "fields_to_fields_data_clump-apps/scripts/store-screenshots-load.ts-apps/scripts/store-screenshots-load.ts/interface/Manifest-apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest-tenantappVersionscreens",
+      "probability": 1,
+      "from_file_path": "apps/scripts/store-screenshots-load.ts",
+      "from_class_or_interface_key": "apps/scripts/store-screenshots-load.ts/interface/Manifest",
+      "from_class_or_interface_name": "Manifest",
+      "from_method_name": null,
+      "from_method_key": null,
+      "to_file_path": "apps/screenshotGenerator/src/store/index.ts",
+      "to_class_or_interface_key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest",
+      "to_class_or_interface_name": "StoreScreenshotManifest",
+      "to_method_key": null,
+      "to_method_name": null,
+      "data_clump_type": "fields_to_fields_data_clump",
+      "data_clump_data": {
+        "apps/scripts/store-screenshots-load.ts/interface/Manifest/memberField/tenant": {
+          "key": "apps/scripts/store-screenshots-load.ts/interface/Manifest/memberField/tenant",
+          "name": "tenant",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/tenant",
+            "name": "tenant",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 33,
+              "startColumn": 3,
+              "endLine": 33,
+              "endColumn": 18
+            }
+          },
+          "position": {
+            "startLine": 22,
+            "startColumn": 19,
+            "endLine": 22,
+            "endColumn": 34
+          }
+        },
+        "apps/scripts/store-screenshots-load.ts/interface/Manifest/memberField/appVersion": {
+          "key": "apps/scripts/store-screenshots-load.ts/interface/Manifest/memberField/appVersion",
+          "name": "appVersion",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/appVersion",
+            "name": "appVersion",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 35,
+              "startColumn": 3,
+              "endLine": 35,
+              "endColumn": 22
+            }
+          },
+          "position": {
+            "startLine": 22,
+            "startColumn": 35,
+            "endLine": 22,
+            "endColumn": 54
+          }
+        },
+        "apps/scripts/store-screenshots-load.ts/interface/Manifest/memberField/screens": {
+          "key": "apps/scripts/store-screenshots-load.ts/interface/Manifest/memberField/screens",
+          "name": "screens",
+          "type": "{ position: number; route: string; file: string }[]",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/screenshotGenerator/src/store/index.ts/interface/StoreScreenshotManifest/memberField/screens",
+            "name": "screens",
+            "type": "{ position: number; route: string; file: string }[]",
+            "modifiers": [],
+            "position": {
+              "startLine": 43,
+              "startColumn": 3,
+              "endLine": 43,
+              "endColumn": 64
+            }
+          },
+          "position": {
+            "startLine": 22,
+            "startColumn": 55,
+            "endLine": 22,
+            "endColumn": 116
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 4,
+        "cluster_type": 3
+      }
+    },
+    "fields_to_fields_data_clump-apps/scripts/store-screenshots-load.ts-apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry-apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant-displayNamebundleIdIospackageNameAndroidautoUpload": {
+      "type": "data_clump",
+      "key": "fields_to_fields_data_clump-apps/scripts/store-screenshots-load.ts-apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry-apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant-displayNamebundleIdIospackageNameAndroidautoUpload",
+      "probability": 1,
+      "from_file_path": "apps/scripts/store-screenshots-load.ts",
+      "from_class_or_interface_key": "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry",
+      "from_class_or_interface_name": "StoreScreenshotTenantEntry",
+      "from_method_name": null,
+      "from_method_key": null,
+      "to_file_path": "apps/frontend/app/store-screenshots.ts",
+      "to_class_or_interface_key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant",
+      "to_class_or_interface_name": "StoreScreenshotTenant",
+      "to_method_key": null,
+      "to_method_name": null,
+      "data_clump_type": "fields_to_fields_data_clump",
+      "data_clump_data": {
+        "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/displayName": {
+          "key": "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/displayName",
+          "name": "displayName",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/displayName",
+            "name": "displayName",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 74,
+              "startColumn": 2,
+              "endLine": 74,
+              "endColumn": 22
+            }
+          },
+          "position": {
+            "startLine": 15,
+            "startColumn": 3,
+            "endLine": 15,
+            "endColumn": 23
+          }
+        },
+        "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/bundleIdIos": {
+          "key": "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/bundleIdIos",
+          "name": "bundleIdIos",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/bundleIdIos",
+            "name": "bundleIdIos",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 81,
+              "startColumn": 2,
+              "endLine": 81,
+              "endColumn": 23
+            }
+          },
+          "position": {
+            "startLine": 16,
+            "startColumn": 3,
+            "endLine": 16,
+            "endColumn": 24
+          }
+        },
+        "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/packageNameAndroid": {
+          "key": "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/packageNameAndroid",
+          "name": "packageNameAndroid",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/packageNameAndroid",
+            "name": "packageNameAndroid",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 82,
+              "startColumn": 2,
+              "endLine": 82,
+              "endColumn": 30
+            }
+          },
+          "position": {
+            "startLine": 17,
+            "startColumn": 3,
+            "endLine": 17,
+            "endColumn": 31
+          }
+        },
+        "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/autoUpload": {
+          "key": "apps/scripts/store-screenshots-load.ts/interface/StoreScreenshotTenantEntry/memberField/autoUpload",
+          "name": "autoUpload",
+          "type": "boolean",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/frontend/app/store-screenshots.ts/interface/StoreScreenshotTenant/memberField/autoUpload",
+            "name": "autoUpload",
+            "type": "boolean",
+            "modifiers": [],
+            "position": {
+              "startLine": 88,
+              "startColumn": 2,
+              "endLine": 88,
+              "endColumn": 22
+            }
+          },
+          "position": {
+            "startLine": 18,
+            "startColumn": 3,
+            "endLine": 18,
+            "endColumn": 24
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 4,
+        "cluster_type": 3
+      }
+    },
+    "fields_to_fields_data_clump-apps/scripts/store-screenshots.ts-apps/scripts/store-screenshots.ts/interface/CliOptions-apps/scripts/store-metadata.ts/interface/CliOptions-modulePathstoredryRun": {
+      "type": "data_clump",
+      "key": "fields_to_fields_data_clump-apps/scripts/store-screenshots.ts-apps/scripts/store-screenshots.ts/interface/CliOptions-apps/scripts/store-metadata.ts/interface/CliOptions-modulePathstoredryRun",
+      "probability": 1,
+      "from_file_path": "apps/scripts/store-screenshots.ts",
+      "from_class_or_interface_key": "apps/scripts/store-screenshots.ts/interface/CliOptions",
+      "from_class_or_interface_name": "CliOptions",
+      "from_method_name": null,
+      "from_method_key": null,
+      "to_file_path": "apps/scripts/store-metadata.ts",
+      "to_class_or_interface_key": "apps/scripts/store-metadata.ts/interface/CliOptions",
+      "to_class_or_interface_name": "CliOptions",
+      "to_method_key": null,
+      "to_method_name": null,
+      "data_clump_type": "fields_to_fields_data_clump",
+      "data_clump_data": {
+        "apps/scripts/store-screenshots.ts/interface/CliOptions/memberField/modulePath": {
+          "key": "apps/scripts/store-screenshots.ts/interface/CliOptions/memberField/modulePath",
+          "name": "modulePath",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-metadata.ts/interface/CliOptions/memberField/modulePath",
+            "name": "modulePath",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 34,
+              "startColumn": 3,
+              "endLine": 34,
+              "endColumn": 22
+            }
+          },
+          "position": {
+            "startLine": 25,
+            "startColumn": 3,
+            "endLine": 25,
+            "endColumn": 22
+          }
+        },
+        "apps/scripts/store-screenshots.ts/interface/CliOptions/memberField/store": {
+          "key": "apps/scripts/store-screenshots.ts/interface/CliOptions/memberField/store",
+          "name": "store",
+          "type": "'apple' | 'google' | 'all'",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-metadata.ts/interface/CliOptions/memberField/store",
+            "name": "store",
+            "type": "'apple' | 'google' | 'all'",
+            "modifiers": [],
+            "position": {
+              "startLine": 35,
+              "startColumn": 3,
+              "endLine": 35,
+              "endColumn": 37
+            }
+          },
+          "position": {
+            "startLine": 27,
+            "startColumn": 3,
+            "endLine": 27,
+            "endColumn": 37
+          }
+        },
+        "apps/scripts/store-screenshots.ts/interface/CliOptions/memberField/dryRun": {
+          "key": "apps/scripts/store-screenshots.ts/interface/CliOptions/memberField/dryRun",
+          "name": "dryRun",
+          "type": "boolean",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "apps/scripts/store-metadata.ts/interface/CliOptions/memberField/dryRun",
+            "name": "dryRun",
+            "type": "boolean",
+            "modifiers": [],
+            "position": {
+              "startLine": 37,
+              "startColumn": 3,
+              "endLine": 37,
+              "endColumn": 19
+            }
+          },
+          "position": {
+            "startLine": 28,
+            "startColumn": 3,
+            "endLine": 28,
+            "endColumn": 19
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 5,
+        "cluster_type": 2
+      }
+    },
     "fields_to_fields_data_clump-packages/common/src/LegalEntities.ts-packages/common/src/LegalEntities.ts/interface/CustomerLegalEntity-packages/common/src/LegalEntities.ts/interface/OperatorLegalEntity-namephoneemail": {
       "type": "data_clump",
       "key": "fields_to_fields_data_clump-packages/common/src/LegalEntities.ts-packages/common/src/LegalEntities.ts/interface/CustomerLegalEntity-packages/common/src/LegalEntities.ts/interface/OperatorLegalEntity-namephoneemail",
@@ -1930,7 +2756,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 4,
+        "cluster_id": 6,
         "cluster_type": 2
       }
     },
@@ -2027,7 +2853,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 4,
+        "cluster_id": 6,
         "cluster_type": 2
       }
     }

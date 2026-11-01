@@ -1,4 +1,8 @@
 Key,Message,Component,Line
+"AaGZKV3QhpVs7SWw5zSw","Make sure that no untrusted code is executed from a fork.","rocket-meals_rocket-meals:.github/workflows/store-screenshots.yml",68
+"AaGZKV3QhpVs7SWw5zSx","Make sure that no untrusted code is executed from a fork.","rocket-meals_rocket-meals:.github/workflows/store-screenshots.yml",124
+"AaGZKV3QhpVs7SWw5zSy","Make sure that no untrusted code is executed from a fork.","rocket-meals_rocket-meals:.github/workflows/store-screenshots.yml",151
+"AaGZKV2ohpVs7SWw5zSp","Make sure this weak hash algorithm is not used in a sensitive context here.","rocket-meals_rocket-meals:apps/scripts/store-screenshots-load.ts",55
 "AaFQNrSAZ2pN_ZCigmuJ","Make sure the ""PATH"" variable only contains fixed, unwriteable directories.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/extension.config.mjs",100
 "AaEwB48XRXfa2mJa0A5o","Client-Side Request Forgery via unsanitized user input","rocket-meals_rocket-meals:apps/maintenance-server/server.mjs",156
 "AaEv5PHqBIquHGRjEP38","CORS Injection via unsanitized user input","rocket-meals_rocket-meals:apps/maintenance-server/server.mjs",197

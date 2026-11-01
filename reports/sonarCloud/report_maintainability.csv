@@ -1,4 +1,13 @@
 Key,Message,Component,Line
+"AaGZKV21hpVs7SWw5zSr","Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed.","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/showcaseDay.ts",50
+"AaGZKV21hpVs7SWw5zSs","Move this array ""sort"" operation to a separate statement or replace it with ""toSorted"".","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/showcaseDay.ts",83
+"AaGZKV0MhpVs7SWw5zSm","`AUTO_UPLOAD_TENANTS` should be a `Set`, and use `AUTO_UPLOAD_TENANTS.has()` to check existence or non-existence.","rocket-meals_rocket-meals:apps/frontend/app/store-screenshots.ts",95
+"AaGZKV27hpVs7SWw5zSt","Async method 'close' has no 'await' expression.","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/index.ts",212
+"AaGZKV27hpVs7SWw5zSu","Async function 'renderTenantScreens' has too many parameters (9). Maximum allowed is 7.","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/index.ts",254
+"AaGZKV27hpVs7SWw5zSv","Unexpected `await` inside a loop.","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/index.ts",336
+"AaGZKV2jhpVs7SWw5zSo","Unexpected `await` inside a loop.","rocket-meals_rocket-meals:apps/scripts/store-screenshots-apple.ts",66
+"AaGZKV2dhpVs7SWw5zSn","Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed.","rocket-meals_rocket-meals:apps/scripts/store-screenshots-google.ts",24
+"AaGZKV2thpVs7SWw5zSq","Refactor this function to reduce its Cognitive Complexity from 39 to the 15 allowed.","rocket-meals_rocket-meals:apps/scripts/store-screenshots.ts",66
 "AaFgXPxog_p_Fqfrjcio","Async function 'fetchUniversityAffiliation' has no 'await' expression.","rocket-meals_rocket-meals:apps/frontend/app/hooks/useUniversityStatusTracking.ts",11
 "AaFe_5tDgjWoea35fev1","`PROVIDERS` should be a `Set`, and use `PROVIDERS.has()` to check existence or non-existence.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/university-affiliation-hook/index.ts",19
 "AaFGIJ91nL1HbyZtk0Nk","Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.","rocket-meals_rocket-meals:packages/common-ui/src/components/SettingsList/SettingsList.tsx",166

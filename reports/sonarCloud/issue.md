@@ -4,15 +4,27 @@
 
 | Category | Total Issues | Shown |
 |----------|-------------|-------|
-| 🔒 Security | 3 | 3 |
-| 🐛 Reliability | 10 | 10 |
-| 🔧 Maintainability | 35 | 35 |
+| 🔒 Security | 7 | 7 |
+| 🐛 Reliability | 11 | 11 |
+| 🔧 Maintainability | 44 | 32 |
 
-**Total issues:** 48
+**Total issues:** 62 (showing top 50 prioritized by: Security > Reliability > Maintainability)
 
 ---
 
-## 🔒 Security (3/3)
+## 🔒 Security (7/7)
+
+- **Make sure that no untrusted code is executed from a fork.**
+  .github/workflows/store-screenshots.yml:68
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/store-screenshots.yml#L68
+
+- **Make sure that no untrusted code is executed from a fork.**
+  .github/workflows/store-screenshots.yml:124
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/store-screenshots.yml#L124
+
+- **Make sure that no untrusted code is executed from a fork.**
+  .github/workflows/store-screenshots.yml:151
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/store-screenshots.yml#L151
 
 - **Make sure the "PATH" variable only contains fixed, unwriteable directories.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/extension.config.mjs:100
@@ -26,7 +38,11 @@
   apps/maintenance-server/server.mjs:197
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/maintenance-server/server.mjs#L197
 
-## 🐛 Reliability (10/10)
+- **Make sure this weak hash algorithm is not used in a sensitive context here.**
+  apps/scripts/store-screenshots-load.ts:55
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/scripts/store-screenshots-load.ts#L55
+
+## 🐛 Reliability (11/11)
 
 - **Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/UniversityAffiliationHelper.ts:80
@@ -56,6 +72,10 @@
   apps/maintenance-server/server.mjs:303
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/maintenance-server/server.mjs#L303
 
+- **Async method 'close' has no 'await' expression.**
+  apps/screenshotGenerator/src/store/index.ts:212
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/screenshotGenerator/src/store/index.ts#L212
+
 - **Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.**
   scripts/eas-ios-credentials.sh:24
   https://github.com/rocket-meals/rocket-meals/blob/master/scripts/eas-ios-credentials.sh#L24
@@ -68,7 +88,7 @@
   scripts/eas-ios-credentials.sh:29
   https://github.com/rocket-meals/rocket-meals/blob/master/scripts/eas-ios-credentials.sh#L29
 
-## 🔧 Maintainability (35/35)
+## 🔧 Maintainability (32/44)
 
 - **Redirect this error message to stderr (>&2).**
   .github/actions/geonexia-expo-update/action.yml:135
@@ -190,23 +210,11 @@
   apps/frontend/app/hooks/useUniversityStatusTracking.ts:11
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/hooks/useUniversityStatusTracking.ts#L11
 
+- **`AUTO_UPLOAD_TENANTS` should be a `Set`, and use `AUTO_UPLOAD_TENANTS.has()` to check existence or non-existence.**
+  apps/frontend/app/store-screenshots.ts:95
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/store-screenshots.ts#L95
+
 - **Move function 'setCorsHeaders' to the outer scope.**
   apps/maintenance-server/server.mjs:193
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/maintenance-server/server.mjs#L193
-
-- **Move function 'sendJson' to the outer scope.**
-  apps/maintenance-server/server.mjs:205
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/maintenance-server/server.mjs#L205
-
-- **Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.**
-  packages/common-ui/src/components/SettingsList/SettingsList.tsx:166
-  https://github.com/rocket-meals/rocket-meals/blob/master/packages/common-ui/src/components/SettingsList/SettingsList.tsx#L166
-
-- **Extract this nested ternary operation into an independent statement.**
-  packages/common/src/EventHelper.ts:42
-  https://github.com/rocket-meals/rocket-meals/blob/master/packages/common/src/EventHelper.ts#L42
-
-- **arrow function is equivalent to `String`. Use `String` directly.**
-  packages/common/src/EventHelper.ts:196
-  https://github.com/rocket-meals/rocket-meals/blob/master/packages/common/src/EventHelper.ts#L196
 
