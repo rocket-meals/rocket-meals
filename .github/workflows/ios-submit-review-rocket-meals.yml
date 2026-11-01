@@ -143,6 +143,9 @@ jobs:
           # Ground truth for the pre-submit metadata sync (Altersfreigabe & Co),
           # see docs/STORE_METADATA.md.
           STORE_METADATA_MODULE: apps/frontend/app/store-metadata.ts
+          # Store screenshots committed under store-screenshots/<tenant>/ are uploaded
+          # to the version before it is submitted, see docs/STORE_SCREENSHOTS.md.
+          STORE_SCREENSHOTS_MODULE: apps/frontend/app/store-screenshots.ts
           # Post-CI runs skip gracefully when there is nothing to submit
           # and never re-submit versions Apple has rejected.
           IOS_SUBMIT_AUTO: ${{ github.event_name != 'workflow_dispatch' }}

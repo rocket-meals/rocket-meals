@@ -157,7 +157,9 @@ export default function Layout() {
 					id: 'demo',
 					nickname: 'Demo User',
 					credit_balance: 20.5,
-					credit_balance_date_updated: currentDate,
+					// ISO like the real profile field - the account balance screen parses it as a date,
+					// and "02.11.2026" read as a date is the 11th of February.
+					credit_balance_date_updated: new Date().toISOString(),
 					credit_balance_last_transaction: 20.5,
 					markings: [],
 					buildings_favorites: [],

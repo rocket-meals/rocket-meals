@@ -212,19 +212,22 @@ const BuildingItem: React.FC<BuildingItemPropsOptimized> = ({
 						)}
 						{!isManagement && !isLastOpened && <View />}
 
-						<View style={styles.distanceActions}>
-							<TouchableOpacity
-								style={{
-									...styles.directionButton,
-									backgroundColor: campus_area_color,
-								}}
-								onPress={openDistanceInformationModal}
-								onLongPress={openDistanceSheet}
-							>
-								<MaterialCommunityIcons name="map-marker-distance" size={20} color={contrastColor} />
-								<Text style={{ ...styles.distance, color: contrastColor }}>{getDistanceUnit(campus?.distance)}</Text>
-							</TouchableOpacity>
-						</View>
+						{/* No distance without a reference point (no canteen chosen yet, no location) - "NaN m" otherwise. */}
+						{Number.isFinite(campus?.distance) && (
+							<View style={styles.distanceActions}>
+								<TouchableOpacity
+									style={{
+										...styles.directionButton,
+										backgroundColor: campus_area_color,
+									}}
+									onPress={openDistanceInformationModal}
+									onLongPress={openDistanceSheet}
+								>
+									<MaterialCommunityIcons name="map-marker-distance" size={20} color={contrastColor} />
+									<Text style={{ ...styles.distance, color: contrastColor }}>{getDistanceUnit(campus?.distance)}</Text>
+								</TouchableOpacity>
+							</View>
+						)}
 					</View>
 				</>
 			}

@@ -1,6 +1,8 @@
 import { AscApiError, JsonApiResource, asArray, ascRequest, createAppStoreConnectToken, findAppId, readRequiredEnv } from './asc-api';
 import { applyApplePush, planApplePush, pullAppleMetadata } from './store-metadata-apple';
 import { loadStoreMetadataModule } from './store-metadata-load';
+import { syncAppleScreenshots } from './store-screenshots-apple';
+import { loadLocalScreenshotSets, loadStoreScreenshotTenants } from './store-screenshots-load';
 
 // https://developer.apple.com/documentation/appstoreconnectapi/appstoreversionstate
 const SUBMITTABLE_APP_VERSION_STATES = new Set(['PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'REJECTED', 'METADATA_REJECTED', 'INVALID_BINARY']);
@@ -302,6 +304,34 @@ async function syncStoreMetadata(token: string, bundleId: string): Promise<void>
   await applyApplePush(token, plan, false);
 }
 
+// The store screenshots committed under store-screenshots/<tenant>/ (see
+// docs/STORE_SCREENSHOTS.md) are uploaded to the version right before it goes to review,
+// because Apple only accepts new screenshots while a version is editable. Unlike the
+// metadata sync a failure here does NOT block the submission: the screenshots already in
+// App Store Connect stay valid, a release must not wait for a picture.
+async function syncStoreScreenshots(token: string, bundleId: string, appStoreVersionId: string): Promise<void> {
+  const modulePath = process.env.STORE_SCREENSHOTS_MODULE;
+  if (!modulePath) {
+    console.log('   ⏭️ STORE_SCREENSHOTS_MODULE ist nicht gesetzt - Screenshot-Sync wird übersprungen.');
+    return;
+  }
+  try {
+    const tenant = loadStoreScreenshotTenants(modulePath).find(candidate => candidate.bundleIdIos === bundleId);
+    if (tenant && !tenant.autoUpload) {
+      console.log(`   ⏭️ autoUpload ist für "${tenant.tenant}" aus (store-screenshots.ts) - Screenshot-Sync wird übersprungen.`);
+      return;
+    }
+    const sets = tenant ? loadLocalScreenshotSets(tenant.tenant, 'apple') : undefined;
+    if (!sets) {
+      console.log(`   ⏭️ Keine Store-Screenshots für "${bundleId}" im Repo - Screenshot-Sync wird übersprungen.`);
+      return;
+    }
+    await syncAppleScreenshots(token, appStoreVersionId, sets, false);
+  } catch (error) {
+    console.log(`::warning::Store-Screenshots konnten nicht hochgeladen werden, die Einreichung läuft trotzdem weiter: ${sanitizeForLog((error as Error).message)}`);
+  }
+}
+
 async function attemptSubmission(bundleId: string, releaseNotes: string, credentials: Credentials): Promise<void> {
   // The App Store Connect JWT expires after 15 minutes, so every attempt of the
   // retry loop below needs a fresh one.
@@ -327,6 +357,9 @@ async function attemptSubmission(bundleId: string, releaseNotes: string, credent
 
   console.log('📋 Gleiche App-Informationen (Altersfreigabe & Co) mit der Ground Truth ab ...');
   await syncStoreMetadata(token, bundleId);
+
+  console.log('🖼️ Gleiche Store-Screenshots mit dem Repo ab ...');
+  await syncStoreScreenshots(token, bundleId, appStoreVersionId);
 
   console.log('🔍 Prüfe auf bereits laufende Review-Einreichung ...');
   const reusableSubmissionId = await findReusableReviewSubmission(token, appId);

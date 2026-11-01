@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { RefreshControl, SafeAreaView, useWindowDimensions, View, unstable_batchedUpdates } from 'react-native';
+import { RefreshControl, SafeAreaView, useWindowDimensions, View } from 'react-native';
 import { AppUsageEventNames, CollectionNames, DatabaseTypes, shouldApplyLastOpenedBoost } from 'repo-depkit-common';
 import { FlashList } from '@shopify/flash-list';
 import * as Location from 'expo-location';
@@ -126,12 +126,13 @@ const Index: React.FC = () => {
 				return acc;
 			}, {} as Record<string, any>);
 
-			unstable_batchedUpdates(() => {
-				dispatch({ type: SET_APARTMENTS, payload: apartmentWithBuilding });
-				dispatch({ type: SET_UNSORTED_APARTMENTS, payload: apartmentWithBuilding });
-				dispatch({ type: SET_APARTMENTS_LOCAL, payload: apartmentWithBuilding });
-				dispatch({ type: SET_APARTMENTS_DICT, payload: apartmentsDict });
-			});
+			// React batches these dispatches on its own. react-native-web has no
+			// unstable_batchedUpdates, wrapping them in it threw on the web and the
+			// screen showed "Failed to load apartments".
+			dispatch({ type: SET_APARTMENTS, payload: apartmentWithBuilding });
+			dispatch({ type: SET_UNSORTED_APARTMENTS, payload: apartmentWithBuilding });
+			dispatch({ type: SET_APARTMENTS_LOCAL, payload: apartmentWithBuilding });
+			dispatch({ type: SET_APARTMENTS_DICT, payload: apartmentsDict });
 		} catch (error) {
 			console.error('Error fetching apartments or buildings:', error);
 			toast('Failed to load apartments', 'error');
@@ -201,6 +202,16 @@ const Index: React.FC = () => {
 		fetchSelectedBuilding();
 		fetchAllApartments();
 	}, []); // Run once on mount
+
+	// The canteen can be chosen after this screen mounted (kiosk mode picks one
+	// asynchronously, a new user picks one later) - fetch its building then, otherwise
+	// no distance is ever shown.
+	const selectedCanteenBuildingId = selectedCanteen?.building ? String(selectedCanteen.building) : null;
+	useEffect(() => {
+		if (selectedCanteenBuildingId && String(selectedBuilding?.id ?? '') !== selectedCanteenBuildingId) {
+			void fetchSelectedBuilding();
+		}
+	}, [selectedCanteenBuildingId]); // NOSONAR - only the building id of the chosen canteen matters here
 
 	// Computed Data
 	const apartmentsWithDistance = useMemo(() => {

@@ -17,7 +17,8 @@
     "dev-client:update-readme": "ts-node --project ./tsconfig.json ./dev-client-readme.ts update-readme",
     "ios-preview:extract-url": "ts-node --project ./tsconfig.json ./ios-preview.ts extract",
     "ios-preview:update-readme": "ts-node --project ./tsconfig.json ./ios-preview.ts update-readme",
-    "test": "jest"
+    "test": "jest",
+    "store-screenshots": "ts-node --transpile-only --project ./tsconfig.json ./store-screenshots.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

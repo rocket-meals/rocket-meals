@@ -19,6 +19,8 @@ Es werden **nur Felder verwaltet, die in der Ground Truth gesetzt sind** - alles
 bleibt in den Stores unangetastet. Die fachliche Begründung der Altersfreigabe-Antworten
 steht in `docs/Apple Altersfreigabe.txt`.
 
+Die Store-Screenshots laufen über einen eigenen, ähnlichen Weg: `docs/STORE_SCREENSHOTS.md`.
+
 ## Automatischer Sync im Submit-Workflow
 
 Die `ios-submit-review-*`-Workflows setzen `STORE_METADATA_MODULE`, dadurch gleicht

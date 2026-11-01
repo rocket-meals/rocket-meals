@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "start": "tsx src/index.ts",
-    "debug": "yarn run start -- --repositoryOwner rocket-meals --repositoryName rocket-meals --screenshotDir ./screenshots"
+    "debug": "yarn run start -- --repositoryOwner rocket-meals --repositoryName rocket-meals --screenshotDir ./screenshots",
+    "store": "tsx src/store/index.ts"
   },
   "author": "",
   "license": "ISC",
