@@ -1282,6 +1282,7 @@ export type Foods = {
   category?: string | null;
   date_created?: string | null;
   date_updated?: string | null;
+  description_icon_expo?: string | null;
   extra?: string | null;
   feedbacks: any[] | FoodsFeedbacks[];
   food_category?: string | FoodsCategories | null;

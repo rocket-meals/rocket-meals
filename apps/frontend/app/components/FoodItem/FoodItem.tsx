@@ -32,6 +32,7 @@ import Labels from '@/components/Labels';
 import { useMyContrastColor } from '@/helper/ColorHelper';
 import MyMarkdownProjectColored from '@/components/MyMarkdownProjectColored';
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
+import { iconLibraries } from '@/components/Drawer/CustomDrawerContent';
 import { AppRatingPromptSources } from '@/helper/AppUsageEventHelper';
 import { useMyScrollviewModalPriceGroupSettings } from '@/hooks/useMyScrollviewModalPriceGroupSettings';
 
@@ -100,6 +101,12 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
 
     const { food } = item;
     const foodItem = food as DatabaseTypes.Foods & { show_description_icon_on_card?: boolean | null };
+    // Icon of the description button as `Library:name` (like `icon_expo` of the food attributes),
+    // e.g. a trophy for a recipe contest. Unknown or empty: the info icon.
+    const [descriptionIconLibrary, descriptionIconKeyName] = foodItem?.description_icon_expo?.split(':') || [];
+    const hasCustomDescriptionIcon = !!(descriptionIconKeyName && iconLibraries[descriptionIconLibrary]);
+    const DescriptionIcon = hasCustomDescriptionIcon ? iconLibraries[descriptionIconLibrary] : Entypo;
+    const descriptionIconName = hasCustomDescriptionIcon ? descriptionIconKeyName : 'info';
 
     const { openAccountRequiredModal } = useAccountRequiredModal();
 
@@ -437,7 +444,7 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
                         style={[styles.favContainer, { backgroundColor: foods_area_color }]}
                         onPress={handleDescriptionModal}
                       >
-                        <Entypo name="info" size={20} color={contrastColor} />
+                        <DescriptionIcon name={descriptionIconName} size={20} color={contrastColor} />
                       </TouchableOpacity>
                     )}
                   </View>
