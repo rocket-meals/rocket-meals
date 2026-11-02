@@ -1,11 +1,11 @@
 # Accessibility Report
 
-> Generated: 2026-10-26T03:15:13.262Z | axe-core 4.12.1 | Rules: wcag2a, wcag2aa, wcag21a, wcag21aa, best-practice | Viewport: 1280x900
+> Generated: 2026-11-02T03:11:54.779Z | axe-core 4.12.1 | Rules: wcag2a, wcag2aa, wcag21a, wcag21aa, best-practice | Viewport: 1280x900
 > Base URL: http://localhost:8081/rocket-meals
 
 ## Summary
 
-Total violations (affected elements): **224** — 🟥 Critical: 5, 🟧 Serious: 11, 🟨 Moderate: 208, 🟦 Minor: 0
+Total violations (affected elements): **223** — 🟥 Critical: 5, 🟧 Serious: 10, 🟨 Moderate: 208, 🟦 Minor: 0
 
 | Screen | 🟥 Critical | 🟧 Serious | 🟨 Moderate | 🟦 Minor | Total | Passes |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -19,11 +19,11 @@ Total violations (affected elements): **224** — 🟥 Critical: 5, 🟧 Serious
 | leaflet-map | 0 | 0 | 5 | 0 | 5 | 8 |
 | faq-food | 0 | 1 | 3 | 0 | 4 | 28 |
 | faq-living | 0 | 1 | 3 | 0 | 4 | 28 |
-| account-balance | 0 | 1 | 2 | 0 | 3 | 7 |
 | feedback-support | 1 | 0 | 2 | 0 | 3 | 28 |
 | support-ticket | 0 | 1 | 2 | 0 | 3 | 26 |
 | foodoffers | 0 | 0 | 2 | 0 | 2 | 27 |
 | eating-habits | 0 | 0 | 2 | 0 | 2 | 17 |
+| account-balance | 0 | 0 | 2 | 0 | 2 | 17 |
 | campus | 0 | 0 | 2 | 0 | 2 | 22 |
 | housing | 0 | 0 | 2 | 0 | 2 | 30 |
 | news | 0 | 0 | 2 | 0 | 2 | 17 |
@@ -54,12 +54,11 @@ Total violations (affected elements): **224** — 🟥 Critical: 5, 🟧 Serious
 
 | Rule | Impact | Elements | Screens | Help |
 | --- | --- | ---: | ---: | --- |
-| `region` | 🟨 moderate | 203 | 39 | [All page content should be contained by landmarks](https://dequeuniversity.com/rules/axe/4.12/region?application=axe-puppeteer) |
-| `document-title` | 🟧 serious | 5 | 5 | [Documents must have <title> element to aid in navigation](https://dequeuniversity.com/rules/axe/4.12/document-title?application=axe-puppeteer) |
-| `landmark-one-main` | 🟨 moderate | 4 | 4 | [Document should have one main landmark](https://dequeuniversity.com/rules/axe/4.12/landmark-one-main?application=axe-puppeteer) |
+| `region` | 🟨 moderate | 205 | 40 | [All page content should be contained by landmarks](https://dequeuniversity.com/rules/axe/4.12/region?application=axe-puppeteer) |
 | `color-contrast` | 🟧 serious | 4 | 1 | [Elements must meet minimum color contrast ratio thresholds](https://dequeuniversity.com/rules/axe/4.12/color-contrast?application=axe-puppeteer) |
+| `document-title` | 🟧 serious | 4 | 4 | [Documents must have <title> element to aid in navigation](https://dequeuniversity.com/rules/axe/4.12/document-title?application=axe-puppeteer) |
 | `aria-required-parent` | 🟥 critical | 4 | 1 | [Certain ARIA roles must be contained by particular parents](https://dequeuniversity.com/rules/axe/4.12/aria-required-parent?application=axe-puppeteer) |
-| `page-has-heading-one` | 🟨 moderate | 1 | 1 | [Page should contain a level-one heading](https://dequeuniversity.com/rules/axe/4.12/page-has-heading-one?application=axe-puppeteer) |
+| `landmark-one-main` | 🟨 moderate | 3 | 3 | [Document should have one main landmark](https://dequeuniversity.com/rules/axe/4.12/landmark-one-main?application=axe-puppeteer) |
 | `label` | 🟥 critical | 1 | 1 | [Form elements must have labels](https://dequeuniversity.com/rules/axe/4.12/label?application=axe-puppeteer) |
 | `aria-progressbar-name` | 🟧 serious | 1 | 1 | [ARIA progressbar nodes must have an accessible name](https://dequeuniversity.com/rules/axe/4.12/aria-progressbar-name?application=axe-puppeteer) |
 | `scrollable-region-focusable` | 🟧 serious | 1 | 1 | [Scrollable region must have keyboard access](https://dequeuniversity.com/rules/axe/4.12/scrollable-region-focusable?application=axe-puppeteer) |
@@ -206,22 +205,6 @@ URL: `http://localhost:8081/rocket-meals/faq-living?kioskMode=true`
   - `.r-12vffkv.r-1777fci.css-g5y9jx`
   - `.r-1udh08x.r-1d2f490.r-u8s1d > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx`
 
-### account-balance
-
-URL: `http://localhost:8081/rocket-meals/account-balance?kioskMode=true`
-
-- 🟧 **document-title** (serious) — 1 element(s)
-  - Documents must have <title> element to aid in navigation ([docs](https://dequeuniversity.com/rules/axe/4.12/document-title?application=axe-puppeteer))
-  - `html`
-
-- 🟨 **landmark-one-main** (moderate) — 1 element(s)
-  - Document should have one main landmark ([docs](https://dequeuniversity.com/rules/axe/4.12/landmark-one-main?application=axe-puppeteer))
-  - `html`
-
-- 🟨 **page-has-heading-one** (moderate) — 1 element(s)
-  - Page should contain a level-one heading ([docs](https://dequeuniversity.com/rules/axe/4.12/page-has-heading-one?application=axe-puppeteer))
-  - `html`
-
 ### feedback-support
 
 URL: `http://localhost:8081/rocket-meals/feedback-support?kioskMode=true`
@@ -266,6 +249,15 @@ URL: `http://localhost:8081/rocket-meals/eating-habits?kioskMode=true`
   - `.r-dnmrzs`
   - `.r-13awgt0.r-18u37iz.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx`
 
+### account-balance
+
+URL: `http://localhost:8081/rocket-meals/account-balance?kioskMode=true`
+
+- 🟨 **region** (moderate) — 2 element(s)
+  - All page content should be contained by landmarks ([docs](https://dequeuniversity.com/rules/axe/4.12/region?application=axe-puppeteer))
+  - `.r-dnmrzs.r-1p0dtai.r-ipm5af`
+  - `.r-18u37iz.r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx`
+
 ### campus
 
 URL: `http://localhost:8081/rocket-meals/campus?kioskMode=true`
@@ -282,7 +274,7 @@ URL: `http://localhost:8081/rocket-meals/housing?kioskMode=true`
 - 🟨 **region** (moderate) — 2 element(s)
   - All page content should be contained by landmarks ([docs](https://dequeuniversity.com/rules/axe/4.12/region?application=axe-puppeteer))
   - `.r-dnmrzs`
-  - `.r-1udh08x.r-1d2f490.r-u8s1d > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx`
+  - `.r-13awgt0.r-18u37iz.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-1d2f490.r-zchlnj.r-1p0dtai > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx`
 
 ### news
 

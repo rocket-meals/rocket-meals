@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T03:15:13.262Z",
+  "generatedAt": "2026-11-02T03:11:54.779Z",
   "baseUrl": "http://localhost:8081/rocket-meals",
   "axeCoreVersion": "4.12.1",
   "tags": [
@@ -15,10 +15,10 @@
   },
   "totals": {
     "critical": 5,
-    "serious": 11,
+    "serious": 10,
     "moderate": 208,
     "minor": 0,
-    "violations": 224,
+    "violations": 223,
     "screensWithErrors": 0
   },
   "screens": [
@@ -140,59 +140,29 @@
       "url": "http://localhost:8081/rocket-meals/account-balance?kioskMode=true",
       "violations": [
         {
-          "id": "document-title",
-          "impact": "serious",
-          "description": "Ensure each HTML document contains a non-empty <title> element",
-          "help": "Documents must have <title> element to aid in navigation",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.12/document-title?application=axe-puppeteer",
-          "wcagTags": [
-            "wcag2a",
-            "wcag242"
-          ],
-          "nodeCount": 1,
-          "nodes": [
-            {
-              "target": "html",
-              "html": "<html lang=\"en\" class=\"gs gs-light\" style=\"background-color: rgb(255, 255, 255);\">",
-              "failureSummary": "Fix any of the following:\n  Document does not have a non-empty <title> element"
-            }
-          ]
-        },
-        {
-          "id": "landmark-one-main",
+          "id": "region",
           "impact": "moderate",
-          "description": "Ensure the document has a main landmark",
-          "help": "Document should have one main landmark",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.12/landmark-one-main?application=axe-puppeteer",
+          "description": "Ensure all page content is contained by landmarks",
+          "help": "All page content should be contained by landmarks",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.12/region?application=axe-puppeteer",
           "wcagTags": [],
-          "nodeCount": 1,
+          "nodeCount": 2,
           "nodes": [
             {
-              "target": "html",
-              "html": "<html lang=\"en\" class=\"gs gs-light\" style=\"background-color: rgb(255, 255, 255);\">",
-              "failureSummary": "Fix all of the following:\n  Document does not have a main landmark"
-            }
-          ]
-        },
-        {
-          "id": "page-has-heading-one",
-          "impact": "moderate",
-          "description": "Ensure that the page, or at least one of its frames contains a level-one heading",
-          "help": "Page should contain a level-one heading",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.12/page-has-heading-one?application=axe-puppeteer",
-          "wcagTags": [],
-          "nodeCount": 1,
-          "nodes": [
+              "target": ".r-dnmrzs.r-1p0dtai.r-ipm5af",
+              "html": "<div class=\"css-g5y9jx r-1p0dtai...\" style=\"position: absolute; ...\">",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+            },
             {
-              "target": "html",
-              "html": "<html lang=\"en\" class=\"gs gs-light\" style=\"background-color: rgb(255, 255, 255);\">",
-              "failureSummary": "Fix all of the following:\n  Page must have a level-one heading"
+              "target": ".r-18u37iz.r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx",
+              "html": "<div class=\"css-g5y9jx r-13awgt0\">",
+              "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
             }
           ]
         }
       ],
-      "passCount": 7,
-      "incompleteCount": 0
+      "passCount": 17,
+      "incompleteCount": 2
     },
     {
       "screen": "campus",
@@ -242,7 +212,7 @@
               "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
             },
             {
-              "target": ".r-1udh08x.r-1d2f490.r-u8s1d > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx",
+              "target": ".r-13awgt0.r-18u37iz.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-1d2f490.r-zchlnj.r-1p0dtai > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx > .r-13awgt0.css-g5y9jx",
               "html": "<div class=\"css-g5y9jx r-13awgt0\">",
               "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
             }
@@ -340,7 +310,7 @@
             },
             {
               "target": ".r-1i10wst",
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-xwgrit r-1i10wst r-n7gxbd r-1wbh5a2\" style=\"color: rgb(0, 0, 0);\">26.–30. Okt</div>",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-xwgrit r-1i10wst r-n7gxbd r-1wbh5a2\" style=\"color: rgb(0, 0, 0);\">2.–6. Nov</div>",
               "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
             },
             {
@@ -370,7 +340,7 @@
             },
             {
               "target": ".r-1cmwbt1.css-g5y9jx > .r-1cmwbt1.r-18u37iz.r-1awozwy",
-              "html": "<div class=\"css-g5y9jx r-1awozwy r-18u37iz r-1cmwbt1\"><div class=\"css-g5y9jx r-lctmwy r-kdyh1x r-1559e4e r-18c5d7m\"><div dir=\"auto\" class=\"css-146c3p1 r-jwli3a r-iorfl6 r-1enofrn\">Jetzt · 03:12</div></div><div class=\"css-g5y9jx r-lctmwy r-qwd59z r-13awgt0 r-epq5cr\"></div></div>",
+              "html": "<div class=\"css-g5y9jx r-1awozwy r-18u37iz r-1cmwbt1\"><div class=\"css-g5y9jx r-lctmwy r-kdyh1x r-1559e4e r-18c5d7m\"><div dir=\"auto\" class=\"css-146c3p1 r-jwli3a r-iorfl6 r-1enofrn\">Jetzt · 03:08</div></div><div class=\"css-g5y9jx r-lctmwy r-qwd59z r-13awgt0 r-epq5cr\"></div></div>",
               "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
             },
             {
