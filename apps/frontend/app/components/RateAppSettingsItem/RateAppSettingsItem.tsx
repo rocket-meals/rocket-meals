@@ -14,8 +14,6 @@ import { CommonSystemActionHelper } from '@/helper/SystemActionHelper';
 import useNativeQuickRateApp from '@/hooks/useNativeQuickRateApp';
 import { AppRatingPromptSource, AppRatingPromptSources } from '@/helper/AppUsageEventHelper';
 
-const RATE_APP_ICON_BACKGROUND = '#F7D21F';
-
 type RateAppSettingsItemProps = {
 	groupPosition?: 'top' | 'middle' | 'bottom' | 'single';
 	showSeparator?: boolean;
@@ -41,7 +39,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 }) => {
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
-	const { primaryColor, appSettings } = useSelector((state: RootState) => state.settings);
+	const { appSettings } = useSelector((state: RootState) => state.settings);
 	const { show: showModal } = useMyScrollViewModal();
 	const { wasAskedForRating, requestNativeReview } = useNativeQuickRateApp();
 
@@ -176,8 +174,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 							handleFunction={row.url ? () => openStore(row.url!, row.store) : undefined}
 							groupPosition={computedGroupPosition}
 							showSeparator={hasMore}
-							iconBgColor={RATE_APP_ICON_BACKGROUND}
-							leftIcon={<MaterialIcons name="star" size={22} color={primaryColor} />}
+							leftIcon={<MaterialIcons name="star" size={22} color={theme.screen.icon} />}
 							rightElement={
 								row.url ? (
 									<View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
@@ -210,8 +207,7 @@ export const RateAppSettingsItem: React.FC<RateAppSettingsItemProps> = ({
 					handleFunction={() => handleNativeRating(nativeStoreUrl, nativeStore)}
 					groupPosition={debug ? 'top' : groupPosition}
 					showSeparator={debug}
-					iconBgColor={RATE_APP_ICON_BACKGROUND}
-					leftIcon={<MaterialIcons name="star" size={22} color={primaryColor} />}
+					leftIcon={<MaterialIcons name="star" size={22} color={theme.screen.icon} />}
 					rightElement={
 						<View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
 							<Ionicons name={nativeRow?.icon || STORE_ICON_BY_TARGET[nativeStore]} size={20} color={theme.screen.icon} />
