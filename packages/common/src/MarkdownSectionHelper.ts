@@ -40,7 +40,8 @@ function createMarkdownIt(): MarkdownItInstance {
 
 type MarkdownCoreState = Parameters<Parameters<MarkdownItInstance['core']['ruler']['push']>[1]>[0];
 
-function isBlankInlineToken(token: Token): boolean {
+function isBlankInlineToken(token: Token | undefined): boolean {
+	if (!token) return false;
 	return token.type === 'softbreak' || token.type === 'hardbreak' || (token.type === 'text' && token.content.trim() === '');
 }
 
@@ -54,9 +55,9 @@ export function splitTrailingLinks(children: Token[]): { text: Token[]; links: T
 	let end = children.length;
 	while (end > 0) {
 		while (end > 0 && isBlankInlineToken(children[end - 1])) end--;
-		if (end === 0 || children[end - 1].type !== 'link_close') break;
+		if (end === 0 || children[end - 1]?.type !== 'link_close') break;
 		let start = end - 1;
-		while (start >= 0 && children[start].type !== 'link_open') start--;
+		while (start >= 0 && children[start]?.type !== 'link_open') start--;
 		if (start < 0) break;
 		links.unshift(children.slice(start, end));
 		end = start;
@@ -67,7 +68,7 @@ export function splitTrailingLinks(children: Token[]): { text: Token[]; links: T
 	while (text.length > 0 && isBlankInlineToken(text[text.length - 1])) text.pop();
 	if (text.length === 0) return null;
 	const last = text[text.length - 1];
-	if (last.type === 'text') last.content = last.content.replace(/\s+$/, '');
+	if (last?.type === 'text') last.content = last.content.replace(/\s+$/, '');
 	return { text, links };
 }
 
@@ -83,6 +84,7 @@ function moveTrailingListItemLinksToOwnLine(state: MarkdownCoreState): void {
 	let listItemDepth = 0;
 	for (let i = 0; i < tokens.length; i++) {
 		const token = tokens[i];
+		if (!token) continue;
 		if (token.type === 'list_item_open') listItemDepth++;
 		if (token.type === 'list_item_close') listItemDepth--;
 		if (listItemDepth === 0 || token.type !== 'inline' || !token.children) continue;
