@@ -77,8 +77,8 @@
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/screenshotGenerator/src/store/index.ts#L212
 
 - **Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.**
-  packages/common/src/MarkdownSectionHelper.ts:70
-  https://github.com/rocket-meals/rocket-meals/blob/master/packages/common/src/MarkdownSectionHelper.ts#L70
+  packages/common/src/MarkdownSectionHelper.ts:71
+  https://github.com/rocket-meals/rocket-meals/blob/master/packages/common/src/MarkdownSectionHelper.ts#L71
 
 - **Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.**
   scripts/eas-ios-credentials.sh:24

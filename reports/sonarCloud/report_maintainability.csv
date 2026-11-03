@@ -1,5 +1,5 @@
 Key,Message,Component,Line
-"AaGg_-VdIc4SKMlUkZp5","Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.","rocket-meals_rocket-meals:packages/common/src/MarkdownSectionHelper.ts",52
+"AaGg_-VdIc4SKMlUkZp5","Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.","rocket-meals_rocket-meals:packages/common/src/MarkdownSectionHelper.ts",53
 "AaGZKV21hpVs7SWw5zSr","Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed.","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/showcaseDay.ts",50
 "AaGZKV21hpVs7SWw5zSs","Move this array ""sort"" operation to a separate statement or replace it with ""toSorted"".","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/showcaseDay.ts",83
 "AaGZKV0MhpVs7SWw5zSm","`AUTO_UPLOAD_TENANTS` should be a `Set`, and use `AUTO_UPLOAD_TENANTS.has()` to check existence or non-existence.","rocket-meals_rocket-meals:apps/frontend/app/store-screenshots.ts",95

@@ -1,5 +1,5 @@
 Key,Message,Component,Line
-"AaGg_-VdIc4SKMlUkZp6","Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.","rocket-meals_rocket-meals:packages/common/src/MarkdownSectionHelper.ts",70
+"AaGhE03V9qQkSXDWohYV","Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.","rocket-meals_rocket-meals:packages/common/src/MarkdownSectionHelper.ts",71
 "AaGZKV27hpVs7SWw5zSt","Async method 'close' has no 'await' expression.","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/index.ts",212
 "AaGMPaS9Si3bF6oTNtz4","Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.","rocket-meals_rocket-meals:scripts/eas-ios-credentials.sh",24
 "AaGMPaS9Si3bF6oTNtz5","Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.","rocket-meals_rocket-meals:scripts/eas-ios-credentials.sh",24
