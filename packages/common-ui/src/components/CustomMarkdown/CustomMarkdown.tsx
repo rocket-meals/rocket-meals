@@ -7,7 +7,7 @@ import { myContrastColor } from '../../helpers/ColorHelper';
 import { FontHelper } from '../../helpers/FontHelper';
 import CollapsibleSection from '../Collapsible/CollapsibleSection';
 import MarkdownRedirectButton from './MarkdownRedirectButton';
-import { resolveLocationHref } from './MarkdownLinkHelper';
+import { isStandaloneLinkNode, resolveLocationHref } from './MarkdownLinkHelper';
 import styles from './styles';
 import { CustomMarkdownProps, MarkdownLinkKind } from './types';
 
@@ -48,6 +48,11 @@ function makeLinkRenderer(backgroundColor: string, color: string, renderLink: Cu
 		const kind = detectLinkKind(href);
 		const finalHref = resolveFinalHref(href, kind);
 		const onPress = () => finalHref && openLinkSafely(finalHref);
+
+		if (!isStandaloneLinkNode(props.tnode)) {
+			const { TDefaultRenderer } = props;
+			return <TDefaultRenderer {...props} onPress={onPress} textProps={{ ...props.textProps, style: [props.textProps?.style, styles.inlineLink, { color: backgroundColor }] }} />;
+		}
 
 		if (renderLink) {
 			return <>{renderLink({ kind, href: finalHref, text, backgroundColor, color, onPress })}</>;

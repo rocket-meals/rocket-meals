@@ -14,6 +14,10 @@ export default StyleSheet.create({
 	headingLevelOther: {
 		fontSize: 20,
 	},
+	inlineLink: {
+		textDecorationLine: 'underline',
+		fontWeight: '600',
+	},
 	section: {
 		marginTop: 10,
 	},
