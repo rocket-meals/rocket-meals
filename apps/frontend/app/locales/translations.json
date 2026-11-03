@@ -9298,5 +9298,25 @@
     "ru": "Запросить",
     "tr": "Getir",
     "zh": "获取"
+  },
+  "faq_food": {
+    "de": "FAQ Essen",
+    "en": "FAQ Food",
+    "ar": "الأسئلة الشائعة: الطعام",
+    "es": "Preguntas frecuentes: comida",
+    "fr": "FAQ Restauration",
+    "ru": "Вопросы и ответы: питание",
+    "tr": "SSS: Yemek",
+    "zh": "常见问题：餐饮"
+  },
+  "faq_living": {
+    "de": "FAQ Wohnen",
+    "en": "FAQ Housing",
+    "ar": "الأسئلة الشائعة: السكن",
+    "es": "Preguntas frecuentes: vivienda",
+    "fr": "FAQ Logement",
+    "ru": "Вопросы и ответы: жильё",
+    "tr": "SSS: Konut",
+    "zh": "常见问题：住宿"
   }
 }

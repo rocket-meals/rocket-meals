@@ -528,6 +528,8 @@ export const TranslationKeys = {
 	terms_and_conditions_accepted_and_privacy_policy_read_at_date: 'terms_and_conditions_accepted_and_privacy_policy_read_at_date',
 	cookies: 'cookies',
 	feedback_support_faq: 'feedback_support_faq',
+	faq_food: 'faq_food',
+	faq_living: 'faq_living',
 	chat_last_message_unanswered: 'chat_last_message_unanswered',
 	events: 'events',
 	reset_seen_popup_events: 'reset_seen_popup_events',

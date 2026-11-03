@@ -70,7 +70,7 @@ const Index = () => {
 						alignItems: 'center',
 					}}
 				>
-					<ActivityIndicator size="large" color={theme.screen.text} />
+					<ActivityIndicator size="large" color={theme.screen.text} accessibilityLabel={translate(TranslationKeys.loading)} />
 				</View>
 			) : (
 				<>

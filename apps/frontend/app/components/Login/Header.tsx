@@ -82,7 +82,8 @@ const LoginHeader = ({ onLogoLongPress }: LoginHeaderProps) => {
 				onLongPress={onLogoLongPress}
 				disabled={!onLogoLongPress}
 				activeOpacity={1}
-				accessibilityRole="imagebutton"
+				// "imagebutton" has no web mapping, so the aria-label ended up on a plain div (axe aria-prohibited-attr)
+				accessibilityRole="button"
 				accessibilityLabel={translate(TranslationKeys.long_press_logo_to_show_debug_options)}
 			>
 				<MyImage

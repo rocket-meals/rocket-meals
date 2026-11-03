@@ -103,6 +103,20 @@ function ThemeSyncBridge() {
 	return null;
 }
 
+// Screen readers pick their voice and pronunciation from <html lang>. Expo's web
+// export hardcodes "en", so keep it in sync with the language the app shows
+// (WCAG 3.1.1 Language of Page).
+function DocumentLanguageBridge() {
+	const language = useAppSelector((state) => state.settings.language);
+
+	useEffect(() => {
+		if (Platform.OS !== 'web' || typeof document === 'undefined' || !language) return;
+		document.documentElement.lang = language;
+	}, [language]);
+
+	return null;
+}
+
 export default function Layout() {
 	const { theme } = useTheme();
 	const pathname = usePathname();
@@ -216,6 +230,7 @@ export default function Layout() {
 								<ThemeProvider>
 									<ThemeSyncBridge />
 									<LanguageProfileSyncBridge />
+									<DocumentLanguageBridge />
 									<ModalContextProvider>
 										<AppSettingsProvider>
 											<ModalRenderer>
@@ -223,9 +238,12 @@ export default function Layout() {
 													<ExpoUpdateChecker>
 														<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: theme.screen.iconBg }}>
 															<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.iconBg }} edges={pathname?.includes('image-full-screen') ? ['bottom'] : ['top', 'bottom']}>
-																<AppDownloadBanner />
-																<MaintenanceBanner />
-																<Slot />
+																{/* Main landmark: on web all page content must sit inside a landmark (axe region / landmark-one-main). */}
+																<View role="main" style={{ flex: 1 }}>
+																	<AppDownloadBanner />
+																	<MaintenanceBanner />
+																	<Slot />
+																</View>
 																{/* The WebView the text recognition runs in on a device; renders nothing until a scan asks for it. */}
 																<TextRecognitionWebViewHost />
 															</SafeAreaView>

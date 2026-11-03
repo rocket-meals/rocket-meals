@@ -65,7 +65,7 @@ export const lightTheme = {
 		background: '#ffffff',
 		text: '#000000',
 		icon: '#000000',
-		placeholder: '#696969',
+		placeholder: '#595959', // 4.5:1 also on iconBg #e0e0e0 (WCAG AA)
 		iconBg: '#e0e0e0',
 		border: '#e0e0e0',
 	},
@@ -147,7 +147,7 @@ export const darkTheme = {
 		background: '#1A1A1A',
 		text: '#ffffff',
 		icon: '#ffffff',
-		placeholder: '#696969',
+		placeholder: '#a0a0a0', // 4.5:1 also on iconBg #2e2e2e (WCAG AA)
 		iconBg: '#2e2e2e',
 		border: '#3a3a3a',
 	},

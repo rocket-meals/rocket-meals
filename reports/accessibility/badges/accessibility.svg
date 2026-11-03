@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20" role="img" aria-label="accessibility: 223 violations">
+<svg xmlns="http://www.w3.org/2000/svg" width="187" height="20" role="img" aria-label="accessibility: 0 violations">
   <linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient>
-  <clipPath id="r"><rect width="200" height="20" rx="3" fill="#fff"/></clipPath>
+  <clipPath id="r"><rect width="187" height="20" rx="3" fill="#fff"/></clipPath>
   <g clip-path="url(#r)">
     <rect width="97" height="20" fill="#555"/>
-    <rect x="97" width="103" height="20" fill="#e05d44"/>
-    <rect width="200" height="20" fill="url(#s)"/>
+    <rect x="97" width="90" height="20" fill="#4c1"/>
+    <rect width="187" height="20" fill="url(#s)"/>
   </g>
   <g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="11">
     <text x="48.5" y="14">accessibility</text>
-    <text x="148.5" y="14">223 violations</text>
+    <text x="142" y="14">0 violations</text>
   </g>
 </svg>

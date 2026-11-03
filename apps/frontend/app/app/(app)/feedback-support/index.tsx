@@ -489,7 +489,7 @@ const FeedbackScreen = () => {
 						>
 							{loading ? (
 								<View style={{ width: '100%' }}>
-									<ActivityIndicator size={30} color={theme.screen.text} />
+									<ActivityIndicator size={30} color={theme.screen.text} accessibilityLabel={translate(TranslationKeys.loading)} />
 								</View>
 							) : (
 								<>
@@ -657,7 +657,7 @@ const FeedbackScreen = () => {
 							iconBgColor={primaryColor}
 							leftIcon={<MaterialCommunityIcons name="bug-outline" size={24} color={theme.screen.icon} />}
 							label={translate(TranslationKeys.feedback_include_app_state_title)}
-							rightElement={<Switch value={includeAppState} onValueChange={setIncludeAppState} />}
+							rightElement={<Switch value={includeAppState} onValueChange={setIncludeAppState} accessibilityLabel={translate(TranslationKeys.feedback_include_app_state_title)} />}
 							groupPosition="single"
 						/>
 

@@ -125,7 +125,7 @@ const OwnFoodFeedbacksScreen = () => {
 
 	return (
 		<ScrollView style={{ flex: 1, backgroundColor: theme.screen.background }} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-			<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
+			<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs} accessibilityRole="tablist">
 				{TABS.map(({ tab, icon, labelKey }) => {
 					const active = tab === activeTab;
 					return (

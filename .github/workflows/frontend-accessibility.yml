@@ -38,7 +38,9 @@ jobs:
         run: |
           mkdir -p /tmp/webroot/rocket-meals
           cp -r apps/frontend/app/dist/* /tmp/webroot/rocket-meals/
-          python3 -m http.server 8081 --directory /tmp/webroot &
+          # serve maps clean URLs like /login to login.html (python's http.server
+          # answered those with a 404 page, which was then audited instead of the screen)
+          npx --yes serve@14.2.4 -l 8081 /tmp/webroot &
           echo "Web server started on port 8081"
           # Wait until the server is ready
           for i in {1..15}; do

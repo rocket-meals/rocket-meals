@@ -311,7 +311,8 @@ export function getVersionPatch() {
         // 188: housing loads on the web again (no unstable_batchedUpdates), campus and housing
         //      fetch the canteen's building once a canteen is chosen and hide unknown
         //      distances instead of "NaN m", kiosk demo balance date stored as ISO
-        return 188;
+        // 189: accessibility (WCAG AA): main landmark, html lang, page titles, tab lists, labels, contrast
+        return 189;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

@@ -1372,7 +1372,7 @@ const Index = () => {
 								<Text style={{ ...styles.body, color: theme.screen.text }}>{formSubmissionIdText}</Text>
 							</View>
 							{formFieldGroupTabs.length > 0 && (
-								<ScrollView horizontal showsHorizontalScrollIndicator={false} style={localStyles.groupTabBar} contentContainerStyle={localStyles.groupTabBarContent} keyboardShouldPersistTaps="handled">
+								<ScrollView horizontal showsHorizontalScrollIndicator={false} style={localStyles.groupTabBar} contentContainerStyle={localStyles.groupTabBarContent} keyboardShouldPersistTaps="handled" accessibilityRole="tablist">
 									{formFieldGroupTabs.map(tab => {
 										const isActiveTab = tab.id === activeGroupId;
 										const tabTextColor = isActiveTab ? activeGroupTabTextColor : theme.screen.text;
