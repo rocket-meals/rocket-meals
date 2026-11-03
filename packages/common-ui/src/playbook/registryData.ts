@@ -49,6 +49,13 @@ Regular paragraph with **bold**, *italic* and a [plain link](https://example.com
 - [Call us](tel:+491702215430)
 - [Find us](geo:52.283,8.023)
 
+## Links in text
+
+- Monday: Pasta with sweet potato sauce by Charlotte. [Vote now](https://example.com/vote/1)
+- Tuesday: Curry with vegetables by Aron. [Vote now](https://example.com/vote/2)
+
+[All finalists](https://example.com/finalists)
+
 ## Table
 
 | Feature | Supported |

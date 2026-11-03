@@ -41,7 +41,9 @@ function resolveFinalHref(href: string, kind: MarkdownLinkKind): string {
 	return resolveLocationHref(href).resolvedHref ?? href;
 }
 
-function makeLinkRenderer(backgroundColor: string, color: string, renderLink: CustomMarkdownProps['renderLink']): CustomBlockRenderer {
+// Inline links keep the text color (an accent like yellow or light green is unreadable as text on a
+// light background) and only take the accent for the underline.
+function makeLinkRenderer(backgroundColor: string, color: string, textColor: string, renderLink: CustomMarkdownProps['renderLink']): CustomBlockRenderer {
 	return function LinkRenderer(props: any) {
 		const href: string = props.tnode.attributes.href ?? '';
 		const text: string = props.tnode.data || props.children[0]?.data || href;
@@ -51,7 +53,7 @@ function makeLinkRenderer(backgroundColor: string, color: string, renderLink: Cu
 
 		if (!isStandaloneLinkNode(props.tnode)) {
 			const { TDefaultRenderer } = props;
-			return <TDefaultRenderer {...props} onPress={onPress} textProps={{ ...props.textProps, style: [props.textProps?.style, styles.inlineLink, { color: backgroundColor }] }} />;
+			return <TDefaultRenderer {...props} onPress={onPress} textProps={{ ...props.textProps, style: [props.textProps?.style, styles.inlineLink, { color: textColor, textDecorationColor: backgroundColor }] }} />;
 		}
 
 		if (renderLink) {
@@ -182,7 +184,7 @@ const CustomMarkdown: React.FC<CustomMarkdownProps> = ({
 	);
 	const customRenderers = useMemo(
 		() => ({
-			a: makeLinkRenderer(accent, contrastColor, renderLink),
+			a: makeLinkRenderer(accent, contrastColor, resolvedTextColor, renderLink),
 			img: makeImageRenderer(renderImage, resolvedTextColor, imageWidth, imageHeight),
 			p: makeParagraphRenderer(renderText, resolvedTextColor),
 			sub: makeSubRenderer(16, resolvedTextColor),
