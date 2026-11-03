@@ -1,4 +1,5 @@
-import { ActivityIndicator, Dimensions, Image, Platform, ScrollView, Text, View } from 'react-native';
+import { Dimensions, Image, Platform, ScrollView, Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
@@ -398,7 +399,7 @@ const Index = () => {
 							alignItems: 'center',
 						}}
 					>
-						<ActivityIndicator size={30} color={foods_area_color} />
+						<LoadingIndicator size={30} color={foods_area_color} />
 					</View>
 				)}
 				{!loading && noOffersFound && (

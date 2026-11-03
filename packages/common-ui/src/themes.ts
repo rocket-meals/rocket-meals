@@ -66,6 +66,7 @@ export const lightTheme = {
 		text: '#000000',
 		icon: '#000000',
 		placeholder: '#595959', // 4.5:1 also on iconBg #e0e0e0 (WCAG AA)
+		errorText: '#c62828', // error and hint texts, 4.5:1 on the screen background (WCAG AA)
 		iconBg: '#e0e0e0',
 		border: '#e0e0e0',
 	},
@@ -148,6 +149,7 @@ export const darkTheme = {
 		text: '#ffffff',
 		icon: '#ffffff',
 		placeholder: '#a0a0a0', // 4.5:1 also on iconBg #2e2e2e (WCAG AA)
+		errorText: '#ff6b6b', // error and hint texts, 4.5:1 on the screen background (WCAG AA)
 		iconBg: '#2e2e2e',
 		border: '#3a3a3a',
 	},

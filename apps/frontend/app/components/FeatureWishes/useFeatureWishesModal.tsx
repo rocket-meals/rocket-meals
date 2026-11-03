@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Keyboard, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { FeatureWishHelper, FeatureWishProgress, FeatureWishStatus } from 'repo-depkit-common';
 import { MyButton, MyDeleteButton, MyEditButton, MySubmitButton, MyUpdateButton, SettingsListLikeButton } from 'repo-depkit-common-ui';
@@ -562,7 +563,7 @@ const FeatureWishesList: React.FC<FeatureWishesListProps> = ({ openForm, openDet
 	return (
 		<View style={styles.list}>
 			{FeatureWishHelper.maySubmit(mode) ? <MyButton text={translate(TranslationKeys.feature_wishes_submit)} onPress={() => openForm({})} icon="lightbulb-on-outline" /> : null}
-			{loading ? <ActivityIndicator style={styles.loading} color={theme.screen.text} /> : null}
+			{loading ? <LoadingIndicator style={styles.loading} color={theme.screen.text} /> : null}
 			{!loading && ownViews.length > 0 ? (
 				<View>
 					<SettingsGroupTitle>{translate(TranslationKeys.feature_wishes_own)}</SettingsGroupTitle>

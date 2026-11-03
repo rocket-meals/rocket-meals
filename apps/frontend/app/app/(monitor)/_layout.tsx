@@ -9,7 +9,8 @@ import { MarkingGroupsHelper } from '@/redux/actions/MarkingGroups/MarkingGroups
 import { MarkingHelper } from '@/redux/actions/Markings/Markings';
 import { useDispatch } from 'react-redux';
 import { SET_APP_SETTINGS, UPDATE_MARKING_GROUPS, UPDATE_MARKINGS } from '@/redux/Types/types';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { AppSettingsHelper } from '@/redux/actions/AppSettings/AppSettings';
 import { useAppSelector } from '@/redux/hooks';
 
@@ -84,7 +85,7 @@ export default function MonitorLayout() {
 					alignItems: 'center',
 				}}
 			>
-				<ActivityIndicator size={30} color={theme.screen.text} />
+				<LoadingIndicator size={30} color={theme.screen.text} />
 			</View>
 		);
 	}

@@ -1,11 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-    ActivityIndicator,
-    DimensionValue,
-    ScrollView,
-    View,
-    useWindowDimensions,
-} from 'react-native';
+import { DimensionValue, ScrollView, View, useWindowDimensions } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { useAppSelector } from '@/redux/hooks';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { myContrastColor } from '@/helper/ColorHelper';
@@ -137,7 +132,7 @@ const ApartmentDetailsContent: React.FC<ApartmentDetailsContentProps> = ({ id })
     if (!apartmentDetails) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color={theme.screen.text} />
+                <LoadingIndicator size="large" color={theme.screen.text} />
             </View>
         );
     }

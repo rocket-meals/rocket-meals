@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { resolveSettingsGroupPosition } from '@/helper/settingsListGroupPosition';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import * as Clipboard from 'expo-clipboard';
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -336,7 +337,7 @@ const McpInstruction = () => {
 		if (hasPersonalToken === null || (isLoadingToken && !hasPersonalToken)) {
 			return (
 				<View style={styles.sectionContent}>
-					<ActivityIndicator color={theme.screen.text} />
+					<LoadingIndicator color={theme.screen.text} />
 				</View>
 			);
 		}
@@ -357,7 +358,7 @@ const McpInstruction = () => {
 					<SettingsList
 						leftIcon={<MaterialCommunityIcons name="key-change" size={24} color={theme.screen.icon} />}
 						title={translate(TranslationKeys.mcp_access_token_known_no)}
-						rightIcon={isLoadingToken ? <ActivityIndicator color={theme.screen.text} /> : renderRadioIcon(false)}
+						rightIcon={isLoadingToken ? <LoadingIndicator color={theme.screen.text} /> : renderRadioIcon(false)}
 						handleFunction={isLoadingToken ? undefined : () => void createPersonalToken()}
 						groupPosition="bottom"
 					/>
@@ -426,7 +427,7 @@ const McpInstruction = () => {
 						<SettingsList
 							leftIcon={<MaterialCommunityIcons name="key-remove" size={24} color={theme.screen.icon} />}
 							title={translate(TranslationKeys.mcp_access_token_revoke)}
-							rightIcon={isLoadingToken ? <ActivityIndicator color={theme.screen.text} /> : undefined}
+							rightIcon={isLoadingToken ? <LoadingIndicator color={theme.screen.text} /> : undefined}
 							handleFunction={isLoadingToken ? undefined : confirmRevokePersonalToken}
 							groupPosition="single"
 						/>

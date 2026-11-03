@@ -1,4 +1,5 @@
-import { ActivityIndicator, Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-native-modal';
 import { styles } from './styles';
@@ -126,7 +127,7 @@ const SubmissionWarningModal: React.FC<SubmissionWarningModalProps> = ({ isVisib
 						}}
 						onPress={handleProceed}
 					>
-						{loading ? <ActivityIndicator size={22} color={theme.background} /> : <Text style={{ ...styles.loginLabel, color: theme.activeText }}>{translate(TranslationKeys.proceed)}</Text>}
+						{loading ? <LoadingIndicator size={22} color={theme.background} /> : <Text style={{ ...styles.loginLabel, color: theme.activeText }}>{translate(TranslationKeys.proceed)}</Text>}
 					</TouchableOpacity>
 				</View>
 			</View>

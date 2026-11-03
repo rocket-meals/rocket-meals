@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, Dimensions, FlatList, RefreshControl, Text, View } from 'react-native';
+import { AppState, Dimensions, FlatList, RefreshControl, Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { addDays, format } from 'date-fns';
 import { useTheme } from '@/hooks/useTheme';
 import { fetchFoodOffersByCanteen } from '@/redux/actions/FoodOffers/FoodOffers';
@@ -620,7 +621,7 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 	if (loading) {
 		return (
 			<View style={[styles.loader, { backgroundColor: theme.screen.background }]}>
-				<ActivityIndicator />
+				<LoadingIndicator />
 			</View>
 		);
 	}

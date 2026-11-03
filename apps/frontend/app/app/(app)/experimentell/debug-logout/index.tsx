@@ -8,9 +8,11 @@ import { router } from 'expo-router';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
+import useSetPageTitle from '@/hooks/useSetPageTitle';
 import styles from './styles';
 
 const DebugLogout = () => {
+	useSetPageTitle(TranslationKeys.logout);
 	const dispatch = useDispatch();
 	const { theme } = useTheme();
 	const { translate } = useLanguage();

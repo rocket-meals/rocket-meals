@@ -2,7 +2,7 @@
 
 Automated accessibility (a11y) audits for all app screens using [axe-core](https://github.com/dequelabs/axe-core) via Puppeteer.
 
-The screen list comes from `APP_ROUTES` (`repo-depkit-common`), the same canonical list the screenshot generator uses - new screens added to the `AppScreens` enum are picked up automatically. Every screen is opened with `kioskMode=true` (demo login) and audited against the WCAG 2.1 A/AA + best-practice rule sets.
+The screen list comes from `APP_ROUTES` (`repo-depkit-common`), the same canonical list the screenshot generator uses - new screens added to the `AppScreens` enum are picked up automatically. Screens that do not belong into the store screenshots (detail pages, monitors, public pages, experiments, the not-found screen) are listed in `src/additionalRoutes.ts`: **add every new route there that is not in `AppScreens`**, so the audit covers all of `apps/frontend/app/app`. Detail pages get a real id from the test server (`--serverUrl`, default `ServerHelper.TEST_SERVER_CONFIG`). Every screen is opened with `kioskMode=true` (demo login) and audited against the WCAG 2.1 A/AA + best-practice rule sets.
 
 ## Reports
 

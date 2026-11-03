@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import MyScrollViewModal from '@/components/MyScrollViewModal';
 import styles from './styles';
@@ -495,7 +496,7 @@ export const HoursSheetContent: React.FC = () => {
 						alignItems: 'center',
 					}}
 				>
-					<ActivityIndicator size={30} color={theme.screen.text} />
+					<LoadingIndicator size={30} color={theme.screen.text} />
 				</View>
 			) : (
 				<View

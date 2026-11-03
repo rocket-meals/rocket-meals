@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { AntDesign, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
@@ -268,7 +269,7 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId, 
 									]}
 									onPress={() => submitCommentFeedback(null)}
 								>
-									{loading.deleteLoading ? <ActivityIndicator color={foods_area_color} size={20} /> : <MaterialIcons name="delete-outline" size={24} color={'red'} />}
+									{loading.deleteLoading ? <LoadingIndicator color={foods_area_color} size={20} /> : <MaterialIcons name="delete-outline" size={24} color={'red'} />}
 								</TouchableOpacity>
 							</View>
 							<View style={styles.comment}>

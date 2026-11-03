@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import styles from '../styles';
 import { TranslationKeys } from '@/locales/keys';
 import { SET_SELECTED_DATE } from '@/redux/Types/types';
@@ -30,7 +31,7 @@ const ListEmptyComponent: React.FC<ListEmptyComponentProps> = ({
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size={'large'} color={theme.screen.icon} />
+                <LoadingIndicator size={'large'} color={theme.screen.icon} />
             </View>
         );
     }

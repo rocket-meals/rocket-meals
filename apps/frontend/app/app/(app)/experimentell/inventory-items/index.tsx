@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { AppScreens, DatabaseTypes } from 'repo-depkit-common';
@@ -124,7 +125,7 @@ const InventoryItemsScreen = () => {
 				<View style={styles.listSection}>
 					{loading && (
 						<View style={styles.centered}>
-							<ActivityIndicator size={30} color={theme.screen.text} />
+							<LoadingIndicator size={30} color={theme.screen.text} />
 						</View>
 					)}
 					{!loading && items.length === 0 && <Text style={{ ...styles.emptyText, color: theme.screen.text }}>{translate(TranslationKeys.inventory_items_empty)}</Text>}

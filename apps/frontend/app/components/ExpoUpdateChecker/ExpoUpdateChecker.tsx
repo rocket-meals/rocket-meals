@@ -1,5 +1,6 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, AppStateStatus, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppState, AppStateStatus, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import * as Updates from 'expo-updates';
 import ModalSheet from '../BaseBottomModal';
 import usePlatformHelper from '@/helper/platformHelper';
@@ -106,7 +107,7 @@ const ExpoUpdateChecker: React.FC<ExpoUpdateCheckerProps> = ({ children }) => {
 						</TouchableOpacity>
 						{updateAvailable && (
 							<TouchableOpacity onPress={applyUpdate} style={[modalStyles.saveButton, { backgroundColor: primaryColor }]}>
-								{updating ? <ActivityIndicator color={contrastColor} /> : <Text style={[modalStyles.buttonText, { color: contrastColor }]}>{translate(TranslationKeys.to_update)}</Text>}
+								{updating ? <LoadingIndicator color={contrastColor} /> : <Text style={[modalStyles.buttonText, { color: contrastColor }]}>{translate(TranslationKeys.to_update)}</Text>}
 							</TouchableOpacity>
 						)}
 					</View>

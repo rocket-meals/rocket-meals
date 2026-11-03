@@ -38,6 +38,9 @@ jobs:
         run: |
           mkdir -p /tmp/webroot/rocket-meals
           cp -r apps/frontend/app/dist/* /tmp/webroot/rocket-meals/
+          # Unknown paths (the not-found screen and dynamic routes like housing-analytics/[report])
+          # get the app shell, the client router then renders the right screen
+          cp apps/frontend/app/dist/+not-found.html /tmp/webroot/404.html
           # serve maps clean URLs like /login to login.html (python's http.server
           # answered those with a 404 page, which was then audited instead of the screen)
           npx --yes serve@14.2.4 -l 8081 /tmp/webroot &

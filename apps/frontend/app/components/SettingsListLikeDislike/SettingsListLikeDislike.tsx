@@ -1,5 +1,6 @@
 import React from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import { useTheme } from '@/hooks/useTheme';
@@ -46,7 +47,7 @@ const LikeDislikeTriggerButton = ({
 		onPress={onPress}
 	>
 		{loading ? (
-			<ActivityIndicator size={iconSize} color={backgroundColor} />
+			<LoadingIndicator size={iconSize} color={backgroundColor} />
 		) : (
 			<MaterialCommunityIcons
 				name={active ? activeIconName : inactiveIconName}

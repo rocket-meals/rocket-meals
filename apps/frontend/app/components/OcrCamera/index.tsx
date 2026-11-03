@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -328,7 +329,7 @@ export const OcrCamera: React.FC<OcrCameraProps> = ({ recognizeImage, isAutomati
 				)}
 
 				<View pointerEvents="none" style={styles.statusPill}>
-					{isBusy && <ActivityIndicator size="small" color={CONTROL_FOREGROUND_COLOR} />}
+					{isBusy && <LoadingIndicator size="small" color={CONTROL_FOREGROUND_COLOR} />}
 					<Text style={styles.statusText}>{statusText}</Text>
 				</View>
 

@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -171,7 +172,7 @@ const CreateInventoryItemScreen = () => {
 				</View>
 
 				<TouchableOpacity style={{ ...styles.saveButton, backgroundColor: primaryColor }} onPress={handleSave} disabled={saving}>
-					{saving ? <ActivityIndicator size="small" color={contrastColor} /> : <Text style={{ ...styles.saveButtonText, color: contrastColor }}>{translate(TranslationKeys.save)}</Text>}
+					{saving ? <LoadingIndicator size="small" color={contrastColor} /> : <Text style={{ ...styles.saveButtonText, color: contrastColor }}>{translate(TranslationKeys.save)}</Text>}
 				</TouchableOpacity>
 			</View>
 		</ScrollView>

@@ -1,4 +1,5 @@
-import { ActivityIndicator, Alert, Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useEffect, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
@@ -197,7 +198,7 @@ const ImageManagementSheet: React.FC<ImageManagementSheetProps> = ({ closeSheet,
 								<MaterialCommunityIcons name="delete" size={24} color={theme.screen.icon} />
 								<Text style={{ ...styles.label, color: theme.screen.text }}>{translate(TranslationKeys.delete)}</Text>
 							</View>
-							{loading?.delete ? <ActivityIndicator size="small" color={theme.screen.icon} /> : <MaterialCommunityIcons name="checkbox-blank-circle-outline" size={24} color={theme.screen.icon} />}
+							{loading?.delete ? <LoadingIndicator size="small" color={theme.screen.icon} /> : <MaterialCommunityIcons name="checkbox-blank-circle-outline" size={24} color={theme.screen.icon} />}
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={{ ...styles.row, backgroundColor: theme.background }}
@@ -227,7 +228,7 @@ const ImageManagementSheet: React.FC<ImageManagementSheetProps> = ({ closeSheet,
 									<Ionicons name="camera" size={24} color={theme.screen.icon} />
 									<Text style={{ ...styles.label, color: theme.screen.text }}>{translate(TranslationKeys.camera)}</Text>
 								</View>
-								{loading?.camera ? <ActivityIndicator size="small" color={theme.screen.icon} /> : <MaterialCommunityIcons name="checkbox-blank-circle-outline" size={24} color={theme.screen.icon} />}
+								{loading?.camera ? <LoadingIndicator size="small" color={theme.screen.icon} /> : <MaterialCommunityIcons name="checkbox-blank-circle-outline" size={24} color={theme.screen.icon} />}
 							</TouchableOpacity>
 						)}
 						<TouchableOpacity style={{ ...styles.row, backgroundColor: theme.background }} onPress={() => handleImagePick(false)}>
@@ -235,7 +236,7 @@ const ImageManagementSheet: React.FC<ImageManagementSheetProps> = ({ closeSheet,
 								<MaterialCommunityIcons name="folder-image" size={24} color={theme.screen.icon} />
 								<Text style={{ ...styles.label, color: theme.screen.text }}>{translate(TranslationKeys.gallery)}</Text>
 							</View>
-							{loading?.image ? <ActivityIndicator size="small" color={theme.screen.icon} /> : <MaterialCommunityIcons name="checkbox-blank-circle-outline" size={24} color={theme.screen.icon} />}
+							{loading?.image ? <LoadingIndicator size="small" color={theme.screen.icon} /> : <MaterialCommunityIcons name="checkbox-blank-circle-outline" size={24} color={theme.screen.icon} />}
 						</TouchableOpacity>
 						<TouchableOpacity style={{ ...styles.row, backgroundColor: theme.background }} onPress={() => setIsDelete(true)}>
 							<View style={styles.col}>

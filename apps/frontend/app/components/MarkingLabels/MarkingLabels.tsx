@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
@@ -110,7 +111,7 @@ const MarkingReactionTrigger = ({
 }) => (
 	<Pressable onHoverIn={onHoverIn} onHoverOut={onHoverOut} style={buttonStyle} {...triggerProps} onPress={onPress}>
 		{loading ? (
-			<ActivityIndicator size={25} color={activeColor} />
+			<LoadingIndicator size={25} color={activeColor} />
 		) : (
 			<MaterialCommunityIcons name={active ? activeIconName : inactiveIconName} size={iconSize} color={active ? activeColor : inactiveColor} />
 		)}

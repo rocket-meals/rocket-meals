@@ -312,7 +312,8 @@ export function getVersionPatch() {
         //      fetch the canteen's building once a canteen is chosen and hide unknown
         //      distances instead of "NaN m", kiosk demo balance date stored as ISO
         // 189: accessibility (WCAG AA): main landmark, html lang, page titles, tab lists, labels, contrast
-        return 189;
+        // 190: accessibility for every screen: labelled loading indicators, error text contrast, not-found screen translated
+        return 190;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

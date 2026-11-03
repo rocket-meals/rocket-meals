@@ -1,4 +1,5 @@
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useState } from 'react';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import styles from './styles';
@@ -88,7 +89,7 @@ const EditFormSubmissionSheet: React.FC<SheetProps> = ({ id, closeSheet }) => {
 						}}
 						onPress={handleChangeAlias}
 					>
-						{loading ? <ActivityIndicator size={22} color={theme.screen.text} /> : <Text style={{ ...styles.buttonLabel, color: theme.activeText }}>{translate(TranslationKeys.save)}</Text>}
+						{loading ? <LoadingIndicator size={22} color={theme.screen.text} /> : <Text style={{ ...styles.buttonLabel, color: theme.activeText }}>{translate(TranslationKeys.save)}</Text>}
 					</TouchableOpacity>
 				</View>
 			</View>

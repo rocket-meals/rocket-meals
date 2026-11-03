@@ -1,4 +1,5 @@
-import { ActivityIndicator, FlatList, SafeAreaView, View } from 'react-native';
+import { FlatList, SafeAreaView, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
@@ -85,7 +86,7 @@ const Index = () => {
 		() =>
 			loading ? (
 				<View style={{ height: 200, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-					<ActivityIndicator size={30} color={theme.screen.text} />
+					<LoadingIndicator size={30} color={theme.screen.text} />
 				</View>
 			) : null,
 		[loading, theme.screen.text]

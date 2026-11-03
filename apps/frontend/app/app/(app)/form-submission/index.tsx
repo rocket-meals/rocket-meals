@@ -1,4 +1,5 @@
-import { ActivityIndicator, Dimensions, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -1359,7 +1360,7 @@ const Index = () => {
 								alignItems: 'center',
 							}}
 						>
-							<ActivityIndicator size={30} color={theme.screen.text} />
+							<LoadingIndicator size={30} color={theme.screen.text} />
 						</View>
 					) : (
 						<View style={styles.content}>
@@ -1555,7 +1556,7 @@ const Index = () => {
 				</TouchableOpacity>
 			</View>
 				<TouchableOpacity style={{ ...styles.button, backgroundColor: primaryColor }} onPress={handleFormSubmission}>
-					{submissionLoading ? <ActivityIndicator size={22} color={theme.screen.text} /> : <Text style={{ ...styles.buttonLabel, color: theme.activeText }}>{translate(TranslationKeys.save)}</Text>}
+					{submissionLoading ? <LoadingIndicator size={22} color={theme.screen.text} /> : <Text style={{ ...styles.buttonLabel, color: theme.activeText }}>{translate(TranslationKeys.save)}</Text>}
 				</TouchableOpacity>
 			</View>
 			<SubmissionWarningModal isVisible={isWarning} setIsVisible={setIsWarning} id={String(form_submission_id)} />

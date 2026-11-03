@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Dimensions, NativeScrollEvent, NativeSyntheticEvent, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, NativeScrollEvent, NativeSyntheticEvent, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
 import { router } from 'expo-router';
@@ -711,7 +712,7 @@ const OnboardingScreen = () => {
 							<Text style={[styles.stepDescription, { color: theme.screen.text }]}>
 								{translate(TranslationKeys.onboarding_loading_profile)}
 							</Text>
-							<ActivityIndicator size="large" color={primaryColor} style={{ marginTop: 8 }} />
+							<LoadingIndicator size="large" color={primaryColor} style={{ marginTop: 8 }} />
 						</>
 					)
 				) : (

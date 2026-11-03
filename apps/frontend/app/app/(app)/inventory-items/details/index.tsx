@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { AppLinks, AppScreens, CollectionNames, DatabaseTypes } from 'repo-depkit-common';
@@ -102,7 +103,7 @@ const InventoryItemDetailsScreen = () => {
 	if (loading) {
 		return (
 			<View style={{ ...styles.centered, backgroundColor: theme.screen.background }}>
-				<ActivityIndicator size={30} color={theme.screen.text} />
+				<LoadingIndicator size={30} color={theme.screen.text} />
 			</View>
 		);
 	}

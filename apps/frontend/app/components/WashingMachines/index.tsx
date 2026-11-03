@@ -1,4 +1,5 @@
-import { ActivityIndicator, Platform, Text, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -163,7 +164,7 @@ const WashingMachines: React.FC<any> = ({ campusDetails }) => {
 							alignItems: 'center',
 						}}
 					>
-						<ActivityIndicator size="large" color={theme.screen.text} />
+						<LoadingIndicator size="large" color={theme.screen.text} />
 					</View>
 				) : (
 					washingMachines?.map((item: any) => {

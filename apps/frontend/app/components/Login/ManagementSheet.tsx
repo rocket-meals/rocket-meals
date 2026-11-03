@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { styles } from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import { SheetProps } from './types';
@@ -79,7 +80,7 @@ const ManagementSheet: React.FC<SheetProps> = ({ handleLogin, loading }) => {
 				onPress={onSubmit}
 			>
 				{loading ? (
-					<ActivityIndicator size={'small'} color={theme.screen.text} />
+					<LoadingIndicator size={'small'} color={theme.screen.text} />
 				) : (
 					<Text
 						style={{
