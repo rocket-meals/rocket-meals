@@ -49,7 +49,12 @@ export interface CustomMarkdownProps {
 	sectionsStartCollapsed?: boolean;
 	imageWidth?: string | number;
 	imageHeight?: string | number;
-	/** Renders `<a>` tags (email/phone/location/plain links). Default: a themed button (repo-depkit-common-ui's MarkdownRedirectButton). */
+	/**
+	 * Renders `<a>` tags (email/phone/location/plain links) that stand on their own line.
+	 * Default: a themed button (repo-depkit-common-ui's MarkdownRedirectButton). Links inside
+	 * running text always render as underlined inline text, since Android can't lay out a
+	 * button (a View) inside a Text.
+	 */
 	renderLink?: (props: MarkdownLinkRenderProps) => React.ReactNode;
 	/** Renders `<img>` tags. Default: a bordered image that falls back to its alt text on load error. */
 	renderImage?: (props: MarkdownImageRenderProps) => React.ReactNode;

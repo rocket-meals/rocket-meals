@@ -34,7 +34,80 @@ function createMarkdownIt(): MarkdownItInstance {
 	// mean indentation as code, so indented code blocks are disabled; fenced
 	// ``` blocks still work for intentional code.
 	md.disable('code');
+	md.core.ruler.push('list_item_trailing_links_own_line', moveTrailingListItemLinksToOwnLine);
 	return md;
+}
+
+type MarkdownCoreState = Parameters<Parameters<MarkdownItInstance['core']['ruler']['push']>[1]>[0];
+
+function isBlankInlineToken(token: Token): boolean {
+	return token.type === 'softbreak' || token.type === 'hardbreak' || (token.type === 'text' && token.content.trim() === '');
+}
+
+/**
+ * Splits the links at the end of a list item's text off that text, e.g. the "Jetzt abstimmen"
+ * in `- 3. November: Pasta von Charlotte. [Jetzt abstimmen](https://...)`. Returns null when
+ * there is nothing to split: no trailing link, or the item holds nothing but links anyway.
+ */
+export function splitTrailingLinks(children: Token[]): { text: Token[]; links: Token[][] } | null {
+	const links: Token[][] = [];
+	let end = children.length;
+	while (end > 0) {
+		while (end > 0 && isBlankInlineToken(children[end - 1])) end--;
+		if (end === 0 || children[end - 1].type !== 'link_close') break;
+		let start = end - 1;
+		while (start >= 0 && children[start].type !== 'link_open') start--;
+		if (start < 0) break;
+		links.unshift(children.slice(start, end));
+		end = start;
+	}
+	if (links.length === 0) return null;
+
+	const text = children.slice(0, end);
+	while (text.length > 0 && isBlankInlineToken(text[text.length - 1])) text.pop();
+	if (text.length === 0) return null;
+	const last = text[text.length - 1];
+	if (last.type === 'text') last.content = last.content.replace(/\s+$/, '');
+	return { text, links };
+}
+
+/**
+ * Links at the end of a list item get their own paragraph, so the renderer shows them as a
+ * button on a new line below the item's text instead of squeezing a button into the running
+ * text (which Android can't lay out). Done here and not in the content, because editors write
+ * `- Gericht von Charlotte. [Jetzt abstimmen](...)` again and again. Links inside a sentence stay
+ * inline: moving them would tear words out of the sentence.
+ */
+function moveTrailingListItemLinksToOwnLine(state: MarkdownCoreState): void {
+	const tokens = state.tokens;
+	let listItemDepth = 0;
+	for (let i = 0; i < tokens.length; i++) {
+		const token = tokens[i];
+		if (token.type === 'list_item_open') listItemDepth++;
+		if (token.type === 'list_item_close') listItemDepth--;
+		if (listItemDepth === 0 || token.type !== 'inline' || !token.children) continue;
+		const paragraphClose = tokens[i + 1];
+		if (paragraphClose?.type !== 'paragraph_close') continue;
+		const split = splitTrailingLinks(token.children);
+		if (!split) continue;
+
+		token.children = split.text;
+		const linkParagraphs = split.links.flatMap((linkChildren) => {
+			const open = new state.Token('paragraph_open', 'p', 1);
+			open.block = true;
+			open.level = paragraphClose.level;
+			const inline = new state.Token('inline', '', 0);
+			inline.level = paragraphClose.level + 1;
+			inline.content = '';
+			inline.children = linkChildren;
+			const close = new state.Token('paragraph_close', 'p', -1);
+			close.block = true;
+			close.level = paragraphClose.level;
+			return [open, inline, close];
+		});
+		tokens.splice(i + 2, 0, ...linkParagraphs);
+		i += 1 + linkParagraphs.length;
+	}
 }
 
 // CommonMark link destinations can't contain a raw, unescaped space, so a

@@ -170,3 +170,31 @@ describe('parseMarkdownToBlocks - reference-style links resolve across chunks', 
 		expect(firstHtml).toContain('href="https://example.com"');
 	});
 });
+
+// A link at the end of a list item used to be squeezed into the item's line as a button, which
+// Android can't lay out (recipe contest popup in Hannover). It now gets its own line.
+describe('parseMarkdownToBlocks: trailing links in list items', () => {
+	const html = (markdown: string) => (parseMarkdownToBlocks(markdown)[0] as { html: string }).html;
+
+	it('moves a trailing link into its own paragraph', () => {
+		expect(html('- **3. November:** Pasta von Charlotte. [Jetzt abstimmen](https://example.com)')).toBe(
+			'<ul>\n<li><strong>3. November:</strong> Pasta von Charlotte.\n<p><a href="https://example.com">Jetzt abstimmen</a></p>\n</li>\n</ul>\n',
+		);
+	});
+
+	it('gives every trailing link its own paragraph', () => {
+		expect(html('- Dann [Info](https://a.example) [Mehr](https://b.example)')).toContain('Dann\n<p><a href="https://a.example">Info</a></p>\n<p><a href="https://b.example">Mehr</a></p>');
+	});
+
+	it('keeps a link inside a sentence where it is', () => {
+		expect(html('- Wenn es schmeckt, [stimme ab](https://example.com) und gib deine Stimme!')).toBe('<ul>\n<li>Wenn es schmeckt, <a href="https://example.com">stimme ab</a> und gib deine Stimme!</li>\n</ul>\n');
+	});
+
+	it('leaves list items that only hold a link alone', () => {
+		expect(html('- [A](https://a.example)')).toBe('<ul>\n<li><a href="https://a.example">A</a></li>\n</ul>\n');
+	});
+
+	it('does not touch links at the end of a plain paragraph', () => {
+		expect(html('Absatz mit [Link](https://example.com)')).toBe('<p>Absatz mit <a href="https://example.com">Link</a></p>\n');
+	});
+});

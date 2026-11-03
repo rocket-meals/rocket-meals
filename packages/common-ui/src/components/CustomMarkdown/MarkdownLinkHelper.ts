@@ -105,3 +105,34 @@ export function resolveLocationHref(href: string | null | undefined): ResolvedLo
 
 	return { resolvedHref: trimmedHref, scheme, coordinates: null };
 }
+
+// Inline formatting a link may be wrapped in (`**[text](url)**`) without being part of a sentence.
+const TRANSPARENT_WRAPPER_TAGS = new Set(['strong', 'b', 'em', 'i', 'u', 'span']);
+
+// Anonymous nodes (no tagName) are wrappers react-native-render-html inserts around inline content.
+function isTransparentWrapper(node: any): boolean {
+	return !node.tagName || TRANSPARENT_WRAPPER_TAGS.has(node.tagName);
+}
+
+// Whether `node` holds anything besides links and line breaks: text, an image, an inline code span, ...
+function hasContentBesidesLinks(node: any): boolean {
+	if (node.tagName === 'a' || node.tagName === 'br') return false;
+	if (!isTransparentWrapper(node)) return true;
+	if (typeof node.data === 'string' && node.data.trim() !== '') return true;
+	return (node.children ?? []).some(hasContentBesidesLinks);
+}
+
+/**
+ * A link is shown as a button only when it stands on its own line (e.g. a paragraph or list item
+ * that holds nothing but links). A link inside running text has to stay inline text: a button
+ * is a View, and Android can't lay out Views nested in Text, which pushes the buttons out of the
+ * line and off screen and breaks the surrounding sentence apart.
+ */
+export function isStandaloneLinkNode(tnode: any): boolean {
+	let block = tnode?.parent;
+	while (block && isTransparentWrapper(block) && block.parent) {
+		block = block.parent;
+	}
+	if (!block) return true;
+	return !(block.children ?? []).some(hasContentBesidesLinks);
+}
