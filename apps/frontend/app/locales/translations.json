@@ -6819,6 +6819,26 @@
     "tr": "Sohbete git",
     "zh": "前往聊天"
   },
+  "feedback_missing_fields_hint": {
+    "de": "Zum Senden fehlt noch:",
+    "en": "Still missing before you can send:",
+    "ar": "لا يزال ينقص قبل الإرسال:",
+    "es": "Todavía falta para poder enviar:",
+    "fr": "Il manque encore pour envoyer :",
+    "ru": "Для отправки ещё не хватает:",
+    "tr": "Göndermek için hâlâ eksik:",
+    "zh": "发送前仍缺少："
+  },
+  "feedback_field_missing_hint": {
+    "de": "Bitte noch ausfüllen",
+    "en": "Please fill in",
+    "ar": "يرجى ملء هذا الحقل",
+    "es": "Por favor, rellénalo",
+    "fr": "Veuillez remplir ce champ",
+    "ru": "Пожалуйста, заполните",
+    "tr": "Lütfen doldurun",
+    "zh": "请填写此项"
+  },
   "iban_invalid_length": {
     "de": "Ungültige IBAN-Länge",
     "en": "Invalid IBAN length",

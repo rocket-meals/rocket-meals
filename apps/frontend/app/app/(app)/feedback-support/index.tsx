@@ -371,8 +371,23 @@ const FeedbackScreen = () => {
 	// A chat only exists for feedbacks of users with a profile - the hook creates it on the server.
 	const linkedChatId = typeof inputValues.chat === 'object' ? inputValues.chat?.id : inputValues.chat;
 
-	const isSubmitDisabled =
-		inputValues?.title?.length === 0 || inputValues?.content?.length === 0 || isContactEmailMissing;
+	// Labels of the fields that still block sending. Shown in red below the button, because a
+	// dimmed button alone did not tell users why nothing happens when they tap it.
+	const missingFieldLabels = useMemo(() => {
+		const labels: string[] = [];
+		if (!String(inputValues?.title ?? '').trim()) labels.push(translate(TranslationKeys.title));
+		if (!String(inputValues?.content ?? '').trim()) labels.push(translate(TranslationKeys.feedback));
+		if (isContactEmailMissing) labels.push(translate(TranslationKeys.email));
+		return labels;
+	}, [inputValues?.title, inputValues?.content, isContactEmailMissing, translate]);
+
+	const isFeedbackFieldMissing = (key: string) => {
+		if (key === 'title' || key === 'content') return !String(inputValues?.[key] ?? '').trim();
+		if (key === 'contact_email') return isContactEmailMissing;
+		return false;
+	};
+
+	const isSubmitDisabled = missingFieldLabels.length > 0;
 
 	const submitButtonLabel = app_feedbacks_id ? translate(TranslationKeys.to_update) : translate(TranslationKeys.send);
 	const submitButtonIcon = app_feedbacks_id ? <FontAwesome5 name="save" size={24} color={contrastColor} /> : <MaterialCommunityIcons name="plus" size={24} color={contrastColor} />;
@@ -398,23 +413,29 @@ const FeedbackScreen = () => {
 							{translate(TranslationKeys.your_request)}
 						</Text>
 						{feedbackSettingsItems.map((item, index) => (
-							<SettingsListEditable
-								key={item.key}
-								iconBgColor={primaryColor}
-								leftIcon={getFeedbackIcon(item.icon)}
-								label={getFieldLabel(item.title, item.required)}
-								value={excerpt(String(inputValues[item.key] ?? ''), windowWidth > 850 ? 50 : 20)}
-								handleFunction={() => {
-									openFeedbackSheet({
-										key: item.key,
-										title: item.title,
-										multiline: item.multiline,
-										keyboardType: item.keyboardType,
-										required: item.required,
-									});
-								}}
-								groupPosition={getGroupPosition(index, feedbackSettingsItems.length)}
-							/>
+							<React.Fragment key={item.key}>
+								<SettingsListEditable
+									iconBgColor={primaryColor}
+									leftIcon={getFeedbackIcon(item.icon)}
+									label={getFieldLabel(item.title, item.required)}
+									value={excerpt(String(inputValues[item.key] ?? ''), windowWidth > 850 ? 50 : 20)}
+									handleFunction={() => {
+										openFeedbackSheet({
+											key: item.key,
+											title: item.title,
+											multiline: item.multiline,
+											keyboardType: item.keyboardType,
+											required: item.required,
+										});
+									}}
+									groupPosition={getGroupPosition(index, feedbackSettingsItems.length)}
+								/>
+								{isFeedbackFieldMissing(item.key) && (
+									<Text style={{ color: 'red', fontSize: 12, marginLeft: 15, marginTop: 2, marginBottom: 6 }}>
+										{translate(TranslationKeys.feedback_field_missing_hint)}
+									</Text>
+								)}
+							</React.Fragment>
 						))}
 						{feedbackData
 							.filter(item => item.key === 'positive')
@@ -489,6 +510,12 @@ const FeedbackScreen = () => {
 								</>
 							)}
 						</TouchableOpacity>
+
+						{isSubmitDisabled && !loading && (
+							<Text style={{ color: 'red', marginTop: 10 }} accessibilityLiveRegion="polite">
+								{`${translate(TranslationKeys.feedback_missing_fields_hint)} ${missingFieldLabels.join(', ')}`}
+							</Text>
+						)}
 
 						{linkedChatId && (
 							<TouchableOpacity
