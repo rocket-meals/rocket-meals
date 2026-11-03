@@ -5,10 +5,10 @@
 | Category | Total Issues | Shown |
 |----------|-------------|-------|
 | 🔒 Security | 7 | 7 |
-| 🐛 Reliability | 11 | 11 |
-| 🔧 Maintainability | 44 | 32 |
+| 🐛 Reliability | 12 | 12 |
+| 🔧 Maintainability | 45 | 31 |
 
-**Total issues:** 62 (showing top 50 prioritized by: Security > Reliability > Maintainability)
+**Total issues:** 64 (showing top 50 prioritized by: Security > Reliability > Maintainability)
 
 ---
 
@@ -42,7 +42,7 @@
   apps/scripts/store-screenshots-load.ts:55
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/scripts/store-screenshots-load.ts#L55
 
-## 🐛 Reliability (11/11)
+## 🐛 Reliability (12/12)
 
 - **Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/UniversityAffiliationHelper.ts:80
@@ -76,6 +76,10 @@
   apps/screenshotGenerator/src/store/index.ts:212
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/screenshotGenerator/src/store/index.ts#L212
 
+- **Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.**
+  packages/common/src/MarkdownSectionHelper.ts:70
+  https://github.com/rocket-meals/rocket-meals/blob/master/packages/common/src/MarkdownSectionHelper.ts#L70
+
 - **Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.**
   scripts/eas-ios-credentials.sh:24
   https://github.com/rocket-meals/rocket-meals/blob/master/scripts/eas-ios-credentials.sh#L24
@@ -88,7 +92,7 @@
   scripts/eas-ios-credentials.sh:29
   https://github.com/rocket-meals/rocket-meals/blob/master/scripts/eas-ios-credentials.sh#L29
 
-## 🔧 Maintainability (32/44)
+## 🔧 Maintainability (31/45)
 
 - **Redirect this error message to stderr (>&2).**
   .github/actions/geonexia-expo-update/action.yml:135
@@ -213,8 +217,4 @@
 - **`AUTO_UPLOAD_TENANTS` should be a `Set`, and use `AUTO_UPLOAD_TENANTS.has()` to check existence or non-existence.**
   apps/frontend/app/store-screenshots.ts:95
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/store-screenshots.ts#L95
-
-- **Move function 'setCorsHeaders' to the outer scope.**
-  apps/maintenance-server/server.mjs:193
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/maintenance-server/server.mjs#L193
 
