@@ -711,6 +711,8 @@ export const TranslationKeys = {
 	debug_request_default_title: 'debug_request_default_title',
 	debug_request_default_content: 'debug_request_default_content',
 	feedback_open_chat: 'feedback_open_chat',
+	feedback_missing_fields_hint: 'feedback_missing_fields_hint',
+	feedback_field_missing_hint: 'feedback_field_missing_hint',
 	iban_invalid_length: 'iban_invalid_length',
 	iban_invalid_checksum: 'iban_invalid_checksum',
 	giro_card_scan_title: 'giro_card_scan_title',
