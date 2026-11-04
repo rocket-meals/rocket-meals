@@ -4,7 +4,6 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useAppSelector } from '@/redux/hooks';
 import Animated, { runOnJS, useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import BaseBottomModal from '@/components/BaseBottomModal';
@@ -99,7 +98,6 @@ export default function ImageFullScreen() {
 		assetId?: string;
 	}>();
 	const { theme } = useTheme();
-	const { drawerPosition } = useAppSelector((state) => state.settings);
 	const toast = useToast();
 	const { translate } = useLanguage();
 	const [showControls, setShowControls] = useState(true);
@@ -245,26 +243,14 @@ export default function ImageFullScreen() {
 				</Animated.View>
 			)}
 			{showControls && (
-				<View style={[styles.topRow, drawerPosition === 'left' ? styles.topRowLeft : styles.topRowRight]} pointerEvents="box-none">
-					{drawerPosition === 'left' ? (
-						<>
-							<TouchableOpacity style={[styles.iconButton, { backgroundColor: theme.screen.iconBg }]} onPress={() => router.back()}>
-								<Ionicons name="close" size={28} color={theme.screen.icon} />
-							</TouchableOpacity>
-							<TouchableOpacity style={[styles.iconButton, { backgroundColor: theme.screen.iconBg }]} onPress={downloadImage}>
-								<Ionicons name="cloud-download-outline" size={28} color={theme.screen.icon} />
-							</TouchableOpacity>
-						</>
-					) : (
-						<>
-							<TouchableOpacity style={[styles.iconButton, { backgroundColor: theme.screen.iconBg }]} onPress={downloadImage}>
-								<Ionicons name="cloud-download-outline" size={28} color={theme.screen.icon} />
-							</TouchableOpacity>
-							<TouchableOpacity style={[styles.iconButton, { backgroundColor: theme.screen.iconBg }]} onPress={() => router.back()}>
-								<Ionicons name="close" size={28} color={theme.screen.icon} />
-							</TouchableOpacity>
-						</>
-					)}
+				// Always top right, close outermost, independent of the drawer side
+				<View style={[styles.topRow, styles.topRowRight]} pointerEvents="box-none">
+					<TouchableOpacity style={[styles.iconButton, { backgroundColor: theme.screen.iconBg }]} onPress={downloadImage}>
+						<Ionicons name="cloud-download-outline" size={28} color={theme.screen.icon} />
+					</TouchableOpacity>
+					<TouchableOpacity style={[styles.iconButton, { backgroundColor: theme.screen.iconBg }]} onPress={() => router.back()}>
+						<Ionicons name="close" size={28} color={theme.screen.icon} />
+					</TouchableOpacity>
 				</View>
 			)}
 			<GestureDetector gesture={composedGesture}>
@@ -308,7 +294,6 @@ const styles = StyleSheet.create({
 		gap: 10,
 		zIndex: 2,
 	},
-	topRowLeft: { left: 20 },
 	topRowRight: { right: 20 },
 	iconButton: { padding: 8, borderRadius: 20 },
 	imageWrapper: { width: '100%', height: '100%' },

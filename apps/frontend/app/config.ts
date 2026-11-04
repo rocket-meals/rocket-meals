@@ -315,7 +315,8 @@ export function getVersionPatch() {
         // 190: accessibility for every screen: labelled loading indicators, error text contrast, not-found screen translated
         // 191: useTheme no longer dispatches on every mount, food details header redesigned (image size by window height, loading spinner, expand icon)
         // 192: one header image for food, building and apartment details (square in portrait, banner in landscape)
-        return 192;
+        // 193: full screen image: close button always top right, bottom sheet modals always fully open
+        return 193;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
