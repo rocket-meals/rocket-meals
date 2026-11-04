@@ -1,66 +1,52 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Appearance, Platform, StatusBar } from 'react-native';
+import { useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
+import { Platform, StatusBar, useColorScheme } from 'react-native';
 import { darkTheme, lightTheme } from '@/styles/themes';
 import { configureStore } from '@/redux/store';
-import { afterRehydration } from '@/helper/afterRehydration';
 
+type ThemeMode = 'light' | 'dark' | 'systematic';
+
+const changeTheme = (mode: ThemeMode) => ({
+	type: 'CHANGE_THEME',
+	payload: mode,
+});
+
+const subscribeToStore = (onChange: () => void) => configureStore.subscribe(onChange);
+const getSelectedTheme = (): ThemeMode => configureStore.getState().settings.selectedTheme;
+
+/**
+ * The app's color theme. Used by more than 200 components, so it must stay cheap:
+ * it only reads the selected mode from the store (works outside the Redux Provider, the
+ * root layout uses it there) and follows the system appearance via useColorScheme.
+ *
+ * It used to dispatch CHANGE_THEME('systematic') in every component that mounted. Each of
+ * those created a new settings object, re-rendered every component selecting the settings
+ * and rewrote the persisted state, so opening a screen cost seconds on a slow phone.
+ */
 export const useTheme = () => {
-	const [theme, setTheme] = useState(configureStore.getState().settings.selectedTheme);
-
-	const changeTheme = (mode: 'light' | 'dark' | 'systematic') => ({
-		type: 'CHANGE_THEME',
-		payload: mode,
-	});
-
-	const setThemeMode = (mode: 'light' | 'dark' | 'systematic') => {
-		configureStore.dispatch(changeTheme(mode));
-	};
+	const selectedTheme = useSyncExternalStore(subscribeToStore, getSelectedTheme, getSelectedTheme);
+	const systemScheme = useColorScheme();
 
 	const computedTheme = useMemo(() => {
-		if (theme === 'systematic') {
-			const systemTheme = Appearance.getColorScheme();
-			return systemTheme === 'dark' ? darkTheme : lightTheme;
-		}
-		return theme === 'dark' ? darkTheme : lightTheme;
-	}, [theme]);
+		const mode = selectedTheme === 'systematic' ? systemScheme : selectedTheme;
+		return mode === 'dark' ? darkTheme : lightTheme;
+	}, [selectedTheme, systemScheme]);
 
-	useEffect(() => {
-		const unsubscribe = configureStore.subscribe(() => {
-			setTheme(configureStore.getState().settings.selectedTheme);
-		});
-
-		if (theme === 'systematic') {
-			const unsubscribeRehydration = afterRehydration(() => {
-				configureStore.dispatch(changeTheme('systematic'));
-			});
-
-			const listener = Appearance.addChangeListener(({ colorScheme }) => {
-				if (colorScheme) {
-					afterRehydration(() => configureStore.dispatch(changeTheme('systematic')));
-				}
-			});
-
-			return () => {
-				listener.remove();
-				unsubscribeRehydration();
-				unsubscribe();
-			};
-		}
-
-		return () => unsubscribe();
-	}, [theme]);
-
-	useEffect(() => {
-		const isDark = theme === 'systematic'
-			? Appearance.getColorScheme() === 'dark'
-			: theme === 'dark';
-
-		StatusBar.setBarStyle(isDark ? 'light-content' : 'dark-content');
-
-		if (Platform.OS === 'android') {
-			StatusBar.setBackgroundColor(computedTheme.header.background);
-		}
-	}, [theme, computedTheme]);
+	const setThemeMode = useCallback((mode: ThemeMode) => {
+		configureStore.dispatch(changeTheme(mode));
+	}, []);
 
 	return { theme: computedTheme, setThemeMode };
+};
+
+/** Keeps the status bar in line with the theme. Called once, in the root layout. */
+export const useThemeStatusBar = () => {
+	const { theme } = useTheme();
+	const isDark = theme === darkTheme;
+
+	useEffect(() => {
+		StatusBar.setBarStyle(isDark ? 'light-content' : 'dark-content');
+		if (Platform.OS === 'android') {
+			StatusBar.setBackgroundColor(theme.header.background);
+		}
+	}, [isDark, theme]);
 };
