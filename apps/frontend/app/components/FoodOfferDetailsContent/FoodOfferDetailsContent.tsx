@@ -38,23 +38,14 @@ import styles from '@/app/(app)/foodoffers/details/styles';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import useAppRatingScore from '@/hooks/useAppRatingScore';
 
-/**
- * Data the caller (e.g. a food card in the list) already has. Shown right away while the
- * details load, so the modal does not open empty and the image appears without waiting.
- */
-export type FoodOfferDetailsPreview = {
-    name?: string | null;
-    imageAssetId?: string | number | null;
-    imageRemoteUrl?: string | null;
-    /** Image URL the caller already displays (usually cached), shown until the high-res image is loaded */
-    previewImageUrl?: string | null;
-    ratingAverage?: number | null;
-};
-
 export interface FoodOfferDetailsContentProps {
     offerId?: string;
     foodId?: string;
-    preview?: FoodOfferDetailsPreview;
+    /**
+     * The food offer as the caller (e.g. the list) already has it. Shown right away while the
+     * full details load in the background, so the details do not open empty.
+     */
+    initialFoodOffer?: DatabaseTypes.Foodoffers | null;
     /** Closes these details when the offer no longer exists (the food import replaced it) */
     onOfferNoLongerAvailable?: () => void;
     /** Shows the food's details when the offer no longer exists but a food id is known */
@@ -66,7 +57,7 @@ const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => fo
 
 const VALID_FOOD_TABS = Object.values(FoodOfferDetailTab);
 
-const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offerId, foodId: initialFoodId, preview, onOfferNoLongerAvailable, showFoodWhenOfferMissing }) => {
+const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offerId, foodId: initialFoodId, initialFoodOffer, onOfferNoLongerAvailable, showFoodWhenOfferMissing }) => {
     const { theme } = useTheme();
     const { translate, language } = useLanguage();
     const dispatch = useDispatch();
@@ -95,13 +86,13 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
 
     const foodfeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
 
-    const { foodDetails, foodAttributes, loading: foodAttributesLoading } = useFoodDetails({ offerId, initialFoodId, onOfferNoLongerAvailable, showFoodWhenOfferMissing });
+    const { foodDetails, foodAttributes, loading: foodAttributesLoading } = useFoodDetails({ offerId, initialFoodId, initialFoodOffer, onOfferNoLongerAvailable, showFoodWhenOfferMissing });
     const { groupedAttributes } = useFoodAttributes({ foodAttributes, foodDetails });
 
     const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
     const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
     const defaultImage = getImageUrl(String(appSettings.foods_placeholder_image)) || appSettings.foods_placeholder_image_remote_url || getImageUrl(serverInfo?.info?.project?.project_logo);
-    const [foodOfferDetails, setFoodOfferDetails] = useState<any>(null);
+    const [foodOfferDetails, setFoodOfferDetails] = useState<any>(initialFoodOffer ?? null);
 
     const selectedCanteen = useSelectedCanteen();
     const foodOfferCanteenId = selectedCanteen?.id as string | undefined;
@@ -163,17 +154,15 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
 
     const openFullScreenImage = useCallback(() => {
         closeModal();
-        const imageRemoteUrl = foodDetails?.image_remote_url || preview?.imageRemoteUrl;
-        const imageAssetId = foodDetails?.image || preview?.imageAssetId;
-        if (imageRemoteUrl) {
+        if (foodDetails?.image_remote_url) {
             router.push({
                 pathname: '/(app)/image-full-screen',
-                params: { uri: imageRemoteUrl },
+                params: { uri: foodDetails.image_remote_url },
             });
-        } else if (imageAssetId) {
+        } else if (foodDetails?.image) {
             router.push({
                 pathname: '/(app)/image-full-screen',
-                params: { assetId: String(imageAssetId) },
+                params: { assetId: String(foodDetails.image) },
             });
         } else {
             router.push({
@@ -181,7 +170,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
                 params: { uri: defaultImage },
             });
         }
-    }, [foodDetails, preview, defaultImage, closeModal]);
+    }, [foodDetails, defaultImage, closeModal]);
 
     const FeedbacksContent = useMemo(() => (
         <Feedbacks
@@ -353,7 +342,6 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
                         isAccountRequired={isRatingLocked}
                         onAccountRequired={openRatingLockedModal}
                         containerWidth={getContainerWidth}
-                        preview={preview}
                     />
 
                     <NotificationSection

@@ -3,14 +3,13 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import IconButton from '@/components/UI/IconButton';
-import { numToOneDecimal } from '@/constants/HelperFunctions';
+import { getImageUrl, numToOneDecimal } from '@/constants/HelperFunctions';
 import { TranslationKeys } from '@/locales/keys';
 import styles from '../styles';
 import { isWeb } from '@/constants/Constants';
 import MyImage from '@/components/MyImage';
 import SettingsList from '@/components/SettingsList';
 import type { FoodDetailsSectionBaseProps } from './types';
-import type { FoodOfferDetailsPreview } from '@/components/FoodOfferDetailsContent/FoodOfferDetailsContent';
 
 interface FoodHeaderProps extends FoodDetailsSectionBaseProps {
     foodDetails: any;
@@ -22,8 +21,6 @@ interface FoodHeaderProps extends FoodDetailsSectionBaseProps {
     showRating?: boolean;
     appSettings: any;
     defaultImage?: string | null;
-    /** Data from the opening card, shown until the details are loaded */
-    preview?: FoodOfferDetailsPreview;
 }
 
 const StarRatingIconButton = ({
@@ -53,8 +50,8 @@ function makeStarRatingTrigger(onPress: () => void, filled: boolean, color: stri
 // Resolves the average rating value to display, mirroring the previous inline
 // `(a || b) && numToOneDecimal(a || b)` expression used in both the web and
 // mobile render branches of FoodHeader.
-function resolveDisplayRating(foodDetails: any, preview?: FoodOfferDetailsPreview) {
-    const rating = foodDetails?.rating_average || foodDetails?.rating_average_legacy || preview?.ratingAverage;
+function resolveDisplayRating(foodDetails: any) {
+    const rating = foodDetails?.rating_average || foodDetails?.rating_average_legacy;
     return rating && numToOneDecimal(rating);
 }
 
@@ -64,7 +61,6 @@ function resolveDisplayRating(foodDetails: any, preview?: FoodOfferDetailsPrevie
 const RatingAverageBadge = ({
     appSettings,
     foodDetails,
-    preview,
     theme,
     foodsAreaColor,
     viewStyle,
@@ -73,7 +69,6 @@ const RatingAverageBadge = ({
 }: {
     appSettings: any;
     foodDetails: any;
-    preview?: FoodOfferDetailsPreview;
     theme: any;
     foodsAreaColor: string;
     viewStyle: any;
@@ -97,7 +92,7 @@ const RatingAverageBadge = ({
                     { color: theme.screen.text }
                 ]}
             >
-                {resolveDisplayRating(foodDetails, preview)}
+                {resolveDisplayRating(foodDetails)}
             </Text>
         </View>
     );
@@ -141,7 +136,6 @@ const FoodHeader = ({
     isAccountRequired,
     onAccountRequired,
     containerWidth,
-    preview,
 }: FoodHeaderProps) => {
     const isLargeScreen = screenWidth > 1000;
     const isMediumScreen = screenWidth > 800;
@@ -151,11 +145,15 @@ const FoodHeader = ({
         height: isLargeScreen ? 400 : screenWidth - 40,
     }), [isLargeScreen, screenWidth]);
 
-    const imageRemoteUrl = useMemo(() => foodDetails?.image_remote_url || preview?.imageRemoteUrl, [foodDetails?.image_remote_url, preview?.imageRemoteUrl]);
-    const imageAssetId = useMemo(() => foodDetails?.image || preview?.imageAssetId, [foodDetails?.image, preview?.imageAssetId]);
-    // The card's image is already cached: show it at once while the high-res image loads
-    const imagePlaceholder = useMemo(() => (preview?.previewImageUrl ? { uri: preview.previewImageUrl } : undefined), [preview?.previewImageUrl]);
-    const foodName = foodDetails?.name || preview?.name;
+    const imageRemoteUrl = foodDetails?.image_remote_url;
+    const imageAssetId = typeof foodDetails?.image === 'object' ? foodDetails?.image?.id : foodDetails?.image;
+    // The food card loads the asset at 512px, so that URL is usually cached already. It shows at once
+    // while the high-res version (2048px) loads. A remote URL is the same in both places anyway.
+    const imagePlaceholder = useMemo(() => {
+        if (imageRemoteUrl || !imageAssetId) return undefined;
+        const previewUrl = getImageUrl(String(imageAssetId));
+        return previewUrl ? { uri: previewUrl } : undefined;
+    }, [imageRemoteUrl, imageAssetId]);
 
     const renderStarItem = useCallback((index: number) => (
         <React.Fragment key={index}>
@@ -218,7 +216,6 @@ const FoodHeader = ({
                             <RatingAverageBadge
                                 appSettings={appSettings}
                                 foodDetails={foodDetails}
-                                preview={preview}
                                 theme={theme}
                                 foodsAreaColor={foodsAreaColor}
                                 viewStyle={styles.ratingView}
@@ -244,7 +241,7 @@ const FoodHeader = ({
                 </View>
                 <View style={webLayout.featuredContainerStyle}>
                     <Text style={[...webLayout.foodHeadingStyle, { color: theme.screen.text }]}>
-                        {foodName}
+                        {foodDetails?.name}
                     </Text>
                 </View>
             </>
@@ -271,7 +268,6 @@ const FoodHeader = ({
                         <RatingAverageBadge
                             appSettings={appSettings}
                             foodDetails={foodDetails}
-                            preview={preview}
                             theme={theme}
                             foodsAreaColor={foodsAreaColor}
                             viewStyle={styles.mobileRatingView}
@@ -288,7 +284,7 @@ const FoodHeader = ({
                     { color: theme.screen.text }
                 ]}
             >
-                {foodName}
+                {foodDetails?.name}
             </Text>
             {showRating && (
             <View style={styles.marginTopMedium}>
@@ -319,7 +315,6 @@ export default memo(FoodHeader, (prevProps, nextProps) => {
         prevProps.defaultImage === nextProps.defaultImage &&
         prevProps.isAccountRequired === nextProps.isAccountRequired &&
         prevProps.showRating === nextProps.showRating &&
-        prevProps.onAccountRequired === nextProps.onAccountRequired &&
-        prevProps.preview === nextProps.preview
+        prevProps.onAccountRequired === nextProps.onAccountRequired
     );
 });
