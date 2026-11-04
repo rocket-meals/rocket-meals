@@ -1,4 +1,5 @@
 Key,Message,Component,Line
+"AaGlGBonCbXmea9i7uUu","'value' will use Object's default stringification format ('[object Object]') when stringified.","rocket-meals_rocket-meals:apps/accessibilityTester/src/additionalRoutes.ts",74
 "AaGg_-VdIc4SKMlUkZp5","Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.","rocket-meals_rocket-meals:packages/common/src/MarkdownSectionHelper.ts",53
 "AaGZKV21hpVs7SWw5zSr","Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed.","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/showcaseDay.ts",50
 "AaGZKV21hpVs7SWw5zSs","Move this array ""sort"" operation to a separate statement or replace it with ""toSorted"".","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/showcaseDay.ts",83
@@ -21,7 +22,7 @@ Key,Message,Component,Line
 "AaE7dCZQiXm7DYT7WjxE","`editable` should be a `Set`, and use `editable.has()` to check existence or non-existence.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/legal-documents-hook/LegalWikiProtection.ts",45
 "AaE7Gk2CsZyonQJhyVHn","Refactor this function to reduce its Cognitive Complexity from 23 to the 15 allowed.","rocket-meals_rocket-meals:apps/frontend/app/components/OwnFoodFeedbackItem/index.tsx",36
 "AaE7Gkh2sZyonQJhyVHm","Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationPrompt.ts",115
-"AaE1lSmzTIntY0cLRjeH","'repo-depkit-common-ui' imported multiple times.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx",41
+"AaE1lSmzTIntY0cLRjeH","'repo-depkit-common-ui' imported multiple times.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx",42
 "AaE0snQ2reFZwbJUSfQv","Unexpected `await` inside a loop.","rocket-meals_rocket-meals:apps/frontend/app/helper/chatReadStatus.ts",90
 "AaEx0MPdBO4LJR5ytLlu","Move this array ""reverse"" operation to a separate statement or replace it with ""toReversed"".","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts",209
 "AaEx0MPdBO4LJR5ytLlv","Extract the assignment of ""messagesByItem[item]"" from this expression.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts",214
@@ -38,7 +39,7 @@ Key,Message,Component,Line
 "AaGMPaS1Si3bF6oTNtz3","Add a default case (*) to handle unexpected values.","rocket-meals_rocket-meals:.github/actions/stage-changes/action.yml",48
 "AaGMPaSFSi3bF6oTNtzx","Redirect this error message to stderr (>&2).","rocket-meals_rocket-meals:.github/actions/tag-und-jahr-expo-update/action.yml",126
 "AaGMPaSFSi3bF6oTNtzy","Redirect this error message to stderr (>&2).","rocket-meals_rocket-meals:.github/actions/tag-und-jahr-expo-update/action.yml",134
-"AaE1lSmzTIntY0cLRjeG","'repo-depkit-common-ui' imported multiple times.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx",25
+"AaE1lSmzTIntY0cLRjeG","'repo-depkit-common-ui' imported multiple times.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx",26
 "AaGMPaQpSi3bF6oTNtzw","Redirect this error message to stderr (>&2).","rocket-meals_rocket-meals:.github/workflows/frontend-maestro.yml",92
 "AaGMPaStSi3bF6oTNtz1","Redirect this error message to stderr (>&2).","rocket-meals_rocket-meals:.github/actions/score-tracker-expo-update/action.yml",135
 "AaGMPaStSi3bF6oTNtz2","Redirect this error message to stderr (>&2).","rocket-meals_rocket-meals:.github/actions/score-tracker-expo-update/action.yml",143

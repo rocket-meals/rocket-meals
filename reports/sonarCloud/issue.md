@@ -4,15 +4,19 @@
 
 | Category | Total Issues | Shown |
 |----------|-------------|-------|
-| 🔒 Security | 7 | 7 |
+| 🔒 Security | 8 | 8 |
 | 🐛 Reliability | 12 | 12 |
-| 🔧 Maintainability | 45 | 31 |
+| 🔧 Maintainability | 46 | 30 |
 
-**Total issues:** 64 (showing top 50 prioritized by: Security > Reliability > Maintainability)
+**Total issues:** 66 (showing top 50 prioritized by: Security > Reliability > Maintainability)
 
 ---
 
-## 🔒 Security (7/7)
+## 🔒 Security (8/8)
+
+- **"npx" can install packages on-demand and run their lifecycle scripts.**
+  .github/workflows/frontend-accessibility.yml:46
+  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/frontend-accessibility.yml#L46
 
 - **Make sure that no untrusted code is executed from a fork.**
   .github/workflows/store-screenshots.yml:68
@@ -92,7 +96,7 @@
   scripts/eas-ios-credentials.sh:29
   https://github.com/rocket-meals/rocket-meals/blob/master/scripts/eas-ios-credentials.sh#L29
 
-## 🔧 Maintainability (31/45)
+## 🔧 Maintainability (30/46)
 
 - **Redirect this error message to stderr (>&2).**
   .github/actions/geonexia-expo-update/action.yml:135
@@ -125,6 +129,10 @@
 - **Redirect this error message to stderr (>&2).**
   .github/workflows/frontend-maestro.yml:92
   https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/frontend-maestro.yml#L92
+
+- **'value' will use Object's default stringification format ('[object Object]') when stringified.**
+  apps/accessibilityTester/src/additionalRoutes.ts:74
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/accessibilityTester/src/additionalRoutes.ts#L74
 
 - **Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/feature-wishes-hook/index.ts:76
@@ -187,12 +195,12 @@
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/university-affiliation-hook/index.ts#L19
 
 - **'repo-depkit-common-ui' imported multiple times.**
-  apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx:41
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx#L41
+  apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx:42
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx#L42
 
 - **'repo-depkit-common-ui' imported multiple times.**
-  apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx:25
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx#L25
+  apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx:26
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx#L26
 
 - **Extract this nested ternary operation into an independent statement.**
   apps/frontend/app/components/NewsFoodoffersHint/index.tsx:59
@@ -209,12 +217,4 @@
 - **Async method 'handleNotification' has no 'await' expression.**
   apps/frontend/app/helper/NotificationHelper.ts:87
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/helper/NotificationHelper.ts#L87
-
-- **Async function 'fetchUniversityAffiliation' has no 'await' expression.**
-  apps/frontend/app/hooks/useUniversityStatusTracking.ts:11
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/hooks/useUniversityStatusTracking.ts#L11
-
-- **`AUTO_UPLOAD_TENANTS` should be a `Set`, and use `AUTO_UPLOAD_TENANTS.has()` to check existence or non-existence.**
-  apps/frontend/app/store-screenshots.ts:95
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/store-screenshots.ts#L95
 
