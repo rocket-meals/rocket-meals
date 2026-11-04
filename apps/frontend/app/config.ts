@@ -314,7 +314,8 @@ export function getVersionPatch() {
         // 189: accessibility (WCAG AA): main landmark, html lang, page titles, tab lists, labels, contrast
         // 190: accessibility for every screen: labelled loading indicators, error text contrast, not-found screen translated
         // 191: useTheme no longer dispatches on every mount, food details header redesigned (image size by window height, loading spinner, expand icon)
-        return 191;
+        // 192: one header image for food, building and apartment details (square in portrait, banner in landscape)
+        return 192;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

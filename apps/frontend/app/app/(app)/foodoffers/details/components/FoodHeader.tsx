@@ -1,13 +1,13 @@
-import React, { memo, useMemo, useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
-import { AntDesign, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import React, { memo, useCallback } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import IconButton from '@/components/UI/IconButton';
-import { getImageUrl, numToOneDecimal } from '@/constants/HelperFunctions';
+import { numToOneDecimal } from '@/constants/HelperFunctions';
 import { TranslationKeys } from '@/locales/keys';
 import sharedStyles from '../styles';
 import { isWeb } from '@/constants/Constants';
-import MyImage from '@/components/MyImage';
+import DetailsHeaderImage from '@/components/DetailsHeaderImage/DetailsHeaderImage';
 import SettingsList from '@/components/SettingsList';
 import type { FoodDetailsSectionBaseProps } from './types';
 
@@ -21,21 +21,6 @@ interface FoodHeaderProps extends FoodDetailsSectionBaseProps {
     showRating?: boolean;
     appSettings: any;
     defaultImage?: string | null;
-}
-
-// Share of the window height the image may take, so the name and rating stay visible below it
-const IMAGE_MAX_HEIGHT_SHARE = 0.38;
-const IMAGE_MIN_HEIGHT = 180;
-const IMAGE_RADIUS = 25;
-
-/**
- * Size of the food image: always the full width, at most square, and at most a share of the
- * window height. On a phone in portrait that is (nearly) square, on wide screens (landscape,
- * tablet, desktop) it becomes wider than high and the photo is zoomed in (contentFit cover).
- */
-export function computeFoodHeaderImageSize(contentWidth: number, windowHeight: number) {
-    const maxHeight = Math.max(IMAGE_MIN_HEIGHT, windowHeight * IMAGE_MAX_HEIGHT_SHARE);
-    return { width: contentWidth, height: Math.min(contentWidth, maxHeight) };
 }
 
 /** Whether the rating row is drawn as one group with the notification row below it (app only, as before). */
@@ -97,22 +82,6 @@ const RatingAverageBadge = ({
     );
 };
 
-/**
- * Round button in the image's top right corner: a spinner while the high resolution image is
- * still loading (the low resolution one from the list is shown meanwhile), afterwards an
- * expand icon that opens the image in full screen.
- */
-const ImageCornerButton = ({ loading, onPress, translate }: { loading: boolean; onPress: () => void; translate: (key: string) => string }) => (
-    <TouchableOpacity
-        style={styles.cornerButton}
-        onPress={onPress}
-        accessibilityRole="button"
-        accessibilityLabel={translate(loading ? TranslationKeys.image_loading_high_resolution : TranslationKeys.image_enlarge)}
-    >
-        {loading ? <ActivityIndicator size="small" color="#ffffff" /> : <MaterialCommunityIcons name="arrow-expand" size={20} color="#ffffff" />}
-    </TouchableOpacity>
-);
-
 const FoodHeader = ({
     foodDetails,
     screenWidth,
@@ -129,30 +98,8 @@ const FoodHeader = ({
     onAccountRequired,
     containerWidth,
 }: FoodHeaderProps) => {
-    const { height: windowHeight } = useWindowDimensions();
-    // Real width of the header, measured, because containerWidth is a percentage
-    const [contentWidth, setContentWidth] = useState(Math.max(0, screenWidth - 40));
-    const onLayout = useCallback((event: LayoutChangeEvent) => {
-        const width = Math.round(event.nativeEvent.layout.width);
-        if (width > 0) setContentWidth(width);
-    }, []);
-    const imageSize = useMemo(() => computeFoodHeaderImageSize(contentWidth, windowHeight), [contentWidth, windowHeight]);
-
     const imageRemoteUrl = foodDetails?.image_remote_url;
     const imageAssetId = typeof foodDetails?.image === 'object' ? foodDetails?.image?.id : foodDetails?.image;
-    // The food card loads the asset at 512px, so that URL is usually cached already. It shows at once
-    // while the high-res version (2048px) loads. A remote URL is the same in both places anyway.
-    const imagePlaceholder = useMemo(() => {
-        if (imageRemoteUrl || !imageAssetId) return undefined;
-        const previewUrl = getImageUrl(String(imageAssetId));
-        return previewUrl ? { uri: previewUrl } : undefined;
-    }, [imageRemoteUrl, imageAssetId]);
-
-    // Which image has finished loading. Keyed by the image so a different food starts loading again.
-    const imageKey = imageRemoteUrl || (imageAssetId ? String(imageAssetId) : null);
-    const [loadedImageKey, setLoadedImageKey] = useState<string | null>(null);
-    const markImageLoaded = useCallback(() => setLoadedImageKey(imageKey), [imageKey]);
-    const isHighResLoading = !!imageKey && loadedImageKey !== imageKey;
 
     const renderStarItem = useCallback((index: number) => (
         <React.Fragment key={index}>
@@ -192,24 +139,10 @@ const FoodHeader = ({
     const ratingBadge = <RatingAverageBadge appSettings={appSettings} foodDetails={foodDetails} theme={theme} foodsAreaColor={foodsAreaColor} />;
 
     return (
-        <View onLayout={onLayout} style={[styles.container, containerWidth ? { width: containerWidth as any } : null]}>
-            <View style={[styles.imageFrame, { width: imageSize.width, height: imageSize.height, backgroundColor: theme.screen.iconBg }]}>
-                <TouchableOpacity onPress={openFullScreenImage} activeOpacity={0.9} style={StyleSheet.absoluteFill} accessibilityRole="imagebutton" accessibilityLabel={translate(TranslationKeys.image_enlarge)}>
-                    <MyImage
-                        style={styles.image}
-                        remote_image_url={imageRemoteUrl}
-                        directus_asset_id={imageAssetId}
-                        defaultImageUrl={defaultImage}
-                        contentFit="cover"
-                        placeholder={imagePlaceholder}
-                        placeholderContentFit="cover"
-                        onLoad={markImageLoaded}
-                        onError={markImageLoaded}
-                    />
-                </TouchableOpacity>
+        <View style={[styles.container, containerWidth ? { width: containerWidth as any } : null]}>
+            <DetailsHeaderImage remoteImageUrl={imageRemoteUrl} assetId={imageAssetId} defaultImageUrl={defaultImage} onOpenFullScreen={openFullScreenImage}>
                 {!isWeb && <View style={styles.badgeOnImage} pointerEvents="none">{ratingBadge}</View>}
-                <ImageCornerButton loading={isHighResLoading} onPress={openFullScreenImage} translate={translate} />
-            </View>
+            </DetailsHeaderImage>
             {isWeb && <View style={[sharedStyles.fullWidthEnd, styles.badgeBelowImage]}>{ratingBadge}</View>}
             <Text style={[titleStyle, { color: theme.screen.text }]}>{foodDetails?.name}</Text>
             {showRating && (
@@ -236,26 +169,6 @@ const styles = StyleSheet.create({
         width: '100%',
         alignSelf: 'center',
         paddingTop: 10,
-    },
-    imageFrame: {
-        borderRadius: IMAGE_RADIUS,
-        overflow: 'hidden',
-        alignSelf: 'center',
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-    },
-    cornerButton: {
-        position: 'absolute',
-        top: 10,
-        right: 10,
-        width: 38,
-        height: 38,
-        borderRadius: 19,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     badgeOnImage: {
         position: 'absolute',

@@ -7,9 +7,8 @@ import { useAppSelector } from '@/redux/hooks';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { getImageUrl } from '@/constants/HelperFunctions';
 import { useLanguage } from '@/hooks/useLanguage';
-import { Image as ExpoImage } from 'expo-image';
 import useLinkCoordinateModal from '@/hooks/useLinkCoordinateModal';
-import DetailsImage from '@/app/(app)/campus/details/components/DetailsImage';
+import DetailsHeaderImage from '@/components/DetailsHeaderImage/DetailsHeaderImage';
 import DetailsHeader from '@/app/(app)/campus/details/components/DetailsHeader';
 import DetailsTabs from '@/app/(app)/campus/details/components/DetailsTabs';
 import { shallowEqual } from 'react-redux';
@@ -86,20 +85,6 @@ const BuildingDetailsContent: React.FC<BuildingDetailsContentProps> = ({ id }) =
     const campus_area_color = appSettings?.campus_area_color ? appSettings?.campus_area_color : primaryColor;
     const contrastColor = myContrastColor(campus_area_color, theme, mode === 'dark');
 
-    const imageSource = useMemo(() => {
-        if (!campusDetails) return { uri: defaultImage };
-        if (campusDetails?.image_remote_url || campusDetails?.image) {
-            return { uri: (campusDetails?.image_remote_url as string) || getImageUrl(String(campusDetails?.image)) };
-        }
-        return { uri: defaultImage };
-    }, [campusDetails, defaultImage]);
-
-    useEffect(() => {
-        if (imageSource?.uri) {
-            ExpoImage.prefetch?.(imageSource.uri).catch(() => {});
-        }
-    }, [imageSource]);
-
     const handleOpenNavigation = useCallback(() => {
         if (!campusDetails) return;
         const point = campusDetails.coordinates as { coordinates?: [number, number] } | undefined | null;
@@ -136,7 +121,11 @@ const BuildingDetailsContent: React.FC<BuildingDetailsContentProps> = ({ id }) =
             showsVerticalScrollIndicator={false}
         >
             <View style={{ ...styles.bulidingContainer, width: screenWidth > 1000 ? '80%' : '100%', flexDirection: 'column' }}>
-                <DetailsImage imageSource={imageSource} screenWidth={screenWidth} />
+                <DetailsHeaderImage
+                    remoteImageUrl={campusDetails?.image_remote_url as string | null | undefined}
+                    assetId={typeof campusDetails?.image === 'object' ? (campusDetails?.image as any)?.id : campusDetails?.image}
+                    defaultImageUrl={defaultImage}
+                />
 
                 <View style={{ ...styles.detailsContainer, width: '100%' }}>
                     <DetailsHeader
