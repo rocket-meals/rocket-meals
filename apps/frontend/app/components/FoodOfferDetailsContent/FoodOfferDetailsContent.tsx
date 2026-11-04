@@ -38,11 +38,23 @@ import styles from '@/app/(app)/foodoffers/details/styles';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import useAppRatingScore from '@/hooks/useAppRatingScore';
 
+/**
+ * Data the caller (e.g. a food card in the list) already has. Shown right away while the
+ * details load, so the modal does not open empty and the image appears without waiting.
+ */
+export type FoodOfferDetailsPreview = {
+    name?: string | null;
+    imageAssetId?: string | number | null;
+    imageRemoteUrl?: string | null;
+    /** Image URL the caller already displays (usually cached), shown until the high-res image is loaded */
+    previewImageUrl?: string | null;
+    ratingAverage?: number | null;
+};
+
 export interface FoodOfferDetailsContentProps {
     offerId?: string;
     foodId?: string;
-    initialImageAssetId?: string | number | null;
-    initialImageRemoteUrl?: string | null;
+    preview?: FoodOfferDetailsPreview;
     /** Closes these details when the offer no longer exists (the food import replaced it) */
     onOfferNoLongerAvailable?: () => void;
     /** Shows the food's details when the offer no longer exists but a food id is known */
@@ -54,7 +66,7 @@ const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => fo
 
 const VALID_FOOD_TABS = Object.values(FoodOfferDetailTab);
 
-const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offerId, foodId: initialFoodId, initialImageAssetId, initialImageRemoteUrl, onOfferNoLongerAvailable, showFoodWhenOfferMissing }) => {
+const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offerId, foodId: initialFoodId, preview, onOfferNoLongerAvailable, showFoodWhenOfferMissing }) => {
     const { theme } = useTheme();
     const { translate, language } = useLanguage();
     const dispatch = useDispatch();
@@ -151,15 +163,17 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
 
     const openFullScreenImage = useCallback(() => {
         closeModal();
-        if (foodDetails?.image_remote_url) {
+        const imageRemoteUrl = foodDetails?.image_remote_url || preview?.imageRemoteUrl;
+        const imageAssetId = foodDetails?.image || preview?.imageAssetId;
+        if (imageRemoteUrl) {
             router.push({
                 pathname: '/(app)/image-full-screen',
-                params: { uri: foodDetails.image_remote_url },
+                params: { uri: imageRemoteUrl },
             });
-        } else if (foodDetails?.image) {
+        } else if (imageAssetId) {
             router.push({
                 pathname: '/(app)/image-full-screen',
-                params: { assetId: String(foodDetails.image) },
+                params: { assetId: String(imageAssetId) },
             });
         } else {
             router.push({
@@ -167,7 +181,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
                 params: { uri: defaultImage },
             });
         }
-    }, [foodDetails, defaultImage, closeModal]);
+    }, [foodDetails, preview, defaultImage, closeModal]);
 
     const FeedbacksContent = useMemo(() => (
         <Feedbacks
@@ -339,8 +353,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
                         isAccountRequired={isRatingLocked}
                         onAccountRequired={openRatingLockedModal}
                         containerWidth={getContainerWidth}
-                        initialImageAssetId={initialImageAssetId}
-                        initialImageRemoteUrl={initialImageRemoteUrl}
+                        preview={preview}
                     />
 
                     <NotificationSection

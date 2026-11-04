@@ -318,6 +318,20 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
       return foodItem?.image_remote_url || getImageUrl(foodItem?.image as string) || defaultImage;
     }, [foodItem?.image_remote_url, foodItem?.image, defaultImage]);
 
+    // Data the card already shows, handed to the details modal so it opens filled instead of empty
+    const detailsPreview = useMemo(() => {
+      let name = getFoodOfferName(item, language || 'de');
+      if (name && pirateLanguage) name = applyPirateTransformation(name);
+      if (name && funLanguageMode) name = applyFunModeTransformation(name, funLanguageMode);
+      return {
+        name,
+        imageAssetId: (typeof foodItem?.image === 'object' ? foodItem?.image?.id : foodItem?.image) || null,
+        imageRemoteUrl: foodItem?.image_remote_url || null,
+        previewImageUrl: imageUri || null,
+        ratingAverage: foodItem?.rating_average ?? foodItem?.rating_average_legacy ?? null,
+      };
+    }, [item, language, pirateLanguage, funLanguageMode, foodItem?.image, foodItem?.image_remote_url, foodItem?.rating_average, foodItem?.rating_average_legacy, imageUri]);
+
     const handleDescriptionModal = useCallback(() => {
       if (!foodDescription) return;
       showScrollViewModal(
@@ -350,7 +364,7 @@ export const FoodItemBase: React.FC<FoodItemProps> = memo(
               onPress={() =>
                 item.redirect_url
                   ? openInBrowser(item.redirect_url)
-                  : openFoodOfferDetailsModal(item?.id, foodItem?.id || '', foodItem?.image || null, foodItem?.image_remote_url || null)
+                  : openFoodOfferDetailsModal(item?.id, foodItem?.id || '', detailsPreview)
               }
               imageSource={{
                 uri: imageUri as string,
