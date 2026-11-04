@@ -23,35 +23,24 @@ interface FoodHeaderProps extends FoodDetailsSectionBaseProps {
     defaultImage?: string | null;
 }
 
-// From this content width on, image and text sit side by side instead of stacked
-const SIDE_BY_SIDE_MIN_WIDTH = 700;
-// Share of the window height the image may take, so name and rating stay visible below or beside it
-const IMAGE_MAX_HEIGHT_SHARE_STACKED = 0.38;
-const IMAGE_MAX_HEIGHT_SHARE_SIDE_BY_SIDE = 0.4;
+// Share of the window height the image may take, so the name and rating stay visible below it
+const IMAGE_MAX_HEIGHT_SHARE = 0.38;
 const IMAGE_MIN_HEIGHT = 180;
-// Side by side the image is landscape (4:3) instead of square
-const SIDE_BY_SIDE_ASPECT_RATIO = 4 / 3;
-const IMAGE_RADIUS = 20;
+const IMAGE_RADIUS = 25;
 
 /**
- * Size of the food image, derived from the available width and the window height.
- * Stacked (narrow): full width, at most square, capped by the window height.
- * Side by side (wide): landscape 4:3, height capped by the window height, at most half the width.
+ * Size of the food image: always the full width, at most square, and at most a share of the
+ * window height. On a phone in portrait that is (nearly) square, on wide screens (landscape,
+ * tablet, desktop) it becomes wider than high and the photo is zoomed in (contentFit cover).
  */
 export function computeFoodHeaderImageSize(contentWidth: number, windowHeight: number) {
-    const sideBySide = contentWidth >= SIDE_BY_SIDE_MIN_WIDTH;
-    if (sideBySide) {
-        const maxHeight = Math.max(IMAGE_MIN_HEIGHT, windowHeight * IMAGE_MAX_HEIGHT_SHARE_SIDE_BY_SIDE);
-        const width = Math.min(contentWidth * 0.5, maxHeight * SIDE_BY_SIDE_ASPECT_RATIO);
-        return { sideBySide, width, height: width / SIDE_BY_SIDE_ASPECT_RATIO };
-    }
-    const maxHeight = Math.max(IMAGE_MIN_HEIGHT, windowHeight * IMAGE_MAX_HEIGHT_SHARE_STACKED);
-    return { sideBySide, width: contentWidth, height: Math.min(contentWidth, maxHeight) };
+    const maxHeight = Math.max(IMAGE_MIN_HEIGHT, windowHeight * IMAGE_MAX_HEIGHT_SHARE);
+    return { width: contentWidth, height: Math.min(contentWidth, maxHeight) };
 }
 
-/** Whether the rating row is drawn as one group with the notification row below it (app, stacked layout). */
-export function isFoodHeaderGroupedWithNotification(contentWidth: number, windowHeight: number) {
-    return !isWeb && !computeFoodHeaderImageSize(contentWidth, windowHeight).sideBySide;
+/** Whether the rating row is drawn as one group with the notification row below it (app only, as before). */
+export function isFoodHeaderGroupedWithNotification() {
+    return !isWeb;
 }
 
 const StarRatingIconButton = ({
@@ -83,7 +72,9 @@ function resolveDisplayRating(foodDetails: any) {
     return rating && numToOneDecimal(rating);
 }
 
-// "Average rating" badge (star icon + value), shown when `foods_ratings_average_display` is enabled
+// "Average rating" badge (star icon + value), shown when `foods_ratings_average_display` is enabled.
+// Same look as before: on web below the image on the right, in the app on the image (top left,
+// the top right corner holds the expand button).
 const RatingAverageBadge = ({
     appSettings,
     foodDetails,
@@ -99,9 +90,9 @@ const RatingAverageBadge = ({
         return null;
     }
     return (
-        <View style={[styles.ratingBadge, { borderColor: theme.screen.text, backgroundColor: theme.screen.iconBg }]}>
-            <AntDesign name="star" size={18} color={foodsAreaColor} />
-            <Text style={[styles.ratingBadgeText, { color: theme.screen.text }]}>{resolveDisplayRating(foodDetails)}</Text>
+        <View style={[isWeb ? sharedStyles.ratingView : sharedStyles.mobileRatingView, { borderColor: theme.screen.text, backgroundColor: theme.screen.iconBg }]}>
+            <AntDesign name="star" size={isWeb ? 22 : 18} color={foodsAreaColor} />
+            <Text style={[isWeb ? sharedStyles.totalRating : sharedStyles.mobileTotalRating, { color: theme.screen.text }]}>{resolveDisplayRating(foodDetails)}</Text>
         </View>
     );
 };
@@ -194,57 +185,48 @@ const FoodHeader = ({
         </View>
     );
 
-    const image = (
-        <View style={[styles.imageFrame, { width: imageSize.width, height: imageSize.height, backgroundColor: theme.screen.iconBg }]}>
-            <TouchableOpacity onPress={openFullScreenImage} activeOpacity={0.9} style={StyleSheet.absoluteFill} accessibilityRole="imagebutton" accessibilityLabel={translate(TranslationKeys.image_enlarge)}>
-                <MyImage
-                    style={styles.image}
-                    remote_image_url={imageRemoteUrl}
-                    directus_asset_id={imageAssetId}
-                    defaultImageUrl={defaultImage}
-                    contentFit="cover"
-                    placeholder={imagePlaceholder}
-                    placeholderContentFit="cover"
-                    onLoad={markImageLoaded}
-                    onError={markImageLoaded}
-                />
-            </TouchableOpacity>
-            <ImageCornerButton loading={isHighResLoading} onPress={openFullScreenImage} translate={translate} />
-        </View>
-    );
-
-    const details = (
-        <View style={[styles.details, imageSize.sideBySide ? styles.detailsSideBySide : styles.detailsStacked]}>
-            <View style={styles.titleRow}>
-                <Text style={[styles.title, imageSize.sideBySide ? styles.titleSideBySide : styles.titleStacked, { color: theme.screen.text }]}>
-                    {foodDetails?.name}
-                </Text>
-                <RatingAverageBadge appSettings={appSettings} foodDetails={foodDetails} theme={theme} foodsAreaColor={foodsAreaColor} />
-            </View>
-            {showRating && (
-                <SettingsList
-                    leftIcon={<MaterialIcons name="star" size={22} />}
-                    iconBgColor={foodsAreaColor}
-                    title={translate(TranslationKeys.RATE_FOOD)}
-                    rightElement={ratingStars}
-                    showSeparator={false}
-                    // in the app and stacked, the rating groups with the notification item below it
-                    // (see isFoodHeaderGroupedWithNotification)
-                    groupPosition={isFoodHeaderGroupedWithNotification(contentWidth, windowHeight) ? 'top' : 'single'}
-                    isAccountRequired={isAccountRequired}
-                    onAccountRequired={onAccountRequired}
-                />
-            )}
-        </View>
-    );
+    // Same heading as before: web with the size depending on the screen width, app with its own style
+    const titleStyle = isWeb
+        ? [sharedStyles.foodHeading, sharedStyles.widthFull, sharedStyles.textCenter, screenWidth > 800 ? sharedStyles.fontSizeLarge : sharedStyles.fontSizeMedium]
+        : sharedStyles.mobileFoodHeading;
+    const ratingBadge = <RatingAverageBadge appSettings={appSettings} foodDetails={foodDetails} theme={theme} foodsAreaColor={foodsAreaColor} />;
 
     return (
-        <View
-            onLayout={onLayout}
-            style={[styles.container, imageSize.sideBySide && styles.containerSideBySide, containerWidth ? { width: containerWidth as any } : null]}
-        >
-            {image}
-            {details}
+        <View onLayout={onLayout} style={[styles.container, containerWidth ? { width: containerWidth as any } : null]}>
+            <View style={[styles.imageFrame, { width: imageSize.width, height: imageSize.height, backgroundColor: theme.screen.iconBg }]}>
+                <TouchableOpacity onPress={openFullScreenImage} activeOpacity={0.9} style={StyleSheet.absoluteFill} accessibilityRole="imagebutton" accessibilityLabel={translate(TranslationKeys.image_enlarge)}>
+                    <MyImage
+                        style={styles.image}
+                        remote_image_url={imageRemoteUrl}
+                        directus_asset_id={imageAssetId}
+                        defaultImageUrl={defaultImage}
+                        contentFit="cover"
+                        placeholder={imagePlaceholder}
+                        placeholderContentFit="cover"
+                        onLoad={markImageLoaded}
+                        onError={markImageLoaded}
+                    />
+                </TouchableOpacity>
+                {!isWeb && <View style={styles.badgeOnImage} pointerEvents="none">{ratingBadge}</View>}
+                <ImageCornerButton loading={isHighResLoading} onPress={openFullScreenImage} translate={translate} />
+            </View>
+            {isWeb && <View style={[sharedStyles.fullWidthEnd, styles.badgeBelowImage]}>{ratingBadge}</View>}
+            <Text style={[titleStyle, { color: theme.screen.text }]}>{foodDetails?.name}</Text>
+            {showRating && (
+                <View style={sharedStyles.marginTopMedium}>
+                    {/* in the app the rating groups with the notification item below it (see isFoodHeaderGroupedWithNotification) */}
+                    <SettingsList
+                        leftIcon={<MaterialIcons name="star" size={22} />}
+                        iconBgColor={foodsAreaColor}
+                        title={translate(TranslationKeys.RATE_FOOD)}
+                        rightElement={ratingStars}
+                        showSeparator={false}
+                        groupPosition={isFoodHeaderGroupedWithNotification() ? 'top' : 'single'}
+                        isAccountRequired={isAccountRequired}
+                        onAccountRequired={onAccountRequired}
+                    />
+                </View>
+            )}
         </View>
     );
 };
@@ -254,12 +236,6 @@ const styles = StyleSheet.create({
         width: '100%',
         alignSelf: 'center',
         paddingTop: 10,
-    },
-    containerSideBySide: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: 24,
-        marginBottom: 20,
     },
     imageFrame: {
         borderRadius: IMAGE_RADIUS,
@@ -281,47 +257,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    details: {
-        gap: 14,
+    badgeOnImage: {
+        position: 'absolute',
+        top: 12,
+        left: 12,
     },
-    detailsStacked: {
-        width: '100%',
-        marginTop: 14,
-    },
-    detailsSideBySide: {
-        flex: 1,
-        minWidth: 0,
-    },
-    titleRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: 12,
-    },
-    title: {
-        flex: 1,
-        fontFamily: 'Poppins_700Bold',
-    },
-    titleStacked: {
-        fontSize: 22,
-        lineHeight: 30,
-    },
-    titleSideBySide: {
-        fontSize: 28,
-        lineHeight: 38,
-    },
-    ratingBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        paddingHorizontal: 12,
-        height: 34,
-        borderRadius: 17,
-        borderWidth: 1,
-    },
-    ratingBadgeText: {
-        fontSize: 15,
-        fontFamily: 'Poppins_400Regular',
+    badgeBelowImage: {
+        marginTop: 12,
     },
 });
 

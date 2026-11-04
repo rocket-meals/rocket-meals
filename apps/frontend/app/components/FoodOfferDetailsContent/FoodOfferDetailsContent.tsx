@@ -98,7 +98,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
     const { theme } = useTheme();
     const { translate, language } = useLanguage();
     const dispatch = useDispatch();
-    const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+    const { width: screenWidth } = useWindowDimensions();
     const showBelowHeader = useRenderBelowHeader(inModalSheet);
 
     const { show: showModal, close: closeModal } = useMyScrollViewModal();
@@ -390,7 +390,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
                         translate={translate}
                         previousFeedback={previousFeedback}
                         updateNotification={updateNotification}
-                        isGroupedWithRating={showRating && isFoodHeaderGroupedWithNotification(screenWidth, screenHeight)}
+                        isGroupedWithRating={showRating && isFoodHeaderGroupedWithNotification()}
                         foodsAreaColor={foods_area_color}
                         isAccountRequired={!user?.id}
                         onAccountRequired={openAccountRequiredModal}
