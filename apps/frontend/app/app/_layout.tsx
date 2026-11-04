@@ -32,7 +32,7 @@ import {PersistGate} from 'redux-persist/integration/react';
 import {configureStore, persistor} from '@/redux/store';
 import {ServerAPI} from '@/redux/actions';
 import {sqliteKeyValueStorage} from '@/redux/storage/sqliteStorage';
-import {useTheme} from '@/hooks/useTheme';
+import {useTheme, useThemeStatusBar} from '@/hooks/useTheme';
 import ServerStatusLoader from '@/components/ServerStatusLoader/ServerStatusLoader';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {GluestackUIProvider} from '@gluestack-ui/themed';
@@ -119,6 +119,7 @@ function DocumentLanguageBridge() {
 
 export default function Layout() {
 	const { theme } = useTheme();
+	useThemeStatusBar();
 	const pathname = usePathname();
 	const [fontsLoaded] = useFonts({
 		Poppins_100Thin,

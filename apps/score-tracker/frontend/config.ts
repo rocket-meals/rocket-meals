@@ -111,7 +111,8 @@ export function getVersionPatch() {
 	// 86: common: ten more food feedback reactions (FoodFeedbackReactionHelper)
 	// 87: common: AppScreens map instead of leaflet-map, price-group removed. common-ui: placeholder contrast
 	// 88: common-ui: theme screen.errorText
-	return 88;
+	// 89: bottom sheet modals always fully open (no dynamic sizing)
+	return 89;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

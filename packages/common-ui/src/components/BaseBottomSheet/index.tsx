@@ -85,7 +85,10 @@ const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(({ onClose
 	const renderBackdrop = useCallback((backdropProps: BottomSheetBackdropProps) => <CustomBackdrop {...backdropProps} onPress={dismissAll} />, [dismissAll]);
 	const { theme } = useTheme();
 	const { top: topInset } = useSafeAreaInsets();
-	const snapPoints = useMemo(() => ['80%'], []);
+	// Always fully open (below the top safe area). One fixed snap point and no dynamic sizing:
+	// with gorhom v5's default enableDynamicSizing the content height became an extra, lower snap
+	// point, so a sheet whose content renders in steps (e.g. the food details) stopped halfway.
+	const snapPoints = useMemo(() => ['100%'], []);
 
 	const usedHeaderBg = headerBackgroundColor || theme.screen.background;
 	const effectiveBackgroundStyle = { backgroundColor: usedHeaderBg };
@@ -126,7 +129,7 @@ const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(({ onClose
 	// "adjustPan" matches what actually happens under edge-to-edge and lets
 	// the library shift the sheet up by the tracked keyboard height itself.
 	return (
-		<BottomSheet ref={ref} snapPoints={snapPoints} backdropComponent={renderBackdrop} backgroundComponent={Platform.OS === 'web' ? renderBackground : undefined} backgroundStyle={effectiveBackgroundStyle} handleComponent={null} onChange={handleChange} keyboardBehavior="interactive" keyboardBlurBehavior="restore" android_keyboardInputMode="adjustPan" topInset={topInset} {...webAccessibilityOverrides} {...props}>
+		<BottomSheet ref={ref} snapPoints={snapPoints} enableDynamicSizing={false} backdropComponent={renderBackdrop} backgroundComponent={Platform.OS === 'web' ? renderBackground : undefined} backgroundStyle={effectiveBackgroundStyle} handleComponent={null} onChange={handleChange} keyboardBehavior="interactive" keyboardBlurBehavior="restore" android_keyboardInputMode="adjustPan" topInset={topInset} {...webAccessibilityOverrides} {...props}>
 			<View style={styles.header}>
 				<View style={styles.placeholder} />
 				<View style={[styles.handle, { backgroundColor: handleColor }]} />
