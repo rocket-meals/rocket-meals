@@ -159,6 +159,26 @@
     "tr": "Görüntü kalitesi",
     "zh": "图片质量"
   },
+  "image_enlarge": {
+    "de": "Bild vergrößern",
+    "en": "Enlarge image",
+    "ar": "تكبير الصورة",
+    "es": "Ampliar imagen",
+    "fr": "Agrandir l'image",
+    "ru": "Увеличить изображение",
+    "tr": "Görseli büyüt",
+    "zh": "放大图片"
+  },
+  "image_loading_high_resolution": {
+    "de": "Bild wird in hoher Auflösung geladen",
+    "en": "Loading the image in high resolution",
+    "ar": "جارٍ تحميل الصورة بدقة عالية",
+    "es": "Cargando la imagen en alta resolución",
+    "fr": "Chargement de l'image en haute résolution",
+    "ru": "Изображение загружается в высоком разрешении",
+    "tr": "Görsel yüksek çözünürlükte yükleniyor",
+    "zh": "正在加载高分辨率图片"
+  },
   "loggingInPleaseWait": {
     "de": "Anmelden, bitte warten",
     "en": "Logging in, please wait",

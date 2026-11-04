@@ -313,7 +313,8 @@ export function getVersionPatch() {
         //      distances instead of "NaN m", kiosk demo balance date stored as ISO
         // 189: accessibility (WCAG AA): main landmark, html lang, page titles, tab lists, labels, contrast
         // 190: accessibility for every screen: labelled loading indicators, error text contrast, not-found screen translated
-        return 190;
+        // 191: useTheme no longer dispatches on every mount, food details header redesigned (image size by window height, loading spinner, expand icon)
+        return 191;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
