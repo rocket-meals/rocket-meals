@@ -1,4 +1,5 @@
-import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -289,7 +290,7 @@ const Index = () => {
                                             disabled={isSyncingAll || syncingId !== null}
                                         >
                                             {syncingId === item.id ? (
-                                                <ActivityIndicator size={20} color={theme.screen.icon} />
+                                                <LoadingIndicator size={20} color={theme.screen.icon} />
                                             ) : (
                                                 <MaterialCommunityIcons name="sync" size={22} color={theme.screen.icon} />
                                             )}

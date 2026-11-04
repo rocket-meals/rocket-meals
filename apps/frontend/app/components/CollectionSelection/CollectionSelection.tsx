@@ -1,4 +1,5 @@
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -23,7 +24,7 @@ const CollectionSelection = ({ id, value, onChange, error, isDisabled, loading, 
 						alignItems: 'center',
 					}}
 				>
-					<ActivityIndicator size={30} color={theme.screen.text} />
+					<LoadingIndicator size={30} color={theme.screen.text} />
 				</View>
 			) : (
 				<ScrollView nestedScrollEnabled={true} keyboardShouldPersistTaps="handled" scrollEventThrottle={16} contentContainerStyle={styles.scrollViewContent}>

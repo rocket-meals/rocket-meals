@@ -13,6 +13,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import useToast from '@/hooks/useToast';
 import { getHighResImageUrl } from '@/constants/HelperFunctions';
 import { TranslationKeys } from '@/locales/keys';
+import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import useDebugMode from '@/hooks/useDebugMode';
 import MyImage from '@/components/MyImage';
@@ -92,6 +93,7 @@ function showDownloadErrorDebugModal(params: {
 }
 
 export default function ImageFullScreen() {
+	useSetPageTitle(TranslationKeys.image);
 	const { uri, assetId } = useLocalSearchParams<{
 		uri?: string;
 		assetId?: string;

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import * as Updates from 'expo-updates';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
@@ -71,7 +72,7 @@ const UpdateCheckModalContent: React.FC = () => {
 		<View style={{ width: '100%', gap: 0 }}>
 			<SettingsList
 				leftIcon={<MaterialCommunityIcons name="cloud-search-outline" size={24} color={theme.screen.icon} />}
-				rightIcon={step === 'checking' ? <ActivityIndicator size="small" color={theme.screen.icon} /> : undefined}
+				rightIcon={step === 'checking' ? <LoadingIndicator size="small" color={theme.screen.icon} /> : undefined}
 				label={translate(TranslationKeys.CHECK_FOR_APP_UPDATES)}
 				value={checkValue}
 				groupPosition={step === 'update_available' || step === 'downloading' || step === 'downloaded' || step === 'reloading' ? 'top' : 'single'}
@@ -81,7 +82,7 @@ const UpdateCheckModalContent: React.FC = () => {
 					<View style={{ opacity: step === 'update_available' ? 1 : 0.5 }}>
 						<SettingsList
 							leftIcon={<MaterialCommunityIcons name="cloud-download-outline" size={24} color={theme.screen.icon} />}
-							rightIcon={step === 'downloading' ? <ActivityIndicator size="small" color={theme.screen.icon} /> : undefined}
+							rightIcon={step === 'downloading' ? <LoadingIndicator size="small" color={theme.screen.icon} /> : undefined}
 							label={translate(TranslationKeys.DOWNLOAD_NEW_APP_UPDATE)}
 							handleFunction={step === 'update_available' ? runDownload : undefined}
 							groupPosition="middle"
@@ -90,7 +91,7 @@ const UpdateCheckModalContent: React.FC = () => {
 					<View style={{ opacity: step === 'downloaded' ? 1 : 0.5 }}>
 						<SettingsList
 							leftIcon={<MaterialCommunityIcons name="reload" size={24} color={theme.screen.icon} />}
-							rightIcon={step === 'reloading' ? <ActivityIndicator size="small" color={theme.screen.icon} /> : undefined}
+							rightIcon={step === 'reloading' ? <LoadingIndicator size="small" color={theme.screen.icon} /> : undefined}
 							label={translate(TranslationKeys.RELOAD_APP)}
 							handleFunction={step === 'downloaded' ? runReload : undefined}
 							groupPosition="bottom"

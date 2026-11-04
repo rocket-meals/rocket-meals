@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 
 interface HousingListEmptyProps {
 	loading: boolean;
@@ -10,7 +11,7 @@ const HousingListEmpty: React.FC<HousingListEmptyProps> = ({ loading, theme }) =
 	if (loading) {
 		return (
 			<View style={styles.container}>
-				<ActivityIndicator size={30} color={theme.screen.text} />
+				<LoadingIndicator size={30} color={theme.screen.text} />
 			</View>
 		);
 	}

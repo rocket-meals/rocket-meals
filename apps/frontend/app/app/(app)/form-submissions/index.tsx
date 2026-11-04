@@ -1,4 +1,5 @@
-import { ActivityIndicator, Dimensions, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -56,7 +57,7 @@ function resolveSubmissionsContent(
 					alignItems: 'center',
 				}}
 			>
-				<ActivityIndicator size={30} color={theme.screen.text} />
+				<LoadingIndicator size={30} color={theme.screen.text} />
 			</View>
 		);
 	}

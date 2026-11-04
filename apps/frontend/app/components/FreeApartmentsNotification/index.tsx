@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { MaterialIcons } from '@expo/vector-icons';
 
 import SettingsListBoolean from '@/components/SettingsListBoolean';
@@ -38,7 +39,7 @@ const FreeApartmentsNotificationButton: React.FC<{ onEnabled?: () => void }> = (
 			accessibilityRole="button"
 			accessibilityLabel={translate(TranslationKeys.housing_free_apartments_notification)}
 		>
-			{saving ? <ActivityIndicator color={contrastColor} /> : <MaterialIcons name="notifications-active" size={20} color={contrastColor} />}
+			{saving ? <LoadingIndicator color={contrastColor} /> : <MaterialIcons name="notifications-active" size={20} color={contrastColor} />}
 			<Text style={[styles.buttonText, { color: contrastColor }]}>{translate(TranslationKeys.housing_free_apartments_notification)}</Text>
 		</TouchableOpacity>
 	);

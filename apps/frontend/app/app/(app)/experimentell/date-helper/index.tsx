@@ -25,6 +25,8 @@ const DateHelperPreview = () => {
 
 	return (
 		<ScrollView
+			// keyboard users must be able to scroll (axe scrollable-region-focusable)
+			focusable
 			style={{ ...styles.container, backgroundColor: theme.screen.background }}
 			contentContainerStyle={{
 				...styles.contentContainer,

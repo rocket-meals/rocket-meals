@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { ActivityIndicator, AppState, AppStateStatus, Text, TouchableOpacity, View } from 'react-native';
+import { AppState, AppStateStatus, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import * as Updates from 'expo-updates';
 
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
@@ -51,7 +52,7 @@ const useAppForegroundUpdateCheckModal = () => {
                                 children: (
                                         <View style={{ padding: 24, gap: 12 }}>
                                                 <Text style={{ color: theme.screen.text, textAlign: 'center' }}>{message}</Text>
-                                                {loading && <ActivityIndicator color={theme.screen.text} />}
+                                                {loading && <LoadingIndicator color={theme.screen.text} />}
                                                 {(primaryAction || allowClose) && (
                                                         <View style={{ flexDirection: 'row', gap: 8 }}>
                                                                 {allowClose && (

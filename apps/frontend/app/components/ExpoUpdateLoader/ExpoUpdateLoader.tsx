@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import * as Updates from 'expo-updates';
 import usePlatformHelper from '@/helper/platformHelper';
 import { TranslationKeys } from '@/locales/keys';
@@ -98,7 +99,7 @@ const ExpoUpdateLoader: React.FC<ExpoUpdateLoaderProps> = ({ children }) => {
 					</TouchableOpacity>
 				)}
 				<Text style={styles.title}>{translate(status)}</Text>
-				<ActivityIndicator size="large" style={styles.spinner} />
+				<LoadingIndicator size="large" style={styles.spinner} />
 			</View>
 		</View>
 	);

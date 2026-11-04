@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import * as Clipboard from 'expo-clipboard';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -70,7 +71,7 @@ export const OcrErrorSheet = ({ errorMessage }: OcrErrorSheetProps) => {
 
 	let reportRightIcon: React.ReactNode = undefined;
 	if (reportState === 'sending') {
-		reportRightIcon = <ActivityIndicator color={theme.screen.icon} />;
+		reportRightIcon = <LoadingIndicator color={theme.screen.icon} />;
 	} else if (reportState === 'sent') {
 		reportRightIcon = <MaterialCommunityIcons name="check" size={24} color={theme.screen.icon} />;
 	}

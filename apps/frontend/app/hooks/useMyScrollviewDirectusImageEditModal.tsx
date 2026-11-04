@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
@@ -332,7 +333,7 @@ const DirectusImageEditModalContent: React.FC<DirectusImageEditModalContentProps
 					key: 'delete-confirm',
 					label: translate(TranslationKeys.delete),
 					icon: <MaterialCommunityIcons name="delete" size={24} />,
-					rightElement: loading.delete ? <ActivityIndicator size="small" color={theme.screen.icon} /> : null,
+					rightElement: loading.delete ? <LoadingIndicator size="small" color={theme.screen.icon} /> : null,
 					onPress: handleDeleteImage,
 				},
 				{
@@ -352,7 +353,7 @@ const DirectusImageEditModalContent: React.FC<DirectusImageEditModalContentProps
 				key: 'camera',
 				label: translate(TranslationKeys.camera),
 				icon: <Ionicons name="camera" size={24} />,
-				rightElement: loading.camera ? <ActivityIndicator size="small" color={theme.screen.icon} /> : null,
+				rightElement: loading.camera ? <LoadingIndicator size="small" color={theme.screen.icon} /> : null,
 				onPress: () => handleImagePick(true),
 			});
 		}
@@ -361,7 +362,7 @@ const DirectusImageEditModalContent: React.FC<DirectusImageEditModalContentProps
 			key: 'gallery',
 			label: translate(TranslationKeys.gallery),
 			icon: <MaterialCommunityIcons name="folder-image" size={24} />,
-			rightElement: loading.image ? <ActivityIndicator size="small" color={theme.screen.icon} /> : null,
+			rightElement: loading.image ? <LoadingIndicator size="small" color={theme.screen.icon} /> : null,
 			onPress: () => handleImagePick(false),
 		},
 		  {

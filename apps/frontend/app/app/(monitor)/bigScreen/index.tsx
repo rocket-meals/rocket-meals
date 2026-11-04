@@ -443,6 +443,8 @@ const Index = () => {
 
 	return (
 		<ScrollView
+			// keyboard users must be able to scroll the monitor content (axe scrollable-region-focusable)
+			focusable
 			style={{
 				...styles.container,
 				backgroundColor: theme.screen.background,

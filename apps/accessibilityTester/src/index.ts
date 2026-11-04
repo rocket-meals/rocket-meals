@@ -5,6 +5,7 @@ import { source as axeSource, version as axeCoreVersion } from 'axe-core';
 import { APP_ROUTES, AppLinks, GlobalParams } from 'repo-depkit-common';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+import { ADDITIONAL_ROUTES, buildAdditionalRouteParams, DEFAULT_SERVER_URL } from './additionalRoutes';
 import { AccessibilityReport, countViolationsByImpact, ImpactLevel, ScreenResult, ViolationSummary, writeBadge, writeJsonReport, writeMarkdownReport } from './report';
 
 const argv = yargs(hideBin(process.argv))
@@ -32,6 +33,12 @@ const argv = yargs(hideBin(process.argv))
     type: 'string',
     demandOption: false,
   })
+  .option('serverUrl', {
+    alias: 's',
+    description: 'Server the web app talks to, used to look up ids for detail screens',
+    type: 'string',
+    demandOption: false,
+  })
   .option('failOnViolations', {
     alias: 'f',
     description: 'Exit with code 1 if critical or serious violations are found',
@@ -46,6 +53,7 @@ const baseUrl: string = (argv.baseUrl || process.env.BASE_URL || 'http://localho
 const reportDir: string = path.resolve(argv.reportDir || process.env.REPORT_DIR || path.join(process.cwd(), '../../reports/accessibility'));
 const browserLang: string = argv.browserLang || process.env.BROWSER_LANG || 'de';
 const tags: string[] = (argv.tags || process.env.AXE_TAGS || 'wcag2a,wcag2aa,wcag21a,wcag21aa,best-practice').split(',').map((tag: string) => tag.trim());
+const serverUrl: string = (argv.serverUrl || process.env.SERVER_URL || DEFAULT_SERVER_URL).replace(/\/$/, '');
 const failOnViolations: boolean = Boolean(argv.failOnViolations || process.env.FAIL_ON_VIOLATIONS);
 
 const VIEWPORT = { width: 1280, height: 900 };
@@ -75,8 +83,23 @@ function summarizeViolations(violations: any[]): ViolationSummary[] {
   }));
 }
 
-async function analyzeScreen(browser: Browser, screen: string): Promise<ScreenResult> {
-  const url = buildScreenUrl(screen);
+interface ScreenTarget {
+  screen: string;
+  url: string;
+}
+
+async function buildScreenTargets(): Promise<ScreenTarget[]> {
+  const appScreenTargets = APP_ROUTES.map(screen => ({ screen, url: buildScreenUrl(screen) }));
+  const additionalTargets: ScreenTarget[] = [];
+  for (const route of ADDITIONAL_ROUTES) {
+    const params = await buildAdditionalRouteParams(route, serverUrl); // NOSONAR S9382 - few sequential lookups, keeps the warnings in order
+    const query = [...Object.entries(params), [GlobalParams.kioskMode, 'true']].map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
+    additionalTargets.push({ screen: route.name, url: `${baseUrl}/${route.path}?${query}` });
+  }
+  return [...appScreenTargets, ...additionalTargets];
+}
+
+async function analyzeScreen(browser: Browser, { screen, url }: ScreenTarget): Promise<ScreenResult> {
   const page = await browser.newPage();
   try {
     await page.setViewport(VIEWPORT);
@@ -105,18 +128,17 @@ void (async () => {
   console.log(`Running accessibility audit against ${baseUrl}`);
   console.log(`Rule tags: ${tags.join(', ')}`);
   console.log(`Report directory: ${reportDir}`);
-  console.log(`Screens to analyze: ${APP_ROUTES.length}`);
+  const targets = await buildScreenTargets();
+  console.log(`Screens to analyze: ${targets.length}`);
 
   const browser = await puppeteer.launch({
     args: [`--lang=${browserLang}`, '--no-sandbox', '--disable-setuid-sandbox'],
   });
 
   const screens: ScreenResult[] = [];
-  let current = 0;
-  for (const screen of APP_ROUTES) {
-    current++;
-    console.log(`[${current}/${APP_ROUTES.length}] Analyzing ${screen} ...`);
-    const result = await analyzeScreen(browser, screen); // NOSONAR S9382 - sequential on purpose: screens are audited one after another in one shared browser so timings stay stable and progress output stays in order
+  for (const [index, target] of targets.entries()) {
+    console.log(`[${index + 1}/${targets.length}] Analyzing ${target.screen} ...`);
+    const result = await analyzeScreen(browser, target); // NOSONAR S9382 - sequential on purpose: screens are audited one after another in one shared browser so timings stay stable and progress output stays in order
     const violationElementCount = result.violations.reduce((sum, violation) => sum + violation.nodeCount, 0);
     console.log(result.error ? `  ⚠️ error: ${result.error}` : `  ${violationElementCount} violation element(s), ${result.passCount} passed rules`);
     screens.push(result);

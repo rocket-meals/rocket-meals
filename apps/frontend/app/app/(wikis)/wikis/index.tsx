@@ -1,4 +1,5 @@
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useEffect, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -85,7 +86,7 @@ const Index = () => {
 							alignItems: 'center',
 						}}
 					>
-						<ActivityIndicator size={30} color={theme.screen.text} />
+						<LoadingIndicator size={30} color={theme.screen.text} />
 					</View>
 				)}
 				{!loading && hasWikiContent && wiki?.translations && (

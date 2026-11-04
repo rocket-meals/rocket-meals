@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { SettingsListGroupTitle, SettingsListSelectOptionSingle } from 'repo-depkit-common-ui';
 import SettingsList from '@/components/SettingsList';
@@ -42,7 +43,7 @@ const CorsProxyPanel: React.FC<{ proxyStatus: CorsProxyStatus | 'checking'; onRe
 		<View style={[styles.hint, styles.proxyPanel, { backgroundColor: theme.screen.iconBg }]}>
 			<Text style={[styles.hintText, { color: theme.screen.text }]}>{translate(TranslationKeys.course_timetable_import_debug_proxy_hint)}</Text>
 			<View style={styles.proxyStatusRow}>
-				{isChecking ? <ActivityIndicator size="small" color={theme.screen.text} /> : <MaterialCommunityIcons name={isOk ? 'check-circle' : 'alert-circle'} size={20} color={isOk ? '#2E7D32' : theme.sheet.inputBorderInvalid} />}
+				{isChecking ? <LoadingIndicator size="small" color={theme.screen.text} /> : <MaterialCommunityIcons name={isOk ? 'check-circle' : 'alert-circle'} size={20} color={isOk ? '#2E7D32' : theme.sheet.inputBorderInvalid} />}
 				<Text style={[styles.proxyStatusText, { color: theme.screen.text }]}>{translate(PROXY_STATUS_KEYS[proxyStatus])}</Text>
 			</View>
 			<View style={styles.proxyActions}>
@@ -79,7 +80,7 @@ const PasswordLoginSection: React.FC<{
 
 			<View style={[styles.importRow, !canSubmit && styles.importRowDisabled]} accessibilityState={{ disabled: !canSubmit, busy: loading }}>
 				<SettingsList
-					leftIcon={loading ? <ActivityIndicator /> : <MaterialCommunityIcons name="cloud-download-outline" size={20} />}
+					leftIcon={loading ? <LoadingIndicator /> : <MaterialCommunityIcons name="cloud-download-outline" size={20} />}
 					iconBackgroundColor={accentColor}
 					title={translate(TranslationKeys.course_timetable_import_start)}
 					rightIcon={<Entypo name="chevron-small-right" color={theme.screen.icon} size={24} />}

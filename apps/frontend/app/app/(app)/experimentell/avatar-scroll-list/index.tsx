@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Dimensions, DimensionValue, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, DimensionValue, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { TranslationKeys } from '@/locales/keys';
@@ -143,7 +144,7 @@ const AvatarScrollListScreen = () => {
 	if (loading) {
 		return (
 			<View style={[styles.loader, { backgroundColor: theme.screen.background }]}>
-				<ActivityIndicator />
+				<LoadingIndicator />
 			</View>
 		);
 	}
@@ -170,7 +171,7 @@ const AvatarScrollListScreen = () => {
 			ListFooterComponent={
 				loadingMore ? (
 					<View style={styles.footerLoader}>
-						<ActivityIndicator />
+						<LoadingIndicator />
 					</View>
 				) : null
 			}

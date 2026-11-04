@@ -1,4 +1,5 @@
-import { ActivityIndicator, Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useCallback, useEffect, useState } from 'react';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -213,7 +214,7 @@ const Index = () => {
 						}}
 					>
 						{isDownloadingAll ? (
-							<ActivityIndicator size={18} color={theme.screen.icon} />
+							<LoadingIndicator size={18} color={theme.screen.icon} />
 						) : (
 							<FontAwesome name="cloud-download" size={20} color={theme.screen.icon} />
 						)}
@@ -279,7 +280,7 @@ const Index = () => {
 							alignItems: 'center',
 						}}
 					>
-						<ActivityIndicator size={30} color={theme.screen.text} />
+						<LoadingIndicator size={30} color={theme.screen.text} />
 					</View>
 				) : (
 					<>

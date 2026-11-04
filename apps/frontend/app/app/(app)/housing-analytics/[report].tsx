@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
+import useSetPageTitle from '@/hooks/useSetPageTitle';
 import { PrintHidden, SettingsList, SettingsListBoxplot, SettingsListDate, SettingsListNumberInput, SettingsListProgress, SettingsListSelectOptionSingle } from 'repo-depkit-common-ui';
 import { DateHelper, NumberHelper } from 'repo-depkit-common';
 import CustomStackHeader from '@/components/CustomStackHeader/CustomStackHeader';
@@ -122,6 +124,7 @@ const ReportScreen = () => {
 	const printRef = useRef<View | null>(null);
 
 	const definition = useMemo(() => findHousingReportDefinition(report), [report]);
+	useSetPageTitle(definition?.titleKey ?? TranslationKeys.housing_analytics);
 
 	const [records, setRecords] = useState<HousingHandoverRecord[] | null>(null);
 	const [loading, setLoading] = useState(true);
@@ -509,7 +512,7 @@ const ReportScreen = () => {
 
 					{loading ? (
 						<View style={styles.loadingContainer}>
-							<ActivityIndicator size={30} color={theme.screen.text} />
+							<LoadingIndicator size={30} color={theme.screen.text} />
 						</View>
 					) : null}
 

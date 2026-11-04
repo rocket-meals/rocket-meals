@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Linking, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -100,7 +101,7 @@ const RssFeed: React.FC<RssFeedProps> = ({ urls, switchIntervalInSeconds }) => {
 					},
 				]}
 			>
-				<ActivityIndicator size={30} color={theme.screen.text} />
+				<LoadingIndicator size={30} color={theme.screen.text} />
 			</View>
 		);
 	}

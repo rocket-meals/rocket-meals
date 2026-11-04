@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Platform, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { useTheme } from '@/hooks/useTheme';
 import ModalTextInput from '@/components/ModalTextInput';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -96,7 +97,7 @@ const ScanModalContent: React.FC<ScanModalContentProps> = ({ onSubmit, checkAlre
 		return (
 			<View style={scanStyles.container}>
 				<View style={scanStyles.statusSection}>
-					<ActivityIndicator size="large" color={primaryColor} />
+					<LoadingIndicator size="large" color={primaryColor} />
 					<Text style={[scanStyles.statusText, { color: theme.screen.text }]}>
 						{translate(TranslationKeys.friendships_confirming)}
 					</Text>
@@ -303,7 +304,7 @@ const PendingFriendshipContent: React.FC<PendingFriendshipContentProps> = ({ fri
 				<SettingsList
 					label={translate(TranslationKeys.friendships_waiting_for_scan)}
 					groupPosition="bottom"
-					leftIcon={<ActivityIndicator size="small" color={primaryColor} />}
+					leftIcon={<LoadingIndicator size="small" color={primaryColor} />}
 				/>
 			</View>
 			<Text style={[styles.qrManualHint, { color: theme.screen.text }]}>
@@ -369,7 +370,7 @@ const QRGenerateModalContent: React.FC<QRGenerateModalContentProps> = ({ profile
 	if (phase === 'generating') {
 		return (
 			<View style={styles.qrContainer}>
-				<ActivityIndicator size="large" color={primaryColor} />
+				<LoadingIndicator size="large" color={primaryColor} />
 				<Text style={[styles.qrHint, { color: theme.screen.text }]}>
 					{translate(TranslationKeys.friendships_generating_qr)}
 				</Text>

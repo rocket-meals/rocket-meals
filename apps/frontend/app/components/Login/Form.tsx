@@ -101,7 +101,7 @@ const LoginForm: React.FC<FormProps> = ({ openSheet, onSuccess, onGuestLogin, sh
 				alignItems: isWeb() ? 'flex-start' : 'center',
 			}}
 		>
-			<Text style={{ ...styles.heading, color: theme.login.text }}>{translate(TranslationKeys.sign_in)}</Text>
+			<Text role="heading" aria-level={1} style={{ ...styles.heading, color: theme.login.text }}>{translate(TranslationKeys.sign_in)}</Text>
 			<View
 				style={{
 					borderWidth: agbError ? 2 : 0,

@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { TranslationKeys } from '@/locales/keys';
 import { ComponentIds } from '@/constants/ComponentIds';
 
@@ -13,7 +14,7 @@ const CampusEmptyState: React.FC<CampusEmptyStateProps> = ({ loading, theme, tra
     if (loading) {
         return (
             <View style={emptyStyles.container}>
-                <ActivityIndicator size={30} color={theme.screen.text} />
+                <LoadingIndicator size={30} color={theme.screen.text} />
             </View>
         );
     }

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { DatabaseTypes, NumberHelper } from 'repo-depkit-common';
 import { MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
@@ -345,7 +346,7 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 						disabled={toggling}
 					>
 						{toggling ? (
-							<ActivityIndicator size="small" color={joinTextColor} />
+							<LoadingIndicator size="small" color={joinTextColor} />
 						) : (
 							<MaterialCommunityIcons name="silverware-fork-knife" size={18} color={joinTextColor} />
 						)}
@@ -362,7 +363,7 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 					<View style={rowStyles.visitCountRow}>
 						<MaterialCommunityIcons name="account-heart" size={18} color={countsTextColor} />
 						{toggling ? (
-							<ActivityIndicator size="small" color={countsTextColor} />
+							<LoadingIndicator size="small" color={countsTextColor} />
 						) : (
 							<Text style={[rowStyles.visitCountText, { color: countsTextColor }]}>{NumberHelper.formatCompact(counts.friends)}</Text>
 						)}
@@ -372,7 +373,7 @@ export const CanteenVisitsDateRow: React.FC<CanteenVisitsDateRowProps> = ({ cant
 					<View style={rowStyles.visitCountRow}>
 						<MaterialCommunityIcons name="account-group" size={18} color={countsTextColor} />
 						{toggling ? (
-							<ActivityIndicator size="small" color={countsTextColor} />
+							<LoadingIndicator size="small" color={countsTextColor} />
 						) : (
 							<Text style={[rowStyles.visitCountText, { color: countsTextColor }]}>{NumberHelper.formatCompact(counts.total)}</Text>
 						)}

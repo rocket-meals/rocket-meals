@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { COLLECTABLE_AT_FIELDS, DatabaseTypes, DateHelper } from 'repo-depkit-common';
 
 import useActiveCollectibleEvent from '@/hooks/useActiveCollectibleEvent';
@@ -747,7 +748,7 @@ const CollectibleEventScreen = () => {
 
                             {isLoading ? (
                                 <View style={[styles.inline, { justifyContent: 'flex-start' }]}>
-                                        <ActivityIndicator color={buttonColor} />
+                                        <LoadingIndicator color={buttonColor} />
                                         <Text style={{ color: theme.screen.text, marginLeft: 8 }}>
                                                 {translate(TranslationKeys.collectible_event_loading_participation)}
                                         </Text>

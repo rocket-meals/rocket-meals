@@ -1,4 +1,5 @@
-import {ActivityIndicator, Text, View} from 'react-native';
+import { Text, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, {useEffect, useState} from 'react';
 import {useTheme} from '@/hooks/useTheme';
 import styles from './styles';
@@ -145,7 +146,7 @@ const ForecastSheet: React.FC<ForecastSheetProps> = ({ forDate, canteen }) => {
         if (loading) {
                 forecastContent = (
                         <View style={styles.loadingContainer}>
-                                <ActivityIndicator size={40} color={theme.screen.icon} />
+                                <LoadingIndicator size={40} color={theme.screen.icon} />
                         </View>
                 );
         } else if (forecastEntries.length > 0) {

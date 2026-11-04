@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Dimensions, Linking, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Linking, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { useTheme } from '@/hooks/useTheme';
 import { router, useFocusEffect } from 'expo-router';
 import SupportFAQ from '../../../components/SupportFAQ/SupportFAQ';
@@ -18,8 +19,10 @@ import { performLogout } from '@/helper/logoutHelper';
 import { deleteOwnAccount } from '@/helper/accountDeletionHelper';
 import { GuestAccountHelper } from 'repo-depkit-common';
 import { TranslationKeys } from '@/locales/keys';
+import useSetPageTitle from '@/hooks/useSetPageTitle';
 
 const Index = () => {
+	useSetPageTitle(TranslationKeys.account_delete);
 	const { translate } = useLanguage();
 	const { theme } = useTheme();
 	const toast = useToast();
@@ -243,7 +246,7 @@ const Index = () => {
 					</Text>
 					<View style={styles.attentionActions}>
 						<TouchableOpacity style={[styles.confirmButton, { backgroundColor: primaryColor }]} onPress={handleDeleteAccount}>
-							{loading ? <ActivityIndicator size={24} color={theme.screen.text} /> : <Text style={[styles.confirmLabel, { color: theme.light }]}>{translate(TranslationKeys.confirm)}</Text>}
+							{loading ? <LoadingIndicator size={24} color={theme.screen.text} /> : <Text style={[styles.confirmLabel, { color: theme.light }]}>{translate(TranslationKeys.confirm)}</Text>}
 						</TouchableOpacity>
 						<TouchableOpacity style={styles.cancleButton} onPress={closeDeleteAccountModal}>
 							<Text style={styles.confirmLabel}>{translate(TranslationKeys.cancel)}</Text>

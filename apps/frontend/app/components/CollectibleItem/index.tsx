@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { DatabaseTypes, COLLECTABLE_AT_FIELDS, MathHelper } from 'repo-depkit-common';
 
 import useActiveCollectibleEvent from '@/hooks/useActiveCollectibleEvent';
@@ -181,7 +182,7 @@ const CollectibleItem: React.FC<CollectibleItemProps> = ({
 			{isCollected ? <View style={[styles.collectedOverlay, { backgroundColor: theme.primary }]} /> : null}
 			{isSaving ? (
 				<View style={styles.loadingOverlay}>
-					<ActivityIndicator color={theme.dark} />
+					<LoadingIndicator color={theme.dark} />
 				</View>
 			) : null}
                         {hideCounter ? null : (

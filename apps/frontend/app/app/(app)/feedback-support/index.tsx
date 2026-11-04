@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Dimensions, KeyboardTypeOptions, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, KeyboardTypeOptions, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
+import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './styles';
 import { isWeb } from '@/constants/Constants';
@@ -431,7 +432,7 @@ const FeedbackScreen = () => {
 									groupPosition={getGroupPosition(index, feedbackSettingsItems.length)}
 								/>
 								{isFeedbackFieldMissing(item.key) && (
-									<Text style={{ color: 'red', fontSize: 12, marginLeft: 15, marginTop: 2, marginBottom: 6 }}>
+									<Text style={{ color: theme.screen.errorText, fontSize: 12, marginLeft: 15, marginTop: 2, marginBottom: 6 }}>
 										{translate(TranslationKeys.feedback_field_missing_hint)}
 									</Text>
 								)}
@@ -489,7 +490,7 @@ const FeedbackScreen = () => {
 						>
 							{loading ? (
 								<View style={{ width: '100%' }}>
-									<ActivityIndicator size={30} color={theme.screen.text} />
+									<LoadingIndicator size={30} color={theme.screen.text} />
 								</View>
 							) : (
 								<>
@@ -512,7 +513,7 @@ const FeedbackScreen = () => {
 						</TouchableOpacity>
 
 						{isSubmitDisabled && !loading && (
-							<Text style={{ color: 'red', marginTop: 10 }} accessibilityLiveRegion="polite">
+							<Text style={{ color: theme.screen.errorText, marginTop: 10 }} accessibilityLiveRegion="polite">
 								{`${translate(TranslationKeys.feedback_missing_fields_hint)} ${missingFieldLabels.join(', ')}`}
 							</Text>
 						)}
@@ -657,7 +658,7 @@ const FeedbackScreen = () => {
 							iconBgColor={primaryColor}
 							leftIcon={<MaterialCommunityIcons name="bug-outline" size={24} color={theme.screen.icon} />}
 							label={translate(TranslationKeys.feedback_include_app_state_title)}
-							rightElement={<Switch value={includeAppState} onValueChange={setIncludeAppState} />}
+							rightElement={<Switch value={includeAppState} onValueChange={setIncludeAppState} accessibilityLabel={translate(TranslationKeys.feedback_include_app_state_title)} />}
 							groupPosition="single"
 						/>
 
@@ -695,8 +696,8 @@ const FeedbackScreen = () => {
 							</TouchableOpacity>
 						)}
 
-						{errorJson && <Text style={{ color: 'red', marginVertical: 10 }}>{errorJson}</Text>}
-						{errorMessage && <Text style={{ color: 'red', marginBottom: 10 }}>{errorMessage}</Text>}
+						{errorJson && <Text style={{ color: theme.screen.errorText, marginVertical: 10 }}>{errorJson}</Text>}
+						{errorMessage && <Text style={{ color: theme.screen.errorText, marginBottom: 10 }}>{errorMessage}</Text>}
 					</View>
 				</View>
 			</ScrollView>

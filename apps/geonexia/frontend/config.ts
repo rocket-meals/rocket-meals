@@ -112,7 +112,9 @@ export function getVersionPatch() {
 	// 90: common-ui: SettingsList accentColor
 	// 91: common: food feedback reaction 😢 (FoodFeedbackReactionHelper)
 	// 92: common: ten more food feedback reactions (FoodFeedbackReactionHelper)
-	return 92;
+	// 93: common: AppScreens map instead of leaflet-map, price-group removed. common-ui: placeholder contrast
+	// 94: common-ui: theme screen.errorText
+	return 94;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates
