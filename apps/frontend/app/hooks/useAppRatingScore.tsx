@@ -4,6 +4,7 @@ import * as StoreReview from 'expo-store-review';
 import { useDispatch } from 'react-redux';
 
 import { useAppSelector } from '@/redux/hooks';
+import { configureStore } from '@/redux/store';
 import { SET_APP_RATING_DATA } from '@/redux/Types/types';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import { RateAppSettingsItem } from '@/components/RateAppSettingsItem/RateAppSettingsItem';
@@ -24,6 +25,16 @@ const SCORE_EATING_HABITS_OPEN = 10;
 const SCORE_EATING_HABITS_DETAIL_MODAL = 10;
 const SCORE_FOOD_RATING_5_STARS = 10;
 const SCORE_LABEL_POSITIVE = 10;
+
+/**
+ * Adds points for opening the food offer details, without subscribing to the score.
+ * Lets components that only open the details (every food card) skip the hook below, which
+ * re-rendered all cards whenever the score changed.
+ */
+export const addAppRatingPointsForDetailsOpen = () => {
+	const score = configureStore.getState().settings.appRatingData?.score ?? 0;
+	configureStore.dispatch({ type: SET_APP_RATING_DATA, payload: { score: score + SCORE_FOODOFFER_DETAILS_OPEN } });
+};
 
 /**
  * Hook that manages a persistent "App Rating Score" via Redux store.
@@ -144,10 +155,6 @@ console.log('useAppRatingScore: error requesting review', error);
 }
 }, [debugMode, dispatch, showDebugRatingModal]);
 
-const addPointsForDetailsOpen = useCallback(() => {
-addPoints(SCORE_FOODOFFER_DETAILS_OPEN);
-}, [addPoints]);
-
 const addPointsForTabSwitch = useCallback(() => {
 addPoints(SCORE_FOODOFFER_DETAILS_TAB_SWITCH);
 }, [addPoints]);
@@ -183,7 +190,6 @@ setScore,
 setLastFocusTime,
 checkAndRequestRatingOnFocus,
 showDebugRatingModal,
-addPointsForDetailsOpen,
 addPointsForTabSwitch,
 addPointsForBalanceRead,
 addPointsForMapOpen,

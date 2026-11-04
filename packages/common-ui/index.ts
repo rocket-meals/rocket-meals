@@ -142,8 +142,8 @@ export type { BaseBottomSheetProps } from './src/components/BaseBottomSheet';
 export { default as MyScrollViewModal } from './src/components/MyScrollViewModal';
 export type { MyScrollViewModalProps, ScrollViewModalContentProps } from './src/components/MyScrollViewModal';
 
-export { ModalProvider, ModalContextProvider, ModalRenderer, useModalContext } from './src/components/GlobalModal/ModalProvider';
-export type { ModalCloseReason, ModalOptions } from './src/components/GlobalModal/ModalProvider';
+export { ModalProvider, ModalContextProvider, ModalRenderer, useModalContext, useModalActions, useModalDebug, useModalSheetOpened } from './src/components/GlobalModal/ModalProvider';
+export type { ModalActions, ModalCloseReason, ModalOptions } from './src/components/GlobalModal/ModalProvider';
 export { useModal } from './src/components/GlobalModal/useModal';
 export { useMyScrollViewModal } from './src/components/GlobalModal/useMyScrollViewModal';
 export type { MyScrollViewModalConfig } from './src/components/GlobalModal/useMyScrollViewModal';
