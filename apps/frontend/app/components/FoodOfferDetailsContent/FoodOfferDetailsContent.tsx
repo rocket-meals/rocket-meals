@@ -36,6 +36,7 @@ import { useFoodAttributes } from '@/app/(app)/foodoffers/details/hooks/useFoodA
 import { fetchFoodDetailsById, fetchFoodOffersDetailsById } from '@/redux/actions/FoodOffers/FoodOffers';
 import styles from '@/app/(app)/foodoffers/details/styles';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
+import { useModalSheetOpened } from '@/components/GlobalModal/ModalProvider';
 import useAppRatingScore from '@/hooks/useAppRatingScore';
 
 export interface FoodOfferDetailsContentProps {
@@ -50,6 +51,8 @@ export interface FoodOfferDetailsContentProps {
     onOfferNoLongerAvailable?: () => void;
     /** Shows the food's details when the offer no longer exists but a food id is known */
     showFoodWhenOfferMissing?: boolean;
+    /** Rendered inside the modal sheet: on web the tabs wait until the sheet has slid in */
+    inModalSheet?: boolean;
 }
 
 const selectFoodState = (state: RootState) => state.food;
@@ -57,11 +60,46 @@ const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => fo
 
 const VALID_FOOD_TABS = Object.values(FoodOfferDetailTab);
 
-const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offerId, foodId: initialFoodId, initialFoodOffer, onOfferNoLongerAvailable, showFoodWhenOfferMissing }) => {
+// Upper bound for waiting on the sheet's "opened" signal, in case it never arrives
+const SHEET_OPENED_FALLBACK_MS = 700;
+
+/**
+ * Whether the parts below the header (notification, tabs, tab content) may render yet.
+ *
+ * Opening the details happens inside a tap, and React renders everything of a tap
+ * synchronously before the device can paint. So the first pass renders only the header
+ * (image, name, rating), which lets the sheet start moving at once. The rest follows:
+ * - on native right after the first painted frame (the sheet animates on the UI thread),
+ * - on web once the sheet has finished sliding in, because there the animation runs on the
+ *   JS thread and rendering the tabs meanwhile made the sheet appear late.
+ */
+const useRenderBelowHeader = (inModalSheet: boolean) => {
+    const sheetOpened = useModalSheetOpened();
+    const [painted, setPainted] = useState(false);
+    const [fallbackElapsed, setFallbackElapsed] = useState(false);
+    useEffect(() => {
+        let timeout: ReturnType<typeof setTimeout> | undefined;
+        const frame = requestAnimationFrame(() => {
+            // rAF runs before the paint, the timeout after it
+            timeout = setTimeout(() => setPainted(true), 0);
+        });
+        const fallback = isWeb && inModalSheet ? setTimeout(() => setFallbackElapsed(true), SHEET_OPENED_FALLBACK_MS) : undefined;
+        return () => {
+            cancelAnimationFrame(frame);
+            if (timeout) clearTimeout(timeout);
+            if (fallback) clearTimeout(fallback);
+        };
+    }, [inModalSheet]);
+    if (!painted) return false;
+    return isWeb && inModalSheet ? sheetOpened || fallbackElapsed : true;
+};
+
+const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offerId, foodId: initialFoodId, initialFoodOffer, onOfferNoLongerAvailable, showFoodWhenOfferMissing, inModalSheet = false }) => {
     const { theme } = useTheme();
     const { translate, language } = useLanguage();
     const dispatch = useDispatch();
     const { width: screenWidth } = useWindowDimensions();
+    const showBelowHeader = useRenderBelowHeader(inModalSheet);
 
     const { show: showModal, close: closeModal } = useMyScrollViewModal();
     const { addPointsForTabSwitch, addPointsForFoodRating5Stars } = useAppRatingScore();
@@ -344,6 +382,8 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
                         containerWidth={getContainerWidth}
                     />
 
+                    {showBelowHeader && (
+                    <>
                     <NotificationSection
                         theme={theme}
                         containerWidth={getContainerWidth}
@@ -369,8 +409,10 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
                     <View style={pagerViewStyle}>
                         {foodDetails?.id && renderContent()}
                     </View>
+                    </>
+                    )}
                 </View>
-                <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_foodoffers_details} />
+                {showBelowHeader && <CollectibleSpot collectibleKey={CollectibleAt.collectible_at_foodoffers_details} />}
             </ScrollView>
         </View>
     );

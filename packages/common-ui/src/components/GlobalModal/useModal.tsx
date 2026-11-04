@@ -1,9 +1,11 @@
 import { ReactNode, useCallback } from 'react';
-import { useModalContext } from './ModalProvider';
+import { useModalActions } from './ModalProvider';
 import type { ModalOptions } from './ModalProvider';
 
 export const useModal = () => {
-	const { open, close, openAndDiscardOthers, closeAll, debug } = useModalContext();
+	// Only the stable actions: components that open modals must not re-render on every open/close.
+	// The debug state is available separately via useModalDebug().
+	const { open, close, openAndDiscardOthers, closeAll } = useModalActions();
 
 	const show = useCallback(
 		(content: ReactNode, options?: ModalOptions) => {
@@ -27,5 +29,5 @@ export const useModal = () => {
 		closeAll();
 	}, [closeAll]);
 
-	return { show, close: closeModal, showAndDiscardOthers, closeAll: closeAllModals, debug };
+	return { show, close: closeModal, showAndDiscardOthers, closeAll: closeAllModals };
 };

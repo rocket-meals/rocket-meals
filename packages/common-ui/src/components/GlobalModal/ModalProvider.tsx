@@ -60,6 +60,23 @@ type ModalContextType = {
 
 const ModalContext = createContext<ModalContextType | null>(null);
 
+/**
+ * The modal actions on their own. Their identity never changes, so a component that only
+ * opens or closes modals (e.g. every food card in a list) does not re-render when a modal
+ * opens or closes. Subscribing to the full ModalContext instead re-rendered every such
+ * component on each open, inside the tap, before the sheet could paint its first frame.
+ */
+export type ModalActions = Pick<ModalContextType, 'open' | 'close' | 'openAndDiscardOthers' | 'closeAll'>;
+const ModalActionsContext = createContext<ModalActions | null>(null);
+const ModalDebugContext = createContext<ModalContextType['debug'] | null>(null);
+/**
+ * True once the sheet has finished its opening animation (its onChange reported an open
+ * index), false from the moment a closed sheet is asked to open. Modal content can render
+ * its heavy parts only after that: on web the animation runs on the JS thread, so rendering
+ * a lot while it runs makes the sheet stutter or appear late.
+ */
+const ModalSheetOpenedContext = createContext<boolean>(true);
+
 // Pure safety net: close()/closeAll() are finalized when the sheet's onChange(-1)
 // confirmation arrives (see handleSheetChange), and synchronously when no sheet ref is
 // mounted at all - so in practice this timer never fires. It only exists so that a
@@ -77,6 +94,7 @@ export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ childr
 	// animation has fully settled) made closing feel slow, since the overlay stayed at
 	// full opacity the entire time even though the sheet was already sliding away.
 	const [isSheetClosing, setIsSheetClosing] = useState(false);
+	const [isSheetOpened, setIsSheetOpened] = useState(false);
 
 	const sheetRef = useRef<any>(null);
 	const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -157,6 +175,10 @@ export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ childr
 			onClosed: options?.onClosed,
 		};
 
+		if (modalStackRef.current.length === 0) {
+			// The sheet has to open first; a pushed modal shows inside the already open sheet
+			setIsSheetOpened(false);
+		}
 		modalStackRef.current = [...modalStackRef.current, newItem];
 		setModalStack([...modalStackRef.current]);
 		setOpenCount(c => c + 1);
@@ -188,6 +210,9 @@ export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ childr
 			onClosed: options?.onClosed,
 		};
 
+		if (modalStackRef.current.length === 0) {
+			setIsSheetOpened(false);
+		}
 		modalStackRef.current = [newItem];
 		setModalStack([newItem]);
 		setOpenCount(c => c + 1);
@@ -292,6 +317,7 @@ export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ childr
 	// safe to finalize (unmount the sheet's content) rather than guessing at its timing.
 	const handleSheetChange = useCallback((index: number) => {
 		if (index >= 0) {
+			setIsSheetOpened(true);
 			if (isClosingRef.current) {
 				// The sheet snapped back open instead of finishing its close - the close was
 				// cancelled (e.g. the user grabbed the sheet and dragged it back up). Restore
@@ -313,6 +339,7 @@ export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ childr
 		}
 
 		if (index === -1) {
+			setIsSheetOpened(false);
 			if (isClosingRef.current) {
 				// Real confirmation that the close animation actually finished - only now
 				// is it safe to finalize (unmount the sheet's content and notify onClosed).
@@ -369,6 +396,11 @@ export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ childr
 	const currentItem = modalStack[modalStack.length - 1] ?? null;
 	const screenBackgroundColor = currentItem?.headerBackgroundColor || theme.screen.background;
 
+	const actionsValue = useMemo<ModalActions>(
+		() => ({ open, close, openAndDiscardOthers, closeAll }),
+		[open, close, openAndDiscardOthers, closeAll],
+	);
+
 	const contextValue = useMemo<ModalContextType>(() => ({
 		open, close, openAndDiscardOthers, closeAll, debug,
 		_currentItem: currentItem,
@@ -384,9 +416,15 @@ export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ childr
 	]);
 
 	return (
-		<ModalContext.Provider value={contextValue}>
-			{children}
-		</ModalContext.Provider>
+		<ModalActionsContext.Provider value={actionsValue}>
+			<ModalDebugContext.Provider value={debug}>
+				<ModalSheetOpenedContext.Provider value={isSheetOpened}>
+					<ModalContext.Provider value={contextValue}>
+						{children}
+					</ModalContext.Provider>
+				</ModalSheetOpenedContext.Provider>
+			</ModalDebugContext.Provider>
+		</ModalActionsContext.Provider>
 	);
 };
 
@@ -441,6 +479,23 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 		<ModalRenderer>{children}</ModalRenderer>
 	</ModalContextProvider>
 );
+
+/** Stable modal actions: no re-render when a modal opens or closes (see ModalActionsContext). */
+export const useModalActions = () => {
+	const ctx = useContext(ModalActionsContext);
+	if (!ctx) throw new Error('useModalActions must be used within a ModalContextProvider');
+	return ctx;
+};
+
+/** Debug state of the modal stack. Re-renders on every open and close, so only use it where that is wanted. */
+export const useModalDebug = () => {
+	const ctx = useContext(ModalDebugContext);
+	if (!ctx) throw new Error('useModalDebug must be used within a ModalContextProvider');
+	return ctx;
+};
+
+/** True once the modal sheet finished opening (see ModalSheetOpenedContext). True outside a modal provider. */
+export const useModalSheetOpened = () => useContext(ModalSheetOpenedContext);
 
 export const useModalContext = () => {
 	const ctx = useContext(ModalContext);

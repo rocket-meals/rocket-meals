@@ -37,6 +37,7 @@ import { useMyScrollviewModalPriceGroupSettings } from '@/hooks/useMyScrollviewM
 
 import FoodOffersHeader from './components/FoodOffersHeader';
 import useFoodOffersDefaultDate from '@/hooks/useFoodOffersDefaultDate';
+import { useModalDebug } from '@/components/GlobalModal/ModalProvider';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
 import useAppRatingScore from '@/hooks/useAppRatingScore';
 import DebugView from '@/components/DebugView';
@@ -47,6 +48,38 @@ export const SHEET_COMPONENTS = {
 	calendar: CalendarSheet,
 	aiGeneratedInfo: AIGeneratedHintSheet,
 	eatingHabits: EatingHabitsSheet,
+};
+
+
+/**
+ * Watches the modal stack in its own component: the debug state changes on every modal open
+ * and close, and reading it in the screen re-rendered the whole food list while the food
+ * details modal was opening.
+ */
+const RatingCheckOnModalClose: React.FC<{ onModalClosed: () => void }> = ({ onModalClosed }) => {
+	const { contentSet } = useModalDebug();
+	const prevModalOpenRef = useRef(contentSet);
+	useEffect(() => {
+		const wasOpen = prevModalOpenRef.current;
+		prevModalOpenRef.current = contentSet;
+		if (wasOpen && !contentSet) {
+			onModalClosed();
+		}
+	}, [contentSet, onModalClosed]);
+	return null;
+};
+
+const FoodoffersDebugView: React.FC<{ lastFocusTime?: string | null }> = ({ lastFocusTime }) => {
+	const { contentSet } = useModalDebug();
+	return (
+		<DebugView
+			title="Foodoffers Debug"
+			logs={[
+				contentSet ? 'Modal offen' : 'Kein Modal offen',
+				'Letzter Focus: ' + (lastFocusTime || '-'),
+			]}
+		/>
+	);
 };
 
 const Index: React.FC<DrawerContentComponentProps> = () => {
@@ -71,7 +104,7 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 	useAppForegroundUpdateCheckModal();
 
 	const { checkAndRequestRatingOnFocus, appRatingData, setLastFocusTime } = useAppRatingScore();
-	const { show: showScrollViewModal, close: closeScrollViewModal, debug: modalDebug } = useMyScrollViewModal();
+	const { show: showScrollViewModal, close: closeScrollViewModal } = useMyScrollViewModal();
 
 	// Use a ref so useFocusEffect doesn't re-run when the callback identity changes
 	const checkRatingRef = useRef(checkAndRequestRatingOnFocus);
@@ -86,15 +119,10 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 		}, [setLastFocusTime])
 	);
 
-	// Also trigger rating check when modal closes
-	const prevModalOpenRef = useRef(modalDebug.contentSet);
-	useEffect(() => {
-		const wasOpen = prevModalOpenRef.current;
-		prevModalOpenRef.current = modalDebug.contentSet;
-		if (wasOpen && !modalDebug.contentSet) {
-			checkRatingRef.current();
-		}
-	}, [modalDebug.contentSet]);
+	// Also trigger rating check when modal closes (see RatingCheckOnModalClose)
+	const checkRatingOnModalClose = useCallback(() => {
+		checkRatingRef.current();
+	}, []);
 
 	const { openChangeMyCanteenSelectionModal } = useMyScrollviewModalChangeMyCanteenSelection();
 	const { openBusinessHoursModal } = useMyScrollviewModalBusinessHours();
@@ -180,13 +208,8 @@ const Index: React.FC<DrawerContentComponentProps> = () => {
 				openOptionsModal={openFoodOffersOptionsModal}
 			/>
 			<View style={styles.contentWrapper}>
-				<DebugView
-					title="Foodoffers Debug"
-					logs={[
-						modalDebug.contentSet ? 'Modal offen' : 'Kein Modal offen',
-						'Letzter Focus: ' + (appRatingData?.lastFocusTime || '-'),
-					]}
-				/>
+				<RatingCheckOnModalClose onModalClosed={checkRatingOnModalClose} />
+				<FoodoffersDebugView lastFocusTime={appRatingData?.lastFocusTime} />
 				{selectedCanteen ? (
 					<FoodOffersScrollList
 						canteenId={selectedCanteen.id}
