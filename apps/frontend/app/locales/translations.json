@@ -149,6 +149,16 @@
     "tr": "Kartlar için sütun sayısı",
     "zh": "卡片的列数"
   },
+  "image_quality": {
+    "de": "Bildqualität",
+    "en": "Image quality",
+    "ar": "جودة الصورة",
+    "es": "Calidad de imagen",
+    "fr": "Qualité d'image",
+    "ru": "Качество изображений",
+    "tr": "Görüntü kalitesi",
+    "zh": "图片质量"
+  },
   "loggingInPleaseWait": {
     "de": "Anmelden, bitte warten",
     "en": "Logging in, please wait",

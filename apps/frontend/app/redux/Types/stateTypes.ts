@@ -67,6 +67,8 @@ export type SettingsState = {
         amountColumnsForcard: number;
         foodDetailsLastTab: FoodOfferDetailTab | null;
         useWebpForAssets: boolean;
+        /** Quality (1-100) the server encodes resized images with, see getImageUrl */
+        assetImageQuality: number;
         foodOffersNextDayThreshold: string | null;
         debugMode: boolean;
         simulateExpoUpdateAvailable: boolean;

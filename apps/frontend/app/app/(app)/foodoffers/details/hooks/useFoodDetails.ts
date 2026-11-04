@@ -10,6 +10,8 @@ import { TranslationKeys } from '@/locales/keys';
 interface UseFoodDetailsProps {
     offerId?: string | string[];
     initialFoodId?: string | string[];
+    /** The food offer the caller already has (e.g. from the list), shown until the details are loaded */
+    initialFoodOffer?: DatabaseTypes.Foodoffers | null;
     /** Called when the offer no longer exists, so the caller can close the outdated details */
     onOfferNoLongerAvailable?: () => void;
     /**
@@ -97,12 +99,29 @@ const shouldFallBackToFood = (showFoodWhenOfferMissing: boolean | undefined, foo
     return Boolean(showFoodWhenOfferMissing && foodId && isFoodOfferNotFoundError(offerError));
 };
 
-export const useFoodDetails = ({ offerId, initialFoodId, onOfferNoLongerAvailable, showFoodWhenOfferMissing }: UseFoodDetailsProps) => {
+export const useFoodDetails = ({ offerId, initialFoodId, initialFoodOffer, onOfferNoLongerAvailable, showFoodWhenOfferMissing }: UseFoodDetailsProps) => {
     const { language: languageCode, translate, translateDynamic } = useLanguage();
     const toast = useToast();
-    const [foodDetails, setFoodDetails] = useState<any>(null);
-    const [foodAttributes, setFoodAttributes] = useState<any>([]);
+    // Start with the offer the caller already has, so name, image and attributes show at once.
+    // The request below then replaces it with the full details (e.g. the comments).
+    const [initialState] = useState(() => {
+        const state: { foodDetails: any; foodAttributes: any } = { foodDetails: null, foodAttributes: [] };
+        // Only an offer with its food expanded carries what the details show
+        if (initialFoodOffer && typeof initialFoodOffer.food === 'object' && initialFoodOffer.food) {
+            applyFoodOfferDetailsResponse(
+                { data: initialFoodOffer },
+                languageCode,
+                translateDynamic,
+                value => { state.foodDetails = value; },
+                value => { state.foodAttributes = value; }
+            );
+        }
+        return state;
+    });
+    const [foodDetails, setFoodDetails] = useState<any>(initialState.foodDetails);
+    const [foodAttributes, setFoodAttributes] = useState<any>(initialState.foodAttributes);
     const [loading, setLoading] = useState(false);
+    const hasInitialData = !!initialState.foodDetails;
 
     const getFoodDetails = useCallback(async () => {
         const id = getFirstRouteParam(offerId);
@@ -151,5 +170,6 @@ export const useFoodDetails = ({ offerId, initialFoodId, onOfferNoLongerAvailabl
         });
     }, [getFoodDetails]);
 
-    return { foodDetails, foodAttributes, loading };
+    // With data from the caller the attributes are already visible, no spinner over them
+    return { foodDetails, foodAttributes, loading: loading && !hasInitialData };
 };

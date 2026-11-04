@@ -41,8 +41,11 @@ import useAppRatingScore from '@/hooks/useAppRatingScore';
 export interface FoodOfferDetailsContentProps {
     offerId?: string;
     foodId?: string;
-    initialImageAssetId?: string | number | null;
-    initialImageRemoteUrl?: string | null;
+    /**
+     * The food offer as the caller (e.g. the list) already has it. Shown right away while the
+     * full details load in the background, so the details do not open empty.
+     */
+    initialFoodOffer?: DatabaseTypes.Foodoffers | null;
     /** Closes these details when the offer no longer exists (the food import replaced it) */
     onOfferNoLongerAvailable?: () => void;
     /** Shows the food's details when the offer no longer exists but a food id is known */
@@ -54,7 +57,7 @@ const selectOwnFoodFeedbacks = createSelector([selectFoodState], foodState => fo
 
 const VALID_FOOD_TABS = Object.values(FoodOfferDetailTab);
 
-const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offerId, foodId: initialFoodId, initialImageAssetId, initialImageRemoteUrl, onOfferNoLongerAvailable, showFoodWhenOfferMissing }) => {
+const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offerId, foodId: initialFoodId, initialFoodOffer, onOfferNoLongerAvailable, showFoodWhenOfferMissing }) => {
     const { theme } = useTheme();
     const { translate, language } = useLanguage();
     const dispatch = useDispatch();
@@ -83,13 +86,13 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
 
     const foodfeedbackHelper = useMemo(() => new FoodFeedbackHelper(), []);
 
-    const { foodDetails, foodAttributes, loading: foodAttributesLoading } = useFoodDetails({ offerId, initialFoodId, onOfferNoLongerAvailable, showFoodWhenOfferMissing });
+    const { foodDetails, foodAttributes, loading: foodAttributesLoading } = useFoodDetails({ offerId, initialFoodId, initialFoodOffer, onOfferNoLongerAvailable, showFoodWhenOfferMissing });
     const { groupedAttributes } = useFoodAttributes({ foodAttributes, foodDetails });
 
     const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : primaryColor;
     const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
     const defaultImage = getImageUrl(String(appSettings.foods_placeholder_image)) || appSettings.foods_placeholder_image_remote_url || getImageUrl(serverInfo?.info?.project?.project_logo);
-    const [foodOfferDetails, setFoodOfferDetails] = useState<any>(null);
+    const [foodOfferDetails, setFoodOfferDetails] = useState<any>(initialFoodOffer ?? null);
 
     const selectedCanteen = useSelectedCanteen();
     const foodOfferCanteenId = selectedCanteen?.id as string | undefined;
@@ -339,8 +342,6 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
                         isAccountRequired={isRatingLocked}
                         onAccountRequired={openRatingLockedModal}
                         containerWidth={getContainerWidth}
-                        initialImageAssetId={initialImageAssetId}
-                        initialImageRemoteUrl={initialImageRemoteUrl}
                     />
 
                     <NotificationSection

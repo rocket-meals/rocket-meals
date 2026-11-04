@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import IconButton from '@/components/UI/IconButton';
-import { numToOneDecimal } from '@/constants/HelperFunctions';
+import { getImageUrl, numToOneDecimal } from '@/constants/HelperFunctions';
 import { TranslationKeys } from '@/locales/keys';
 import styles from '../styles';
 import { isWeb } from '@/constants/Constants';
@@ -21,8 +21,6 @@ interface FoodHeaderProps extends FoodDetailsSectionBaseProps {
     showRating?: boolean;
     appSettings: any;
     defaultImage?: string | null;
-    initialImageAssetId?: string | number | null;
-    initialImageRemoteUrl?: string | null;
 }
 
 const StarRatingIconButton = ({
@@ -138,8 +136,6 @@ const FoodHeader = ({
     isAccountRequired,
     onAccountRequired,
     containerWidth,
-    initialImageAssetId,
-    initialImageRemoteUrl,
 }: FoodHeaderProps) => {
     const isLargeScreen = screenWidth > 1000;
     const isMediumScreen = screenWidth > 800;
@@ -149,8 +145,15 @@ const FoodHeader = ({
         height: isLargeScreen ? 400 : screenWidth - 40,
     }), [isLargeScreen, screenWidth]);
 
-    const imageRemoteUrl = useMemo(() => foodDetails?.image_remote_url || initialImageRemoteUrl, [foodDetails?.image_remote_url, initialImageRemoteUrl]);
-    const imageAssetId = useMemo(() => foodDetails?.image || initialImageAssetId, [foodDetails?.image, initialImageAssetId]);
+    const imageRemoteUrl = foodDetails?.image_remote_url;
+    const imageAssetId = typeof foodDetails?.image === 'object' ? foodDetails?.image?.id : foodDetails?.image;
+    // The food card loads the asset at 512px, so that URL is usually cached already. It shows at once
+    // while the high-res version (2048px) loads. A remote URL is the same in both places anyway.
+    const imagePlaceholder = useMemo(() => {
+        if (imageRemoteUrl || !imageAssetId) return undefined;
+        const previewUrl = getImageUrl(String(imageAssetId));
+        return previewUrl ? { uri: previewUrl } : undefined;
+    }, [imageRemoteUrl, imageAssetId]);
 
     const renderStarItem = useCallback((index: number) => (
         <React.Fragment key={index}>
@@ -202,6 +205,8 @@ const FoodHeader = ({
                                     directus_asset_id={imageAssetId}
                                     defaultImageUrl={defaultImage}
                                     contentFit="cover"
+                                    placeholder={imagePlaceholder}
+                                    placeholderContentFit="cover"
                                 />
                             </TouchableOpacity>
                         </View>
@@ -252,6 +257,8 @@ const FoodHeader = ({
                     directus_asset_id={imageAssetId}
                     defaultImageUrl={defaultImage}
                     contentFit="cover"
+                    placeholder={imagePlaceholder}
+                    placeholderContentFit="cover"
                 />
             </TouchableOpacity>
             <View style={styles.overlay} pointerEvents="box-none">
@@ -308,8 +315,6 @@ export default memo(FoodHeader, (prevProps, nextProps) => {
         prevProps.defaultImage === nextProps.defaultImage &&
         prevProps.isAccountRequired === nextProps.isAccountRequired &&
         prevProps.showRating === nextProps.showRating &&
-        prevProps.onAccountRequired === nextProps.onAccountRequired &&
-        prevProps.initialImageAssetId === nextProps.initialImageAssetId &&
-        prevProps.initialImageRemoteUrl === nextProps.initialImageRemoteUrl
+        prevProps.onAccountRequired === nextProps.onAccountRequired
     );
 });

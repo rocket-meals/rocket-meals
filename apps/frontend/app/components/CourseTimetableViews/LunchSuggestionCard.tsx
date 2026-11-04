@@ -44,7 +44,7 @@ const LunchSuggestionCard: React.FC<{ suggestion: LunchSuggestion; dateString: s
 					<Text style={[styles.badgeText, { color: myContrastColor(badgeColor, theme, isDark) }]}>{translate(TranslationKeys.course_timetable_lunch_suggestion)}</Text>
 				</View>
 			</View>
-			<TouchableOpacity style={styles.foodRow} onPress={() => openFoodOfferDetailsModal(suggestion.food.id, foodId ?? undefined)} accessibilityRole="button">
+			<TouchableOpacity style={styles.foodRow} onPress={() => openFoodOfferDetailsModal(suggestion.food.id, foodId ?? undefined, suggestion.food)} accessibilityRole="button">
 				<View style={[styles.foodIcon, { backgroundColor: theme.screen.background }]}>
 					<MaterialCommunityIcons name="silverware-fork-knife" size={20} color={theme.screen.icon} />
 				</View>

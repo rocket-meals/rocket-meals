@@ -58,13 +58,17 @@ export const numToOneDecimal = (num: number) => {
 	return Math.round(num * 10) / 10;
 };
 
+/** Used when the persisted settings predate the image quality setting */
+export const DEFAULT_ASSET_IMAGE_QUALITY = 80;
+
 export const getImageUrl = (imageId: string, size: number = 512) => {
 	if (!imageId) {
 		return null;
 	}
-	const { useWebpForAssets } = configureStore.getState().settings;
+	const { useWebpForAssets, assetImageQuality } = configureStore.getState().settings;
 	const format = useWebpForAssets ? '&format=webp' : '';
-	return `${Server.ServerUrl}/assets/${imageId}?fit=cover&width=${size}&height=${size}&quality=100${format}`;
+	const quality = assetImageQuality || DEFAULT_ASSET_IMAGE_QUALITY;
+	return `${Server.ServerUrl}/assets/${imageId}?fit=cover&width=${size}&height=${size}&quality=${quality}${format}`;
 };
 
 export const getHighResImageUrl = (imageId: string, size: number = 2048) => {

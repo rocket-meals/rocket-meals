@@ -22,7 +22,7 @@ import { RESET_ALL_COLLECTIBLE_EVENT_DICTS, SET_COLLECTIBLE_ITEM_SIZE, SET_COLLE
 import { performLogout } from '@/helper/logoutHelper';
 import { sqliteKeyValueStorage, migrateAsyncStorageToSqlite } from '@/redux/storage/sqliteStorage';
 import FoodOffersNextDayTimeSheet from '@/components/FoodOffersNextDayTimeSheet';
-import { formatPrice, getImageUrl, showFormatedPrice } from '@/constants/HelperFunctions';
+import { DEFAULT_ASSET_IMAGE_QUALITY, formatPrice, getImageUrl, showFormatedPrice } from '@/constants/HelperFunctions';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
 import { ServerAPI } from '@/redux/actions';
 import { TranslationKeys } from '@/locales/keys';
@@ -47,6 +47,7 @@ import useCustomerConfigModal from '@/hooks/useCustomerConfigModal';
 import useFoodofferSortingModal from '@/hooks/useFoodofferSortingModal';
 import useThemeSettingsModal from '@/hooks/useThemeSettingsModal';
 import useMenuPositionModal from '@/hooks/useMenuPositionModal';
+import useImageQualityModal from '@/hooks/useImageQualityModal';
 import useCardColumnsModal from '@/hooks/useCardColumnsModal';
 import useFirstDayOfWeekModal from '@/hooks/useFirstDayOfWeekModal';
 import useHousingSortingModal from '@/hooks/useHousingSortingModal';
@@ -154,6 +155,7 @@ const Settings = () => {
         const { openCanteenVisitsVisibilityModal } = useCanteenVisitsVisibilityModal();
         const { score: appRatingScore, setScore: setAppRatingScore, showDebugRatingModal, appRatingData } = useAppRatingScore();
         const { openPriceGroupSettingsModal } = useMyScrollviewModalPriceGroupSettings();
+        const { openImageQualityModal } = useImageQualityModal();
         const openEatingHabits = useCallback(() => router.navigate('/eating-habits'), []);
         const foodofferSettingsRows = useFoodofferSettingsRows({
                 onCanteen: openChangeMyCanteenSelectionModal,
@@ -175,7 +177,7 @@ const Settings = () => {
                 });
         }, [showScrollViewModal, translate]);
 
-        const { primaryColor, drawerPosition, selectedTheme, nickNameLocal, firstDayOfTheWeek, amountColumnsForcard, serverInfo, appSettings, useWebpForAssets, foodOffersNextDayThreshold, debugMode, simulateExpoUpdateAvailable, simulateFeatureWishesEnabled, showFoodFeedbackChatsInChats, collectibleItemSize, collectibleRandomPosition, selectedCustomer, campusesSortBy } = useAppSelector((state) => state.settings);
+        const { primaryColor, drawerPosition, selectedTheme, nickNameLocal, firstDayOfTheWeek, amountColumnsForcard, serverInfo, appSettings, useWebpForAssets, assetImageQuality, foodOffersNextDayThreshold, debugMode, simulateExpoUpdateAvailable, simulateFeatureWishesEnabled, showFoodFeedbackChatsInChats, collectibleItemSize, collectibleRandomPosition, selectedCustomer, campusesSortBy } = useAppSelector((state) => state.settings);
         const featureWishesMode = useFeatureWishesMode();
         const osmVectorMapStyleKey = useAppSelector((state) => ((state.settings as any).osmVectorMapStyleKey ?? MapStyleKey.DEFAULT) as MapStyleKey);
         const osmConsent = useAppSelector((state) => ((state.settings as any).osmVectorMapConsent ?? false) as boolean);
@@ -952,6 +954,7 @@ const Settings = () => {
 							onToggle={toggleWebpForAssets}
 							groupPosition="middle"
 						/>
+						<SettingsList iconBgColor={primaryColor} leftIcon={<MaterialIcons name="high-quality" size={24} color={theme.screen.icon} />} label={translate(TranslationKeys.image_quality)} value={String(assetImageQuality || DEFAULT_ASSET_IMAGE_QUALITY)} rightIcon={<Octicons name="chevron-right" size={24} color={theme.screen.icon} />} handleFunction={openImageQualityModal} groupPosition="middle" />
 						<SettingsListBoolean
 							iconBgColor={primaryColor}
 							leftIcon={<MaterialCommunityIcons name="bank-transfer" size={24} color={theme.screen.icon} />}
@@ -1120,7 +1123,7 @@ const Settings = () => {
 		appSettings?.campus_enabled,
 		campus_area_color, campusSortingLabel, openCampusSortingModal, handleCheckForUpdates,
 		openCollectibleSettingsModal, termsAndPrivacyConsentAcceptedDate, isManagement, dispatch,
-		serverInfo, selectedCustomerDisplayName, foodOffersNextDayThreshold, useWebpForAssets,
+		serverInfo, selectedCustomerDisplayName, foodOffersNextDayThreshold, useWebpForAssets, assetImageQuality, openImageQualityModal,
 		debugMode, simulateExpoUpdateAvailable, simulateFeatureWishesEnabled, showFoodFeedbackChatsInChats, foodFeedbackReactionsSeenUntil, handleResetFoodFeedbackReactionsSeen, openServerSheet, openFoodOffersTimeSheet,
 		toggleWebpForAssets, toggleDebugMode, toggleSimulateExpoUpdate, toggleSimulateFeatureWishes, toggleShowFoodFeedbackChatsInChats, osmVectorMapStyleKey, osmConsent,
 		acceptedFriendsCount, showFriendsInSettings, canteenVisitsVisibilityLabel, openCanteenVisitsVisibilityModal, openFriendsModal, openAccountRequiredModal,

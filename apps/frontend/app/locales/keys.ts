@@ -40,6 +40,7 @@ export const TranslationKeys = {
 	debug_session_none: 'debug_session_none',
 	automatic: 'automatic',
 	amount_columns_for_cards: 'amount_columns_for_cards',
+	image_quality: 'image_quality',
 	loggingInPleaseWait: 'loggingInPleaseWait',
 	developer: 'developer',
 	developerModeActive: 'developerModeActive',
