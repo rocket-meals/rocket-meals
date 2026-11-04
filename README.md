@@ -335,3 +335,17 @@ gesetzt sind (ohne sie wird die Mail übersprungen, der Lauf schlägt trotzdem f
 
 Das Badge zeigt immer den letzten Lauf. Der zweite, zeitlich nicht passende Zeitplan-Lauf (Sommer-/Winterzeit) prüft
 deshalb nichts, sondern übernimmt das Ergebnis des letzten echten Checks.
+
+### Betriebssystem-Updates der Server
+
+`🛡️ Server OS Updates` (`.github/workflows/server-os-updates.yml`) wird manuell gestartet und führt
+`scripts/server-os-updates.sh` per SSH auf den Backend-Servern aus (Standard: alle). Ohne Optionen prüft er nur und
+listet in der Zusammenfassung des Laufs je Server die anstehenden apt-Updates (Sicherheitsupdates mit 🔒), ob ein
+Neustart nötig ist und ob die Distribution noch Sicherheitsupdates bekommt.
+
+- `apply_updates`: spielt die Updates ein (`apt-get upgrade --with-new-pkgs`, entfernt keine Pakete), startet
+  Container wieder, die ein Docker-Update gestoppt hat, und wartet, bis das Backend wieder erreichbar ist.
+- `reboot_if_required`: startet danach die Server neu, die es brauchen, und startet die Container wieder
+  (`docker compose up -d`, sie haben keine Restart-Policy).
+
+Ein Docker-Update oder ein Neustart bedeutet einige Minuten Ausfallzeit, ohne Ankündigung in der App.
