@@ -15,6 +15,7 @@ import { AppFeedbackAnswerMail } from '../helpers/rocket-meals-module/AppFeedbac
 import { AppFeedbackAnswerChannel, AppFeedbackChatHelper } from '../helpers/rocket-meals-module/AppFeedbackChatHelper';
 import { BackendTranslator } from '../helpers/translations/BackendTranslator';
 import { AppFeedbackStateSyncHelper } from '../helpers/AppFeedbackStateSyncHelper';
+import { RocketMealsModulePages } from '../helpers/rocket-meals-module/RocketMealsModulePages';
 
 const SCHEDULE_NAME = 'activity_auto_cleanup';
 
@@ -171,8 +172,8 @@ export default MyDefineHook.defineHookWithAllTablesExisting(SCHEDULE_NAME, ({ sc
     const dateCreated = new Date(app_feedback.date_created || new Date());
     const dateHumanReadable = DateHelper.getHumanReadableDateAndTime(dateCreated);
 
-    // answer to the feedback url: <PUBLIC_URL>/admin/content/app_feedbacks/f2042715-69f2-44fe-87e7-4b329b0cfab6
-    const answer_to_feedback_url = publicUrl + '/admin/content/app_feedbacks/' + app_feedback_id;
+    // answer in the Rocket Meals module: <PUBLIC_URL>/admin/rocket-meals/app-feedbacks/f2042715-69f2-44fe-87e7-4b329b0cfab6
+    const answer_to_feedback_url = RocketMealsModulePages.getAdminUrl(publicUrl, RocketMealsModulePages.APP_FEEDBACKS, String(app_feedback_id));
 
     const app_feedback_device = {
       device_platform: app_feedback.device_platform,
