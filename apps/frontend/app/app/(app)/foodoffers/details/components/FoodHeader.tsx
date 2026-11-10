@@ -1,13 +1,13 @@
-import React, { memo, useMemo, useCallback } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { memo, useCallback } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import IconButton from '@/components/UI/IconButton';
-import { getImageUrl, numToOneDecimal } from '@/constants/HelperFunctions';
+import { numToOneDecimal } from '@/constants/HelperFunctions';
 import { TranslationKeys } from '@/locales/keys';
-import styles from '../styles';
+import sharedStyles from '../styles';
 import { isWeb } from '@/constants/Constants';
-import MyImage from '@/components/MyImage';
+import DetailsHeaderImage from '@/components/DetailsHeaderImage/DetailsHeaderImage';
 import SettingsList from '@/components/SettingsList';
 import type { FoodDetailsSectionBaseProps } from './types';
 
@@ -23,6 +23,11 @@ interface FoodHeaderProps extends FoodDetailsSectionBaseProps {
     defaultImage?: string | null;
 }
 
+/** Whether the rating row is drawn as one group with the notification row below it (app only, as before). */
+export function isFoodHeaderGroupedWithNotification() {
+    return !isWeb;
+}
+
 const StarRatingIconButton = ({
     triggerProps,
     onPress,
@@ -34,7 +39,7 @@ const StarRatingIconButton = ({
     filled: boolean;
     color: string;
 }) => (
-    <IconButton {...triggerProps} onPress={onPress} style={styles.paddingSmall}>
+    <IconButton {...triggerProps} onPress={onPress} style={sharedStyles.paddingSmall}>
         <MaterialIcons name={filled ? 'star' : 'star-border'} size={22} color={color} />
     </IconButton>
 );
@@ -47,79 +52,35 @@ function makeStarRatingTrigger(onPress: () => void, filled: boolean, color: stri
     );
 }
 
-// Resolves the average rating value to display, mirroring the previous inline
-// `(a || b) && numToOneDecimal(a || b)` expression used in both the web and
-// mobile render branches of FoodHeader.
 function resolveDisplayRating(foodDetails: any) {
     const rating = foodDetails?.rating_average || foodDetails?.rating_average_legacy;
     return rating && numToOneDecimal(rating);
 }
 
-// Renders the "average rating" badge (star icon + numeric value) shown when
-// `foods_ratings_average_display` is enabled. Extracted so the surrounding
-// web/mobile render branches don't each carry this conditional inline.
+// "Average rating" badge (star icon + value), shown when `foods_ratings_average_display` is enabled.
+// Same look as before: on web below the image on the right, in the app on the image (top left,
+// the top right corner holds the expand button).
 const RatingAverageBadge = ({
     appSettings,
     foodDetails,
     theme,
     foodsAreaColor,
-    viewStyle,
-    textStyle,
-    starSize,
 }: {
     appSettings: any;
     foodDetails: any;
     theme: any;
     foodsAreaColor: string;
-    viewStyle: any;
-    textStyle: any;
-    starSize: number;
 }) => {
     if (!appSettings?.foods_ratings_average_display) {
         return null;
     }
     return (
-        <View
-            style={[
-                viewStyle,
-                { borderColor: theme.screen.text, backgroundColor: theme.screen.iconBg }
-            ]}
-        >
-            <AntDesign name="star" size={starSize} color={foodsAreaColor} />
-            <Text
-                style={[
-                    textStyle,
-                    { color: theme.screen.text }
-                ]}
-            >
-                {resolveDisplayRating(foodDetails)}
-            </Text>
+        <View style={[isWeb ? sharedStyles.ratingView : sharedStyles.mobileRatingView, { borderColor: theme.screen.text, backgroundColor: theme.screen.iconBg }]}>
+            <AntDesign name="star" size={isWeb ? 22 : 18} color={foodsAreaColor} />
+            <Text style={[isWeb ? sharedStyles.totalRating : sharedStyles.mobileTotalRating, { color: theme.screen.text }]}>{resolveDisplayRating(foodDetails)}</Text>
         </View>
     );
 };
-
-// Resolves the web-layout style lists that vary by breakpoint (isLargeScreen/isMediumScreen),
-// so the render branch below only reads pre-computed values instead of repeating each ternary
-// (some, like the isLargeScreen-based featured-container style, were previously duplicated inline).
-function computeFoodHeaderWebLayout(isLargeScreen: boolean, isMediumScreen: boolean, containerWidth: string | number | undefined) {
-    return {
-        featuredContainerStyle: [styles.featuredContainer, isLargeScreen ? styles.featuredContainerLarge : styles.featuredContainerSmall],
-        foodDetailStyle: [styles.foodDetail, isLargeScreen ? styles.foodDetailLarge : styles.foodDetailSmall],
-        detailsContainerStyle: [
-            styles.detailsContainer,
-            isLargeScreen ? styles.detailsContainerLarge : styles.detailsContainerSmall,
-            isMediumScreen ? styles.paddingHorizontalMedium : styles.paddingHorizontalNone,
-        ],
-        ratingListWrapperStyle: isLargeScreen ? null : [styles.marginTopMedium, containerWidth ? { width: containerWidth as any } : null],
-        foodHeadingStyle: [
-            styles.foodHeading,
-            styles.widthFull,
-            isLargeScreen ? styles.textLeft : styles.textCenter,
-            styles.flexColumn,
-            isMediumScreen ? styles.fontSizeLarge : styles.fontSizeMedium,
-        ],
-    };
-}
 
 const FoodHeader = ({
     foodDetails,
@@ -137,23 +98,8 @@ const FoodHeader = ({
     onAccountRequired,
     containerWidth,
 }: FoodHeaderProps) => {
-    const isLargeScreen = screenWidth > 1000;
-    const isMediumScreen = screenWidth > 800;
-
-    const dynamicImageStyle = useMemo(() => ({
-        width: isLargeScreen ? 400 : screenWidth - 40,
-        height: isLargeScreen ? 400 : screenWidth - 40,
-    }), [isLargeScreen, screenWidth]);
-
     const imageRemoteUrl = foodDetails?.image_remote_url;
     const imageAssetId = typeof foodDetails?.image === 'object' ? foodDetails?.image?.id : foodDetails?.image;
-    // The food card loads the asset at 512px, so that URL is usually cached already. It shows at once
-    // while the high-res version (2048px) loads. A remote URL is the same in both places anyway.
-    const imagePlaceholder = useMemo(() => {
-        if (imageRemoteUrl || !imageAssetId) return undefined;
-        const previewUrl = getImageUrl(String(imageAssetId));
-        return previewUrl ? { uri: previewUrl } : undefined;
-    }, [imageRemoteUrl, imageAssetId]);
 
     const renderStarItem = useCallback((index: number) => (
         <React.Fragment key={index}>
@@ -180,130 +126,59 @@ const FoodHeader = ({
         </React.Fragment>
     ), [previousFeedback?.rating, foodsAreaColor, rateFood, theme, translate]);
 
-    const renderRatingStars = useCallback(() => (
-        <View style={isWeb ? styles.stars : styles.mobileStars}>
+    const ratingStars = (
+        <View style={isWeb ? sharedStyles.stars : sharedStyles.mobileStars}>
             {Array.from({ length: 5 }).map((_, index) => renderStarItem(index))}
         </View>
-    ), [renderStarItem]);
+    );
 
-    if (isWeb) {
-        const webLayout = computeFoodHeaderWebLayout(isLargeScreen, isMediumScreen, containerWidth);
-        return (
-            <>
-                <View style={webLayout.featuredContainerStyle}>
-                    <View style={webLayout.foodDetailStyle}>
-                        <View
-                        style={[
-                            styles.imageContainer,
-                            dynamicImageStyle
-                        ]}
-                    >
-                            <TouchableOpacity onPress={openFullScreenImage} activeOpacity={0.9} style={styles.featuredImage}>
-                                <MyImage
-                                    style={styles.featuredImage}
-                                    remote_image_url={imageRemoteUrl}
-                                    directus_asset_id={imageAssetId}
-                                    defaultImageUrl={defaultImage}
-                                    contentFit="cover"
-                                    placeholder={imagePlaceholder}
-                                    placeholderContentFit="cover"
-                                />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                    <View style={webLayout.detailsContainerStyle}>
-                        <View style={styles.fullWidthEnd}>
-                            <RatingAverageBadge
-                                appSettings={appSettings}
-                                foodDetails={foodDetails}
-                                theme={theme}
-                                foodsAreaColor={foodsAreaColor}
-                                viewStyle={styles.ratingView}
-                                textStyle={styles.totalRating}
-                                starSize={22}
-                            />
-                        </View>
-                        {showRating && (
-                        <View style={webLayout.ratingListWrapperStyle}>
-                            <SettingsList
-                                leftIcon={<MaterialIcons name="star" size={22} />}
-                                iconBgColor={foodsAreaColor}
-                                title={translate(TranslationKeys.RATE_FOOD)}
-                                rightElement={renderRatingStars()}
-                                showSeparator={false}
-                                groupPosition="single"
-                                isAccountRequired={isAccountRequired}
-                                onAccountRequired={onAccountRequired}
-                            />
-                        </View>
-                        )}
-                    </View>
-                </View>
-                <View style={webLayout.featuredContainerStyle}>
-                    <Text style={[...webLayout.foodHeadingStyle, { color: theme.screen.text }]}>
-                        {foodDetails?.name}
-                    </Text>
-                </View>
-            </>
-        );
-    }
+    // Same heading as before: web with the size depending on the screen width, app with its own style
+    const titleStyle = isWeb
+        ? [sharedStyles.foodHeading, sharedStyles.widthFull, sharedStyles.textCenter, screenWidth > 800 ? sharedStyles.fontSizeLarge : sharedStyles.fontSizeMedium]
+        : sharedStyles.mobileFoodHeading;
+    const ratingBadge = <RatingAverageBadge appSettings={appSettings} foodDetails={foodDetails} theme={theme} foodsAreaColor={foodsAreaColor} />;
 
     return (
-        <View style={styles.mobileImageContainer}>
-            <TouchableOpacity onPress={openFullScreenImage} activeOpacity={0.9} style={styles.mobileFeaturedImage}>
-                <MyImage
-                    style={styles.mobileFeaturedImage}
-                    remote_image_url={imageRemoteUrl}
-                    directus_asset_id={imageAssetId}
-                    defaultImageUrl={defaultImage}
-                    contentFit="cover"
-                    placeholder={imagePlaceholder}
-                    placeholderContentFit="cover"
-                />
-            </TouchableOpacity>
-            <View style={styles.overlay} pointerEvents="box-none">
-                <View style={styles.mobileDetailsHeader}>
-                    <View style={styles.row}>
-                        <View />
-                        <RatingAverageBadge
-                            appSettings={appSettings}
-                            foodDetails={foodDetails}
-                            theme={theme}
-                            foodsAreaColor={foodsAreaColor}
-                            viewStyle={styles.mobileRatingView}
-                            textStyle={styles.mobileTotalRating}
-                            starSize={18}
-                        />
-                    </View>
-                </View>
-                <View style={styles.mobileDetailsFooter}></View>
-            </View>
-            <Text
-                style={[
-                    styles.mobileFoodHeading,
-                    { color: theme.screen.text }
-                ]}
-            >
-                {foodDetails?.name}
-            </Text>
+        <View style={[styles.container, containerWidth ? { width: containerWidth as any } : null]}>
+            <DetailsHeaderImage remoteImageUrl={imageRemoteUrl} assetId={imageAssetId} defaultImageUrl={defaultImage} onOpenFullScreen={openFullScreenImage}>
+                {!isWeb && <View style={styles.badgeOnImage} pointerEvents="none">{ratingBadge}</View>}
+            </DetailsHeaderImage>
+            {isWeb && <View style={[sharedStyles.fullWidthEnd, styles.badgeBelowImage]}>{ratingBadge}</View>}
+            <Text style={[titleStyle, { color: theme.screen.text }]}>{foodDetails?.name}</Text>
             {showRating && (
-            <View style={styles.marginTopMedium}>
-                {/* groupPosition="top" so the rating item visually groups with the notification item below (no gap, "bottom" position on mobile) */}
-                <SettingsList
-                    leftIcon={<MaterialIcons name="star" size={22} />}
-                    iconBgColor={foodsAreaColor}
-                    title={translate(TranslationKeys.RATE_FOOD)}
-                    rightElement={renderRatingStars()}
-                    showSeparator={false}
-                    groupPosition="top"
-                    isAccountRequired={isAccountRequired}
-                    onAccountRequired={onAccountRequired}
-                />
-            </View>
+                <View style={sharedStyles.marginTopMedium}>
+                    {/* in the app the rating groups with the notification item below it (see isFoodHeaderGroupedWithNotification) */}
+                    <SettingsList
+                        leftIcon={<MaterialIcons name="star" size={22} />}
+                        iconBgColor={foodsAreaColor}
+                        title={translate(TranslationKeys.RATE_FOOD)}
+                        rightElement={ratingStars}
+                        showSeparator={false}
+                        groupPosition={isFoodHeaderGroupedWithNotification() ? 'top' : 'single'}
+                        isAccountRequired={isAccountRequired}
+                        onAccountRequired={onAccountRequired}
+                    />
+                </View>
             )}
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+        alignSelf: 'center',
+        paddingTop: 10,
+    },
+    badgeOnImage: {
+        position: 'absolute',
+        top: 12,
+        left: 12,
+    },
+    badgeBelowImage: {
+        marginTop: 12,
+    },
+});
 
 export default memo(FoodHeader, (prevProps, nextProps) => {
     return (
@@ -315,6 +190,7 @@ export default memo(FoodHeader, (prevProps, nextProps) => {
         prevProps.defaultImage === nextProps.defaultImage &&
         prevProps.isAccountRequired === nextProps.isAccountRequired &&
         prevProps.showRating === nextProps.showRating &&
-        prevProps.onAccountRequired === nextProps.onAccountRequired
+        prevProps.onAccountRequired === nextProps.onAccountRequired &&
+        prevProps.containerWidth === nextProps.containerWidth
     );
 });

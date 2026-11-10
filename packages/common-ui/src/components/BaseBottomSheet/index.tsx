@@ -9,9 +9,11 @@ import { CommonUiComponentIds } from '../../constants/ComponentIds';
 
 interface CustomBackdropProps extends BottomSheetBackdropProps {
 	onPress?: () => void;
+	/** The sheet is closing: hide the backdrop at once and let taps through */
+	isClosing?: boolean;
 }
 
-const CustomBackdrop: React.FC<CustomBackdropProps> = ({ animatedIndex, style, onPress }) => {
+const CustomBackdrop: React.FC<CustomBackdropProps> = ({ animatedIndex, style, onPress, isClosing }) => {
 	const containerAnimatedStyle = useAnimatedStyle(() => ({
 		opacity: interpolate(animatedIndex.value, [-1, 0], [0, 1], Extrapolation.CLAMP),
 	}));
@@ -26,6 +28,11 @@ const CustomBackdrop: React.FC<CustomBackdropProps> = ({ animatedIndex, style, o
 		},
 	);
 
+	if (isClosing) {
+		// Gone at once while the sheet slides out, so the app is visible and usable right away
+		return <Animated.View style={[style, backdropStyles.hidden]} pointerEvents="none" />;
+	}
+
 	return (
 		<Animated.View
 			style={[style, containerAnimatedStyle, backdropStyles.container]}
@@ -39,6 +46,9 @@ const CustomBackdrop: React.FC<CustomBackdropProps> = ({ animatedIndex, style, o
 };
 
 const backdropStyles = StyleSheet.create({
+	hidden: {
+		opacity: 0,
+	},
 	container: {
 		backgroundColor: 'rgba(0,0,0,0.5)',
 	},
@@ -77,15 +87,20 @@ export interface BaseBottomSheetProps extends Omit<BottomSheetProps, 'backdropCo
 	headerBackgroundColor?: string;
 	/** Shows a "back" chevron instead of an X in the header button - set when more than one modal is stacked, since the button only steps back one level. */
 	showBackChevron?: boolean;
+	/** Set while the sheet is being closed: the backdrop disappears right away instead of fading with the sheet */
+	isClosing?: boolean;
 }
 
-const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(({ onClose, onDismissAll, children, backgroundStyle, onChange, headerBackgroundColor, showBackChevron, ...props }, ref) => {
+const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(({ onClose, onDismissAll, children, backgroundStyle, onChange, headerBackgroundColor, showBackChevron, isClosing, ...props }, ref) => {
 	// See onDismissAll doc: falls back to onClose for standalone (non-stacked) consumers.
 	const dismissAll = onDismissAll ?? onClose;
-	const renderBackdrop = useCallback((backdropProps: BottomSheetBackdropProps) => <CustomBackdrop {...backdropProps} onPress={dismissAll} />, [dismissAll]);
+	const renderBackdrop = useCallback((backdropProps: BottomSheetBackdropProps) => <CustomBackdrop {...backdropProps} onPress={dismissAll} isClosing={isClosing} />, [dismissAll, isClosing]);
 	const { theme } = useTheme();
 	const { top: topInset } = useSafeAreaInsets();
-	const snapPoints = useMemo(() => ['80%'], []);
+	// Always fully open (below the top safe area). One fixed snap point and no dynamic sizing:
+	// with gorhom v5's default enableDynamicSizing the content height became an extra, lower snap
+	// point, so a sheet whose content renders in steps (e.g. the food details) stopped halfway.
+	const snapPoints = useMemo(() => ['100%'], []);
 
 	const usedHeaderBg = headerBackgroundColor || theme.screen.background;
 	const effectiveBackgroundStyle = { backgroundColor: usedHeaderBg };
@@ -126,7 +141,7 @@ const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(({ onClose
 	// "adjustPan" matches what actually happens under edge-to-edge and lets
 	// the library shift the sheet up by the tracked keyboard height itself.
 	return (
-		<BottomSheet ref={ref} snapPoints={snapPoints} backdropComponent={renderBackdrop} backgroundComponent={Platform.OS === 'web' ? renderBackground : undefined} backgroundStyle={effectiveBackgroundStyle} handleComponent={null} onChange={handleChange} keyboardBehavior="interactive" keyboardBlurBehavior="restore" android_keyboardInputMode="adjustPan" topInset={topInset} {...webAccessibilityOverrides} {...props}>
+		<BottomSheet ref={ref} snapPoints={snapPoints} enableDynamicSizing={false} backdropComponent={renderBackdrop} backgroundComponent={Platform.OS === 'web' ? renderBackground : undefined} backgroundStyle={effectiveBackgroundStyle} handleComponent={null} onChange={handleChange} keyboardBehavior="interactive" keyboardBlurBehavior="restore" android_keyboardInputMode="adjustPan" topInset={topInset} {...webAccessibilityOverrides} {...props}>
 			<View style={styles.header}>
 				<View style={styles.placeholder} />
 				<View style={[styles.handle, { backgroundColor: handleColor }]} />

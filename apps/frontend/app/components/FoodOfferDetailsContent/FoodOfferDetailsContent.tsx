@@ -28,7 +28,7 @@ import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
 import useFoodFeedbackPermissions from '@/hooks/useFoodFeedbackPermissions';
 import useFoodNotificationModal from '@/hooks/useFoodNotificationModal';
 import usePushNotificationOptInPrompt from '@/hooks/usePushNotificationOptInPrompt';
-import FoodHeader from '@/app/(app)/foodoffers/details/components/FoodHeader';
+import FoodHeader, { isFoodHeaderGroupedWithNotification } from '@/app/(app)/foodoffers/details/components/FoodHeader';
 import NotificationSection from '@/app/(app)/foodoffers/details/components/NotificationSection';
 import TabController from '@/app/(app)/foodoffers/details/components/TabController';
 import { useFoodDetails } from '@/app/(app)/foodoffers/details/hooks/useFoodDetails';
@@ -390,7 +390,7 @@ const FoodOfferDetailsContent: React.FC<FoodOfferDetailsContentProps> = ({ offer
                         translate={translate}
                         previousFeedback={previousFeedback}
                         updateNotification={updateNotification}
-                        isGroupedWithRating={showRating}
+                        isGroupedWithRating={showRating && isFoodHeaderGroupedWithNotification()}
                         foodsAreaColor={foods_area_color}
                         isAccountRequired={!user?.id}
                         onAccountRequired={openAccountRequiredModal}

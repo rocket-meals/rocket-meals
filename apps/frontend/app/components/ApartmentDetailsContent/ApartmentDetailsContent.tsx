@@ -10,7 +10,7 @@ import useLinkCoordinateModal from '@/hooks/useLinkCoordinateModal';
 import { shallowEqual } from 'react-redux';
 
 import styles from '@/app/(app)/housing/details/styles';
-import HousingDetailsImage from '@/app/(app)/housing/details/components/HousingDetailsImage';
+import DetailsHeaderImage from '@/components/DetailsHeaderImage/DetailsHeaderImage';
 import HousingDetailsHeader from '@/app/(app)/housing/details/components/HousingDetailsHeader';
 import HousingDetailsTabs from '@/app/(app)/housing/details/components/HousingDetailsTabs';
 import HousingDetailsContent from '@/app/(app)/housing/details/components/HousingDetailsContent';
@@ -112,12 +112,12 @@ const ApartmentDetailsContent: React.FC<ApartmentDetailsContentProps> = ({ id })
     );
 
     const imageSection = useMemo(() => (
-        <HousingDetailsImage
-            apartmentDetails={apartmentDetails}
-            screenWidth={screenWidth}
-            defaultImage={defaultImage || ''}
+        <DetailsHeaderImage
+            remoteImageUrl={(apartmentDetails as any)?.image_remote_url}
+            assetId={(apartmentDetails as any)?.image}
+            defaultImageUrl={defaultImage}
         />
-    ), [apartmentDetails, screenWidth, defaultImage]);
+    ), [apartmentDetails, defaultImage]);
 
     const headerSection = useMemo(() => (
         <HousingDetailsHeader
