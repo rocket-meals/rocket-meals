@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useMemo, useState, ReactNode, useRef, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { Easing } from 'react-native-reanimated';
 import BaseBottomSheet from '../BaseBottomSheet';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -83,6 +84,11 @@ const ModalSheetOpenedContext = createContext<boolean>(true);
 // missing or buggy onChange can never leave the app stuck mid-close. It is NOT part of
 // the regular close flow and nothing is allowed to rely on its timing.
 const CLOSE_CONFIRMATION_FALLBACK_MS = 1500;
+
+// Closing slides the sheet out in a short, fixed time. The library's default on iOS is a heavy
+// spring that settles slowly, and until it settles the modal counts as open (dark backdrop,
+// taps blocked). Over the full screen height that made closing feel sluggish.
+const SHEET_CLOSE_ANIMATION = { duration: 200, easing: Easing.out(Easing.cubic) };
 
 export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 	const [modalStack, setModalStack] = useState<ModalStackItem[]>([]);
@@ -248,7 +254,7 @@ export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ childr
 			isClosingRef.current = true;
 			setIsSheetClosing(true);
 			pendingClosedRef.current = closingItems;
-			sheetRef.current.close();
+			sheetRef.current.close(SHEET_CLOSE_ANIMATION);
 			clearCloseTimeout();
 			closeTimeoutRef.current = setTimeout(finalizeConfirmedClose, CLOSE_CONFIRMATION_FALLBACK_MS);
 		}
@@ -282,7 +288,7 @@ export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ childr
 				isClosingRef.current = true;
 				setIsSheetClosing(true);
 				pendingClosedRef.current = closingItems;
-				sheetRef.current.close();
+				sheetRef.current.close(SHEET_CLOSE_ANIMATION);
 				clearCloseTimeout();
 				closeTimeoutRef.current = setTimeout(finalizeConfirmedClose, CLOSE_CONFIRMATION_FALLBACK_MS);
 			}
@@ -444,7 +450,9 @@ export const ModalRenderer: React.FC<{ children: ReactNode }> = ({ children }) =
 		<>
 			{children}
 			{currentItem && (
-				<View style={styles.modalContainer} pointerEvents="box-none">
+				// While the sheet slides out the app below already takes taps again: nothing in the
+				// modal layer catches them anymore (backdrop hidden, see isClosing on BaseBottomSheet).
+				<View style={styles.modalContainer} pointerEvents={isSheetClosing ? 'none' : 'box-none'}>
 					{/* Static overlay behind the sheet. Hidden the moment a close starts
 					    (not when it's confirmed finished): the sheet keeps its own animated
 					    backdrop that fades out in sync with the close animation, so keeping
@@ -461,6 +469,7 @@ export const ModalRenderer: React.FC<{ children: ReactNode }> = ({ children }) =
 						onClose={close}
 						onDismissAll={closeAll}
 						showBackChevron={stackDepth > 1}
+						isClosing={isSheetClosing}
 						onChange={handleSheetChange}
 						headerBackgroundColor={screenBackgroundColor}
 						backgroundStyle={currentItem.backgroundStyle}

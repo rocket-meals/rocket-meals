@@ -316,7 +316,8 @@ export function getVersionPatch() {
         // 191: useTheme no longer dispatches on every mount, food details header redesigned (image size by window height, loading spinner, expand icon)
         // 192: one header image for food, building and apartment details (square in portrait, banner in landscape)
         // 193: full screen image: close button always top right, bottom sheet modals always fully open
-        return 193;
+        // 194: closing a bottom sheet: backdrop gone at once, app usable right away, 200 ms close animation
+        return 194;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
