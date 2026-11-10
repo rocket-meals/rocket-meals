@@ -4,13 +4,12 @@ Key,Message,Component,Line
 "AaGZKV21hpVs7SWw5zSr","Refactor this function to reduce its Cognitive Complexity from 17 to the 15 allowed.","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/showcaseDay.ts",50
 "AaGZKV21hpVs7SWw5zSs","Move this array ""sort"" operation to a separate statement or replace it with ""toSorted"".","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/showcaseDay.ts",83
 "AaGZKV0MhpVs7SWw5zSm","`AUTO_UPLOAD_TENANTS` should be a `Set`, and use `AUTO_UPLOAD_TENANTS.has()` to check existence or non-existence.","rocket-meals_rocket-meals:apps/frontend/app/store-screenshots.ts",95
-"AaGZKV27hpVs7SWw5zSt","Async method 'close' has no 'await' expression.","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/index.ts",212
 "AaGZKV27hpVs7SWw5zSu","Async function 'renderTenantScreens' has too many parameters (9). Maximum allowed is 7.","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/index.ts",254
 "AaGZKV27hpVs7SWw5zSv","Unexpected `await` inside a loop.","rocket-meals_rocket-meals:apps/screenshotGenerator/src/store/index.ts",336
 "AaGZKV2jhpVs7SWw5zSo","Unexpected `await` inside a loop.","rocket-meals_rocket-meals:apps/scripts/store-screenshots-apple.ts",66
 "AaGZKV2dhpVs7SWw5zSn","Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed.","rocket-meals_rocket-meals:apps/scripts/store-screenshots-google.ts",24
 "AaGZKV2thpVs7SWw5zSq","Refactor this function to reduce its Cognitive Complexity from 39 to the 15 allowed.","rocket-meals_rocket-meals:apps/scripts/store-screenshots.ts",66
-"AaFgXPxog_p_Fqfrjcio","Async function 'fetchUniversityAffiliation' has no 'await' expression.","rocket-meals_rocket-meals:apps/frontend/app/hooks/useUniversityStatusTracking.ts",11
+"AaFgXPxog_p_Fqfrjcio","Review this async function: it has no await expression.","rocket-meals_rocket-meals:apps/frontend/app/hooks/useUniversityStatusTracking.ts",11
 "AaFe_5tDgjWoea35fev1","`PROVIDERS` should be a `Set`, and use `PROVIDERS.has()` to check existence or non-existence.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/university-affiliation-hook/index.ts",19
 "AaFGIJ91nL1HbyZtk0Nk","Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.","rocket-meals_rocket-meals:packages/common-ui/src/components/SettingsList/SettingsList.tsx",166
 "AaFFwYr6Z-LBfy4skR39","`keptIds` should be a `Set`, and use `keptIds.has()` to check existence or non-existence.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/NewsModuleHelper.ts",421
@@ -24,7 +23,6 @@ Key,Message,Component,Line
 "AaE7Gkh2sZyonQJhyVHm","Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationPrompt.ts",115
 "AaE1lSmzTIntY0cLRjeH","'repo-depkit-common-ui' imported multiple times.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx",42
 "AaE0snQ2reFZwbJUSfQv","Unexpected `await` inside a loop.","rocket-meals_rocket-meals:apps/frontend/app/helper/chatReadStatus.ts",90
-"AaEx0MPdBO4LJR5ytLlu","Move this array ""reverse"" operation to a separate statement or replace it with ""toReversed"".","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts",209
 "AaEx0MPdBO4LJR5ytLlv","Extract the assignment of ""messagesByItem[item]"" from this expression.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts",214
 "AaEwuCxKDxZ9SeKVEXh3","Refactor this code to not use nested template literals.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts",161
 "AaEwuCxKDxZ9SeKVEXh4","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts",171
@@ -32,7 +30,7 @@ Key,Message,Component,Line
 "AaEvT3gd58487nkWXLQ0","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/LivePulseHelper.ts",810
 "AaEvELAX1sx8SGAkwjzX","Replace this union type with a type alias.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/LivePulseHelper.ts",689
 "AaEuxwbKjYRKOPrCbcLx","Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/feature-wishes-hook/index.ts",76
-"AaEtF6PLQhOcqS1tBB_n","Async method 'handleNotification' has no 'await' expression.","rocket-meals_rocket-meals:apps/frontend/app/helper/NotificationHelper.ts",87
+"AaEtF6PLQhOcqS1tBB_n","Review this async function: it has no await expression.","rocket-meals_rocket-meals:apps/frontend/app/helper/NotificationHelper.ts",87
 "AaEv5PHqBIquHGRjEP34","Move function 'setCorsHeaders' to the outer scope.","rocket-meals_rocket-meals:apps/maintenance-server/server.mjs",193
 "AaEv5PHqBIquHGRjEP35","Move function 'sendJson' to the outer scope.","rocket-meals_rocket-meals:apps/maintenance-server/server.mjs",205
 "AaE7dCjWiXm7DYT7WjxF","Remove this ""!important"" and resolve the specificity conflict instead.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/friendship-network/friendship-network-page.vue",706

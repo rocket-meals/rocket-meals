@@ -5,10 +5,10 @@
 | Category | Total Issues | Shown |
 |----------|-------------|-------|
 | 🔒 Security | 8 | 8 |
-| 🐛 Reliability | 12 | 12 |
-| 🔧 Maintainability | 46 | 30 |
+| 🐛 Reliability | 36 | 36 |
+| 🔧 Maintainability | 44 | 6 |
 
-**Total issues:** 66 (showing top 50 prioritized by: Security > Reliability > Maintainability)
+**Total issues:** 88 (showing top 50 prioritized by: Security > Reliability > Maintainability)
 
 ---
 
@@ -46,11 +46,111 @@
   apps/scripts/store-screenshots-load.ts:55
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/scripts/store-screenshots-load.ts#L55
 
-## 🐛 Reliability (12/12)
+## 🐛 Reliability (36/36)
 
 - **Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/UniversityAffiliationHelper.ts:80
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/UniversityAffiliationHelper.ts#L80
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/app-feedbacks/app-feedback-chat-page.vue:257
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/app-feedbacks/app-feedback-chat-page.vue#L257
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/chats/chat-page.vue:185
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/chats/chat-page.vue#L185
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/chats/chats-page.vue:117
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/chats/chats-page.vue#L117
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/feature-wishes/feature-wish-page.vue:249
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/feature-wishes/feature-wish-page.vue#L249
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/feature-wishes/feature-wishes-page.vue:209
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/feature-wishes/feature-wishes-page.vue#L209
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue:325
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue#L325
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue:324
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue#L324
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedbacks-page.vue:303
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedbacks-page.vue#L303
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/friendship-network/friendship-network-page.vue:367
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/friendship-network/friendship-network-page.vue#L367
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/live-pulse/live-pulse-page.vue:166
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/live-pulse/live-pulse-page.vue#L166
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/live-pulse/live-pulse-page.vue:447
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/live-pulse/live-pulse-page.vue#L447
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/mcp-instruction/mcp-instruction-page.vue:150
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/mcp-instruction/mcp-instruction-page.vue#L150
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/mcp-instruction/mcp-instruction-page.vue:151
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/mcp-instruction/mcp-instruction-page.vue#L151
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/profiles/profile-push-page.vue:125
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/profiles/profile-push-page.vue#L125
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/profiles/profiles-page.vue:74
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/profiles/profiles-page.vue#L74
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/support-chat/support-chat-conversation.vue:110
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/support-chat/support-chat-conversation.vue#L110
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue:80
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue#L80
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue:89
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue#L89
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue:95
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue#L95
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue:123
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue#L123
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue:138
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue#L138
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue:153
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue#L153
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-run-drawer.vue:86
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-run-drawer.vue#L86
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflows-page.vue:146
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflows-page.vue#L146
+
+- **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflows-page.vue:167
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflows-page.vue#L167
 
 - **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
   apps/frontend/app/app/(app)/experimentell/store-versions/index.tsx:92
@@ -60,11 +160,11 @@
   apps/frontend/app/app/(app)/experimentell/store-versions/index.tsx:93
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/experimentell/store-versions/index.tsx#L93
 
-- **Async method 'handleNotification' has no 'await' expression.**
+- **Review this async function: it has no await expression.**
   apps/frontend/app/helper/NotificationHelper.ts:87
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/helper/NotificationHelper.ts#L87
 
-- **Async function 'fetchUniversityAffiliation' has no 'await' expression.**
+- **Review this async function: it has no await expression.**
   apps/frontend/app/hooks/useUniversityStatusTracking.ts:11
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/hooks/useUniversityStatusTracking.ts#L11
 
@@ -75,10 +175,6 @@
 - **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
   apps/maintenance-server/server.mjs:303
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/maintenance-server/server.mjs#L303
-
-- **Async method 'close' has no 'await' expression.**
-  apps/screenshotGenerator/src/store/index.ts:212
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/screenshotGenerator/src/store/index.ts#L212
 
 - **Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.**
   packages/common/src/MarkdownSectionHelper.ts:71
@@ -96,7 +192,7 @@
   scripts/eas-ios-credentials.sh:29
   https://github.com/rocket-meals/rocket-meals/blob/master/scripts/eas-ios-credentials.sh#L29
 
-## 🔧 Maintainability (30/46)
+## 🔧 Maintainability (6/44)
 
 - **Redirect this error message to stderr (>&2).**
   .github/actions/geonexia-expo-update/action.yml:135
@@ -121,100 +217,4 @@
 - **Redirect this error message to stderr (>&2).**
   .github/actions/tag-und-jahr-expo-update/action.yml:126
   https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/tag-und-jahr-expo-update/action.yml#L126
-
-- **Redirect this error message to stderr (>&2).**
-  .github/actions/tag-und-jahr-expo-update/action.yml:134
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/tag-und-jahr-expo-update/action.yml#L134
-
-- **Redirect this error message to stderr (>&2).**
-  .github/workflows/frontend-maestro.yml:92
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/workflows/frontend-maestro.yml#L92
-
-- **'value' will use Object's default stringification format ('[object Object]') when stringified.**
-  apps/accessibilityTester/src/additionalRoutes.ts:74
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/accessibilityTester/src/additionalRoutes.ts#L74
-
-- **Refactor this function to reduce its Cognitive Complexity from 18 to the 15 allowed.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/feature-wishes-hook/index.ts:76
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/feature-wishes-hook/index.ts#L76
-
-- **Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationPrompt.ts:115
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationPrompt.ts#L115
-
-- **'raw.id' will use Object's default stringification format ('[object Object]') when stringified.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationPrompt.ts:125
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationPrompt.ts#L125
-
-- **Move this array "reverse" operation to a separate statement or replace it with "toReversed".**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts:209
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts#L209
-
-- **Extract the assignment of "messagesByItem[item]" from this expression.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts:214
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts#L214
-
-- **Refactor this code to not use nested template literals.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts:161
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts#L161
-
-- **Extract this nested ternary operation into an independent statement.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts:171
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts#L171
-
-- **Extract this nested ternary operation into an independent statement.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/LivePulseHelper.ts:810
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/LivePulseHelper.ts#L810
-
-- **Replace this union type with a type alias.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/LivePulseHelper.ts:689
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/LivePulseHelper.ts#L689
-
-- **`keptIds` should be a `Set`, and use `keptIds.has()` to check existence or non-existence.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/NewsModuleHelper.ts:421
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/NewsModuleHelper.ts#L421
-
-- **`editable` should be a `Set`, and use `editable.has()` to check existence or non-existence.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/legal-documents-hook/LegalWikiProtection.ts:45
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/legal-documents-hook/LegalWikiProtection.ts#L45
-
-- **Extract this nested ternary operation into an independent statement.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/communication/news-editor-page.vue:128
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/communication/news-editor-page.vue#L128
-
-- **Use <address> or <details> or <fieldset> or <optgroup> instead of the group role to ensure accessibility across all devices.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/communication/news-editor-page.vue:352
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/communication/news-editor-page.vue#L352
-
-- **Remove this "!important" and resolve the specificity conflict instead.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/friendship-network/friendship-network-page.vue:706
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/friendship-network/friendship-network-page.vue#L706
-
-- **`PROVIDERS` should be a `Set`, and use `PROVIDERS.has()` to check existence or non-existence.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/university-affiliation-hook/index.ts:19
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/university-affiliation-hook/index.ts#L19
-
-- **'repo-depkit-common-ui' imported multiple times.**
-  apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx:42
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx#L42
-
-- **'repo-depkit-common-ui' imported multiple times.**
-  apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx:26
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx#L26
-
-- **Extract this nested ternary operation into an independent statement.**
-  apps/frontend/app/components/NewsFoodoffersHint/index.tsx:59
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/components/NewsFoodoffersHint/index.tsx#L59
-
-- **Refactor this function to reduce its Cognitive Complexity from 23 to the 15 allowed.**
-  apps/frontend/app/components/OwnFoodFeedbackItem/index.tsx:36
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/components/OwnFoodFeedbackItem/index.tsx#L36
-
-- **Unexpected `await` inside a loop.**
-  apps/frontend/app/helper/chatReadStatus.ts:90
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/helper/chatReadStatus.ts#L90
-
-- **Async method 'handleNotification' has no 'await' expression.**
-  apps/frontend/app/helper/NotificationHelper.ts:87
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/helper/NotificationHelper.ts#L87
 
