@@ -52,6 +52,8 @@ type ModalContextType = {
 	/** @internal used by ModalRenderer */
 	_handleSheetChange: (index: number) => void;
 	/** @internal used by ModalRenderer */
+	_handleSheetAnimate: (fromIndex: number, toIndex: number) => void;
+	/** @internal used by ModalRenderer */
 	_screenBackgroundColor: string;
 	/** @internal used by ModalRenderer - how many modals are stacked, to decide whether the header button shows a back-chevron (stack) or an X (single modal) */
 	_stackDepth: number;
@@ -358,6 +360,22 @@ export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ childr
 		}
 	}, [clearCloseTimeout, notifyClosed, takePendingClosed, finalizeConfirmedClose]);
 
+	// A swipe down (or any close the sheet starts on its own) is announced here as soon as the
+	// close animation starts, long before onChange(-1) confirms its end. From that moment it is
+	// treated like close()/closeAll(): the backdrop disappears and the app takes taps again.
+	// If the sheet snaps back open instead, handleSheetChange(index >= 0) restores the stack.
+	const handleSheetAnimate = useCallback((_fromIndex: number, toIndex: number) => {
+		if (toIndex !== -1) return;
+		if (isClosingRef.current) return;
+		if (modalStackRef.current.length === 0) return;
+		isClosingRef.current = true;
+		setIsSheetClosing(true);
+		pendingClosedRef.current = modalStackRef.current;
+		modalStackRef.current = [];
+		clearCloseTimeout();
+		closeTimeoutRef.current = setTimeout(finalizeConfirmedClose, CLOSE_CONFIRMATION_FALLBACK_MS);
+	}, [clearCloseTimeout, finalizeConfirmedClose]);
+
 	const ensureExpand = () => {
 		let tries = 0;
 		let cancelled = false;
@@ -412,12 +430,13 @@ export const ModalContextProvider: React.FC<{ children: ReactNode }> = ({ childr
 		_currentItem: currentItem,
 		_sheetRef: sheetRef,
 		_handleSheetChange: handleSheetChange,
+		_handleSheetAnimate: handleSheetAnimate,
 		_screenBackgroundColor: screenBackgroundColor,
 		_stackDepth: modalStack.length,
 		_isSheetClosing: isSheetClosing,
 	}), [
 		open, close, openAndDiscardOthers, closeAll, debug,
-		currentItem, handleSheetChange, screenBackgroundColor,
+		currentItem, handleSheetChange, handleSheetAnimate, screenBackgroundColor,
 		modalStack.length, isSheetClosing,
 	]);
 
@@ -439,6 +458,7 @@ export const ModalRenderer: React.FC<{ children: ReactNode }> = ({ children }) =
 		_currentItem: currentItem,
 		_sheetRef: sheetRef,
 		_handleSheetChange: handleSheetChange,
+		_handleSheetAnimate: handleSheetAnimate,
 		_screenBackgroundColor: screenBackgroundColor,
 		_stackDepth: stackDepth,
 		_isSheetClosing: isSheetClosing,
@@ -471,6 +491,7 @@ export const ModalRenderer: React.FC<{ children: ReactNode }> = ({ children }) =
 						showBackChevron={stackDepth > 1}
 						isClosing={isSheetClosing}
 						onChange={handleSheetChange}
+						onAnimate={handleSheetAnimate}
 						headerBackgroundColor={screenBackgroundColor}
 						backgroundStyle={currentItem.backgroundStyle}
 					>

@@ -113,7 +113,8 @@ export function getVersionPatch() {
 	// 88: common-ui: theme screen.errorText
 	// 89: bottom sheet modals always fully open (no dynamic sizing)
 	// 90: closing a bottom sheet: backdrop gone at once, app usable right away, 200 ms close animation
-	return 90;
+	// 91: swiping a bottom sheet down frees the app at once (backdrop gone when the close starts)
+	return 91;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

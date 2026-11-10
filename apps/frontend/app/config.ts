@@ -317,7 +317,8 @@ export function getVersionPatch() {
         // 192: one header image for food, building and apartment details (square in portrait, banner in landscape)
         // 193: full screen image: close button always top right, bottom sheet modals always fully open
         // 194: closing a bottom sheet: backdrop gone at once, app usable right away, 200 ms close animation
-        return 194;
+        // 195: swiping a bottom sheet down frees the app at once (backdrop gone when the close starts)
+        return 195;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
