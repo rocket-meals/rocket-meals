@@ -17,8 +17,13 @@ is_configured() {
         echo "Offsite backup disabled: OFFSITE_BACKUP_NAME is not set."
         return 1
     fi
-    if [[ ! -s "$SERVICE_ACCOUNT_FILE" ]]; then
-        echo "Offsite backup disabled: service account key $SERVICE_ACCOUNT_FILE not found."
+    if [[ -n "$OFFSITE_BACKUP_SERVICE_ACCOUNT_JSON_BASE64" ]]; then
+        if ! echo "$OFFSITE_BACKUP_SERVICE_ACCOUNT_JSON_BASE64" | base64 -d 2>/dev/null | grep -q '"client_email"'; then
+            echo "Offsite backup disabled: OFFSITE_BACKUP_SERVICE_ACCOUNT_JSON_BASE64 is not a base64 encoded service account key."
+            return 1
+        fi
+    elif [[ ! -s "$SERVICE_ACCOUNT_FILE" ]]; then
+        echo "Offsite backup disabled: neither OFFSITE_BACKUP_SERVICE_ACCOUNT_JSON_BASE64 is set nor $SERVICE_ACCOUNT_FILE exists."
         return 1
     fi
     return 0

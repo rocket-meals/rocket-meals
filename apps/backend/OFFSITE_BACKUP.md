@@ -81,16 +81,18 @@ Mitglieder außerhalb der Organisation erlaubt sein.
 
 ### 4. Server
 
-1. Den JSON-Schlüssel nach `data/offsite_backup/service-account.json` kopieren
-   (`chmod 600`, der Ordner selbst ist `700`).
-2. In der `.env` ergänzen:
+1. In der `.env` ergänzen (bei uns schreibt `yarn generate` aus `rocket-meals-envs` das automatisch):
    ```
    OFFSITE_BACKUP_SHARED_DRIVE_ID=<ID der Ablage „Eingang“>
    OFFSITE_BACKUP_NAME=swosy           # Ordnername dieses Servers, z.B. swosy, studi-futter, test
+   OFFSITE_BACKUP_SERVICE_ACCOUNT_JSON_BASE64=<base64 des JSON-Schlüssels, z.B. base64 -w0 service-account.json>
    OFFSITE_BACKUP_TIME=03:30           # optional, Standard 03:30
    ```
-3. `docker compose up -d --build rocket-meals-offsite-backup`
-4. Einmal sofort testen: `docker compose run --rm rocket-meals-offsite-backup once`
+   Der Schlüssel wird im Container nur im Speicher entschlüsselt. Alternativ kann er als Datei unter
+   `data/offsite_backup/service-account.json` liegen (`chmod 600`), dann bleibt die Variable leer.
+   Nur dieser Container bekommt die Variable, die anderen Dienste nicht.
+2. `docker compose up -d --build rocket-meals-offsite-backup`
+3. Einmal sofort testen: `docker compose run --rm rocket-meals-offsite-backup once`
 
 Fehlt eine der Angaben, bleibt der Container einfach untätig und schreibt den Grund ins Log
 (`docker compose logs rocket-meals-offsite-backup`). Bestehende Installationen laufen also ohne
