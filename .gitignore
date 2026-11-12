@@ -30,6 +30,7 @@ data/database/
 !data/database_backups/.keep
 data/database_backups/
 !data/database_file_uploads/.keep
+data/offsite_backup/
 data/database_file_uploads/
 
 # Ignore all ios generated files

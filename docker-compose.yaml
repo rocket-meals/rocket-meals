@@ -71,6 +71,14 @@ services:
       service: rocket-meals-database-backup
       file: apps/backend/docker-compose.yaml
 
+  rocket-meals-offsite-backup:
+    depends_on:
+      prepare-data:
+        condition: service_completed_successfully
+    extends:
+      service: rocket-meals-offsite-backup
+      file: apps/backend/docker-compose.yaml
+
   rocket-meals-cache:
     env_file:
       - .env

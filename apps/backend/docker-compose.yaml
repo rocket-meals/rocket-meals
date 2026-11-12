@@ -284,6 +284,26 @@ services:
     networks:
       - directus_network
 
+  # Offsite backup: uploads the newest dump and new images daily to a Google shared drive.
+  # It can only upload, never delete. See apps/backend/OFFSITE_BACKUP.md.
+  # Stays idle until OFFSITE_BACKUP_SHARED_DRIVE_ID, OFFSITE_BACKUP_NAME and the key file are set up.
+  rocket-meals-offsite-backup:
+    restart: ${RESTART}
+    build:
+      context: ./dockerOffsiteBackup
+      dockerfile: Dockerfile
+    environment:
+      TZ: "Europe/Berlin"
+      OFFSITE_BACKUP_SHARED_DRIVE_ID: ${OFFSITE_BACKUP_SHARED_DRIVE_ID:-}
+      OFFSITE_BACKUP_NAME: ${OFFSITE_BACKUP_NAME:-}
+      OFFSITE_BACKUP_TIME: ${OFFSITE_BACKUP_TIME:-03:30}
+    volumes:
+      # Read only: this container must never be able to change the local data.
+      - ./../../data/database_backups:/dump:ro
+      - ./../../data/database_file_uploads:/uploads:ro
+      # Service account key (service-account.json) and the list of already uploaded files.
+      - ./../../data/offsite_backup:/state
+
   # Service for restoring the database from a backup
   rocket-meals-database-restore:
     build:
