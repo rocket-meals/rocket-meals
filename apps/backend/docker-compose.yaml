@@ -260,6 +260,7 @@ services:
       - ./../../.env:/directus/host.env # Path to the host .env file - so that we can read variables from there
 
   rocket-meals-database-backup:
+    restart: unless-stopped # without it the hourly backups stop after a server reboot
     build:
       context: ./dockerDatabaseBackup
       dockerfile: Dockerfile
