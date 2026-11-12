@@ -4,15 +4,15 @@
 
 | Category | Total Issues | Shown |
 |----------|-------------|-------|
-| 🔒 Security | 8 | 8 |
+| 🔒 Security | 9 | 9 |
 | 🐛 Reliability | 36 | 36 |
-| 🔧 Maintainability | 45 | 6 |
+| 🔧 Maintainability | 45 | 5 |
 
-**Total issues:** 89 (showing top 50 prioritized by: Security > Reliability > Maintainability)
+**Total issues:** 90 (showing top 50 prioritized by: Security > Reliability > Maintainability)
 
 ---
 
-## 🔒 Security (8/8)
+## 🔒 Security (9/9)
 
 - **"npx" can install packages on-demand and run their lifecycle scripts.**
   .github/workflows/frontend-accessibility.yml:46
@@ -33,6 +33,10 @@
 - **Make sure the "PATH" variable only contains fixed, unwriteable directories.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/extension.config.mjs:100
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/extension.config.mjs#L100
+
+- **This image might run with "root" as the default user. Make sure it is safe here.**
+  apps/backend/dockerOffsiteBackup/Dockerfile:6
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/dockerOffsiteBackup/Dockerfile#L6
 
 - **Client-Side Request Forgery via unsanitized user input**
   apps/maintenance-server/server.mjs:156
@@ -192,7 +196,7 @@
   scripts/eas-ios-credentials.sh:29
   https://github.com/rocket-meals/rocket-meals/blob/master/scripts/eas-ios-credentials.sh#L29
 
-## 🔧 Maintainability (6/45)
+## 🔧 Maintainability (5/45)
 
 - **Redirect this error message to stderr (>&2).**
   .github/actions/geonexia-expo-update/action.yml:135
@@ -213,8 +217,4 @@
 - **Add a default case (*) to handle unexpected values.**
   .github/actions/stage-changes/action.yml:48
   https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/stage-changes/action.yml#L48
-
-- **Redirect this error message to stderr (>&2).**
-  .github/actions/tag-und-jahr-expo-update/action.yml:126
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/tag-und-jahr-expo-update/action.yml#L126
 
