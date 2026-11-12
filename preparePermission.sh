@@ -18,6 +18,11 @@ mkdir -p ./data/database_backups/
 # Set read/write/execute permissions for owner and group
 chmod -R 770 ./data/database_backups/
 
+echo "Setting permission for offsite backup state"
+# Holds the Google service account key, so only the owner may read it.
+mkdir -p ./data/offsite_backup/
+chmod 700 ./data/offsite_backup/
+
 echo "Setting read/write permission for .env file"
 # Set read/write permissions for owner and group on the .env file
 chmod 660 .env
