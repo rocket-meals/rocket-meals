@@ -1,7 +1,10 @@
 services:
   traefik:
-    image: "traefik:v3.0"
+    # v3.0 talks Docker API 1.24, which Docker 29 refuses (minimum 1.40) -> every route answered 404.
+    # Since v3.6 Traefik negotiates the API version with the daemon.
+    image: "traefik:v3.7"
     container_name: "traefik"
+    restart: unless-stopped
     command:
       #- "--log.level=DEBUG"
       - "--api.insecure=true"
