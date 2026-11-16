@@ -1,14 +1,16 @@
 # Accessibility Report
 
-> Generated: 2026-11-09T03:14:09.607Z | axe-core 4.12.1 | Rules: wcag2a, wcag2aa, wcag21a, wcag21aa, best-practice | Viewport: 1280x900
+> Generated: 2026-11-16T03:13:54.452Z | axe-core 4.12.1 | Rules: wcag2a, wcag2aa, wcag21a, wcag21aa, best-practice | Viewport: 1280x900
 > Base URL: http://localhost:8081/rocket-meals
 
 ## Summary
 
-Total violations (affected elements): **0** — 🟥 Critical: 0, 🟧 Serious: 0, 🟨 Moderate: 0, 🟦 Minor: 0
+Total violations (affected elements): **2** — 🟥 Critical: 0, 🟧 Serious: 2, 🟨 Moderate: 0, 🟦 Minor: 0
 
 | Screen | 🟥 Critical | 🟧 Serious | 🟨 Moderate | 🟦 Minor | Total | Passes |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| foodoffers/details | 0 | 1 | 0 | 0 | 1 | 33 |
+| campus/details | 0 | 1 | 0 | 0 | 1 | 30 |
 | login | 0 | 0 | 0 | 0 | 0 | 33 |
 | foodoffers | 0 | 0 | 0 | 0 | 0 | 30 |
 | eating-habits | 0 | 0 | 0 | 0 | 0 | 23 |
@@ -50,8 +52,6 @@ Total violations (affected elements): **0** — 🟥 Critical: 0, 🟧 Serious: 
 | rss-feed-config | 0 | 0 | 0 | 0 | 0 | 30 |
 | start (index) | 0 | 0 | 0 | 0 | 0 | 31 |
 | not-found | 0 | 0 | 0 | 0 | 0 | 27 |
-| foodoffers/details | 0 | 0 | 0 | 0 | 0 | 32 |
-| campus/details | 0 | 0 | 0 | 0 | 0 | 23 |
 | housing/details | 0 | 0 | 0 | 0 | 0 | 30 |
 | housing-analytics | 0 | 0 | 0 | 0 | 0 | 23 |
 | housing-analytics/[report] | 0 | 0 | 0 | 0 | 0 | 31 |
@@ -92,9 +92,27 @@ Total violations (affected elements): **0** — 🟥 Critical: 0, 🟧 Serious: 
 
 ## Most common rule violations
 
-No violations found. 🎉
+| Rule | Impact | Elements | Screens | Help |
+| --- | --- | ---: | ---: | --- |
+| `aria-prohibited-attr` | 🟧 serious | 2 | 2 | [Elements must only use permitted ARIA attributes](https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axe-puppeteer) |
 
 ## Details per screen
+
+### foodoffers/details
+
+URL: `http://localhost:8081/rocket-meals/foodoffers/details?foodId=Test-2&kioskMode=true`
+
+- 🟧 **aria-prohibited-attr** (serious) — 1 element(s)
+  - Elements must only use permitted ARIA attributes ([docs](https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axe-puppeteer))
+  - `.r-1d2f490.r-zchlnj[aria-label="Bild vergrößern"]`
+
+### campus/details
+
+URL: `http://localhost:8081/rocket-meals/campus/details?id=c75c0fe6-827b-4e23-856a-674eaff48958&kioskMode=true`
+
+- 🟧 **aria-prohibited-attr** (serious) — 1 element(s)
+  - Elements must only use permitted ARIA attributes ([docs](https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axe-puppeteer))
+  - `.r-1d2f490.r-zchlnj[aria-label="Bild vergrößern"]`
 
 ### login
 
@@ -339,18 +357,6 @@ No violations found. 🎉
 ### not-found
 
 URL: `http://localhost:8081/rocket-meals/this-page-does-not-exist?kioskMode=true`
-
-No violations found. 🎉
-
-### foodoffers/details
-
-URL: `http://localhost:8081/rocket-meals/foodoffers/details?foodId=Test-2&kioskMode=true`
-
-No violations found. 🎉
-
-### campus/details
-
-URL: `http://localhost:8081/rocket-meals/campus/details?id=c75c0fe6-827b-4e23-856a-674eaff48958&kioskMode=true`
 
 No violations found. 🎉
 

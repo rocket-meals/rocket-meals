@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-09T03:14:09.607Z",
+  "generatedAt": "2026-11-16T03:13:54.452Z",
   "baseUrl": "http://localhost:8081/rocket-meals",
   "axeCoreVersion": "4.12.1",
   "tags": [
@@ -15,10 +15,10 @@
   },
   "totals": {
     "critical": 0,
-    "serious": 0,
+    "serious": 2,
     "moderate": 0,
     "minor": 0,
-    "violations": 0,
+    "violations": 2,
     "screensWithErrors": 0
   },
   "screens": [
@@ -312,15 +312,55 @@
     {
       "screen": "foodoffers/details",
       "url": "http://localhost:8081/rocket-meals/foodoffers/details?foodId=Test-2&kioskMode=true",
-      "violations": [],
-      "passCount": 32,
+      "violations": [
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "description": "Ensure ARIA attributes are not prohibited for an element's role",
+          "help": "Elements must only use permitted ARIA attributes",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axe-puppeteer",
+          "wcagTags": [
+            "wcag2a",
+            "wcag412"
+          ],
+          "nodeCount": 1,
+          "nodes": [
+            {
+              "target": ".r-1d2f490.r-zchlnj[aria-label=\"Bild vergrößern\"]",
+              "html": "<div aria-label=\"Bild vergrößern\" tabindex=\"0\" class=\"css-g5y9jx r-1i6wzkk r-lrvibr r-1loqt21 r-1otgn73 r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af\" style=\"transition-duration: 0s;\">",
+              "failureSummary": "Fix all of the following:\n  aria-label attribute cannot be used on a div with no valid role attribute."
+            }
+          ]
+        }
+      ],
+      "passCount": 33,
       "incompleteCount": 2
     },
     {
       "screen": "campus/details",
       "url": "http://localhost:8081/rocket-meals/campus/details?id=c75c0fe6-827b-4e23-856a-674eaff48958&kioskMode=true",
-      "violations": [],
-      "passCount": 23,
+      "violations": [
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "description": "Ensure ARIA attributes are not prohibited for an element's role",
+          "help": "Elements must only use permitted ARIA attributes",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.12/aria-prohibited-attr?application=axe-puppeteer",
+          "wcagTags": [
+            "wcag2a",
+            "wcag412"
+          ],
+          "nodeCount": 1,
+          "nodes": [
+            {
+              "target": ".r-1d2f490.r-zchlnj[aria-label=\"Bild vergrößern\"]",
+              "html": "<div aria-label=\"Bild vergrößern\" tabindex=\"0\" class=\"css-g5y9jx r-1i6wzkk r-lrvibr r-1loqt21 r-1otgn73 r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af\" style=\"transition-duration: 0s;\">",
+              "failureSummary": "Fix all of the following:\n  aria-label attribute cannot be used on a div with no valid role attribute."
+            }
+          ]
+        }
+      ],
+      "passCount": 30,
       "incompleteCount": 2
     },
     {
