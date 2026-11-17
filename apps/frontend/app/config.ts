@@ -320,7 +320,9 @@ export function getVersionPatch() {
         // 195: swiping a bottom sheet down frees the app at once (backdrop gone when the close starts)
         // 196: news images: uploaded file first, else the remote URL (list, popup, food offers),
         //      square crop around the focal point set in the module, popup loads 1024 px
-        return 196;
+        // 197: security: map only accepts messages of the app, marker colors and labels escaped,
+        //      login no longer logs the user
+        return 197;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

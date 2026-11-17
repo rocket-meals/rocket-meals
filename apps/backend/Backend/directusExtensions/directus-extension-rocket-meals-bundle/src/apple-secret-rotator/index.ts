@@ -3,6 +3,7 @@ import {ActionInitFilterEventHelper} from "../helpers/ActionInitFilterEventHelpe
 
 export default defineHook(({ filter, action, init, schedule }, apiContext) => {
   init(ActionInitFilterEventHelper.CLI_INIT_BEFORE, () => {
-    console.log("DIRECTUS: THE CURRENT AUTH_APPLE_CLIENT_SECRET IS:", process.env.AUTH_APPLE_CLIENT_SECRET)
+    // Only whether the secret is set, never the secret itself: logs are read by more people than the .env.
+    console.log("DIRECTUS: AUTH_APPLE_CLIENT_SECRET is " + (process.env.AUTH_APPLE_CLIENT_SECRET ? "set" : "not set"))
   });
 });

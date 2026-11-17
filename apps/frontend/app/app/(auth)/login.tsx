@@ -95,8 +95,6 @@ export default function Login() {
 		const user = await ServerAPI.getMe();
 		const roles = await ServerAPI.readRemoteRoles();
 
-		console.log('user: ', user);
-		console.log('roles: ', roles);
 		let usersRoleId = user?.role;
 		let isManagement = false;
 		if (usersRoleId) {

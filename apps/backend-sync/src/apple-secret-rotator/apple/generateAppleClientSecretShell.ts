@@ -53,11 +53,9 @@ export function generateAppleJWTShell(params: AppleClientSecretCredentials) {
   let token: string;
   try {
     let tokenRaw = execSync(command, { encoding: 'utf-8' });
-    console.log("Raw token output: ", tokenRaw);
     token = tokenRaw.trim();
-    console.log("Token: ", token);
-
-    console.log('Generated Apple JWT token successfully: ', token);
+    // The token is a secret, only its creation is logged.
+    console.log('Generated Apple JWT token successfully.');
   } catch (error) {
     throw new Error(`Failed to generate Apple JWT: ${error}`);
   }

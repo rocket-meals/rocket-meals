@@ -628,6 +628,17 @@ function getFirstOrganisationFromDict(
 	return orgs && orgs.length > 0 ? orgs[0] : null;
 }
 
+const SVG_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+
+/**
+ * Colors and labels of buildings and organizations come from the database and are written into the
+ * markup of the marker. Escaped, a value like `"/><img onerror=...>` stays text instead of
+ * becoming an element that runs script in the app.
+ */
+function escapeForSvg(value: string): string {
+	return value.replace(/[&<>"']/g, char => SVG_ESCAPES[char] ?? char);
+}
+
 function createBuildingMarkerSvg(params: {
 	externalIdentifier?: string | null,
 	markerColor?: string | null,
@@ -663,7 +674,7 @@ function createBuildingMarkerSvg(params: {
 		rawLabel = getMarkerLabelFromBuildingAlias(alias);
 	}
 	const label = (showLabel !== false && rawLabel) ? rawLabel.slice(0, MAX_BUILDING_LABEL_CHARS) : null;
-	const circleEl = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fillColor}" stroke="white" stroke-width="2" opacity="0.9"/>`;
+	const circleEl = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${escapeForSvg(fillColor)}" stroke="white" stroke-width="2" opacity="0.9"/>`;
 	let textEl = '';
 	if (label) {
 		const spaceIdx = label.indexOf(' ');
@@ -679,12 +690,12 @@ function createBuildingMarkerSvg(params: {
 			line2 = label.slice(mid);
 		}
 		if (line1 !== null && line2 !== null) {
-			textEl = `<text x="${cx}" text-anchor="middle" fill="${textColor}" font-family="Arial,sans-serif" font-size="10" font-weight="bold">` +
-				`<tspan x="${cx}" text-anchor="middle" dy="${cy - 6}">${line1}</tspan>` +
-				`<tspan x="${cx}" text-anchor="middle" dy="13">${line2}</tspan>` +
+			textEl = `<text x="${cx}" text-anchor="middle" fill="${escapeForSvg(textColor)}" font-family="Arial,sans-serif" font-size="10" font-weight="bold">` +
+				`<tspan x="${cx}" text-anchor="middle" dy="${cy - 6}">${escapeForSvg(line1)}</tspan>` +
+				`<tspan x="${cx}" text-anchor="middle" dy="13">${escapeForSvg(line2)}</tspan>` +
 				`</text>`;
 		} else {
-			textEl = `<text x="${cx}" y="${cy}" text-anchor="middle" dy="0.35em" fill="${textColor}" font-family="Arial,sans-serif" font-size="12" font-weight="bold">${label}</text>`;
+			textEl = `<text x="${cx}" y="${cy}" text-anchor="middle" dy="0.35em" fill="${escapeForSvg(textColor)}" font-family="Arial,sans-serif" font-size="12" font-weight="bold">${escapeForSvg(label)}</text>`;
 		}
 	}
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">${circleEl}${textEl}</svg>`;

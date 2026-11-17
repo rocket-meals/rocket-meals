@@ -7,20 +7,19 @@ services:
     restart: unless-stopped
     command:
       #- "--log.level=DEBUG"
-      - "--api.insecure=true"
+      # No "--api.insecure": it serves the API and the dashboard without any login on port 8080.
+      # The dashboard stays reachable over https behind the basic auth of the router "traefik-secure" below.
       - "--api.dashboard=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.traefik.address=:8080"
       - "--certificatesresolvers.myresolver.acme.email=${CERT_MAIL}"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
