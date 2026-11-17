@@ -7,7 +7,7 @@ import PopupEventSheet from '@/components/PopupEventSheet/PopupEventSheet';
 import MyImage from '@/components/MyImage';
 import SettingsList from '@/components/SettingsList';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
-import { getImageUrl } from '@/constants/HelperFunctions';
+import { getNewsImageUrl } from '@/constants/HelperFunctions';
 import { getTitleFromTranslation } from '@/helper/resourceHelper';
 import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
@@ -56,7 +56,7 @@ const NewsFoodoffersHint: React.FC<NewsFoodoffersHintProps> = ({ canteenId, posi
 		<View style={[styles.container, { paddingHorizontal: CardDimensionHelper.getItemGap(screenWidth) }]}>
 			{visibleEvents.map(event => {
 				const title = (event.translations ? getTitleFromTranslation(event.translations, language) : '') || event.alias || '';
-				const imageUrl = event.image_remote_url || (event.image ? getImageUrl(String(typeof event.image === 'object' ? event.image.id : event.image)) : null);
+				const imageUrl = getNewsImageUrl(event);
 				return (
 					<SettingsList
 						key={event.id}

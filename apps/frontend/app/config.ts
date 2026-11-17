@@ -318,7 +318,9 @@ export function getVersionPatch() {
         // 193: full screen image: close button always top right, bottom sheet modals always fully open
         // 194: closing a bottom sheet: backdrop gone at once, app usable right away, 200 ms close animation
         // 195: swiping a bottom sheet down frees the app at once (backdrop gone when the close starts)
-        return 195;
+        // 196: news images: uploaded file first, else the remote URL (list, popup, food offers),
+        //      square crop around the focal point set in the module, popup loads 1024 px
+        return 196;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

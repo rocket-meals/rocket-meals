@@ -30,6 +30,7 @@ export * from './src/McpAccessHelper';
 export * from './src/McpInstructionHelper';
 export * from './src/FoodFeedbackPermissionHelper';
 export * from './src/EventHelper';
+export * from './src/DirectusImageHelper';
 export * from './src/form/FormHelperCommon';
 export * from './src/form/IbanRecognitionHelper';
 export * from './src/form/IbanValidationHelper';

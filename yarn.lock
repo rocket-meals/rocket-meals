@@ -15910,6 +15910,7 @@ __metadata:
     repo-depkit-common-ui: "workspace:*"
     rimraf: "npm:^6.0.1"
     short-unique-id: "npm:^5.2.2"
+    smartcrop: "npm:2.0.5"
     spark-md5: "npm:^3.0.2"
     sqlite3: "npm:^5.1.7"
     ts-jest: "npm:^29.1.3"
@@ -29180,6 +29181,13 @@ __metadata:
   version: 4.2.0
   resolution: "smart-buffer@npm:4.2.0"
   checksum: 10c0/a16775323e1404dd43fabafe7460be13a471e021637bc7889468eb45ce6a6b207261f454e4e530a19500cc962c4cc5348583520843b363f4193cee5c00e1e539
+  languageName: node
+  linkType: hard
+
+"smartcrop@npm:2.0.5":
+  version: 2.0.5
+  resolution: "smartcrop@npm:2.0.5"
+  checksum: 10c0/6a3f2a5553ae20a442815e84bc1bdc63feb4ef54f274c95b20ef6cc567433a30feeb751bc875caa28ffb5839768d70e0768f6800ae703dfe0584c3a4af0bb853
   languageName: node
   linkType: hard
 

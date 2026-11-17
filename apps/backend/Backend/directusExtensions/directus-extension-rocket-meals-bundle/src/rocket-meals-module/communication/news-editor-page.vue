@@ -24,6 +24,7 @@ import { RocketMealsModulePages } from '../../helpers/rocket-meals-module/Rocket
 import { BackendTranslationKeys } from '../../helpers/translations/BackendTranslationKeys';
 import ModuleNavigation from '../module-navigation.vue';
 import NewsAppPreview from './news-app-preview.vue';
+import NewsImageFocalPoint, { type NewsImageFocalState } from './news-image-focal-point.vue';
 
 type ModuleCanteen = { id: string; alias?: string | null; building?: { image?: string | null; image_remote_url?: string | null } | null };
 type ModuleLanguage = { code: string; name?: string | null };
@@ -57,6 +58,8 @@ const loadError = ref(false);
 const saving = ref(false);
 const canteenSearch = ref('');
 const previewView = ref<NewsPreviewView>(NewsPreviewView.LIST);
+/** Size and focal point of the uploaded image, see `news-image-focal-point.vue`. */
+const imageFocal = ref<NewsImageFocalState | null>(null);
 
 const pageTitle = computed(() => (isNew.value ? translate(BackendTranslationKeys.rocket_meals_module_news_new) : draft.value.title.trim() || translate(BackendTranslationKeys.rocket_meals_module_no_title)));
 const sourceLanguageCode = computed(() => NewsModuleHelper.getSourceLanguageCode(languages.value));
@@ -81,8 +84,14 @@ function assetUrl(id: string | null | undefined, width: number, height: number):
   return `${root}assets/${encodeURIComponent(id)}?width=${width}&height=${height}&fit=cover&quality=80`;
 }
 
-/** The uploaded image, else the remote URL (like in the app and the list). */
-const imageUrl = computed(() => assetUrl(draft.value.image, 600, 360) ?? (draft.value.imageRemoteUrl.trim() || undefined));
+/**
+ * The uploaded image as the app crops it (a square around the focal point, also one that is not
+ * saved yet), else the remote URL. Same URL and order as in the app and the list.
+ */
+const imageUrl = computed(() => {
+  const focalPoint = imageFocal.value?.fileId === draft.value.image ? imageFocal.value.current : null;
+  return NewsModuleHelper.getImageUrl({ image: draft.value.image, image_remote_url: draft.value.imageRemoteUrl }, apiRoot, 300, 300, focalPoint);
+});
 const remoteImageUrl = computed(() => (draft.value.image ? undefined : draft.value.imageRemoteUrl.trim() || undefined));
 
 const canteenTiles = computed(() => {
@@ -160,12 +169,28 @@ async function load() {
   }
 }
 
+/** Stores a changed focal point on the image file, so the app crops around it. */
+async function saveFocalPoint() {
+  const focal = imageFocal.value;
+  if (!focal || focal.fileId !== draft.value.image || (focal.current?.x === focal.saved?.x && focal.current?.y === focal.saved?.y)) {
+    return;
+  }
+  try {
+    await api.patch(`/files/${encodeURIComponent(focal.fileId)}`, { focal_point_x: focal.current?.x ?? null, focal_point_y: focal.current?.y ?? null });
+    imageFocal.value = { ...focal, saved: focal.current };
+  } catch (error) {
+    console.error('[rocket-meals-module] saving the focal point failed', error);
+    notificationsStore.add({ title: translate(BackendTranslationKeys.rocket_meals_module_news_focal_point_save_failed), type: 'error' });
+  }
+}
+
 async function save() {
   if (!canSave.value) {
     return;
   }
   saving.value = true;
   try {
+    await saveFocalPoint();
     const payload = NewsModuleHelper.buildPayload(draft.value, existing.value, sourceLanguageCode.value);
     if (isNew.value) {
       const response = await api.post(NewsModuleHelper.NEWS_ENDPOINT, payload, { params: { fields: 'id' } });
@@ -248,6 +273,7 @@ watch(() => props.newsId, load);
               <span class="type-label">{{ translate(BackendTranslationKeys.image) }}</span>
               <interface-file-image :value="draft.image" :disabled="saving" :folder="imageFolder" collection="news" field="image" @input="draft.image = $event ?? null" />
             </div>
+            <news-image-focal-point v-model:state="imageFocal" :file-id="draft.image" :api-root="apiRoot" :disabled="saving" />
             <label class="field" for="news-image-remote-url">
               <span class="type-label">{{ translate(BackendTranslationKeys.rocket_meals_module_news_field_image_remote_url) }}</span>
               <v-input id="news-image-remote-url" v-model="draft.imageRemoteUrl" type="url" placeholder="https://" :disabled="saving" />
