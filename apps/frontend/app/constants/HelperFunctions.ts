@@ -83,6 +83,25 @@ export const getImageUrl = (imageId: string, size: number = 512, version?: strin
  */
 export const getNewsImageUrl = (news: { image?: DirectusFileReference; image_remote_url?: string | null; date_updated?: string | null } | null | undefined, size: number = 512) => DirectusImageHelper.getItemImageUrl(news, fileId => getImageUrl(fileId, size, news?.date_updated));
 
+/**
+ * The image of a news cut for a box on screen (e.g. the news list, about 2:1): the uploaded file is
+ * cropped once by Directus around its focal point in the format of the box, else the remote URL.
+ */
+export const getNewsImageUrlForBox = (news: { image?: DirectusFileReference; image_remote_url?: string | null; date_updated?: string | null } | null | undefined, boxWidth: number, boxHeight: number) =>
+	DirectusImageHelper.getItemImageUrl(news, fileId => {
+		const { useWebpForAssets, assetImageQuality } = configureStore.getState().settings;
+		const { width, height } = DirectusImageHelper.getCropSizeForBox(boxWidth, boxHeight);
+		return DirectusImageHelper.buildCroppedAssetUrl({
+			serverUrl: Server.ServerUrl,
+			fileId,
+			width,
+			height,
+			quality: assetImageQuality || DEFAULT_ASSET_IMAGE_QUALITY,
+			useWebp: !!useWebpForAssets,
+			version: news?.date_updated,
+		});
+	});
+
 export const getHighResImageUrl = (imageId: string, size: number = 2048) => {
 	return getImageUrl(imageId, size);
 };

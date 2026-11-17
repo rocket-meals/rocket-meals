@@ -179,14 +179,14 @@ export class NewsModuleHelper {
   }
 
   /**
-   * The image of the news as the app shows it: the uploaded file as a square crop around its focal
-   * point (`DirectusImageHelper`, the same URL as in the app), requested at twice the size of the
-   * larger side (HiDPI) and relative to the app's API root (the session cookie authorises it); else
-   * the remote URL of imported news; else `undefined`. The box around it crops like the app does.
+   * The image of the news as the app loads it for a box of `width` × `height`: the uploaded file cut
+   * once by Directus around its focal point in the format of the box (`DirectusImageHelper`, the same
+   * URL as in the app: square for the popup, about 2:1 for the news list), relative to the app's API
+   * root (the session cookie authorises it); else the remote URL of imported news; else `undefined`.
    */
   static getImageUrl(news: Pick<NewsListItem, 'image' | 'image_remote_url'> & { date_updated?: string | null }, apiRoot: string, width: number, height: number, focalPoint?: ImageFocalPoint | null): string | undefined {
-    const size = Math.max(width, height) * 2;
-    return DirectusImageHelper.getItemImageUrl(news, fileId => DirectusImageHelper.buildSquareAssetUrl({ serverUrl: apiRoot, fileId, size, focalPoint, version: news.date_updated })) ?? undefined;
+    const size = DirectusImageHelper.getCropSizeForBox(width, height);
+    return DirectusImageHelper.getItemImageUrl(news, fileId => DirectusImageHelper.buildCroppedAssetUrl({ serverUrl: apiRoot, fileId, ...size, focalPoint, version: news.date_updated })) ?? undefined;
   }
 
   static buildDetailQuery() {

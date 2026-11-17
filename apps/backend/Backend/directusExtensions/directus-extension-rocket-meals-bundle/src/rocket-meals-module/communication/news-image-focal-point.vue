@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /**
- * The square the app cuts from the news image, shown on the whole image.
+ * The crops the app cuts from the news image, shown on the whole image.
  *
- * The app shows uploaded images as a 1:1 crop that Directus cuts around the file's focal point
- * (`DirectusImageHelper`). For a square image there is nothing to choose. For any other format
- * (e.g. 16:9) without a focal point, smartcrop suggests the square right away. "Set focal point"
+ * Directus cuts around the file's focal point (`DirectusImageHelper`): a square for the popup and the
+ * food offers (bright), a band of about 2:1 for the news list (dashed). For an image without a focal
+ * point smartcrop suggests one right away, from the best square and the best band. "Set focal point"
  * lets the editor click or drag the point by hand. The point is kept in `state` and saved on the file
  * (`directus_files.focal_point_x/y`) when the news is saved.
  */
@@ -48,19 +48,23 @@ const isSquare = computed(() => !dimensions.value || DirectusImageHelper.isSquar
 const fullImageUrl = computed(() => (props.fileId ? `${root.value}assets/${encodeURIComponent(props.fileId)}?width=${DISPLAY_WIDTH}&fit=inside&quality=80` : undefined));
 const hasChanges = computed(() => !!props.state && !samePoint(props.state.current, props.state.saved));
 
-/** The square in percent of the whole image, for the overlay. */
-const region = computed(() => {
+/** A crop in percent of the whole image, for the overlay. */
+function regionInPercent(aspectRatio: number) {
   if (!props.state || !dimensions.value) {
     return null;
   }
-  const square = DirectusImageHelper.getSquareRegion(dimensions.value, props.state.current);
+  const crop = DirectusImageHelper.getCropRegion(dimensions.value, aspectRatio, props.state.current);
   return {
-    left: (square.left / dimensions.value.width) * 100,
-    top: (square.top / dimensions.value.height) * 100,
-    width: (square.size / dimensions.value.width) * 100,
-    height: (square.size / dimensions.value.height) * 100,
+    left: `${(crop.left / dimensions.value.width) * 100}%`,
+    top: `${(crop.top / dimensions.value.height) * 100}%`,
+    width: `${(crop.width / dimensions.value.width) * 100}%`,
+    height: `${(crop.height / dimensions.value.height) * 100}%`,
   };
-});
+}
+
+/** The square of the popup and the band of the news list. */
+const region = computed(() => regionInPercent(1));
+const listRegion = computed(() => regionInPercent(DirectusImageHelper.NEWS_LIST_ASPECT_RATIO));
 
 const marker = computed(() => {
   if (!props.state || !dimensions.value) {
@@ -80,15 +84,17 @@ function update(current: ImageFocalPoint | null) {
   }
 }
 
-/** Loads the image and lets smartcrop find the best square; its middle is the focal point. */
+/** Loads the image and lets smartcrop find the best square and the best band of the news list. */
 async function suggestFocalPoint(state: NewsImageFocalState): Promise<ImageFocalPoint | null> {
   const image = new Image();
   image.src = `${root.value}assets/${encodeURIComponent(state.fileId)}?width=${ANALYSIS_SIZE}&height=${ANALYSIS_SIZE}&fit=inside&quality=80`;
   await image.decode();
   const analysed = { width: image.naturalWidth, height: image.naturalHeight };
   const side = Math.min(analysed.width, analysed.height);
-  const result = await smartcrop.crop(image, { width: side, height: side, minScale: 1 });
-  return DirectusImageHelper.focalPointFromCrop(result.topCrop, analysed, state);
+  const bandHeight = Math.round(analysed.width / DirectusImageHelper.NEWS_LIST_ASPECT_RATIO);
+  const square = await smartcrop.crop(image, { width: side, height: side, minScale: 1 });
+  const band = bandHeight <= analysed.height ? await smartcrop.crop(image, { width: analysed.width, height: bandHeight, minScale: 1 }) : null;
+  return DirectusImageHelper.focalPointFromCrops(square.topCrop, band?.topCrop ?? null, analysed, state);
 }
 
 async function chooseAutomatically(state: NewsImageFocalState) {
@@ -125,7 +131,7 @@ async function load(fileId: string | null) {
     const saved = DirectusImageHelper.readFocalPoint(file);
     const state: NewsImageFocalState = { fileId, width: file.width, height: file.height, saved, current: saved };
     emit('update:state', state);
-    if (!saved && !DirectusImageHelper.isSquare(state)) {
+    if (!saved) {
       await chooseAutomatically(state);
     }
   } catch (error) {
@@ -144,7 +150,7 @@ function pointFromEvent(event: PointerEvent): ImageFocalPoint | null {
   const rect = element.getBoundingClientRect();
   const x = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1) * dimensions.value.width;
   const y = Math.min(Math.max((event.clientY - rect.top) / rect.height, 0), 1) * dimensions.value.height;
-  return DirectusImageHelper.normalizeFocalPoint(dimensions.value, { x, y });
+  return DirectusImageHelper.normalizeFocalPointForApp(dimensions.value, { x, y });
 }
 
 function onPointerDown(event: PointerEvent) {
@@ -182,16 +188,17 @@ watch(() => props.fileId, load, { immediate: true });
     <template v-else-if="state">
       <div ref="frame" class="frame" :class="{ editing, square: isSquare }" :style="{ aspectRatio: `${state.width} / ${state.height}` }" @pointerdown="onPointerDown" @pointermove="onPointerMove" @pointerup="onPointerUp" @pointercancel="onPointerUp">
         <img :src="fullImageUrl" alt="" draggable="false" />
-        <div v-if="region && !isSquare" class="crop" :style="{ left: `${region.left}%`, top: `${region.top}%`, width: `${region.width}%`, height: `${region.height}%` }" />
-        <span v-if="marker && !isSquare" class="marker" :style="{ left: `${marker.left}%`, top: `${marker.top}%` }" />
+        <div v-if="region && !isSquare" class="crop" :style="region" />
+        <div v-if="listRegion" class="list-crop" :style="listRegion" />
+        <span v-if="marker" class="marker" :style="{ left: `${marker.left}%`, top: `${marker.top}%` }" />
         <v-progress-circular v-if="suggesting" class="suggesting" indeterminate small />
       </div>
 
       <p class="type-note">
-        {{ translate(isSquare ? BackendTranslationKeys.rocket_meals_module_news_focal_point_hint_square : editing ? BackendTranslationKeys.rocket_meals_module_news_focal_point_hint_editing : BackendTranslationKeys.rocket_meals_module_news_focal_point_hint_cropped) }}
+        {{ translate(editing ? BackendTranslationKeys.rocket_meals_module_news_focal_point_hint_editing : isSquare ? BackendTranslationKeys.rocket_meals_module_news_focal_point_hint_square : BackendTranslationKeys.rocket_meals_module_news_focal_point_hint_cropped) }}
       </p>
 
-      <div v-if="!isSquare" class="actions">
+      <div class="actions">
         <v-button small :secondary="!editing" :disabled="disabled" @click="editing = !editing">
           <v-icon :name="editing ? 'check' : 'center_focus_strong'" small left />
           {{ translate(editing ? BackendTranslationKeys.rocket_meals_module_news_focal_point_done : BackendTranslationKeys.rocket_meals_module_news_focal_point_set) }}
@@ -247,6 +254,14 @@ watch(() => props.fileId, load, { immediate: true });
   position: absolute;
   box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.55);
   outline: 2px solid #fff;
+  pointer-events: none;
+}
+
+/* The band of the news list (about 2:1). */
+.list-crop {
+  position: absolute;
+  outline: 2px dashed #fff;
+  outline-offset: -2px;
   pointer-events: none;
 }
 

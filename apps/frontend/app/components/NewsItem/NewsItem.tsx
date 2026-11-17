@@ -12,7 +12,7 @@ import { myContrastColor } from '@/helper/ColorHelper';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import { TranslationKeys } from '@/locales/keys';
 import MyImage from '@/components/MyImage';
-import { getNewsImageUrl } from '@/constants/HelperFunctions';
+import { getNewsImageUrlForBox } from '@/constants/HelperFunctions';
 
 const ReadMoreTriggerButton = ({
 	triggerProps,
@@ -104,8 +104,8 @@ const NewsItem: React.FC<any> = ({ news }) => {
 	const { title, content } = getNewsTranslationByLanguageCode(news?.translations, language);
 	const news_area_color = appSettings?.news_area_color ? appSettings?.news_area_color : primaryColor;
 	const contrastColor = myContrastColor(news_area_color, theme, mode === 'dark');
-	// Like the popup and the food offers: the uploaded image first, else the remote URL.
-	const imageUrl = getNewsImageUrl(news);
+	// Width of the image box, known after layout: the image is cut once in its format (about 2:1).
+	const [imageBoxWidth, setImageBoxWidth] = useState(0);
 	const formattedDate = news?.date ? format(parseISO(news.date), 'dd.MM.yyyy hh:mm') : 'Invalid Date';
 
 	useEffect(() => {
@@ -147,6 +147,9 @@ const NewsItem: React.FC<any> = ({ news }) => {
 		actionAlignItems,
 		readMoreWidth,
 	} = resolveNewsItemLayout(screenWidth);
+	// Like the popup and the food offers: the uploaded image first (cut by Directus around its focal
+	// point in the format of the box), else the remote URL.
+	const imageUrl = imageBoxWidth > 0 ? getNewsImageUrlForBox(news, imageBoxWidth, imageHeight) : null;
 
 	return (
 		<View
@@ -162,6 +165,7 @@ const NewsItem: React.FC<any> = ({ news }) => {
 					width: imageContainerWidth,
 					height: imageHeight,
 				}}
+				onLayout={event => setImageBoxWidth(event.nativeEvent.layout.width)}
 			>
 				{imageUrl ? <MyImage remote_image_url={imageUrl} style={styles.image} /> : null}
 			</View>

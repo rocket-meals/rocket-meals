@@ -321,7 +321,8 @@ export function getVersionPatch() {
         // 196: news images: uploaded file first, else the remote URL (list, popup, food offers),
         //      square crop around the focal point set in the module, popup loads 1024 px
         // 197: common: news field image_remote_url_imported (remote news images are imported as files)
-        return 197;
+        // 198: news list loads its image in the format of its box (about 2:1), cut around the focal point
+        return 198;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

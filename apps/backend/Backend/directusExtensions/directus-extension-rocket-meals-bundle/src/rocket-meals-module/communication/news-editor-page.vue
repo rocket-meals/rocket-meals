@@ -85,13 +85,13 @@ function assetUrl(id: string | null | undefined, width: number, height: number):
 }
 
 /**
- * The uploaded image as the app crops it (a square around the focal point, also one that is not
- * saved yet), else the remote URL. Same URL and order as in the app and the list.
+ * The uploaded image as the app crops it around the focal point (also one that is not saved yet):
+ * the square of the popup, else the remote URL. Same URL and order as in the app and the list.
  */
-const imageUrl = computed(() => {
-  const focalPoint = imageFocal.value?.fileId === draft.value.image ? imageFocal.value.current : null;
-  return NewsModuleHelper.getImageUrl({ image: draft.value.image, image_remote_url: draft.value.imageRemoteUrl }, apiRoot, 300, 300, focalPoint);
-});
+const previewFocalPoint = computed(() => (imageFocal.value?.fileId === draft.value.image ? imageFocal.value.current : null));
+const imageUrl = computed(() => NewsModuleHelper.getImageUrl({ image: draft.value.image, image_remote_url: draft.value.imageRemoteUrl }, apiRoot, 300, 300, previewFocalPoint.value));
+/** The band of the news list (about 2:1), cut by Directus like in the app. */
+const listImageUrl = computed(() => NewsModuleHelper.getImageUrl({ image: draft.value.image, image_remote_url: draft.value.imageRemoteUrl }, apiRoot, 370, 180, previewFocalPoint.value));
 const remoteImageUrl = computed(() => (draft.value.image ? undefined : draft.value.imageRemoteUrl.trim() || undefined));
 
 const canteenTiles = computed(() => {
@@ -378,7 +378,7 @@ watch(() => props.newsId, load);
           <div class="preview-views" role="group">
             <v-button v-for="item in previewViewItems" :key="item.value" x-small :secondary="item.value !== activePreviewView" @click="previewView = item.value">{{ item.label }}</v-button>
           </div>
-          <news-app-preview :draft="draft" :view="activePreviewView" :canteen-name="previewCanteenName" :image-url="imageUrl" />
+          <news-app-preview :draft="draft" :view="activePreviewView" :canteen-name="previewCanteenName" :image-url="imageUrl" :list-image-url="listImageUrl" />
         </aside>
       </template>
     </div>

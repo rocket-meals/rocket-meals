@@ -104,7 +104,8 @@ export function getVersionPatch() {
 	// 79: common-ui: theme screen.errorText
 	// 80: common: DirectusImageHelper (square crops around the focal point)
 	// 81: common: news field image_remote_url_imported
-	return 81;
+	// 82: common: DirectusImageHelper crops in any format
+	return 82;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

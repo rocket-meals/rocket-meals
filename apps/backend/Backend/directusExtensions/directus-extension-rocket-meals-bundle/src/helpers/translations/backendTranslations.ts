@@ -5570,38 +5570,38 @@ export const backendTranslations: TranslationResources = {
 
   /** Überschrift über dem Bildausschnitt im Editor. */
   rocket_meals_module_news_focal_point_title: {
-    de: 'Bildausschnitt in der App (1:1)',
-    en: 'Image crop in the app (1:1)',
-    ar: 'قص الصورة في التطبيق (1:1)',
-    es: 'Recorte de la imagen en la app (1:1)',
-    fr: 'Recadrage de l’image dans l’app (1:1)',
-    ru: 'Кадрирование изображения в приложении (1:1)',
-    tr: 'Uygulamadaki görsel kırpması (1:1)',
-    zh: '应用中的图片裁剪（1:1）',
+    de: 'Bildausschnitte in der App',
+    en: 'Image crops in the app',
+    ar: 'قصّات الصورة في التطبيق',
+    es: 'Recortes de la imagen en la app',
+    fr: 'Recadrages de l’image dans l’app',
+    ru: 'Кадрирование изображения в приложении',
+    tr: 'Uygulamadaki görsel kırpmaları',
+    zh: '应用中的图片裁剪',
   },
 
   /** Hinweis, wenn das Bild nicht quadratisch ist. */
   rocket_meals_module_news_focal_point_hint_cropped: {
-    de: 'Das Bild ist nicht quadratisch. Die App zeigt nur den hellen Ausschnitt. Er wurde automatisch gewählt und lässt sich mit dem Fokuspunkt verschieben.',
-    en: 'The image is not square. The app only shows the bright area. It was chosen automatically and can be moved with the focal point.',
-    ar: 'الصورة ليست مربعة. يعرض التطبيق المنطقة المضيئة فقط. تم اختيارها تلقائيًا ويمكن تحريكها بنقطة التركيز.',
-    es: 'La imagen no es cuadrada. La app solo muestra la zona clara. Se eligió automáticamente y se puede mover con el punto focal.',
-    fr: 'L’image n’est pas carrée. L’app n’affiche que la zone claire. Elle a été choisie automatiquement et peut être déplacée avec le point focal.',
-    ru: 'Изображение не квадратное. Приложение показывает только светлую область. Она выбрана автоматически, её можно сдвинуть точкой фокуса.',
-    tr: 'Görsel kare değil. Uygulama yalnızca açık renkli alanı gösterir. Bu alan otomatik seçildi ve odak noktasıyla kaydırılabilir.',
-    zh: '图片不是正方形。应用只显示明亮的区域。该区域已自动选择，可通过焦点移动。',
+    de: 'Hell: was Pop-up und Speiseplan zeigen (1:1). Gestrichelt: was die News-Liste zeigt. Beides wurde automatisch gewählt und folgt dem Fokuspunkt.',
+    en: 'Bright: what the popup and the food offers show (1:1). Dashed: what the news list shows. Both were chosen automatically and follow the focal point.',
+    ar: 'المنطقة المضيئة: ما تعرضه النافذة المنبثقة وقائمة الطعام (1:1). المتقطعة: ما تعرضه قائمة الأخبار. تم اختيار الاثنتين تلقائيًا وتتبعان نقطة التركيز.',
+    es: 'Claro: lo que muestran el pop-up y el menú (1:1). Discontinuo: lo que muestra la lista de noticias. Ambos se eligieron automáticamente y siguen el punto focal.',
+    fr: 'Clair : ce que montrent la fenêtre et le menu (1:1). Pointillé : ce que montre la liste des actualités. Les deux ont été choisis automatiquement et suivent le point focal.',
+    ru: 'Светлое: что показывают всплывающее окно и меню (1:1). Пунктир: что показывает список новостей. Оба выбраны автоматически и следуют за точкой фокуса.',
+    tr: 'Açık alan: açılır pencere ve yemek listesinin gösterdiği (1:1). Kesikli: haber listesinin gösterdiği. İkisi de otomatik seçildi ve odak noktasını izler.',
+    zh: '明亮区域：弹窗和菜单显示的内容（1:1）。虚线：新闻列表显示的内容。两者均已自动选择并跟随焦点。',
   },
 
   /** Hinweis, wenn das Bild quadratisch ist. */
   rocket_meals_module_news_focal_point_hint_square: {
-    de: 'Das Bild ist quadratisch und wird in der App vollständig angezeigt.',
-    en: 'The image is square and is shown completely in the app.',
-    ar: 'الصورة مربعة وتُعرض كاملة في التطبيق.',
-    es: 'La imagen es cuadrada y se muestra completa en la app.',
-    fr: 'L’image est carrée et s’affiche entièrement dans l’app.',
-    ru: 'Изображение квадратное и полностью показывается в приложении.',
-    tr: 'Görsel kare ve uygulamada tamamen gösterilir.',
-    zh: '图片是正方形，在应用中完整显示。',
+    de: 'Das Bild ist quadratisch: Pop-up und Speiseplan zeigen es ganz. Die News-Liste zeigt nur den gestrichelten Streifen, er folgt dem Fokuspunkt.',
+    en: 'The image is square: the popup and the food offers show all of it. The news list only shows the dashed band, which follows the focal point.',
+    ar: 'الصورة مربعة: تعرضها النافذة المنبثقة وقائمة الطعام كاملة. تعرض قائمة الأخبار الشريط المتقطع فقط، وهو يتبع نقطة التركيز.',
+    es: 'La imagen es cuadrada: el pop-up y el menú la muestran entera. La lista de noticias solo muestra la franja discontinua, que sigue el punto focal.',
+    fr: 'L’image est carrée : la fenêtre et le menu l’affichent en entier. La liste des actualités n’affiche que la bande en pointillé, qui suit le point focal.',
+    ru: 'Изображение квадратное: всплывающее окно и меню показывают его целиком. Список новостей показывает только пунктирную полосу, она следует за точкой фокуса.',
+    tr: 'Görsel kare: açılır pencere ve yemek listesi onu tamamen gösterir. Haber listesi yalnızca kesikli şeridi gösterir, şerit odak noktasını izler.',
+    zh: '图片是正方形：弹窗和菜单完整显示它。新闻列表只显示虚线条带，它跟随焦点。',
   },
 
   /** Hinweis, während der Fokuspunkt gesetzt wird. */

@@ -10,7 +10,7 @@
  *
  * If the import fails nothing changes and the app keeps showing the remote URL.
  */
-import { CollectionNames, CronHelper, DatabaseTypes, DirectusImageHelper } from 'repo-depkit-common';
+import { CollectionNames, CronHelper, DatabaseTypes } from 'repo-depkit-common';
 import { MyDatabaseHelper, MyEventContext } from '../helpers/MyDatabaseHelper';
 import { MyDefineHook } from '../helpers/MyDefineHook';
 import { HookKeysHelper, HookMetaWithKeys } from '../helpers/HookKeysHelper';
@@ -58,12 +58,12 @@ export class NewsRemoteImageImporter {
     return 'imported';
   }
 
-  /** Lets smartcrop choose the square for images that are not square. A failure leaves the middle. */
+  /** Lets smartcrop choose the square and the band of the news list. A failure leaves the middle. */
   private async setFocalPointSafely(fileId: string): Promise<void> {
     try {
       const filesHelper = this.myDatabaseHelper.getFilesHelper();
       const file = await filesHelper.readOne(fileId, { fields: ['id', 'width', 'height'] });
-      if (!file?.width || !file?.height || DirectusImageHelper.isSquare({ width: file.width, height: file.height })) {
+      if (!file?.width || !file?.height) {
         return;
       }
       const jpegBuffer = await filesHelper.readFileContent(fileId, ImageFocalPointSuggester.ANALYSIS_TRANSFORMATION);

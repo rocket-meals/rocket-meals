@@ -24,9 +24,20 @@ export class ImageFocalPointSuggester {
     return { width: decoded.width, height: decoded.height, data: decoded.data };
   }
 
-  /** The focal point for the original, found on a small copy of it. */
+  /**
+   * The focal point for the original, found on a small copy of it: smartcrop looks for the best
+   * square (popup) and the best band in the format of the news list, see
+   * `DirectusImageHelper.focalPointFromCrops`.
+   */
   static async suggest(analysed: RgbaImage, original: ImageDimensions): Promise<ImageFocalPoint> {
     const side = Math.min(analysed.width, analysed.height);
+    const bandHeight = Math.round(analysed.width / DirectusImageHelper.NEWS_LIST_ASPECT_RATIO);
+    const square = await ImageFocalPointSuggester.findCrop(analysed, side, side);
+    const band = bandHeight <= analysed.height ? await ImageFocalPointSuggester.findCrop(analysed, analysed.width, bandHeight) : null;
+    return DirectusImageHelper.focalPointFromCrops(square, band, analysed, original);
+  }
+
+  private static async findCrop(analysed: RgbaImage, width: number, height: number) {
     // The shape of smartcrop's `ImgData`: width, height and the RGBA bytes.
     const imageData = { width: analysed.width, height: analysed.height, data: new Uint8ClampedArray(analysed.data) };
     const imageOperations = {
@@ -34,7 +45,7 @@ export class ImageFocalPointSuggester {
       resample: (image: RgbaImage) => Promise.resolve(image),
       getData: () => Promise.resolve(imageData),
     };
-    const result = await smartcrop.crop(analysed as unknown as CanvasImageSource, { width: side, height: side, minScale: 1, prescale: false, imageOperations } as never);
-    return DirectusImageHelper.focalPointFromCrop(result.topCrop, analysed, original);
+    const result = await smartcrop.crop(analysed as unknown as CanvasImageSource, { width, height, minScale: 1, prescale: false, imageOperations } as never);
+    return result.topCrop;
   }
 }

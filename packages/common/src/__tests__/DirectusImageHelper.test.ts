@@ -37,6 +37,26 @@ describe('DirectusImageHelper', () => {
     expect(DirectusImageHelper.normalizeFocalPoint(landscape, { x: 10, y: 10 })).toEqual({ x: 540, y: 540 });
   });
 
+  it('crops other formats around the focal point and rounds box sizes', () => {
+    expect(DirectusImageHelper.buildCroppedAssetUrl({ serverUrl: '/', fileId: 'abc', width: 880, height: 440 })).toBe('/assets/abc?fit=cover&width=880&height=440&quality=80');
+    expect(DirectusImageHelper.getCropRegion(landscape, 2, { x: 960, y: 1000 })).toEqual({ left: 0, top: 120, width: 1920, height: 960 });
+    expect(DirectusImageHelper.getCropRegion(landscape, 2, null)).toEqual({ left: 0, top: 60, width: 1920, height: 960 });
+    expect(DirectusImageHelper.getCropSizeForBox(370, 180)).toEqual({ width: 880, height: 440 });
+    expect(DirectusImageHelper.getCropSizeForBox(150, 220)).toEqual({ width: 440, height: 440 });
+    expect(DirectusImageHelper.getCropSizeForBox(1200, 180)).toEqual({ width: 1320, height: 440 });
+  });
+
+  it('takes the position across from the square and the height from the band', () => {
+    const analysed = { width: 256, height: 144 };
+    expect(DirectusImageHelper.focalPointFromCrops({ x: 112, y: 0, width: 144, height: 144 }, { x: 0, y: 72, width: 256, height: 72 }, analysed, landscape)).toEqual({ x: 1380, y: 600 });
+    expect(DirectusImageHelper.focalPointFromCrops({ x: 0, y: 0, width: 144, height: 144 }, null, analysed, landscape)).toEqual({ x: 540, y: 540 });
+  });
+
+  it('keeps the height of a point for the band of the news list', () => {
+    expect(DirectusImageHelper.normalizeFocalPointForApp(landscape, { x: 10, y: 1000 })).toEqual({ x: 540, y: 600 });
+    expect(DirectusImageHelper.normalizeFocalPointForApp({ width: 1000, height: 2000 }, { x: 10, y: 1900 })).toEqual({ x: 500, y: 1500 });
+  });
+
   it('knows square images and reads focal points', () => {
     expect(DirectusImageHelper.isSquare({ width: 1080, height: 1080 })).toBe(true);
     expect(DirectusImageHelper.isSquare({ width: 1080, height: 1070 })).toBe(true);

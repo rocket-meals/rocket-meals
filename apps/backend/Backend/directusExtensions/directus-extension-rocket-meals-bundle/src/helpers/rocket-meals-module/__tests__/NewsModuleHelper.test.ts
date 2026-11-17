@@ -63,8 +63,8 @@ describe('NewsModuleHelper – list', () => {
   });
 
   it('builds the image URL, else the remote image', () => {
-    expect(NewsModuleHelper.getImageUrl({ image: 'file-1' }, '/api', 320, 200)).toBe('/api/assets/file-1?fit=cover&width=640&height=640&quality=80');
-    expect(NewsModuleHelper.getImageUrl({ image: { id: 'file-2' } as DatabaseTypes.DirectusFiles }, '/api/', 10, 10)).toBe('/api/assets/file-2?fit=cover&width=20&height=20&quality=80');
+    expect(NewsModuleHelper.getImageUrl({ image: 'file-1' }, '/api', 320, 200)).toBe('/api/assets/file-1?fit=cover&width=660&height=440&quality=80');
+    expect(NewsModuleHelper.getImageUrl({ image: { id: 'file-2' } as DatabaseTypes.DirectusFiles }, '/api/', 10, 10)).toBe('/api/assets/file-2?fit=cover&width=440&height=440&quality=80');
     expect(NewsModuleHelper.getImageUrl({ image: null, image_remote_url: 'https://example.org/a.jpg' }, '/', 10, 10)).toBe('https://example.org/a.jpg');
     expect(NewsModuleHelper.getImageUrl({ image: null }, '/', 10, 10)).toBeUndefined();
   });

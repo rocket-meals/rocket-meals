@@ -11,7 +11,8 @@ import { useAppExtensionTranslate } from '../../helpers/app-extensions/useAppExt
 import { NewsPreviewView, type NewsDraft } from '../../helpers/rocket-meals-module/NewsModuleHelper';
 import { BackendTranslationKeys } from '../../helpers/translations/BackendTranslationKeys';
 
-const props = defineProps<{ draft: NewsDraft; view: NewsPreviewView; canteenName: string; imageUrl?: string }>();
+/** `imageUrl` is the square (popup, opened news), `listImageUrl` the band of the news list (about 2:1). */
+const props = defineProps<{ draft: NewsDraft; view: NewsPreviewView; canteenName: string; imageUrl?: string; listImageUrl?: string }>();
 
 const { translate, formatDateTime } = useAppExtensionTranslate();
 
@@ -34,7 +35,7 @@ const DISH_COUNT = 4;
       <template v-if="view === NewsPreviewView.LIST">
         <div class="news-card highlighted">
           <div class="news-image">
-            <img v-if="imageUrl" :src="imageUrl" alt="" />
+            <img v-if="listImageUrl || imageUrl" :src="listImageUrl || imageUrl" alt="" />
           </div>
           <div class="news-card-body">
             <span class="news-date">{{ dateLabel }}</span>
@@ -166,9 +167,9 @@ const DISH_COUNT = 4;
 }
 
 /*
- * The image is the square crop the app loads (around the focal point). Each box crops or fits it
- * like the app: the news list card is as wide as the phone and 180 high (cover), the popup box 300
- * high and shows the whole square (contain).
+ * The images are the crops the app loads (around the focal point): the news list card is as wide as
+ * the phone and 180 high and gets a band of about 2:1, the popup box is 300 high and shows the whole
+ * square (contain).
  */
 .news-image,
 .detail-image {

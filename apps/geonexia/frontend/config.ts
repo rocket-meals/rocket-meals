@@ -119,7 +119,8 @@ export function getVersionPatch() {
 	// 97: swiping a bottom sheet down frees the app at once (backdrop gone when the close starts)
 	// 98: common: DirectusImageHelper (square crops around the focal point)
 	// 99: common: news field image_remote_url_imported
-	return 99;
+	// 100: common: DirectusImageHelper crops in any format
+	return 100;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates
