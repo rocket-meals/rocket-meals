@@ -87,4 +87,7 @@ export const CollectionFieldNames = {
   [CollectionNames.MAILS]: {
     ATTACHMENTS: 'attachments',
   },
+  [CollectionNames.NEWS]: {
+    IMAGE: 'image',
+  },
 };

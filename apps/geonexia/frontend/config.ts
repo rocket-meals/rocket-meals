@@ -118,7 +118,8 @@ export function getVersionPatch() {
 	// 96: closing a bottom sheet: backdrop gone at once, app usable right away, 200 ms close animation
 	// 97: swiping a bottom sheet down frees the app at once (backdrop gone when the close starts)
 	// 98: common: DirectusImageHelper (square crops around the focal point)
-	return 98;
+	// 99: common: news field image_remote_url_imported
+	return 99;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

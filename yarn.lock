@@ -15890,6 +15890,7 @@ __metadata:
     iconv-lite: "npm:^0.6.3"
     ioredis: "npm:^5.6.1"
     jest: "npm:^29.7.0"
+    jpeg-js: "npm:0.4.4"
     js-yaml: "npm:^4.1.0"
     jsonwebtoken: "npm:^9.0.2"
     jspdf: "npm:^3.0.3"
@@ -21037,6 +21038,13 @@ __metadata:
   version: 3.1.1
   resolution: "joycon@npm:3.1.1"
   checksum: 10c0/131fb1e98c9065d067fd49b6e685487ac4ad4d254191d7aa2c9e3b90f4e9ca70430c43cad001602bdbdabcf58717d3b5c5b7461c1bd8e39478c8de706b3fe6ae
+  languageName: node
+  linkType: hard
+
+"jpeg-js@npm:0.4.4":
+  version: 0.4.4
+  resolution: "jpeg-js@npm:0.4.4"
+  checksum: 10c0/4d0d5097f8e55d8bbce6f1dc32ffaf3f43f321f6222e4e6490734fdc6d005322e3bd6fb992c2df7f5b587343b1441a1c333281dc3285bc9116e369fd2a2b43a7
   languageName: node
   linkType: hard
 

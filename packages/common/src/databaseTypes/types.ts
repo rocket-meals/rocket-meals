@@ -1850,6 +1850,7 @@ export type News = {
   id: string;
   image?: string | DirectusFiles | null;
   image_remote_url?: string | null;
+  image_remote_url_imported?: string | null;
   image_thumb_hash?: string | null;
   show_app_rating_button?: boolean | null;
   show_login_screen_button?: boolean | null;

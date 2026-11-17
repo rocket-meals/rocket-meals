@@ -5556,16 +5556,16 @@ export const backendTranslations: TranslationResources = {
     zh: '图片网址（可选）',
   },
 
-  /** Hinweis unter der Bild-URL im Editor. */
+  /** Hinweis unter der Bild-URL im Editor (news-remote-image-hook importiert sie). */
   rocket_meals_module_news_image_remote_url_hint: {
-    de: 'Wird angezeigt, solange kein Bild hochgeladen ist.',
-    en: 'Shown as long as no image is uploaded.',
-    ar: 'تُعرض ما دام لم يتم رفع أي صورة.',
-    es: 'Se muestra mientras no se haya subido ninguna imagen.',
-    fr: 'Affichée tant qu’aucune image n’est téléversée.',
-    ru: 'Показывается, пока не загружено изображение.',
-    tr: 'Görsel yüklenmediği sürece gösterilir.',
-    zh: '在未上传图片时显示。',
+    de: 'Das Bild wird automatisch übernommen und um den Fokuspunkt zugeschnitten. Ändert sich die URL, wird es neu geladen. Ein von Hand hochgeladenes Bild bleibt.',
+    en: 'The image is taken over automatically and cropped around the focal point. If the URL changes, it is loaded again. An image uploaded by hand stays.',
+    ar: 'تُنقل الصورة تلقائيًا وتُقص حول نقطة التركيز. إذا تغيّر الرابط تُحمَّل من جديد. تبقى الصورة المرفوعة يدويًا.',
+    es: 'La imagen se adopta automáticamente y se recorta alrededor del punto focal. Si la URL cambia, se vuelve a cargar. Una imagen subida a mano se mantiene.',
+    fr: 'L’image est reprise automatiquement et recadrée autour du point focal. Si l’URL change, elle est rechargée. Une image téléversée à la main reste.',
+    ru: 'Изображение берётся автоматически и кадрируется вокруг точки фокуса. Если URL меняется, оно загружается заново. Загруженное вручную изображение остаётся.',
+    tr: 'Görsel otomatik olarak alınır ve odak noktası etrafında kırpılır. URL değişirse yeniden yüklenir. Elle yüklenen görsel kalır.',
+    zh: '图片会自动导入并围绕焦点裁剪。网址更改时会重新加载。手动上传的图片保持不变。',
   },
 
   /** Überschrift über dem Bildausschnitt im Editor. */
