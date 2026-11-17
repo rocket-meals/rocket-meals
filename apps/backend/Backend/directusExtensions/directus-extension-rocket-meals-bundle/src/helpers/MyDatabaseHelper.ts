@@ -356,6 +356,12 @@ export class MyDatabaseHelper implements MyDatabaseHelperInterface {
     return folder || undefined;
   }
 
+  /** The upload folder of the field `news.image` (the folder "News"), also used for imported remote images. */
+  async getNewsImageFolderId(): Promise<string | undefined> {
+    const folder = await this.getFieldsServiceHelper().getFolderIdForFileFieldInCollection(CollectionNames.NEWS, CollectionFieldNames[CollectionNames.NEWS].IMAGE);
+    return folder || undefined;
+  }
+
   async getFoodsImageFolderId(): Promise<string | undefined> {
     console.log('MyDatabaseHelper.getFoodsImageFolderId - fieldsMeta:');
     let fieldsServiceHelper = this.getFieldsServiceHelper();

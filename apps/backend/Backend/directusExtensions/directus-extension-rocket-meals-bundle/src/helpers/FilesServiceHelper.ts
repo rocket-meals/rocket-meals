@@ -114,9 +114,10 @@ export class FilesServiceHelper extends ItemsServiceHelper<DatabaseTypes.Directu
    * Retrieve the raw file content for a given file id.
    *
    * @param id Directus file id
+   * @param transformationParams Optional Directus image transformation (e.g. `{ width: 256, format: 'jpg' }`)
    * @returns Buffer containing the file's data
    */
-  async readFileContent(id: PrimaryKey): Promise<Buffer> {
+  async readFileContent(id: PrimaryKey, transformationParams: Record<string, unknown> = {}): Promise<Buffer> {
     console.log('FilesServiceHelper.readFileContent: ', id);
     const AssetsService = this.apiContext.services.AssetsService;
     let schema = await this.apiContext.getSchema();
@@ -132,7 +133,7 @@ export class FilesServiceHelper extends ItemsServiceHelper<DatabaseTypes.Directu
       stream: Readable;
       file: any;
       stat: Stat;
-    } = await assetsService.getAsset(String(id), { transformationParams: {} }); // https://github.com/directus/directus/discussions/14318
+    } = await assetsService.getAsset(String(id), { transformationParams }); // https://github.com/directus/directus/discussions/14318
 
     console.log(' - read the file buffer');
     let chunks: Buffer[] = [];
