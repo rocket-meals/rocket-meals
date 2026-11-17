@@ -1,4 +1,4 @@
-import { Dimensions, Image, Linking, Platform, Text, TouchableOpacity, View, type DimensionValue } from 'react-native';
+import { Dimensions, Linking, Platform, Text, TouchableOpacity, View, type DimensionValue } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import styles from './styles';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -11,6 +11,8 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { myContrastColor } from '@/helper/ColorHelper';
 import { CustomTooltip, TooltipContent, TooltipText } from '@/components/CustomTooltip';
 import { TranslationKeys } from '@/locales/keys';
+import MyImage from '@/components/MyImage';
+import { getNewsImageUrl } from '@/constants/HelperFunctions';
 
 const ReadMoreTriggerButton = ({
 	triggerProps,
@@ -102,6 +104,8 @@ const NewsItem: React.FC<any> = ({ news }) => {
 	const { title, content } = getNewsTranslationByLanguageCode(news?.translations, language);
 	const news_area_color = appSettings?.news_area_color ? appSettings?.news_area_color : primaryColor;
 	const contrastColor = myContrastColor(news_area_color, theme, mode === 'dark');
+	// Like the popup and the food offers: the uploaded image first, else the remote URL.
+	const imageUrl = getNewsImageUrl(news);
 	const formattedDate = news?.date ? format(parseISO(news.date), 'dd.MM.yyyy hh:mm') : 'Invalid Date';
 
 	useEffect(() => {
@@ -159,12 +163,7 @@ const NewsItem: React.FC<any> = ({ news }) => {
 					height: imageHeight,
 				}}
 			>
-				<Image
-					source={{
-						uri: news?.image_remote_url,
-					}}
-					style={styles.image}
-				/>
+				{imageUrl ? <MyImage remote_image_url={imageUrl} style={styles.image} /> : null}
 			</View>
 			<View
 				style={{

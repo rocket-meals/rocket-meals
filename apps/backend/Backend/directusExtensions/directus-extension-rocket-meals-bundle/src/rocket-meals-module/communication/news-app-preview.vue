@@ -165,13 +165,19 @@ const DISH_COUNT = 4;
   box-shadow: 0 0 0 2px var(--theme--primary);
 }
 
+/*
+ * The image is the square crop the app loads (around the focal point). Each box crops or fits it
+ * like the app: the news list card is as wide as the phone and 180 high (cover), the popup box 300
+ * high and shows the whole square (contain).
+ */
 .news-image,
 .detail-image {
-  block-size: 6.5rem;
+  aspect-ratio: 370 / 180;
   background: #c9c9c9;
 }
 
 .detail-image {
+  aspect-ratio: auto;
   block-size: 9rem;
 }
 
@@ -327,9 +333,13 @@ const DISH_COUNT = 4;
 }
 
 .sheet-image {
-  block-size: 7rem;
+  flex-shrink: 0;
+  aspect-ratio: 358 / 300;
   overflow: hidden;
-  border-radius: 0.5rem;
+}
+
+.sheet-image img {
+  object-fit: contain;
 }
 
 .sheet-row {

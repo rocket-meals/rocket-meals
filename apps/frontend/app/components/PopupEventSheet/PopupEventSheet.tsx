@@ -5,7 +5,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { isWeb } from '@/constants/Constants';
 import { useAppSelector } from '@/redux/hooks';
 import { PopupEventSheetProps } from './types';
-import { getImageUrl } from '@/constants/HelperFunctions';
+import { getNewsImageUrl } from '@/constants/HelperFunctions';
 import { getTextFromTranslation, getTitleFromTranslation } from '@/helper/resourceHelper';
 import ProjectButton from '../ProjectButton';
 import MyMarkdownProjectColored from '@/components/MyMarkdownProjectColored';
@@ -64,6 +64,8 @@ const styles = StyleSheet.create({
 	},
 });
 
+const POPUP_IMAGE_SIZE = 1024;
+
 const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, eventData, showDismissButton = true }) => {
 	const { theme } = useTheme();
 	const { language } = useAppSelector((state) => state.settings);
@@ -76,6 +78,8 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, eventData
 	const showLoginScreenButton = !!eventData?.show_login_screen_button && UserHelper.isAnonymousUser(user);
 	const title = eventData?.translations ? getTitleFromTranslation(eventData?.translations, language) : '';
 	const rawText = eventData?.translations ? getTextFromTranslation(eventData?.translations, language) : '';
+	// Square like everywhere else, larger because the popup shows it at full height (300).
+	const popupImageUrl = getNewsImageUrl(eventData, POPUP_IMAGE_SIZE);
 
 	return (
 		<View style={styles.container}>
@@ -104,12 +108,9 @@ const PopupEventSheet: React.FC<PopupEventSheetProps> = ({ closeSheet, eventData
 				</Text>
 			</View>
 			<View style={styles.popupContainer}>
-				{(eventData?.image || eventData?.image_remote_url) && (
+				{popupImageUrl && (
 					<View style={styles.imageContainer}>
-						<MyImage
-							style={styles.image}
-							remote_image_url={eventData?.image_remote_url || getImageUrl(String(eventData?.image))}
-						/>
+						<MyImage style={styles.image} remote_image_url={popupImageUrl} />
 					</View>
 				)}
 				{rawText ? <MyMarkdownProjectColored content={rawText} textColor={theme.screen.text} /> : null}

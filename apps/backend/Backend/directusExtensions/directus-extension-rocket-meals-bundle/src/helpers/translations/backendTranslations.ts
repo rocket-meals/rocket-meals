@@ -5568,6 +5568,126 @@ export const backendTranslations: TranslationResources = {
     zh: '在未上传图片时显示。',
   },
 
+  /** Überschrift über dem Bildausschnitt im Editor. */
+  rocket_meals_module_news_focal_point_title: {
+    de: 'Bildausschnitt in der App (1:1)',
+    en: 'Image crop in the app (1:1)',
+    ar: 'قص الصورة في التطبيق (1:1)',
+    es: 'Recorte de la imagen en la app (1:1)',
+    fr: 'Recadrage de l’image dans l’app (1:1)',
+    ru: 'Кадрирование изображения в приложении (1:1)',
+    tr: 'Uygulamadaki görsel kırpması (1:1)',
+    zh: '应用中的图片裁剪（1:1）',
+  },
+
+  /** Hinweis, wenn das Bild nicht quadratisch ist. */
+  rocket_meals_module_news_focal_point_hint_cropped: {
+    de: 'Das Bild ist nicht quadratisch. Die App zeigt nur den hellen Ausschnitt. Er wurde automatisch gewählt und lässt sich mit dem Fokuspunkt verschieben.',
+    en: 'The image is not square. The app only shows the bright area. It was chosen automatically and can be moved with the focal point.',
+    ar: 'الصورة ليست مربعة. يعرض التطبيق المنطقة المضيئة فقط. تم اختيارها تلقائيًا ويمكن تحريكها بنقطة التركيز.',
+    es: 'La imagen no es cuadrada. La app solo muestra la zona clara. Se eligió automáticamente y se puede mover con el punto focal.',
+    fr: 'L’image n’est pas carrée. L’app n’affiche que la zone claire. Elle a été choisie automatiquement et peut être déplacée avec le point focal.',
+    ru: 'Изображение не квадратное. Приложение показывает только светлую область. Она выбрана автоматически, её можно сдвинуть точкой фокуса.',
+    tr: 'Görsel kare değil. Uygulama yalnızca açık renkli alanı gösterir. Bu alan otomatik seçildi ve odak noktasıyla kaydırılabilir.',
+    zh: '图片不是正方形。应用只显示明亮的区域。该区域已自动选择，可通过焦点移动。',
+  },
+
+  /** Hinweis, wenn das Bild quadratisch ist. */
+  rocket_meals_module_news_focal_point_hint_square: {
+    de: 'Das Bild ist quadratisch und wird in der App vollständig angezeigt.',
+    en: 'The image is square and is shown completely in the app.',
+    ar: 'الصورة مربعة وتُعرض كاملة في التطبيق.',
+    es: 'La imagen es cuadrada y se muestra completa en la app.',
+    fr: 'L’image est carrée et s’affiche entièrement dans l’app.',
+    ru: 'Изображение квадратное и полностью показывается в приложении.',
+    tr: 'Görsel kare ve uygulamada tamamen gösterilir.',
+    zh: '图片是正方形，在应用中完整显示。',
+  },
+
+  /** Hinweis, während der Fokuspunkt gesetzt wird. */
+  rocket_meals_module_news_focal_point_hint_editing: {
+    de: 'Klicke ins Bild oder ziehe den Punkt an die wichtigste Stelle.',
+    en: 'Click into the image or drag the point to the most important spot.',
+    ar: 'انقر على الصورة أو اسحب النقطة إلى أهم موضع.',
+    es: 'Haz clic en la imagen o arrastra el punto al lugar más importante.',
+    fr: 'Clique dans l’image ou fais glisser le point vers l’endroit le plus important.',
+    ru: 'Нажми на изображение или перетащи точку в самое важное место.',
+    tr: 'Görsele tıkla veya noktayı en önemli yere sürükle.',
+    zh: '点击图片或将点拖到最重要的位置。',
+  },
+
+  /** Button: Fokuspunkt von Hand setzen. */
+  rocket_meals_module_news_focal_point_set: {
+    de: 'Fokuspunkt setzen',
+    en: 'Set focal point',
+    ar: 'تحديد نقطة التركيز',
+    es: 'Fijar punto focal',
+    fr: 'Définir le point focal',
+    ru: 'Задать точку фокуса',
+    tr: 'Odak noktasını belirle',
+    zh: '设置焦点',
+  },
+
+  /** Button: Setzen des Fokuspunkts beenden. */
+  rocket_meals_module_news_focal_point_done: {
+    de: 'Fertig',
+    en: 'Done',
+    ar: 'تم',
+    es: 'Listo',
+    fr: 'Terminé',
+    ru: 'Готово',
+    tr: 'Tamam',
+    zh: '完成',
+  },
+
+  /** Button: Fokuspunkt mit smartcrop neu vorschlagen. */
+  rocket_meals_module_news_focal_point_auto: {
+    de: 'Automatisch wählen',
+    en: 'Choose automatically',
+    ar: 'اختيار تلقائي',
+    es: 'Elegir automáticamente',
+    fr: 'Choisir automatiquement',
+    ru: 'Выбрать автоматически',
+    tr: 'Otomatik seç',
+    zh: '自动选择',
+  },
+
+  /** Button: Ausschnitt in die Bildmitte legen. */
+  rocket_meals_module_news_focal_point_center: {
+    de: 'Mitte',
+    en: 'Center',
+    ar: 'المنتصف',
+    es: 'Centro',
+    fr: 'Centre',
+    ru: 'Центр',
+    tr: 'Orta',
+    zh: '居中',
+  },
+
+  /** Hinweis: der geänderte Fokuspunkt ist noch nicht gespeichert. */
+  rocket_meals_module_news_focal_point_unsaved: {
+    de: 'Der Fokuspunkt wird beim Speichern übernommen.',
+    en: 'The focal point is applied when you save.',
+    ar: 'تُطبَّق نقطة التركيز عند الحفظ.',
+    es: 'El punto focal se aplica al guardar.',
+    fr: 'Le point focal est appliqué à l’enregistrement.',
+    ru: 'Точка фокуса применится при сохранении.',
+    tr: 'Odak noktası kaydederken uygulanır.',
+    zh: '焦点将在保存时生效。',
+  },
+
+  /** Meldung: Fokuspunkt der Datei konnte nicht gespeichert werden. */
+  rocket_meals_module_news_focal_point_save_failed: {
+    de: 'Der Fokuspunkt konnte nicht gespeichert werden.',
+    en: 'The focal point could not be saved.',
+    ar: 'تعذّر حفظ نقطة التركيز.',
+    es: 'No se pudo guardar el punto focal.',
+    fr: 'Le point focal n’a pas pu être enregistré.',
+    ru: 'Не удалось сохранить точку фокуса.',
+    tr: 'Odak noktası kaydedilemedi.',
+    zh: '无法保存焦点。',
+  },
+
   /** Feld im Editor: Link zum vollständigen Artikel. */
   rocket_meals_module_news_field_url: {
     de: 'Link zum Artikel (optional)',

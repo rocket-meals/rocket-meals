@@ -14,6 +14,7 @@
 import { CollectionNames } from 'repo-depkit-common/src/databaseTypes/CollectionNames';
 import type * as DatabaseTypes from 'repo-depkit-common/src/databaseTypes/types';
 import { getNewsDisplayLocations, NewsDisplayLocations, type NewsDisplayLocation } from 'repo-depkit-common/src/EventHelper';
+import { DirectusImageHelper, type ImageFocalPoint } from 'repo-depkit-common/src/DirectusImageHelper';
 import { getLanguageCodeFromRelation } from 'repo-depkit-common/src/translations/LanguageCodeHelper';
 import { isSameBaseLanguage } from 'repo-depkit-common/src/translations/TranslationLanguage';
 import { BackendTranslationKeys } from '../translations/BackendTranslationKeys';
@@ -57,7 +58,7 @@ export enum NewsPreviewView {
 
 export type NewsListOptions = { pageSize?: number | null; archive?: NewsArchiveFilter; sort?: NewsListSort };
 
-export type NewsListItem = Pick<DatabaseTypes.News, 'id' | 'alias' | 'status' | 'date' | 'date_end' | 'display_locations' | 'external_identifier' | 'image' | 'image_remote_url'> & {
+export type NewsListItem = Pick<DatabaseTypes.News, 'id' | 'alias' | 'status' | 'date' | 'date_end' | 'display_locations' | 'external_identifier' | 'image' | 'image_remote_url' | 'date_updated'> & {
   translations?: Partial<DatabaseTypes.NewsTranslations>[] | null;
   canteens?: { id?: number; canteens_id?: { id: string; alias?: string | null } | string | null }[] | null;
 };
@@ -106,7 +107,7 @@ export class NewsModuleHelper {
   public static readonly STATUSES: readonly NewsStatus[] = [NewsStatus.PUBLISHED, NewsStatus.DRAFT, NewsStatus.ARCHIVED];
   public static readonly LOCATIONS: readonly NewsDisplayLocation[] = [NewsDisplayLocations.news_list, NewsDisplayLocations.popup, NewsDisplayLocations.foodoffers_top, NewsDisplayLocations.foodoffers_bottom];
 
-  public static readonly LIST_FIELDS: readonly string[] = ['id', 'alias', 'status', 'date', 'date_end', 'display_locations', 'external_identifier', 'image', 'image_remote_url', 'translations.id', 'translations.languages_code', 'translations.title', 'canteens.id', 'canteens.canteens_id.id', 'canteens.canteens_id.alias'];
+  public static readonly LIST_FIELDS: readonly string[] = ['id', 'alias', 'status', 'date', 'date_end', 'display_locations', 'external_identifier', 'image', 'image_remote_url', 'date_updated', 'translations.id', 'translations.languages_code', 'translations.title', 'canteens.id', 'canteens.canteens_id.id', 'canteens.canteens_id.alias'];
   public static readonly DETAIL_FIELDS: readonly string[] = ['*', 'translations.*', 'canteens.id', 'canteens.canteens_id'];
 
   // ---------- list ----------
@@ -178,17 +179,14 @@ export class NewsModuleHelper {
   }
 
   /**
-   * The image of the news, cropped to `width` × `height` and requested at twice the size (HiDPI),
-   * relative to the app's API root (the session cookie authorises it); else the remote URL of
-   * imported news; else `undefined`.
+   * The image of the news as the app shows it: the uploaded file as a square crop around its focal
+   * point (`DirectusImageHelper`, the same URL as in the app), requested at twice the size of the
+   * larger side (HiDPI) and relative to the app's API root (the session cookie authorises it); else
+   * the remote URL of imported news; else `undefined`. The box around it crops like the app does.
    */
-  static getImageUrl(news: Pick<NewsListItem, 'image' | 'image_remote_url'>, apiRoot: string, width: number, height: number): string | undefined {
-    const fileId = typeof news.image === 'object' && news.image !== null ? news.image.id : news.image;
-    if (fileId) {
-      const root = apiRoot.endsWith('/') ? apiRoot : `${apiRoot}/`;
-      return `${root}assets/${encodeURIComponent(fileId)}?width=${width * 2}&height=${height * 2}&fit=cover&quality=80`;
-    }
-    return news.image_remote_url || undefined;
+  static getImageUrl(news: Pick<NewsListItem, 'image' | 'image_remote_url'> & { date_updated?: string | null }, apiRoot: string, width: number, height: number, focalPoint?: ImageFocalPoint | null): string | undefined {
+    const size = Math.max(width, height) * 2;
+    return DirectusImageHelper.getItemImageUrl(news, fileId => DirectusImageHelper.buildSquareAssetUrl({ serverUrl: apiRoot, fileId, size, focalPoint, version: news.date_updated })) ?? undefined;
   }
 
   static buildDetailQuery() {

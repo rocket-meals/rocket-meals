@@ -2,7 +2,7 @@ import { UPDATE_LOGIN } from '@/redux/Types/types';
 import * as Crypto from 'expo-crypto';
 import { Platform } from 'react-native';
 import Server from './ServerUrl';
-import { DatabaseTypes, FoodofferPriceHelper, NumberHelper, StringHelper, type Translator } from 'repo-depkit-common';
+import { DatabaseTypes, DirectusImageHelper, type DirectusFileReference, FoodofferPriceHelper, NumberHelper, StringHelper, type Translator } from 'repo-depkit-common';
 import { buildDirectusUploadFormData } from '@/helper/fileUploadHelper';
 import { authorizedFetch } from '@/helper/authorizedFetch';
 import { configureStore } from '@/redux/store';
@@ -61,15 +61,27 @@ export const numToOneDecimal = (num: number) => {
 /** Used when the persisted settings predate the image quality setting */
 export const DEFAULT_ASSET_IMAGE_QUALITY = 80;
 
-export const getImageUrl = (imageId: string, size: number = 512) => {
+export const getImageUrl = (imageId: string, size: number = 512, version?: string | null) => {
 	if (!imageId) {
 		return null;
 	}
 	const { useWebpForAssets, assetImageQuality } = configureStore.getState().settings;
-	const format = useWebpForAssets ? '&format=webp' : '';
-	const quality = assetImageQuality || DEFAULT_ASSET_IMAGE_QUALITY;
-	return `${Server.ServerUrl}/assets/${imageId}?fit=cover&width=${size}&height=${size}&quality=${quality}${format}`;
+	// The same square crop as in the Rocket Meals module, around the file's focal point if it has one.
+	return DirectusImageHelper.buildSquareAssetUrl({
+		serverUrl: Server.ServerUrl,
+		fileId: imageId,
+		size,
+		quality: assetImageQuality || DEFAULT_ASSET_IMAGE_QUALITY,
+		useWebp: !!useWebpForAssets,
+		version,
+	});
 };
+
+/**
+ * The image of a news: the uploaded file (square crop) first, else the remote URL. The URL changes
+ * with `date_updated`, because the module saves the news together with a new focal point.
+ */
+export const getNewsImageUrl = (news: { image?: DirectusFileReference; image_remote_url?: string | null; date_updated?: string | null } | null | undefined, size: number = 512) => DirectusImageHelper.getItemImageUrl(news, fileId => getImageUrl(fileId, size, news?.date_updated));
 
 export const getHighResImageUrl = (imageId: string, size: number = 2048) => {
 	return getImageUrl(imageId, size);

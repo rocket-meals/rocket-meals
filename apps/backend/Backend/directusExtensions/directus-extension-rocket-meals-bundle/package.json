@@ -440,6 +440,7 @@
     "repo-depkit-common-backend": "workspace:*",
     "repo-depkit-common-ui": "workspace:*",
     "short-unique-id": "^5.2.2",
+    "smartcrop": "2.0.5",
     "spark-md5": "^3.0.2",
     "sqlite3": "^5.1.7",
     "ts-morph": "^25.0.1",
