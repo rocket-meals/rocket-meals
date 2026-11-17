@@ -1108,10 +1108,23 @@
         } catch (e) {}
       }
 
+      // Marker icons from these messages end up as HTML in this page, which runs in the origin of
+      // the app. So only the app itself may send them: inside the native WebView that is the bridge
+      // of React Native, on web the parent window of this iframe on the same origin. Without the
+      // check any other website holding a reference to this frame could run script as the app.
+      function isTrustedMessage(e) {
+        if (window.ReactNativeWebView) {
+          return true;
+        }
+        return e.origin === window.location.origin && e.source === window.parent;
+      }
+
       window.addEventListener('message', function (e) {
+        if (!isTrustedMessage(e)) return;
         parseAndHandle(e.data);
       });
       document.addEventListener('message', function (e) {
+        if (!isTrustedMessage(e)) return;
         parseAndHandle(e.data);
       });
 
