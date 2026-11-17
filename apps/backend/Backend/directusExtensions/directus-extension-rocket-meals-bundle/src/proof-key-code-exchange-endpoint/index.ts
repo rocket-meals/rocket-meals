@@ -157,10 +157,11 @@ function getProviderRedirectAllowList(provider: string): string[] {
 }
 
 function isRedirectUrlWhitelisted(redirect_url_as_url: URL, provider: string, apiContext: ApiContext) {
-  const redirect_url = redirect_url_as_url.toString();
   const allowed_redirect_urls = getProviderRedirectAllowList(provider);
-  if (redirect_url.startsWith(PUBLIC_URL)) {
-    // we will always allow the redirect to the server page
+  // We always allow the redirect to a page of this server. Compared as URL and not as string prefix,
+  // otherwise "https://server.attacker.example" would pass for "https://server" - and an empty
+  // PUBLIC_URL would allow every redirect.
+  if (RedirectWhitelistHelper.isRedirectUrlBelowBaseUrl(PUBLIC_URL, redirect_url_as_url)) {
     return true;
   } else {
     return RedirectWhitelistHelper.isRedirectUrlAllowedForWhitelistEntriesWithSimpleWildcards(allowed_redirect_urls, redirect_url_as_url);
@@ -223,7 +224,7 @@ export default defineEndpoint({
       //    code_challenge
       //       REQUIRED.  Code challenge.
       const code_challenge_app = code_challenge;
-      if (!code_challenge_app) {
+      if (!code_challenge_app || typeof code_challenge_app !== 'string' || typeof provider !== 'string' || typeof redirect_url !== 'string') {
         // 4.4.1.  Error Response
         //
         //    If the server requires Proof Key for Code Exchange (PKCE) by OAuth
@@ -241,6 +242,12 @@ export default defineEndpoint({
       //       OPTIONAL, defaults to "plain" if not present in the request.  Code
       //       verifier transformation method is "S256" or "plain".
       let code_challenge_method_app = code_challenge_method || CodeChallengeMethods.METHOD_plain;
+
+      // "plain" sends the secret itself as challenge, so it protects nothing once the first request
+      // is read. The apps have always sent S256 (RFC 7636 4.2: "plain" only if S256 is impossible).
+      if (code_challenge_method_app === CodeChallengeMethods.METHOD_plain) {
+        return res.status(400).json({ error: `Code challenge method has to be "${CodeChallengeMethods.METHOD_S256}"` });
+      }
 
       if (!(code_challenge_method_app === CodeChallengeMethods.METHOD_S256 || code_challenge_method_app === CodeChallengeMethods.METHOD_plain)) {
         // Clients are
@@ -394,7 +401,7 @@ export default defineEndpoint({
       //    code_verifier
       //       REQUIRED.  Code verifier
       const code_verifier_app = code_verifier;
-      if (!code_verifier_app) {
+      if (!code_verifier_app || typeof code_verifier_app !== 'string' || typeof code !== 'string' || !code) {
         mylog('Missing required parameter code_verifier.');
         return res.status(400).json({ error: 'Missing required parameter: code_verifier.' });
       }
@@ -422,7 +429,10 @@ export default defineEndpoint({
 
         mylog('Token Called: generatedChallenge: ' + generatedChallenge);
         // Secure comparison of the code challenge
-        if (!crypto.timingSafeEqual(Buffer.from(generatedChallenge), Buffer.from(storedCodeChallenge.code_challenge))) {
+        const generatedChallengeBuffer = Buffer.from(generatedChallenge);
+        const storedChallengeBuffer = Buffer.from(String(storedCodeChallenge.code_challenge));
+        // timingSafeEqual throws on different lengths, which is simply a wrong verifier.
+        if (generatedChallengeBuffer.length !== storedChallengeBuffer.length || !crypto.timingSafeEqual(generatedChallengeBuffer, storedChallengeBuffer)) {
           mylog('Token Called: Invalid code verifier.');
           return res.status(400).json({ error: 'Invalid code verifier.' });
         }
@@ -448,7 +458,7 @@ export default defineEndpoint({
         });
       } catch (error: any) {
         mylog('Error during validation:', error);
-        return res.status(500).json({ error: 'Internal server error.', message: error.toString() });
+        return res.status(500).json({ error: 'Internal server error.' });
       }
     });
   },
