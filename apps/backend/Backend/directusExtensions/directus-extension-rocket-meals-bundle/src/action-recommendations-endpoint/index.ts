@@ -18,7 +18,7 @@
  * configured under Settings → AI and whether the automatic recommendations are switched on. Reveals
  * nothing about the provider.
  *
- * Only for logged-in users. The items are read with their permissions, so only what they may read
+ * Only for logged-in users with access to the Directus app (not for app users or guests). The items are read with their permissions, so only what they may read
  * is sent to the AI, and only the allowlisted fields. Nothing in the source collection is changed.
  * Needs a provider under Settings → AI. `app_settings.ai_action_recommendations_enabled` only switches
  * the automatic recommendations of the hook, asking by hand works without it.
@@ -26,6 +26,7 @@
 
 import { defineEndpoint } from '@directus/extensions-sdk';
 import { Accountability } from '@directus/types';
+import { AccountabilityHelper } from '../helpers/AccountabilityHelper';
 import { ApiContext } from '../helpers/ApiContext';
 import { ActionRecommendationDefinitions, type ActionRecommendationDefinition } from '../helpers/action-recommendations/ActionRecommendationDefinitions';
 import { ActionRecommendationService } from '../helpers/action-recommendations/ActionRecommendationService';
@@ -44,6 +45,13 @@ async function getRequestContext(apiContext: ApiContext, req: any, res: any): Pr
   const accountability = req?.accountability as Accountability | undefined;
   if (!accountability?.user) {
     res.status(401).json({ error: 'Authentication required.' });
+    return null;
+  }
+  // Only people working in the Directus app (support, admins). An account of the app is free to get
+  // (guest accounts, the public MCP user), and every request here costs AI quota and stores rows
+  // that the support then sees as recommendations.
+  if (!AccountabilityHelper.isAppAccessAccountability(accountability)) {
+    res.status(403).json({ error: 'Only for users of the Directus app.' });
     return null;
   }
   const definition = ActionRecommendationDefinitions.getDefinition(req.body?.collection);

@@ -12,7 +12,7 @@
  * `blocked_reason` tells the page that a workflow cannot do its job here, e.g. it needs the AI
  * (`requiresAi`) and no OpenAI-compatible provider is configured under Settings → AI.
  *
- * Only for logged-in users; reveals nothing but workflow ids, their schedules and whether an AI
+ * Only for logged-in users with access to the Directus app; reveals nothing but workflow ids, their schedules and whether an AI
  * provider is configured (never which one).
  */
 
@@ -23,6 +23,7 @@ import { CronScheduleHelper } from '../helpers/CronScheduleHelper';
 import { WorkflowBlockedReason, WorkflowScheduleInfo, WorkflowsPageHelper, WorkflowsSchedulesResponse } from '../helpers/rocket-meals-module/WorkflowsPageHelper';
 import { DirectusOpenAiCompatibleClient } from '../helpers/ai/DirectusOpenAiCompatibleClient';
 import { ApiContext } from '../helpers/ApiContext';
+import { AccountabilityHelper } from '../helpers/AccountabilityHelper';
 
 const ENDPOINT_ID = 'rocket-meals-workflows';
 
@@ -55,6 +56,10 @@ export default defineEndpoint({
       const accountability = req?.accountability as Accountability | undefined;
       if (!accountability?.user) {
         return res.status(401).json({ error: 'Authentication required.' });
+      }
+      // The page lives in the Directus app. App users and guests have no business with the workflows.
+      if (!AccountabilityHelper.isAppAccessAccountability(accountability)) {
+        return res.status(403).json({ error: 'Only for users of the Directus app.' });
       }
 
       const now = new Date();
