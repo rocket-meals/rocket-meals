@@ -84,11 +84,7 @@ function refreshSecret(config: AppleClientSecretCredentials, hostEnvFilePath: st
     const result = generateAppleClientSecret(config);
     let token = result.token;
     console.log('['+HOOK_NAME+'] Generated new Apple client secret. Expires at', new Date(result.expiresAt * 1000).toISOString());
-
-    console.log("###############")
-    console.log("NEW TOKEN:")
-    console.log(token);
-    console.log("###############")
+    // The token is a secret (AUTH_APPLE_CLIENT_SECRET), it does not belong into the log.
 
     setEnvValue(hostEnvFilePath, 'AUTH_APPLE_CLIENT_SECRET', token);
   } catch (error) {

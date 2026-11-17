@@ -79,7 +79,12 @@ services:
       TZ: "Europe/Berlin"
       ACCESS_TOKEN_TTL: "15m" # Time to live for the access token
       REFRESH_TOKEN_TTL: "180d" # Time to live for the refresh token
-      NODE_TLS_REJECT_UNAUTHORIZED: 0 # The HTTPS cert is not complete: "unable to verify the first certificate"
+      # 0 switches off the certificate check for EVERY outgoing https request of Directus (SSO logins,
+      # mail, push, AI, imports): whoever sits between the server and e.g. the SSO provider can read and
+      # change them. It was set because one data source has an incomplete certificate chain ("unable to
+      # verify the first certificate"). Set NODE_TLS_REJECT_UNAUTHORIZED=1 in the .env of every server
+      # that does not need it. Better for the one that does: NODE_EXTRA_CA_CERTS with the missing certificate.
+      NODE_TLS_REJECT_UNAUTHORIZED: "${NODE_TLS_REJECT_UNAUTHORIZED:-0}"
       MAX_PAYLOAD_SIZE: "80mb"
       CORS_ENABLED: "true" # Enable CORS - which means that the frontend does not have to be on the same domain
       CORS_ORIGIN: "true" # Allow all origins - which means that the frontend does not have to be on the same domain

@@ -1446,7 +1446,6 @@
       "id",
       "last_access",
       "provider",
-      "auth_data",
       "external_identifier"
     ],
     "presets": null,

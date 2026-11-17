@@ -22,8 +22,8 @@ async function registerAppleClientSecretChecker(){
         hostEnvFilePath = HOST_ENV_FILE_PATH;
         config = buildConfigFromEnv(hostEnvFilePath);
         if(config){
-          console.log("[AppleClientSecretChecker] Loaded config:");
-          console.log(JSON.stringify(config, null, 2));
+          // Never log the config itself: it holds the private key that signs "Sign in with Apple".
+          console.log("[AppleClientSecretChecker] Loaded config.");
           await ensureAppleClientSecret(config, hostEnvFilePath);
 
           /**
