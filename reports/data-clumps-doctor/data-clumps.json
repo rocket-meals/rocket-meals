@@ -1,45 +1,45 @@
 {
   "report_version": "^0.1.103",
-  "report_timestamp": "2026-11-17T11:36:52.344Z",
+  "report_timestamp": "2026-11-17T23:33:29.356Z",
   "target_language": "typescript",
   "report_summary": {
     "additional": {
       "invertedIndexSoftwareProjectStatistics": {
         "invertedFieldToClasses": {
-          "median": 1.5,
+          "median": 1,
           "maximum": 141,
-          "average": 1.4994962216624685,
-          "amountSavedValuesForKeys": 5953,
+          "average": 1.4991190536118801,
+          "amountSavedValuesForKeys": 5956,
           "amountKeys": 32
         },
         "invertedParameterToMethods": {
-          "median": 1.5,
+          "median": 1,
           "maximum": 83,
-          "average": 2.2538940809968846,
-          "amountSavedValuesForKeys": 2894,
+          "average": 2.2501936483346245,
+          "amountSavedValuesForKeys": 2905,
           "amountKeys": 27
         },
         "invertedParameterToClasses": {
-          "median": 1.5,
+          "median": 1,
           "maximum": 141,
-          "average": 1.511681056373794,
-          "amountSavedValuesForKeys": 5953,
+          "average": 1.511291550367927,
+          "amountSavedValuesForKeys": 5956,
           "amountKeys": 32
         }
       },
       "timer_information": {
-        "ast_generation_time_ms": 4296,
-        "detection_time_ms": 125,
+        "ast_generation_time_ms": 3195,
+        "detection_time_ms": 92,
         "machine_information": {
           "os": "Linux",
           "os_release": "7.0.0-1019-azure",
           "os_platform": "linux",
           "os_arch": "x64",
-          "os_uptime": 193.76,
-          "os_memory_free": 14649872384,
+          "os_uptime": 142.3,
+          "os_memory_free": 14688501760,
           "os_memory_total": 16759439360,
           "os_cpu_cores": 4,
-          "os_cpu_model": "AMD EPYC 9V74 80-Core Processor",
+          "os_cpu_model": "AMD EPYC 9V45 96-Core Processor",
           "os_cpu_speed": 0
         }
       }
@@ -55,18 +55,18 @@
   "project_info": {
     "project_url": "https://github.com/rocket-meals/rocket-meals",
     "project_name": "rocket-meals",
-    "project_version": "2164efdb89336f5ec6476c34c05fc1f431ea039e",
-    "project_commit_hash": "2164efdb89336f5ec6476c34c05fc1f431ea039e",
+    "project_version": "fc121016b43aeeeabd1229f22c8e3697171187b5",
+    "project_commit_hash": "fc121016b43aeeeabd1229f22c8e3697171187b5",
     "project_tag": null,
-    "project_commit_date": "1794915263",
+    "project_commit_date": "1794958265",
     "additional": {
       "relative_path_to_source_folder_in_project": ""
     },
-    "number_of_files": 836,
-    "number_of_classes_or_interfaces": 1935,
-    "number_of_methods": 2437,
-    "number_of_data_fields": 5953,
-    "number_of_method_parameters": 2894
+    "number_of_files": 837,
+    "number_of_classes_or_interfaces": 1937,
+    "number_of_methods": 2443,
+    "number_of_data_fields": 5956,
+    "number_of_method_parameters": 2905
   },
   "detector": {
     "name": "data-clumps-doctor",
