@@ -12,10 +12,22 @@ import {HookKeysHelper} from '../helpers/HookKeysHelper';
 import {ChatMailDigestHelper} from '../helpers/ChatMailDigestHelper';
 import {ChatMessageMailHelper} from '../helpers/ChatMessageMailHelper';
 import {ApiContext} from '../helpers/ApiContext';
+import {ChatMessageAccessHelper} from '../helpers/ChatMessageAccessHelper';
+import {createMyForbiddenError} from '../helpers/MyDirectusError';
 
 const HOOK_NAME = 'chat_conversation_state';
 
-export default MyDefineHook.defineHookWithAllTablesExisting(HOOK_NAME, ({ action }, apiContext) => {
+export default MyDefineHook.defineHookWithAllTablesExisting(HOOK_NAME, ({ action, filter }, apiContext) => {
+  // Only who belongs to a chat may write into it (see ChatMessageAccessHelper).
+  filter(CollectionNames.CHAT_MESSAGES + '.items.create', async (payload, _meta, eventContext) => {
+    const chat = (payload as Partial<DatabaseTypes.ChatMessages> | undefined)?.chat;
+    const lookup = ChatMessageAccessHelper.createDatabaseLookup(eventContext?.database ?? apiContext.database);
+    if (!(await ChatMessageAccessHelper.mayCreateMessage(eventContext?.accountability, chat, lookup))) {
+      throw createMyForbiddenError('You are not part of this chat.');
+    }
+    return payload;
+  });
+
   // The state of a chat – set below on every message, or by hand in the module – is also the state
   // of its app feedbacks, so an export of `app_feedbacks` shows it.
   action(CollectionNames.CHATS + '.items.update', async (meta, eventContext) => {
