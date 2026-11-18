@@ -1,0 +1,66 @@
+name: "🖥️ Rocket Meals Cloud Simulator"
+
+# Runs a scripted tour of the app on an Expo cloud simulator and uploads the
+# screenshots. The tour is described in apps/frontend/cloud-simulator/request.json
+# (see run.mjs next to it for the format).
+#
+# It exists for devices nobody has at hand, first of all the iPhone Duo: folding
+# it and turning it sideways only works through EAS CLI, which needs the Expo
+# token from the secrets.
+#
+# It costs simulator minutes (and a build when the request asks for one), so it
+# only runs when the request itself changes, never on ordinary pushes.
+
+on:
+  pull_request:
+    paths:
+      - "apps/frontend/cloud-simulator/request.json"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-repository:
+    name: "🔍 Check Repository"
+    runs-on: ubuntu-latest
+    outputs:
+      is-upstream: ${{ steps.check.outputs.is-upstream }}
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "🔍 Check Repository Type"
+        id: check
+        uses: ./.github/actions/check-repository
+
+  simulator-tour:
+    name: "🖥️ Simulator Tour"
+    runs-on: ubuntu-latest
+    needs: check-repository
+    timeout-minutes: 75
+    # Forks have no EXPO_TOKEN and must not spend minutes on our EAS account.
+    if: >-
+      needs.check-repository.outputs.is-upstream == 'true'
+      && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    steps:
+      - name: "🔄 Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "🧰 Setup Node.js, Yarn & Dependencies"
+        uses: ./.github/actions/setup-and-install
+        with:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: "🖥️ Run the tour"
+        run: node apps/frontend/cloud-simulator/run.mjs
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: "📤 Upload screenshots"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-simulator-screenshots
+          path: apps/frontend/cloud-simulator/output/*.png
+          retention-days: 7
+          if-no-files-found: warn

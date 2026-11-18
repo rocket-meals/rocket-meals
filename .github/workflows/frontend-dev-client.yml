@@ -92,17 +92,6 @@ jobs:
         with:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      # A self-contained build for the iOS Simulator (no dev server needed). It
-      # can be installed on an Expo cloud simulator, e.g. to look at the app on
-      # a device nobody has at hand. Unsigned, so it needs no credentials. A
-      # failure here must not keep the dev clients from building.
-      - name: "🖥️ Build iOS Simulator Build"
-        continue-on-error: true
-        run: eas build --platform ios --profile simulator --non-interactive --json > eas-build-dev-ios-simulator.json
-        working-directory: ./apps/frontend/app
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
       - name: "🤖 Build Android Dev Client"
         run: eas build --platform android --profile development --non-interactive --json > eas-build-dev-android.json
         working-directory: ./apps/frontend/app
