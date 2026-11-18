@@ -74,7 +74,7 @@ Die Links werden bei jedem Build-Nummern-Bump automatisch aktualisiert.
 <!-- dev-client:score-tracker:end -->
 
 <!-- dev-client:tag-und-jahr:start -->
-**Tag und Jahr Dev Client v0.4.0:** 🤖 [Android APK](https://expo.dev/artifacts/eas/JL0NRKwjrdrfkqsISU81nSMEjdbmeBJlPFVs_a9ZtfI.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/tag-und-jahr/builds/2320aceb-ec3e-478a-b2c3-041262335098)
+**Tag und Jahr Dev Client v0.5.0:** 🤖 [Android APK](https://expo.dev/artifacts/eas/uHLDkWKzoL5ExJ-jWe1_saW83oZUQghv0V_kvyx8Rnk.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/tag-und-jahr/builds/7e28a0ef-2e5b-4468-8de4-906c6cdf0fcd)
 <!-- dev-client:tag-und-jahr:end -->
 
 <!-- dev-client:geonexia:start -->
