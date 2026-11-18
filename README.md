@@ -78,7 +78,7 @@ Die Links werden bei jedem Build-Nummern-Bump automatisch aktualisiert.
 <!-- dev-client:tag-und-jahr:end -->
 
 <!-- dev-client:geonexia:start -->
-**Geonexia Dev Client v0.22.0:** 🤖 [Android APK](https://expo.dev/artifacts/eas/5cv8X25rwcMW37RacoRCMv60cdcHukV5aaL1zRiSVUo.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/geonexia/builds/10f624c1-45d4-4310-a828-37adcd97382f)
+**Geonexia Dev Client v0.23.0:** 🤖 [Android APK](https://expo.dev/artifacts/eas/0BUoyvxEUG2qKb2sbVfne5V9co3BTv8HPrEr4TfuXmc.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/geonexia/builds/958fe7c3-5646-409b-81fd-0c3866e973c4)
 <!-- dev-client:geonexia:end -->
 
 # 🚀 Rocket Meals
