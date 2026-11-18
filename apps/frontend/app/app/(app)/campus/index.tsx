@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import {
 	RefreshControl,
-	SafeAreaView,
 	View,
 	useWindowDimensions,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { AppUsageEventNames, CampusSortOption, CollectionNames, DatabaseTypes, shouldApplyLastOpenedBoost } from 'repo-depkit-common';
 import styles from './styles';
@@ -47,7 +47,9 @@ const Index: React.FC = () => {
 	const toast = useToast();
 	const dispatch = useDispatch();
 	const { translate } = useLanguage();
-	const { width: windowWidth } = useWindowDimensions();
+	// The width really available for content: narrower than the window where the
+	// system keeps a side free, e.g. beside the upright status bar of the iPhone Duo.
+	const { width: windowWidth } = useSafeAreaFrame();
 
 	// Refs for helpers to avoid recreation
 	const campusHelper = useRef(new CampusHelper()).current;

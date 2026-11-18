@@ -15,7 +15,9 @@ export function getBuildNumber() {
 	// binary. getVersion() now pins the patch segment to 0 (like apps/frontend
 	// and geonexia) — this build picks up the stable runtime version.
 	// 25: shared expo-build-properties plugin from repo-depkit-common/appconfig
-	return 25;
+	// 26: Expo SDK 58 (React Native 0.88, built with Xcode 27.1 - fills the
+	//    screens of the iPhone Duo instead of sitting letterboxed)
+	return 26;
 }
 
 // DO NOT CHANGE THE NAME OF THIS FUNCTION: getMajorVersion

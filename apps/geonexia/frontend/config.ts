@@ -16,7 +16,9 @@ export function getBuildNumber() {
 	// the patch segment, so patch-only OTA updates never matched the installed
 	// binary. getVersion() now pins the patch segment to 0 — this build picks
 	// up the stable runtime version plus the update-on-start loader.
-	return 22;
+	// 23: Expo SDK 58 (React Native 0.88, built with Xcode 27.1 - fills the
+	//    screens of the iPhone Duo instead of sitting letterboxed)
+	return 23;
 }
 
 // DO NOT CHANGE THE NAME OF THIS FUNCTION: getMajorVersion

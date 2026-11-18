@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, ScaledSize, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
@@ -20,7 +20,7 @@ const VerticalScrollTopFood: React.FC = () => {
 	const numColumns = CardDimensionHelper.getNumColumns(screenWidth, amountColumnsForcard);
 
 	useEffect(() => {
-		const sub = Dimensions.addEventListener('change', ({ window }) => {
+		const sub = Dimensions.addEventListener('change', ({ window }: { window: ScaledSize }) => {
 			setScreenWidth(window.width);
 		});
 		return () => sub?.remove();

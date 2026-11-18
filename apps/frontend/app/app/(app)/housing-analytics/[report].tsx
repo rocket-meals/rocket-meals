@@ -121,7 +121,7 @@ const ReportScreen = () => {
 	const { show: showModal, close: closeModal } = useMyScrollViewModal();
 	// The printed page is the result area, not the whole screen - the drawer and the header
 	// would otherwise end up on the paper.
-	const printRef = useRef<View | null>(null);
+	const printRef = useRef<React.ComponentRef<typeof View> | null>(null);
 
 	const definition = useMemo(() => findHousingReportDefinition(report), [report]);
 	useSetPageTitle(definition?.titleKey ?? TranslationKeys.housing_analytics);

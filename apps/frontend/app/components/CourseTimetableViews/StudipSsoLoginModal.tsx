@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
@@ -27,7 +28,7 @@ type StudipSsoLoginModalProps = {
 const StudipSsoLoginModal: React.FC<StudipSsoLoginModalProps> = ({ instance, visible, onClose, onImported, onError }) => {
 	const { theme } = useTheme();
 	const { translate } = useLanguage();
-	const webViewRef = useRef<WebView>(null);
+	const webViewRef = useRef<WebView<{}>>(null);
 	const finishedRef = useRef(false);
 	const script = useMemo(() => buildStudipSessionScheduleScript(instance), [instance]);
 
@@ -66,7 +67,7 @@ const StudipSsoLoginModal: React.FC<StudipSsoLoginModalProps> = ({ instance, vis
 					</TouchableOpacity>
 				</View>
 				<Text style={[styles.hint, { color: theme.screen.placeholder }]}>{translate(TranslationKeys.course_timetable_import_sso_hint)}</Text>
-				{visible ? <WebView ref={webViewRef} source={{ uri: `${instance.baseUrl}${instance.ssoLoginPath ?? '/dispatch.php/login'}` }} incognito sharedCookiesEnabled={false} onLoadEnd={() => webViewRef.current?.injectJavaScript(script)} onMessage={handleMessage} startInLoadingState style={styles.webView} /> : null}
+				{visible ? <WebView<{}> ref={webViewRef} source={{ uri: `${instance.baseUrl}${instance.ssoLoginPath ?? '/dispatch.php/login'}` }} incognito sharedCookiesEnabled={false} onLoadEnd={() => webViewRef.current?.injectJavaScript(script)} onMessage={handleMessage} startInLoadingState style={styles.webView} /> : null}
 			</SafeAreaView>
 		</Modal>
 	);

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Keyboard, Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Keyboard, Platform, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
 import ModalTextInput from '@/components/ModalTextInput';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
@@ -865,7 +866,7 @@ const OsmVectorMapScreen: React.FC = () => {
 
 	const [logEntries, setLogEntries] = useState<{ id: number; text: string }[]>([]);
 	const nextLogEntryIdRef = useRef(0);
-	const logScrollRef = useRef<ScrollView>(null);
+	const logScrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM);
 	const [mapCenterOverride, setMapCenterOverride] = useState<{ lat: number; lng: number } | null>(null);

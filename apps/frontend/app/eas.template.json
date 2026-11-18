@@ -44,6 +44,12 @@
       "distribution": "internal",
       "node": "22.16.0"
     },
+    "simulator": {
+      "ios": {
+        "simulator": true
+      },
+      "node": "22.16.0"
+    },
     "production": {
       "android": {
         "buildType": "app-bundle"

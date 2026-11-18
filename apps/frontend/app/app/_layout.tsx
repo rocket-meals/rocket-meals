@@ -1,6 +1,6 @@
 // Polyfill for environments where `setImmediate` is not available (e.g. web)
 import 'setimmediate';
-import React, {useEffect} from 'react';
+import React, {useEffect, useMemo } from 'react';
 import {Slot, usePathname} from 'expo-router';
 import {RootSiblingParent} from 'react-native-root-siblings';
 import {
@@ -34,7 +34,8 @@ import {ServerAPI} from '@/redux/actions';
 import {sqliteKeyValueStorage} from '@/redux/storage/sqliteStorage';
 import {useTheme, useThemeStatusBar} from '@/hooks/useTheme';
 import ServerStatusLoader from '@/components/ServerStatusLoader/ServerStatusLoader';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import {SafeAreaFrameContext, SafeAreaInsetsContext, SafeAreaView, useSafeAreaFrame, useSafeAreaInsets} from 'react-native-safe-area-context';
+import IphoneDuoSimulation from '@/components/IphoneDuoSimulation';
 import {GluestackUIProvider} from '@gluestack-ui/themed';
 import {config} from '@gluestack-ui/config';
 import ExpoUpdateLoader from '@/components/ExpoUpdateLoader/ExpoUpdateLoader';
@@ -115,6 +116,42 @@ function DocumentLanguageBridge() {
 	}, [language]);
 
 	return null;
+}
+
+/**
+ * Keeps the whole app clear of what the system draws along the left and right
+ * edge: the notch of a phone held sideways, and above all the upright status
+ * bar of the iPhone Duo, which takes 84 pt on one side.
+ *
+ * It is done once, here, instead of in every screen: most screens never thought
+ * about side insets and put rows, buttons and chevrons under that bar. The
+ * insets are consumed at this point, so everything below sees none on the
+ * sides and a frame that is as wide as the space really left. Screens and
+ * headers that do respect insets therefore do not apply them a second time.
+ */
+function SideSafeArea({ backgroundColor, children }: { backgroundColor: string; children: React.ReactNode }) {
+	const insets = useSafeAreaInsets();
+	const frame = useSafeAreaFrame();
+	const innerInsets = useMemo(() => ({ ...insets, left: 0, right: 0 }), [insets]);
+	const innerFrame = useMemo(
+		() => ({ ...frame, x: frame.x + insets.left, width: Math.max(0, frame.width - insets.left - insets.right) }),
+		[frame, insets.left, insets.right]
+	);
+
+	// The same views with and without insets: a different tree would remount the
+	// whole app, and lose its state, whenever the device is turned.
+	return (
+		<View style={{ flex: 1, paddingLeft: insets.left, paddingRight: insets.right, backgroundColor }}>
+			{/* Clipped, because things parked beside the screen (the closed drawer)
+			    would otherwise show in the strip that is kept free. The clipping
+			    needs its own view: a view clips at its padding edge, not inside it. */}
+			<View style={{ flex: 1, overflow: 'hidden' }}>
+				<SafeAreaFrameContext.Provider value={innerFrame}>
+					<SafeAreaInsetsContext.Provider value={innerInsets}>{children}</SafeAreaInsetsContext.Provider>
+				</SafeAreaFrameContext.Provider>
+			</View>
+		</View>
+	);
 }
 
 export default function Layout() {
@@ -223,6 +260,7 @@ export default function Layout() {
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
+			<IphoneDuoSimulation>
 			<ExpoUpdateLoader>
 				<Provider store={configureStore}>
 					<GluestackUIProvider config={config}>
@@ -239,6 +277,7 @@ export default function Layout() {
 													<ExpoUpdateChecker>
 														<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: theme.screen.iconBg }}>
 															<SafeAreaView style={{ flex: 1, backgroundColor: theme.screen.iconBg }} edges={pathname?.includes('image-full-screen') ? ['bottom'] : ['top', 'bottom']}>
+															<SideSafeArea backgroundColor={pathname?.includes('login') ? theme.login.background : theme.screen.background}>
 																{/* Main landmark: on web all page content must sit inside a landmark (axe region / landmark-one-main). */}
 																<View role="main" style={{ flex: 1 }}>
 																	<AppDownloadBanner />
@@ -247,6 +286,7 @@ export default function Layout() {
 																</View>
 																{/* The WebView the text recognition runs in on a device; renders nothing until a scan asks for it. */}
 																<TextRecognitionWebViewHost />
+															</SideSafeArea>
 															</SafeAreaView>
 														</KeyboardAvoidingView>
 													</ExpoUpdateChecker>
@@ -260,6 +300,7 @@ export default function Layout() {
 					</GluestackUIProvider>
 				</Provider>
 			</ExpoUpdateLoader>
+			</IphoneDuoSimulation>
 		</GestureHandlerRootView>
 	);
 }

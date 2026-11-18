@@ -9378,5 +9378,85 @@
     "ru": "На главную",
     "tr": "Ana sayfaya git",
     "zh": "返回首页"
+  },
+  "iphone_duo_simulation": {
+    "de": "iPhone Duo simulieren",
+    "en": "Simulate iPhone Duo",
+    "ar": "محاكاة iPhone Duo",
+    "es": "Simular iPhone Duo",
+    "fr": "Simuler l’iPhone Duo",
+    "ru": "Имитировать iPhone Duo",
+    "tr": "iPhone Duo simülasyonu",
+    "zh": "模拟 iPhone Duo"
+  },
+  "iphone_duo_simulation_description": {
+    "de": "Zeigt die senkrechte Statusleiste der gewählten Haltung. Für das echte Format das Fenster auf die angegebene Größe in Punkten stellen. Nur der Außenbildschirm hochkant ist am Gerät gemessen, die anderen Haltungen folgen der Beschreibung von Apple.",
+    "en": "Shows the upright status bar of the chosen pose. For the real format set the window to the size given in points. Only the outer display upright was measured on the device, the other poses follow Apple's description.",
+    "ar": "يعرض شريط الحالة العمودي للوضعية المختارة. للحصول على الحجم الحقيقي اضبط النافذة على الحجم المذكور بالنقاط. تم قياس الشاشة الخارجية العمودية فقط على الجهاز، أما الوضعيات الأخرى فتتبع وصف Apple.",
+    "es": "Muestra la barra de estado vertical de la posición elegida. Para el formato real, ajusta la ventana al tamaño indicado en puntos. Solo la pantalla exterior en vertical se midió en el dispositivo, las demás posiciones siguen la descripción de Apple.",
+    "fr": "Affiche la barre d’état verticale de la position choisie. Pour le format réel, réglez la fenêtre sur la taille indiquée en points. Seul l’écran extérieur vertical a été mesuré sur l’appareil, les autres positions suivent la description d’Apple.",
+    "ru": "Показывает вертикальную строку состояния выбранного положения. Для настоящего формата задайте окну указанный размер в точках. На устройстве измерен только внешний экран в вертикальном положении, остальные положения следуют описанию Apple.",
+    "tr": "Seçilen duruşun dikey durum çubuğunu gösterir. Gerçek biçim için pencereyi belirtilen nokta boyutuna ayarlayın. Yalnızca dikey dış ekran cihazda ölçüldü, diğer duruşlar Apple’ın açıklamasına dayanır.",
+    "zh": "显示所选姿态的竖向状态栏。要获得真实尺寸，请将窗口设为所示的点数大小。只有竖向外屏在设备上测量过，其他姿态依据 Apple 的说明。"
+  },
+  "iphone_duo_pose_off": {
+    "de": "Aus",
+    "en": "Off",
+    "ar": "إيقاف",
+    "es": "Desactivado",
+    "fr": "Désactivé",
+    "ru": "Выключено",
+    "tr": "Kapalı",
+    "zh": "关闭"
+  },
+  "iphone_duo_pose_outer_portrait": {
+    "de": "Außenbildschirm hochkant",
+    "en": "Outer display upright",
+    "ar": "الشاشة الخارجية عمودياً",
+    "es": "Pantalla exterior vertical",
+    "fr": "Écran extérieur vertical",
+    "ru": "Внешний экран вертикально",
+    "tr": "Dış ekran dikey",
+    "zh": "外屏竖向"
+  },
+  "iphone_duo_pose_outer_landscape": {
+    "de": "Außenbildschirm quer, Leiste rechts",
+    "en": "Outer display sideways, bar on the right",
+    "ar": "الشاشة الخارجية أفقياً، الشريط على اليمين",
+    "es": "Pantalla exterior horizontal, barra a la derecha",
+    "fr": "Écran extérieur horizontal, barre à droite",
+    "ru": "Внешний экран горизонтально, панель справа",
+    "tr": "Dış ekran yatay, çubuk sağda",
+    "zh": "外屏横向，状态栏在右"
+  },
+  "iphone_duo_pose_outer_landscape_left": {
+    "de": "Außenbildschirm quer, Leiste links",
+    "en": "Outer display sideways, bar on the left",
+    "ar": "الشاشة الخارجية أفقياً، الشريط على اليسار",
+    "es": "Pantalla exterior horizontal, barra a la izquierda",
+    "fr": "Écran extérieur horizontal, barre à gauche",
+    "ru": "Внешний экран горизонтально, панель слева",
+    "tr": "Dış ekran yatay, çubuk solda",
+    "zh": "外屏横向，状态栏在左"
+  },
+  "iphone_duo_pose_inner_portrait": {
+    "de": "Innenbildschirm hochkant",
+    "en": "Inner display upright",
+    "ar": "الشاشة الداخلية عمودياً",
+    "es": "Pantalla interior vertical",
+    "fr": "Écran intérieur vertical",
+    "ru": "Внутренний экран вертикально",
+    "tr": "İç ekran dikey",
+    "zh": "内屏竖向"
+  },
+  "iphone_duo_pose_inner_landscape": {
+    "de": "Innenbildschirm quer",
+    "en": "Inner display sideways",
+    "ar": "الشاشة الداخلية أفقياً",
+    "es": "Pantalla interior horizontal",
+    "fr": "Écran intérieur horizontal",
+    "ru": "Внутренний экран горизонтально",
+    "tr": "İç ekran yatay",
+    "zh": "内屏横向"
   }
 }

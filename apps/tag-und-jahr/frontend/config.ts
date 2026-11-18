@@ -13,7 +13,9 @@ export function getBuildNumber() {
 	// 3: Photo-grid food widget (content margins disabled - native change)
 	// and clock themes (year start, sun/moon day display).
 	// 4: shared expo-build-properties plugin from repo-depkit-common/appconfig
-	return 4;
+	// 5: Expo SDK 58 (React Native 0.88, built with Xcode 27.1 - fills the
+	//    screens of the iPhone Duo instead of sitting letterboxed)
+	return 5;
 }
 
 // DO NOT CHANGE THE NAME OF THIS FUNCTION: getMajorVersion

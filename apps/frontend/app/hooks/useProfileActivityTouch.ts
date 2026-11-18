@@ -11,7 +11,7 @@ import { UserHelper } from '@/helper/UserHelper';
  * Fire and forget: a failed touch must never disturb the app.
  */
 export function useProfileActivityTouch(user: Record<string, any> | null, profileId: string | null | undefined) {
-	const appState = useRef<AppStateStatus>(AppState.currentState);
+	const appState = useRef<AppStateStatus>(AppState.currentState as AppStateStatus);
 
 	useEffect(() => {
 		if (!UserHelper.isRegisteredUser(user) || !profileId) {

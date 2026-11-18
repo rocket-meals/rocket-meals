@@ -10,7 +10,7 @@ import { NotificationHelper } from '@/helper/NotificationHelper';
  * Fire and forget: a failed reset must never disturb the app.
  */
 export function useAppIconBadgeReset() {
-	const appState = useRef<AppStateStatus>(AppState.currentState);
+	const appState = useRef<AppStateStatus>(AppState.currentState as AppStateStatus);
 
 	useEffect(() => {
 		const reset = () => {

@@ -1,5 +1,6 @@
 import React from 'react';
-import {Image, Linking, SafeAreaView, ScrollView, Text, TouchableOpacity, StyleSheet, useWindowDimensions} from 'react-native';
+import {Image, Linking, ScrollView, Text, TouchableOpacity, StyleSheet, useWindowDimensions} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {useAppSelector} from '@/redux/hooks';
 import {useTheme} from '@/hooks/useTheme';
 import {TranslationKeys} from '@/locales/keys';

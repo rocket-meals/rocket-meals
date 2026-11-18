@@ -23,7 +23,7 @@ interface UpdateCheckerContextType {
 const UpdateCheckerContext = createContext<UpdateCheckerContextType | null>(null);
 
 const ExpoUpdateChecker: React.FC<ExpoUpdateCheckerProps> = ({ children }) => {
-	const appState = useRef<AppStateStatus>(AppState.currentState);
+	const appState = useRef<AppStateStatus>(AppState.currentState as AppStateStatus);
 	const { isSmartPhone } = usePlatformHelper();
 	const { translate } = useLanguage();
 	const { theme } = useTheme();

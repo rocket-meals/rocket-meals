@@ -96,7 +96,11 @@ const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(({ onClose
 	const dismissAll = onDismissAll ?? onClose;
 	const renderBackdrop = useCallback((backdropProps: BottomSheetBackdropProps) => <CustomBackdrop {...backdropProps} onPress={dismissAll} isClosing={isClosing} />, [dismissAll, isClosing]);
 	const { theme } = useTheme();
-	const { top: topInset } = useSafeAreaInsets();
+	const { top: topInset, left: leftInset, right: rightInset } = useSafeAreaInsets();
+	// The sheet keeps clear of what the system draws along the sides (the upright
+	// status bar on the iPhone Duo): without the margins its close button and the
+	// right edge of its content end up underneath.
+	const sideInsetStyle = useMemo(() => ({ marginLeft: leftInset, marginRight: rightInset }), [leftInset, rightInset]);
 	// Always fully open (below the top safe area). One fixed snap point and no dynamic sizing:
 	// with gorhom v5's default enableDynamicSizing the content height became an extra, lower snap
 	// point, so a sheet whose content renders in steps (e.g. the food details) stopped halfway.
@@ -141,7 +145,7 @@ const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(({ onClose
 	// "adjustPan" matches what actually happens under edge-to-edge and lets
 	// the library shift the sheet up by the tracked keyboard height itself.
 	return (
-		<BottomSheet ref={ref} snapPoints={snapPoints} enableDynamicSizing={false} backdropComponent={renderBackdrop} backgroundComponent={Platform.OS === 'web' ? renderBackground : undefined} backgroundStyle={effectiveBackgroundStyle} handleComponent={null} onChange={handleChange} keyboardBehavior="interactive" keyboardBlurBehavior="restore" android_keyboardInputMode="adjustPan" topInset={topInset} {...webAccessibilityOverrides} {...props}>
+		<BottomSheet ref={ref} snapPoints={snapPoints} enableDynamicSizing={false} backdropComponent={renderBackdrop} backgroundComponent={Platform.OS === 'web' ? renderBackground : undefined} backgroundStyle={effectiveBackgroundStyle} handleComponent={null} onChange={handleChange} keyboardBehavior="interactive" keyboardBlurBehavior="restore" android_keyboardInputMode="adjustPan" topInset={topInset} {...webAccessibilityOverrides} {...props} style={[sideInsetStyle, props.style]}>
 			<View style={styles.header}>
 				<View style={styles.placeholder} />
 				<View style={[styles.handle, { backgroundColor: handleColor }]} />

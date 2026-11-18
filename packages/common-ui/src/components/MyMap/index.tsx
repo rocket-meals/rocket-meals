@@ -103,7 +103,7 @@ function applyHideLegalInfoPatch(htmlContent: string, hideLegalInfo: boolean | u
 
 const MyMap = forwardRef<MyMapHandle, MyMapProps>(
 	({ initialCenter, initialZoom, initialPitch, loadingText, loadingOverlay, onMessage, centerAtUserLocationIfNoInitialPosition = true, injectScript, colorMap, mapStyleKey, hideLegalInfo }, ref) => {
-		const webViewRef = useRef<WebView>(null);
+		const webViewRef = useRef<WebView<{}>>(null);
 		// The HTML is written to a local cache file and loaded via a file:// URI so that the WebView
 		// has a proper file:// origin and can fetch sibling local assets (e.g. GLB models, PNG tiles)
 		// without the "URL is not valid or contains user credentials" error that occurs when loading
@@ -269,7 +269,7 @@ const MyMap = forwardRef<MyMapHandle, MyMapProps>(
 
 		return (
 			<View style={styles.container}>
-				<WebView
+				<WebView<{}>
 					ref={webViewRef}
 					style={styles.webView}
 					source={{ uri: htmlUri }}

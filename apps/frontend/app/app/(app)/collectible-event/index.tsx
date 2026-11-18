@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { COLLECTABLE_AT_FIELDS, DatabaseTypes, DateHelper } from 'repo-depkit-common';
 

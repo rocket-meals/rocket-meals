@@ -15,7 +15,7 @@ Es zeigt keine Uhrzeit und keine Beschriftungen. Es ist keine „normale" Uhr: E
 
 Anders als bei einem manuell gepflegten Xcode-Projekt entsteht das Widget hier komplett aus dem Expo-Workflow:
 
-- **[`expo-widgets`](https://docs.expo.dev/versions/latest/sdk/widgets/)** (ab Expo SDK 55, hier SDK 57) erzeugt beim Prebuild das Widget-Extension-Target, die App Group und alle nötigen Dateien. Kein manueller Xcode-Schritt nötig – auch EAS-Builds (TestFlight) funktionieren damit unverändert.
+- **[`expo-widgets`](https://docs.expo.dev/versions/latest/sdk/widgets/)** (ab Expo SDK 55, hier SDK 58) erzeugt beim Prebuild das Widget-Extension-Target, die App Group und alle nötigen Dateien. Kein manueller Xcode-Schritt nötig – auch EAS-Builds (TestFlight) funktionieren damit unverändert.
 - Das Widget-Layout ist in TypeScript geschrieben ([`frontend/widgets/TagUndJahrWidget.tsx`](frontend/widgets/TagUndJahrWidget.tsx)) und rendert echte SwiftUI-Views über `@expo/ui/swift-ui`. Die `'widget'`-Direktive bündelt die Funktion isoliert für die Widget-Extension; deshalb stehen alle Farben und Formeln inline in der Funktion (keine Imports möglich).
 - Die Uhr wird direkt mit SwiftUI-Formen gezeichnet (Kreise, Kapsel) – keine externe Bilddatei nötig, dadurch bleibt die Darstellung in allen Widgetgrößen scharf.
 - Die App selbst ([`frontend/app/index.tsx`](frontend/app/index.tsx)) zeigt dieselbe Uhr per SVG und plant bei jedem Start bzw. jeder Rückkehr in den Vordergrund die Widget-Timeline neu: Zustände im Abstand von **30 Minuten** für die nächsten 7 Tage. WidgetKit garantiert keine minutengenaue Aktualisierung; iOS entscheidet, wann es die Zustände tatsächlich rendert. Für ein kontemplatives Objekt ist diese Unschärfe sachgerecht.
