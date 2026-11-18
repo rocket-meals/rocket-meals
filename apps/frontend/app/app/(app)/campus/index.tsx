@@ -2,9 +2,8 @@ import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import {
 	RefreshControl,
 	View,
-	useWindowDimensions,
-} from 'react-native';
-import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context';
+	useWindowDimensions, SafeAreaView } from 'react-native';
+import { useSafeAreaFrame } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { AppUsageEventNames, CampusSortOption, CollectionNames, DatabaseTypes, shouldApplyLastOpenedBoost } from 'repo-depkit-common';
 import styles from './styles';

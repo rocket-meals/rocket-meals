@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { AppUsageEventNames, DatabaseTypes } from 'repo-depkit-common';
 import styles from './styles';
