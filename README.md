@@ -27,15 +27,15 @@ https://github.com/rocket-meals/studi-futter
 <!-- android-preview-apk:frontend:end -->
 
 <!-- android-preview-apk:score-tracker:start -->
-**Score Tracker:** 📱 [Neueste Android Preview APK herunterladen](https://expo.dev/artifacts/eas/NJ6C0iVORq5cnE8TuDyjzLhnH9pX6_Fpjbl_iTzICAU.apk)
+**Score Tracker:** 📱 [Neueste Android Preview APK herunterladen](https://expo.dev/artifacts/eas/WkkDelYVV9qL5P4-wc1gGXY9gQGHShYyrlJ780NQvDM.apk)
 <!-- android-preview-apk:score-tracker:end -->
 
 <!-- android-preview-apk:tag-und-jahr:start -->
-**Tag und Jahr:** 📱 [Neueste Android Preview APK herunterladen](https://expo.dev/artifacts/eas/ECwnaFGHqMhi8M5ky7sGAfcPvfqnsh6ZDkalEsQNUt0.apk)
+**Tag und Jahr:** 📱 [Neueste Android Preview APK herunterladen](https://expo.dev/artifacts/eas/kLnkeG9pKPmcaOaa2ptF9uB7gjbs7Nsb2y1L3BrKLFo.apk)
 <!-- android-preview-apk:tag-und-jahr:end -->
 
 <!-- android-preview-apk:geonexia:start -->
-**Geonexia:** 📱 [Neueste Android Preview APK herunterladen](https://expo.dev/artifacts/eas/b_gmHV5W9uMw04-Jhj-5U_yjNcrKRyUfQZ7kfTbEiHA.apk)
+**Geonexia:** 📱 [Neueste Android Preview APK herunterladen](https://expo.dev/artifacts/eas/NDmRt-8h533cDypWmwpzbNDTwKF9kLQzczOIykVGDck.apk)
 <!-- android-preview-apk:geonexia:end -->
 
 ## 🍏 iOS Preview (Ad-hoc)

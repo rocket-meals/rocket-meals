@@ -4,15 +4,15 @@
 
 | Category | Total Issues | Shown |
 |----------|-------------|-------|
-| 🔒 Security | 9 | 9 |
+| 🔒 Security | 10 | 10 |
 | 🐛 Reliability | 36 | 36 |
-| 🔧 Maintainability | 45 | 5 |
+| 🔧 Maintainability | 52 | 4 |
 
-**Total issues:** 90 (showing top 50 prioritized by: Security > Reliability > Maintainability)
+**Total issues:** 98 (showing top 50 prioritized by: Security > Reliability > Maintainability)
 
 ---
 
-## 🔒 Security (9/9)
+## 🔒 Security (10/10)
 
 - **"npx" can install packages on-demand and run their lifecycle scripts.**
   .github/workflows/frontend-accessibility.yml:46
@@ -37,6 +37,10 @@
 - **This image might run with "root" as the default user. Make sure it is safe here.**
   apps/backend/dockerOffsiteBackup/Dockerfile:6
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/dockerOffsiteBackup/Dockerfile#L6
+
+- **Make sure the "PATH" variable only contains fixed, unwriteable directories.**
+  apps/frontend/cloud-simulator/run.mjs:51
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/cloud-simulator/run.mjs#L51
 
 - **Client-Side Request Forgery via unsanitized user input**
   apps/maintenance-server/server.mjs:156
@@ -196,7 +200,7 @@
   scripts/eas-ios-credentials.sh:29
   https://github.com/rocket-meals/rocket-meals/blob/master/scripts/eas-ios-credentials.sh#L29
 
-## 🔧 Maintainability (5/45)
+## 🔧 Maintainability (4/52)
 
 - **Redirect this error message to stderr (>&2).**
   .github/actions/geonexia-expo-update/action.yml:135
@@ -213,8 +217,4 @@
 - **Redirect this error message to stderr (>&2).**
   .github/actions/score-tracker-expo-update/action.yml:143
   https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/score-tracker-expo-update/action.yml#L143
-
-- **Add a default case (*) to handle unexpected values.**
-  .github/actions/stage-changes/action.yml:48
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/stage-changes/action.yml#L48
 
