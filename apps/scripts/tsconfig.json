@@ -6,7 +6,10 @@
     "strict": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "react-native": ["../../node_modules/react-native/types_generated/index.d.ts"]
+    }
   },
   "include": ["./*.ts"]
 }
