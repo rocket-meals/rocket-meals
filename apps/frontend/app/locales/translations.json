@@ -9378,5 +9378,25 @@
     "ru": "На главную",
     "tr": "Ana sayfaya git",
     "zh": "返回首页"
+  },
+  "iphone_duo_simulation": {
+    "de": "iPhone Duo simulieren",
+    "en": "Simulate iPhone Duo",
+    "ar": "محاكاة iPhone Duo",
+    "es": "Simular iPhone Duo",
+    "fr": "Simuler l’iPhone Duo",
+    "ru": "Имитировать iPhone Duo",
+    "tr": "iPhone Duo simülasyonu",
+    "zh": "模拟 iPhone Duo"
+  },
+  "iphone_duo_simulation_description": {
+    "de": "Zeigt die senkrechte Statusleiste des Außenbildschirms am rechten Rand. Für das echte Format das Fenster auf 466 × 678 Punkte stellen.",
+    "en": "Shows the upright status bar of the outer display on the right edge. For the real format set the window to 466 × 678 points.",
+    "ar": "يعرض شريط الحالة العمودي للشاشة الخارجية على الحافة اليمنى. للحصول على الحجم الحقيقي اضبط النافذة على 466 × 678 نقطة.",
+    "es": "Muestra la barra de estado vertical de la pantalla exterior en el borde derecho. Para el formato real, ajusta la ventana a 466 × 678 puntos.",
+    "fr": "Affiche la barre d’état verticale de l’écran extérieur sur le bord droit. Pour le format réel, réglez la fenêtre sur 466 × 678 points.",
+    "ru": "Показывает вертикальную строку состояния внешнего экрана у правого края. Для настоящего формата задайте окно 466 × 678 точек.",
+    "tr": "Dış ekranın dikey durum çubuğunu sağ kenarda gösterir. Gerçek biçim için pencereyi 466 × 678 nokta olarak ayarlayın.",
+    "zh": "在右侧边缘显示外屏的竖向状态栏。要获得真实尺寸，请将窗口设为 466 × 678 点。"
   }
 }

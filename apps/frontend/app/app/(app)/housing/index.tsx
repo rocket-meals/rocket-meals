@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { RefreshControl, SafeAreaView, useWindowDimensions, View } from 'react-native';
+import { RefreshControl, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppUsageEventNames, CollectionNames, DatabaseTypes, shouldApplyLastOpenedBoost } from 'repo-depkit-common';
 import { FlashList } from '@shopify/flash-list';
 import * as Location from 'expo-location';

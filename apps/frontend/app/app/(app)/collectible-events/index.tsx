@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { SafeAreaView, ScrollView, Text } from 'react-native';
+import { ScrollView, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { useAppSelector } from '@/redux/hooks';
 import { COLLECTABLE_AT_FIELDS, DateHelper } from 'repo-depkit-common';

@@ -541,8 +541,12 @@ const FoodOffersScrollList: React.FC<FoodOffersScrollListProps> = ({ canteenId, 
 						},
 					]}
 					onLayout={event => {
-						const width = event.nativeEvent.layout.width;
-						if (!listWidth || width > listWidth) {
+						// The measured width counts, also when it is smaller than the
+						// window: on the iPhone Duo the upright status bar takes 84 pt
+						// away, and cards sized for the full window no longer fit two
+						// to a row.
+						const width = Math.round(event.nativeEvent.layout.width);
+						if (width > 0 && width !== listWidth) {
 							setListWidth(width);
 						}
 					}}

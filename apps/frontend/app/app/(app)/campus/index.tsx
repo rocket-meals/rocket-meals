@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import {
 	RefreshControl,
-	SafeAreaView,
 	View,
 	useWindowDimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { AppUsageEventNames, CampusSortOption, CollectionNames, DatabaseTypes, shouldApplyLastOpenedBoost } from 'repo-depkit-common';
 import styles from './styles';

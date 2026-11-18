@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
 import Form from '@/components/Login/Form';
@@ -49,6 +50,7 @@ export default function Login() {
 	const intro_description = appSettings?.login_screen_translations && getIntroDescriptionTranslation(appSettings?.login_screen_translations, language);
 	const detailed_description = appSettings?.login_screen_translations && getDetailedDescriptionTranslation(appSettings?.login_screen_translations, language);
 	const [heading, subHeading] = intro_description?.split('-') || ['', ''];
+	const safeAreaInsets = useSafeAreaInsets();
 	const { show: showManagementModal, close: closeManagementModal } = useMyScrollViewModal();
 	const { show: showAttentionModal, close: closeAttentionModal } = useMyScrollViewModal();
 	const getProviders = async () => {
@@ -290,6 +292,10 @@ export default function Login() {
 					...styles.contentContainer,
 					backgroundColor: theme.login.background,
 					padding: 20,
+					// Keeps clear of what the system draws along the sides, e.g. the
+					// upright status bar on the outer display of the iPhone Duo.
+					paddingLeft: 20 + safeAreaInsets.left,
+					paddingRight: 20 + safeAreaInsets.right,
 					justifyContent: isWeb ? 'space-between' : 'flex-start',
 				}}
 			>

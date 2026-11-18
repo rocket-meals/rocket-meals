@@ -96,7 +96,7 @@ const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(({ onClose
 	const dismissAll = onDismissAll ?? onClose;
 	const renderBackdrop = useCallback((backdropProps: BottomSheetBackdropProps) => <CustomBackdrop {...backdropProps} onPress={dismissAll} isClosing={isClosing} />, [dismissAll, isClosing]);
 	const { theme } = useTheme();
-	const { top: topInset } = useSafeAreaInsets();
+	const { top: topInset, left: leftInset, right: rightInset } = useSafeAreaInsets();
 	// Always fully open (below the top safe area). One fixed snap point and no dynamic sizing:
 	// with gorhom v5's default enableDynamicSizing the content height became an extra, lower snap
 	// point, so a sheet whose content renders in steps (e.g. the food details) stopped halfway.
@@ -142,7 +142,10 @@ const BaseBottomSheet = forwardRef<BottomSheet, BaseBottomSheetProps>(({ onClose
 	// the library shift the sheet up by the tracked keyboard height itself.
 	return (
 		<BottomSheet ref={ref} snapPoints={snapPoints} enableDynamicSizing={false} backdropComponent={renderBackdrop} backgroundComponent={Platform.OS === 'web' ? renderBackground : undefined} backgroundStyle={effectiveBackgroundStyle} handleComponent={null} onChange={handleChange} keyboardBehavior="interactive" keyboardBlurBehavior="restore" android_keyboardInputMode="adjustPan" topInset={topInset} {...webAccessibilityOverrides} {...props}>
-			<View style={styles.header}>
+			{/* The header keeps clear of the side insets, so the close button never
+			    ends up under something the system draws there (the upright status
+			    bar on the outer display of the iPhone Duo). */}
+			<View style={[styles.header, { paddingLeft: 10 + leftInset, paddingRight: 10 + rightInset }]}>
 				<View style={styles.placeholder} />
 				<View style={[styles.handle, { backgroundColor: handleColor }]} />
 				<TouchableOpacity style={[styles.closeButton, { backgroundColor: theme.sheet.closeBg }]} onPress={onClose} id={CommonUiComponentIds.MODAL_CLOSE_BUTTON}>

@@ -10,6 +10,8 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import SettingsList from '@/components/SettingsList';
+import SettingsListBoolean from '@/components/SettingsListBoolean';
+import { setIphoneDuoSimulationEnabled, useIphoneDuoSimulationEnabled } from '@/components/IphoneDuoSimulation';
 import { PUBLIC_ROUTES } from '@/helper/publicRoutes';
 
 const Index = () => {
@@ -19,6 +21,7 @@ const Index = () => {
     const { buildingsDict } = useAppSelector((state) => state.canteenReducer);
     const { primaryColor } = useAppSelector((state) => state.settings);
 	const selectedCanteen = useSelectedCanteen();
+	const iphoneDuoSimulationEnabled = useIphoneDuoSimulationEnabled();
 
 	const buildingPosition = useMemo(() => {
 		if (selectedCanteen?.building) {
@@ -182,6 +185,18 @@ const Index = () => {
 						{translate(TranslationKeys.coordinates)}: {buildingPosition.lat}, {buildingPosition.lng}
 					</Text>
 				)}
+				<SettingsListBoolean
+					iconBgColor={primaryColor}
+					primaryColor={primaryColor}
+					leftIcon={<MaterialCommunityIcons name="cellphone-screenshot" size={24} color={theme.screen.icon} />}
+					label={translate(TranslationKeys.iphone_duo_simulation)}
+					valueActive={translate(TranslationKeys.active)}
+					valueInactive={translate(TranslationKeys.inactive)}
+					isEnabled={iphoneDuoSimulationEnabled}
+					onToggle={() => setIphoneDuoSimulationEnabled(!iphoneDuoSimulationEnabled)}
+					groupPosition="single"
+				/>
+				<Text style={{ ...styles.body, color: theme.screen.text }}>{translate(TranslationKeys.iphone_duo_simulation_description)}</Text>
 				{listItems.map((item, index) => {
 					const totalItems = listItems.length;
 					let groupPosition: 'single' | 'top' | 'bottom' | 'middle';

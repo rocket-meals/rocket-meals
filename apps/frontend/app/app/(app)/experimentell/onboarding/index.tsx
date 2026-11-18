@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Dimensions, ScaledSize, NativeScrollEvent, NativeSyntheticEvent, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
@@ -167,11 +168,15 @@ const OnboardingScreen = () => {
 	const canteenHelper = useMemo(() => new CanteenHelper(), []);
 	const buildingsHelper = useMemo(() => new BuildingsHelper(), []);
 
-	useEffect(() => {
-		const subscription = Dimensions.addEventListener('change', ({ window }: { window: ScaledSize }) => {
-			setScreenWidth(window.width);
-		});
-		return () => subscription?.remove();
+	// A page is as wide as the pager really is, not as wide as the window: safe
+	// area insets on the sides (the upright status bar of the iPhone Duo, a
+	// notch in landscape) make the pager narrower, and pages sized for the
+	// window were cut off on the right.
+	const handlePagerLayout = useCallback((event: LayoutChangeEvent) => {
+		const width = Math.round(event.nativeEvent.layout.width);
+		if (width > 0) {
+			setScreenWidth(current => (current === width ? current : width));
+		}
 	}, []);
 
 	useEffect(() => {
@@ -955,6 +960,7 @@ const OnboardingScreen = () => {
 				onMomentumScrollEnd={handleScrollEnd}
 				scrollEventThrottle={16}
 				style={styles.horizontalScroll}
+				onLayout={handlePagerLayout}
 			>
 				{STEPS.map((step, index) => (
 					<React.Fragment key={step}>

@@ -343,6 +343,8 @@ export const TranslationKeys = {
 	markdown_example_sections: 'markdown_example_sections',
 	tap_to_edit: 'tap_to_edit',
 	haptics_test: 'haptics_test',
+	iphone_duo_simulation: 'iphone_duo_simulation',
+	iphone_duo_simulation_description: 'iphone_duo_simulation_description',
 	haptics_test_description: 'haptics_test_description',
 	haptics_test_empty: 'haptics_test_empty',
 	date_helper_preview: 'date_helper_preview',

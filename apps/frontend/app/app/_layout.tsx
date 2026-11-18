@@ -35,6 +35,7 @@ import {sqliteKeyValueStorage} from '@/redux/storage/sqliteStorage';
 import {useTheme, useThemeStatusBar} from '@/hooks/useTheme';
 import ServerStatusLoader from '@/components/ServerStatusLoader/ServerStatusLoader';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import IphoneDuoSimulation from '@/components/IphoneDuoSimulation';
 import {GluestackUIProvider} from '@gluestack-ui/themed';
 import {config} from '@gluestack-ui/config';
 import ExpoUpdateLoader from '@/components/ExpoUpdateLoader/ExpoUpdateLoader';
@@ -223,6 +224,7 @@ export default function Layout() {
 
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
+			<IphoneDuoSimulation>
 			<ExpoUpdateLoader>
 				<Provider store={configureStore}>
 					<GluestackUIProvider config={config}>
@@ -260,6 +262,7 @@ export default function Layout() {
 					</GluestackUIProvider>
 				</Provider>
 			</ExpoUpdateLoader>
+			</IphoneDuoSimulation>
 		</GestureHandlerRootView>
 	);
 }

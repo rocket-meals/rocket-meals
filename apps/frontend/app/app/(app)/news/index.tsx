@@ -1,4 +1,5 @@
-import { FlatList, SafeAreaView, View } from 'react-native';
+import { FlatList, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@/hooks/useTheme';
