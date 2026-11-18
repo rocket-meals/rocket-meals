@@ -10,8 +10,7 @@ import { TranslationKeys } from '@/locales/keys';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
 import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import SettingsList from '@/components/SettingsList';
-import SettingsListBoolean from '@/components/SettingsListBoolean';
-import { setIphoneDuoSimulationEnabled, useIphoneDuoSimulationEnabled } from '@/components/IphoneDuoSimulation';
+import { IPHONE_DUO_POSES, IPHONE_DUO_POSE_ORDER, IphoneDuoPose, setIphoneDuoSimulationPose, useIphoneDuoSimulationPose } from '@/components/IphoneDuoSimulation';
 import { PUBLIC_ROUTES } from '@/helper/publicRoutes';
 
 const Index = () => {
@@ -21,7 +20,14 @@ const Index = () => {
     const { buildingsDict } = useAppSelector((state) => state.canteenReducer);
     const { primaryColor } = useAppSelector((state) => state.settings);
 	const selectedCanteen = useSelectedCanteen();
-	const iphoneDuoSimulationEnabled = useIphoneDuoSimulationEnabled();
+	const iphoneDuoPose = useIphoneDuoSimulationPose();
+	const iphoneDuoPoseLabels: Record<IphoneDuoPose, string> = {
+		'outer-portrait': translate(TranslationKeys.iphone_duo_pose_outer_portrait),
+		'outer-landscape': translate(TranslationKeys.iphone_duo_pose_outer_landscape),
+		'outer-landscape-left': translate(TranslationKeys.iphone_duo_pose_outer_landscape_left),
+		'inner-portrait': translate(TranslationKeys.iphone_duo_pose_inner_portrait),
+		'inner-landscape': translate(TranslationKeys.iphone_duo_pose_inner_landscape),
+	};
 
 	const buildingPosition = useMemo(() => {
 		if (selectedCanteen?.building) {
@@ -185,17 +191,23 @@ const Index = () => {
 						{translate(TranslationKeys.coordinates)}: {buildingPosition.lat}, {buildingPosition.lng}
 					</Text>
 				)}
-				<SettingsListBoolean
-					iconBgColor={primaryColor}
-					primaryColor={primaryColor}
-					leftIcon={<MaterialCommunityIcons name="cellphone-screenshot" size={24} color={theme.screen.icon} />}
-					label={translate(TranslationKeys.iphone_duo_simulation)}
-					valueActive={translate(TranslationKeys.active)}
-					valueInactive={translate(TranslationKeys.inactive)}
-					isEnabled={iphoneDuoSimulationEnabled}
-					onToggle={() => setIphoneDuoSimulationEnabled(!iphoneDuoSimulationEnabled)}
-					groupPosition="single"
-				/>
+				<Text style={{ ...styles.body, color: theme.screen.text }}>{translate(TranslationKeys.iphone_duo_simulation)}</Text>
+				{[null, ...IPHONE_DUO_POSE_ORDER].map((pose, index, all) => {
+					const selected = pose === iphoneDuoPose;
+					const size = pose ? `${IPHONE_DUO_POSES[pose].width} × ${IPHONE_DUO_POSES[pose].height}` : undefined;
+					return (
+						<SettingsList
+							key={pose ?? 'off'}
+							iconBgColor={primaryColor}
+							leftIcon={<MaterialCommunityIcons name={pose ? 'cellphone-screenshot' : 'cellphone-off'} size={24} color={theme.screen.icon} />}
+							label={pose ? iphoneDuoPoseLabels[pose] : translate(TranslationKeys.iphone_duo_pose_off)}
+							value={size}
+							rightIcon={<MaterialCommunityIcons name={selected ? 'radiobox-marked' : 'radiobox-blank'} color={theme.screen.icon} size={24} />}
+							handleFunction={() => setIphoneDuoSimulationPose(pose)}
+							groupPosition={index === 0 ? 'top' : index === all.length - 1 ? 'bottom' : 'middle'}
+						/>
+					);
+				})}
 				<Text style={{ ...styles.body, color: theme.screen.text }}>{translate(TranslationKeys.iphone_duo_simulation_description)}</Text>
 				{listItems.map((item, index) => {
 					const totalItems = listItems.length;

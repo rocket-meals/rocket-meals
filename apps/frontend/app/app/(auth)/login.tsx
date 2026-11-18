@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
@@ -31,6 +31,10 @@ import { createAndStoreGuestAccount, getStoredGuestAccountCredentials } from '@/
 import { useLanguage } from '@/hooks/useLanguage';
 import { OnboardingUserCountCache } from '@/helper/OnboardingUserCountCache';
 
+
+/** Width in points from which the login shows the welcome panel beside it. */
+const LOGIN_TWO_COLUMN_MIN_WIDTH = 900;
+
 export default function Login() {
 	useSetPageTitle(TranslationKeys.sign_in);
 	const toast = useToast();
@@ -44,13 +48,17 @@ export default function Login() {
 	const [providers, setProviders] = useState<any>([]);
 	// Hidden diagnostics: toggled by long-pressing the app logo in the header.
 	const [showLoginDebug, setShowLoginDebug] = useState(false);
-	const [isWebVisible, setIsWebVisible] = useState(Dimensions.get('window').width > 500);
 	const { appSettings, language } = useAppSelector((state) => state.settings);
 	const sessionExpired = useAppSelector((state) => state.authReducer.sessionExpired);
 	const intro_description = appSettings?.login_screen_translations && getIntroDescriptionTranslation(appSettings?.login_screen_translations, language);
 	const detailed_description = appSettings?.login_screen_translations && getDetailedDescriptionTranslation(appSettings?.login_screen_translations, language);
 	const [heading, subHeading] = intro_description?.split('-') || ['', ''];
 	const safeAreaInsets = useSafeAreaInsets();
+	const { width: windowWidth } = useWindowDimensions();
+	// The welcome panel next to the login only appears when there is room for
+	// both: below this the login column (35 %) gets too narrow for its buttons.
+	// Counted is the width left between the side insets, not the whole window.
+	const isWebVisible = windowWidth - safeAreaInsets.left - safeAreaInsets.right >= LOGIN_TWO_COLUMN_MIN_WIDTH;
 	const { show: showManagementModal, close: closeManagementModal } = useMyScrollViewModal();
 	const { show: showAttentionModal, close: closeAttentionModal } = useMyScrollViewModal();
 	const getProviders = async () => {
@@ -218,16 +226,6 @@ export default function Login() {
 			),
 		});
 	}, [closeAttentionModal, handleAnonymousLogin, showAttentionModal]);
-
-	useEffect(() => {
-		const handleResize = () => {
-			setIsWebVisible(Dimensions.get('window').width > 650);
-		};
-
-		const subscription = Dimensions.addEventListener('change', handleResize);
-
-		return () => subscription?.remove();
-	}, []);
 
 	const getWikis = async () => {
 		try {
