@@ -57,6 +57,9 @@ const AVATAR_SLOT_INTERVAL = 800;
 // Padding inside the welcome step's ScrollView contentContainerStyle – used to break the
 // carousel out to the full screen edge via negative margin.
 const STEP_CONTENT_PADDING = 20;
+// Below this pager height the welcome step scrolls as a whole instead of keeping the counter
+// and avatars fixed under the text.
+const WELCOME_FIXED_LAYOUT_MIN_HEIGHT = 520;
 // User count animation constants
 const COUNT_FALLBACK_DELAY_MS = 3000;    // show "viele andere" after 3s without server response
 const COUNT_FAST_TICK_MS = 30;           // tick rate for fast phase (approaching server count)
@@ -91,6 +94,9 @@ const OnboardingScreen = () => {
 
 	const [currentStepIndex, setCurrentStepIndex] = useState(0);
 	const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+	// Height of the pager, 0 until it has been measured. Decides whether the welcome step has
+	// room for its fixed layout, see renderWelcomeStep.
+	const [pagerHeight, setPagerHeight] = useState(0);
 	// User count display state
 	const [displayCount, setDisplayCount] = useState(0);
 	// Prefetched on the login screen - when known, the counter starts zero-padded ("00.000").
@@ -176,6 +182,10 @@ const OnboardingScreen = () => {
 		const width = Math.round(event.nativeEvent.layout.width);
 		if (width > 0) {
 			setScreenWidth(current => (current === width ? current : width));
+		}
+		const height = Math.round(event.nativeEvent.layout.height);
+		if (height > 0) {
+			setPagerHeight(current => (current === height ? current : height));
 		}
 	}, []);
 
@@ -691,19 +701,17 @@ const OnboardingScreen = () => {
 		);
 	};
 
-	const renderWelcomeStep = () => (
-		<View style={[styles.stepContent, { width: screenWidth }]}>
-			{/*
-			  The icon/title/description live in their own flex:1 ScrollView, so however tall that
-			  text block is (it differs between new vs. returning users, and while the "loading
-			  profile" text is shown), it only scrolls internally instead of pushing anything else
-			  around. welcomeBottomSection is a plain sibling below it, sized to its own content and
-			  always in the same place – the counter and avatars never jump.
-			*/}
-			<ScrollView style={styles.welcomeTopScroll} contentContainerStyle={styles.welcomeTopScrollContent}>
+	const renderWelcomeStep = () => {
+		// Sideways on a phone (or on the iPhone Duo held sideways) the pager is too low for the
+		// fixed layout below: the counter and avatars would leave the text block so little room
+		// that the title is cut in half. Then the whole step scrolls as one, with a smaller icon.
+		const isShort = pagerHeight > 0 && pagerHeight < WELCOME_FIXED_LAYOUT_MIN_HEIGHT;
+
+		const topContent = (
+			<>
 				<MaterialCommunityIcons
 					name={isReturningUser ? 'hand-wave' : 'check-decagram'}
-					size={80}
+					size={isShort ? 48 : 80}
 					color={primaryColor}
 				/>
 				<Text style={[styles.stepTitle, { color: theme.screen.text }]}>
@@ -725,7 +733,10 @@ const OnboardingScreen = () => {
 						{translate(TranslationKeys.onboarding_welcome_description)}
 					</Text>
 				)}
-			</ScrollView>
+			</>
+		);
+
+		const bottomContent = (
 			<View style={styles.welcomeBottomSection}>
 				<View style={styles.userCountContainer}>
 					<Text style={[styles.stepDescription, { color: theme.screen.text }]}>
@@ -739,8 +750,35 @@ const OnboardingScreen = () => {
 				</View>
 				{renderAvatarCarousel()}
 			</View>
-		</View>
-	);
+		);
+
+		if (isShort) {
+			return (
+				<View style={[styles.stepContent, { width: screenWidth }]}>
+					<ScrollView contentContainerStyle={styles.welcomeShortScrollContent}>
+						<View style={styles.welcomeShortTop}>{topContent}</View>
+						{bottomContent}
+					</ScrollView>
+				</View>
+			);
+		}
+
+		return (
+			<View style={[styles.stepContent, { width: screenWidth }]}>
+				{/*
+				  The icon/title/description live in their own flex:1 ScrollView, so however tall that
+				  text block is (it differs between new vs. returning users, and while the "loading
+				  profile" text is shown), it only scrolls internally instead of pushing anything else
+				  around. welcomeBottomSection is a plain sibling below it, sized to its own content and
+				  always in the same place – the counter and avatars never jump.
+				*/}
+				<ScrollView style={styles.welcomeTopScroll} contentContainerStyle={styles.welcomeTopScrollContent}>
+					{topContent}
+				</ScrollView>
+				{bottomContent}
+			</View>
+		);
+	};
 
 	const openScientistInfo = useCallback(() => {
 		if (!ownScientist) return;
@@ -1049,6 +1087,16 @@ const styles = StyleSheet.create({
 		gap: 16,
 		paddingHorizontal: 20,
 		paddingTop: 20,
+	},
+	welcomeShortScrollContent: {
+		flexGrow: 1,
+		gap: 16,
+		paddingTop: 16,
+	},
+	welcomeShortTop: {
+		alignItems: 'center',
+		gap: 8,
+		paddingHorizontal: 20,
 	},
 	welcomeBottomSection: {
 		width: '100%',
