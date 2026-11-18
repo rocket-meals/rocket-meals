@@ -27,3 +27,38 @@ index 41b43599a9af6ef1c170047d39db1f3baa6ca682..c139513d06dc7d29981486a5ef9e2046
      extractLibs "com.facebook.fbjni:fbjni:+:headers"
      extractLibs "com.facebook.fbjni:fbjni:+"
    }
+diff --git a/ios/OnnxruntimeModule.mm b/ios/OnnxruntimeModule.mm
+index 8155f92..b4667b4 100644
+--- a/ios/OnnxruntimeModule.mm
++++ b/ios/OnnxruntimeModule.mm
+@@ -10,6 +10,14 @@
+ #import <ReactCommon/RCTTurboModule.h>
+ #import <jsi/jsi.h>
+ 
++// Patched: RCTCxxBridge was removed from React Native (0.88, Expo SDK 58), so
++// casting to it no longer compiles. The bridge a module is handed today is an
++// RCTBridgeProxy, and that still answers -runtime with the jsi::Runtime. The
++// message is sent through this protocol instead of the removed class.
++@protocol OnnxruntimeJsiRuntimeProvider <NSObject>
++- (void*)runtime;
++@end
++
+ @implementation OnnxruntimeModule
+ 
+ @synthesize bridge = _bridge;
+@@ -27,12 +35,12 @@ RCT_EXPORT_MODULE(Onnxruntime)
+  */
+ RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(install) {
+   @try {
+-    RCTCxxBridge* cxxBridge = (RCTCxxBridge*)_bridge;
+-    if (cxxBridge == nil) {
++    id<OnnxruntimeJsiRuntimeProvider> runtimeProvider = (id<OnnxruntimeJsiRuntimeProvider>)_bridge;
++    if (runtimeProvider == nil || ![runtimeProvider respondsToSelector:@selector(runtime)]) {
+       return @false;
+     }
+ 
+-    auto jsiRuntime = (facebook::jsi::Runtime*)cxxBridge.runtime;
++    auto jsiRuntime = (facebook::jsi::Runtime*)[runtimeProvider runtime];
+     if (jsiRuntime == nil) {
+       return @false;
+     }

@@ -25702,13 +25702,13 @@ __metadata:
 
 "onnxruntime-react-native@patch:onnxruntime-react-native@npm%3A1.24.3#~/.yarn/patches/onnxruntime-react-native-npm-1.24.3-ac3e341e40.patch":
   version: 1.24.3
-  resolution: "onnxruntime-react-native@patch:onnxruntime-react-native@npm%3A1.24.3#~/.yarn/patches/onnxruntime-react-native-npm-1.24.3-ac3e341e40.patch::version=1.24.3&hash=1430a3"
+  resolution: "onnxruntime-react-native@patch:onnxruntime-react-native@npm%3A1.24.3#~/.yarn/patches/onnxruntime-react-native-npm-1.24.3-ac3e341e40.patch::version=1.24.3&hash=d85dd7"
   dependencies:
     onnxruntime-common: "npm:1.24.3"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/d1800cedcbbefdc2ad7b584cfb9ca6dbf2970f0a9cc8f9e77c73986dace1e3820d7c107b87567390f9cc86ae0ceb99d56bb2cb6bfacf5db37cda88d85d9313d4
+  checksum: 10c0/04614f02cc47272c993696c79def5f31e2b0c566d6630152e42bf2758a39145357e044d31ea9744f79fe21abf1d40d7c1603db026a9342ebd2448f2b293c9183
   languageName: node
   linkType: hard
 
