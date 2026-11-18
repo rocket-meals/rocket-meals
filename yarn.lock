@@ -16613,6 +16613,7 @@ __metadata:
     "@directus/memory": "npm:3.1.8"
     "@directus/sdk": "npm:^18.0.0"
     "@directus/types": "npm:15.0.3"
+    "@jest/globals": "npm:^29.7.0"
     "@types/d3-force": "npm:^3.0.10"
     "@types/d3-selection": "npm:^3.0.11"
     "@types/d3-zoom": "npm:^3.0.8"
@@ -28995,6 +28996,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "repo-depkit-common@workspace:packages/common"
   dependencies:
+    "@jest/globals": "npm:^29.7.0"
     "@types/iban": "npm:^0.0.35"
     "@types/jest": "npm:^29.5.12"
     "@types/markdown-it": "npm:^14"

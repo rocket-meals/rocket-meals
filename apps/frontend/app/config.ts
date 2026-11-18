@@ -73,7 +73,9 @@ export function getBuildNumber() {
 	// 213: Expo SDK 58 (React Native 0.88, built with Xcode 27.1). The iOS 27.1 SDK
 	//      is what lets the app fill the screens of the iPhone Duo instead of
 	//      sitting letterboxed in the middle.
-	return 213;
+	// 214: Android builds on the large EAS builder, the default one ran out of
+	//      memory since SDK 58. A fresh number so iOS and Android build again.
+	return 214;
 }
 
 export function getMajorVersion() {

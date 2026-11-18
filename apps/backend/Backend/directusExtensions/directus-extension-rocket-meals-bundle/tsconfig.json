@@ -23,7 +23,12 @@
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
-    "rootDir": "./src"
+    "rootDir": "./src",
+    // Only these packages contribute global types. Without the list, every
+    // @types package hoisted from the apps into the root node_modules would
+    // be pulled in as well, such as the react-native stub, whose types moved
+    // in React Native 0.88 and which then stops the type check.
+    "types": ["node", "jest"]
   },
   "include": ["./src/**/*.ts"]
 }
