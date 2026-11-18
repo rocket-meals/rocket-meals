@@ -23,7 +23,7 @@ https://github.com/rocket-meals/studi-futter
 ## 📱 Android Preview APK
 
 <!-- android-preview-apk:frontend:start -->
-**Rocket Meals (Frontend):** 📱 [Neueste Android Preview APK herunterladen](https://expo.dev/artifacts/eas/bCrb0-EWlELdOLW7mK0M-yvpYawMeHHglEGIwWfDWTY.apk)
+**Rocket Meals (Frontend):** 📱 [Neueste Android Preview APK herunterladen](https://expo.dev/artifacts/eas/RqclDfjrikEOcSjGkzb6CKu0qn4pRnuc8y7pUNeRHoE.apk)
 <!-- android-preview-apk:frontend:end -->
 
 <!-- android-preview-apk:score-tracker:start -->
@@ -31,7 +31,7 @@ https://github.com/rocket-meals/studi-futter
 <!-- android-preview-apk:score-tracker:end -->
 
 <!-- android-preview-apk:tag-und-jahr:start -->
-**Tag und Jahr:** 📱 [Neueste Android Preview APK herunterladen](https://expo.dev/artifacts/eas/kLnkeG9pKPmcaOaa2ptF9uB7gjbs7Nsb2y1L3BrKLFo.apk)
+**Tag und Jahr:** 📱 [Neueste Android Preview APK herunterladen](https://expo.dev/artifacts/eas/ub5uAQ5h5kamYKhUHSiotk9rvJgJj3JoFUo5CCmp7gw.apk)
 <!-- android-preview-apk:tag-und-jahr:end -->
 
 <!-- android-preview-apk:geonexia:start -->
