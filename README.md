@@ -66,7 +66,7 @@ Android als direkte APK, iOS per Ad-hoc-Install über die EAS-Build-Seite (Gerä
 Die Links werden bei jedem Build-Nummern-Bump automatisch aktualisiert.
 
 <!-- dev-client:frontend:start -->
-**Rocket Meals (Frontend) Dev Client v21.212.0:** 🤖 [Android APK](https://expo.dev/artifacts/eas/rwok1ioOpoNFaq9Sm1JkVL3H-400oqjh_3n5pwE9IGU.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/rocket-meals-dev/builds/82662d15-d1a1-45f4-a204-c8c85a54dc85)
+**Rocket Meals (Frontend) Dev Client v21.214.0:** 🤖 [Android APK](https://expo.dev/artifacts/eas/CMRKj2b2Nozs90EbNF7LoPtvvTc05Cwo1Vg_I-GUcas.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/rocket-meals-dev/builds/6da455c3-ff20-4a7b-8631-9bc100ac8df7)
 <!-- dev-client:frontend:end -->
 
 <!-- dev-client:score-tracker:start -->
