@@ -2,9 +2,6 @@ Key,Message,Component,Line
 "AaHuzw3wSu2tYJWuiFyG","Mark the props of the component as read-only.","rocket-meals_rocket-meals:apps/frontend/app/app/_layout.tsx",132
 "AaHuzw6JSu2tYJWuiFyH","`ROTATIONS` should be a `Set`, and use `ROTATIONS.has()` to check existence or non-existence.","rocket-meals_rocket-meals:apps/frontend/cloud-simulator/run.mjs",42
 "AaHuzw0-Su2tYJWuiFyB","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/experimentell/index.tsx",207
-"AaHuzw2gSu2tYJWuiFyC","import statement without specifiers is not allowed.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/campus/details/index.tsx",2
-"AaHuzw3GSu2tYJWuiFyE","import statement without specifiers is not allowed.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/foodoffers/details/index.tsx",2
-"AaHuzw3PSu2tYJWuiFyF","import statement without specifiers is not allowed.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/housing/details/index.tsx",2
 "AaHpTY_0kqX_SoZCRd2j","Consider removing 'undefined' type or '?' specifier, one of them is redundant.","rocket-meals_rocket-meals:packages/common/src/DirectusImageHelper.ts",89
 "AaHHu-RF5loCHTlTdqLB","Extract this nested ternary operation into an independent statement.","rocket-meals_rocket-meals:apps/frontend/app/components/DetailsHeaderImage/DetailsHeaderImage.tsx",81
 "AaGlGBonCbXmea9i7uUu","'value' will use Object's default stringification format ('[object Object]') when stringified.","rocket-meals_rocket-meals:apps/accessibilityTester/src/additionalRoutes.ts",74
@@ -28,7 +25,7 @@ Key,Message,Component,Line
 "AaE7dCZQiXm7DYT7WjxE","`editable` should be a `Set`, and use `editable.has()` to check existence or non-existence.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/legal-documents-hook/LegalWikiProtection.ts",45
 "AaE7Gk2CsZyonQJhyVHn","Refactor this function to reduce its Cognitive Complexity from 23 to the 15 allowed.","rocket-meals_rocket-meals:apps/frontend/app/components/OwnFoodFeedbackItem/index.tsx",36
 "AaE7Gkh2sZyonQJhyVHm","Refactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationPrompt.ts",115
-"AaE1lSmzTIntY0cLRjeH","'repo-depkit-common-ui' imported multiple times.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx",43
+"AaE1lSmzTIntY0cLRjeH","'repo-depkit-common-ui' imported multiple times.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx",42
 "AaE0snQ2reFZwbJUSfQv","Unexpected `await` inside a loop.","rocket-meals_rocket-meals:apps/frontend/app/helper/chatReadStatus.ts",90
 "AaEx0MPdBO4LJR5ytLlv","Extract the assignment of ""messagesByItem[item]"" from this expression.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts",214
 "AaEwuCxKDxZ9SeKVEXh3","Refactor this code to not use nested template literals.","rocket-meals_rocket-meals:apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/action-recommendations/ActionRecommendationService.ts",161
@@ -44,7 +41,7 @@ Key,Message,Component,Line
 "AaGMPaS1Si3bF6oTNtz3","Add a default case (*) to handle unexpected values.","rocket-meals_rocket-meals:.github/actions/stage-changes/action.yml",48
 "AaGMPaSFSi3bF6oTNtzx","Redirect this error message to stderr (>&2).","rocket-meals_rocket-meals:.github/actions/tag-und-jahr-expo-update/action.yml",126
 "AaGMPaSFSi3bF6oTNtzy","Redirect this error message to stderr (>&2).","rocket-meals_rocket-meals:.github/actions/tag-und-jahr-expo-update/action.yml",134
-"AaE1lSmzTIntY0cLRjeG","'repo-depkit-common-ui' imported multiple times.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx",27
+"AaE1lSmzTIntY0cLRjeG","'repo-depkit-common-ui' imported multiple times.","rocket-meals_rocket-meals:apps/frontend/app/app/(app)/experimentell/onboarding/index.tsx",26
 "AaGMPaQpSi3bF6oTNtzw","Redirect this error message to stderr (>&2).","rocket-meals_rocket-meals:.github/workflows/frontend-maestro.yml",92
 "AaGMPaStSi3bF6oTNtz1","Redirect this error message to stderr (>&2).","rocket-meals_rocket-meals:.github/actions/score-tracker-expo-update/action.yml",135
 "AaGMPaStSi3bF6oTNtz2","Redirect this error message to stderr (>&2).","rocket-meals_rocket-meals:.github/actions/score-tracker-expo-update/action.yml",143

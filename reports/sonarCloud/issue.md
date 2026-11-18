@@ -6,9 +6,9 @@
 |----------|-------------|-------|
 | 🔒 Security | 10 | 10 |
 | 🐛 Reliability | 36 | 36 |
-| 🔧 Maintainability | 52 | 4 |
+| 🔧 Maintainability | 49 | 4 |
 
-**Total issues:** 98 (showing top 50 prioritized by: Security > Reliability > Maintainability)
+**Total issues:** 95 (showing top 50 prioritized by: Security > Reliability > Maintainability)
 
 ---
 
@@ -200,7 +200,7 @@
   scripts/eas-ios-credentials.sh:29
   https://github.com/rocket-meals/rocket-meals/blob/master/scripts/eas-ios-credentials.sh#L29
 
-## 🔧 Maintainability (4/52)
+## 🔧 Maintainability (4/49)
 
 - **Redirect this error message to stderr (>&2).**
   .github/actions/geonexia-expo-update/action.yml:135
