@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Dimensions, NativeScrollEvent, NativeSyntheticEvent, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, ScaledSize, NativeScrollEvent, NativeSyntheticEvent, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
@@ -99,7 +99,7 @@ const OnboardingScreen = () => {
 	const [isLoadingCanteens, setIsLoadingCanteens] = useState(true);
 	// Track which steps have been mounted for lazy loading
 	const [mountedSteps, setMountedSteps] = useState<Set<number>>(new Set([0]));
-	const scrollViewRef = useRef<ScrollView>(null);
+	const scrollViewRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 	const priceAnimRef = useRef<LottieView>(null);
 	const [priceAnimationJson, setPriceAnimationJson] = useState<any>(null);
 	// Eating habits (preferences step) state
@@ -168,7 +168,7 @@ const OnboardingScreen = () => {
 	const buildingsHelper = useMemo(() => new BuildingsHelper(), []);
 
 	useEffect(() => {
-		const subscription = Dimensions.addEventListener('change', ({ window }) => {
+		const subscription = Dimensions.addEventListener('change', ({ window }: { window: ScaledSize }) => {
 			setScreenWidth(window.width);
 		});
 		return () => subscription?.remove();

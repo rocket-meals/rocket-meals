@@ -42,16 +42,18 @@ export const EXPO_UPDATES_USERNAME = 'jack5496';
  *
  * All apps share one floor on purpose: a device that can run one of them can
  * run all of them, and App Review/support expectations stay identical. The
- * value is dictated by the Expo SDK in use (SDK 57 does not support anything
+ * value is dictated by the Expo SDK in use (SDK 58 does not support anything
  * below 16.4), so raise it here whenever the SDK minimum rises - never per
  * app.
  */
 export const IOS_DEPLOYMENT_TARGET = '16.4';
 
-// Android SDK levels every app compiles and targets against.
-export const ANDROID_COMPILE_SDK_VERSION = 36;
+// Android SDK levels every app compiles and targets against. They follow the
+// defaults of the React Native version the Expo SDK ships (SDK 58 / RN 0.88:
+// compile against 37, target 36).
+export const ANDROID_COMPILE_SDK_VERSION = 37;
 export const ANDROID_TARGET_SDK_VERSION = 36;
-export const ANDROID_BUILD_TOOLS_VERSION = '36.0.0';
+export const ANDROID_BUILD_TOOLS_VERSION = '37.0.0';
 
 // How long a cold start waits for a fresh OTA update before falling back to
 // the bundled/cached one.

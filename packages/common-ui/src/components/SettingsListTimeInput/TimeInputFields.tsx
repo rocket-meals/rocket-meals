@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, TextInput, View } from 'react-native';
-import type { NativeSyntheticEvent, TextInputKeyPressEventData } from 'react-native';
+import type { TextInputKeyPressEvent } from 'react-native';
 import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { useTheme } from '../../context/ThemeContext';
 import { borderRadiusContainer } from '../../constants/ui';
@@ -17,7 +17,11 @@ import {
 
 // Same platform split as the other sheet inputs: BottomSheetTextInput's blur
 // handler breaks on react-native-web.
-const ResolvedTextInput = Platform.OS === 'web' ? TextInput : BottomSheetTextInput;
+type TextInputInstance = React.ComponentRef<typeof TextInput>;
+
+// BottomSheetTextInput forwards everything to a TextInput, its own typings
+// just lag behind the react-native ones - so it is typed as one here.
+const ResolvedTextInput = (Platform.OS === 'web' ? TextInput : BottomSheetTextInput) as typeof TextInput;
 
 export interface TimeInputFieldsProps extends TimeUnitsEnabled {
 	/** Starting value in seconds, split into the enabled segments. */
@@ -73,7 +77,7 @@ const TimeInputFields: React.FC<TimeInputFieldsProps> = ({
 	});
 	const [focusedUnit, setFocusedUnit] = useState<TimeUnit | null>(null);
 
-	const inputRefs = useRef<Partial<Record<TimeUnit, TextInput | null>>>({});
+	const inputRefs = useRef<Partial<Record<TimeUnit, TextInputInstance | null>>>({});
 
 	const focusUnit = useCallback((unit: TimeUnit | undefined) => {
 		if (!unit) return;
@@ -96,7 +100,7 @@ const TimeInputFields: React.FC<TimeInputFieldsProps> = ({
 	);
 
 	const handleKeyPress = useCallback(
-		(unit: TimeUnit, event: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
+		(unit: TimeUnit, event: TextInputKeyPressEvent) => {
 			// Backspace in an already-empty segment -> jump back to the previous one.
 			if (event.nativeEvent.key === 'Backspace' && (segmentTexts[unit] ?? '') === '') {
 				const index = units.indexOf(unit);
@@ -135,7 +139,7 @@ const TimeInputFields: React.FC<TimeInputFieldsProps> = ({
 							]}
 						>
 							<ResolvedTextInput
-								ref={(ref: TextInput | null | undefined) => {
+								ref={(ref: TextInputInstance | null | undefined) => {
 									inputRefs.current[unit] = ref ?? null;
 								}}
 								nativeID={nativeIDPrefix ? `${nativeIDPrefix}${unit}` : undefined}
@@ -144,7 +148,7 @@ const TimeInputFields: React.FC<TimeInputFieldsProps> = ({
 								placeholder="00"
 								placeholderTextColor={theme.sheet.placeholder}
 								onChangeText={(text: string) => handleChangeText(unit, text)}
-								onKeyPress={(event: NativeSyntheticEvent<TextInputKeyPressEventData>) => handleKeyPress(unit, event)}
+								onKeyPress={(event: TextInputKeyPressEvent) => handleKeyPress(unit, event)}
 								onFocus={() => setFocusedUnit(unit)}
 								onBlur={() => handleBlur(unit)}
 								// "Next" on the keyboard advances to the following segment (the

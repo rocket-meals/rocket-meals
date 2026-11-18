@@ -18,7 +18,7 @@ function escapeHtml(text: string): string {
 }
 
 const MyMap = forwardRef<MyMapHandle, MyMapProps>(({ initialCenter, initialPitch, loadingText, onMessage }, ref) => {
-	const webViewRef = useRef<WebView>(null);
+	const webViewRef = useRef<WebView<{}>>(null);
 	const [html, setHtml] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -90,7 +90,7 @@ const MyMap = forwardRef<MyMapHandle, MyMapProps>(({ initialCenter, initialPitch
 
 	return (
 		<View style={styles.container}>
-			<WebView
+			<WebView<{}>
 				ref={webViewRef}
 				style={styles.webView}
 				source={{ html }}

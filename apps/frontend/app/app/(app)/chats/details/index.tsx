@@ -652,7 +652,7 @@ const ChatDetailsScreen = () => {
                                 contentContainerStyle={styles.list}
                                 refreshing={refreshing}
                                 onRefresh={fetchMessages}
-                                ListHeaderComponent={renderInitialMessage()}
+                                ListHeaderComponent={renderInitialMessage() ?? undefined}
                                 ListFooterComponent={renderFooter}
                                 onContentSizeChange={handleContentSizeChange}
                                 onScroll={({ nativeEvent }) => {

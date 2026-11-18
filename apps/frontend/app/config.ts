@@ -69,7 +69,10 @@ export function getBuildNumber() {
 	//      platforms build again rather than being skipped as already built.
 	// 210: the patch itself was wrong - it compared two Lists, which the Groovy
 	//      in Gradle 9 refuses. Corrected and verified against Gradle 9.3.1.
-	return 210;
+	// 211: Expo SDK 58 (React Native 0.88, built with Xcode 27.1). The iOS 27.1 SDK
+	//      is what lets the app fill the screens of the iPhone Duo instead of
+	//      sitting letterboxed in the middle.
+	return 211;
 }
 
 export function getMajorVersion() {

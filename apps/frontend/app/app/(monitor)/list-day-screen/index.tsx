@@ -54,13 +54,13 @@ const Index = () => {
 	const { foodAttributesDict } = useAppSelector((state) => state.foodAttributes);
 	const progressAnim = useRef(new Animated.Value(0)).current;
 	const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
-	const optionalFoodsScrollRef = useRef<ScrollView>(null);
+	const optionalFoodsScrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 	const [foodScrollIndex, setFoodScrollIndex] = useState(0);
 	const [optionalFoodScrollIndex, setOptionalFoodScrollIndex] = useState(0);
 	const windowHeight = Dimensions.get('window').height;
 	const windowWidth = Dimensions.get('window').width;
-	const headerRef = useRef<View>(null);
-	const footerRef = useRef<View>(null);
+	const headerRef = useRef<React.ComponentRef<typeof View>>(null);
+	const footerRef = useRef<React.ComponentRef<typeof View>>(null);
 	const [headerHeight, setHeaderHeight] = useState(0);
 	const [footerHeight, setFooterHeight] = useState(0);
 	const [isConnected, setIsConnected] = useState<boolean | null>(true);
@@ -70,7 +70,7 @@ const Index = () => {
 	const [mainFoodAttributes, setMainFoodAttributes] = useState<any>(null);
 	const [optionalFoodAttributes, setOptionalFoodAttributes] = useState<any>(null);
 
-	const foodsScrollRef = useRef<ScrollView>(null);
+	const foodsScrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 	const foods_area_color = appSettings?.foods_area_color ? appSettings?.foods_area_color : projectColor;
 	const contrastColor = myContrastColor(foods_area_color, theme, mode === 'dark');
 

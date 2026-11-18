@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
-import { Platform, StatusBar, useColorScheme } from 'react-native';
+import { StatusBar, useColorScheme } from 'react-native';
 import { darkTheme, lightTheme } from '@/styles/themes';
 import { configureStore } from '@/redux/store';
 
@@ -44,9 +44,9 @@ export const useThemeStatusBar = () => {
 	const isDark = theme === darkTheme;
 
 	useEffect(() => {
+		// Android draws edge to edge: the status bar has no background of its
+		// own any more (StatusBar.setBackgroundColor is gone since RN 0.88), the
+		// header behind it provides the colour.
 		StatusBar.setBarStyle(isDark ? 'light-content' : 'dark-content');
-		if (Platform.OS === 'android') {
-			StatusBar.setBackgroundColor(theme.header.background);
-		}
 	}, [isDark, theme]);
 };

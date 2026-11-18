@@ -13,7 +13,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { SET_SIMULATE_EXPO_UPDATE_AVAILABLE } from '@/redux/Types/types';
 
 const useAppForegroundUpdateCheckModal = () => {
-        const appState = useRef<AppStateStatus>(AppState.currentState);
+        const appState = useRef<AppStateStatus>(AppState.currentState as AppStateStatus);
         const { isSmartPhone } = usePlatformHelper();
         const { show, close } = useMyScrollViewModal();
         const { theme } = useTheme();

@@ -88,7 +88,7 @@ const Index = () => {
 				<View style={{ height: 200, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
 					<LoadingIndicator size={30} color={theme.screen.text} />
 				</View>
-			) : null,
+			) : undefined,
 		[loading, theme.screen.text]
 	);
 

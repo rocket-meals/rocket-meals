@@ -9,7 +9,7 @@ interface UseAppForegroundScrollViewModalOptions {
 }
 
 const useAppForegroundScrollViewModal = ({ autoRegister = true }: UseAppForegroundScrollViewModalOptions = {}) => {
-        const appState = useRef<AppStateStatus>(AppState.currentState);
+        const appState = useRef<AppStateStatus>(AppState.currentState as AppStateStatus);
         const { show } = useMyScrollViewModal();
         const { theme } = useTheme();
 

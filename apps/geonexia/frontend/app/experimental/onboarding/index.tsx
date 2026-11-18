@@ -429,7 +429,7 @@ export default function OnboardingScreen() {
 
 	// ─── Step management ─────────────────────────────────────────────────────
 	const [stepIndex, setStepIndex] = useState(0);
-	const scrollViewRef = useRef<ScrollView>(null);
+	const scrollViewRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 	const fadeAnim = useRef(new Animated.Value(1)).current;
 
 	// Build step list dynamically (insert tts_details after tts if enabled)

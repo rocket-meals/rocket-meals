@@ -54,7 +54,7 @@ const MaintenanceBanner: React.FC = () => {
 		if (kioskMode) {
 			return;
 		}
-		let appState: AppStateStatus = AppState.currentState;
+		let appState: AppStateStatus = AppState.currentState as AppStateStatus;
 		const subscription = AppState.addEventListener('change', nextState => {
 			const cameToForeground = appState !== 'active' && nextState === 'active';
 			appState = nextState;

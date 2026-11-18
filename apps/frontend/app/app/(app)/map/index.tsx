@@ -865,7 +865,7 @@ const OsmVectorMapScreen: React.FC = () => {
 
 	const [logEntries, setLogEntries] = useState<{ id: number; text: string }[]>([]);
 	const nextLogEntryIdRef = useRef(0);
-	const logScrollRef = useRef<ScrollView>(null);
+	const logScrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [mapZoom, setMapZoom] = useState(DEFAULT_ZOOM);
 	const [mapCenterOverride, setMapCenterOverride] = useState<{ lat: number; lng: number } | null>(null);

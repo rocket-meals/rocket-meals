@@ -177,7 +177,7 @@ const MyCustomColorPicker: React.FC<MyCustomColorPickerProps> = ({ color, onColo
 
 	// ── Saturation/value surface ──────────────────────────────────────────────
 	const svSizeRef = useRef({ width: 0, height: SV_SURFACE_HEIGHT });
-	const svViewRef = useRef<View>(null);
+	const svViewRef = useRef<React.ComponentRef<typeof View>>(null);
 	const [svWidth, setSvWidth] = useState(0);
 
 	const handleSvLayout = useCallback((e: LayoutChangeEvent) => {
@@ -201,7 +201,7 @@ const MyCustomColorPicker: React.FC<MyCustomColorPickerProps> = ({ color, onColo
 
 	// ── Hue slider ────────────────────────────────────────────────────────────
 	const hueSizeRef = useRef({ width: 0 });
-	const hueViewRef = useRef<View>(null);
+	const hueViewRef = useRef<React.ComponentRef<typeof View>>(null);
 	const [hueWidth, setHueWidth] = useState(0);
 
 	const handleHueLayout = useCallback((e: LayoutChangeEvent) => {

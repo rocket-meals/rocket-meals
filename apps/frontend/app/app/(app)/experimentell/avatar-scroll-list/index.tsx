@@ -173,7 +173,7 @@ const AvatarScrollListScreen = () => {
 					<View style={styles.footerLoader}>
 						<LoadingIndicator />
 					</View>
-				) : null
+				) : undefined
 			}
 		/>
 	);

@@ -26,7 +26,7 @@ const describeError = (error: unknown): string => (error instanceof Error ? erro
 export const TextRecognitionWebViewHost = () => {
 	const [, rerender] = useReducer((count: number) => count + 1, 0);
 	const [pageFile, setPageFile] = useState<PreparedPageFile | null>(null);
-	const webViewRef = useRef<WebView>(null);
+	const webViewRef = useRef<WebView<{}>>(null);
 
 	useEffect(() => textRecognitionBridge.subscribe(rerender), []);
 
@@ -90,7 +90,7 @@ export const TextRecognitionWebViewHost = () => {
 
 	return (
 		<View style={styles.hidden} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-			<WebView
+			<WebView<{}>
 				ref={webViewRef}
 				source={{ uri: pageFile.uri }}
 				// The page is a local file with everything inlined; these let a
