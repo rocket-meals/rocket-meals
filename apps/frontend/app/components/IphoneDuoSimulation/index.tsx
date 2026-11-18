@@ -19,14 +19,14 @@ import { sqliteKeyValueStorage } from '@/redux/storage/sqliteStorage';
  * Layout mistakes then show up the way they do on the device.
  *
  * How sure the poses are:
- * - Outer display upright: measured in the iOS simulator (466 x 678 pt, rail
- *   on the right, 84 pt).
- * - Everything else follows Apple's and Expo's descriptions and has not been
+ * - Outer display upright (466 x 678 pt, rail on the right) and inner display
+ *   sideways (951 x 669 pt, rail on the right): measured in the iOS simulator.
+ *   Both also keep 34 pt free at the bottom for the home indicator.
+ * - The other three follow Apple's and Expo's descriptions and have not been
  *   checked on a device: the rail also appears when the device is folded and
- *   held sideways and when it is open and held sideways, while the open
- *   display held upright keeps the usual horizontal bar. The sizes of the inner
- *   display are derived from its pixel count. On which side the rail sits when
- *   the folded device is turned is not documented, so both sides can be tried.
+ *   held sideways, while the open display held upright keeps the usual
+ *   horizontal bar. On which side the rail sits when the folded device is
+ *   turned is not documented, so both sides can be tried.
  *
  * Limits: it is made for the web build. Natively the SafeAreaView reads the
  * insets from the system and not from this context, so on a phone only the
@@ -35,6 +35,8 @@ import { sqliteKeyValueStorage } from '@/redux/storage/sqliteStorage';
 
 /** Width the upright status bar takes away on its edge, in points. */
 export const IPHONE_DUO_VERTICAL_BAR_INSET = 84;
+/** Height kept free at the bottom for the home indicator, in points. */
+export const IPHONE_DUO_HOME_INDICATOR_INSET = 34;
 
 export type IphoneDuoPose = 'outer-portrait' | 'outer-landscape' | 'outer-landscape-left' | 'inner-portrait' | 'inner-landscape';
 
@@ -152,13 +154,14 @@ const IphoneDuoSimulation: React.FC<{ children: React.ReactNode }> = ({ children
 	const insets: EdgeInsets = useMemo(
 		() => ({
 			...realInsets,
+			bottom: Math.max(realInsets.bottom, IPHONE_DUO_HOME_INDICATOR_INSET),
 			left: rail === 'left' ? Math.max(realInsets.left, IPHONE_DUO_VERTICAL_BAR_INSET) : realInsets.left,
 			right: rail === 'right' ? Math.max(realInsets.right, IPHONE_DUO_VERTICAL_BAR_INSET) : realInsets.right,
 		}),
 		[realInsets, rail]
 	);
 
-	if (!rail) {
+	if (!activePose) {
 		return <>{children}</>;
 	}
 
@@ -167,12 +170,14 @@ const IphoneDuoSimulation: React.FC<{ children: React.ReactNode }> = ({ children
 			{children}
 			{/* Drawn last and without touch handling: like the real bar it covers
 			    whatever a screen wrongly places under it, and taps go through. */}
-			<View pointerEvents="none" style={[styles.bar, rail === 'left' ? styles.barLeft : styles.barRight]} testID="iphone-duo-vertical-bar">
-				<View style={styles.pill}>
-					<Text style={styles.clock}>{clock}</Text>
-					<MaterialCommunityIcons name="wifi" size={26} color="#000000" />
+			{rail && (
+				<View pointerEvents="none" style={[styles.bar, rail === 'left' ? styles.barLeft : styles.barRight]} testID="iphone-duo-vertical-bar">
+					<View style={styles.pill}>
+						<Text style={styles.clock}>{clock}</Text>
+						<MaterialCommunityIcons name="wifi" size={26} color="#000000" />
+					</View>
 				</View>
-			</View>
+			)}
 		</SafeAreaInsetsContext.Provider>
 	);
 };
