@@ -387,6 +387,7 @@
     "@directus/api": "35.2.0",
     "@directus/extensions-sdk": "17.1.4",
     "@directus/types": "15.0.3",
+    "@jest/globals": "^29.7.0",
     "@types/d3-force": "^3.0.10",
     "@types/d3-selection": "^3.0.11",
     "@types/d3-zoom": "^3.0.8",

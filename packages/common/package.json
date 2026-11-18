@@ -5,6 +5,7 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "@types/iban": "^0.0.35",
     "@types/jest": "^29.5.12",
     "@types/markdown-it": "^14",
