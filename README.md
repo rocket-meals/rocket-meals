@@ -70,7 +70,7 @@ Die Links werden bei jedem Build-Nummern-Bump automatisch aktualisiert.
 <!-- dev-client:frontend:end -->
 
 <!-- dev-client:score-tracker:start -->
-**Score Tracker Dev Client v0.25.0:** 🤖 [Android APK](https://expo.dev/artifacts/eas/fB32hlv0V3xSmhy2nLSz8MNUjcUbZQkMmPijzIHXH8w.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/score-tracker/builds/19ec0414-03b4-41a1-9703-15f16b63e68a)
+**Score Tracker Dev Client v0.26.0:** 🤖 [Android APK](https://expo.dev/artifacts/eas/bEmSyCjX334UrAx9y4v5h1FMT4frUcuyIe2kZxsWdvQ.apk) · 🍏 [iOS (Ad-hoc Install)](https://expo.dev/accounts/baumgartner-software/projects/score-tracker/builds/e080e501-c94d-46c6-9cd2-c951dc43dcaa)
 <!-- dev-client:score-tracker:end -->
 
 <!-- dev-client:tag-und-jahr:start -->
