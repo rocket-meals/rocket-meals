@@ -7,20 +7,23 @@
       "developmentClient": true,
       "distribution": "internal",
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "resourceClass": "large"
       },
       "node": "22.16.0",
       "channel": "development"
     },
     "preview": {
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "resourceClass": "large"
       },
       "node": "22.16.0"
     },
     "previewApk": {
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "resourceClass": "large"
       },
       "channel": "preview",
       "node": "22.16.0"
@@ -32,17 +35,24 @@
     },
     "preview2": {
       "android": {
-        "gradleCommand": ":app:assembleRelease"
+        "gradleCommand": ":app:assembleRelease",
+        "resourceClass": "large"
       },
       "node": "22.16.0"
     },
     "preview3": {
       "developmentClient": true,
-      "node": "22.16.0"
+      "node": "22.16.0",
+      "android": {
+        "resourceClass": "large"
+      }
     },
     "preview4": {
       "distribution": "internal",
-      "node": "22.16.0"
+      "node": "22.16.0",
+      "android": {
+        "resourceClass": "large"
+      }
     },
     "simulator": {
       "ios": {
@@ -52,7 +62,8 @@
     },
     "production": {
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "resourceClass": "large"
       },
       "autoIncrement": false,
       "channel": "production",
