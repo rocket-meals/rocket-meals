@@ -1,6 +1,6 @@
 {
   "report_version": "^0.1.103",
-  "report_timestamp": "2026-11-18T19:37:17.949Z",
+  "report_timestamp": "2026-11-20T10:00:25.534Z",
   "target_language": "typescript",
   "report_summary": {
     "additional": {
@@ -8,65 +8,65 @@
         "invertedFieldToClasses": {
           "median": 1.5,
           "maximum": 141,
-          "average": 1.499496728736789,
-          "amountSavedValuesForKeys": 5959,
-          "amountKeys": 32
+          "average": 1.5007530120481927,
+          "amountSavedValuesForKeys": 5979,
+          "amountKeys": 31
         },
         "invertedParameterToMethods": {
           "median": 1,
           "maximum": 83,
-          "average": 2.2501936483346245,
-          "amountSavedValuesForKeys": 2905,
+          "average": 2.25674633770239,
+          "amountSavedValuesForKeys": 2927,
           "amountKeys": 27
         },
         "invertedParameterToClasses": {
           "median": 1.5,
           "maximum": 141,
-          "average": 1.5116692034500254,
-          "amountSavedValuesForKeys": 5959,
+          "average": 1.5129048582995952,
+          "amountSavedValuesForKeys": 5979,
           "amountKeys": 32
         }
       },
       "timer_information": {
-        "ast_generation_time_ms": 4200,
-        "detection_time_ms": 102,
+        "ast_generation_time_ms": 5461,
+        "detection_time_ms": 132,
         "machine_information": {
           "os": "Linux",
-          "os_release": "7.0.0-1019-azure",
+          "os_release": "7.0.0-1020-azure",
           "os_platform": "linux",
           "os_arch": "x64",
-          "os_uptime": 134.73,
-          "os_memory_free": 14658551808,
-          "os_memory_total": 16759439360,
+          "os_uptime": 235.26,
+          "os_memory_free": 14717145088,
+          "os_memory_total": 16759431168,
           "os_cpu_cores": 4,
-          "os_cpu_model": "AMD EPYC 9V74 80-Core Processor",
+          "os_cpu_model": "AMD EPYC 7763 64-Core Processor",
           "os_cpu_speed": 0
         }
       }
     },
-    "amount_classes_or_interfaces_with_data_clumps": 13,
-    "amount_files_with_data_clumps": 11,
-    "amount_methods_with_data_clumps": 8,
+    "amount_classes_or_interfaces_with_data_clumps": 14,
+    "amount_files_with_data_clumps": 12,
+    "amount_methods_with_data_clumps": 10,
     "fields_to_fields_data_clump": 12,
     "parameters_to_fields_data_clump": 0,
-    "parameters_to_parameters_data_clump": 16,
-    "amount_data_clumps": 28
+    "parameters_to_parameters_data_clump": 18,
+    "amount_data_clumps": 30
   },
   "project_info": {
     "project_url": "https://github.com/rocket-meals/rocket-meals",
     "project_name": "rocket-meals",
-    "project_version": "6530f77d576b142189a1c927c12b6de34d78f65b",
-    "project_commit_hash": "6530f77d576b142189a1c927c12b6de34d78f65b",
+    "project_version": "847811d7c6c84a2c01a3b7af8a7d4a9dfee818ba",
+    "project_commit_hash": "847811d7c6c84a2c01a3b7af8a7d4a9dfee818ba",
     "project_tag": null,
-    "project_commit_date": "1795030501",
+    "project_commit_date": "1795168653",
     "additional": {
       "relative_path_to_source_folder_in_project": ""
     },
-    "number_of_files": 838,
-    "number_of_classes_or_interfaces": 1940,
-    "number_of_methods": 2443,
-    "number_of_data_fields": 5959,
-    "number_of_method_parameters": 2905
+    "number_of_files": 841,
+    "number_of_classes_or_interfaces": 1947,
+    "number_of_methods": 2457,
+    "number_of_data_fields": 5979,
+    "number_of_method_parameters": 2927
   },
   "detector": {
     "name": "data-clumps-doctor",
@@ -1643,6 +1643,200 @@
         "cluster_type": 1
       }
     },
+    "parameters_to_parameters_data_clump-packages/common/src/FoodFeedbackCommentHistoryHelper.ts-packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment-packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry-feedbacktextnow": {
+      "type": "data_clump",
+      "key": "parameters_to_parameters_data_clump-packages/common/src/FoodFeedbackCommentHistoryHelper.ts-packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment-packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry-feedbacktextnow",
+      "probability": 1,
+      "from_file_path": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts",
+      "from_class_or_interface_name": "FoodFeedbackCommentHistoryHelper",
+      "from_class_or_interface_key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper",
+      "from_method_name": "addComment",
+      "from_method_key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment",
+      "to_file_path": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts",
+      "to_class_or_interface_name": "FoodFeedbackCommentHistoryHelper",
+      "to_class_or_interface_key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper",
+      "to_method_name": "editEntry",
+      "to_method_key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry",
+      "data_clump_type": "parameters_to_parameters_data_clump",
+      "data_clump_data": {
+        "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment/parameter/feedback": {
+          "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment/parameter/feedback",
+          "name": "feedback",
+          "type": "import(\"packages/common/src/FoodFeedbackCommentHistoryHelper\").FoodFeedbackWithComments",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry/parameter/feedback",
+            "name": "feedback",
+            "type": "import(\"packages/common/src/FoodFeedbackCommentHistoryHelper\").FoodFeedbackWithComments",
+            "modifiers": [],
+            "position": {
+              "startLine": 143,
+              "startColumn": 20,
+              "endLine": 143,
+              "endColumn": 73
+            }
+          },
+          "position": {
+            "startLine": 133,
+            "startColumn": 21,
+            "endLine": 133,
+            "endColumn": 74
+          }
+        },
+        "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment/parameter/text": {
+          "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment/parameter/text",
+          "name": "text",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry/parameter/text",
+            "name": "text",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 143,
+              "startColumn": 90,
+              "endLine": 143,
+              "endColumn": 102
+            }
+          },
+          "position": {
+            "startLine": 133,
+            "startColumn": 76,
+            "endLine": 133,
+            "endColumn": 88
+          }
+        },
+        "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment/parameter/now": {
+          "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment/parameter/now",
+          "name": "now",
+          "type": "Date",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry/parameter/now",
+            "name": "now",
+            "type": "Date",
+            "modifiers": [],
+            "position": {
+              "startLine": 143,
+              "startColumn": 104,
+              "endLine": 143,
+              "endColumn": 126
+            }
+          },
+          "position": {
+            "startLine": 133,
+            "startColumn": 90,
+            "endLine": 133,
+            "endColumn": 112
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 3,
+        "cluster_type": 1
+      }
+    },
+    "parameters_to_parameters_data_clump-packages/common/src/FoodFeedbackCommentHistoryHelper.ts-packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry-packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment-feedbacktextnow": {
+      "type": "data_clump",
+      "key": "parameters_to_parameters_data_clump-packages/common/src/FoodFeedbackCommentHistoryHelper.ts-packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry-packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment-feedbacktextnow",
+      "probability": 1,
+      "from_file_path": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts",
+      "from_class_or_interface_name": "FoodFeedbackCommentHistoryHelper",
+      "from_class_or_interface_key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper",
+      "from_method_name": "editEntry",
+      "from_method_key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry",
+      "to_file_path": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts",
+      "to_class_or_interface_name": "FoodFeedbackCommentHistoryHelper",
+      "to_class_or_interface_key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper",
+      "to_method_name": "addComment",
+      "to_method_key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment",
+      "data_clump_type": "parameters_to_parameters_data_clump",
+      "data_clump_data": {
+        "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry/parameter/feedback": {
+          "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry/parameter/feedback",
+          "name": "feedback",
+          "type": "import(\"packages/common/src/FoodFeedbackCommentHistoryHelper\").FoodFeedbackWithComments",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment/parameter/feedback",
+            "name": "feedback",
+            "type": "import(\"packages/common/src/FoodFeedbackCommentHistoryHelper\").FoodFeedbackWithComments",
+            "modifiers": [],
+            "position": {
+              "startLine": 133,
+              "startColumn": 21,
+              "endLine": 133,
+              "endColumn": 74
+            }
+          },
+          "position": {
+            "startLine": 143,
+            "startColumn": 20,
+            "endLine": 143,
+            "endColumn": 73
+          }
+        },
+        "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry/parameter/text": {
+          "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry/parameter/text",
+          "name": "text",
+          "type": "string",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment/parameter/text",
+            "name": "text",
+            "type": "string",
+            "modifiers": [],
+            "position": {
+              "startLine": 133,
+              "startColumn": 76,
+              "endLine": 133,
+              "endColumn": 88
+            }
+          },
+          "position": {
+            "startLine": 143,
+            "startColumn": 90,
+            "endLine": 143,
+            "endColumn": 102
+          }
+        },
+        "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry/parameter/now": {
+          "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/editEntry/parameter/now",
+          "name": "now",
+          "type": "Date",
+          "probability": 1,
+          "modifiers": [],
+          "to_variable": {
+            "key": "packages/common/src/FoodFeedbackCommentHistoryHelper.ts/class/FoodFeedbackCommentHistoryHelper/method/addComment/parameter/now",
+            "name": "now",
+            "type": "Date",
+            "modifiers": [],
+            "position": {
+              "startLine": 133,
+              "startColumn": 90,
+              "endLine": 133,
+              "endColumn": 112
+            }
+          },
+          "position": {
+            "startLine": 143,
+            "startColumn": 104,
+            "endLine": 143,
+            "endColumn": 126
+          }
+        }
+      },
+      "data_clump_type_additional": {
+        "cluster_id": 3,
+        "cluster_type": 1
+      }
+    },
     "fields_to_fields_data_clump-apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/ai/NewsParser.ts-apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/ai/NewsParser.ts/interface/NewsItem-apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/NewsModuleHelper.ts/interface/NewsDraft-titleurldate": {
       "type": "data_clump",
       "key": "fields_to_fields_data_clump-apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/ai/NewsParser.ts-apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/ai/NewsParser.ts/interface/NewsItem-apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/rocket-meals-module/NewsModuleHelper.ts/interface/NewsDraft-titleurldate",
@@ -1736,7 +1930,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 3,
+        "cluster_id": 4,
         "cluster_type": 2
       }
     },
@@ -1833,7 +2027,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 3,
+        "cluster_id": 4,
         "cluster_type": 2
       }
     },
@@ -1930,7 +2124,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 4,
+        "cluster_id": 5,
         "cluster_type": 3
       }
     },
@@ -2052,7 +2246,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 4,
+        "cluster_id": 5,
         "cluster_type": 3
       }
     },
@@ -2149,7 +2343,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 4,
+        "cluster_id": 5,
         "cluster_type": 3
       }
     },
@@ -2246,7 +2440,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 4,
+        "cluster_id": 5,
         "cluster_type": 3
       }
     },
@@ -2343,7 +2537,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 5,
+        "cluster_id": 6,
         "cluster_type": 2
       }
     },
@@ -2440,7 +2634,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 4,
+        "cluster_id": 5,
         "cluster_type": 3
       }
     },
@@ -2562,7 +2756,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 4,
+        "cluster_id": 5,
         "cluster_type": 3
       }
     },
@@ -2659,7 +2853,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 5,
+        "cluster_id": 6,
         "cluster_type": 2
       }
     },
@@ -2756,7 +2950,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 6,
+        "cluster_id": 7,
         "cluster_type": 2
       }
     },
@@ -2853,7 +3047,7 @@
         }
       },
       "data_clump_type_additional": {
-        "cluster_id": 6,
+        "cluster_id": 7,
         "cluster_type": 2
       }
     }

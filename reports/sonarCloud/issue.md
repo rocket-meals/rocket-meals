@@ -5,10 +5,10 @@
 | Category | Total Issues | Shown |
 |----------|-------------|-------|
 | 🔒 Security | 10 | 10 |
-| 🐛 Reliability | 36 | 36 |
-| 🔧 Maintainability | 49 | 4 |
+| 🐛 Reliability | 40 | 40 |
+| 🔧 Maintainability | 52 | 0 |
 
-**Total issues:** 95 (showing top 50 prioritized by: Security > Reliability > Maintainability)
+**Total issues:** 102 (showing top 50 prioritized by: Security > Reliability > Maintainability)
 
 ---
 
@@ -54,7 +54,11 @@
   apps/scripts/store-screenshots-load.ts:55
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/scripts/store-screenshots-load.ts#L55
 
-## 🐛 Reliability (36/36)
+## 🐛 Reliability (40/40)
+
+- **Review this async function: it has no await expression.**
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/food-feedback-comment-history-hook/index.ts:24
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/food-feedback-comment-history-hook/index.ts#L24
 
 - **Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/helpers/UniversityAffiliationHelper.ts:80
@@ -81,12 +85,12 @@
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/feature-wishes/feature-wishes-page.vue#L209
 
 - **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue:325
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue#L325
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue:327
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue#L327
 
 - **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue:324
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue#L324
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue:326
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedback-chat-page.vue#L326
 
 - **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/food-feedbacks/food-feedbacks-page.vue:303
@@ -121,8 +125,8 @@
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/profiles/profiles-page.vue#L74
 
 - **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
-  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/support-chat/support-chat-conversation.vue:110
-  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/support-chat/support-chat-conversation.vue#L110
+  apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/support-chat/support-chat-conversation.vue:125
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/support-chat/support-chat-conversation.vue#L125
 
 - **Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.**
   apps/backend/Backend/directusExtensions/directus-extension-rocket-meals-bundle/src/rocket-meals-module/workflows/workflow-detail-page.vue:80
@@ -169,6 +173,18 @@
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/app/(app)/experimentell/store-versions/index.tsx#L93
 
 - **Review this async function: it has no await expression.**
+  apps/frontend/app/components/AppPlaybook/FoodFeedbackCommentTimelinePlaybook.tsx:53
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/components/AppPlaybook/FoodFeedbackCommentTimelinePlaybook.tsx#L53
+
+- **Review this async function: it has no await expression.**
+  apps/frontend/app/components/AppPlaybook/FoodFeedbackCommentTimelinePlaybook.tsx:54
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/components/AppPlaybook/FoodFeedbackCommentTimelinePlaybook.tsx#L54
+
+- **Review this async function: it has no await expression.**
+  apps/frontend/app/components/AppPlaybook/FoodFeedbackCommentTimelinePlaybook.tsx:55
+  https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/components/AppPlaybook/FoodFeedbackCommentTimelinePlaybook.tsx#L55
+
+- **Review this async function: it has no await expression.**
   apps/frontend/app/helper/NotificationHelper.ts:87
   https://github.com/rocket-meals/rocket-meals/blob/master/apps/frontend/app/helper/NotificationHelper.ts#L87
 
@@ -199,22 +215,4 @@
 - **Use '[[' instead of '[' for conditional tests. The '[[' construct is safer and more feature-rich.**
   scripts/eas-ios-credentials.sh:29
   https://github.com/rocket-meals/rocket-meals/blob/master/scripts/eas-ios-credentials.sh#L29
-
-## 🔧 Maintainability (4/49)
-
-- **Redirect this error message to stderr (>&2).**
-  .github/actions/geonexia-expo-update/action.yml:135
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/geonexia-expo-update/action.yml#L135
-
-- **Redirect this error message to stderr (>&2).**
-  .github/actions/geonexia-expo-update/action.yml:143
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/geonexia-expo-update/action.yml#L143
-
-- **Redirect this error message to stderr (>&2).**
-  .github/actions/score-tracker-expo-update/action.yml:135
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/score-tracker-expo-update/action.yml#L135
-
-- **Redirect this error message to stderr (>&2).**
-  .github/actions/score-tracker-expo-update/action.yml:143
-  https://github.com/rocket-meals/rocket-meals/blob/master/.github/actions/score-tracker-expo-update/action.yml#L143
 
