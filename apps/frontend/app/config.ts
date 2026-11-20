@@ -331,7 +331,8 @@ export function getVersionPatch() {
         //      login no longer logs the user
         // 198: new web-only tenant Darmstadt, every tenant can also be served from the central
         //      repository under /rocket-meals/<tenant> (EXPO_PUBLIC_WEB_TENANT_SUBPATH)
-        return 198;
+        // 199: web login of a tenant under /rocket-meals/<tenant> redirects to its own login page
+        return 199;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
