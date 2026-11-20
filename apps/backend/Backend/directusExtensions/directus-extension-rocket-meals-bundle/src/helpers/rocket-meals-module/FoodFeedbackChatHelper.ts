@@ -13,6 +13,7 @@
 import { CollectionNames } from 'repo-depkit-common/src/databaseTypes/CollectionNames';
 import { FoodFeedbackChatFilter, FoodFeedbackChatStatus, FoodFeedbackChatStatusHelper } from 'repo-depkit-common/src/FoodFeedbackChatStatusHelper';
 import { FoodFeedbackReaction, FoodFeedbackReactionHelper } from 'repo-depkit-common/src/FoodFeedbackReactionHelper';
+import { FoodFeedbackCommentHistoryHelper } from 'repo-depkit-common/src/FoodFeedbackCommentHistoryHelper';
 import { BackendTranslationKeys } from '../translations/BackendTranslationKeys';
 import { ActionRecommendationAction } from '../action-recommendations/ActionRecommendationDefinitions';
 import { ActionRecommendationModuleHelper, type ModuleActionRecommendation } from './ActionRecommendationModuleHelper';
@@ -26,6 +27,8 @@ export type FoodFeedbackStatusPresentation = ModuleStatusPresentation;
 export type ModuleFoodFeedback = ModuleItem & {
   rating?: number | null;
   comment?: string | null;
+  /** All comments of the author, newest first, see `FoodFeedbackCommentHistoryHelper`. */
+  comment_history?: unknown;
   food?: ModuleImageItem | string | null;
   canteen?: ModuleCanteenRelation;
 };
@@ -96,7 +99,7 @@ export class FoodFeedbackChatHelper {
   public static readonly CANTEEN_IMAGE_SIZE = 24;
 
   /** Fields of the list. */
-  public static readonly LIST_FIELDS = ['id', 'comment', 'rating', 'date_created', 'date_updated', 'food.id', 'food.alias', 'food.image', 'food.image_remote_url', 'canteen.id', 'canteen.alias', 'profile.id', 'profile.nickname', 'profile.avatar', 'profile.date_updated', 'profile.language', 'chat.id', 'chat.conversation_state', 'chat.date_updated', 'support_reaction'];
+  public static readonly LIST_FIELDS = ['id', 'comment', 'comment_history', 'rating', 'date_created', 'date_updated', 'food.id', 'food.alias', 'food.image', 'food.image_remote_url', 'canteen.id', 'canteen.alias', 'profile.id', 'profile.nickname', 'profile.avatar', 'profile.date_updated', 'profile.language', 'chat.id', 'chat.conversation_state', 'chat.date_updated', 'support_reaction'];
 
   /** Only in the list: the newest message of the author in the chat, the preview of a row instead of the first comment. */
   public static readonly LIST_LATEST_MESSAGE_FIELDS: readonly string[] = ['chat.messages.message', 'chat.messages.date_created'];
@@ -231,13 +234,45 @@ export class FoodFeedbackChatHelper {
 
   /**
    * What a row of the list quotes: the newest message of the author once they wrote in the chat, e.g.
-   * their answer to support, else the comment of the feedback.
+   * their answer to support, else the comment of the feedback. A comment written after that message
+   * (a new entry of the comment history) wins, it is the current impression of the author.
    */
-  static getPreviewComment(feedback: Pick<FoodFeedbackListItem, 'comment' | 'chat'>): string {
+  static getPreviewComment(feedback: Pick<FoodFeedbackListItem, 'comment' | 'comment_history' | 'chat'>): string {
     const chat = feedback.chat;
     const messages = typeof chat === 'object' && chat !== null && 'messages' in chat ? chat.messages : null;
     const latest = [...(messages ?? [])].sort((a, b) => (b.date_created ?? '').localeCompare(a.date_created ?? '')).find(message => (message.message ?? '').trim().length > 0);
+    // Only stored entries carry a reliable date: `date_updated` of an old feedback also changes when e.g. its chat is linked.
+    const newestStoredComment = FoodFeedbackCommentHistoryHelper.getStoredEntries(feedback)[0];
+    if (latest && newestStoredComment && feedback.comment && new Date(newestStoredComment.date_created).getTime() > new Date(latest.date_created ?? 0).getTime()) {
+      return feedback.comment.trim();
+    }
     return (latest?.message ?? feedback.comment ?? '').trim();
+  }
+
+  /** How many comments the author wrote on the food, see `FoodFeedbackCommentHistoryHelper`. */
+  static getCommentCount(feedback: Pick<FoodFeedbackListItem, 'comment' | 'comment_history' | 'date_created' | 'date_updated'>): number {
+    return FoodFeedbackCommentHistoryHelper.getEntries(feedback).length;
+  }
+
+  /**
+   * The comments of the author for the chat page: the oldest opens the conversation like before, the
+   * newer ones are sorted into the chat by date, so support sees when the author changed their mind.
+   */
+  static getCommentTimeline(feedback: Pick<FoodFeedbackListItem, 'comment' | 'comment_history' | 'date_created' | 'date_updated'>): {
+    opening: { text: string; date?: string | null } | null;
+    laterRequests: { text: string; date: string; edited?: boolean }[];
+  } {
+    const oldestFirst = [...FoodFeedbackCommentHistoryHelper.getEntries(feedback)].reverse();
+    const [first, ...later] = oldestFirst;
+    if (!first) {
+      return { opening: null, laterRequests: [] };
+    }
+    // A comment from before the history keeps the date the chat page always showed for it.
+    const hasStoredHistory = FoodFeedbackCommentHistoryHelper.getStoredEntries(feedback).length > 0;
+    return {
+      opening: { text: first.comment, date: hasStoredHistory ? first.date_created : feedback.date_created },
+      laterRequests: later.map(entry => ({ text: entry.comment, date: entry.date_created, edited: !!entry.date_updated })),
+    };
   }
 
   /** URL parameters to count the feedbacks of one filter chip – with the same canteen, food and rating filter as the list. */

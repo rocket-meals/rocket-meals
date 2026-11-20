@@ -383,6 +383,10 @@ watch(feedbacks, loadRecommendations);
             </div>
             <div v-if="FoodFeedbackChatHelper.getPreviewComment(feedback)" class="comment-line">
               <q class="comment">{{ FoodFeedbackChatHelper.getPreviewComment(feedback) }}</q>
+              <span v-if="FoodFeedbackChatHelper.getCommentCount(feedback) > 1" v-tooltip="translate(BackendTranslationKeys.rocket_meals_module_food_feedback_comment_history_tooltip)" class="comment-count type-note">
+                <v-icon name="history" x-small />
+                {{ translate(BackendTranslationKeys.rocket_meals_module_food_feedback_comment_count, { count: FoodFeedbackChatHelper.getCommentCount(feedback) }) }}
+              </span>
               <span v-if="feedback.profile" class="comment-author" @click.stop @keydown.stop>
                 <profile-avatar :profile="feedback.profile" :size="20" with-name />
               </span>
@@ -516,6 +520,15 @@ watch(feedbacks, loadRecommendations);
   flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
+}
+
+/* How many comments the author wrote on the food, when they changed their opinion. */
+.comment-count {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 0.25rem;
+  align-items: center;
+  color: var(--theme--foreground-subdued);
 }
 
 /* The author after the quote, as a chip that opens the profile without opening the row. */

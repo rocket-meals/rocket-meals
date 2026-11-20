@@ -160,6 +160,11 @@
       },
       {
         "type": "hook",
+        "name": "food-feedback-comment-history-hook",
+        "source": "src/food-feedback-comment-history-hook/index.ts"
+      },
+      {
+        "type": "hook",
         "name": "food-feedback-guest-restriction-hook",
         "source": "src/food-feedback-guest-restriction-hook/index.ts"
       },

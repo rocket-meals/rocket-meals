@@ -103,6 +103,8 @@ const page = RocketMealsModulePages.FOOD_FEEDBACKS;
 const MESSAGE_REFRESH_INTERVAL_MS = 20000;
 
 const feedback = ref<FoodFeedbackListItem | null>(null);
+/** The comments of the author: the oldest opens the chat, newer ones appear between the messages. */
+const commentTimeline = computed(() => (feedback.value ? FoodFeedbackChatHelper.getCommentTimeline(feedback.value) : { opening: null, laterRequests: [] }));
 const messages = ref<FoodFeedbackChatMessage[]>([]);
 const loading = ref(false);
 const loadError = ref(false);
@@ -435,7 +437,8 @@ watch(() => props.feedbackId, load);
         </div>
 
         <support-chat-conversation
-          :opening="FoodFeedbackChatStatusHelper.hasComment(feedback) ? { text: feedback.comment ?? '', date: feedback.date_created } : null"
+          :opening="commentTimeline.opening"
+          :later-requests="commentTimeline.laterRequests"
           :user-profile="feedback.profile"
           :messages="messages"
           :can-write="canWrite"

@@ -17,6 +17,11 @@ import ProfileAvatar from '../profiles/profile-avatar.vue';
 const props = defineProps<{
   /** The request of the user, e.g. the comment of a food feedback. */
   opening?: { text: string; date?: string | null } | null;
+  /**
+   * Later requests of the user outside the chat, e.g. the newer comments of a food feedback. They are
+   * sorted into the messages by date, so the conversation shows when the user changed their opinion.
+   */
+  laterRequests?: readonly { text: string; date: string; edited?: boolean }[];
   messages: readonly FoodFeedbackChatMessage[];
   canWrite: boolean;
   /** Shown instead of messages when there are none yet. */
@@ -44,6 +49,16 @@ function getUserLabel(message?: FoodFeedbackChatMessage): string {
   const nickname = (message ? FoodFeedbackChatHelper.getNickname(message.profile) : undefined) ?? FoodFeedbackChatHelper.getNickname(props.userProfile);
   return nickname ? translate(BackendTranslationKeys.rocket_meals_module_user_with_nickname, { nickname }) : translate(BackendTranslationKeys.rocket_meals_module_user);
 }
+
+type TimelineItem = { key: string; time: number; message?: FoodFeedbackChatMessage; request?: { text: string; date: string; edited?: boolean } };
+
+/** The messages with the later requests in between, oldest first. */
+const timeline = computed<TimelineItem[]>(() => {
+  const items: TimelineItem[] = props.messages.map(message => ({ key: `message-${message.id}`, time: message.date_created ? new Date(message.date_created).getTime() : 0, message }));
+  (props.laterRequests ?? []).forEach((request, index) => items.push({ key: `request-${index}-${request.date}`, time: new Date(request.date).getTime(), request }));
+  // Stable sort: messages keep their order when the dates are equal.
+  return items.map((item, index) => ({ item, index })).sort((a, b) => a.item.time - b.item.time || a.index - b.index).map(({ item }) => item);
+});
 
 /** Edge length in px of the avatar next to a message of the user. */
 const AVATAR_SIZE = 32;
@@ -146,20 +161,30 @@ watch(() => props.messages.length, scrollToBottom, { immediate: true });
       </div>
     </div>
 
-    <div v-for="message in messages" :key="message.id" class="message-row" :class="ChatHelper.isSupportMessage(message) ? 'from-support' : 'from-user'">
-      <profile-avatar v-if="!ChatHelper.isSupportMessage(message)" class="message-avatar" :profile="message.profile ?? userProfile" :size="AVATAR_SIZE" />
-      <div class="message">
-        <div class="message-author type-note">
-          <template v-if="ChatHelper.isSupportMessage(message)">
-            {{ translate(BackendTranslationKeys.rocket_meals_module_support) }}
-            <template v-if="FoodFeedbackChatHelper.getSupportAuthorName(message)"> · {{ FoodFeedbackChatHelper.getSupportAuthorName(message) }}</template>
-          </template>
-          <template v-else>{{ getUserLabel(message) }}</template>
+    <template v-for="item in timeline" :key="item.key">
+      <div v-if="item.request" class="message-row from-user">
+        <profile-avatar class="message-avatar" :profile="userProfile" :size="AVATAR_SIZE" />
+        <div class="message">
+          <div class="message-author type-note">{{ getUserLabel() }} · {{ translate(BackendTranslationKeys.rocket_meals_module_food_feedback_new_comment) }}</div>
+          <div class="bubble">{{ item.request.text }}</div>
+          <div class="message-date type-note">{{ formatDateTime(item.request.date) }}<template v-if="item.request.edited"> · {{ translate(BackendTranslationKeys.rocket_meals_module_food_feedback_comment_edited) }}</template></div>
         </div>
-        <div class="bubble">{{ message.message }}</div>
-        <div class="message-date type-note">{{ formatDateTime(message.date_created) }}</div>
       </div>
-    </div>
+      <div v-else-if="item.message" class="message-row" :class="ChatHelper.isSupportMessage(item.message) ? 'from-support' : 'from-user'">
+        <profile-avatar v-if="!ChatHelper.isSupportMessage(item.message)" class="message-avatar" :profile="item.message.profile ?? userProfile" :size="AVATAR_SIZE" />
+        <div class="message">
+          <div class="message-author type-note">
+            <template v-if="ChatHelper.isSupportMessage(item.message)">
+              {{ translate(BackendTranslationKeys.rocket_meals_module_support) }}
+              <template v-if="FoodFeedbackChatHelper.getSupportAuthorName(item.message)"> · {{ FoodFeedbackChatHelper.getSupportAuthorName(item.message) }}</template>
+            </template>
+            <template v-else>{{ getUserLabel(item.message) }}</template>
+          </div>
+          <div class="bubble">{{ item.message.message }}</div>
+          <div class="message-date type-note">{{ formatDateTime(item.message.date_created) }}</div>
+        </div>
+      </div>
+    </template>
 
     <div v-if="messages.length === 0" class="empty type-note">{{ emptyText }}</div>
   </div>

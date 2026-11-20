@@ -9458,5 +9458,75 @@
     "ru": "Внутренний экран горизонтально",
     "tr": "İç ekran yatay",
     "zh": "内屏横向"
+  },
+  "write_new_comment": {
+    "de": "Neuen Kommentar verfassen",
+    "en": "Write a new comment",
+    "ar": "اكتب تعليقًا جديدًا",
+    "es": "Escribir un nuevo comentario",
+    "fr": "Écrire un nouveau commentaire",
+    "ru": "Написать новый комментарий",
+    "tr": "Yeni yorum yaz",
+    "zh": "写一条新评论"
+  },
+  "your_comments": {
+    "de": "Deine Kommentare",
+    "en": "Your comments",
+    "ar": "تعليقاتك",
+    "es": "Tus comentarios",
+    "fr": "Tes commentaires",
+    "ru": "Ваши комментарии",
+    "tr": "Yorumların",
+    "zh": "你的评论"
+  },
+  "edit_comment": {
+    "de": "Kommentar bearbeiten",
+    "en": "Edit comment",
+    "ar": "تعديل التعليق",
+    "es": "Editar comentario",
+    "fr": "Modifier le commentaire",
+    "ru": "Редактировать комментарий",
+    "tr": "Yorumu düzenle",
+    "zh": "编辑评论"
+  },
+  "comment_edited": {
+    "de": "bearbeitet",
+    "en": "edited",
+    "ar": "معدّل",
+    "es": "editado",
+    "fr": "modifié",
+    "ru": "изменено",
+    "tr": "düzenlendi",
+    "zh": "已编辑"
+  },
+  "comment_written_on": {
+    "de": "Am {{date}}",
+    "en": "On {{date}}",
+    "ar": "في {{date}}",
+    "es": "El {{date}}",
+    "fr": "Le {{date}}",
+    "ru": "{{date}}",
+    "tr": "{{date}} tarihinde",
+    "zh": "{{date}}"
+  },
+  "delete_all_comments": {
+    "de": "Alle Kommentare löschen",
+    "en": "Delete all comments",
+    "ar": "حذف كل التعليقات",
+    "es": "Eliminar todos los comentarios",
+    "fr": "Supprimer tous les commentaires",
+    "ru": "Удалить все комментарии",
+    "tr": "Tüm yorumları sil",
+    "zh": "删除所有评论"
+  },
+  "delete_all_comments_confirm": {
+    "de": "Möchtest du wirklich alle deine Kommentare zu diesem Gericht löschen?",
+    "en": "Do you really want to delete all your comments on this dish?",
+    "ar": "هل تريد حقًا حذف جميع تعليقاتك على هذا الطبق؟",
+    "es": "¿De verdad quieres eliminar todos tus comentarios sobre este plato?",
+    "fr": "Veux-tu vraiment supprimer tous tes commentaires sur ce plat ?",
+    "ru": "Вы действительно хотите удалить все свои комментарии к этому блюду?",
+    "tr": "Bu yemekle ilgili tüm yorumlarını gerçekten silmek istiyor musun?",
+    "zh": "你确定要删除你对这道菜的所有评论吗？"
   }
 }

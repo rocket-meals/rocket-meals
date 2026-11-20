@@ -292,6 +292,37 @@ describe('reactions of support', () => {
     expect(JSON.parse(String(query.deep))).toEqual(FoodFeedbackChatHelper.LIST_DEEP);
   });
 
+  it('quotes a newer comment of the history instead of an older chat message', () => {
+    const messages = [{ message: 'Danke für die Antwort', date_created: '2026-10-21T10:00:00.000Z' }];
+    const comment_history = [
+      { comment: 'Nach der neuen Rezeptur lecker', date_created: '2026-10-25T10:00:00.000Z' },
+      { comment: 'Zu salzig', date_created: '2026-10-20T10:00:00.000Z' },
+    ];
+    expect(FoodFeedbackChatHelper.getPreviewComment({ comment: 'Nach der neuen Rezeptur lecker', comment_history, chat: { id: 'c', messages } })).toBe('Nach der neuen Rezeptur lecker');
+  });
+
+  it('opens the chat with the oldest comment and sorts the newer ones in', () => {
+    const feedback = {
+      comment: 'Jetzt lecker',
+      comment_history: [
+        { comment: 'Jetzt lecker', date_created: '2026-10-25T10:00:00.000Z', date_updated: '2026-10-26T10:00:00.000Z' },
+        { comment: 'Zu salzig', date_created: '2026-10-20T10:00:00.000Z' },
+      ],
+      date_created: '2026-10-20T09:00:00.000Z',
+    };
+    expect(FoodFeedbackChatHelper.getCommentTimeline(feedback)).toEqual({
+      opening: { text: 'Zu salzig', date: '2026-10-20T10:00:00.000Z' },
+      laterRequests: [{ text: 'Jetzt lecker', date: '2026-10-25T10:00:00.000Z', edited: true }],
+    });
+    expect(FoodFeedbackChatHelper.getCommentCount(feedback)).toBe(2);
+  });
+
+  it('keeps the opening of a comment from before the history', () => {
+    const feedback = { comment: 'Zu salzig', date_created: '2026-10-20T09:00:00.000Z', date_updated: '2026-10-22T09:00:00.000Z' };
+    expect(FoodFeedbackChatHelper.getCommentTimeline(feedback)).toEqual({ opening: { text: 'Zu salzig', date: '2026-10-20T09:00:00.000Z' }, laterRequests: [] });
+    expect(FoodFeedbackChatHelper.getCommentTimeline({ comment: null })).toEqual({ opening: null, laterRequests: [] });
+  });
+
   it('has a label for every reaction', () => {
     for (const reaction of FoodFeedbackReactionHelper.REACTIONS) {
       expect(Object.values(BackendTranslationKeys)).toContain(FoodFeedbackChatHelper.getReactionLabelKey(reaction));

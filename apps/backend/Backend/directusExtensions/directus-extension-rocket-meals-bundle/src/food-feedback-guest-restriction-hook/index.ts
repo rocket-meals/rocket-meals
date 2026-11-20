@@ -46,13 +46,13 @@ export default defineHook(({ filter }, apiContext) => {
       return [];
     }
     return await myDatabaseHelper.getItemsServiceHelper<DatabaseTypes.FoodsFeedbacks>(CollectionNames.FOODS_FEEDBACKS).readMany(keys, {
-      fields: ['id', 'rating', 'comment', 'profile'],
+      fields: ['id', 'rating', 'comment', 'comment_history', 'date_created', 'date_updated', 'profile'],
     });
   }
 
   async function assertProfileMayWrite(input: unknown, keys: PrimaryKey[], eventContext: MyEventContext) {
     const payload = (input ?? {}) as Partial<DatabaseTypes.FoodsFeedbacks>;
-    if (!('rating' in payload) && !('comment' in payload)) {
+    if (!('rating' in payload) && !('comment' in payload) && !('comment_history' in payload)) {
       return;
     }
 
