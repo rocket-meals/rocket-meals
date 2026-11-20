@@ -118,7 +118,8 @@ export function getVersionPatch() {
 	// 91: swiping a bottom sheet down frees the app at once (backdrop gone when the close starts)
 	// 92: common: DirectusImageHelper (square crops around the focal point)
 	// 93: common-ui: map only accepts messages of the app (security)
-	return 93;
+	// 94: common: ServerHelper.DARMSTADT_SERVER_CONFIG
+	return 94;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates
