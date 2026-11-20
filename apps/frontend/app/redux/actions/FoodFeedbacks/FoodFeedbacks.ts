@@ -90,24 +90,25 @@ export class FoodFeedbackHelper extends CollectionHelper<DatabaseTypes.FoodsFeed
 	) {
 		// const resourceCollectionHelper = new CollectionHelper<DatabaseTypes.FoodsFeedbacks>(TABLE_NAME_FOODS_FEEDBACKS);
 
-		let foodFeedback = Object.values(feedback)?.length > 2 ? feedback : null;
-		// Create a new feedback if it doesn't exist
-		if (!foodFeedback) {
-			foodFeedback = (await this.createItem({
-				food: foodId,
-				profile: profileId,
-			})) as DatabaseTypes.FoodsFeedbacks;
-			foodFeedback = { ...foodFeedback, ...feedback };
-		}
+		// Without an id the profile has no feedback for this food yet: create it first. The fields
+		// sent along (e.g. comment and comment_history) do not tell whether one exists.
+		const existingFeedback = feedback?.id ? feedback : null;
+		const createdFeedback = existingFeedback
+			? null
+			: ((await this.createItem({
+					food: foodId,
+					profile: profileId,
+				})) as DatabaseTypes.FoodsFeedbacks | null);
+		const mergedFeedback = existingFeedback ?? (createdFeedback ? { ...createdFeedback, ...feedback, id: createdFeedback.id } : null);
 
-		if (!foodFeedback) {
+		if (!mergedFeedback) {
 			console.error('Failed to retrieve or create food feedback.');
 			return;
 		}
 
 		// Fields only support or the server write: sending them back is rejected with 403.
-		const { chat, support_reaction, support_reaction_date, ...writableFeedback } = foodFeedback;
-		foodFeedback = writableFeedback as DatabaseTypes.FoodsFeedbacks;
+		const { chat, support_reaction, support_reaction_date, ...writableFeedback } = mergedFeedback;
+		const foodFeedback = writableFeedback as DatabaseTypes.FoodsFeedbacks;
 
 		// Determine if feedback should be deleted
 		const shouldDelete = !foodFeedback.rating && !foodFeedback.comment && !foodFeedback.notify;
