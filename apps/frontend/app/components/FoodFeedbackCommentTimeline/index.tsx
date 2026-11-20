@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, View } from 'react-native';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { FoodFeedbackCommentEntry, FoodFeedbackCommentHistoryHelper } from 'repo-depkit-common';
+import { FoodFeedbackCommentEntry, FoodFeedbackCommentHistoryHelper, StringHelper } from 'repo-depkit-common';
 import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 import ProjectButton from '@/components/ProjectButton';
 import { useMyScrollViewModal } from '@/components/GlobalModal/useMyScrollViewModal';
@@ -63,7 +63,7 @@ const FoodFeedbackCommentTimeline: React.FC<FoodFeedbackCommentTimelineProps> = 
 			if (day === FoodFeedbackCommentHistoryHelper.getDayKey(yesterday.toISOString())) {
 				return translate(TranslationKeys.yesterday);
 			}
-			return translate(TranslationKeys.comment_written_on).replace('{{date}}', formatDay(day));
+			return StringHelper.replaceAllLiteralWithOptions({ str: translate(TranslationKeys.comment_written_on), find: '{{date}}', replace: formatDay(day) });
 		},
 		[translate]
 	);
@@ -131,7 +131,7 @@ const FoodFeedbackCommentTimeline: React.FC<FoodFeedbackCommentTimelineProps> = 
 			{groups.map((group, groupIndex) => (
 				<View key={group.day}>
 					{groupIndex > 0 && <View style={[styles.daySeparator, { backgroundColor: theme.screen.text }]} />}
-					<Text style={[styles.dayLabel, { color: accentColor }]}>{getDayLabel(group.day)}</Text>
+					<Text style={[styles.dayLabel, { color: theme.screen.text }]}>{getDayLabel(group.day)}</Text>
 					{group.entries.map(({ entry, index }) => (
 						<View key={`${entry.date_created}-${index}`} style={styles.entry}>
 							<View style={styles.entryContent}>

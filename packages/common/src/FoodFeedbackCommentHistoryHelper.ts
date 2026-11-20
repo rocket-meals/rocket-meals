@@ -62,19 +62,24 @@ function pad(value: number): string {
 }
 
 export class FoodFeedbackCommentHistoryHelper {
+  /** The stored history as list: Directus returns it parsed, a raw database read as JSON string. */
+  private static parseHistory(value: unknown): unknown {
+    if (typeof value !== 'string') {
+      return value;
+    }
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+
   /**
    * The stored entries of `comment_history` only, newest first. Broken entries (no text or no
    * date) are left out. Accepts the parsed list as well as its JSON string.
    */
   static getStoredEntries(feedback: FoodFeedbackWithComments | null | undefined): FoodFeedbackCommentEntry[] {
-    let raw: unknown = feedback?.comment_history;
-    if (typeof raw === 'string') {
-      try {
-        raw = JSON.parse(raw);
-      } catch {
-        raw = null;
-      }
-    }
+    const raw = FoodFeedbackCommentHistoryHelper.parseHistory(feedback?.comment_history);
     if (!Array.isArray(raw)) {
       return [];
     }
