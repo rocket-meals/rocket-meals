@@ -329,7 +329,8 @@ export function getVersionPatch() {
         // 197: security: map only accepts messages of the app, marker colors and labels escaped,
         //      login no longer logs the user
         // 198: food comments as timeline with date (new comment on top, edit and delete entries)
-        return 198;
+        // 199: first comment on a food without feedback is saved again (creates the feedback first)
+        return 199;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
