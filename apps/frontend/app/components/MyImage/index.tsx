@@ -3,7 +3,8 @@ import { ImageSourcePropType, Platform } from 'react-native';
 import { Image, ImageProps as ExpoImageProps } from 'expo-image';
 
 import { getHighResImageUrl } from '@/constants/HelperFunctions';
-import { getAppIconInsideExpoLocalSaved } from '@/config';
+import { getAppIconInsideExpoLocalSaved, getCustomerConfigsDict } from '@/config';
+import { useAppSelector } from '@/redux/hooks';
 import { ServerAPI } from '@/redux/actions';
 
 export type MyImageProps = {
@@ -89,7 +90,10 @@ const MyImage: React.FC<MyImageProps> = ({
                 return directus_asset_id;
         }, [directus_asset_id]);
 
-        const fallbackImage = defaultImage ?? getAppIconInsideExpoLocalSaved();
+        // Icon of the tenant chosen in the settings (store variable), the build's icon otherwise.
+        const selectedCustomer = useAppSelector(state => state.settings.selectedCustomer);
+        const selectedCustomerConfig = selectedCustomer ? getCustomerConfigsDict()[selectedCustomer] : undefined;
+        const fallbackImage = defaultImage ?? selectedCustomerConfig?.images.icon_logo_source_get_for_react_native() ?? getAppIconInsideExpoLocalSaved();
 
         const source = useMemo(() => {
                 if (remote_image_url) {

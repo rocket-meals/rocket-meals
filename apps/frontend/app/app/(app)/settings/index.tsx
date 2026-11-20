@@ -13,7 +13,7 @@ import { useUpdateCheckModal } from '@/hooks/useUpdateCheckModal';
 import SettingsGroupTitle from '@/components/SettingsGroupTitle';
 import useMyScrollviewTextInputModal from '@/hooks/useMyScrollviewTextInputModal';
 import { router } from 'expo-router';
-import { ConfigCustomerEnum, getCustomerEnumForConfig, type CustomerConfig, getVersionInternalForAppsettingsScreen } from '@/config';
+import { ConfigCustomerEnum, getCustomerEnumForConfig, getTenantSwitchWebUrl, type CustomerConfig, getVersionInternalForAppsettingsScreen } from '@/config';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -357,6 +357,18 @@ const Settings = () => {
 
         const handleSelectServer = useCallback(
                 async (config: CustomerConfig) => {
+                        const targetCustomer = getCustomerEnumForConfig(config);
+                        // Central repository on the web: every tenant has its own path, so open the
+                        // same page there instead of switching the server inside this tenant's app.
+                        const tenantWebUrl = isWeb && targetCustomer && typeof window !== 'undefined' ? getTenantSwitchWebUrl(targetCustomer, window.location.pathname) : null;
+                        if (tenantWebUrl) {
+                                await performLogout(dispatch, router);
+                                // The target app must use its own server, not an override chosen here.
+                                await sqliteKeyValueStorage.removeItem('server_url_custom');
+                                await sqliteKeyValueStorage.removeItem('selected_customer_enum');
+                                window.location.assign(tenantWebUrl + window.location.search);
+                                return;
+                        }
                         ServerAPI.updateServerUrl(config.server_url);
                         await sqliteKeyValueStorage.setItem('server_url_custom', config.server_url);
                         const selectedCustomer = getCustomerEnumForConfig(config) ?? ConfigCustomerEnum.TEST;

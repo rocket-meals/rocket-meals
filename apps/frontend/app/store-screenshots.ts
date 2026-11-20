@@ -15,7 +15,7 @@
 // The module may only import code that also runs in plain Node (the generator and the
 // upload scripts load it with ts-node/tsx).
 import { AppScreens, DatabaseTypes, ROCKET_MEALS_WEB_HOST } from 'repo-depkit-common';
-import { ConfigCustomerEnum, CustomerConfig, getCustomerConfigsDict, getVersion } from './config';
+import { ConfigCustomerEnum, CustomerConfig, getCustomerConfigsDict, getVersion, isWebOnlyCustomerConfig } from './config';
 
 export type StoreScreenshotStore = 'apple' | 'google';
 
@@ -115,5 +115,8 @@ function tenantScreenshots(tenant: ConfigCustomerEnum, config: CustomerConfig): 
 }
 
 export function getStoreScreenshotTenants(): StoreScreenshotTenant[] {
-	return Object.entries(getCustomerConfigsDict()).map(([tenant, config]) => tenantScreenshots(tenant as ConfigCustomerEnum, config));
+	// Web-only tenants (e.g. Darmstadt) have no app in the stores, so no store screenshots.
+	return Object.entries(getCustomerConfigsDict())
+		.filter(([, config]) => !isWebOnlyCustomerConfig(config))
+		.map(([tenant, config]) => tenantScreenshots(tenant as ConfigCustomerEnum, config));
 }

@@ -1,6 +1,7 @@
 import { createURL } from 'expo-linking';
 import { Platform } from 'react-native';
 import { EnvHelper } from './EnvHelper';
+import { getWebBaseUrl, isWebTenantSubpathBuild } from '@/config';
 
 // import app.json
 
@@ -22,9 +23,12 @@ export class UrlHelper {
 			// example: urlWithoutBaseUrl = "https://localhost:3000/login"
 			const urlWithoutPath = urlWithoutBaseUrl.replace(path, ''); // remove the path from the url
 			// example: urlWithoutPath = "https://localhost:3000"
-			// const baseUrl = EnvHelper.getBaseUrl();
-			const baseUrl = '/rocket-meals';
-			// example: baseUrl = "/rocket-meals"
+			// Fork builds (e.g. /swosy) keep redirecting to /rocket-meals, that is what the
+			// backends allow today. A tenant built for the central repository
+			// (/rocket-meals/<tenant>) gets its own login page, so the login popup never
+			// loads the app of another tenant on the same origin.
+			const baseUrl = isWebTenantSubpathBuild() ? getWebBaseUrl() : '/rocket-meals';
+			// example: baseUrl = "/rocket-meals" or "/rocket-meals/darmstadt"
 			const url = urlWithoutPath + baseUrl + path;
 			// example: url = "https://localhost:3000/rocket-meals/login"
 

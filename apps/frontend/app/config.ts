@@ -50,7 +50,8 @@ export type CustomerConfig = {
 export enum ConfigCustomerEnum {
         TEST = 'test',
         SWOSY = 'swosy',
-        STUDI_FUTTER = 'studi-futter'
+        STUDI_FUTTER = 'studi-futter',
+        DARMSTADT = 'darmstadt'
 }
 
 // DO NOT CHANGE THE NAME OF THIS FUNCTION: getBuildNumber
@@ -328,7 +329,12 @@ export function getVersionPatch() {
         //      square crop around the focal point set in the module, popup loads 1024 px
         // 197: security: map only accepts messages of the app, marker colors and labels escaped,
         //      login no longer logs the user
-        return 197;
+        // 198: new web-only tenant Darmstadt, every tenant can also be served from the central
+        //      repository under /rocket-meals/<tenant> (EXPO_PUBLIC_WEB_TENANT_SUBPATH)
+        // 199: web login of a tenant under /rocket-meals/<tenant> redirects to its own login page
+        // 200: switching the tenant (backend server) on the web jumps to the same page of the
+        //      other tenant (/rocket-meals/<tenant>/...), logo fallbacks follow the selected tenant
+        return 200;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
@@ -415,11 +421,47 @@ export const studiFutterConfig: CustomerConfig = {
     foodoffers_show_separated_markings_breakdown: true
 };
 
+// Web base path of the central repository rocket-meals/rocket-meals on GitHub Pages
+// (https://rocket-meals.de/rocket-meals). Tenants can be served below it, e.g.
+// https://rocket-meals.de/rocket-meals/swosy/foodoffers, in addition to their own fork.
+export const CENTRAL_REPOSITORY_WEB_BASE_URL = '/rocket-meals';
+
+export function getCentralRepositoryTenantWebBaseUrl(customer: ConfigCustomerEnum): string {
+        return `${CENTRAL_REPOSITORY_WEB_BASE_URL}/${customer}`;
+}
+
+// Darmstadt has no native app (yet) and no fork repository: it only exists as web app
+// of the central repository, so its canonical web path is the tenant sub path.
+export const darmstadtConfig: CustomerConfig = {
+        projectName: 'Rocket Meals Darmstadt',
+        projectSlug: undefined,
+        easUpdateId: undefined,
+        easProjectId: undefined,
+        appScheme: undefined,
+        bundleIdIos: undefined,
+        bundleIdAndroid: undefined,
+        baseUrl: getCentralRepositoryTenantWebBaseUrl(ConfigCustomerEnum.DARMSTADT),
+        server_url: ServerHelper.DARMSTADT_SERVER_CONFIG.server_url,
+        iosAppStoreReviewSubmitEnabled: false,
+        images: {
+                company_logo_source_path: 'assets/images/customers/rocket-meals/company.png',
+                company_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/rocket-meals/company.png')},
+                icon_logo_source_path: 'assets/images/customers/rocket-meals/icon.png',
+                icon_logo_source_get_for_react_native: () => {return require('@/assets/images/customers/rocket-meals/icon.png')},
+        },
+};
+
+// Tenants that only exist as web app: no store listing, no native build.
+export function isWebOnlyCustomerConfig(config: CustomerConfig): boolean {
+        return !config.bundleIdIos && !config.bundleIdAndroid;
+}
+
 export function getCustomerConfigsDict(): Record<ConfigCustomerEnum, CustomerConfig> {
         return {
                 [ConfigCustomerEnum.TEST]: devConfig,
                 [ConfigCustomerEnum.SWOSY]: swosyConfig,
                 [ConfigCustomerEnum.STUDI_FUTTER]: studiFutterConfig,
+                [ConfigCustomerEnum.DARMSTADT]: darmstadtConfig,
         };
 }
 
@@ -454,6 +496,7 @@ export function getCustomerConfigurations(): CustomerConfig[] {
 		devConfig,
 		swosyConfig,
 		studiFutterConfig,
+		darmstadtConfig,
 		configMuenster,
 	];
 }
@@ -470,6 +513,48 @@ export function getCustomerEnvVariable(): string | undefined {
 export function getCustomerConfig(): CustomerConfig {
 	const customer = getCustomerEnvVariable();
 	return getCustomerConfigsDict()[customer as ConfigCustomerEnum] || devConfig;
+}
+
+// Set EXPO_PUBLIC_WEB_TENANT_SUBPATH=true to build the web app of the selected customer for
+// the central repository: it is then served under /rocket-meals/<customer> (e.g.
+// /rocket-meals/swosy) instead of the customer's own base path (/swosy, used by its fork).
+// Without the variable nothing changes, so the fork repositories keep their base path.
+export function isWebTenantSubpathBuild(): boolean {
+	return process.env.EXPO_PUBLIC_WEB_TENANT_SUBPATH === 'true';
+}
+
+export function getWebBaseUrl(): string {
+	const customerConfig: CustomerConfig = getCustomerConfig();
+	const customer = getCustomerEnumForConfig(customerConfig);
+	const baseUrl = isWebTenantSubpathBuild() && customer ? getCentralRepositoryTenantWebBaseUrl(customer) : customerConfig.baseUrl;
+	return baseUrl + (process.env.EXPO_PUBLIC_BASE_URL_SUFFIX || '');
+}
+
+// Web path of a tenant in the central repository: /rocket-meals for the test tenant (the
+// root app), /rocket-meals/<tenant> for every other one.
+function getCentralRepositoryWebBaseUrlForCustomer(customer: ConfigCustomerEnum): string {
+	return customer === ConfigCustomerEnum.TEST ? CENTRAL_REPOSITORY_WEB_BASE_URL : getCentralRepositoryTenantWebBaseUrl(customer);
+}
+
+// Where the web app should go when the user switches to another tenant, e.g. from
+// /rocket-meals/swosy/foodoffers to /rocket-meals/darmstadt/foodoffers. Returns null when
+// the switch stays inside this app (store variable only): on native, in PR previews
+// (/rocket-meals/pr-123) and in fork builds (/swosy), which have no other tenants next to them.
+export function getTenantSwitchWebUrl(target: ConfigCustomerEnum, currentPathname: string): string | null {
+	if (process.env.EXPO_PUBLIC_BASE_URL_SUFFIX) {
+		return null;
+	}
+	const currentBaseUrl = getWebBaseUrl();
+	const isCentralRepositoryBuild = currentBaseUrl === CENTRAL_REPOSITORY_WEB_BASE_URL || currentBaseUrl.startsWith(CENTRAL_REPOSITORY_WEB_BASE_URL + '/');
+	if (!isCentralRepositoryBuild || !currentPathname.startsWith(currentBaseUrl)) {
+		return null;
+	}
+	const targetBaseUrl = getCentralRepositoryWebBaseUrlForCustomer(target);
+	if (targetBaseUrl === currentBaseUrl) {
+		return null;
+	}
+	const pathInsideApp = currentPathname.slice(currentBaseUrl.length);
+	return targetBaseUrl + (pathInsideApp.startsWith('/') ? pathInsideApp : '/' + pathInsideApp);
 }
 
 export function getGeneratedAssetsPath(): string {
@@ -577,7 +662,7 @@ export function getFinalConfig(config?: any, licenses?: unknown[]) {
 			],
 			experiments: {
 				typedRoutes: true,
-				baseUrl: customerConfig.baseUrl + (process.env.EXPO_PUBLIC_BASE_URL_SUFFIX || ''),
+				baseUrl: getWebBaseUrl(),
 			},
 			extra: {
 				router: {

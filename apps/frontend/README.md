@@ -66,6 +66,28 @@ https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/
 1. Upgrade the Expo SDK `npm install expo@latest`
 2. Upgrade dependencies `npx expo install --fix`
 
+## Tenants als Unterpfad im zentralen Repo
+
+Zusätzlich zu den Fork-Repos (z. B. `rocket-meals/swosy` unter `https://rocket-meals.de/swosy/foodoffers`)
+liefert das zentrale Repo `rocket-meals/rocket-meals` jeden Tenant auch als Web-App unter einem eigenen Unterpfad aus:
+
+- `https://rocket-meals.de/rocket-meals/swosy/foodoffers`
+- `https://rocket-meals.de/rocket-meals/studi-futter/foodoffers`
+- `https://rocket-meals.de/rocket-meals/darmstadt/foodoffers`
+
+So funktioniert es:
+
+- Der GitHub-Pages-Deploy (`yarn deploy:gh:pages`) exportiert zuerst die normale App nach `dist/` und danach mit
+  `scripts/export-web-tenants.js` jeden Tenant aus `ConfigCustomerEnum` (außer `test`) nach `dist/<tenant>/`.
+- Pro Tenant werden `CUSTOMER`, `EXPO_PUBLIC_CUSTOMER` und `EXPO_PUBLIC_WEB_TENANT_SUBPATH=true` gesetzt. Dadurch wird
+  der Router-Basispfad zu `/rocket-meals/<tenant>` (`getWebBaseUrl()` in `config.ts`). Ohne die Variable bleibt alles wie bisher.
+- In den Forks (dort ist `CUSTOMER` z. B. `swosy`) überspringt das Skript die Tenants, die Forks bauen weiterhin nur ihre eigene App.
+- Einzelnen Tenant lokal bauen: `yarn export:web && yarn export:web:tenants --tenant darmstadt`.
+
+Darmstadt ist ein reiner Web-Tenant ohne Fork und ohne native App. Das Backend läuft unter
+`https://darmstadt.rocket-meals.de/rocket-meals/api` (`ServerHelper.DARMSTADT_SERVER_CONFIG`).
+Web-Tenants ohne Bundle-IDs werden bei den Store-Screenshots übersprungen (`isWebOnlyCustomerConfig`).
+
 ## Created:
 
 - Expo 50 // https://blog.expo.dev/expo-router-v3-beta-is-now-available-eab52baf1e3e
