@@ -328,7 +328,8 @@ export function getVersionPatch() {
         //      square crop around the focal point set in the module, popup loads 1024 px
         // 197: security: map only accepts messages of the app, marker colors and labels escaped,
         //      login no longer logs the user
-        return 197;
+        // 198: food comments as timeline with date (new comment on top, edit and delete entries)
+        return 198;
 }
 
 export function getVersionInternalForAppsettingsScreen() {

@@ -1410,6 +1410,7 @@ export type FoodsFeedbacks = {
   canteen?: string | Canteens | null;
   chat?: string | Chats | null;
   comment?: string | null;
+  comment_history?: unknown | null;
   date_created?: string | null;
   date_updated?: string | null;
   food?: string | Foods | null;

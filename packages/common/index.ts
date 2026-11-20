@@ -21,6 +21,7 @@ export * from './src/RelationHelper';
 export * from './src/ChatHelper';
 export * from './src/FoodFeedbackChatStatusHelper';
 export * from './src/FoodFeedbackReactionHelper';
+export * from './src/FoodFeedbackCommentHistoryHelper';
 export * from './src/AppFeedbackChatStatusHelper';
 export * from './src/CronHelper';
 export * from './src/EmailHelper';

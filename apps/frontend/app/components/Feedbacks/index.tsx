@@ -1,15 +1,14 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
-import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
+import { Text, View } from 'react-native';
 import styles from './styles';
 import { useTheme } from '@/hooks/useTheme';
-import { AntDesign, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { AntDesign, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import FeedbackLabel from '../FeedbackLabel';
 import { isWeb } from '@/constants/Constants';
 import { useDispatch, shallowEqual } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import { getpreviousFeedback, numToOneDecimal } from '@/constants/HelperFunctions';
-import { DatabaseTypes, DateHelper } from 'repo-depkit-common';
+import { DatabaseTypes, DateHelper, FoodFeedbackCommentHistoryHelper, FoodFeedbackCommentUpdate } from 'repo-depkit-common';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
 import useToast from '@/hooks/useToast';
 import { DELETE_FOOD_FEEDBACK_LOCAL, UPDATE_FOOD_FEEDBACK_LOCAL } from '@/redux/Types/types';
@@ -22,6 +21,7 @@ import useAccountRequiredModal from '@/hooks/useAccountRequiredModal';
 import useFoodFeedbackPermissions from '@/hooks/useFoodFeedbackPermissions';
 import usePushNotificationOptInPrompt from '@/hooks/usePushNotificationOptInPrompt';
 import { PushNotificationOptInCategory } from '@/helper/PushNotificationOptInHelper';
+import FoodFeedbackCommentTimeline, { FOOD_FEEDBACK_COMMENT_MAX_LENGTH } from '@/components/FoodFeedbackCommentTimeline';
 
 const loadingState = {
 	submitLoading: false,
@@ -58,7 +58,6 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId, 
 	// users, guests when only verified accounts may write) it is locked.
 	const { commentsType: commentType, canWriteComments, showCommentInput, writingCommentsRequiresVerifiedAccount } = useFoodFeedbackPermissions();
 	const [loading, setLoading] = useState(loadingState);
-	const [comment, setComment] = useState('');
 	const [adminFeedbacks, setAdminFeedbacks] = useState<DatabaseTypes.FoodsFeedbacks[]>([]);
 	const { openAccountRequiredModal } = useAccountRequiredModal();
 	const { askForPushNotifications } = usePushNotificationOptInPrompt();
@@ -95,36 +94,32 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId, 
 		});
 	}, [isManagement, foodId, foodFeedbackHelper]);
 
-	const submitCommentFeedback = async (string: string | null) => {
-		// Deleting the own comment (null) stays possible, writing needs the right to write.
-		if (!user?.id || (string !== null && !canWriteComments)) {
+	const ownCommentEntries = useMemo(() => FoodFeedbackCommentHistoryHelper.getEntries(previousFeedback), [previousFeedback]);
+
+	/**
+	 * Saves a change of the own comments. A new comment is added on top of the earlier ones, so the
+	 * history shows how the impression changed. `comment` always holds the newest entry.
+	 */
+	const saveCommentUpdate = async (update: FoodFeedbackCommentUpdate, addsText: boolean) => {
+		// Deleting own comments stays possible, writing needs the right to write.
+		if (!user?.id || (addsText && !canWriteComments)) {
 			openCommentLockedModal();
 			return;
 		}
 
-		if (string !== null && !string.trim()) {
-			toast('Please write a comment', 'error');
-			return;
-		}
-
-		// Set loading state based on whether string is null or not
 		setLoading(prev => ({
 			...prev,
-			[string === null ? 'deleteLoading' : 'submitLoading']: true,
+			[addsText ? 'submitLoading' : 'deleteLoading']: true,
 		}));
 
 		try {
-			const result = (await foodFeedbackHelper.updateFoodFeedback(foodDetails?.id, profile?.id, { ...previousFeedback, comment: string, canteen: foodOfferCanteenId })) as DatabaseTypes.FoodsFeedbacks;
-			// Dispatch the correct action
+			const result = (await foodFeedbackHelper.updateFoodFeedback(foodDetails?.id, profile?.id, { ...previousFeedback, ...update, canteen: foodOfferCanteenId })) as DatabaseTypes.FoodsFeedbacks;
 			dispatch({
 				type: result?.id ? UPDATE_FOOD_FEEDBACK_LOCAL : DELETE_FOOD_FEEDBACK_LOCAL,
 				payload: result?.id ? result : previousFeedback.id,
 			});
-
-			// Clear comment and reset loading state
-			setComment('');
 			setLoading(loadingState);
-			if (string !== null) {
+			if (addsText) {
 				void askForPushNotifications(PushNotificationOptInCategory.FOOD_COMMENT);
 			}
 		} catch (error) {
@@ -133,11 +128,25 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId, 
 		}
 	};
 
-	useEffect(() => {
-		if (previousFeedback.comment) {
-			setComment(previousFeedback.comment);
+	const submitNewComment = async (text: string) => {
+		if (!text.trim()) {
+			toast('Please write a comment', 'error');
+			return;
 		}
-	}, [previousFeedback]);
+		await saveCommentUpdate(FoodFeedbackCommentHistoryHelper.addComment(previousFeedback, text), true);
+	};
+
+	const editOwnComment = async (index: number, text: string) => {
+		await saveCommentUpdate(FoodFeedbackCommentHistoryHelper.editEntry(previousFeedback, index, text), !!text.trim());
+	};
+
+	const deleteOwnComment = async (index: number) => {
+		await saveCommentUpdate(FoodFeedbackCommentHistoryHelper.removeEntry(previousFeedback, index), false);
+	};
+
+	const deleteAllOwnComments = async () => {
+		await saveCommentUpdate(FoodFeedbackCommentHistoryHelper.removeAll(), false);
+	};
 
     const ratingSummaryItems = useMemo(() => {
         const rating = foodDetails?.rating_average ?? foodDetails?.rating_average_legacy;
@@ -230,11 +239,11 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId, 
 			{showCommentInput && (
 				<View style={styles.commentSectionContainer}>
 					<SettingsListTextInput
-						label={translate(TranslationKeys.your_comment)}
-						value={comment || translate(TranslationKeys.write_a_comment)}
-						initialValue={comment || ''}
+						label={translate(TranslationKeys.write_new_comment)}
+						value={translate(TranslationKeys.write_a_comment)}
+						initialValue={''}
 						placeholder={translate(TranslationKeys.your_comment)}
-						onSave={submitCommentFeedback}
+						onSave={submitNewComment}
 						leftIcon={<MaterialCommunityIcons name="chat-outline" size={20} />}
 						iconBgColor={foods_area_color}
 						multiline={true}
@@ -242,7 +251,7 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId, 
 						groupPosition="single"
 						saveLabel={translate(TranslationKeys.save_comment)}
 						hint={translate(TranslationKeys.no_personal_data_hint)}
-						checkTextInput={(value) => ({ isValid: value.length <= 120, value })}
+						checkTextInput={(value) => ({ isValid: value.length <= FOOD_FEEDBACK_COMMENT_MAX_LENGTH, value })}
 						isAccountRequired={isCommentInputLocked}
 						onAccountRequired={openCommentLockedModal}
 					/>
@@ -250,35 +259,15 @@ const Feedbacks: React.FC<FeedbacksProps> = ({ foodDetails, offerId, canteenId, 
 			)}
 			{commentType !== 'disabled' && (
 				<>
-					{previousFeedback?.comment && (
-						<View style={styles.commentsContainer}>
-							<View style={styles.commentsHeader}>
-								<Text
-									style={[
-										styles.heading,
-										styles.subHeading,
-										{ color: theme.screen.text }
-									]}
-								>
-									{translate(TranslationKeys.your_comment)}
-								</Text>
-								<TouchableOpacity
-									style={[
-										styles.deleteButton,
-										{ backgroundColor: theme.screen.iconBg }
-									]}
-									onPress={() => submitCommentFeedback(null)}
-								>
-									{loading.deleteLoading ? <LoadingIndicator color={foods_area_color} size={20} /> : <MaterialIcons name="delete-outline" size={24} color={'red'} />}
-								</TouchableOpacity>
-							</View>
-							<View style={styles.comment}>
-								<Text style={[styles.commentText, { color: theme.screen.text }]}>{previousFeedback.comment}</Text>
-								<Text style={[styles.commentDate, { color: theme.screen.text }]}>{DateHelper.formatOfferDateToReadable(previousFeedback.updated_at, true, true)}</Text>
-								<View style={styles.divider} />
-							</View>
-						</View>
-					)}
+					<FoodFeedbackCommentTimeline
+						entries={ownCommentEntries}
+						onEdit={editOwnComment}
+						onDelete={deleteOwnComment}
+						onDeleteAll={deleteAllOwnComments}
+						loading={loading.deleteLoading || loading.submitLoading}
+						accentColor={foods_area_color}
+						headingStyle={[styles.heading, styles.subHeading]}
+					/>
 					{commentType !== 'write' && (
 						<>
 							{otherComments?.length > 0 && (

@@ -106,7 +106,8 @@ export function getVersionPatch() {
 	// 79: common-ui: theme screen.errorText
 	// 80: common: DirectusImageHelper (square crops around the focal point)
 	// 81: common-ui: map only accepts messages of the app (security)
-	return 81;
+	// 82: common: FoodFeedbackCommentHistoryHelper (comment history of food feedbacks)
+	return 82;
 }
 
 // Version used for app.config.ts (`version`, and thus the expo-updates

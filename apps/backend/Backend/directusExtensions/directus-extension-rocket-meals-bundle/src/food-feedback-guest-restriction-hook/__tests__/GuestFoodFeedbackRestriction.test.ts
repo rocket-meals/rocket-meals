@@ -33,6 +33,25 @@ describe('findGuestFoodFeedbackViolation', () => {
     expect(findGuestFoodFeedbackViolation({ rating: 4 }, [{ rating: 5 }], nothingAllowed)).toBe(BackendTranslationKeys.food_feedback_guest_rating_forbidden);
   });
 
+  it('blocks adding or rewording an entry of the comment history', () => {
+    const existing = { comment: 'Lecker', comment_history: [{ comment: 'Lecker', date_created: '2026-11-16T10:00:00.000Z' }] };
+    const added = { comment: 'Neu', comment_history: [{ comment: 'Neu', date_created: '2026-11-17T10:00:00.000Z' }, ...existing.comment_history] };
+    const reworded = { comment: 'Anders', comment_history: [{ comment: 'Anders', date_created: '2026-11-16T10:00:00.000Z' }] };
+    expect(findGuestFoodFeedbackViolation(added, [existing], nothingAllowed)).toBe(BackendTranslationKeys.food_feedback_guest_comment_forbidden);
+    expect(findGuestFoodFeedbackViolation(reworded, [existing], nothingAllowed)).toBe(BackendTranslationKeys.food_feedback_guest_comment_forbidden);
+  });
+
+  it('allows deleting entries of the comment history', () => {
+    const existing = {
+      comment: 'B',
+      comment_history: [
+        { comment: 'B', date_created: '2026-11-17T10:00:00.000Z' },
+        { comment: 'A', date_created: '2026-11-16T10:00:00.000Z' },
+      ],
+    };
+    expect(findGuestFoodFeedbackViolation({ comment: 'A', comment_history: [existing.comment_history[1]!] }, [existing], nothingAllowed)).toBeNull();
+  });
+
   it('ignores feedbacks that neither rate nor comment', () => {
     expect(findGuestFoodFeedbackViolation({}, [], nothingAllowed)).toBeNull();
   });

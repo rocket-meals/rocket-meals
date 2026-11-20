@@ -1,0 +1,89 @@
+{
+  "collection": "foods_feedbacks",
+  "field": "comment_history",
+  "type": "json",
+  "meta": {
+    "collection": "foods_feedbacks",
+    "conditions": null,
+    "display": "formatted-json-value",
+    "display_options": {
+      "format": "{{date_created}}: {{comment}}"
+    },
+    "field": "comment_history",
+    "group": null,
+    "hidden": false,
+    "interface": "list",
+    "note": "All comments of the author on this food, newest first. The app adds a new entry for every new comment, so changes of opinion stay visible (e.g. after a recipe change). The field comment always holds the newest entry.",
+    "options": {
+      "template": "{{date_created}}: {{comment}}",
+      "addLabel": "Kommentar hinzufügen",
+      "fields": [
+        {
+          "field": "comment",
+          "name": "comment",
+          "type": "text",
+          "meta": {
+            "field": "comment",
+            "type": "text",
+            "width": "full",
+            "interface": "input-multiline",
+            "required": true
+          }
+        },
+        {
+          "field": "date_created",
+          "name": "date_created",
+          "type": "timestamp",
+          "meta": {
+            "field": "date_created",
+            "type": "timestamp",
+            "width": "half",
+            "interface": "datetime",
+            "required": true
+          }
+        },
+        {
+          "field": "date_updated",
+          "name": "date_updated",
+          "type": "timestamp",
+          "meta": {
+            "field": "date_updated",
+            "type": "timestamp",
+            "width": "half",
+            "interface": "datetime",
+            "note": "Set when the author edited this entry later."
+          }
+        }
+      ]
+    },
+    "readonly": false,
+    "required": false,
+    "searchable": true,
+    "sort": 19,
+    "special": [
+      "cast-json"
+    ],
+    "translations": null,
+    "validation": null,
+    "validation_message": null,
+    "width": "full"
+  },
+  "schema": {
+    "name": "comment_history",
+    "table": "foods_feedbacks",
+    "data_type": "json",
+    "default_value": null,
+    "max_length": null,
+    "numeric_precision": null,
+    "numeric_scale": null,
+    "is_nullable": true,
+    "is_unique": false,
+    "is_indexed": false,
+    "is_primary_key": false,
+    "is_generated": false,
+    "generation_expression": null,
+    "has_auto_increment": false,
+    "foreign_key_table": null,
+    "foreign_key_column": null
+  }
+}
