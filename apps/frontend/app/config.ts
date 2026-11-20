@@ -332,7 +332,9 @@ export function getVersionPatch() {
         // 198: new web-only tenant Darmstadt, every tenant can also be served from the central
         //      repository under /rocket-meals/<tenant> (EXPO_PUBLIC_WEB_TENANT_SUBPATH)
         // 199: web login of a tenant under /rocket-meals/<tenant> redirects to its own login page
-        return 199;
+        // 200: switching the tenant (backend server) on the web jumps to the same page of the
+        //      other tenant (/rocket-meals/<tenant>/...), logo fallbacks follow the selected tenant
+        return 200;
 }
 
 export function getVersionInternalForAppsettingsScreen() {
@@ -526,6 +528,33 @@ export function getWebBaseUrl(): string {
 	const customer = getCustomerEnumForConfig(customerConfig);
 	const baseUrl = isWebTenantSubpathBuild() && customer ? getCentralRepositoryTenantWebBaseUrl(customer) : customerConfig.baseUrl;
 	return baseUrl + (process.env.EXPO_PUBLIC_BASE_URL_SUFFIX || '');
+}
+
+// Web path of a tenant in the central repository: /rocket-meals for the test tenant (the
+// root app), /rocket-meals/<tenant> for every other one.
+function getCentralRepositoryWebBaseUrlForCustomer(customer: ConfigCustomerEnum): string {
+	return customer === ConfigCustomerEnum.TEST ? CENTRAL_REPOSITORY_WEB_BASE_URL : getCentralRepositoryTenantWebBaseUrl(customer);
+}
+
+// Where the web app should go when the user switches to another tenant, e.g. from
+// /rocket-meals/swosy/foodoffers to /rocket-meals/darmstadt/foodoffers. Returns null when
+// the switch stays inside this app (store variable only): on native, in PR previews
+// (/rocket-meals/pr-123) and in fork builds (/swosy), which have no other tenants next to them.
+export function getTenantSwitchWebUrl(target: ConfigCustomerEnum, currentPathname: string): string | null {
+	if (process.env.EXPO_PUBLIC_BASE_URL_SUFFIX) {
+		return null;
+	}
+	const currentBaseUrl = getWebBaseUrl();
+	const isCentralRepositoryBuild = currentBaseUrl === CENTRAL_REPOSITORY_WEB_BASE_URL || currentBaseUrl.startsWith(CENTRAL_REPOSITORY_WEB_BASE_URL + '/');
+	if (!isCentralRepositoryBuild || !currentPathname.startsWith(currentBaseUrl)) {
+		return null;
+	}
+	const targetBaseUrl = getCentralRepositoryWebBaseUrlForCustomer(target);
+	if (targetBaseUrl === currentBaseUrl) {
+		return null;
+	}
+	const pathInsideApp = currentPathname.slice(currentBaseUrl.length);
+	return targetBaseUrl + (pathInsideApp.startsWith('/') ? pathInsideApp : '/' + pathInsideApp);
 }
 
 export function getGeneratedAssetsPath(): string {
