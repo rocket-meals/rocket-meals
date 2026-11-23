@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-16T03:13:54.452Z",
+  "generatedAt": "2026-11-23T03:15:07.193Z",
   "baseUrl": "http://localhost:8081/rocket-meals",
   "axeCoreVersion": "4.12.1",
   "tags": [
@@ -201,7 +201,7 @@
       "screen": "inventory-items",
       "url": "http://localhost:8081/rocket-meals/inventory-items?kioskMode=true",
       "violations": [],
-      "passCount": 24,
+      "passCount": 30,
       "incompleteCount": 2
     },
     {
@@ -299,7 +299,7 @@
       "screen": "start (index)",
       "url": "http://localhost:8081/rocket-meals/?kioskMode=true",
       "violations": [],
-      "passCount": 31,
+      "passCount": 30,
       "incompleteCount": 2
     },
     {
@@ -444,7 +444,7 @@
       "screen": "list-week-screen/details",
       "url": "http://localhost:8081/rocket-meals/list-week-screen/details?canteens_id=44d6dcb9-dad4-414d-988d-1a3c5943b4d3&kioskMode=true",
       "violations": [],
-      "passCount": 26,
+      "passCount": 19,
       "incompleteCount": 1
     },
     {
@@ -479,7 +479,7 @@
       "screen": "experimentell/account-required-example",
       "url": "http://localhost:8081/rocket-meals/experimentell/account-required-example?kioskMode=true",
       "violations": [],
-      "passCount": 32,
+      "passCount": 30,
       "incompleteCount": 2
     },
     {
@@ -493,63 +493,63 @@
       "screen": "experimentell/avatar-scroll-list",
       "url": "http://localhost:8081/rocket-meals/experimentell/avatar-scroll-list?kioskMode=true",
       "violations": [],
-      "passCount": 32,
-      "incompleteCount": 1
+      "passCount": 30,
+      "incompleteCount": 2
     },
     {
       "screen": "experimentell/avatars",
       "url": "http://localhost:8081/rocket-meals/experimentell/avatars?kioskMode=true",
       "violations": [],
-      "passCount": 32,
+      "passCount": 30,
       "incompleteCount": 2
     },
     {
       "screen": "experimentell/date-helper",
       "url": "http://localhost:8081/rocket-meals/experimentell/date-helper?kioskMode=true",
       "violations": [],
-      "passCount": 32,
-      "incompleteCount": 1
+      "passCount": 30,
+      "incompleteCount": 2
     },
     {
       "screen": "experimentell/debug-logout",
       "url": "http://localhost:8081/rocket-meals/experimentell/debug-logout?kioskMode=true",
       "violations": [],
-      "passCount": 32,
-      "incompleteCount": 1
+      "passCount": 30,
+      "incompleteCount": 2
     },
     {
       "screen": "experimentell/expo-update-test",
       "url": "http://localhost:8081/rocket-meals/experimentell/expo-update-test?kioskMode=true",
       "violations": [],
-      "passCount": 32,
+      "passCount": 30,
       "incompleteCount": 2
     },
     {
       "screen": "experimentell/food-wishlist",
       "url": "http://localhost:8081/rocket-meals/experimentell/food-wishlist?kioskMode=true",
       "violations": [],
-      "passCount": 32,
-      "incompleteCount": 1
+      "passCount": 30,
+      "incompleteCount": 2
     },
     {
       "screen": "experimentell/game-ideas",
       "url": "http://localhost:8081/rocket-meals/experimentell/game-ideas?kioskMode=true",
       "violations": [],
-      "passCount": 32,
-      "incompleteCount": 1
+      "passCount": 30,
+      "incompleteCount": 2
     },
     {
       "screen": "experimentell/giro-card-iban",
       "url": "http://localhost:8081/rocket-meals/experimentell/giro-card-iban?kioskMode=true",
       "violations": [],
-      "passCount": 36,
+      "passCount": 30,
       "incompleteCount": 2
     },
     {
       "screen": "experimentell/haptics",
       "url": "http://localhost:8081/rocket-meals/experimentell/haptics?kioskMode=true",
       "violations": [],
-      "passCount": 32,
+      "passCount": 30,
       "incompleteCount": 2
     },
     {
@@ -570,14 +570,14 @@
       "screen": "experimentell/map-with-custom-images-and-buildings",
       "url": "http://localhost:8081/rocket-meals/experimentell/map-with-custom-images-and-buildings?kioskMode=true",
       "violations": [],
-      "passCount": 37,
-      "incompleteCount": 3
+      "passCount": 30,
+      "incompleteCount": 2
     },
     {
       "screen": "experimentell/markdown-test",
       "url": "http://localhost:8081/rocket-meals/experimentell/markdown-test?kioskMode=true",
       "violations": [],
-      "passCount": 32,
+      "passCount": 30,
       "incompleteCount": 2
     },
     {
@@ -605,7 +605,7 @@
       "screen": "experimentell/rate-app",
       "url": "http://localhost:8081/rocket-meals/experimentell/rate-app?kioskMode=true",
       "violations": [],
-      "passCount": 35,
+      "passCount": 30,
       "incompleteCount": 2
     },
     {
@@ -619,7 +619,7 @@
       "screen": "experimentell/text-recognition-test",
       "url": "http://localhost:8081/rocket-meals/experimentell/text-recognition-test?kioskMode=true",
       "violations": [],
-      "passCount": 32,
+      "passCount": 30,
       "incompleteCount": 2
     }
   ]

@@ -1,6 +1,6 @@
 # Accessibility Report
 
-> Generated: 2026-11-16T03:13:54.452Z | axe-core 4.12.1 | Rules: wcag2a, wcag2aa, wcag21a, wcag21aa, best-practice | Viewport: 1280x900
+> Generated: 2026-11-23T03:15:07.193Z | axe-core 4.12.1 | Rules: wcag2a, wcag2aa, wcag21a, wcag21aa, best-practice | Viewport: 1280x900
 > Base URL: http://localhost:8081/rocket-meals
 
 ## Summary
@@ -36,7 +36,7 @@ Total violations (affected elements): **2** — 🟥 Critical: 0, 🟧 Serious: 
 | form-submissions | 0 | 0 | 0 | 0 | 0 | 34 |
 | form-submission | 0 | 0 | 0 | 0 | 0 | 23 |
 | delete-user | 0 | 0 | 0 | 0 | 0 | 19 |
-| inventory-items | 0 | 0 | 0 | 0 | 0 | 24 |
+| inventory-items | 0 | 0 | 0 | 0 | 0 | 30 |
 | map | 0 | 0 | 0 | 0 | 0 | 27 |
 | notification | 0 | 0 | 0 | 0 | 0 | 36 |
 | support-ticket | 0 | 0 | 0 | 0 | 0 | 30 |
@@ -50,7 +50,7 @@ Total violations (affected elements): **2** — 🟥 Critical: 0, 🟧 Serious: 
 | list-week-screen | 0 | 0 | 0 | 0 | 0 | 20 |
 | rss-feed | 0 | 0 | 0 | 0 | 0 | 25 |
 | rss-feed-config | 0 | 0 | 0 | 0 | 0 | 30 |
-| start (index) | 0 | 0 | 0 | 0 | 0 | 31 |
+| start (index) | 0 | 0 | 0 | 0 | 0 | 30 |
 | not-found | 0 | 0 | 0 | 0 | 0 | 27 |
 | housing/details | 0 | 0 | 0 | 0 | 0 | 30 |
 | housing-analytics | 0 | 0 | 0 | 0 | 0 | 23 |
@@ -63,32 +63,32 @@ Total violations (affected elements): **2** — 🟥 Critical: 0, 🟧 Serious: 
 | collectible-event-monitor | 0 | 0 | 0 | 0 | 0 | 19 |
 | form-queue | 0 | 0 | 0 | 0 | 0 | 23 |
 | image-full-screen | 0 | 0 | 0 | 0 | 0 | 22 |
-| list-week-screen/details | 0 | 0 | 0 | 0 | 0 | 26 |
+| list-week-screen/details | 0 | 0 | 0 | 0 | 0 | 19 |
 | public/app-download | 0 | 0 | 0 | 0 | 0 | 22 |
 | public/app-download-management | 0 | 0 | 0 | 0 | 0 | 22 |
 | public/give-feedback | 0 | 0 | 0 | 0 | 0 | 19 |
 | public/mcp-instruction | 0 | 0 | 0 | 0 | 0 | 19 |
-| experimentell/account-required-example | 0 | 0 | 0 | 0 | 0 | 32 |
+| experimentell/account-required-example | 0 | 0 | 0 | 0 | 0 | 30 |
 | experimentell/api-request | 0 | 0 | 0 | 0 | 0 | 32 |
-| experimentell/avatar-scroll-list | 0 | 0 | 0 | 0 | 0 | 32 |
-| experimentell/avatars | 0 | 0 | 0 | 0 | 0 | 32 |
-| experimentell/date-helper | 0 | 0 | 0 | 0 | 0 | 32 |
-| experimentell/debug-logout | 0 | 0 | 0 | 0 | 0 | 32 |
-| experimentell/expo-update-test | 0 | 0 | 0 | 0 | 0 | 32 |
-| experimentell/food-wishlist | 0 | 0 | 0 | 0 | 0 | 32 |
-| experimentell/game-ideas | 0 | 0 | 0 | 0 | 0 | 32 |
-| experimentell/giro-card-iban | 0 | 0 | 0 | 0 | 0 | 36 |
-| experimentell/haptics | 0 | 0 | 0 | 0 | 0 | 32 |
+| experimentell/avatar-scroll-list | 0 | 0 | 0 | 0 | 0 | 30 |
+| experimentell/avatars | 0 | 0 | 0 | 0 | 0 | 30 |
+| experimentell/date-helper | 0 | 0 | 0 | 0 | 0 | 30 |
+| experimentell/debug-logout | 0 | 0 | 0 | 0 | 0 | 30 |
+| experimentell/expo-update-test | 0 | 0 | 0 | 0 | 0 | 30 |
+| experimentell/food-wishlist | 0 | 0 | 0 | 0 | 0 | 30 |
+| experimentell/game-ideas | 0 | 0 | 0 | 0 | 0 | 30 |
+| experimentell/giro-card-iban | 0 | 0 | 0 | 0 | 0 | 30 |
+| experimentell/haptics | 0 | 0 | 0 | 0 | 0 | 30 |
 | experimentell/inventory-items | 0 | 0 | 0 | 0 | 0 | 23 |
 | experimentell/inventory-items/create | 0 | 0 | 0 | 0 | 0 | 27 |
-| experimentell/map-with-custom-images-and-buildings | 0 | 0 | 0 | 0 | 0 | 37 |
-| experimentell/markdown-test | 0 | 0 | 0 | 0 | 0 | 32 |
+| experimentell/map-with-custom-images-and-buildings | 0 | 0 | 0 | 0 | 0 | 30 |
+| experimentell/markdown-test | 0 | 0 | 0 | 0 | 0 | 30 |
 | experimentell/onboarding | 0 | 0 | 0 | 0 | 0 | 23 |
 | experimentell/playbook | 0 | 0 | 0 | 0 | 0 | 23 |
 | experimentell/playbook/[component] | 0 | 0 | 0 | 0 | 0 | 32 |
-| experimentell/rate-app | 0 | 0 | 0 | 0 | 0 | 35 |
+| experimentell/rate-app | 0 | 0 | 0 | 0 | 0 | 30 |
 | experimentell/store-versions | 0 | 0 | 0 | 0 | 0 | 23 |
-| experimentell/text-recognition-test | 0 | 0 | 0 | 0 | 0 | 32 |
+| experimentell/text-recognition-test | 0 | 0 | 0 | 0 | 0 | 30 |
 
 ## Most common rule violations
 
