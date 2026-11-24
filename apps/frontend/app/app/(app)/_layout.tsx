@@ -8,7 +8,7 @@ import useSelectedCanteen from '@/hooks/useSelectedCanteen';
 import { Redirect, useGlobalSearchParams } from 'expo-router';
 import useKioskMode from '@/hooks/useKioskMode';
 import { ProfileHelper } from '@/redux/actions/Profile/Profile';
-import {AppScreens, DatabaseTypes, filterNewsShownOutsideNewsList, sortBySortField, sortMarkingsByGroup} from 'repo-depkit-common';
+import {AppScreens, DatabaseTypes, filterNewsShownOutsideNewsList, isNewsVisibleAtTime, sortBySortField, sortMarkingsByGroup} from 'repo-depkit-common';
 import { SET_APP_ELEMENTS, SET_APP_SETTINGS, SET_BUILDINGS_DICT, SET_BUILDINGS_ORGANIZATIONS, SET_BUSINESS_HOURS, SET_BUSINESS_HOURS_GROUPS, SET_CAMPUSES, SET_CAMPUSES_DICT, SET_CANTEENS, SET_CHATS, SET_CHAT_READ_STATUS, SET_COLLECTION_DATES_LAST_UPDATED, SET_FOOD_ATTRIBUTE_GROUPS, SET_FOOD_ATTRIBUTES_DICT, SET_FOOD_CATEGORIES, SET_FOOD_COLLECTION, SET_FOOD_OFFERS_CATEGORIES, SET_FOODOFFERS_INFO_ITEMS, SET_FRIENDSHIPS, SET_COLLECTIBLE_EVENTS, SET_ORGANISATIONS, SET_OWN_CANTEEN_FEEDBACK_LABEL_ENTRIES, SET_POPUP_EVENTS, SET_POPUP_EVENTS_HASH, SET_SELECTED_CANTEEN, SET_SELECTED_DATE, SET_WIKIS, UPDATE_FOOD_FEEDBACK_LABELS, UPDATE_MARKING_GROUPS, UPDATE_MARKINGS, UPDATE_OWN_FOOD_FEEDBACK, UPDATE_OWN_FOOD_FEEDBACK_LABEL_ENTRIES, UPDATE_PRIVACY_POLICY_DATE, UPDATE_PROFILE, CLEAR_PROFILE_BEFORE_SESSION_EXPIRED } from '@/redux/Types/types';
 import { FoodFeedbackLabelHelper } from '@/redux/actions/FoodFeedbacksLabel/FoodFeedbacksLabel';
 import { FoodFeedbackHelper } from '@/redux/actions/FoodFeedbacks/FoodFeedbacks';
@@ -142,6 +142,15 @@ export default function Layout() {
 	useEffect(() => {
 		loggedInRef.current = loggedIn;
 	}, [loggedIn]);
+	// App start: the stored popup/food offers news were only filtered by date/date_end when they were
+	// fetched, and they are only fetched again when a news changes on the server. Drop the ones that
+	// ended since then, otherwise a card stays after its date_end.
+	useEffect(() => {
+		const stillVisible = (popupEvents ?? []).filter((event: DatabaseTypes.News) => isNewsVisibleAtTime(event, new Date()));
+		if (stillVisible.length !== (popupEvents ?? []).length) {
+			dispatch({ type: SET_POPUP_EVENTS, payload: stillVisible });
+		}
+	}, []);
 	// Keeps profiles.date_updated current (app start and every return to the foreground) for the backend page "Live-Puls".
 	useProfileActivityTouch(loggedIn ? user : null, user?.profile);
 	const { selectedCanteen: persistedCanteen } = useAppSelector((state) => state.canteenReducer);
