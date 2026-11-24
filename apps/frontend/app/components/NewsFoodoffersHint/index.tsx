@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { shallowEqual } from 'react-redux';
-import { DatabaseTypes, doesNewsMatchCanteen, getNewsFoodoffersLocation, isNewsShownAt, NewsFoodoffersPosition } from 'repo-depkit-common';
+import { DatabaseTypes, doesNewsMatchCanteen, getNewsFoodoffersLocation, isNewsShownAt, isNewsVisibleAtTime, NewsFoodoffersPosition } from 'repo-depkit-common';
 import PopupEventSheet from '@/components/PopupEventSheet/PopupEventSheet';
 import MyImage from '@/components/MyImage';
 import SettingsList from '@/components/SettingsList';
@@ -11,6 +11,7 @@ import { getNewsImageUrl } from '@/constants/HelperFunctions';
 import { getTitleFromTranslation } from '@/helper/resourceHelper';
 import { useTheme } from '@/hooks/useTheme';
 import { useAppSelector } from '@/redux/hooks';
+import useNow from '@/hooks/useNow';
 import CardDimensionHelper from '@/helper/CardDimensionHelper';
 
 type FoodoffersNews = DatabaseTypes.News;
@@ -37,7 +38,13 @@ const NewsFoodoffersHint: React.FC<NewsFoodoffersHintProps> = ({ canteenId, posi
 	const { width: screenWidth } = useWindowDimensions();
 	const popupEvents = useAppSelector(state => state.food.popupEvents, shallowEqual) as FoodoffersNews[];
 
-	const visibleEvents = useMemo(() => (popupEvents ?? []).filter(event => isNewsShownAt(event, getNewsFoodoffersLocation(position)) && doesNewsMatchCanteen(event, canteenId)), [popupEvents, canteenId, position]);
+	// The time is checked again here: the news are only filtered when they are fetched, and they are only
+	// fetched again when a news changes on the server. Without this a card stays after its date_end.
+	const now = useNow();
+	const visibleEvents = useMemo(
+		() => (popupEvents ?? []).filter(event => isNewsShownAt(event, getNewsFoodoffersLocation(position)) && doesNewsMatchCanteen(event, canteenId) && isNewsVisibleAtTime(event, now)),
+		[popupEvents, canteenId, position, now]
+	);
 
 	const openDetails = useCallback(
 		(event: FoodoffersNews) => {

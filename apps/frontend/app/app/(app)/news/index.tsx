@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/redux/hooks';
 import { SET_NEWS } from '@/redux/Types/types';
 import useSetPageTitle from '@/hooks/useSetPageTitle';
+import useNow from '@/hooks/useNow';
 import useTrackScreenOpened from '@/hooks/useTrackScreenOpened';
 import { TranslationKeys } from '@/locales/keys';
 import CollectibleSpot from '@/components/CollectibleItem/CollectibleSpot';
@@ -63,10 +64,11 @@ const Index = () => {
 		}
 	}, []);
 
+	const now = useNow();
 	const filteredNews = useMemo(
 		// Only news meant for the list (display_locations) and not ended yet (date_end).
-		() => (news ?? []).filter((item: DatabaseTypes.News) => (item?.translations?.length ?? 0) > 1 && isNewsShownInNewsList(item)),
-		[news]
+		() => (news ?? []).filter((item: DatabaseTypes.News) => (item?.translations?.length ?? 0) > 1 && isNewsShownInNewsList(item, now)),
+		[news, now]
 	);
 
 	const renderItem = useCallback(({ item }: { item: DatabaseTypes.News }) => {

@@ -6,7 +6,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { SET_POPUP_EVENTS } from '@/redux/Types/types';
 import useKioskMode from '@/hooks/useKioskMode';
 import type { ModalCloseReason } from 'repo-depkit-common-ui';
-import { DatabaseTypes, isNewsShownAt, NewsDisplayLocations } from 'repo-depkit-common';
+import { DatabaseTypes, isNewsShownAt, isNewsVisibleAtTime, NewsDisplayLocations } from 'repo-depkit-common';
 
 const usePopupEventModal = () => {
 	const dispatch = useDispatch();
@@ -30,7 +30,8 @@ const usePopupEventModal = () => {
 	// The events are news shown outside the news list. One is still eligible for the popup queue if it
 	// is meant as popup (display_locations, the food offers cards are NewsFoodoffersHint) and was
 	// neither permanently dismissed (persisted isOpen flag) nor closed earlier in this session.
-	const isEventPending = (e: any) => Boolean(e) && isNewsShownAt(e, NewsDisplayLocations.popup) && !e.isOpen && !sessionClosedIdsRef.current.has(String(e.id ?? ''));
+	// The time (date / date_end) is checked again on every look, the stored events are only filtered when fetched.
+	const isEventPending = (e: any) => Boolean(e) && isNewsShownAt(e, NewsDisplayLocations.popup) && isNewsVisibleAtTime(e, new Date()) && !e.isOpen && !sessionClosedIdsRef.current.has(String(e.id ?? ''));
 
 	// Kept in sync with the redux value below, but also written to directly inside
 	// markEventAsOpen so handleClosed can read the just-updated list synchronously,
